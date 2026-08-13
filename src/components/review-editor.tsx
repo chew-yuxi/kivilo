@@ -98,7 +98,7 @@ function ItemRow({
           {lowConfidence && (
             <span
               className="text-xs text-amber-700"
-              title={`Model confidence ${Math.round(item.confidence! * 100)}% — check the evidence`}
+              title={`Model confidence ${Math.round(item.confidence! * 100)}%. Check the evidence.`}
             >
               unsure
             </span>

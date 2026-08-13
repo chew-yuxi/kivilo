@@ -71,9 +71,9 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     rationale: finding.rationale,
     estimatedCost: finding.estimatedCost?.toString() ?? null,
     confidence: finding.confidence,
-    itemLabel: finding.item ? `${finding.item.room.name} — ${finding.item.name}` : null,
+    itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
     baselineLabel: finding.baselineItem
-      ? `${finding.baselineItem.room.name} — ${finding.baselineItem.name}`
+      ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
       : null,
     baselineCondition: finding.baselineItem?.condition ?? null,
     currentCondition: finding.item?.condition ?? null,

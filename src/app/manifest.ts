@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Mobility — check-in / check-out',
+    name: 'Mobility: check-in / check-out',
     short_name: 'Mobility',
     description: 'Record a property walkthrough and get the condition report drafted for you.',
     start_url: '/',

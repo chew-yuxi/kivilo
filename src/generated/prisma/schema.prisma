@@ -8,7 +8,7 @@ datasource db {
 }
 
 // ---------------------------------------------------------------------------
-// The spine. Kept deliberately thin here — M1 (deal wizard) extends these
+// The spine. Kept deliberately thin here so M1 (the deal wizard) extends these
 // rather than migrating away from them.
 // ---------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ model Tenancy {
 }
 
 // ---------------------------------------------------------------------------
-// M4 — check-in / check-out
+// M4: check-in / check-out
 // ---------------------------------------------------------------------------
 
 enum InspectionKind {
@@ -129,7 +129,7 @@ model Inspection {
 enum CaptureKind {
   /// Narrated walkthrough of one room.
   VIDEO
-  /// Deliberate still — a label, a serial plate, a meter face, a specific defect.
+  /// Deliberate still: a label, a serial plate, a meter face, a specific defect.
   /// Video is downsampled too far to read small print; this is what OCR runs on.
   PHOTO
 }
@@ -212,9 +212,9 @@ model InspectionItem {
   notes              String?
   /// Make, model, and serial read verbatim off a photographed label or plate.
   /// This is what makes an inventory line identify one specific object rather than
-  /// a category of object — the difference that decides a deposit dispute.
+  /// a category of object. That difference is what decides a deposit dispute.
   identifier         String?
-  /// Meter reading, verbatim as spoken/read. Free text — units vary.
+  /// Meter reading, verbatim as spoken or read. Free text, because units vary.
   meterReading       String?
   /// The capture this item was read from, so the report can show its evidence.
   sourceCaptureId    String?

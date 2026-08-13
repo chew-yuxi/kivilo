@@ -87,7 +87,7 @@ export async function processRoom(roomId: string) {
 }
 
 /// Compares a check-out against its check-in baseline. Both must have been reviewed
-/// by a human first — diffing raw model output against raw model output compounds
+/// by a human first. Diffing raw model output against raw model output compounds
 /// two sets of errors and hands the agent an argument built on neither party's evidence.
 export async function generateFindings(inspectionId: string) {
   const inspection = await db.inspection.findUniqueOrThrow({

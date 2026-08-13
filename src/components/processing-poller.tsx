@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 /// Extraction runs in the background after the response is sent, so the page has to
-/// come back and look. Refreshing the server component is enough — the status lives
+/// come back and look. Refreshing the server component is enough, since the status lives
 /// on the inspection row.
 export function ProcessingPoller({ intervalMs = 5000 }: { intervalMs?: number }) {
   const router = useRouter()

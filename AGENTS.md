@@ -1,4 +1,4 @@
-# mobility — M4 check-in / check-out
+# mobility: M4 check-in / check-out
 
 Installable PWA for AI-drafted property condition reports. The inspector walks a unit
 room by room, narrating a video and photographing labels; each room's captures become a
@@ -27,7 +27,7 @@ signal is worst, and losing a walkthrough is the failure that loses you the agen
 
 **Rooms are independent.** Extraction is scoped to one room (`processRoom`), so
 re-shooting the kitchen cannot touch a bedroom someone already reviewed. Anything that
-deletes across an inspection rather than a room is a bug — the `deleteMany` in
+deletes across an inspection rather than a room is a bug. The `deleteMany` in
 `processRoom` is deliberately keyed on `roomId`, and there is a regression risk here
 worth guarding whenever that function changes.
 
@@ -35,7 +35,7 @@ worth guarding whenever that function changes.
 
 - Next.js 16 App Router (Turbopack), React 19, TypeScript 5.9, Tailwind v4
 - Postgres via local Supabase, Prisma 7 with the `@prisma/adapter-pg` driver adapter
-- Supabase Storage for captures — **private bucket, signed URLs only**
+- Supabase Storage for captures: **private bucket, signed URLs only**
 - Gemini (`@ai-sdk/google`) reads each room's video, audio, and photos in one pass;
   Claude (`@ai-sdk/anthropic`, `claude-opus-5`) does the check-out diff
 - PWA: `src/app/manifest.ts`, `public/sw.js` (network-first pages, cache-first build
@@ -45,7 +45,7 @@ worth guarding whenever that function changes.
 ## Local setup
 
 ```bash
-supabase start          # ports remapped to 563xx — 543xx/553xx are other projects
+supabase start          # ports remapped to 563xx (543xx/553xx are other projects)
 pnpm setup:storage      # creates the private `captures` bucket (idempotent)
 pnpm db:migrate
 pnpm db:seed
@@ -54,17 +54,17 @@ pnpm dev
 
 `.env` needs `GOOGLE_GENERATIVE_AI_API_KEY` (extraction) and `ANTHROPIC_API_KEY` (diff).
 
-## Verification — run before claiming done
+## Verification, run before claiming done
 
-- `pnpm typecheck` — `prisma generate && next typegen && tsc --noEmit`. The typegen step
+- `pnpm typecheck`: `prisma generate && next typegen && tsc --noEmit`. The typegen step
   is required: `PageProps` / `LayoutProps` are generated, so a bare `tsc` fails.
-- `pnpm lint` — ESLint, zero warnings tolerated
-- `pnpm build` — production build
-- `pnpm test` — Vitest
+- `pnpm lint`: ESLint, zero warnings tolerated
+- `pnpm build`: production build
+- `pnpm test`: Vitest
 
 ## Why photos as well as video
 
-Video sent to the model is downsampled hard — roughly a frame a second, resized — so a
+Video sent to the model is downsampled hard, roughly a frame a second and resized, so a
 serial plate or meter dial is unreadable in it. Identifiers come from deliberate stills
 instead, which is why `Capture.kind` exists and why the extraction prompt tells the model
 to read text only from photos. This is a capture-quality problem, not a model problem;
@@ -84,7 +84,7 @@ Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as 
 
 - Prisma 7 dropped `url` from the `datasource` block. The connection string lives in
   `prisma.config.ts`, and `PrismaClient` needs an explicit `PrismaPg` adapter. `@prisma/client-runtime-utils`
-  is a peer the generated client imports — it is not installed transitively, and the
+  is a peer the generated client imports. It is not installed transitively, and the
   build fails with 21 module-not-found errors until you add it.
 - Lint the generated client out (`src/generated/**` in `eslint.config.mjs`) or ESLint
   reports ~400 errors in code nobody wrote.
@@ -93,9 +93,9 @@ Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as 
   statement" even though `prisma generate` has run.
 - Prisma 7 rejects a nested `select` inside an `include` (`rooms: { include: { items:
   { select: … } } }`). Use `_count`, or include the relation whole.
-- `prisma migrate reset` has no `--skip-seed` flag in Prisma 7 — passing it silently
+- `prisma migrate reset` has no `--skip-seed` flag in Prisma 7. Passing it silently
   prints help instead of running. It also refuses to run for an agent without
   `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION`; ask the user rather than routing around it.
-- Video never goes through a server action or route handler — the browser uploads
+- Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.

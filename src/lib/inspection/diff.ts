@@ -15,7 +15,7 @@ rather than defensively; an assessment either side would reject on sight is wort
 The distinction that matters:
 - FAIR_WEAR is deterioration you would expect from ordinary use over the tenancy's
   length. Scuff marks on high-traffic flooring, faded paint, worn tap washers, minor
-  carpet flattening. It scales with time — two years of marks is not two months of marks.
+  carpet flattening. It scales with time, so two years of marks is not two months of marks.
 - TENANT_LIABLE is damage beyond ordinary use: burns, tears, holes, staining, breakage,
   missing items, unrepaired water damage, an appliance that worked at check-in and
   does not now.
@@ -28,7 +28,7 @@ Rules:
   is only when an identifier is missing: a "Built-in wardrobe" in the master bedroom is
   the same item as "Wardrobe (built in)".
 - An item present at check-in and absent at check-out is MISSING. An item present only
-  at check-out is not the tenant's liability — record it with a null baselineItemRef and
+  at check-out is not the tenant's liability. Record it with a null baselineItemRef and
   a verdict of UNDECIDED.
 - Condition moving one step (GOOD → FAIR) over a full tenancy is usually WEAR. Two or
   more steps, or any move to DAMAGED, needs a specific reason in the rationale.
@@ -60,7 +60,7 @@ export async function diffAgainstBaseline(input: {
     system: SYSTEM,
     prompt: [
       `Property: ${input.propertyLabel}`,
-      `Tenancy length: ${input.tenancyMonths} months — weigh fair wear and tear against this.`,
+      `Tenancy length: ${input.tenancyMonths} months. Weigh fair wear and tear against this.`,
       '',
       'CHECK-IN BASELINE:',
       JSON.stringify(input.baseline, null, 2),

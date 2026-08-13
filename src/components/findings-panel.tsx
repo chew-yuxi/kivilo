@@ -142,7 +142,7 @@ export function FindingsPanel({
               />
 
               {finding.confidence !== null && finding.confidence < 0.6 && (
-                <span className="text-xs text-amber-700">low confidence — check the video</span>
+                <span className="text-xs text-amber-700">low confidence, check the video</span>
               )}
             </div>
           </li>

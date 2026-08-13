@@ -15,7 +15,7 @@ export function CompleteReviewButton({
   return (
     <div className="flex items-center justify-end gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4">
       <p className="flex-1 text-sm text-gray-600">
-        All {roomCount} rooms reviewed. Sending for signature freezes the report — the
+        All {roomCount} rooms reviewed. Sending for signature freezes the report, and the
         countersigned version is what a deposit dispute is argued against.
       </p>
       <button

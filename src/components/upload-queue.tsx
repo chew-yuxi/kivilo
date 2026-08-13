@@ -50,7 +50,7 @@ function subscribeToConnection(onChange: () => void) {
 
 export function UploadQueueProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  // Re-entrancy guard only — never rendered, so it must not be state. Keeping it as
+  // Re-entrancy guard only. It is never rendered, so it must not be state; keeping it as
   // state would also mean flush() sets state synchronously, which React forbids
   // inside an effect body.
   const flushing = useRef(false)
@@ -164,7 +164,7 @@ function QueueBanner({ pending, online }: { pending: PendingCapture[]; online: b
             <>
               {pending.length} capture{pending.length === 1 ? '' : 's'} saved on this device
               {' '}({(bytes / 1_000_000).toFixed(0)} MB)
-              {online ? ' — uploading.' : ' — they will upload when you have signal.'}
+              {online ? ', uploading now.' : '. They will upload when you have signal.'}
             </>
           ) : (
             'Captures you take now are saved on this device and upload later.'

@@ -283,7 +283,7 @@ function CaptureSheet({
 
         <p className="mt-3 text-xs text-gray-500">
           Photograph rating plates, model and serial labels, and meter faces up close.
-          Video is compressed too far to read small print reliably — the photo is what
+          Video is compressed too far to read small print reliably. The photo is what
           gets transcribed character-for-character.
         </p>
 
@@ -295,7 +295,7 @@ function CaptureSheet({
                   {capture.kind === 'VIDEO' ? 'Video' : 'Photo'}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-gray-600">
-                  {capture.note ?? (capture.durationSec ? `${capture.durationSec}s` : '—')}
+                  {capture.note ?? (capture.durationSec ? `${capture.durationSec}s` : 'no note')}
                 </span>
                 <span className="shrink-0 text-xs text-gray-400">
                   {(capture.sizeBytes / 1_000_000).toFixed(1)} MB

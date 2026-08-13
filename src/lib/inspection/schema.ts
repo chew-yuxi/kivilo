@@ -20,7 +20,7 @@ export const extractedItemSchema = z.object({
     .nullable()
     .describe(
       'Make, model, and serial transcribed character-for-character off a photographed ' +
-        'label or plate. Null unless you can actually read it — never inferred from ' +
+        'label or plate. Null unless you can actually read it, never inferred from ' +
         'appearance, never partially guessed.',
     ),
   meterReading: z

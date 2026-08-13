@@ -9741,11 +9741,11 @@ export namespace Prisma {
       /**
        * Make, model, and serial read verbatim off a photographed label or plate.
        * This is what makes an inventory line identify one specific object rather than
-       * a category of object — the difference that decides a deposit dispute.
+       * a category of object. That difference is what decides a deposit dispute.
        */
       identifier: string | null
       /**
-       * Meter reading, verbatim as spoken/read. Free text — units vary.
+       * Meter reading, verbatim as spoken or read. Free text, because units vary.
        */
       meterReading: string | null
       /**

@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 /// Captures are evidence: private bucket, signed URLs only, never public.
 export const CAPTURE_BUCKET = 'captures'
 
-/// Service-role client. Server-only — never import this from a client component.
+/// Service-role client. Server-only, so never import this from a client component.
 export function serviceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY

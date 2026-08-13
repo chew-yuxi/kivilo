@@ -1,6 +1,6 @@
 'use client'
 
-/// Captures are recorded where the signal is worst — empty units, basements, lift
+/// Captures are recorded where the signal is worst: empty units, basements, lift
 /// lobbies. A capture is written to IndexedDB the moment it is taken and only leaves
 /// the queue once storage has confirmed it. Losing a walkthrough because the upload
 /// died halfway is the failure that loses you the agent, so nothing is held in memory

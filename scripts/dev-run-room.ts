@@ -51,7 +51,7 @@ async function main() {
     where: { id: room.id },
     include: { items: { orderBy: { createdAt: 'asc' } } },
   })
-  console.log(`\n${result.name} — ${result.status}`)
+  console.log(`\n${result.name}: ${result.status}`)
   for (const item of result.items) {
     console.log(`  ${item.name} [${item.condition}]${item.identifier ? `  ⟨${item.identifier}⟩` : ''}`)
     if (item.meterReading) console.log(`      reading: ${item.meterReading}`)

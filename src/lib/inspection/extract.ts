@@ -21,11 +21,11 @@ You are given two kinds of capture for this room:
 
 Rules:
 - Log fixtures, appliances, furniture, notable surfaces (walls, flooring, ceilings) and
-  any utility meter in this room. Do not invent a room boundary — everything you record
+  any utility meter in this room. Do not invent a room boundary: everything you record
   belongs to the room you were given.
 - **identifier**: transcribe make, model, and serial character-for-character from a
   photographed label. Preserve case, punctuation, and spacing exactly. If a character is
-  genuinely ambiguous — 0 versus O, 1 versus I, 8 versus B — leave identifier null and
+  genuinely ambiguous (0 versus O, 1 versus I, 8 versus B), leave identifier null and
   say what you could and could not read in notes. A wrong serial is worse than none: it
   will be relied on at check-out to prove this is the same physical object.
 - Condition is about the item's state, not its age or style. Scuffs, marks, chips,
@@ -60,7 +60,7 @@ export async function extractRoom(input: {
     'Captures for this room, in order:',
     ...input.captures.map(
       (c) =>
-        `- ref "${c.ref}" (${c.kind.toLowerCase()})${c.note ? ` — inspector's note: ${c.note}` : ''}`,
+        `- ref "${c.ref}" (${c.kind.toLowerCase()})${c.note ? `, inspector's note: ${c.note}` : ''}`,
     ),
     '',
     'Produce the draft inventory for this room.',

@@ -9,7 +9,7 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Mobility — check-in / check-out',
+  title: 'Mobility: check-in / check-out',
   description: 'Condition reports that write themselves from a walkthrough.',
   appleWebApp: { capable: true, title: 'Mobility', statusBarStyle: 'default' },
 }

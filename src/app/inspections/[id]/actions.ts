@@ -65,7 +65,7 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
 // ---------------------------------------------------------------------------
 
 /// The browser PUTs media straight to storage with this. It never passes through a
-/// function — a room's walkthrough is far past the serverless body limit.
+/// function, because a room's walkthrough is far past the serverless body limit.
 export async function requestUploadUrl(roomId: string, filename: string) {
   const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
   const storagePath = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`

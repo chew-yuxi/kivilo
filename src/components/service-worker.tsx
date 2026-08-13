@@ -10,7 +10,7 @@ export function ServiceWorker() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch((error) => {
-        // A failed registration costs offline page loads, not captures — those are
+        // A failed registration costs offline page loads, not captures, which are
         // already safe in IndexedDB. Don't take the app down over it.
         console.error('Service worker registration failed:', error)
       })
