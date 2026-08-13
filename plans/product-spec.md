@@ -1,4 +1,4 @@
-# Product Spec — Property Transaction & Oversight Platform (working name: "mobility")
+# Product Spec — Property Transaction & Oversight Platform (Kivilo)
 
 **One-liner:** A deal record that fills its own paperwork — one property record, many permissioned views, from deal-close forms to check-in/check-out to tenancy oversight.
 

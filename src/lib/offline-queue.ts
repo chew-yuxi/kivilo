@@ -6,7 +6,7 @@
 /// died halfway is the failure that loses you the agent, so nothing is held in memory
 /// and nothing is dropped on a failed attempt.
 
-const DB_NAME = 'mobility-captures'
+const DB_NAME = 'kivilo-captures'
 const STORE = 'pending'
 const VERSION = 1
 

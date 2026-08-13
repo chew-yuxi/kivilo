@@ -9,9 +9,9 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Mobility: check-in / check-out',
+  title: 'Kivilo: check-in / check-out',
   description: 'Condition reports that write themselves from a walkthrough.',
-  appleWebApp: { capable: true, title: 'Mobility', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'Kivilo', statusBarStyle: 'default' },
 }
 
 export const viewport: Viewport = {
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-6">
               <Link href="/" className="flex items-center gap-2">
                 <span className="size-2.5 rounded-full bg-brand-500" />
-                <span className="text-sm font-semibold tracking-tight">Mobility</span>
+                <span className="text-sm font-semibold tracking-tight">Kivilo</span>
               </Link>
               <span className="hidden text-sm text-gray-400 sm:inline">
                 Check-in / check-out

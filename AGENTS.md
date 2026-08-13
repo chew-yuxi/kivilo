@@ -1,4 +1,4 @@
-# mobility: M4 check-in / check-out
+# kivilo: M4 check-in / check-out
 
 Installable PWA for AI-drafted property condition reports. The inspector walks a unit
 room by room, narrating a video and photographing labels; each room's captures become a
@@ -6,6 +6,12 @@ draft inventory. At end of tenancy the check-out is diffed against the check-in 
 damage-versus-fair-wear assessment is drafted for an agent to review.
 
 Product context: `plans/product-spec.md`. Build plan for this module: `plans/m4-check-in-out.md`.
+
+The product is **Kivilo**. The directory, this repo's Supabase `project_id`, and the
+`otter-context` notes file are all still called `mobility`, which was the working name.
+That is deliberate: `project_id` names the local Docker containers, so changing it spins
+up a fresh stack and orphans the current database and storage. Rename all three together
+when someone is ready to re-migrate and re-seed.
 
 ## Core principles
 

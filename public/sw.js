@@ -6,7 +6,7 @@
 // the cached shell as the fallback. Cache-first for build assets, which are
 // content-hashed and so can never go stale.
 
-const CACHE = 'mobility-shell-v1'
+const CACHE = 'kivilo-shell-v1'
 const SHELL = '/offline'
 
 self.addEventListener('install', (event) => {
