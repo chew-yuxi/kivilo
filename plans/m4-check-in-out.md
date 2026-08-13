@@ -66,14 +66,16 @@ person touches it. Nothing is countersignable until a human has passed through r
 
 ## Build order
 
-1. Scaffold + Prisma schema + seed  ← this session
-2. Inspection list / create / detail shell
-3. Upload + capture
-4. Gemini extraction → draft report
-5. Review editor
-6. Signing + PDF
-7. Check-out diff
-8. Polish to the Linear/Stripe bar
+1. ~~Scaffold + Prisma schema + seed~~ — done 2026-08-13
+2. ~~Inspection list / detail shell~~ — done
+3. ~~Upload + capture~~ — done (signed-URL direct upload)
+4. ~~Gemini extraction → draft report~~ — done, verified against a real narrated clip
+5. ~~Review editor~~ — done
+6. Signing — done. **PDF export still to do.**
+7. ~~Check-out diff~~ — done; prompt and persistence verified, but the Claude call
+   itself is unproven on a funded key (the available one 400s on billing)
+8. Still to do: per-item frame thumbnails at `sourceTimestampSec`, Playwright e2e for
+   capture → review → sign, and the polish pass to the Linear/Stripe bar
 
 ## Verification
 
