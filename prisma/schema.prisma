@@ -119,7 +119,6 @@ model Inspection {
   baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
   checkOut    Inspection?  @relation("Baseline")
 
-  captures   Capture[]
   rooms      Room[]
   findings   Finding[]
   signatures Signature[]
@@ -127,30 +126,61 @@ model Inspection {
   @@index([tenancyId, kind])
 }
 
+enum CaptureKind {
+  /// Narrated walkthrough of one room.
+  VIDEO
+  /// Deliberate still — a label, a serial plate, a meter face, a specific defect.
+  /// Video is downsampled too far to read small print; this is what OCR runs on.
+  PHOTO
+}
+
 /// The evidence. AI is the scribe; this is the witness.
+/// Captures belong to a room, not to the inspection, so an inspector can re-shoot
+/// one room without disturbing rooms already reviewed.
 model Capture {
-  id           String    @id @default(cuid())
-  inspectionId String
-  storagePath  String
-  mimeType     String
-  sizeBytes    Int
-  durationSec  Int?
-  transcript   String?
-  processedAt  DateTime?
-  createdAt    DateTime  @default(now())
+  id          String      @id @default(cuid())
+  roomId      String
+  kind        CaptureKind @default(VIDEO)
+  storagePath String
+  mimeType    String
+  sizeBytes   Int
+  durationSec Int?
+  /// What the inspector said while recording, or typed against a photo.
+  transcript  String?
+  /// Inspector's own note attached at capture time, before any model sees it.
+  note        String?
+  processedAt DateTime?
+  createdAt   DateTime    @default(now())
 
-  inspection Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  room  Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  items InspectionItem[]
 
-  @@index([inspectionId])
+  @@index([roomId])
+}
+
+enum RoomStatus {
+  /// Created by the inspector, nothing captured yet.
+  PENDING
+  CAPTURING
+  PROCESSING
+  /// Draft items exist, awaiting a human pass.
+  REVIEW
+  REVIEWED
+  FAILED
 }
 
 model Room {
-  id           String @id @default(cuid())
-  inspectionId String
-  name         String
-  order        Int
+  id              String     @id @default(cuid())
+  inspectionId    String
+  name            String
+  order           Int
+  status          RoomStatus @default(PENDING)
+  processingError String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   inspection Inspection       @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  captures   Capture[]
   items      InspectionItem[]
 
   @@index([inspectionId])
@@ -180,9 +210,15 @@ model InspectionItem {
   condition ItemCondition
   quantity Int           @default(1)
   notes    String?
+  /// Make, model, and serial read verbatim off a photographed label or plate.
+  /// This is what makes an inventory line identify one specific object rather than
+  /// a category of object — the difference that decides a deposit dispute.
+  identifier String?
   /// Meter reading, verbatim as spoken/read. Free text — units vary.
   meterReading String?
-  /// Where in the capture this item was observed. Powers "jump to the evidence".
+  /// The capture this item was read from, so the report can show its evidence.
+  sourceCaptureId String?
+  /// Where in that capture the item is clearest. Video captures only.
   sourceTimestampSec Int?
   /// Model self-reported confidence, 0–1. Null once a human has taken ownership.
   confidence   Float?
@@ -190,31 +226,13 @@ model InspectionItem {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  room  Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  media ItemMedia[]
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sourceCapture Capture? @relation(fields: [sourceCaptureId], references: [id], onDelete: SetNull)
 
   findingsAsSubject  Finding[] @relation("FindingItem")
   findingsAsBaseline Finding[] @relation("FindingBaselineItem")
 
   @@index([roomId])
-}
-
-enum MediaKind {
-  FRAME
-  PHOTO
-}
-
-model ItemMedia {
-  id           String    @id @default(cuid())
-  itemId       String
-  storagePath  String
-  kind         MediaKind @default(FRAME)
-  timestampSec Int?
-  createdAt    DateTime  @default(now())
-
-  item InspectionItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
-
-  @@index([itemId])
 }
 
 enum ChangeType {

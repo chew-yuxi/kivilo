@@ -1,52 +1,85 @@
 import { google } from '@ai-sdk/google'
 import { generateObject } from 'ai'
-import { extractionSchema, type Extraction } from './schema'
+import { roomExtractionSchema, type RoomExtraction } from './schema'
 
 /// Gemini reads the video and its audio in one pass, so the narration and what the
-/// camera is pointing at stay tied together. Splitting them loses that.
+/// camera is pointing at stay tied together.
 const MODEL = 'gemini-2.5-pro'
 
 const SYSTEM = `You are a property inventory clerk in Singapore producing the draft
-condition report for a residential check-in or check-out.
+condition report for one room of a residential check-in or check-out.
 
-You are the scribe, not the witness. The video is the evidence. Record only what the
-video shows or the narrator says. Never infer a fixture that is standard for the
+You are the scribe, not the witness. The captures are the evidence. Record only what
+they show or what the inspector says. Never infer a fixture that is standard for the
 property type but not visible, and never soften or dramatise a condition.
 
+You are given two kinds of capture for this room:
+- A narrated video walkthrough. Good for what is present, where it is, and its overall
+  condition. It is compressed, so small print in it is not reliable.
+- Still photographs, taken deliberately. These are the ones to read text from: appliance
+  rating plates, model and serial labels, meter faces, and close-ups of specific defects.
+
 Rules:
-- One room per space the camera actually enters. Use the narrator's name for a room
-  when they give one; otherwise name it conventionally.
 - Log fixtures, appliances, furniture, notable surfaces (walls, flooring, ceilings) and
-  every utility meter you can read.
+  any utility meter in this room. Do not invent a room boundary — everything you record
+  belongs to the room you were given.
+- **identifier**: transcribe make, model, and serial character-for-character from a
+  photographed label. Preserve case, punctuation, and spacing exactly. If a character is
+  genuinely ambiguous — 0 versus O, 1 versus I, 8 versus B — leave identifier null and
+  say what you could and could not read in notes. A wrong serial is worse than none: it
+  will be relied on at check-out to prove this is the same physical object.
 - Condition is about the item's state, not its age or style. Scuffs, marks, chips,
-  stains, cracks, water marks and non-working items all belong in notes, quoting the
-  narrator where they describe one.
-- Where the narrator and the footage disagree, record what the footage shows and say so
-  in notes.
+  stains, cracks, water marks and non-working items belong in notes, quoting the
+  inspector where they describe one.
+- Where the inspector and the footage disagree, record what the footage shows and say so.
+- Merge across captures: if a photo shows the label of an appliance already seen in the
+  video, that is one item with both an identifier and a condition, not two items.
 - confidence is yours to set honestly. A partly obscured item at 0.4 is more useful than
   a confident guess.
-- sourceTimestampSec must point at the moment the item is clearest, so a human can jump
-  straight to it.`
+- sourceCaptureRef must name the capture the item was actually read from. Prefer the
+  photo when one exists, since it is the better evidence to show a reader.`
 
-export async function extractFromCapture(input: {
+export type CaptureInput = {
+  ref: string
+  kind: 'VIDEO' | 'PHOTO'
   bytes: Uint8Array
   mimeType: string
+  note: string | null
+}
+
+export async function extractRoom(input: {
+  captures: CaptureInput[]
+  roomName: string
   kind: 'CHECK_IN' | 'CHECK_OUT'
   propertyLabel: string
-}): Promise<Extraction> {
+}): Promise<RoomExtraction> {
+  const header = [
+    `${input.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} of ${input.propertyLabel}.`,
+    `Room: ${input.roomName}.`,
+    '',
+    'Captures for this room, in order:',
+    ...input.captures.map(
+      (c) =>
+        `- ref "${c.ref}" (${c.kind.toLowerCase()})${c.note ? ` — inspector's note: ${c.note}` : ''}`,
+    ),
+    '',
+    'Produce the draft inventory for this room.',
+  ].join('\n')
+
   const { object } = await generateObject({
     model: google(MODEL),
-    schema: extractionSchema,
+    schema: roomExtractionSchema,
     system: SYSTEM,
     messages: [
       {
         role: 'user',
         content: [
-          {
-            type: 'text',
-            text: `${input.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} walkthrough of ${input.propertyLabel}. Produce the draft condition report.`,
-          },
-          { type: 'file', data: input.bytes, mediaType: input.mimeType },
+          { type: 'text', text: header },
+          // Each file is preceded by its ref so the model can cite it back.
+          ...input.captures.flatMap((capture) => [
+            { type: 'text' as const, text: `Capture "${capture.ref}":` },
+            { type: 'file' as const, data: capture.bytes, mediaType: capture.mimeType },
+          ]),
         ],
       },
     ],

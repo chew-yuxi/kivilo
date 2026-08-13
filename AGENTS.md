@@ -1,8 +1,9 @@
 # mobility — M4 check-in / check-out
 
-Next.js 16 app for AI-drafted property condition reports. A narrated walkthrough video
-becomes a room-by-room inventory; at end of tenancy the check-out is diffed against the
-check-in and the damage-versus-fair-wear assessment is drafted for an agent to review.
+Installable PWA for AI-drafted property condition reports. The inspector walks a unit
+room by room, narrating a video and photographing labels; each room's captures become a
+draft inventory. At end of tenancy the check-out is diffed against the check-in and the
+damage-versus-fair-wear assessment is drafted for an agent to review.
 
 Product context: `plans/product-spec.md`. Build plan for this module: `plans/m4-check-in-out.md`.
 
@@ -12,20 +13,33 @@ Product context: `plans/product-spec.md`. Build plan for this module: `plans/m4-
 2. **Root causes only.** No `try/catch` that swallows errors, no `?? []` patches on symptoms.
 3. **Minimal impact.** Touch only what the task requires.
 
-## The invariant
+## Three invariants
 
 **AI is the scribe, not the witness.** The timestamped video is the evidence. Every
 model-authored row carries a `confidence`, and `editedByHuman` flips the moment a person
 touches it. Nothing reaches a signature until a human has passed through review. Do not
 add a path that writes model output straight to a signed report.
 
+**A capture is never lost.** Media is written to IndexedDB (`src/lib/offline-queue.ts`)
+the instant it is taken and only leaves the queue once storage confirms it; a failed
+upload increments `attempts` and is retried, never discarded. Inspectors work where the
+signal is worst, and losing a walkthrough is the failure that loses you the agent.
+
+**Rooms are independent.** Extraction is scoped to one room (`processRoom`), so
+re-shooting the kitchen cannot touch a bedroom someone already reviewed. Anything that
+deletes across an inspection rather than a room is a bug — the `deleteMany` in
+`processRoom` is deliberately keyed on `roomId`, and there is a regression risk here
+worth guarding whenever that function changes.
+
 ## Stack
 
 - Next.js 16 App Router (Turbopack), React 19, TypeScript 5.9, Tailwind v4
 - Postgres via local Supabase, Prisma 7 with the `@prisma/adapter-pg` driver adapter
 - Supabase Storage for captures — **private bucket, signed URLs only**
-- Gemini (`@ai-sdk/google`) reads the video and its audio in one pass; Claude
-  (`@ai-sdk/anthropic`, `claude-opus-5`) does the check-out diff
+- Gemini (`@ai-sdk/google`) reads each room's video, audio, and photos in one pass;
+  Claude (`@ai-sdk/anthropic`, `claude-opus-5`) does the check-out diff
+- PWA: `src/app/manifest.ts`, `public/sw.js` (network-first pages, cache-first build
+  assets), IndexedDB upload queue read through `useSyncExternalStore`
 - Vitest for unit tests
 
 ## Local setup
@@ -48,13 +62,23 @@ pnpm dev
 - `pnpm build` — production build
 - `pnpm test` — Vitest
 
+## Why photos as well as video
+
+Video sent to the model is downsampled hard — roughly a frame a second, resized — so a
+serial plate or meter dial is unreadable in it. Identifiers come from deliberate stills
+instead, which is why `Capture.kind` exists and why the extraction prompt tells the model
+to read text only from photos. This is a capture-quality problem, not a model problem;
+swapping in a dedicated OCR engine on the same video would fail the same way.
+
 ## Dev scripts
 
-The capture flow expects a phone. To exercise the pipeline without one:
+The capture flow expects a phone. To exercise one room's pipeline without one:
 
-- `pnpm exec tsx scripts/try-extract.ts <video>` — extraction only, prints JSON, no DB
-- `pnpm exec tsx scripts/dev-run-pipeline.ts <video>` — check-in through to REVIEW
-- `pnpm exec tsx scripts/dev-run-checkout.ts <video>` — check-out plus the baseline diff
+```bash
+pnpm exec tsx scripts/dev-run-room.ts "Kitchen" walkthrough.mp4 label.jpg
+```
+
+Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as VIDEO.
 
 ## Lessons
 
@@ -64,6 +88,14 @@ The capture flow expects a phone. To exercise the pipeline without one:
   build fails with 21 module-not-found errors until you add it.
 - Lint the generated client out (`src/generated/**` in `eslint.config.mjs`) or ESLint
   reports ~400 errors in code nobody wrote.
+- Restart `next dev` after a migration. The running server holds the previously
+  generated Prisma client, so a new field fails with "Unknown field … for include
+  statement" even though `prisma generate` has run.
+- Prisma 7 rejects a nested `select` inside an `include` (`rooms: { include: { items:
+  { select: … } } }`). Use `_count`, or include the relation whole.
+- `prisma migrate reset` has no `--skip-seed` flag in Prisma 7 — passing it silently
+  prints help instead of running. It also refuses to run for an agent without
+  `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION`; ask the user rather than routing around it.
 - Video never goes through a server action or route handler — the browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.

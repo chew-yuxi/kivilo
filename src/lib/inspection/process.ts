@@ -1,73 +1,82 @@
 import { db } from '@/lib/db'
 import { downloadCapture } from '@/lib/storage'
-import { extractFromCapture } from './extract'
+import { extractRoom, type CaptureInput } from './extract'
 import { diffAgainstBaseline } from './diff'
 import { propertyLabel } from '@/lib/format'
 
-/// Turns a capture into a draft report. Runs in the background after upload;
-/// the inspection carries its own status so the UI can poll.
-export async function processInspection(inspectionId: string) {
-  const inspection = await db.inspection.findUniqueOrThrow({
-    where: { id: inspectionId },
+/// Turns one room's captures into that room's draft items. Scoped deliberately: an
+/// inspector who re-shoots the kitchen must not lose the bedroom they already reviewed.
+export async function processRoom(roomId: string) {
+  const room = await db.room.findUniqueOrThrow({
+    where: { id: roomId },
     include: {
       captures: { orderBy: { createdAt: 'asc' } },
-      tenancy: { include: { property: true } },
+      inspection: { include: { tenancy: { include: { property: true } } } },
     },
   })
 
-  const capture = inspection.captures.at(-1)
-  if (!capture) throw new Error(`Inspection ${inspectionId} has no capture to process`)
+  if (room.captures.length === 0) {
+    throw new Error(`Room ${roomId} has no captures to process`)
+  }
 
-  await db.inspection.update({
-    where: { id: inspectionId },
+  await db.room.update({
+    where: { id: roomId },
     data: { status: 'PROCESSING', processingError: null },
   })
 
   try {
-    const bytes = await downloadCapture(capture.storagePath)
-    const extraction = await extractFromCapture({
-      bytes,
-      mimeType: capture.mimeType,
-      kind: inspection.kind,
-      propertyLabel: propertyLabel(inspection.tenancy.property),
+    const captures: CaptureInput[] = await Promise.all(
+      room.captures.map(async (capture) => ({
+        ref: capture.id,
+        kind: capture.kind,
+        bytes: await downloadCapture(capture.storagePath),
+        mimeType: capture.mimeType,
+        note: capture.note,
+      })),
+    )
+
+    const extraction = await extractRoom({
+      captures,
+      roomName: room.name,
+      kind: room.inspection.kind,
+      propertyLabel: propertyLabel(room.inspection.tenancy.property),
     })
 
-    // Re-processing replaces the draft. Rooms cascade to items and media.
+    const captureIds = new Set(room.captures.map((c) => c.id))
+    const now = new Date()
+
     await db.$transaction([
-      db.room.deleteMany({ where: { inspectionId } }),
+      // Only this room's items are replaced.
+      db.inspectionItem.deleteMany({ where: { roomId } }),
+      db.capture.updateMany({
+        where: { roomId },
+        data: { processedAt: now },
+      }),
       db.capture.update({
-        where: { id: capture.id },
-        data: { transcript: extraction.transcript, processedAt: new Date() },
+        where: { id: room.captures[0].id },
+        data: { transcript: extraction.transcript },
       }),
-      ...extraction.rooms.map((room, order) =>
-        db.room.create({
-          data: {
-            inspectionId,
-            name: room.name,
-            order,
-            items: {
-              create: room.items.map((item) => ({
-                name: item.name,
-                category: item.category,
-                condition: item.condition,
-                quantity: item.quantity,
-                notes: item.notes || null,
-                meterReading: item.meterReading,
-                sourceTimestampSec: item.sourceTimestampSec,
-                confidence: item.confidence,
-              })),
-            },
-          },
-        }),
-      ),
-      db.inspection.update({
-        where: { id: inspectionId },
-        data: { status: 'REVIEW', summary: extraction.summary },
+      db.inspectionItem.createMany({
+        data: extraction.items.map((item) => ({
+          roomId,
+          name: item.name,
+          category: item.category,
+          condition: item.condition,
+          quantity: item.quantity,
+          notes: item.notes || null,
+          identifier: item.identifier,
+          meterReading: item.meterReading,
+          // Drop a ref the model invented rather than failing the whole room.
+          sourceCaptureId: captureIds.has(item.sourceCaptureRef) ? item.sourceCaptureRef : null,
+          sourceTimestampSec: item.sourceTimestampSec,
+          confidence: item.confidence,
+        })),
       }),
+      db.room.update({ where: { id: roomId }, data: { status: 'REVIEW' } }),
     ])
   } catch (error) {
-    await db.inspection.update({
-      where: { id: inspectionId },
+    await db.room.update({
+      where: { id: roomId },
       data: {
         status: 'FAILED',
         processingError: error instanceof Error ? error.message : String(error),
@@ -97,7 +106,21 @@ export async function generateFindings(inspectionId: string) {
     throw new Error('Check-out has no check-in baseline to compare against')
   }
 
-  const flatten = (rooms: { name: string; items: { id: string; name: string; category: string; condition: string; quantity: number; notes: string | null; meterReading: string | null }[] }[]) =>
+  const flatten = (
+    rooms: {
+      name: string
+      items: {
+        id: string
+        name: string
+        category: string
+        condition: string
+        quantity: number
+        notes: string | null
+        identifier: string | null
+        meterReading: string | null
+      }[]
+    }[],
+  ) =>
     rooms.flatMap((room) =>
       room.items.map((item) => ({
         ref: item.id,
@@ -107,6 +130,7 @@ export async function generateFindings(inspectionId: string) {
         condition: item.condition,
         quantity: item.quantity,
         notes: item.notes,
+        identifier: item.identifier,
         meterReading: item.meterReading,
       })),
     )

@@ -21,8 +21,12 @@ The distinction that matters:
   does not now.
 
 Rules:
-- Match items by what they are and where they are, not by exact wording. A "Built-in
-  wardrobe" in the master bedroom is the same item as "Wardrobe (built in)".
+- Match on the identifier first when both sides have one. A matching make/model/serial
+  proves it is the same physical object; a differing one proves it is not, and an
+  appliance swapped for a different unit of the same model is a substitution worth
+  flagging even when the condition is fine. Fall back to what the item is and where it
+  is only when an identifier is missing: a "Built-in wardrobe" in the master bedroom is
+  the same item as "Wardrobe (built in)".
 - An item present at check-in and absent at check-out is MISSING. An item present only
   at check-out is not the tenant's liability — record it with a null baselineItemRef and
   a verdict of UNDECIDED.
@@ -40,6 +44,7 @@ type ItemForDiff = {
   condition: string
   quantity: number
   notes: string | null
+  identifier: string | null
   meterReading: string | null
 }
 

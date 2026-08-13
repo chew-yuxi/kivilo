@@ -1,9 +1,15 @@
 'use client'
 
 import { useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { timecode } from '@/lib/format'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
-import { updateItem, deleteItem, addItem, completeReview } from '@/app/inspections/[id]/actions'
+import {
+  updateItem,
+  deleteItem,
+  addItem,
+  markRoomReviewed,
+} from '@/app/inspections/[id]/actions'
 import type { ItemCategory, ItemCondition } from '@/generated/prisma'
 
 export type EditableItem = {
@@ -13,13 +19,15 @@ export type EditableItem = {
   condition: ItemCondition
   quantity: number
   notes: string | null
+  identifier: string | null
   meterReading: string | null
+  sourceCaptureId: string | null
   sourceTimestampSec: number | null
   confidence: number | null
   editedByHuman: boolean
 }
 
-export type EditableRoom = { id: string; name: string; items: EditableItem[] }
+export type EvidenceCapture = { id: string; kind: 'VIDEO' | 'PHOTO'; url: string }
 
 const CONDITION_TONE: Record<ItemCondition, string> = {
   NEW: 'text-emerald-700 bg-emerald-50',
@@ -32,11 +40,11 @@ const CONDITION_TONE: Record<ItemCondition, string> = {
 function ItemRow({
   item,
   inspectionId,
-  onSeek,
+  onShowEvidence,
 }: {
   item: EditableItem
   inspectionId: string
-  onSeek: (seconds: number) => void
+  onShowEvidence: (captureId: string, seconds: number | null) => void
 }) {
   const [pending, startTransition] = useTransition()
 
@@ -57,6 +65,15 @@ function ItemRow({
           onBlur={(e) => e.target.value !== item.name && save({ name: e.target.value })}
           className="w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-sm font-medium hover:border-gray-200 focus:border-brand-500 focus:bg-white focus:outline-none"
         />
+        <input
+          defaultValue={item.identifier ?? ''}
+          placeholder="Make / model / serial"
+          onBlur={(e) =>
+            e.target.value !== (item.identifier ?? '') &&
+            save({ identifier: e.target.value || null })
+          }
+          className="mt-1 w-full rounded border border-transparent bg-transparent px-1.5 py-0.5 font-mono text-xs text-gray-600 hover:border-gray-200 focus:border-brand-500 focus:bg-white focus:outline-none"
+        />
         <div className="mt-1 flex items-center gap-2 px-1.5">
           <select
             defaultValue={item.category}
@@ -69,19 +86,19 @@ function ItemRow({
               </option>
             ))}
           </select>
-          {item.sourceTimestampSec !== null && (
+          {item.sourceCaptureId && (
             <button
               type="button"
-              onClick={() => onSeek(item.sourceTimestampSec!)}
+              onClick={() => onShowEvidence(item.sourceCaptureId!, item.sourceTimestampSec)}
               className="font-mono text-xs text-brand-600 hover:underline"
             >
-              {timecode(item.sourceTimestampSec)}
+              {item.sourceTimestampSec !== null ? timecode(item.sourceTimestampSec) : 'photo'}
             </button>
           )}
           {lowConfidence && (
             <span
               className="text-xs text-amber-700"
-              title={`Model confidence ${Math.round(item.confidence! * 100)}% — check the video`}
+              title={`Model confidence ${Math.round(item.confidence! * 100)}% — check the evidence`}
             >
               unsure
             </span>
@@ -138,86 +155,119 @@ function ItemRow({
 
 export function ReviewEditor({
   inspectionId,
-  rooms,
-  videoUrl,
+  roomId,
+  roomName,
+  items,
+  captures,
+  alreadyReviewed,
 }: {
   inspectionId: string
-  rooms: EditableRoom[]
-  videoUrl: string | null
+  roomId: string
+  roomName: string
+  items: EditableItem[]
+  captures: EvidenceCapture[]
+  alreadyReviewed: boolean
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const router = useRouter()
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
   const [pending, startTransition] = useTransition()
 
-  const seek = (seconds: number) => {
-    const video = videoRef.current
-    if (!video) return
-    video.currentTime = seconds
-    void video.play()
-    video.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  const showEvidence = (captureId: string, seconds: number | null) => {
+    const element =
+      videoRefs.current[captureId] ??
+      (document.getElementById(`capture-${captureId}`) as HTMLElement | null)
+    if (!element) return
+
+    if (element instanceof HTMLVideoElement && seconds !== null) {
+      element.currentTime = seconds
+      void element.play()
+    }
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  const itemCount = rooms.reduce((n, room) => n + room.items.length, 0)
-  const unreviewed = rooms.reduce(
-    (n, room) => n + room.items.filter((i) => !i.editedByHuman).length,
-    0,
-  )
+  const unreviewed = items.filter((i) => !i.editedByHuman).length
 
   return (
     <div className="space-y-6">
-      {videoUrl && (
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          controls
-          className="w-full rounded-lg border border-gray-200 bg-black"
-        />
+      {captures.length > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {captures.map((capture) =>
+            capture.kind === 'VIDEO' ? (
+              <video
+                key={capture.id}
+                id={`capture-${capture.id}`}
+                ref={(element) => {
+                  videoRefs.current[capture.id] = element
+                }}
+                src={capture.url}
+                controls
+                className="w-full rounded-lg border border-gray-200 bg-black"
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={capture.id}
+                id={`capture-${capture.id}`}
+                src={capture.url}
+                alt="Inspection photo"
+                className="w-full rounded-lg border border-gray-200 object-cover"
+              />
+            ),
+          )}
+        </div>
       )}
 
       <div className="rounded-lg border border-gray-200 bg-white">
         <div className="flex items-center justify-between px-4 py-3">
           <div>
-            <h2 className="text-sm font-medium">Draft inventory</h2>
+            <h2 className="text-sm font-medium">{roomName}</h2>
             <p className="text-xs text-gray-500">
-              {itemCount} items across {rooms.length} rooms · {unreviewed} not yet touched by
-              a person
+              {items.length} items · {unreviewed} not yet touched by a person
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => startTransition(() => void addItem(roomId, inspectionId))}
+            className="text-xs text-brand-600 hover:underline"
+          >
+            Add item
+          </button>
         </div>
 
-        {rooms.map((room) => (
-          <section key={room.id}>
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                {room.name}
-              </h3>
-              <button
-                type="button"
-                onClick={() => startTransition(() => void addItem(room.id, inspectionId))}
-                className="text-xs text-brand-600 hover:underline"
-              >
-                Add item
-              </button>
-            </div>
-            {room.items.map((item) => (
-              <ItemRow key={item.id} item={item} inspectionId={inspectionId} onSeek={seek} />
-            ))}
-          </section>
+        {items.map((item) => (
+          <ItemRow
+            key={item.id}
+            item={item}
+            inspectionId={inspectionId}
+            onShowEvidence={showEvidence}
+          />
         ))}
+
+        {items.length === 0 && (
+          <p className="border-t border-gray-100 px-4 py-8 text-center text-sm text-gray-500">
+            No items in this room yet.
+          </p>
+        )}
       </div>
 
       <div className="flex items-center justify-end gap-4">
         {unreviewed > 0 && (
           <p className="text-xs text-gray-500">
-            {unreviewed} items still carry only the model&rsquo;s reading of the video.
+            {unreviewed} items still carry only the model&rsquo;s reading of the evidence.
           </p>
         )}
         <button
           type="button"
           disabled={pending}
-          onClick={() => startTransition(() => void completeReview(inspectionId))}
+          onClick={() =>
+            startTransition(async () => {
+              await markRoomReviewed(roomId, inspectionId)
+              router.push(`/inspections/${inspectionId}`)
+            })
+          }
           className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          Send for signature
+          {alreadyReviewed ? 'Save and go back' : 'Mark room reviewed'}
         </button>
       </div>
     </div>

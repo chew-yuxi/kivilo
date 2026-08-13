@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractionSchema, diffSchema } from './schema'
+import { roomExtractionSchema, diffSchema } from './schema'
 
 /// These schemas are the contract at the AI boundary. If the model returns something
 /// outside them, the pipeline must reject it rather than write garbage into a report
@@ -11,17 +11,19 @@ const validItem = {
   condition: 'GOOD',
   quantity: 1,
   notes: 'Minor scuff on the lower left door.',
+  identifier: null,
   meterReading: null,
+  sourceCaptureRef: 'cap_1',
   sourceTimestampSec: 142,
   confidence: 0.9,
 }
 
-describe('extractionSchema', () => {
+describe('roomExtractionSchema', () => {
   it('accepts a well-formed room with one item', () => {
-    const result = extractionSchema.safeParse({
+    const result = roomExtractionSchema.safeParse({
       summary: 'Two-bedroom unit in good condition.',
       transcript: 'This is the master bedroom...',
-      rooms: [{ name: 'Master bedroom', items: [validItem] }],
+      items: [validItem],
     })
     expect(result.success).toBe(true)
   })
@@ -29,60 +31,98 @@ describe('extractionSchema', () => {
   it('defaults quantity to 1 when the model omits it', () => {
     const withoutQuantity: Record<string, unknown> = { ...validItem }
     delete withoutQuantity.quantity
-    const result = extractionSchema.parse({
+    const result = roomExtractionSchema.parse({
       summary: '',
       transcript: '',
-      rooms: [{ name: 'Kitchen', items: [withoutQuantity] }],
+      items: [withoutQuantity],
     })
-    expect(result.rooms[0].items[0].quantity).toBe(1)
+    expect(result.items[0].quantity).toBe(1)
   })
 
   it('rejects a condition outside the fixed set', () => {
-    const result = extractionSchema.safeParse({
+    const result = roomExtractionSchema.safeParse({
       summary: '',
       transcript: '',
-      rooms: [{ name: 'Kitchen', items: [{ ...validItem, condition: 'PRETTY_BAD' }] }],
+      items: [{ ...validItem, condition: 'PRETTY_BAD' }],
     })
     expect(result.success).toBe(false)
   })
 
   it('rejects a confidence outside 0–1', () => {
-    const result = extractionSchema.safeParse({
+    const result = roomExtractionSchema.safeParse({
       summary: '',
       transcript: '',
-      rooms: [{ name: 'Kitchen', items: [{ ...validItem, confidence: 1.4 }] }],
+      items: [{ ...validItem, confidence: 1.4 }],
     })
     expect(result.success).toBe(false)
   })
 
   it('rejects a negative video timestamp', () => {
-    const result = extractionSchema.safeParse({
+    const result = roomExtractionSchema.safeParse({
       summary: '',
       transcript: '',
-      rooms: [{ name: 'Kitchen', items: [{ ...validItem, sourceTimestampSec: -3 }] }],
+      items: [{ ...validItem, sourceTimestampSec: -3 }],
     })
     expect(result.success).toBe(false)
   })
 
-  it('accepts a meter reading as free text, since units vary', () => {
-    const result = extractionSchema.parse({
+  it('carries an identifier through verbatim, including case and punctuation', () => {
+    const result = roomExtractionSchema.parse({
       summary: '',
       transcript: '',
-      rooms: [
+      items: [
         {
-          name: 'Utility cupboard',
-          items: [
-            {
-              ...validItem,
-              name: 'Electricity meter',
-              category: 'METER',
-              meterReading: '04821.3 kWh',
-            },
-          ],
+          ...validItem,
+          name: 'Fridge',
+          category: 'APPLIANCE',
+          identifier: 'Samsung RF48A4000S9/SS · S/N 0KM74BDT200341N',
         },
       ],
     })
-    expect(result.rooms[0].items[0].meterReading).toBe('04821.3 kWh')
+    expect(result.items[0].identifier).toBe('Samsung RF48A4000S9/SS · S/N 0KM74BDT200341N')
+  })
+
+  it('allows a null identifier, which is how an unreadable label is recorded', () => {
+    const result = roomExtractionSchema.safeParse({
+      summary: '',
+      transcript: '',
+      items: [{ ...validItem, identifier: null }],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('allows a null timestamp, since a photo capture has no position in time', () => {
+    const result = roomExtractionSchema.safeParse({
+      summary: '',
+      transcript: '',
+      items: [{ ...validItem, sourceTimestampSec: null }],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('requires a source capture ref, so every item points at its evidence', () => {
+    const withoutRef: Record<string, unknown> = { ...validItem }
+    delete withoutRef.sourceCaptureRef
+    expect(
+      roomExtractionSchema.safeParse({ summary: '', transcript: '', items: [withoutRef] })
+        .success,
+    ).toBe(false)
+  })
+
+  it('accepts a meter reading as free text, since units vary', () => {
+    const result = roomExtractionSchema.parse({
+      summary: '',
+      transcript: '',
+      items: [
+        {
+          ...validItem,
+          name: 'Electricity meter',
+          category: 'METER',
+          meterReading: '04821.3 kWh',
+        },
+      ],
+    })
+    expect(result.items[0].meterReading).toBe('04821.3 kWh')
   })
 })
 

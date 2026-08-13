@@ -171,12 +171,14 @@ exports.Prisma.InspectionScalarFieldEnum = {
 
 exports.Prisma.CaptureScalarFieldEnum = {
   id: 'id',
-  inspectionId: 'inspectionId',
+  roomId: 'roomId',
+  kind: 'kind',
   storagePath: 'storagePath',
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
   durationSec: 'durationSec',
   transcript: 'transcript',
+  note: 'note',
   processedAt: 'processedAt',
   createdAt: 'createdAt'
 };
@@ -185,7 +187,11 @@ exports.Prisma.RoomScalarFieldEnum = {
   id: 'id',
   inspectionId: 'inspectionId',
   name: 'name',
-  order: 'order'
+  order: 'order',
+  status: 'status',
+  processingError: 'processingError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.InspectionItemScalarFieldEnum = {
@@ -196,21 +202,14 @@ exports.Prisma.InspectionItemScalarFieldEnum = {
   condition: 'condition',
   quantity: 'quantity',
   notes: 'notes',
+  identifier: 'identifier',
   meterReading: 'meterReading',
+  sourceCaptureId: 'sourceCaptureId',
   sourceTimestampSec: 'sourceTimestampSec',
   confidence: 'confidence',
   editedByHuman: 'editedByHuman',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
-};
-
-exports.Prisma.ItemMediaScalarFieldEnum = {
-  id: 'id',
-  itemId: 'itemId',
-  storagePath: 'storagePath',
-  kind: 'kind',
-  timestampSec: 'timestampSec',
-  createdAt: 'createdAt'
 };
 
 exports.Prisma.FindingScalarFieldEnum = {
@@ -278,6 +277,20 @@ exports.InspectionStatus = exports.$Enums.InspectionStatus = {
   FAILED: 'FAILED'
 };
 
+exports.CaptureKind = exports.$Enums.CaptureKind = {
+  VIDEO: 'VIDEO',
+  PHOTO: 'PHOTO'
+};
+
+exports.RoomStatus = exports.$Enums.RoomStatus = {
+  PENDING: 'PENDING',
+  CAPTURING: 'CAPTURING',
+  PROCESSING: 'PROCESSING',
+  REVIEW: 'REVIEW',
+  REVIEWED: 'REVIEWED',
+  FAILED: 'FAILED'
+};
+
 exports.ItemCategory = exports.$Enums.ItemCategory = {
   FIXTURE: 'FIXTURE',
   APPLIANCE: 'APPLIANCE',
@@ -292,11 +305,6 @@ exports.ItemCondition = exports.$Enums.ItemCondition = {
   FAIR: 'FAIR',
   POOR: 'POOR',
   DAMAGED: 'DAMAGED'
-};
-
-exports.MediaKind = exports.$Enums.MediaKind = {
-  FRAME: 'FRAME',
-  PHOTO: 'PHOTO'
 };
 
 exports.ChangeType = exports.$Enums.ChangeType = {
@@ -322,7 +330,6 @@ exports.Prisma.ModelName = {
   Capture: 'Capture',
   Room: 'Room',
   InspectionItem: 'InspectionItem',
-  ItemMedia: 'ItemMedia',
   Finding: 'Finding',
   Signature: 'Signature'
 };

@@ -74,8 +74,17 @@ person touches it. Nothing is countersignable until a human has passed through r
 6. Signing — done. **PDF export still to do.**
 7. ~~Check-out diff~~ — done; prompt and persistence verified, but the Claude call
    itself is unproven on a funded key (the available one 400s on billing)
-8. Still to do: per-item frame thumbnails at `sourceTimestampSec`, Playwright e2e for
-   capture → review → sign, and the polish pass to the Linear/Stripe bar
+8. ~~Room-by-room capture, resumable~~ — done 2026-08-13. Captures belong to a room;
+   re-reading one room provably leaves reviewed rooms untouched.
+9. ~~Identifiers from still photos~~ — done. Video is downsampled too far to read a
+   serial; deliberate stills are transcribed character-for-character and merged with
+   the video's condition for the same item.
+10. ~~PWA~~ — done. Installable, offline shell, IndexedDB capture queue that survives
+    no-signal capture and drains itself when connectivity returns.
+11. Still to do: PDF or shareable web report, Playwright e2e for capture → review →
+    sign, the polish pass to the Linear/Stripe bar, and a regression test pinning
+    room-scoped reprocessing (currently verified by hand only).
+12. Native app — deferred behind the PWA, per 2026-08-13 decision.
 
 ## Verification
 

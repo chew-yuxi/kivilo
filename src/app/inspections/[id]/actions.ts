@@ -5,56 +5,126 @@ import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
 import { createUploadUrl } from '@/lib/storage'
-import { processInspection, generateFindings } from '@/lib/inspection/process'
-import type { ItemCategory, ItemCondition, Verdict } from '@/generated/prisma'
+import { processRoom, generateFindings } from '@/lib/inspection/process'
+import type { CaptureKind, ItemCategory, ItemCondition, Verdict } from '@/generated/prisma'
 
 function revalidate(inspectionId: string) {
   revalidatePath(`/inspections/${inspectionId}`)
   revalidatePath('/')
 }
 
-/// The browser PUTs the video straight to storage with this. It never passes through
-/// a function — a 10-minute walkthrough is far past the serverless body limit.
-export async function requestUploadUrl(inspectionId: string, filename: string) {
-  const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
-  const storagePath = `${inspectionId}/${Date.now()}.${extension}`
-  const { signedUrl, token } = await createUploadUrl(storagePath)
+// ---------------------------------------------------------------------------
+// Rooms
+// ---------------------------------------------------------------------------
 
-  await db.inspection.update({ where: { id: inspectionId }, data: { status: 'CAPTURING' } })
+export async function addRoom(inspectionId: string, name: string) {
+  const last = await db.room.findFirst({
+    where: { inspectionId },
+    orderBy: { order: 'desc' },
+    select: { order: true },
+  })
+
+  const room = await db.room.create({
+    data: { inspectionId, name, order: (last?.order ?? -1) + 1 },
+  })
+
+  revalidate(inspectionId)
+  return room.id
+}
+
+export async function renameRoom(roomId: string, inspectionId: string, name: string) {
+  await db.room.update({ where: { id: roomId }, data: { name } })
+  revalidate(inspectionId)
+}
+
+export async function deleteRoom(roomId: string, inspectionId: string) {
+  await db.room.delete({ where: { id: roomId } })
+  revalidate(inspectionId)
+}
+
+/// Re-runs extraction for one room. Its own items are replaced; every other room,
+/// including ones already reviewed, is untouched.
+export async function reprocessRoom(roomId: string, inspectionId: string) {
+  await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
   revalidate(inspectionId)
 
+  after(async () => {
+    await processRoom(roomId).catch((error) => {
+      console.error(`Processing failed for room ${roomId}:`, error)
+    })
+  })
+}
+
+export async function markRoomReviewed(roomId: string, inspectionId: string) {
+  await db.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
+  revalidate(inspectionId)
+}
+
+// ---------------------------------------------------------------------------
+// Captures
+// ---------------------------------------------------------------------------
+
+/// The browser PUTs media straight to storage with this. It never passes through a
+/// function — a room's walkthrough is far past the serverless body limit.
+export async function requestUploadUrl(roomId: string, filename: string) {
+  const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
+  const storagePath = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
+  const { signedUrl, token } = await createUploadUrl(storagePath)
   return { storagePath, signedUrl, token }
 }
 
 export async function registerCapture(input: {
+  roomId: string
   inspectionId: string
+  kind: CaptureKind
   storagePath: string
   mimeType: string
   sizeBytes: number
   durationSec: number | null
+  note: string | null
 }) {
   await db.capture.create({
     data: {
-      inspectionId: input.inspectionId,
+      roomId: input.roomId,
+      kind: input.kind,
       storagePath: input.storagePath,
       mimeType: input.mimeType,
       sizeBytes: input.sizeBytes,
       durationSec: input.durationSec,
+      note: input.note,
     },
   })
+
+  await db.room.update({ where: { id: input.roomId }, data: { status: 'CAPTURING' } })
   await db.inspection.update({
     where: { id: input.inspectionId },
-    data: { status: 'PROCESSING', conductedAt: new Date() },
+    data: { status: 'CAPTURING', conductedAt: new Date() },
   })
-  revalidate(input.inspectionId)
 
-  // Extraction takes minutes; the page polls the inspection's status instead of waiting.
+  revalidate(input.inspectionId)
+}
+
+export async function deleteCapture(captureId: string, inspectionId: string) {
+  await db.capture.delete({ where: { id: captureId } })
+  revalidate(inspectionId)
+}
+
+/// Called once the inspector says the room is fully captured. Extraction takes minutes,
+/// so the page polls the room's status rather than waiting on the response.
+export async function finishRoomCapture(roomId: string, inspectionId: string) {
+  await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
+  revalidate(inspectionId)
+
   after(async () => {
-    await processInspection(input.inspectionId).catch((error) => {
-      console.error(`Processing failed for ${input.inspectionId}:`, error)
+    await processRoom(roomId).catch((error) => {
+      console.error(`Processing failed for room ${roomId}:`, error)
     })
   })
 }
+
+// ---------------------------------------------------------------------------
+// Items
+// ---------------------------------------------------------------------------
 
 export async function updateItem(
   itemId: string,
@@ -65,6 +135,7 @@ export async function updateItem(
     condition?: ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
   },
 ) {
@@ -94,7 +165,18 @@ export async function addItem(roomId: string, inspectionId: string) {
   revalidate(inspectionId)
 }
 
+// ---------------------------------------------------------------------------
+// Inspection lifecycle
+// ---------------------------------------------------------------------------
+
 export async function completeReview(inspectionId: string) {
+  const unreviewed = await db.room.count({
+    where: { inspectionId, status: { not: 'REVIEWED' } },
+  })
+  if (unreviewed > 0) {
+    throw new Error(`${unreviewed} rooms still need review`)
+  }
+
   await db.inspection.update({
     where: { id: inspectionId },
     data: { status: 'AWAITING_SIGNATURE' },
@@ -150,7 +232,10 @@ export async function updateFinding(
 /// Opens the check-out against a completed check-in. Both reports then live on the
 /// same property record and the diff has a baseline to measure from.
 export async function startCheckOut(baselineId: string) {
-  const baseline = await db.inspection.findUniqueOrThrow({ where: { id: baselineId } })
+  const baseline = await db.inspection.findUniqueOrThrow({
+    where: { id: baselineId },
+    include: { rooms: { orderBy: { order: 'asc' } } },
+  })
 
   const checkOut = await db.inspection.create({
     data: {
@@ -159,6 +244,11 @@ export async function startCheckOut(baselineId: string) {
       status: 'DRAFT',
       baselineId,
       conductedById: baseline.conductedById,
+      // Pre-create the same rooms so the inspector walks the same route, and the
+      // diff compares like with like rather than guessing at renamed rooms.
+      rooms: {
+        create: baseline.rooms.map((room) => ({ name: room.name, order: room.order })),
+      },
     },
   })
 

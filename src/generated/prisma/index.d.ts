@@ -36,6 +36,8 @@ export type Inspection = $Result.DefaultSelection<Prisma.$InspectionPayload>
 /**
  * Model Capture
  * The evidence. AI is the scribe; this is the witness.
+ * Captures belong to a room, not to the inspection, so an inspector can re-shoot
+ * one room without disturbing rooms already reviewed.
  */
 export type Capture = $Result.DefaultSelection<Prisma.$CapturePayload>
 /**
@@ -48,11 +50,6 @@ export type Room = $Result.DefaultSelection<Prisma.$RoomPayload>
  * 
  */
 export type InspectionItem = $Result.DefaultSelection<Prisma.$InspectionItemPayload>
-/**
- * Model ItemMedia
- * 
- */
-export type ItemMedia = $Result.DefaultSelection<Prisma.$ItemMediaPayload>
 /**
  * Model Finding
  * Check-out only. The dispute moment, drafted by the model and owned by a human.
@@ -107,6 +104,26 @@ export const InspectionStatus: {
 export type InspectionStatus = (typeof InspectionStatus)[keyof typeof InspectionStatus]
 
 
+export const CaptureKind: {
+  VIDEO: 'VIDEO',
+  PHOTO: 'PHOTO'
+};
+
+export type CaptureKind = (typeof CaptureKind)[keyof typeof CaptureKind]
+
+
+export const RoomStatus: {
+  PENDING: 'PENDING',
+  CAPTURING: 'CAPTURING',
+  PROCESSING: 'PROCESSING',
+  REVIEW: 'REVIEW',
+  REVIEWED: 'REVIEWED',
+  FAILED: 'FAILED'
+};
+
+export type RoomStatus = (typeof RoomStatus)[keyof typeof RoomStatus]
+
+
 export const ItemCategory: {
   FIXTURE: 'FIXTURE',
   APPLIANCE: 'APPLIANCE',
@@ -127,14 +144,6 @@ export const ItemCondition: {
 };
 
 export type ItemCondition = (typeof ItemCondition)[keyof typeof ItemCondition]
-
-
-export const MediaKind: {
-  FRAME: 'FRAME',
-  PHOTO: 'PHOTO'
-};
-
-export type MediaKind = (typeof MediaKind)[keyof typeof MediaKind]
 
 
 export const ChangeType: {
@@ -175,6 +184,14 @@ export type InspectionStatus = $Enums.InspectionStatus
 
 export const InspectionStatus: typeof $Enums.InspectionStatus
 
+export type CaptureKind = $Enums.CaptureKind
+
+export const CaptureKind: typeof $Enums.CaptureKind
+
+export type RoomStatus = $Enums.RoomStatus
+
+export const RoomStatus: typeof $Enums.RoomStatus
+
 export type ItemCategory = $Enums.ItemCategory
 
 export const ItemCategory: typeof $Enums.ItemCategory
@@ -182,10 +199,6 @@ export const ItemCategory: typeof $Enums.ItemCategory
 export type ItemCondition = $Enums.ItemCondition
 
 export const ItemCondition: typeof $Enums.ItemCondition
-
-export type MediaKind = $Enums.MediaKind
-
-export const MediaKind: typeof $Enums.MediaKind
 
 export type ChangeType = $Enums.ChangeType
 
@@ -385,16 +398,6 @@ export class PrismaClient<
     * ```
     */
   get inspectionItem(): Prisma.InspectionItemDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.itemMedia`: Exposes CRUD operations for the **ItemMedia** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more ItemMedias
-    * const itemMedias = await prisma.itemMedia.findMany()
-    * ```
-    */
-  get itemMedia(): Prisma.ItemMediaDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.finding`: Exposes CRUD operations for the **Finding** model.
@@ -869,7 +872,6 @@ export namespace Prisma {
     Capture: 'Capture',
     Room: 'Room',
     InspectionItem: 'InspectionItem',
-    ItemMedia: 'ItemMedia',
     Finding: 'Finding',
     Signature: 'Signature'
   };
@@ -887,7 +889,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemMedia" | "finding" | "signature"
+      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "finding" | "signature"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1409,80 +1411,6 @@ export namespace Prisma {
           }
         }
       }
-      ItemMedia: {
-        payload: Prisma.$ItemMediaPayload<ExtArgs>
-        fields: Prisma.ItemMediaFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ItemMediaFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ItemMediaFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>
-          }
-          findFirst: {
-            args: Prisma.ItemMediaFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ItemMediaFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>
-          }
-          findMany: {
-            args: Prisma.ItemMediaFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>[]
-          }
-          create: {
-            args: Prisma.ItemMediaCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>
-          }
-          createMany: {
-            args: Prisma.ItemMediaCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ItemMediaCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>[]
-          }
-          delete: {
-            args: Prisma.ItemMediaDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>
-          }
-          update: {
-            args: Prisma.ItemMediaUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>
-          }
-          deleteMany: {
-            args: Prisma.ItemMediaDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ItemMediaUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.ItemMediaUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>[]
-          }
-          upsert: {
-            args: Prisma.ItemMediaUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ItemMediaPayload>
-          }
-          aggregate: {
-            args: Prisma.ItemMediaAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateItemMedia>
-          }
-          groupBy: {
-            args: Prisma.ItemMediaGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ItemMediaGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ItemMediaCountArgs<ExtArgs>
-            result: $Utils.Optional<ItemMediaCountAggregateOutputType> | number
-          }
-        }
-      }
       Finding: {
         payload: Prisma.$FindingPayload<ExtArgs>
         fields: Prisma.FindingFieldRefs
@@ -1761,7 +1689,6 @@ export namespace Prisma {
     capture?: CaptureOmit
     room?: RoomOmit
     inspectionItem?: InspectionItemOmit
-    itemMedia?: ItemMediaOmit
     finding?: FindingOmit
     signature?: SignatureOmit
   }
@@ -1973,14 +1900,12 @@ export namespace Prisma {
    */
 
   export type InspectionCountOutputType = {
-    captures: number
     rooms: number
     findings: number
     signatures: number
   }
 
   export type InspectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    captures?: boolean | InspectionCountOutputTypeCountCapturesArgs
     rooms?: boolean | InspectionCountOutputTypeCountRoomsArgs
     findings?: boolean | InspectionCountOutputTypeCountFindingsArgs
     signatures?: boolean | InspectionCountOutputTypeCountSignaturesArgs
@@ -1995,13 +1920,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the InspectionCountOutputType
      */
     select?: InspectionCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * InspectionCountOutputType without action
-   */
-  export type InspectionCountOutputTypeCountCapturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CaptureWhereInput
   }
 
   /**
@@ -2027,14 +1945,47 @@ export namespace Prisma {
 
 
   /**
+   * Count Type CaptureCountOutputType
+   */
+
+  export type CaptureCountOutputType = {
+    items: number
+  }
+
+  export type CaptureCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    items?: boolean | CaptureCountOutputTypeCountItemsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CaptureCountOutputType without action
+   */
+  export type CaptureCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CaptureCountOutputType
+     */
+    select?: CaptureCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CaptureCountOutputType without action
+   */
+  export type CaptureCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InspectionItemWhereInput
+  }
+
+
+  /**
    * Count Type RoomCountOutputType
    */
 
   export type RoomCountOutputType = {
+    captures: number
     items: number
   }
 
   export type RoomCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    captures?: boolean | RoomCountOutputTypeCountCapturesArgs
     items?: boolean | RoomCountOutputTypeCountItemsArgs
   }
 
@@ -2052,6 +2003,13 @@ export namespace Prisma {
   /**
    * RoomCountOutputType without action
    */
+  export type RoomCountOutputTypeCountCapturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CaptureWhereInput
+  }
+
+  /**
+   * RoomCountOutputType without action
+   */
   export type RoomCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InspectionItemWhereInput
   }
@@ -2062,13 +2020,11 @@ export namespace Prisma {
    */
 
   export type InspectionItemCountOutputType = {
-    media: number
     findingsAsSubject: number
     findingsAsBaseline: number
   }
 
   export type InspectionItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    media?: boolean | InspectionItemCountOutputTypeCountMediaArgs
     findingsAsSubject?: boolean | InspectionItemCountOutputTypeCountFindingsAsSubjectArgs
     findingsAsBaseline?: boolean | InspectionItemCountOutputTypeCountFindingsAsBaselineArgs
   }
@@ -2082,13 +2038,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the InspectionItemCountOutputType
      */
     select?: InspectionItemCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * InspectionItemCountOutputType without action
-   */
-  export type InspectionItemCountOutputTypeCountMediaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ItemMediaWhereInput
   }
 
   /**
@@ -5905,7 +5854,6 @@ export namespace Prisma {
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
     checkOut?: boolean | Inspection$checkOutArgs<ExtArgs>
-    captures?: boolean | Inspection$capturesArgs<ExtArgs>
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
@@ -5966,7 +5914,6 @@ export namespace Prisma {
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
     checkOut?: boolean | Inspection$checkOutArgs<ExtArgs>
-    captures?: boolean | Inspection$capturesArgs<ExtArgs>
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
@@ -5990,7 +5937,6 @@ export namespace Prisma {
       conductedBy: Prisma.$StakeholderPayload<ExtArgs> | null
       baseline: Prisma.$InspectionPayload<ExtArgs> | null
       checkOut: Prisma.$InspectionPayload<ExtArgs> | null
-      captures: Prisma.$CapturePayload<ExtArgs>[]
       rooms: Prisma.$RoomPayload<ExtArgs>[]
       findings: Prisma.$FindingPayload<ExtArgs>[]
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
@@ -6408,7 +6354,6 @@ export namespace Prisma {
     conductedBy<T extends Inspection$conductedByArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$conductedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     baseline<T extends Inspection$baselineArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$baselineArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     checkOut<T extends Inspection$checkOutArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$checkOutArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    captures<T extends Inspection$capturesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$capturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     rooms<T extends Inspection$roomsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findings<T extends Inspection$findingsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatures<T extends Inspection$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6910,30 +6855,6 @@ export namespace Prisma {
   }
 
   /**
-   * Inspection.captures
-   */
-  export type Inspection$capturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Capture
-     */
-    select?: CaptureSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Capture
-     */
-    omit?: CaptureOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CaptureInclude<ExtArgs> | null
-    where?: CaptureWhereInput
-    orderBy?: CaptureOrderByWithRelationInput | CaptureOrderByWithRelationInput[]
-    cursor?: CaptureWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: CaptureScalarFieldEnum | CaptureScalarFieldEnum[]
-  }
-
-  /**
    * Inspection.rooms
    */
   export type Inspection$roomsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7048,36 +6969,42 @@ export namespace Prisma {
 
   export type CaptureMinAggregateOutputType = {
     id: string | null
-    inspectionId: string | null
+    roomId: string | null
+    kind: $Enums.CaptureKind | null
     storagePath: string | null
     mimeType: string | null
     sizeBytes: number | null
     durationSec: number | null
     transcript: string | null
+    note: string | null
     processedAt: Date | null
     createdAt: Date | null
   }
 
   export type CaptureMaxAggregateOutputType = {
     id: string | null
-    inspectionId: string | null
+    roomId: string | null
+    kind: $Enums.CaptureKind | null
     storagePath: string | null
     mimeType: string | null
     sizeBytes: number | null
     durationSec: number | null
     transcript: string | null
+    note: string | null
     processedAt: Date | null
     createdAt: Date | null
   }
 
   export type CaptureCountAggregateOutputType = {
     id: number
-    inspectionId: number
+    roomId: number
+    kind: number
     storagePath: number
     mimeType: number
     sizeBytes: number
     durationSec: number
     transcript: number
+    note: number
     processedAt: number
     createdAt: number
     _all: number
@@ -7096,36 +7023,42 @@ export namespace Prisma {
 
   export type CaptureMinAggregateInputType = {
     id?: true
-    inspectionId?: true
+    roomId?: true
+    kind?: true
     storagePath?: true
     mimeType?: true
     sizeBytes?: true
     durationSec?: true
     transcript?: true
+    note?: true
     processedAt?: true
     createdAt?: true
   }
 
   export type CaptureMaxAggregateInputType = {
     id?: true
-    inspectionId?: true
+    roomId?: true
+    kind?: true
     storagePath?: true
     mimeType?: true
     sizeBytes?: true
     durationSec?: true
     transcript?: true
+    note?: true
     processedAt?: true
     createdAt?: true
   }
 
   export type CaptureCountAggregateInputType = {
     id?: true
-    inspectionId?: true
+    roomId?: true
+    kind?: true
     storagePath?: true
     mimeType?: true
     sizeBytes?: true
     durationSec?: true
     transcript?: true
+    note?: true
     processedAt?: true
     createdAt?: true
     _all?: true
@@ -7219,12 +7152,14 @@ export namespace Prisma {
 
   export type CaptureGroupByOutputType = {
     id: string
-    inspectionId: string
+    roomId: string
+    kind: $Enums.CaptureKind
     storagePath: string
     mimeType: string
     sizeBytes: number
     durationSec: number | null
     transcript: string | null
+    note: string | null
     processedAt: Date | null
     createdAt: Date
     _count: CaptureCountAggregateOutputType | null
@@ -7250,79 +7185,100 @@ export namespace Prisma {
 
   export type CaptureSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    inspectionId?: boolean
+    roomId?: boolean
+    kind?: boolean
     storagePath?: boolean
     mimeType?: boolean
     sizeBytes?: boolean
     durationSec?: boolean
     transcript?: boolean
+    note?: boolean
     processedAt?: boolean
     createdAt?: boolean
-    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    room?: boolean | RoomDefaultArgs<ExtArgs>
+    items?: boolean | Capture$itemsArgs<ExtArgs>
+    _count?: boolean | CaptureCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["capture"]>
 
   export type CaptureSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    inspectionId?: boolean
+    roomId?: boolean
+    kind?: boolean
     storagePath?: boolean
     mimeType?: boolean
     sizeBytes?: boolean
     durationSec?: boolean
     transcript?: boolean
+    note?: boolean
     processedAt?: boolean
     createdAt?: boolean
-    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    room?: boolean | RoomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["capture"]>
 
   export type CaptureSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    inspectionId?: boolean
+    roomId?: boolean
+    kind?: boolean
     storagePath?: boolean
     mimeType?: boolean
     sizeBytes?: boolean
     durationSec?: boolean
     transcript?: boolean
+    note?: boolean
     processedAt?: boolean
     createdAt?: boolean
-    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    room?: boolean | RoomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["capture"]>
 
   export type CaptureSelectScalar = {
     id?: boolean
-    inspectionId?: boolean
+    roomId?: boolean
+    kind?: boolean
     storagePath?: boolean
     mimeType?: boolean
     sizeBytes?: boolean
     durationSec?: boolean
     transcript?: boolean
+    note?: boolean
     processedAt?: boolean
     createdAt?: boolean
   }
 
-  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
+  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
   export type CaptureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    room?: boolean | RoomDefaultArgs<ExtArgs>
+    items?: boolean | Capture$itemsArgs<ExtArgs>
+    _count?: boolean | CaptureCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CaptureIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    room?: boolean | RoomDefaultArgs<ExtArgs>
   }
   export type CaptureIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    room?: boolean | RoomDefaultArgs<ExtArgs>
   }
 
   export type $CapturePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Capture"
     objects: {
-      inspection: Prisma.$InspectionPayload<ExtArgs>
+      room: Prisma.$RoomPayload<ExtArgs>
+      items: Prisma.$InspectionItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      inspectionId: string
+      roomId: string
+      kind: $Enums.CaptureKind
       storagePath: string
       mimeType: string
       sizeBytes: number
       durationSec: number | null
+      /**
+       * What the inspector said while recording, or typed against a photo.
+       */
       transcript: string | null
+      /**
+       * Inspector's own note attached at capture time, before any model sees it.
+       */
+      note: string | null
       processedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["capture"]>
@@ -7719,7 +7675,8 @@ export namespace Prisma {
    */
   export interface Prisma__CaptureClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    items<T extends Capture$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Capture$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7750,12 +7707,14 @@ export namespace Prisma {
    */
   interface CaptureFieldRefs {
     readonly id: FieldRef<"Capture", 'String'>
-    readonly inspectionId: FieldRef<"Capture", 'String'>
+    readonly roomId: FieldRef<"Capture", 'String'>
+    readonly kind: FieldRef<"Capture", 'CaptureKind'>
     readonly storagePath: FieldRef<"Capture", 'String'>
     readonly mimeType: FieldRef<"Capture", 'String'>
     readonly sizeBytes: FieldRef<"Capture", 'Int'>
     readonly durationSec: FieldRef<"Capture", 'Int'>
     readonly transcript: FieldRef<"Capture", 'String'>
+    readonly note: FieldRef<"Capture", 'String'>
     readonly processedAt: FieldRef<"Capture", 'DateTime'>
     readonly createdAt: FieldRef<"Capture", 'DateTime'>
   }
@@ -8159,6 +8118,30 @@ export namespace Prisma {
   }
 
   /**
+   * Capture.items
+   */
+  export type Capture$itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InspectionItem
+     */
+    select?: InspectionItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the InspectionItem
+     */
+    omit?: InspectionItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InspectionItemInclude<ExtArgs> | null
+    where?: InspectionItemWhereInput
+    orderBy?: InspectionItemOrderByWithRelationInput | InspectionItemOrderByWithRelationInput[]
+    cursor?: InspectionItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InspectionItemScalarFieldEnum | InspectionItemScalarFieldEnum[]
+  }
+
+  /**
    * Capture without action
    */
   export type CaptureDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8202,6 +8185,10 @@ export namespace Prisma {
     inspectionId: string | null
     name: string | null
     order: number | null
+    status: $Enums.RoomStatus | null
+    processingError: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type RoomMaxAggregateOutputType = {
@@ -8209,6 +8196,10 @@ export namespace Prisma {
     inspectionId: string | null
     name: string | null
     order: number | null
+    status: $Enums.RoomStatus | null
+    processingError: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type RoomCountAggregateOutputType = {
@@ -8216,6 +8207,10 @@ export namespace Prisma {
     inspectionId: number
     name: number
     order: number
+    status: number
+    processingError: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -8233,6 +8228,10 @@ export namespace Prisma {
     inspectionId?: true
     name?: true
     order?: true
+    status?: true
+    processingError?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type RoomMaxAggregateInputType = {
@@ -8240,6 +8239,10 @@ export namespace Prisma {
     inspectionId?: true
     name?: true
     order?: true
+    status?: true
+    processingError?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type RoomCountAggregateInputType = {
@@ -8247,6 +8250,10 @@ export namespace Prisma {
     inspectionId?: true
     name?: true
     order?: true
+    status?: true
+    processingError?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -8341,6 +8348,10 @@ export namespace Prisma {
     inspectionId: string
     name: string
     order: number
+    status: $Enums.RoomStatus
+    processingError: string | null
+    createdAt: Date
+    updatedAt: Date
     _count: RoomCountAggregateOutputType | null
     _avg: RoomAvgAggregateOutputType | null
     _sum: RoomSumAggregateOutputType | null
@@ -8367,7 +8378,12 @@ export namespace Prisma {
     inspectionId?: boolean
     name?: boolean
     order?: boolean
+    status?: boolean
+    processingError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    captures?: boolean | Room$capturesArgs<ExtArgs>
     items?: boolean | Room$itemsArgs<ExtArgs>
     _count?: boolean | RoomCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
@@ -8377,6 +8393,10 @@ export namespace Prisma {
     inspectionId?: boolean
     name?: boolean
     order?: boolean
+    status?: boolean
+    processingError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
 
@@ -8385,6 +8405,10 @@ export namespace Prisma {
     inspectionId?: boolean
     name?: boolean
     order?: boolean
+    status?: boolean
+    processingError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
 
@@ -8393,11 +8417,16 @@ export namespace Prisma {
     inspectionId?: boolean
     name?: boolean
     order?: boolean
+    status?: boolean
+    processingError?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order", ExtArgs["result"]["room"]>
+  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
   export type RoomInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    captures?: boolean | Room$capturesArgs<ExtArgs>
     items?: boolean | Room$itemsArgs<ExtArgs>
     _count?: boolean | RoomCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -8412,6 +8441,7 @@ export namespace Prisma {
     name: "Room"
     objects: {
       inspection: Prisma.$InspectionPayload<ExtArgs>
+      captures: Prisma.$CapturePayload<ExtArgs>[]
       items: Prisma.$InspectionItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -8419,6 +8449,10 @@ export namespace Prisma {
       inspectionId: string
       name: string
       order: number
+      status: $Enums.RoomStatus
+      processingError: string | null
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["room"]>
     composites: {}
   }
@@ -8814,6 +8848,7 @@ export namespace Prisma {
   export interface Prisma__RoomClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    captures<T extends Room$capturesArgs<ExtArgs> = {}>(args?: Subset<T, Room$capturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     items<T extends Room$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Room$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -8848,6 +8883,10 @@ export namespace Prisma {
     readonly inspectionId: FieldRef<"Room", 'String'>
     readonly name: FieldRef<"Room", 'String'>
     readonly order: FieldRef<"Room", 'Int'>
+    readonly status: FieldRef<"Room", 'RoomStatus'>
+    readonly processingError: FieldRef<"Room", 'String'>
+    readonly createdAt: FieldRef<"Room", 'DateTime'>
+    readonly updatedAt: FieldRef<"Room", 'DateTime'>
   }
     
 
@@ -9249,6 +9288,30 @@ export namespace Prisma {
   }
 
   /**
+   * Room.captures
+   */
+  export type Room$capturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Capture
+     */
+    select?: CaptureSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Capture
+     */
+    omit?: CaptureOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CaptureInclude<ExtArgs> | null
+    where?: CaptureWhereInput
+    orderBy?: CaptureOrderByWithRelationInput | CaptureOrderByWithRelationInput[]
+    cursor?: CaptureWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CaptureScalarFieldEnum | CaptureScalarFieldEnum[]
+  }
+
+  /**
    * Room.items
    */
   export type Room$itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9323,7 +9386,9 @@ export namespace Prisma {
     condition: $Enums.ItemCondition | null
     quantity: number | null
     notes: string | null
+    identifier: string | null
     meterReading: string | null
+    sourceCaptureId: string | null
     sourceTimestampSec: number | null
     confidence: number | null
     editedByHuman: boolean | null
@@ -9339,7 +9404,9 @@ export namespace Prisma {
     condition: $Enums.ItemCondition | null
     quantity: number | null
     notes: string | null
+    identifier: string | null
     meterReading: string | null
+    sourceCaptureId: string | null
     sourceTimestampSec: number | null
     confidence: number | null
     editedByHuman: boolean | null
@@ -9355,7 +9422,9 @@ export namespace Prisma {
     condition: number
     quantity: number
     notes: number
+    identifier: number
     meterReading: number
+    sourceCaptureId: number
     sourceTimestampSec: number
     confidence: number
     editedByHuman: number
@@ -9385,7 +9454,9 @@ export namespace Prisma {
     condition?: true
     quantity?: true
     notes?: true
+    identifier?: true
     meterReading?: true
+    sourceCaptureId?: true
     sourceTimestampSec?: true
     confidence?: true
     editedByHuman?: true
@@ -9401,7 +9472,9 @@ export namespace Prisma {
     condition?: true
     quantity?: true
     notes?: true
+    identifier?: true
     meterReading?: true
+    sourceCaptureId?: true
     sourceTimestampSec?: true
     confidence?: true
     editedByHuman?: true
@@ -9417,7 +9490,9 @@ export namespace Prisma {
     condition?: true
     quantity?: true
     notes?: true
+    identifier?: true
     meterReading?: true
+    sourceCaptureId?: true
     sourceTimestampSec?: true
     confidence?: true
     editedByHuman?: true
@@ -9520,7 +9595,9 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity: number
     notes: string | null
+    identifier: string | null
     meterReading: string | null
+    sourceCaptureId: string | null
     sourceTimestampSec: number | null
     confidence: number | null
     editedByHuman: boolean
@@ -9555,14 +9632,16 @@ export namespace Prisma {
     condition?: boolean
     quantity?: boolean
     notes?: boolean
+    identifier?: boolean
     meterReading?: boolean
+    sourceCaptureId?: boolean
     sourceTimestampSec?: boolean
     confidence?: boolean
     editedByHuman?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
-    media?: boolean | InspectionItem$mediaArgs<ExtArgs>
+    sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
     findingsAsSubject?: boolean | InspectionItem$findingsAsSubjectArgs<ExtArgs>
     findingsAsBaseline?: boolean | InspectionItem$findingsAsBaselineArgs<ExtArgs>
     _count?: boolean | InspectionItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -9576,13 +9655,16 @@ export namespace Prisma {
     condition?: boolean
     quantity?: boolean
     notes?: boolean
+    identifier?: boolean
     meterReading?: boolean
+    sourceCaptureId?: boolean
     sourceTimestampSec?: boolean
     confidence?: boolean
     editedByHuman?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
   }, ExtArgs["result"]["inspectionItem"]>
 
   export type InspectionItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9593,13 +9675,16 @@ export namespace Prisma {
     condition?: boolean
     quantity?: boolean
     notes?: boolean
+    identifier?: boolean
     meterReading?: boolean
+    sourceCaptureId?: boolean
     sourceTimestampSec?: boolean
     confidence?: boolean
     editedByHuman?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
   }, ExtArgs["result"]["inspectionItem"]>
 
   export type InspectionItemSelectScalar = {
@@ -9610,7 +9695,9 @@ export namespace Prisma {
     condition?: boolean
     quantity?: boolean
     notes?: boolean
+    identifier?: boolean
     meterReading?: boolean
+    sourceCaptureId?: boolean
     sourceTimestampSec?: boolean
     confidence?: boolean
     editedByHuman?: boolean
@@ -9618,26 +9705,28 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "name" | "category" | "condition" | "quantity" | "notes" | "meterReading" | "sourceTimestampSec" | "confidence" | "editedByHuman" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionItem"]>
+  export type InspectionItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "name" | "category" | "condition" | "quantity" | "notes" | "identifier" | "meterReading" | "sourceCaptureId" | "sourceTimestampSec" | "confidence" | "editedByHuman" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionItem"]>
   export type InspectionItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
-    media?: boolean | InspectionItem$mediaArgs<ExtArgs>
+    sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
     findingsAsSubject?: boolean | InspectionItem$findingsAsSubjectArgs<ExtArgs>
     findingsAsBaseline?: boolean | InspectionItem$findingsAsBaselineArgs<ExtArgs>
     _count?: boolean | InspectionItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InspectionItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
   }
   export type InspectionItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
   }
 
   export type $InspectionItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "InspectionItem"
     objects: {
       room: Prisma.$RoomPayload<ExtArgs>
-      media: Prisma.$ItemMediaPayload<ExtArgs>[]
+      sourceCapture: Prisma.$CapturePayload<ExtArgs> | null
       findingsAsSubject: Prisma.$FindingPayload<ExtArgs>[]
       findingsAsBaseline: Prisma.$FindingPayload<ExtArgs>[]
     }
@@ -9650,11 +9739,21 @@ export namespace Prisma {
       quantity: number
       notes: string | null
       /**
+       * Make, model, and serial read verbatim off a photographed label or plate.
+       * This is what makes an inventory line identify one specific object rather than
+       * a category of object — the difference that decides a deposit dispute.
+       */
+      identifier: string | null
+      /**
        * Meter reading, verbatim as spoken/read. Free text — units vary.
        */
       meterReading: string | null
       /**
-       * Where in the capture this item was observed. Powers "jump to the evidence".
+       * The capture this item was read from, so the report can show its evidence.
+       */
+      sourceCaptureId: string | null
+      /**
+       * Where in that capture the item is clearest. Video captures only.
        */
       sourceTimestampSec: number | null
       /**
@@ -10059,7 +10158,7 @@ export namespace Prisma {
   export interface Prisma__InspectionItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    media<T extends InspectionItem$mediaArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$mediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sourceCapture<T extends InspectionItem$sourceCaptureArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$sourceCaptureArgs<ExtArgs>>): Prisma__CaptureClient<$Result.GetResult<Prisma.$CapturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     findingsAsSubject<T extends InspectionItem$findingsAsSubjectArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$findingsAsSubjectArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findingsAsBaseline<T extends InspectionItem$findingsAsBaselineArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$findingsAsBaselineArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -10098,7 +10197,9 @@ export namespace Prisma {
     readonly condition: FieldRef<"InspectionItem", 'ItemCondition'>
     readonly quantity: FieldRef<"InspectionItem", 'Int'>
     readonly notes: FieldRef<"InspectionItem", 'String'>
+    readonly identifier: FieldRef<"InspectionItem", 'String'>
     readonly meterReading: FieldRef<"InspectionItem", 'String'>
+    readonly sourceCaptureId: FieldRef<"InspectionItem", 'String'>
     readonly sourceTimestampSec: FieldRef<"InspectionItem", 'Int'>
     readonly confidence: FieldRef<"InspectionItem", 'Float'>
     readonly editedByHuman: FieldRef<"InspectionItem", 'Boolean'>
@@ -10505,27 +10606,22 @@ export namespace Prisma {
   }
 
   /**
-   * InspectionItem.media
+   * InspectionItem.sourceCapture
    */
-  export type InspectionItem$mediaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type InspectionItem$sourceCaptureArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ItemMedia
+     * Select specific fields to fetch from the Capture
      */
-    select?: ItemMediaSelect<ExtArgs> | null
+    select?: CaptureSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ItemMedia
+     * Omit specific fields from the Capture
      */
-    omit?: ItemMediaOmit<ExtArgs> | null
+    omit?: CaptureOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ItemMediaInclude<ExtArgs> | null
-    where?: ItemMediaWhereInput
-    orderBy?: ItemMediaOrderByWithRelationInput | ItemMediaOrderByWithRelationInput[]
-    cursor?: ItemMediaWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ItemMediaScalarFieldEnum | ItemMediaScalarFieldEnum[]
+    include?: CaptureInclude<ExtArgs> | null
+    where?: CaptureWhereInput
   }
 
   /**
@@ -10592,1116 +10688,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: InspectionItemInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model ItemMedia
-   */
-
-  export type AggregateItemMedia = {
-    _count: ItemMediaCountAggregateOutputType | null
-    _avg: ItemMediaAvgAggregateOutputType | null
-    _sum: ItemMediaSumAggregateOutputType | null
-    _min: ItemMediaMinAggregateOutputType | null
-    _max: ItemMediaMaxAggregateOutputType | null
-  }
-
-  export type ItemMediaAvgAggregateOutputType = {
-    timestampSec: number | null
-  }
-
-  export type ItemMediaSumAggregateOutputType = {
-    timestampSec: number | null
-  }
-
-  export type ItemMediaMinAggregateOutputType = {
-    id: string | null
-    itemId: string | null
-    storagePath: string | null
-    kind: $Enums.MediaKind | null
-    timestampSec: number | null
-    createdAt: Date | null
-  }
-
-  export type ItemMediaMaxAggregateOutputType = {
-    id: string | null
-    itemId: string | null
-    storagePath: string | null
-    kind: $Enums.MediaKind | null
-    timestampSec: number | null
-    createdAt: Date | null
-  }
-
-  export type ItemMediaCountAggregateOutputType = {
-    id: number
-    itemId: number
-    storagePath: number
-    kind: number
-    timestampSec: number
-    createdAt: number
-    _all: number
-  }
-
-
-  export type ItemMediaAvgAggregateInputType = {
-    timestampSec?: true
-  }
-
-  export type ItemMediaSumAggregateInputType = {
-    timestampSec?: true
-  }
-
-  export type ItemMediaMinAggregateInputType = {
-    id?: true
-    itemId?: true
-    storagePath?: true
-    kind?: true
-    timestampSec?: true
-    createdAt?: true
-  }
-
-  export type ItemMediaMaxAggregateInputType = {
-    id?: true
-    itemId?: true
-    storagePath?: true
-    kind?: true
-    timestampSec?: true
-    createdAt?: true
-  }
-
-  export type ItemMediaCountAggregateInputType = {
-    id?: true
-    itemId?: true
-    storagePath?: true
-    kind?: true
-    timestampSec?: true
-    createdAt?: true
-    _all?: true
-  }
-
-  export type ItemMediaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ItemMedia to aggregate.
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ItemMedias to fetch.
-     */
-    orderBy?: ItemMediaOrderByWithRelationInput | ItemMediaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ItemMediaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ItemMedias from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ItemMedias.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned ItemMedias
-    **/
-    _count?: true | ItemMediaCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: ItemMediaAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: ItemMediaSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ItemMediaMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ItemMediaMaxAggregateInputType
-  }
-
-  export type GetItemMediaAggregateType<T extends ItemMediaAggregateArgs> = {
-        [P in keyof T & keyof AggregateItemMedia]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateItemMedia[P]>
-      : GetScalarType<T[P], AggregateItemMedia[P]>
-  }
-
-
-
-
-  export type ItemMediaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ItemMediaWhereInput
-    orderBy?: ItemMediaOrderByWithAggregationInput | ItemMediaOrderByWithAggregationInput[]
-    by: ItemMediaScalarFieldEnum[] | ItemMediaScalarFieldEnum
-    having?: ItemMediaScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ItemMediaCountAggregateInputType | true
-    _avg?: ItemMediaAvgAggregateInputType
-    _sum?: ItemMediaSumAggregateInputType
-    _min?: ItemMediaMinAggregateInputType
-    _max?: ItemMediaMaxAggregateInputType
-  }
-
-  export type ItemMediaGroupByOutputType = {
-    id: string
-    itemId: string
-    storagePath: string
-    kind: $Enums.MediaKind
-    timestampSec: number | null
-    createdAt: Date
-    _count: ItemMediaCountAggregateOutputType | null
-    _avg: ItemMediaAvgAggregateOutputType | null
-    _sum: ItemMediaSumAggregateOutputType | null
-    _min: ItemMediaMinAggregateOutputType | null
-    _max: ItemMediaMaxAggregateOutputType | null
-  }
-
-  type GetItemMediaGroupByPayload<T extends ItemMediaGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ItemMediaGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ItemMediaGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ItemMediaGroupByOutputType[P]>
-            : GetScalarType<T[P], ItemMediaGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ItemMediaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    itemId?: boolean
-    storagePath?: boolean
-    kind?: boolean
-    timestampSec?: boolean
-    createdAt?: boolean
-    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["itemMedia"]>
-
-  export type ItemMediaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    itemId?: boolean
-    storagePath?: boolean
-    kind?: boolean
-    timestampSec?: boolean
-    createdAt?: boolean
-    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["itemMedia"]>
-
-  export type ItemMediaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    itemId?: boolean
-    storagePath?: boolean
-    kind?: boolean
-    timestampSec?: boolean
-    createdAt?: boolean
-    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["itemMedia"]>
-
-  export type ItemMediaSelectScalar = {
-    id?: boolean
-    itemId?: boolean
-    storagePath?: boolean
-    kind?: boolean
-    timestampSec?: boolean
-    createdAt?: boolean
-  }
-
-  export type ItemMediaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "itemId" | "storagePath" | "kind" | "timestampSec" | "createdAt", ExtArgs["result"]["itemMedia"]>
-  export type ItemMediaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
-  }
-  export type ItemMediaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
-  }
-  export type ItemMediaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
-  }
-
-  export type $ItemMediaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ItemMedia"
-    objects: {
-      item: Prisma.$InspectionItemPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      itemId: string
-      storagePath: string
-      kind: $Enums.MediaKind
-      timestampSec: number | null
-      createdAt: Date
-    }, ExtArgs["result"]["itemMedia"]>
-    composites: {}
-  }
-
-  type ItemMediaGetPayload<S extends boolean | null | undefined | ItemMediaDefaultArgs> = $Result.GetResult<Prisma.$ItemMediaPayload, S>
-
-  type ItemMediaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ItemMediaFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ItemMediaCountAggregateInputType | true
-    }
-
-  export interface ItemMediaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ItemMedia'], meta: { name: 'ItemMedia' } }
-    /**
-     * Find zero or one ItemMedia that matches the filter.
-     * @param {ItemMediaFindUniqueArgs} args - Arguments to find a ItemMedia
-     * @example
-     * // Get one ItemMedia
-     * const itemMedia = await prisma.itemMedia.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ItemMediaFindUniqueArgs>(args: SelectSubset<T, ItemMediaFindUniqueArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one ItemMedia that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {ItemMediaFindUniqueOrThrowArgs} args - Arguments to find a ItemMedia
-     * @example
-     * // Get one ItemMedia
-     * const itemMedia = await prisma.itemMedia.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ItemMediaFindUniqueOrThrowArgs>(args: SelectSubset<T, ItemMediaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first ItemMedia that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaFindFirstArgs} args - Arguments to find a ItemMedia
-     * @example
-     * // Get one ItemMedia
-     * const itemMedia = await prisma.itemMedia.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ItemMediaFindFirstArgs>(args?: SelectSubset<T, ItemMediaFindFirstArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first ItemMedia that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaFindFirstOrThrowArgs} args - Arguments to find a ItemMedia
-     * @example
-     * // Get one ItemMedia
-     * const itemMedia = await prisma.itemMedia.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ItemMediaFindFirstOrThrowArgs>(args?: SelectSubset<T, ItemMediaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more ItemMedias that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all ItemMedias
-     * const itemMedias = await prisma.itemMedia.findMany()
-     * 
-     * // Get first 10 ItemMedias
-     * const itemMedias = await prisma.itemMedia.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const itemMediaWithIdOnly = await prisma.itemMedia.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends ItemMediaFindManyArgs>(args?: SelectSubset<T, ItemMediaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a ItemMedia.
-     * @param {ItemMediaCreateArgs} args - Arguments to create a ItemMedia.
-     * @example
-     * // Create one ItemMedia
-     * const ItemMedia = await prisma.itemMedia.create({
-     *   data: {
-     *     // ... data to create a ItemMedia
-     *   }
-     * })
-     * 
-     */
-    create<T extends ItemMediaCreateArgs>(args: SelectSubset<T, ItemMediaCreateArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many ItemMedias.
-     * @param {ItemMediaCreateManyArgs} args - Arguments to create many ItemMedias.
-     * @example
-     * // Create many ItemMedias
-     * const itemMedia = await prisma.itemMedia.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ItemMediaCreateManyArgs>(args?: SelectSubset<T, ItemMediaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many ItemMedias and returns the data saved in the database.
-     * @param {ItemMediaCreateManyAndReturnArgs} args - Arguments to create many ItemMedias.
-     * @example
-     * // Create many ItemMedias
-     * const itemMedia = await prisma.itemMedia.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many ItemMedias and only return the `id`
-     * const itemMediaWithIdOnly = await prisma.itemMedia.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ItemMediaCreateManyAndReturnArgs>(args?: SelectSubset<T, ItemMediaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a ItemMedia.
-     * @param {ItemMediaDeleteArgs} args - Arguments to delete one ItemMedia.
-     * @example
-     * // Delete one ItemMedia
-     * const ItemMedia = await prisma.itemMedia.delete({
-     *   where: {
-     *     // ... filter to delete one ItemMedia
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ItemMediaDeleteArgs>(args: SelectSubset<T, ItemMediaDeleteArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one ItemMedia.
-     * @param {ItemMediaUpdateArgs} args - Arguments to update one ItemMedia.
-     * @example
-     * // Update one ItemMedia
-     * const itemMedia = await prisma.itemMedia.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ItemMediaUpdateArgs>(args: SelectSubset<T, ItemMediaUpdateArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more ItemMedias.
-     * @param {ItemMediaDeleteManyArgs} args - Arguments to filter ItemMedias to delete.
-     * @example
-     * // Delete a few ItemMedias
-     * const { count } = await prisma.itemMedia.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ItemMediaDeleteManyArgs>(args?: SelectSubset<T, ItemMediaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ItemMedias.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many ItemMedias
-     * const itemMedia = await prisma.itemMedia.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ItemMediaUpdateManyArgs>(args: SelectSubset<T, ItemMediaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more ItemMedias and returns the data updated in the database.
-     * @param {ItemMediaUpdateManyAndReturnArgs} args - Arguments to update many ItemMedias.
-     * @example
-     * // Update many ItemMedias
-     * const itemMedia = await prisma.itemMedia.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more ItemMedias and only return the `id`
-     * const itemMediaWithIdOnly = await prisma.itemMedia.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends ItemMediaUpdateManyAndReturnArgs>(args: SelectSubset<T, ItemMediaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one ItemMedia.
-     * @param {ItemMediaUpsertArgs} args - Arguments to update or create a ItemMedia.
-     * @example
-     * // Update or create a ItemMedia
-     * const itemMedia = await prisma.itemMedia.upsert({
-     *   create: {
-     *     // ... data to create a ItemMedia
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the ItemMedia we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ItemMediaUpsertArgs>(args: SelectSubset<T, ItemMediaUpsertArgs<ExtArgs>>): Prisma__ItemMediaClient<$Result.GetResult<Prisma.$ItemMediaPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of ItemMedias.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaCountArgs} args - Arguments to filter ItemMedias to count.
-     * @example
-     * // Count the number of ItemMedias
-     * const count = await prisma.itemMedia.count({
-     *   where: {
-     *     // ... the filter for the ItemMedias we want to count
-     *   }
-     * })
-    **/
-    count<T extends ItemMediaCountArgs>(
-      args?: Subset<T, ItemMediaCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ItemMediaCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a ItemMedia.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ItemMediaAggregateArgs>(args: Subset<T, ItemMediaAggregateArgs>): Prisma.PrismaPromise<GetItemMediaAggregateType<T>>
-
-    /**
-     * Group by ItemMedia.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ItemMediaGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ItemMediaGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ItemMediaGroupByArgs['orderBy'] }
-        : { orderBy?: ItemMediaGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ItemMediaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetItemMediaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the ItemMedia model
-   */
-  readonly fields: ItemMediaFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for ItemMedia.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ItemMediaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    item<T extends InspectionItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItemDefaultArgs<ExtArgs>>): Prisma__InspectionItemClient<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the ItemMedia model
-   */
-  interface ItemMediaFieldRefs {
-    readonly id: FieldRef<"ItemMedia", 'String'>
-    readonly itemId: FieldRef<"ItemMedia", 'String'>
-    readonly storagePath: FieldRef<"ItemMedia", 'String'>
-    readonly kind: FieldRef<"ItemMedia", 'MediaKind'>
-    readonly timestampSec: FieldRef<"ItemMedia", 'Int'>
-    readonly createdAt: FieldRef<"ItemMedia", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * ItemMedia findUnique
-   */
-  export type ItemMediaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * Filter, which ItemMedia to fetch.
-     */
-    where: ItemMediaWhereUniqueInput
-  }
-
-  /**
-   * ItemMedia findUniqueOrThrow
-   */
-  export type ItemMediaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * Filter, which ItemMedia to fetch.
-     */
-    where: ItemMediaWhereUniqueInput
-  }
-
-  /**
-   * ItemMedia findFirst
-   */
-  export type ItemMediaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * Filter, which ItemMedia to fetch.
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ItemMedias to fetch.
-     */
-    orderBy?: ItemMediaOrderByWithRelationInput | ItemMediaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ItemMedias.
-     */
-    cursor?: ItemMediaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ItemMedias from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ItemMedias.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ItemMedias.
-     */
-    distinct?: ItemMediaScalarFieldEnum | ItemMediaScalarFieldEnum[]
-  }
-
-  /**
-   * ItemMedia findFirstOrThrow
-   */
-  export type ItemMediaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * Filter, which ItemMedia to fetch.
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ItemMedias to fetch.
-     */
-    orderBy?: ItemMediaOrderByWithRelationInput | ItemMediaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for ItemMedias.
-     */
-    cursor?: ItemMediaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ItemMedias from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ItemMedias.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ItemMedias.
-     */
-    distinct?: ItemMediaScalarFieldEnum | ItemMediaScalarFieldEnum[]
-  }
-
-  /**
-   * ItemMedia findMany
-   */
-  export type ItemMediaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * Filter, which ItemMedias to fetch.
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of ItemMedias to fetch.
-     */
-    orderBy?: ItemMediaOrderByWithRelationInput | ItemMediaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing ItemMedias.
-     */
-    cursor?: ItemMediaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` ItemMedias from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` ItemMedias.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of ItemMedias.
-     */
-    distinct?: ItemMediaScalarFieldEnum | ItemMediaScalarFieldEnum[]
-  }
-
-  /**
-   * ItemMedia create
-   */
-  export type ItemMediaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * The data needed to create a ItemMedia.
-     */
-    data: XOR<ItemMediaCreateInput, ItemMediaUncheckedCreateInput>
-  }
-
-  /**
-   * ItemMedia createMany
-   */
-  export type ItemMediaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many ItemMedias.
-     */
-    data: ItemMediaCreateManyInput | ItemMediaCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * ItemMedia createManyAndReturn
-   */
-  export type ItemMediaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * The data used to create many ItemMedias.
-     */
-    data: ItemMediaCreateManyInput | ItemMediaCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * ItemMedia update
-   */
-  export type ItemMediaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * The data needed to update a ItemMedia.
-     */
-    data: XOR<ItemMediaUpdateInput, ItemMediaUncheckedUpdateInput>
-    /**
-     * Choose, which ItemMedia to update.
-     */
-    where: ItemMediaWhereUniqueInput
-  }
-
-  /**
-   * ItemMedia updateMany
-   */
-  export type ItemMediaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update ItemMedias.
-     */
-    data: XOR<ItemMediaUpdateManyMutationInput, ItemMediaUncheckedUpdateManyInput>
-    /**
-     * Filter which ItemMedias to update
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * Limit how many ItemMedias to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * ItemMedia updateManyAndReturn
-   */
-  export type ItemMediaUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * The data used to update ItemMedias.
-     */
-    data: XOR<ItemMediaUpdateManyMutationInput, ItemMediaUncheckedUpdateManyInput>
-    /**
-     * Filter which ItemMedias to update
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * Limit how many ItemMedias to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * ItemMedia upsert
-   */
-  export type ItemMediaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * The filter to search for the ItemMedia to update in case it exists.
-     */
-    where: ItemMediaWhereUniqueInput
-    /**
-     * In case the ItemMedia found by the `where` argument doesn't exist, create a new ItemMedia with this data.
-     */
-    create: XOR<ItemMediaCreateInput, ItemMediaUncheckedCreateInput>
-    /**
-     * In case the ItemMedia was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ItemMediaUpdateInput, ItemMediaUncheckedUpdateInput>
-  }
-
-  /**
-   * ItemMedia delete
-   */
-  export type ItemMediaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
-    /**
-     * Filter which ItemMedia to delete.
-     */
-    where: ItemMediaWhereUniqueInput
-  }
-
-  /**
-   * ItemMedia deleteMany
-   */
-  export type ItemMediaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ItemMedias to delete
-     */
-    where?: ItemMediaWhereInput
-    /**
-     * Limit how many ItemMedias to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * ItemMedia without action
-   */
-  export type ItemMediaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ItemMedia
-     */
-    select?: ItemMediaSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ItemMedia
-     */
-    omit?: ItemMediaOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ItemMediaInclude<ExtArgs> | null
   }
 
 
@@ -14115,12 +13101,14 @@ export namespace Prisma {
 
   export const CaptureScalarFieldEnum: {
     id: 'id',
-    inspectionId: 'inspectionId',
+    roomId: 'roomId',
+    kind: 'kind',
     storagePath: 'storagePath',
     mimeType: 'mimeType',
     sizeBytes: 'sizeBytes',
     durationSec: 'durationSec',
     transcript: 'transcript',
+    note: 'note',
     processedAt: 'processedAt',
     createdAt: 'createdAt'
   };
@@ -14132,7 +13120,11 @@ export namespace Prisma {
     id: 'id',
     inspectionId: 'inspectionId',
     name: 'name',
-    order: 'order'
+    order: 'order',
+    status: 'status',
+    processingError: 'processingError',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type RoomScalarFieldEnum = (typeof RoomScalarFieldEnum)[keyof typeof RoomScalarFieldEnum]
@@ -14146,7 +13138,9 @@ export namespace Prisma {
     condition: 'condition',
     quantity: 'quantity',
     notes: 'notes',
+    identifier: 'identifier',
     meterReading: 'meterReading',
+    sourceCaptureId: 'sourceCaptureId',
     sourceTimestampSec: 'sourceTimestampSec',
     confidence: 'confidence',
     editedByHuman: 'editedByHuman',
@@ -14155,18 +13149,6 @@ export namespace Prisma {
   };
 
   export type InspectionItemScalarFieldEnum = (typeof InspectionItemScalarFieldEnum)[keyof typeof InspectionItemScalarFieldEnum]
-
-
-  export const ItemMediaScalarFieldEnum: {
-    id: 'id',
-    itemId: 'itemId',
-    storagePath: 'storagePath',
-    kind: 'kind',
-    timestampSec: 'timestampSec',
-    createdAt: 'createdAt'
-  };
-
-  export type ItemMediaScalarFieldEnum = (typeof ItemMediaScalarFieldEnum)[keyof typeof ItemMediaScalarFieldEnum]
 
 
   export const FindingScalarFieldEnum: {
@@ -14327,6 +13309,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'CaptureKind'
+   */
+  export type EnumCaptureKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CaptureKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'CaptureKind[]'
+   */
+  export type ListEnumCaptureKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CaptureKind[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -14337,6 +13333,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RoomStatus'
+   */
+  export type EnumRoomStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RoomStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'RoomStatus[]'
+   */
+  export type ListEnumRoomStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RoomStatus[]'>
     
 
 
@@ -14386,20 +13396,6 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
-   * Reference to a field of type 'MediaKind'
-   */
-  export type EnumMediaKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MediaKind'>
-    
-
-
-  /**
-   * Reference to a field of type 'MediaKind[]'
-   */
-  export type ListEnumMediaKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MediaKind[]'>
     
 
 
@@ -14699,7 +13695,6 @@ export namespace Prisma {
     conductedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     baseline?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     checkOut?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
-    captures?: CaptureListRelationFilter
     rooms?: RoomListRelationFilter
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
@@ -14721,7 +13716,6 @@ export namespace Prisma {
     conductedBy?: StakeholderOrderByWithRelationInput
     baseline?: InspectionOrderByWithRelationInput
     checkOut?: InspectionOrderByWithRelationInput
-    captures?: CaptureOrderByRelationAggregateInput
     rooms?: RoomOrderByRelationAggregateInput
     findings?: FindingOrderByRelationAggregateInput
     signatures?: SignatureOrderByRelationAggregateInput
@@ -14746,7 +13740,6 @@ export namespace Prisma {
     conductedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     baseline?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     checkOut?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
-    captures?: CaptureListRelationFilter
     rooms?: RoomListRelationFilter
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
@@ -14791,28 +13784,34 @@ export namespace Prisma {
     OR?: CaptureWhereInput[]
     NOT?: CaptureWhereInput | CaptureWhereInput[]
     id?: StringFilter<"Capture"> | string
-    inspectionId?: StringFilter<"Capture"> | string
+    roomId?: StringFilter<"Capture"> | string
+    kind?: EnumCaptureKindFilter<"Capture"> | $Enums.CaptureKind
     storagePath?: StringFilter<"Capture"> | string
     mimeType?: StringFilter<"Capture"> | string
     sizeBytes?: IntFilter<"Capture"> | number
     durationSec?: IntNullableFilter<"Capture"> | number | null
     transcript?: StringNullableFilter<"Capture"> | string | null
+    note?: StringNullableFilter<"Capture"> | string | null
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeFilter<"Capture"> | Date | string
-    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    items?: InspectionItemListRelationFilter
   }
 
   export type CaptureOrderByWithRelationInput = {
     id?: SortOrder
-    inspectionId?: SortOrder
+    roomId?: SortOrder
+    kind?: SortOrder
     storagePath?: SortOrder
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     durationSec?: SortOrderInput | SortOrder
     transcript?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    inspection?: InspectionOrderByWithRelationInput
+    room?: RoomOrderByWithRelationInput
+    items?: InspectionItemOrderByRelationAggregateInput
   }
 
   export type CaptureWhereUniqueInput = Prisma.AtLeast<{
@@ -14820,25 +13819,30 @@ export namespace Prisma {
     AND?: CaptureWhereInput | CaptureWhereInput[]
     OR?: CaptureWhereInput[]
     NOT?: CaptureWhereInput | CaptureWhereInput[]
-    inspectionId?: StringFilter<"Capture"> | string
+    roomId?: StringFilter<"Capture"> | string
+    kind?: EnumCaptureKindFilter<"Capture"> | $Enums.CaptureKind
     storagePath?: StringFilter<"Capture"> | string
     mimeType?: StringFilter<"Capture"> | string
     sizeBytes?: IntFilter<"Capture"> | number
     durationSec?: IntNullableFilter<"Capture"> | number | null
     transcript?: StringNullableFilter<"Capture"> | string | null
+    note?: StringNullableFilter<"Capture"> | string | null
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeFilter<"Capture"> | Date | string
-    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    items?: InspectionItemListRelationFilter
   }, "id">
 
   export type CaptureOrderByWithAggregationInput = {
     id?: SortOrder
-    inspectionId?: SortOrder
+    roomId?: SortOrder
+    kind?: SortOrder
     storagePath?: SortOrder
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     durationSec?: SortOrderInput | SortOrder
     transcript?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: CaptureCountOrderByAggregateInput
@@ -14853,12 +13857,14 @@ export namespace Prisma {
     OR?: CaptureScalarWhereWithAggregatesInput[]
     NOT?: CaptureScalarWhereWithAggregatesInput | CaptureScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Capture"> | string
-    inspectionId?: StringWithAggregatesFilter<"Capture"> | string
+    roomId?: StringWithAggregatesFilter<"Capture"> | string
+    kind?: EnumCaptureKindWithAggregatesFilter<"Capture"> | $Enums.CaptureKind
     storagePath?: StringWithAggregatesFilter<"Capture"> | string
     mimeType?: StringWithAggregatesFilter<"Capture"> | string
     sizeBytes?: IntWithAggregatesFilter<"Capture"> | number
     durationSec?: IntNullableWithAggregatesFilter<"Capture"> | number | null
     transcript?: StringNullableWithAggregatesFilter<"Capture"> | string | null
+    note?: StringNullableWithAggregatesFilter<"Capture"> | string | null
     processedAt?: DateTimeNullableWithAggregatesFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Capture"> | Date | string
   }
@@ -14871,7 +13877,12 @@ export namespace Prisma {
     inspectionId?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
     order?: IntFilter<"Room"> | number
+    status?: EnumRoomStatusFilter<"Room"> | $Enums.RoomStatus
+    processingError?: StringNullableFilter<"Room"> | string | null
+    createdAt?: DateTimeFilter<"Room"> | Date | string
+    updatedAt?: DateTimeFilter<"Room"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    captures?: CaptureListRelationFilter
     items?: InspectionItemListRelationFilter
   }
 
@@ -14880,7 +13891,12 @@ export namespace Prisma {
     inspectionId?: SortOrder
     name?: SortOrder
     order?: SortOrder
+    status?: SortOrder
+    processingError?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     inspection?: InspectionOrderByWithRelationInput
+    captures?: CaptureOrderByRelationAggregateInput
     items?: InspectionItemOrderByRelationAggregateInput
   }
 
@@ -14892,7 +13908,12 @@ export namespace Prisma {
     inspectionId?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
     order?: IntFilter<"Room"> | number
+    status?: EnumRoomStatusFilter<"Room"> | $Enums.RoomStatus
+    processingError?: StringNullableFilter<"Room"> | string | null
+    createdAt?: DateTimeFilter<"Room"> | Date | string
+    updatedAt?: DateTimeFilter<"Room"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    captures?: CaptureListRelationFilter
     items?: InspectionItemListRelationFilter
   }, "id">
 
@@ -14901,6 +13922,10 @@ export namespace Prisma {
     inspectionId?: SortOrder
     name?: SortOrder
     order?: SortOrder
+    status?: SortOrder
+    processingError?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: RoomCountOrderByAggregateInput
     _avg?: RoomAvgOrderByAggregateInput
     _max?: RoomMaxOrderByAggregateInput
@@ -14916,6 +13941,10 @@ export namespace Prisma {
     inspectionId?: StringWithAggregatesFilter<"Room"> | string
     name?: StringWithAggregatesFilter<"Room"> | string
     order?: IntWithAggregatesFilter<"Room"> | number
+    status?: EnumRoomStatusWithAggregatesFilter<"Room"> | $Enums.RoomStatus
+    processingError?: StringNullableWithAggregatesFilter<"Room"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
   }
 
   export type InspectionItemWhereInput = {
@@ -14929,14 +13958,16 @@ export namespace Prisma {
     condition?: EnumItemConditionFilter<"InspectionItem"> | $Enums.ItemCondition
     quantity?: IntFilter<"InspectionItem"> | number
     notes?: StringNullableFilter<"InspectionItem"> | string | null
+    identifier?: StringNullableFilter<"InspectionItem"> | string | null
     meterReading?: StringNullableFilter<"InspectionItem"> | string | null
+    sourceCaptureId?: StringNullableFilter<"InspectionItem"> | string | null
     sourceTimestampSec?: IntNullableFilter<"InspectionItem"> | number | null
     confidence?: FloatNullableFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolFilter<"InspectionItem"> | boolean
     createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
-    media?: ItemMediaListRelationFilter
+    sourceCapture?: XOR<CaptureNullableScalarRelationFilter, CaptureWhereInput> | null
     findingsAsSubject?: FindingListRelationFilter
     findingsAsBaseline?: FindingListRelationFilter
   }
@@ -14949,14 +13980,16 @@ export namespace Prisma {
     condition?: SortOrder
     quantity?: SortOrder
     notes?: SortOrderInput | SortOrder
+    identifier?: SortOrderInput | SortOrder
     meterReading?: SortOrderInput | SortOrder
+    sourceCaptureId?: SortOrderInput | SortOrder
     sourceTimestampSec?: SortOrderInput | SortOrder
     confidence?: SortOrderInput | SortOrder
     editedByHuman?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     room?: RoomOrderByWithRelationInput
-    media?: ItemMediaOrderByRelationAggregateInput
+    sourceCapture?: CaptureOrderByWithRelationInput
     findingsAsSubject?: FindingOrderByRelationAggregateInput
     findingsAsBaseline?: FindingOrderByRelationAggregateInput
   }
@@ -14972,14 +14005,16 @@ export namespace Prisma {
     condition?: EnumItemConditionFilter<"InspectionItem"> | $Enums.ItemCondition
     quantity?: IntFilter<"InspectionItem"> | number
     notes?: StringNullableFilter<"InspectionItem"> | string | null
+    identifier?: StringNullableFilter<"InspectionItem"> | string | null
     meterReading?: StringNullableFilter<"InspectionItem"> | string | null
+    sourceCaptureId?: StringNullableFilter<"InspectionItem"> | string | null
     sourceTimestampSec?: IntNullableFilter<"InspectionItem"> | number | null
     confidence?: FloatNullableFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolFilter<"InspectionItem"> | boolean
     createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
-    media?: ItemMediaListRelationFilter
+    sourceCapture?: XOR<CaptureNullableScalarRelationFilter, CaptureWhereInput> | null
     findingsAsSubject?: FindingListRelationFilter
     findingsAsBaseline?: FindingListRelationFilter
   }, "id">
@@ -14992,7 +14027,9 @@ export namespace Prisma {
     condition?: SortOrder
     quantity?: SortOrder
     notes?: SortOrderInput | SortOrder
+    identifier?: SortOrderInput | SortOrder
     meterReading?: SortOrderInput | SortOrder
+    sourceCaptureId?: SortOrderInput | SortOrder
     sourceTimestampSec?: SortOrderInput | SortOrder
     confidence?: SortOrderInput | SortOrder
     editedByHuman?: SortOrder
@@ -15016,74 +14053,14 @@ export namespace Prisma {
     condition?: EnumItemConditionWithAggregatesFilter<"InspectionItem"> | $Enums.ItemCondition
     quantity?: IntWithAggregatesFilter<"InspectionItem"> | number
     notes?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
+    identifier?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
     meterReading?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
+    sourceCaptureId?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
     sourceTimestampSec?: IntNullableWithAggregatesFilter<"InspectionItem"> | number | null
     confidence?: FloatNullableWithAggregatesFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolWithAggregatesFilter<"InspectionItem"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"InspectionItem"> | Date | string
-  }
-
-  export type ItemMediaWhereInput = {
-    AND?: ItemMediaWhereInput | ItemMediaWhereInput[]
-    OR?: ItemMediaWhereInput[]
-    NOT?: ItemMediaWhereInput | ItemMediaWhereInput[]
-    id?: StringFilter<"ItemMedia"> | string
-    itemId?: StringFilter<"ItemMedia"> | string
-    storagePath?: StringFilter<"ItemMedia"> | string
-    kind?: EnumMediaKindFilter<"ItemMedia"> | $Enums.MediaKind
-    timestampSec?: IntNullableFilter<"ItemMedia"> | number | null
-    createdAt?: DateTimeFilter<"ItemMedia"> | Date | string
-    item?: XOR<InspectionItemScalarRelationFilter, InspectionItemWhereInput>
-  }
-
-  export type ItemMediaOrderByWithRelationInput = {
-    id?: SortOrder
-    itemId?: SortOrder
-    storagePath?: SortOrder
-    kind?: SortOrder
-    timestampSec?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    item?: InspectionItemOrderByWithRelationInput
-  }
-
-  export type ItemMediaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ItemMediaWhereInput | ItemMediaWhereInput[]
-    OR?: ItemMediaWhereInput[]
-    NOT?: ItemMediaWhereInput | ItemMediaWhereInput[]
-    itemId?: StringFilter<"ItemMedia"> | string
-    storagePath?: StringFilter<"ItemMedia"> | string
-    kind?: EnumMediaKindFilter<"ItemMedia"> | $Enums.MediaKind
-    timestampSec?: IntNullableFilter<"ItemMedia"> | number | null
-    createdAt?: DateTimeFilter<"ItemMedia"> | Date | string
-    item?: XOR<InspectionItemScalarRelationFilter, InspectionItemWhereInput>
-  }, "id">
-
-  export type ItemMediaOrderByWithAggregationInput = {
-    id?: SortOrder
-    itemId?: SortOrder
-    storagePath?: SortOrder
-    kind?: SortOrder
-    timestampSec?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    _count?: ItemMediaCountOrderByAggregateInput
-    _avg?: ItemMediaAvgOrderByAggregateInput
-    _max?: ItemMediaMaxOrderByAggregateInput
-    _min?: ItemMediaMinOrderByAggregateInput
-    _sum?: ItemMediaSumOrderByAggregateInput
-  }
-
-  export type ItemMediaScalarWhereWithAggregatesInput = {
-    AND?: ItemMediaScalarWhereWithAggregatesInput | ItemMediaScalarWhereWithAggregatesInput[]
-    OR?: ItemMediaScalarWhereWithAggregatesInput[]
-    NOT?: ItemMediaScalarWhereWithAggregatesInput | ItemMediaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ItemMedia"> | string
-    itemId?: StringWithAggregatesFilter<"ItemMedia"> | string
-    storagePath?: StringWithAggregatesFilter<"ItemMedia"> | string
-    kind?: EnumMediaKindWithAggregatesFilter<"ItemMedia"> | $Enums.MediaKind
-    timestampSec?: IntNullableWithAggregatesFilter<"ItemMedia"> | number | null
-    createdAt?: DateTimeWithAggregatesFilter<"ItemMedia"> | Date | string
   }
 
   export type FindingWhereInput = {
@@ -15530,7 +14507,6 @@ export namespace Prisma {
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
@@ -15549,7 +14525,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
@@ -15568,7 +14543,6 @@ export namespace Prisma {
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
@@ -15587,7 +14561,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
@@ -15634,83 +14607,101 @@ export namespace Prisma {
 
   export type CaptureCreateInput = {
     id?: string
+    kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
     sizeBytes: number
     durationSec?: number | null
     transcript?: string | null
+    note?: string | null
     processedAt?: Date | string | null
     createdAt?: Date | string
-    inspection: InspectionCreateNestedOneWithoutCapturesInput
+    room: RoomCreateNestedOneWithoutCapturesInput
+    items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
   }
 
   export type CaptureUncheckedCreateInput = {
     id?: string
-    inspectionId: string
+    roomId: string
+    kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
     sizeBytes: number
     durationSec?: number | null
     transcript?: string | null
+    note?: string | null
     processedAt?: Date | string | null
     createdAt?: Date | string
+    items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
   }
 
   export type CaptureUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    inspection?: InspectionUpdateOneRequiredWithoutCapturesNestedInput
+    room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
+    items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
   }
 
   export type CaptureUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    inspectionId?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
   }
 
   export type CaptureCreateManyInput = {
     id?: string
-    inspectionId: string
+    roomId: string
+    kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
     sizeBytes: number
     durationSec?: number | null
     transcript?: string | null
+    note?: string | null
     processedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type CaptureUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaptureUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    inspectionId?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15719,7 +14710,12 @@ export namespace Prisma {
     id?: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
+    captures?: CaptureCreateNestedManyWithoutRoomInput
     items?: InspectionItemCreateNestedManyWithoutRoomInput
   }
 
@@ -15728,6 +14724,11 @@ export namespace Prisma {
     inspectionId: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
     items?: InspectionItemUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -15735,7 +14736,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
+    captures?: CaptureUpdateManyWithoutRoomNestedInput
     items?: InspectionItemUpdateManyWithoutRoomNestedInput
   }
 
@@ -15744,6 +14750,11 @@ export namespace Prisma {
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
     items?: InspectionItemUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -15752,12 +14763,20 @@ export namespace Prisma {
     inspectionId: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type RoomUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RoomUncheckedUpdateManyInput = {
@@ -15765,6 +14784,10 @@ export namespace Prisma {
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InspectionItemCreateInput = {
@@ -15774,6 +14797,7 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
@@ -15781,7 +14805,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
-    media?: ItemMediaCreateNestedManyWithoutItemInput
+    sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
@@ -15794,13 +14818,14 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
+    sourceCaptureId?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    media?: ItemMediaUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
@@ -15812,6 +14837,7 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -15819,7 +14845,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
-    media?: ItemMediaUpdateManyWithoutItemNestedInput
+    sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
@@ -15832,13 +14858,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    media?: ItemMediaUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
@@ -15851,7 +14878,9 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
+    sourceCaptureId?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
@@ -15866,6 +14895,7 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -15882,74 +14912,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ItemMediaCreateInput = {
-    id?: string
-    storagePath: string
-    kind?: $Enums.MediaKind
-    timestampSec?: number | null
-    createdAt?: Date | string
-    item: InspectionItemCreateNestedOneWithoutMediaInput
-  }
-
-  export type ItemMediaUncheckedCreateInput = {
-    id?: string
-    itemId: string
-    storagePath: string
-    kind?: $Enums.MediaKind
-    timestampSec?: number | null
-    createdAt?: Date | string
-  }
-
-  export type ItemMediaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    item?: InspectionItemUpdateOneRequiredWithoutMediaNestedInput
-  }
-
-  export type ItemMediaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    itemId?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ItemMediaCreateManyInput = {
-    id?: string
-    itemId: string
-    storagePath: string
-    kind?: $Enums.MediaKind
-    timestampSec?: number | null
-    createdAt?: Date | string
-  }
-
-  export type ItemMediaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ItemMediaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    itemId?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingCreateInput = {
@@ -16467,12 +15437,6 @@ export namespace Prisma {
     isNot?: InspectionWhereInput | null
   }
 
-  export type CaptureListRelationFilter = {
-    every?: CaptureWhereInput
-    some?: CaptureWhereInput
-    none?: CaptureWhereInput
-  }
-
   export type RoomListRelationFilter = {
     every?: RoomWhereInput
     some?: RoomWhereInput
@@ -16483,10 +15447,6 @@ export namespace Prisma {
     every?: FindingWhereInput
     some?: FindingWhereInput
     none?: FindingWhereInput
-  }
-
-  export type CaptureOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type RoomOrderByRelationAggregateInput = {
@@ -16573,6 +15533,13 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type EnumCaptureKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.CaptureKind | EnumCaptureKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCaptureKindFilter<$PrismaModel> | $Enums.CaptureKind
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -16595,19 +15562,31 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type InspectionScalarRelationFilter = {
-    is?: InspectionWhereInput
-    isNot?: InspectionWhereInput
+  export type RoomScalarRelationFilter = {
+    is?: RoomWhereInput
+    isNot?: RoomWhereInput
+  }
+
+  export type InspectionItemListRelationFilter = {
+    every?: InspectionItemWhereInput
+    some?: InspectionItemWhereInput
+    none?: InspectionItemWhereInput
+  }
+
+  export type InspectionItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type CaptureCountOrderByAggregateInput = {
     id?: SortOrder
-    inspectionId?: SortOrder
+    roomId?: SortOrder
+    kind?: SortOrder
     storagePath?: SortOrder
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     durationSec?: SortOrder
     transcript?: SortOrder
+    note?: SortOrder
     processedAt?: SortOrder
     createdAt?: SortOrder
   }
@@ -16619,24 +15598,28 @@ export namespace Prisma {
 
   export type CaptureMaxOrderByAggregateInput = {
     id?: SortOrder
-    inspectionId?: SortOrder
+    roomId?: SortOrder
+    kind?: SortOrder
     storagePath?: SortOrder
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     durationSec?: SortOrder
     transcript?: SortOrder
+    note?: SortOrder
     processedAt?: SortOrder
     createdAt?: SortOrder
   }
 
   export type CaptureMinOrderByAggregateInput = {
     id?: SortOrder
-    inspectionId?: SortOrder
+    roomId?: SortOrder
+    kind?: SortOrder
     storagePath?: SortOrder
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     durationSec?: SortOrder
     transcript?: SortOrder
+    note?: SortOrder
     processedAt?: SortOrder
     createdAt?: SortOrder
   }
@@ -16644,6 +15627,16 @@ export namespace Prisma {
   export type CaptureSumOrderByAggregateInput = {
     sizeBytes?: SortOrder
     durationSec?: SortOrder
+  }
+
+  export type EnumCaptureKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CaptureKind | EnumCaptureKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCaptureKindWithAggregatesFilter<$PrismaModel> | $Enums.CaptureKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCaptureKindFilter<$PrismaModel>
+    _max?: NestedEnumCaptureKindFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -16678,13 +15671,25 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type InspectionItemListRelationFilter = {
-    every?: InspectionItemWhereInput
-    some?: InspectionItemWhereInput
-    none?: InspectionItemWhereInput
+  export type EnumRoomStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoomStatus | EnumRoomStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoomStatusFilter<$PrismaModel> | $Enums.RoomStatus
   }
 
-  export type InspectionItemOrderByRelationAggregateInput = {
+  export type InspectionScalarRelationFilter = {
+    is?: InspectionWhereInput
+    isNot?: InspectionWhereInput
+  }
+
+  export type CaptureListRelationFilter = {
+    every?: CaptureWhereInput
+    some?: CaptureWhereInput
+    none?: CaptureWhereInput
+  }
+
+  export type CaptureOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -16693,6 +15698,10 @@ export namespace Prisma {
     inspectionId?: SortOrder
     name?: SortOrder
     order?: SortOrder
+    status?: SortOrder
+    processingError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type RoomAvgOrderByAggregateInput = {
@@ -16704,6 +15713,10 @@ export namespace Prisma {
     inspectionId?: SortOrder
     name?: SortOrder
     order?: SortOrder
+    status?: SortOrder
+    processingError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type RoomMinOrderByAggregateInput = {
@@ -16711,10 +15724,24 @@ export namespace Prisma {
     inspectionId?: SortOrder
     name?: SortOrder
     order?: SortOrder
+    status?: SortOrder
+    processingError?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type RoomSumOrderByAggregateInput = {
     order?: SortOrder
+  }
+
+  export type EnumRoomStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoomStatus | EnumRoomStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoomStatusWithAggregatesFilter<$PrismaModel> | $Enums.RoomStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoomStatusFilter<$PrismaModel>
+    _max?: NestedEnumRoomStatusFilter<$PrismaModel>
   }
 
   export type EnumItemCategoryFilter<$PrismaModel = never> = {
@@ -16747,19 +15774,9 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type RoomScalarRelationFilter = {
-    is?: RoomWhereInput
-    isNot?: RoomWhereInput
-  }
-
-  export type ItemMediaListRelationFilter = {
-    every?: ItemMediaWhereInput
-    some?: ItemMediaWhereInput
-    none?: ItemMediaWhereInput
-  }
-
-  export type ItemMediaOrderByRelationAggregateInput = {
-    _count?: SortOrder
+  export type CaptureNullableScalarRelationFilter = {
+    is?: CaptureWhereInput | null
+    isNot?: CaptureWhereInput | null
   }
 
   export type InspectionItemCountOrderByAggregateInput = {
@@ -16770,7 +15787,9 @@ export namespace Prisma {
     condition?: SortOrder
     quantity?: SortOrder
     notes?: SortOrder
+    identifier?: SortOrder
     meterReading?: SortOrder
+    sourceCaptureId?: SortOrder
     sourceTimestampSec?: SortOrder
     confidence?: SortOrder
     editedByHuman?: SortOrder
@@ -16792,7 +15811,9 @@ export namespace Prisma {
     condition?: SortOrder
     quantity?: SortOrder
     notes?: SortOrder
+    identifier?: SortOrder
     meterReading?: SortOrder
+    sourceCaptureId?: SortOrder
     sourceTimestampSec?: SortOrder
     confidence?: SortOrder
     editedByHuman?: SortOrder
@@ -16808,7 +15829,9 @@ export namespace Prisma {
     condition?: SortOrder
     quantity?: SortOrder
     notes?: SortOrder
+    identifier?: SortOrder
     meterReading?: SortOrder
+    sourceCaptureId?: SortOrder
     sourceTimestampSec?: SortOrder
     confidence?: SortOrder
     editedByHuman?: SortOrder
@@ -16864,63 +15887,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type EnumMediaKindFilter<$PrismaModel = never> = {
-    equals?: $Enums.MediaKind | EnumMediaKindFieldRefInput<$PrismaModel>
-    in?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    not?: NestedEnumMediaKindFilter<$PrismaModel> | $Enums.MediaKind
-  }
-
-  export type InspectionItemScalarRelationFilter = {
-    is?: InspectionItemWhereInput
-    isNot?: InspectionItemWhereInput
-  }
-
-  export type ItemMediaCountOrderByAggregateInput = {
-    id?: SortOrder
-    itemId?: SortOrder
-    storagePath?: SortOrder
-    kind?: SortOrder
-    timestampSec?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type ItemMediaAvgOrderByAggregateInput = {
-    timestampSec?: SortOrder
-  }
-
-  export type ItemMediaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    itemId?: SortOrder
-    storagePath?: SortOrder
-    kind?: SortOrder
-    timestampSec?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type ItemMediaMinOrderByAggregateInput = {
-    id?: SortOrder
-    itemId?: SortOrder
-    storagePath?: SortOrder
-    kind?: SortOrder
-    timestampSec?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type ItemMediaSumOrderByAggregateInput = {
-    timestampSec?: SortOrder
-  }
-
-  export type EnumMediaKindWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.MediaKind | EnumMediaKindFieldRefInput<$PrismaModel>
-    in?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    not?: NestedEnumMediaKindWithAggregatesFilter<$PrismaModel> | $Enums.MediaKind
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumMediaKindFilter<$PrismaModel>
-    _max?: NestedEnumMediaKindFilter<$PrismaModel>
   }
 
   export type EnumChangeTypeFilter<$PrismaModel = never> = {
@@ -17480,13 +16446,6 @@ export namespace Prisma {
     connect?: InspectionWhereUniqueInput
   }
 
-  export type CaptureCreateNestedManyWithoutInspectionInput = {
-    create?: XOR<CaptureCreateWithoutInspectionInput, CaptureUncheckedCreateWithoutInspectionInput> | CaptureCreateWithoutInspectionInput[] | CaptureUncheckedCreateWithoutInspectionInput[]
-    connectOrCreate?: CaptureCreateOrConnectWithoutInspectionInput | CaptureCreateOrConnectWithoutInspectionInput[]
-    createMany?: CaptureCreateManyInspectionInputEnvelope
-    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-  }
-
   export type RoomCreateNestedManyWithoutInspectionInput = {
     create?: XOR<RoomCreateWithoutInspectionInput, RoomUncheckedCreateWithoutInspectionInput> | RoomCreateWithoutInspectionInput[] | RoomUncheckedCreateWithoutInspectionInput[]
     connectOrCreate?: RoomCreateOrConnectWithoutInspectionInput | RoomCreateOrConnectWithoutInspectionInput[]
@@ -17512,13 +16471,6 @@ export namespace Prisma {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
     connect?: InspectionWhereUniqueInput
-  }
-
-  export type CaptureUncheckedCreateNestedManyWithoutInspectionInput = {
-    create?: XOR<CaptureCreateWithoutInspectionInput, CaptureUncheckedCreateWithoutInspectionInput> | CaptureCreateWithoutInspectionInput[] | CaptureUncheckedCreateWithoutInspectionInput[]
-    connectOrCreate?: CaptureCreateOrConnectWithoutInspectionInput | CaptureCreateOrConnectWithoutInspectionInput[]
-    createMany?: CaptureCreateManyInspectionInputEnvelope
-    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
   }
 
   export type RoomUncheckedCreateNestedManyWithoutInspectionInput = {
@@ -17592,20 +16544,6 @@ export namespace Prisma {
     update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutBaselineInput, InspectionUpdateWithoutBaselineInput>, InspectionUncheckedUpdateWithoutBaselineInput>
   }
 
-  export type CaptureUpdateManyWithoutInspectionNestedInput = {
-    create?: XOR<CaptureCreateWithoutInspectionInput, CaptureUncheckedCreateWithoutInspectionInput> | CaptureCreateWithoutInspectionInput[] | CaptureUncheckedCreateWithoutInspectionInput[]
-    connectOrCreate?: CaptureCreateOrConnectWithoutInspectionInput | CaptureCreateOrConnectWithoutInspectionInput[]
-    upsert?: CaptureUpsertWithWhereUniqueWithoutInspectionInput | CaptureUpsertWithWhereUniqueWithoutInspectionInput[]
-    createMany?: CaptureCreateManyInspectionInputEnvelope
-    set?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    disconnect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    delete?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    update?: CaptureUpdateWithWhereUniqueWithoutInspectionInput | CaptureUpdateWithWhereUniqueWithoutInspectionInput[]
-    updateMany?: CaptureUpdateManyWithWhereWithoutInspectionInput | CaptureUpdateManyWithWhereWithoutInspectionInput[]
-    deleteMany?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
-  }
-
   export type RoomUpdateManyWithoutInspectionNestedInput = {
     create?: XOR<RoomCreateWithoutInspectionInput, RoomUncheckedCreateWithoutInspectionInput> | RoomCreateWithoutInspectionInput[] | RoomUncheckedCreateWithoutInspectionInput[]
     connectOrCreate?: RoomCreateOrConnectWithoutInspectionInput | RoomCreateOrConnectWithoutInspectionInput[]
@@ -17658,20 +16596,6 @@ export namespace Prisma {
     update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutBaselineInput, InspectionUpdateWithoutBaselineInput>, InspectionUncheckedUpdateWithoutBaselineInput>
   }
 
-  export type CaptureUncheckedUpdateManyWithoutInspectionNestedInput = {
-    create?: XOR<CaptureCreateWithoutInspectionInput, CaptureUncheckedCreateWithoutInspectionInput> | CaptureCreateWithoutInspectionInput[] | CaptureUncheckedCreateWithoutInspectionInput[]
-    connectOrCreate?: CaptureCreateOrConnectWithoutInspectionInput | CaptureCreateOrConnectWithoutInspectionInput[]
-    upsert?: CaptureUpsertWithWhereUniqueWithoutInspectionInput | CaptureUpsertWithWhereUniqueWithoutInspectionInput[]
-    createMany?: CaptureCreateManyInspectionInputEnvelope
-    set?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    disconnect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    delete?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
-    update?: CaptureUpdateWithWhereUniqueWithoutInspectionInput | CaptureUpdateWithWhereUniqueWithoutInspectionInput[]
-    updateMany?: CaptureUpdateManyWithWhereWithoutInspectionInput | CaptureUpdateManyWithWhereWithoutInspectionInput[]
-    deleteMany?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
-  }
-
   export type RoomUncheckedUpdateManyWithoutInspectionNestedInput = {
     create?: XOR<RoomCreateWithoutInspectionInput, RoomUncheckedCreateWithoutInspectionInput> | RoomCreateWithoutInspectionInput[] | RoomUncheckedCreateWithoutInspectionInput[]
     connectOrCreate?: RoomCreateOrConnectWithoutInspectionInput | RoomCreateOrConnectWithoutInspectionInput[]
@@ -17714,10 +16638,28 @@ export namespace Prisma {
     deleteMany?: SignatureScalarWhereInput | SignatureScalarWhereInput[]
   }
 
-  export type InspectionCreateNestedOneWithoutCapturesInput = {
-    create?: XOR<InspectionCreateWithoutCapturesInput, InspectionUncheckedCreateWithoutCapturesInput>
-    connectOrCreate?: InspectionCreateOrConnectWithoutCapturesInput
-    connect?: InspectionWhereUniqueInput
+  export type RoomCreateNestedOneWithoutCapturesInput = {
+    create?: XOR<RoomCreateWithoutCapturesInput, RoomUncheckedCreateWithoutCapturesInput>
+    connectOrCreate?: RoomCreateOrConnectWithoutCapturesInput
+    connect?: RoomWhereUniqueInput
+  }
+
+  export type InspectionItemCreateNestedManyWithoutSourceCaptureInput = {
+    create?: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput> | InspectionItemCreateWithoutSourceCaptureInput[] | InspectionItemUncheckedCreateWithoutSourceCaptureInput[]
+    connectOrCreate?: InspectionItemCreateOrConnectWithoutSourceCaptureInput | InspectionItemCreateOrConnectWithoutSourceCaptureInput[]
+    createMany?: InspectionItemCreateManySourceCaptureInputEnvelope
+    connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+  }
+
+  export type InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput = {
+    create?: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput> | InspectionItemCreateWithoutSourceCaptureInput[] | InspectionItemUncheckedCreateWithoutSourceCaptureInput[]
+    connectOrCreate?: InspectionItemCreateOrConnectWithoutSourceCaptureInput | InspectionItemCreateOrConnectWithoutSourceCaptureInput[]
+    createMany?: InspectionItemCreateManySourceCaptureInputEnvelope
+    connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+  }
+
+  export type EnumCaptureKindFieldUpdateOperationsInput = {
+    set?: $Enums.CaptureKind
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -17736,18 +16678,53 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type InspectionUpdateOneRequiredWithoutCapturesNestedInput = {
-    create?: XOR<InspectionCreateWithoutCapturesInput, InspectionUncheckedCreateWithoutCapturesInput>
-    connectOrCreate?: InspectionCreateOrConnectWithoutCapturesInput
-    upsert?: InspectionUpsertWithoutCapturesInput
-    connect?: InspectionWhereUniqueInput
-    update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutCapturesInput, InspectionUpdateWithoutCapturesInput>, InspectionUncheckedUpdateWithoutCapturesInput>
+  export type RoomUpdateOneRequiredWithoutCapturesNestedInput = {
+    create?: XOR<RoomCreateWithoutCapturesInput, RoomUncheckedCreateWithoutCapturesInput>
+    connectOrCreate?: RoomCreateOrConnectWithoutCapturesInput
+    upsert?: RoomUpsertWithoutCapturesInput
+    connect?: RoomWhereUniqueInput
+    update?: XOR<XOR<RoomUpdateToOneWithWhereWithoutCapturesInput, RoomUpdateWithoutCapturesInput>, RoomUncheckedUpdateWithoutCapturesInput>
+  }
+
+  export type InspectionItemUpdateManyWithoutSourceCaptureNestedInput = {
+    create?: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput> | InspectionItemCreateWithoutSourceCaptureInput[] | InspectionItemUncheckedCreateWithoutSourceCaptureInput[]
+    connectOrCreate?: InspectionItemCreateOrConnectWithoutSourceCaptureInput | InspectionItemCreateOrConnectWithoutSourceCaptureInput[]
+    upsert?: InspectionItemUpsertWithWhereUniqueWithoutSourceCaptureInput | InspectionItemUpsertWithWhereUniqueWithoutSourceCaptureInput[]
+    createMany?: InspectionItemCreateManySourceCaptureInputEnvelope
+    set?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    disconnect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    delete?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    update?: InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput | InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput[]
+    updateMany?: InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput | InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput[]
+    deleteMany?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
+  }
+
+  export type InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput = {
+    create?: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput> | InspectionItemCreateWithoutSourceCaptureInput[] | InspectionItemUncheckedCreateWithoutSourceCaptureInput[]
+    connectOrCreate?: InspectionItemCreateOrConnectWithoutSourceCaptureInput | InspectionItemCreateOrConnectWithoutSourceCaptureInput[]
+    upsert?: InspectionItemUpsertWithWhereUniqueWithoutSourceCaptureInput | InspectionItemUpsertWithWhereUniqueWithoutSourceCaptureInput[]
+    createMany?: InspectionItemCreateManySourceCaptureInputEnvelope
+    set?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    disconnect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    delete?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+    update?: InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput | InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput[]
+    updateMany?: InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput | InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput[]
+    deleteMany?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
   }
 
   export type InspectionCreateNestedOneWithoutRoomsInput = {
     create?: XOR<InspectionCreateWithoutRoomsInput, InspectionUncheckedCreateWithoutRoomsInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutRoomsInput
     connect?: InspectionWhereUniqueInput
+  }
+
+  export type CaptureCreateNestedManyWithoutRoomInput = {
+    create?: XOR<CaptureCreateWithoutRoomInput, CaptureUncheckedCreateWithoutRoomInput> | CaptureCreateWithoutRoomInput[] | CaptureUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: CaptureCreateOrConnectWithoutRoomInput | CaptureCreateOrConnectWithoutRoomInput[]
+    createMany?: CaptureCreateManyRoomInputEnvelope
+    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
   }
 
   export type InspectionItemCreateNestedManyWithoutRoomInput = {
@@ -17757,11 +16734,22 @@ export namespace Prisma {
     connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
   }
 
+  export type CaptureUncheckedCreateNestedManyWithoutRoomInput = {
+    create?: XOR<CaptureCreateWithoutRoomInput, CaptureUncheckedCreateWithoutRoomInput> | CaptureCreateWithoutRoomInput[] | CaptureUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: CaptureCreateOrConnectWithoutRoomInput | CaptureCreateOrConnectWithoutRoomInput[]
+    createMany?: CaptureCreateManyRoomInputEnvelope
+    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+  }
+
   export type InspectionItemUncheckedCreateNestedManyWithoutRoomInput = {
     create?: XOR<InspectionItemCreateWithoutRoomInput, InspectionItemUncheckedCreateWithoutRoomInput> | InspectionItemCreateWithoutRoomInput[] | InspectionItemUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: InspectionItemCreateOrConnectWithoutRoomInput | InspectionItemCreateOrConnectWithoutRoomInput[]
     createMany?: InspectionItemCreateManyRoomInputEnvelope
     connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+  }
+
+  export type EnumRoomStatusFieldUpdateOperationsInput = {
+    set?: $Enums.RoomStatus
   }
 
   export type InspectionUpdateOneRequiredWithoutRoomsNestedInput = {
@@ -17770,6 +16758,20 @@ export namespace Prisma {
     upsert?: InspectionUpsertWithoutRoomsInput
     connect?: InspectionWhereUniqueInput
     update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutRoomsInput, InspectionUpdateWithoutRoomsInput>, InspectionUncheckedUpdateWithoutRoomsInput>
+  }
+
+  export type CaptureUpdateManyWithoutRoomNestedInput = {
+    create?: XOR<CaptureCreateWithoutRoomInput, CaptureUncheckedCreateWithoutRoomInput> | CaptureCreateWithoutRoomInput[] | CaptureUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: CaptureCreateOrConnectWithoutRoomInput | CaptureCreateOrConnectWithoutRoomInput[]
+    upsert?: CaptureUpsertWithWhereUniqueWithoutRoomInput | CaptureUpsertWithWhereUniqueWithoutRoomInput[]
+    createMany?: CaptureCreateManyRoomInputEnvelope
+    set?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    disconnect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    delete?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    update?: CaptureUpdateWithWhereUniqueWithoutRoomInput | CaptureUpdateWithWhereUniqueWithoutRoomInput[]
+    updateMany?: CaptureUpdateManyWithWhereWithoutRoomInput | CaptureUpdateManyWithWhereWithoutRoomInput[]
+    deleteMany?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
   }
 
   export type InspectionItemUpdateManyWithoutRoomNestedInput = {
@@ -17784,6 +16786,20 @@ export namespace Prisma {
     update?: InspectionItemUpdateWithWhereUniqueWithoutRoomInput | InspectionItemUpdateWithWhereUniqueWithoutRoomInput[]
     updateMany?: InspectionItemUpdateManyWithWhereWithoutRoomInput | InspectionItemUpdateManyWithWhereWithoutRoomInput[]
     deleteMany?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
+  }
+
+  export type CaptureUncheckedUpdateManyWithoutRoomNestedInput = {
+    create?: XOR<CaptureCreateWithoutRoomInput, CaptureUncheckedCreateWithoutRoomInput> | CaptureCreateWithoutRoomInput[] | CaptureUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: CaptureCreateOrConnectWithoutRoomInput | CaptureCreateOrConnectWithoutRoomInput[]
+    upsert?: CaptureUpsertWithWhereUniqueWithoutRoomInput | CaptureUpsertWithWhereUniqueWithoutRoomInput[]
+    createMany?: CaptureCreateManyRoomInputEnvelope
+    set?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    disconnect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    delete?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    connect?: CaptureWhereUniqueInput | CaptureWhereUniqueInput[]
+    update?: CaptureUpdateWithWhereUniqueWithoutRoomInput | CaptureUpdateWithWhereUniqueWithoutRoomInput[]
+    updateMany?: CaptureUpdateManyWithWhereWithoutRoomInput | CaptureUpdateManyWithWhereWithoutRoomInput[]
+    deleteMany?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
   }
 
   export type InspectionItemUncheckedUpdateManyWithoutRoomNestedInput = {
@@ -17806,11 +16822,10 @@ export namespace Prisma {
     connect?: RoomWhereUniqueInput
   }
 
-  export type ItemMediaCreateNestedManyWithoutItemInput = {
-    create?: XOR<ItemMediaCreateWithoutItemInput, ItemMediaUncheckedCreateWithoutItemInput> | ItemMediaCreateWithoutItemInput[] | ItemMediaUncheckedCreateWithoutItemInput[]
-    connectOrCreate?: ItemMediaCreateOrConnectWithoutItemInput | ItemMediaCreateOrConnectWithoutItemInput[]
-    createMany?: ItemMediaCreateManyItemInputEnvelope
-    connect?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
+  export type CaptureCreateNestedOneWithoutItemsInput = {
+    create?: XOR<CaptureCreateWithoutItemsInput, CaptureUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: CaptureCreateOrConnectWithoutItemsInput
+    connect?: CaptureWhereUniqueInput
   }
 
   export type FindingCreateNestedManyWithoutItemInput = {
@@ -17825,13 +16840,6 @@ export namespace Prisma {
     connectOrCreate?: FindingCreateOrConnectWithoutBaselineItemInput | FindingCreateOrConnectWithoutBaselineItemInput[]
     createMany?: FindingCreateManyBaselineItemInputEnvelope
     connect?: FindingWhereUniqueInput | FindingWhereUniqueInput[]
-  }
-
-  export type ItemMediaUncheckedCreateNestedManyWithoutItemInput = {
-    create?: XOR<ItemMediaCreateWithoutItemInput, ItemMediaUncheckedCreateWithoutItemInput> | ItemMediaCreateWithoutItemInput[] | ItemMediaUncheckedCreateWithoutItemInput[]
-    connectOrCreate?: ItemMediaCreateOrConnectWithoutItemInput | ItemMediaCreateOrConnectWithoutItemInput[]
-    createMany?: ItemMediaCreateManyItemInputEnvelope
-    connect?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
   }
 
   export type FindingUncheckedCreateNestedManyWithoutItemInput = {
@@ -17876,18 +16884,14 @@ export namespace Prisma {
     update?: XOR<XOR<RoomUpdateToOneWithWhereWithoutItemsInput, RoomUpdateWithoutItemsInput>, RoomUncheckedUpdateWithoutItemsInput>
   }
 
-  export type ItemMediaUpdateManyWithoutItemNestedInput = {
-    create?: XOR<ItemMediaCreateWithoutItemInput, ItemMediaUncheckedCreateWithoutItemInput> | ItemMediaCreateWithoutItemInput[] | ItemMediaUncheckedCreateWithoutItemInput[]
-    connectOrCreate?: ItemMediaCreateOrConnectWithoutItemInput | ItemMediaCreateOrConnectWithoutItemInput[]
-    upsert?: ItemMediaUpsertWithWhereUniqueWithoutItemInput | ItemMediaUpsertWithWhereUniqueWithoutItemInput[]
-    createMany?: ItemMediaCreateManyItemInputEnvelope
-    set?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    disconnect?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    delete?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    connect?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    update?: ItemMediaUpdateWithWhereUniqueWithoutItemInput | ItemMediaUpdateWithWhereUniqueWithoutItemInput[]
-    updateMany?: ItemMediaUpdateManyWithWhereWithoutItemInput | ItemMediaUpdateManyWithWhereWithoutItemInput[]
-    deleteMany?: ItemMediaScalarWhereInput | ItemMediaScalarWhereInput[]
+  export type CaptureUpdateOneWithoutItemsNestedInput = {
+    create?: XOR<CaptureCreateWithoutItemsInput, CaptureUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: CaptureCreateOrConnectWithoutItemsInput
+    upsert?: CaptureUpsertWithoutItemsInput
+    disconnect?: CaptureWhereInput | boolean
+    delete?: CaptureWhereInput | boolean
+    connect?: CaptureWhereUniqueInput
+    update?: XOR<XOR<CaptureUpdateToOneWithWhereWithoutItemsInput, CaptureUpdateWithoutItemsInput>, CaptureUncheckedUpdateWithoutItemsInput>
   }
 
   export type FindingUpdateManyWithoutItemNestedInput = {
@@ -17918,20 +16922,6 @@ export namespace Prisma {
     deleteMany?: FindingScalarWhereInput | FindingScalarWhereInput[]
   }
 
-  export type ItemMediaUncheckedUpdateManyWithoutItemNestedInput = {
-    create?: XOR<ItemMediaCreateWithoutItemInput, ItemMediaUncheckedCreateWithoutItemInput> | ItemMediaCreateWithoutItemInput[] | ItemMediaUncheckedCreateWithoutItemInput[]
-    connectOrCreate?: ItemMediaCreateOrConnectWithoutItemInput | ItemMediaCreateOrConnectWithoutItemInput[]
-    upsert?: ItemMediaUpsertWithWhereUniqueWithoutItemInput | ItemMediaUpsertWithWhereUniqueWithoutItemInput[]
-    createMany?: ItemMediaCreateManyItemInputEnvelope
-    set?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    disconnect?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    delete?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    connect?: ItemMediaWhereUniqueInput | ItemMediaWhereUniqueInput[]
-    update?: ItemMediaUpdateWithWhereUniqueWithoutItemInput | ItemMediaUpdateWithWhereUniqueWithoutItemInput[]
-    updateMany?: ItemMediaUpdateManyWithWhereWithoutItemInput | ItemMediaUpdateManyWithWhereWithoutItemInput[]
-    deleteMany?: ItemMediaScalarWhereInput | ItemMediaScalarWhereInput[]
-  }
-
   export type FindingUncheckedUpdateManyWithoutItemNestedInput = {
     create?: XOR<FindingCreateWithoutItemInput, FindingUncheckedCreateWithoutItemInput> | FindingCreateWithoutItemInput[] | FindingUncheckedCreateWithoutItemInput[]
     connectOrCreate?: FindingCreateOrConnectWithoutItemInput | FindingCreateOrConnectWithoutItemInput[]
@@ -17958,24 +16948,6 @@ export namespace Prisma {
     update?: FindingUpdateWithWhereUniqueWithoutBaselineItemInput | FindingUpdateWithWhereUniqueWithoutBaselineItemInput[]
     updateMany?: FindingUpdateManyWithWhereWithoutBaselineItemInput | FindingUpdateManyWithWhereWithoutBaselineItemInput[]
     deleteMany?: FindingScalarWhereInput | FindingScalarWhereInput[]
-  }
-
-  export type InspectionItemCreateNestedOneWithoutMediaInput = {
-    create?: XOR<InspectionItemCreateWithoutMediaInput, InspectionItemUncheckedCreateWithoutMediaInput>
-    connectOrCreate?: InspectionItemCreateOrConnectWithoutMediaInput
-    connect?: InspectionItemWhereUniqueInput
-  }
-
-  export type EnumMediaKindFieldUpdateOperationsInput = {
-    set?: $Enums.MediaKind
-  }
-
-  export type InspectionItemUpdateOneRequiredWithoutMediaNestedInput = {
-    create?: XOR<InspectionItemCreateWithoutMediaInput, InspectionItemUncheckedCreateWithoutMediaInput>
-    connectOrCreate?: InspectionItemCreateOrConnectWithoutMediaInput
-    upsert?: InspectionItemUpsertWithoutMediaInput
-    connect?: InspectionItemWhereUniqueInput
-    update?: XOR<XOR<InspectionItemUpdateToOneWithWhereWithoutMediaInput, InspectionItemUpdateWithoutMediaInput>, InspectionItemUncheckedUpdateWithoutMediaInput>
   }
 
   export type InspectionCreateNestedOneWithoutFindingsInput = {
@@ -18297,6 +17269,23 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumCaptureKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.CaptureKind | EnumCaptureKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCaptureKindFilter<$PrismaModel> | $Enums.CaptureKind
+  }
+
+  export type NestedEnumCaptureKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CaptureKind | EnumCaptureKindFieldRefInput<$PrismaModel>
+    in?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CaptureKind[] | ListEnumCaptureKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumCaptureKindWithAggregatesFilter<$PrismaModel> | $Enums.CaptureKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCaptureKindFilter<$PrismaModel>
+    _max?: NestedEnumCaptureKindFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -18349,6 +17338,23 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumRoomStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoomStatus | EnumRoomStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoomStatusFilter<$PrismaModel> | $Enums.RoomStatus
+  }
+
+  export type NestedEnumRoomStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RoomStatus | EnumRoomStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoomStatusWithAggregatesFilter<$PrismaModel> | $Enums.RoomStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoomStatusFilter<$PrismaModel>
+    _max?: NestedEnumRoomStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumItemCategoryFilter<$PrismaModel = never> = {
@@ -18412,23 +17418,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedEnumMediaKindFilter<$PrismaModel = never> = {
-    equals?: $Enums.MediaKind | EnumMediaKindFieldRefInput<$PrismaModel>
-    in?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    not?: NestedEnumMediaKindFilter<$PrismaModel> | $Enums.MediaKind
-  }
-
-  export type NestedEnumMediaKindWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.MediaKind | EnumMediaKindFieldRefInput<$PrismaModel>
-    in?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    notIn?: $Enums.MediaKind[] | ListEnumMediaKindFieldRefInput<$PrismaModel>
-    not?: NestedEnumMediaKindWithAggregatesFilter<$PrismaModel> | $Enums.MediaKind
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumMediaKindFilter<$PrismaModel>
-    _max?: NestedEnumMediaKindFilter<$PrismaModel>
   }
 
   export type NestedEnumChangeTypeFilter<$PrismaModel = never> = {
@@ -18618,7 +17607,6 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
@@ -18636,7 +17624,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
@@ -19000,7 +17987,6 @@ export namespace Prisma {
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
@@ -19018,7 +18004,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
@@ -19284,7 +18269,6 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
@@ -19302,7 +18286,6 @@ export namespace Prisma {
     processingError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
@@ -19325,7 +18308,6 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
@@ -19343,7 +18325,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
@@ -19354,42 +18335,15 @@ export namespace Prisma {
     create: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
   }
 
-  export type CaptureCreateWithoutInspectionInput = {
-    id?: string
-    storagePath: string
-    mimeType: string
-    sizeBytes: number
-    durationSec?: number | null
-    transcript?: string | null
-    processedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type CaptureUncheckedCreateWithoutInspectionInput = {
-    id?: string
-    storagePath: string
-    mimeType: string
-    sizeBytes: number
-    durationSec?: number | null
-    transcript?: string | null
-    processedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type CaptureCreateOrConnectWithoutInspectionInput = {
-    where: CaptureWhereUniqueInput
-    create: XOR<CaptureCreateWithoutInspectionInput, CaptureUncheckedCreateWithoutInspectionInput>
-  }
-
-  export type CaptureCreateManyInspectionInputEnvelope = {
-    data: CaptureCreateManyInspectionInput | CaptureCreateManyInspectionInput[]
-    skipDuplicates?: boolean
-  }
-
   export type RoomCreateWithoutInspectionInput = {
     id?: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    captures?: CaptureCreateNestedManyWithoutRoomInput
     items?: InspectionItemCreateNestedManyWithoutRoomInput
   }
 
@@ -19397,6 +18351,11 @@ export namespace Prisma {
     id?: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
     items?: InspectionItemUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -19577,7 +18536,6 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
@@ -19595,7 +18553,6 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
@@ -19624,7 +18581,6 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
@@ -19642,41 +18598,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
-  }
-
-  export type CaptureUpsertWithWhereUniqueWithoutInspectionInput = {
-    where: CaptureWhereUniqueInput
-    update: XOR<CaptureUpdateWithoutInspectionInput, CaptureUncheckedUpdateWithoutInspectionInput>
-    create: XOR<CaptureCreateWithoutInspectionInput, CaptureUncheckedCreateWithoutInspectionInput>
-  }
-
-  export type CaptureUpdateWithWhereUniqueWithoutInspectionInput = {
-    where: CaptureWhereUniqueInput
-    data: XOR<CaptureUpdateWithoutInspectionInput, CaptureUncheckedUpdateWithoutInspectionInput>
-  }
-
-  export type CaptureUpdateManyWithWhereWithoutInspectionInput = {
-    where: CaptureScalarWhereInput
-    data: XOR<CaptureUpdateManyMutationInput, CaptureUncheckedUpdateManyWithoutInspectionInput>
-  }
-
-  export type CaptureScalarWhereInput = {
-    AND?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
-    OR?: CaptureScalarWhereInput[]
-    NOT?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
-    id?: StringFilter<"Capture"> | string
-    inspectionId?: StringFilter<"Capture"> | string
-    storagePath?: StringFilter<"Capture"> | string
-    mimeType?: StringFilter<"Capture"> | string
-    sizeBytes?: IntFilter<"Capture"> | number
-    durationSec?: IntNullableFilter<"Capture"> | number | null
-    transcript?: StringNullableFilter<"Capture"> | string | null
-    processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
-    createdAt?: DateTimeFilter<"Capture"> | Date | string
   }
 
   export type RoomUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -19703,6 +18627,10 @@ export namespace Prisma {
     inspectionId?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
     order?: IntFilter<"Room"> | number
+    status?: EnumRoomStatusFilter<"Room"> | $Enums.RoomStatus
+    processingError?: StringNullableFilter<"Room"> | string | null
+    createdAt?: DateTimeFilter<"Room"> | Date | string
+    updatedAt?: DateTimeFilter<"Room"> | Date | string
   }
 
   export type FindingUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -19755,92 +18683,153 @@ export namespace Prisma {
     data: XOR<SignatureUpdateManyMutationInput, SignatureUncheckedUpdateManyWithoutInspectionInput>
   }
 
-  export type InspectionCreateWithoutCapturesInput = {
+  export type RoomCreateWithoutCapturesInput = {
     id?: string
-    kind: $Enums.InspectionKind
-    status?: $Enums.InspectionStatus
-    conductedAt?: Date | string | null
-    summary?: string | null
+    name: string
+    order: number
+    status?: $Enums.RoomStatus
     processingError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
-    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
-    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
-    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    rooms?: RoomCreateNestedManyWithoutInspectionInput
-    findings?: FindingCreateNestedManyWithoutInspectionInput
-    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    inspection: InspectionCreateNestedOneWithoutRoomsInput
+    items?: InspectionItemCreateNestedManyWithoutRoomInput
   }
 
-  export type InspectionUncheckedCreateWithoutCapturesInput = {
+  export type RoomUncheckedCreateWithoutCapturesInput = {
     id?: string
-    tenancyId: string
-    kind: $Enums.InspectionKind
-    status?: $Enums.InspectionStatus
-    conductedById?: string | null
-    conductedAt?: Date | string | null
-    baselineId?: string | null
-    summary?: string | null
+    inspectionId: string
+    name: string
+    order: number
+    status?: $Enums.RoomStatus
     processingError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
-    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
-    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    items?: InspectionItemUncheckedCreateNestedManyWithoutRoomInput
   }
 
-  export type InspectionCreateOrConnectWithoutCapturesInput = {
-    where: InspectionWhereUniqueInput
-    create: XOR<InspectionCreateWithoutCapturesInput, InspectionUncheckedCreateWithoutCapturesInput>
+  export type RoomCreateOrConnectWithoutCapturesInput = {
+    where: RoomWhereUniqueInput
+    create: XOR<RoomCreateWithoutCapturesInput, RoomUncheckedCreateWithoutCapturesInput>
   }
 
-  export type InspectionUpsertWithoutCapturesInput = {
-    update: XOR<InspectionUpdateWithoutCapturesInput, InspectionUncheckedUpdateWithoutCapturesInput>
-    create: XOR<InspectionCreateWithoutCapturesInput, InspectionUncheckedCreateWithoutCapturesInput>
-    where?: InspectionWhereInput
+  export type InspectionItemCreateWithoutSourceCaptureInput = {
+    id?: string
+    name: string
+    category: $Enums.ItemCategory
+    condition: $Enums.ItemCondition
+    quantity?: number
+    notes?: string | null
+    identifier?: string | null
+    meterReading?: string | null
+    sourceTimestampSec?: number | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    room: RoomCreateNestedOneWithoutItemsInput
+    findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
+    findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
 
-  export type InspectionUpdateToOneWithWhereWithoutCapturesInput = {
-    where?: InspectionWhereInput
-    data: XOR<InspectionUpdateWithoutCapturesInput, InspectionUncheckedUpdateWithoutCapturesInput>
+  export type InspectionItemUncheckedCreateWithoutSourceCaptureInput = {
+    id?: string
+    roomId: string
+    name: string
+    category: $Enums.ItemCategory
+    condition: $Enums.ItemCondition
+    quantity?: number
+    notes?: string | null
+    identifier?: string | null
+    meterReading?: string | null
+    sourceTimestampSec?: number | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
+    findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
 
-  export type InspectionUpdateWithoutCapturesInput = {
+  export type InspectionItemCreateOrConnectWithoutSourceCaptureInput = {
+    where: InspectionItemWhereUniqueInput
+    create: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput>
+  }
+
+  export type InspectionItemCreateManySourceCaptureInputEnvelope = {
+    data: InspectionItemCreateManySourceCaptureInput | InspectionItemCreateManySourceCaptureInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type RoomUpsertWithoutCapturesInput = {
+    update: XOR<RoomUpdateWithoutCapturesInput, RoomUncheckedUpdateWithoutCapturesInput>
+    create: XOR<RoomCreateWithoutCapturesInput, RoomUncheckedCreateWithoutCapturesInput>
+    where?: RoomWhereInput
+  }
+
+  export type RoomUpdateToOneWithWhereWithoutCapturesInput = {
+    where?: RoomWhereInput
+    data: XOR<RoomUpdateWithoutCapturesInput, RoomUncheckedUpdateWithoutCapturesInput>
+  }
+
+  export type RoomUpdateWithoutCapturesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
-    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
-    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
-    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
-    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
-    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    rooms?: RoomUpdateManyWithoutInspectionNestedInput
-    findings?: FindingUpdateManyWithoutInspectionNestedInput
-    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
+    items?: InspectionItemUpdateManyWithoutRoomNestedInput
   }
 
-  export type InspectionUncheckedUpdateWithoutCapturesInput = {
+  export type RoomUncheckedUpdateWithoutCapturesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenancyId?: StringFieldUpdateOperationsInput | string
-    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
-    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
-    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
-    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
-    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
-    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    items?: InspectionItemUncheckedUpdateManyWithoutRoomNestedInput
+  }
+
+  export type InspectionItemUpsertWithWhereUniqueWithoutSourceCaptureInput = {
+    where: InspectionItemWhereUniqueInput
+    update: XOR<InspectionItemUpdateWithoutSourceCaptureInput, InspectionItemUncheckedUpdateWithoutSourceCaptureInput>
+    create: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput>
+  }
+
+  export type InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput = {
+    where: InspectionItemWhereUniqueInput
+    data: XOR<InspectionItemUpdateWithoutSourceCaptureInput, InspectionItemUncheckedUpdateWithoutSourceCaptureInput>
+  }
+
+  export type InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput = {
+    where: InspectionItemScalarWhereInput
+    data: XOR<InspectionItemUpdateManyMutationInput, InspectionItemUncheckedUpdateManyWithoutSourceCaptureInput>
+  }
+
+  export type InspectionItemScalarWhereInput = {
+    AND?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
+    OR?: InspectionItemScalarWhereInput[]
+    NOT?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
+    id?: StringFilter<"InspectionItem"> | string
+    roomId?: StringFilter<"InspectionItem"> | string
+    name?: StringFilter<"InspectionItem"> | string
+    category?: EnumItemCategoryFilter<"InspectionItem"> | $Enums.ItemCategory
+    condition?: EnumItemConditionFilter<"InspectionItem"> | $Enums.ItemCondition
+    quantity?: IntFilter<"InspectionItem"> | number
+    notes?: StringNullableFilter<"InspectionItem"> | string | null
+    identifier?: StringNullableFilter<"InspectionItem"> | string | null
+    meterReading?: StringNullableFilter<"InspectionItem"> | string | null
+    sourceCaptureId?: StringNullableFilter<"InspectionItem"> | string | null
+    sourceTimestampSec?: IntNullableFilter<"InspectionItem"> | number | null
+    confidence?: FloatNullableFilter<"InspectionItem"> | number | null
+    editedByHuman?: BoolFilter<"InspectionItem"> | boolean
+    createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
+    updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
   }
 
   export type InspectionCreateWithoutRoomsInput = {
@@ -19856,7 +18845,6 @@ export namespace Prisma {
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
   }
@@ -19874,7 +18862,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
   }
@@ -19884,6 +18871,44 @@ export namespace Prisma {
     create: XOR<InspectionCreateWithoutRoomsInput, InspectionUncheckedCreateWithoutRoomsInput>
   }
 
+  export type CaptureCreateWithoutRoomInput = {
+    id?: string
+    kind?: $Enums.CaptureKind
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
+  }
+
+  export type CaptureUncheckedCreateWithoutRoomInput = {
+    id?: string
+    kind?: $Enums.CaptureKind
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
+  }
+
+  export type CaptureCreateOrConnectWithoutRoomInput = {
+    where: CaptureWhereUniqueInput
+    create: XOR<CaptureCreateWithoutRoomInput, CaptureUncheckedCreateWithoutRoomInput>
+  }
+
+  export type CaptureCreateManyRoomInputEnvelope = {
+    data: CaptureCreateManyRoomInput | CaptureCreateManyRoomInput[]
+    skipDuplicates?: boolean
+  }
+
   export type InspectionItemCreateWithoutRoomInput = {
     id?: string
     name: string
@@ -19891,13 +18916,14 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    media?: ItemMediaCreateNestedManyWithoutItemInput
+    sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
@@ -19909,13 +18935,14 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
+    sourceCaptureId?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    media?: ItemMediaUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
@@ -19954,7 +18981,6 @@ export namespace Prisma {
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
   }
@@ -19972,9 +18998,41 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type CaptureUpsertWithWhereUniqueWithoutRoomInput = {
+    where: CaptureWhereUniqueInput
+    update: XOR<CaptureUpdateWithoutRoomInput, CaptureUncheckedUpdateWithoutRoomInput>
+    create: XOR<CaptureCreateWithoutRoomInput, CaptureUncheckedCreateWithoutRoomInput>
+  }
+
+  export type CaptureUpdateWithWhereUniqueWithoutRoomInput = {
+    where: CaptureWhereUniqueInput
+    data: XOR<CaptureUpdateWithoutRoomInput, CaptureUncheckedUpdateWithoutRoomInput>
+  }
+
+  export type CaptureUpdateManyWithWhereWithoutRoomInput = {
+    where: CaptureScalarWhereInput
+    data: XOR<CaptureUpdateManyMutationInput, CaptureUncheckedUpdateManyWithoutRoomInput>
+  }
+
+  export type CaptureScalarWhereInput = {
+    AND?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
+    OR?: CaptureScalarWhereInput[]
+    NOT?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
+    id?: StringFilter<"Capture"> | string
+    roomId?: StringFilter<"Capture"> | string
+    kind?: EnumCaptureKindFilter<"Capture"> | $Enums.CaptureKind
+    storagePath?: StringFilter<"Capture"> | string
+    mimeType?: StringFilter<"Capture"> | string
+    sizeBytes?: IntFilter<"Capture"> | number
+    durationSec?: IntNullableFilter<"Capture"> | number | null
+    transcript?: StringNullableFilter<"Capture"> | string | null
+    note?: StringNullableFilter<"Capture"> | string | null
+    processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
+    createdAt?: DateTimeFilter<"Capture"> | Date | string
   }
 
   export type InspectionItemUpsertWithWhereUniqueWithoutRoomInput = {
@@ -19993,30 +19051,16 @@ export namespace Prisma {
     data: XOR<InspectionItemUpdateManyMutationInput, InspectionItemUncheckedUpdateManyWithoutRoomInput>
   }
 
-  export type InspectionItemScalarWhereInput = {
-    AND?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
-    OR?: InspectionItemScalarWhereInput[]
-    NOT?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
-    id?: StringFilter<"InspectionItem"> | string
-    roomId?: StringFilter<"InspectionItem"> | string
-    name?: StringFilter<"InspectionItem"> | string
-    category?: EnumItemCategoryFilter<"InspectionItem"> | $Enums.ItemCategory
-    condition?: EnumItemConditionFilter<"InspectionItem"> | $Enums.ItemCondition
-    quantity?: IntFilter<"InspectionItem"> | number
-    notes?: StringNullableFilter<"InspectionItem"> | string | null
-    meterReading?: StringNullableFilter<"InspectionItem"> | string | null
-    sourceTimestampSec?: IntNullableFilter<"InspectionItem"> | number | null
-    confidence?: FloatNullableFilter<"InspectionItem"> | number | null
-    editedByHuman?: BoolFilter<"InspectionItem"> | boolean
-    createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
-    updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
-  }
-
   export type RoomCreateWithoutItemsInput = {
     id?: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
+    captures?: CaptureCreateNestedManyWithoutRoomInput
   }
 
   export type RoomUncheckedCreateWithoutItemsInput = {
@@ -20024,6 +19068,11 @@ export namespace Prisma {
     inspectionId: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
   }
 
   export type RoomCreateOrConnectWithoutItemsInput = {
@@ -20031,30 +19080,37 @@ export namespace Prisma {
     create: XOR<RoomCreateWithoutItemsInput, RoomUncheckedCreateWithoutItemsInput>
   }
 
-  export type ItemMediaCreateWithoutItemInput = {
+  export type CaptureCreateWithoutItemsInput = {
     id?: string
+    kind?: $Enums.CaptureKind
     storagePath: string
-    kind?: $Enums.MediaKind
-    timestampSec?: number | null
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    room: RoomCreateNestedOneWithoutCapturesInput
+  }
+
+  export type CaptureUncheckedCreateWithoutItemsInput = {
+    id?: string
+    roomId: string
+    kind?: $Enums.CaptureKind
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    processedAt?: Date | string | null
     createdAt?: Date | string
   }
 
-  export type ItemMediaUncheckedCreateWithoutItemInput = {
-    id?: string
-    storagePath: string
-    kind?: $Enums.MediaKind
-    timestampSec?: number | null
-    createdAt?: Date | string
-  }
-
-  export type ItemMediaCreateOrConnectWithoutItemInput = {
-    where: ItemMediaWhereUniqueInput
-    create: XOR<ItemMediaCreateWithoutItemInput, ItemMediaUncheckedCreateWithoutItemInput>
-  }
-
-  export type ItemMediaCreateManyItemInputEnvelope = {
-    data: ItemMediaCreateManyItemInput | ItemMediaCreateManyItemInput[]
-    skipDuplicates?: boolean
+  export type CaptureCreateOrConnectWithoutItemsInput = {
+    where: CaptureWhereUniqueInput
+    create: XOR<CaptureCreateWithoutItemsInput, CaptureUncheckedCreateWithoutItemsInput>
   }
 
   export type FindingCreateWithoutItemInput = {
@@ -20148,7 +19204,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
+    captures?: CaptureUpdateManyWithoutRoomNestedInput
   }
 
   export type RoomUncheckedUpdateWithoutItemsInput = {
@@ -20156,34 +19217,50 @@ export namespace Prisma {
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
   }
 
-  export type ItemMediaUpsertWithWhereUniqueWithoutItemInput = {
-    where: ItemMediaWhereUniqueInput
-    update: XOR<ItemMediaUpdateWithoutItemInput, ItemMediaUncheckedUpdateWithoutItemInput>
-    create: XOR<ItemMediaCreateWithoutItemInput, ItemMediaUncheckedCreateWithoutItemInput>
+  export type CaptureUpsertWithoutItemsInput = {
+    update: XOR<CaptureUpdateWithoutItemsInput, CaptureUncheckedUpdateWithoutItemsInput>
+    create: XOR<CaptureCreateWithoutItemsInput, CaptureUncheckedCreateWithoutItemsInput>
+    where?: CaptureWhereInput
   }
 
-  export type ItemMediaUpdateWithWhereUniqueWithoutItemInput = {
-    where: ItemMediaWhereUniqueInput
-    data: XOR<ItemMediaUpdateWithoutItemInput, ItemMediaUncheckedUpdateWithoutItemInput>
+  export type CaptureUpdateToOneWithWhereWithoutItemsInput = {
+    where?: CaptureWhereInput
+    data: XOR<CaptureUpdateWithoutItemsInput, CaptureUncheckedUpdateWithoutItemsInput>
   }
 
-  export type ItemMediaUpdateManyWithWhereWithoutItemInput = {
-    where: ItemMediaScalarWhereInput
-    data: XOR<ItemMediaUpdateManyMutationInput, ItemMediaUncheckedUpdateManyWithoutItemInput>
+  export type CaptureUpdateWithoutItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
   }
 
-  export type ItemMediaScalarWhereInput = {
-    AND?: ItemMediaScalarWhereInput | ItemMediaScalarWhereInput[]
-    OR?: ItemMediaScalarWhereInput[]
-    NOT?: ItemMediaScalarWhereInput | ItemMediaScalarWhereInput[]
-    id?: StringFilter<"ItemMedia"> | string
-    itemId?: StringFilter<"ItemMedia"> | string
-    storagePath?: StringFilter<"ItemMedia"> | string
-    kind?: EnumMediaKindFilter<"ItemMedia"> | $Enums.MediaKind
-    timestampSec?: IntNullableFilter<"ItemMedia"> | number | null
-    createdAt?: DateTimeFilter<"ItemMedia"> | Date | string
+  export type CaptureUncheckedUpdateWithoutItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUpsertWithWhereUniqueWithoutItemInput = {
@@ -20218,94 +19295,6 @@ export namespace Prisma {
     data: XOR<FindingUpdateManyMutationInput, FindingUncheckedUpdateManyWithoutBaselineItemInput>
   }
 
-  export type InspectionItemCreateWithoutMediaInput = {
-    id?: string
-    name: string
-    category: $Enums.ItemCategory
-    condition: $Enums.ItemCondition
-    quantity?: number
-    notes?: string | null
-    meterReading?: string | null
-    sourceTimestampSec?: number | null
-    confidence?: number | null
-    editedByHuman?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    room: RoomCreateNestedOneWithoutItemsInput
-    findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
-    findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
-  }
-
-  export type InspectionItemUncheckedCreateWithoutMediaInput = {
-    id?: string
-    roomId: string
-    name: string
-    category: $Enums.ItemCategory
-    condition: $Enums.ItemCondition
-    quantity?: number
-    notes?: string | null
-    meterReading?: string | null
-    sourceTimestampSec?: number | null
-    confidence?: number | null
-    editedByHuman?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
-    findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
-  }
-
-  export type InspectionItemCreateOrConnectWithoutMediaInput = {
-    where: InspectionItemWhereUniqueInput
-    create: XOR<InspectionItemCreateWithoutMediaInput, InspectionItemUncheckedCreateWithoutMediaInput>
-  }
-
-  export type InspectionItemUpsertWithoutMediaInput = {
-    update: XOR<InspectionItemUpdateWithoutMediaInput, InspectionItemUncheckedUpdateWithoutMediaInput>
-    create: XOR<InspectionItemCreateWithoutMediaInput, InspectionItemUncheckedCreateWithoutMediaInput>
-    where?: InspectionItemWhereInput
-  }
-
-  export type InspectionItemUpdateToOneWithWhereWithoutMediaInput = {
-    where?: InspectionItemWhereInput
-    data: XOR<InspectionItemUpdateWithoutMediaInput, InspectionItemUncheckedUpdateWithoutMediaInput>
-  }
-
-  export type InspectionItemUpdateWithoutMediaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
-    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
-    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    room?: RoomUpdateOneRequiredWithoutItemsNestedInput
-    findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
-    findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
-  }
-
-  export type InspectionItemUncheckedUpdateWithoutMediaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    roomId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
-    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
-    quantity?: IntFieldUpdateOperationsInput | number
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
-    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
-    findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
-  }
-
   export type InspectionCreateWithoutFindingsInput = {
     id?: string
     kind: $Enums.InspectionKind
@@ -20319,7 +19308,6 @@ export namespace Prisma {
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
   }
@@ -20337,7 +19325,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
   }
@@ -20354,6 +19341,7 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
@@ -20361,7 +19349,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
-    media?: ItemMediaCreateNestedManyWithoutItemInput
+    sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
 
@@ -20373,13 +19361,14 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
+    sourceCaptureId?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    media?: ItemMediaUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
 
@@ -20395,6 +19384,7 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
@@ -20402,7 +19392,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
-    media?: ItemMediaCreateNestedManyWithoutItemInput
+    sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
   }
 
@@ -20414,13 +19404,14 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
+    sourceCaptureId?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    media?: ItemMediaUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
   }
 
@@ -20453,7 +19444,6 @@ export namespace Prisma {
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
   }
@@ -20471,7 +19461,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
   }
@@ -20494,6 +19483,7 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -20501,7 +19491,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
-    media?: ItemMediaUpdateManyWithoutItemNestedInput
+    sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
 
@@ -20513,13 +19503,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    media?: ItemMediaUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
 
@@ -20541,6 +19532,7 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -20548,7 +19540,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
-    media?: ItemMediaUpdateManyWithoutItemNestedInput
+    sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
   }
 
@@ -20560,13 +19552,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    media?: ItemMediaUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
   }
 
@@ -20583,7 +19576,6 @@ export namespace Prisma {
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
-    captures?: CaptureCreateNestedManyWithoutInspectionInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
   }
@@ -20601,7 +19593,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
-    captures?: CaptureUncheckedCreateNestedManyWithoutInspectionInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
   }
@@ -20670,7 +19661,6 @@ export namespace Prisma {
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
   }
@@ -20688,7 +19678,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
   }
@@ -20929,7 +19918,6 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
@@ -20947,7 +19935,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
@@ -21069,7 +20056,6 @@ export namespace Prisma {
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
@@ -21087,7 +20073,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
-    captures?: CaptureUncheckedUpdateManyWithoutInspectionNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
@@ -21106,21 +20091,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type CaptureCreateManyInspectionInput = {
-    id?: string
-    storagePath: string
-    mimeType: string
-    sizeBytes: number
-    durationSec?: number | null
-    transcript?: string | null
-    processedAt?: Date | string | null
-    createdAt?: Date | string
-  }
-
   export type RoomCreateManyInspectionInput = {
     id?: string
     name: string
     order: number
+    status?: $Enums.RoomStatus
+    processingError?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type FindingCreateManyInspectionInput = {
@@ -21145,43 +20123,15 @@ export namespace Prisma {
     imageData: string
   }
 
-  export type CaptureUpdateWithoutInspectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    mimeType?: StringFieldUpdateOperationsInput | string
-    sizeBytes?: IntFieldUpdateOperationsInput | number
-    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
-    transcript?: NullableStringFieldUpdateOperationsInput | string | null
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CaptureUncheckedUpdateWithoutInspectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    mimeType?: StringFieldUpdateOperationsInput | string
-    sizeBytes?: IntFieldUpdateOperationsInput | number
-    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
-    transcript?: NullableStringFieldUpdateOperationsInput | string | null
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CaptureUncheckedUpdateManyWithoutInspectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    mimeType?: StringFieldUpdateOperationsInput | string
-    sizeBytes?: IntFieldUpdateOperationsInput | number
-    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
-    transcript?: NullableStringFieldUpdateOperationsInput | string | null
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type RoomUpdateWithoutInspectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    captures?: CaptureUpdateManyWithoutRoomNestedInput
     items?: InspectionItemUpdateManyWithoutRoomNestedInput
   }
 
@@ -21189,6 +20139,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
     items?: InspectionItemUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -21196,6 +20151,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUpdateWithoutInspectionInput = {
@@ -21264,6 +20223,91 @@ export namespace Prisma {
     imageData?: StringFieldUpdateOperationsInput | string
   }
 
+  export type InspectionItemCreateManySourceCaptureInput = {
+    id?: string
+    roomId: string
+    name: string
+    category: $Enums.ItemCategory
+    condition: $Enums.ItemCondition
+    quantity?: number
+    notes?: string | null
+    identifier?: string | null
+    meterReading?: string | null
+    sourceTimestampSec?: number | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InspectionItemUpdateWithoutSourceCaptureInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    room?: RoomUpdateOneRequiredWithoutItemsNestedInput
+    findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
+    findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
+  }
+
+  export type InspectionItemUncheckedUpdateWithoutSourceCaptureInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
+    findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
+  }
+
+  export type InspectionItemUncheckedUpdateManyWithoutSourceCaptureInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CaptureCreateManyRoomInput = {
+    id?: string
+    kind?: $Enums.CaptureKind
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
   export type InspectionItemCreateManyRoomInput = {
     id?: string
     name: string
@@ -21271,12 +20315,55 @@ export namespace Prisma {
     condition: $Enums.ItemCondition
     quantity?: number
     notes?: string | null
+    identifier?: string | null
     meterReading?: string | null
+    sourceCaptureId?: string | null
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type CaptureUpdateWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
+  }
+
+  export type CaptureUncheckedUpdateWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
+  }
+
+  export type CaptureUncheckedUpdateManyWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InspectionItemUpdateWithoutRoomInput = {
@@ -21286,13 +20373,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    media?: ItemMediaUpdateManyWithoutItemNestedInput
+    sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
@@ -21304,13 +20392,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    media?: ItemMediaUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
@@ -21322,20 +20411,14 @@ export namespace Prisma {
     condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
     quantity?: IntFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
     meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ItemMediaCreateManyItemInput = {
-    id?: string
-    storagePath: string
-    kind?: $Enums.MediaKind
-    timestampSec?: number | null
-    createdAt?: Date | string
   }
 
   export type FindingCreateManyItemInput = {
@@ -21364,30 +20447,6 @@ export namespace Prisma {
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type ItemMediaUpdateWithoutItemInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ItemMediaUncheckedUpdateWithoutItemInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ItemMediaUncheckedUpdateManyWithoutItemInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    storagePath?: StringFieldUpdateOperationsInput | string
-    kind?: EnumMediaKindFieldUpdateOperationsInput | $Enums.MediaKind
-    timestampSec?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUpdateWithoutItemInput = {

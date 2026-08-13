@@ -15,30 +15,40 @@ export const extractedItemSchema = z.object({
     .describe(
       'What is actually visible or narrated about its condition. Empty string if nothing specific.',
     ),
+  identifier: z
+    .string()
+    .nullable()
+    .describe(
+      'Make, model, and serial transcribed character-for-character off a photographed ' +
+        'label or plate. Null unless you can actually read it — never inferred from ' +
+        'appearance, never partially guessed.',
+    ),
   meterReading: z
     .string()
     .nullable()
     .describe('Verbatim reading for METER items (units vary). Null for everything else.'),
+  sourceCaptureRef: z
+    .string()
+    .describe('The `ref` of the capture this item was read from.'),
   sourceTimestampSec: z
     .number()
     .int()
     .min(0)
-    .describe('Seconds into the video where this item is best seen.'),
+    .nullable()
+    .describe('Seconds into the video where this item is clearest. Null for photo captures.'),
   confidence: z.number().min(0).max(1).describe('How certain the identification and condition are'),
 })
 
-export const extractedRoomSchema = z.object({
-  name: z.string().describe('e.g. "Master bedroom", "Kitchen", "Balcony"'),
+/// One room at a time. The inspector names the room; the model fills its contents,
+/// so there is no room-naming to disagree about and re-shooting one room touches
+/// nothing else.
+export const roomExtractionSchema = z.object({
+  summary: z.string().describe("Two or three sentences on this room's overall condition."),
+  transcript: z.string().describe('Plain transcript of the narration. Empty string if silent.'),
   items: z.array(extractedItemSchema),
 })
 
-export const extractionSchema = z.object({
-  summary: z.string().describe('Two or three sentences an agent could paste into an email.'),
-  transcript: z.string().describe('Plain transcript of the narration. Empty string if silent.'),
-  rooms: z.array(extractedRoomSchema),
-})
-
-export type Extraction = z.infer<typeof extractionSchema>
+export type RoomExtraction = z.infer<typeof roomExtractionSchema>
 export type ExtractedItem = z.infer<typeof extractedItemSchema>
 
 export const CHANGE_TYPES = ['UNCHANGED', 'WEAR', 'DAMAGE', 'MISSING', 'IMPROVED'] as const
