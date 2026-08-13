@@ -1,0 +1,270 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// The spine. Kept deliberately thin here — M1 (deal wizard) extends these
+// rather than migrating away from them.
+// ---------------------------------------------------------------------------
+
+enum StakeholderKind {
+  INDIVIDUAL
+  ENTITY
+}
+
+model Stakeholder {
+  id        String          @id @default(cuid())
+  kind      StakeholderKind @default(INDIVIDUAL)
+  name      String
+  idNumber  String?
+  email     String?
+  phone     String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  tenanciesAsLandlord Tenancy[]    @relation("LandlordTenancies")
+  tenanciesAsTenant   Tenancy[]    @relation("TenantTenancies")
+  tenanciesAsAgent    Tenancy[]    @relation("AgentTenancies")
+  inspectionsRun      Inspection[]
+  signatures          Signature[]
+
+  @@index([name])
+}
+
+enum PropertyType {
+  HDB
+  PRIVATE_NON_LANDED
+  LANDED
+  COMMERCIAL
+}
+
+/// The durable hub. Outlives every relationship on it.
+model Property {
+  id         String       @id @default(cuid())
+  line1      String
+  unit       String?
+  postalCode String
+  type       PropertyType
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  tenancies Tenancy[]
+
+  @@index([postalCode])
+}
+
+model Tenancy {
+  id          String   @id @default(cuid())
+  propertyId  String
+  landlordId  String
+  tenantId    String
+  agentId     String?
+  startDate   DateTime
+  endDate     DateTime
+  monthlyRent Decimal  @db.Decimal(10, 2)
+  deposit     Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  property Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  landlord Stakeholder  @relation("LandlordTenancies", fields: [landlordId], references: [id])
+  tenant   Stakeholder  @relation("TenantTenancies", fields: [tenantId], references: [id])
+  agent    Stakeholder? @relation("AgentTenancies", fields: [agentId], references: [id])
+
+  inspections Inspection[]
+
+  @@index([propertyId])
+}
+
+// ---------------------------------------------------------------------------
+// M4 — check-in / check-out
+// ---------------------------------------------------------------------------
+
+enum InspectionKind {
+  CHECK_IN
+  CHECK_OUT
+}
+
+enum InspectionStatus {
+  DRAFT
+  CAPTURING
+  PROCESSING
+  REVIEW
+  AWAITING_SIGNATURE
+  COMPLETED
+  FAILED
+}
+
+model Inspection {
+  id              String           @id @default(cuid())
+  tenancyId       String
+  kind            InspectionKind
+  status          InspectionStatus @default(DRAFT)
+  conductedById   String?
+  conductedAt     DateTime?
+  /// A check-out points at the check-in it is measured against.
+  baselineId      String?          @unique
+  summary         String?
+  processingError String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  tenancy     Tenancy      @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  conductedBy Stakeholder? @relation(fields: [conductedById], references: [id])
+  baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
+  checkOut    Inspection?  @relation("Baseline")
+
+  captures   Capture[]
+  rooms      Room[]
+  findings   Finding[]
+  signatures Signature[]
+
+  @@index([tenancyId, kind])
+}
+
+/// The evidence. AI is the scribe; this is the witness.
+model Capture {
+  id           String    @id @default(cuid())
+  inspectionId String
+  storagePath  String
+  mimeType     String
+  sizeBytes    Int
+  durationSec  Int?
+  transcript   String?
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  inspection Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([inspectionId])
+}
+
+model Room {
+  id           String @id @default(cuid())
+  inspectionId String
+  name         String
+  order        Int
+
+  inspection Inspection       @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  items      InspectionItem[]
+
+  @@index([inspectionId])
+}
+
+enum ItemCategory {
+  FIXTURE
+  APPLIANCE
+  FURNITURE
+  SURFACE
+  METER
+}
+
+enum ItemCondition {
+  NEW
+  GOOD
+  FAIR
+  POOR
+  DAMAGED
+}
+
+model InspectionItem {
+  id                 String        @id @default(cuid())
+  roomId             String
+  name               String
+  category           ItemCategory
+  condition          ItemCondition
+  quantity           Int           @default(1)
+  notes              String?
+  /// Meter reading, verbatim as spoken/read. Free text — units vary.
+  meterReading       String?
+  /// Where in the capture this item was observed. Powers "jump to the evidence".
+  sourceTimestampSec Int?
+  /// Model self-reported confidence, 0–1. Null once a human has taken ownership.
+  confidence         Float?
+  editedByHuman      Boolean       @default(false)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  room  Room        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  media ItemMedia[]
+
+  findingsAsSubject  Finding[] @relation("FindingItem")
+  findingsAsBaseline Finding[] @relation("FindingBaselineItem")
+
+  @@index([roomId])
+}
+
+enum MediaKind {
+  FRAME
+  PHOTO
+}
+
+model ItemMedia {
+  id           String    @id @default(cuid())
+  itemId       String
+  storagePath  String
+  kind         MediaKind @default(FRAME)
+  timestampSec Int?
+  createdAt    DateTime  @default(now())
+
+  item InspectionItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+}
+
+enum ChangeType {
+  UNCHANGED
+  WEAR
+  DAMAGE
+  MISSING
+  IMPROVED
+}
+
+enum Verdict {
+  TENANT_LIABLE
+  FAIR_WEAR
+  DISPUTED
+  UNDECIDED
+}
+
+/// Check-out only. The dispute moment, drafted by the model and owned by a human.
+model Finding {
+  id             String     @id @default(cuid())
+  inspectionId   String
+  itemId         String?
+  baselineItemId String?
+  changeType     ChangeType
+  verdict        Verdict    @default(UNDECIDED)
+  rationale      String
+  estimatedCost  Decimal?   @db.Decimal(10, 2)
+  confidence     Float?
+  editedByHuman  Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  inspection   Inspection      @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  item         InspectionItem? @relation("FindingItem", fields: [itemId], references: [id], onDelete: SetNull)
+  baselineItem InspectionItem? @relation("FindingBaselineItem", fields: [baselineItemId], references: [id], onDelete: SetNull)
+
+  @@index([inspectionId])
+}
+
+model Signature {
+  id            String   @id @default(cuid())
+  inspectionId  String
+  stakeholderId String
+  signedAt      DateTime @default(now())
+  ipAddress     String?
+  /// data: URL of the drawn signature.
+  imageData     String
+
+  inspection  Inspection  @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id])
+
+  @@unique([inspectionId, stakeholderId])
+}
