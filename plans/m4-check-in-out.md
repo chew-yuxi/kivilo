@@ -84,7 +84,7 @@ person touches it. Nothing is countersignable until a human has passed through r
 11. Still to do: PDF or shareable web report, Playwright e2e for capture → review →
     sign, the polish pass to the Linear/Stripe bar, and a regression test pinning
     room-scoped reprocessing (currently verified by hand only).
-12. Native app: deferred behind the PWA, per the 2026-08-13 decision.
+14. Native app: deferred behind the PWA, per the 2026-08-13 decision.
 
 ## Verification
 
