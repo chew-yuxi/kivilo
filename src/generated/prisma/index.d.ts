@@ -5658,6 +5658,8 @@ export namespace Prisma {
     baselineId: string | null
     summary: string | null
     processingError: string | null
+    shareToken: string | null
+    sharedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5672,6 +5674,8 @@ export namespace Prisma {
     baselineId: string | null
     summary: string | null
     processingError: string | null
+    shareToken: string | null
+    sharedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5686,6 +5690,8 @@ export namespace Prisma {
     baselineId: number
     summary: number
     processingError: number
+    shareToken: number
+    sharedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5702,6 +5708,8 @@ export namespace Prisma {
     baselineId?: true
     summary?: true
     processingError?: true
+    shareToken?: true
+    sharedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5716,6 +5724,8 @@ export namespace Prisma {
     baselineId?: true
     summary?: true
     processingError?: true
+    shareToken?: true
+    sharedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5730,6 +5740,8 @@ export namespace Prisma {
     baselineId?: true
     summary?: true
     processingError?: true
+    shareToken?: true
+    sharedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5817,6 +5829,8 @@ export namespace Prisma {
     baselineId: string | null
     summary: string | null
     processingError: string | null
+    shareToken: string | null
+    sharedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: InspectionCountAggregateOutputType | null
@@ -5848,6 +5862,8 @@ export namespace Prisma {
     baselineId?: boolean
     summary?: boolean
     processingError?: boolean
+    shareToken?: boolean
+    sharedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -5870,6 +5886,8 @@ export namespace Prisma {
     baselineId?: boolean
     summary?: boolean
     processingError?: boolean
+    shareToken?: boolean
+    sharedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -5887,6 +5905,8 @@ export namespace Prisma {
     baselineId?: boolean
     summary?: boolean
     processingError?: boolean
+    shareToken?: boolean
+    sharedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -5904,11 +5924,13 @@ export namespace Prisma {
     baselineId?: boolean
     summary?: boolean
     processingError?: boolean
+    shareToken?: boolean
+    sharedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
@@ -5954,6 +5976,13 @@ export namespace Prisma {
       baselineId: string | null
       summary: string | null
       processingError: string | null
+      /**
+       * Unguessable bearer token for the read-only report link handed to the landlord
+       * and tenant. Null until someone shares the report. Revoked by setting it back to
+       * null, which is why it is nullable rather than generated with the row.
+       */
+      shareToken: string | null
+      sharedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["inspection"]>
@@ -6395,6 +6424,8 @@ export namespace Prisma {
     readonly baselineId: FieldRef<"Inspection", 'String'>
     readonly summary: FieldRef<"Inspection", 'String'>
     readonly processingError: FieldRef<"Inspection", 'String'>
+    readonly shareToken: FieldRef<"Inspection", 'String'>
+    readonly sharedAt: FieldRef<"Inspection", 'DateTime'>
     readonly createdAt: FieldRef<"Inspection", 'DateTime'>
     readonly updatedAt: FieldRef<"Inspection", 'DateTime'>
   }
@@ -13092,6 +13123,8 @@ export namespace Prisma {
     baselineId: 'baselineId',
     summary: 'summary',
     processingError: 'processingError',
+    shareToken: 'shareToken',
+    sharedAt: 'sharedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13689,6 +13722,8 @@ export namespace Prisma {
     baselineId?: StringNullableFilter<"Inspection"> | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
     processingError?: StringNullableFilter<"Inspection"> | string | null
+    shareToken?: StringNullableFilter<"Inspection"> | string | null
+    sharedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
@@ -13710,6 +13745,8 @@ export namespace Prisma {
     baselineId?: SortOrderInput | SortOrder
     summary?: SortOrderInput | SortOrder
     processingError?: SortOrderInput | SortOrder
+    shareToken?: SortOrderInput | SortOrder
+    sharedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenancy?: TenancyOrderByWithRelationInput
@@ -13724,6 +13761,7 @@ export namespace Prisma {
   export type InspectionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     baselineId?: string
+    shareToken?: string
     AND?: InspectionWhereInput | InspectionWhereInput[]
     OR?: InspectionWhereInput[]
     NOT?: InspectionWhereInput | InspectionWhereInput[]
@@ -13734,6 +13772,7 @@ export namespace Prisma {
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
     processingError?: StringNullableFilter<"Inspection"> | string | null
+    sharedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
@@ -13743,7 +13782,7 @@ export namespace Prisma {
     rooms?: RoomListRelationFilter
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
-  }, "id" | "baselineId">
+  }, "id" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
     id?: SortOrder
@@ -13755,6 +13794,8 @@ export namespace Prisma {
     baselineId?: SortOrderInput | SortOrder
     summary?: SortOrderInput | SortOrder
     processingError?: SortOrderInput | SortOrder
+    shareToken?: SortOrderInput | SortOrder
+    sharedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: InspectionCountOrderByAggregateInput
@@ -13775,6 +13816,8 @@ export namespace Prisma {
     baselineId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     summary?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     processingError?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
+    shareToken?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
+    sharedAt?: DateTimeNullableWithAggregatesFilter<"Inspection"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Inspection"> | Date | string
   }
@@ -14501,6 +14544,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -14522,6 +14567,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -14537,6 +14584,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -14558,6 +14607,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -14576,6 +14627,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14587,6 +14640,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14601,6 +14656,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15467,6 +15524,8 @@ export namespace Prisma {
     baselineId?: SortOrder
     summary?: SortOrder
     processingError?: SortOrder
+    shareToken?: SortOrder
+    sharedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15481,6 +15540,8 @@ export namespace Prisma {
     baselineId?: SortOrder
     summary?: SortOrder
     processingError?: SortOrder
+    shareToken?: SortOrder
+    sharedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15495,6 +15556,8 @@ export namespace Prisma {
     baselineId?: SortOrder
     summary?: SortOrder
     processingError?: SortOrder
+    shareToken?: SortOrder
+    sharedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -17602,6 +17665,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -17621,6 +17686,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -17759,6 +17826,8 @@ export namespace Prisma {
     baselineId?: StringNullableFilter<"Inspection"> | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
     processingError?: StringNullableFilter<"Inspection"> | string | null
+    shareToken?: StringNullableFilter<"Inspection"> | string | null
+    sharedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
   }
@@ -17982,6 +18051,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
@@ -18001,6 +18072,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -18264,6 +18337,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -18284,6 +18359,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
@@ -18303,6 +18380,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -18322,6 +18401,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -18531,6 +18612,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -18551,6 +18634,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
@@ -18576,6 +18661,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -18595,6 +18682,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -18839,6 +18928,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -18859,6 +18950,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -18975,6 +19068,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -18995,6 +19090,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -19302,6 +19399,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -19322,6 +19421,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -19438,6 +19539,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -19458,6 +19561,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -19570,6 +19675,8 @@ export namespace Prisma {
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -19590,6 +19697,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
@@ -19655,6 +19764,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -19675,6 +19786,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -19771,6 +19884,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -19913,6 +20028,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -19932,6 +20049,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -19949,6 +20068,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20040,6 +20161,8 @@ export namespace Prisma {
     baselineId?: string | null
     summary?: string | null
     processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20051,6 +20174,8 @@ export namespace Prisma {
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
@@ -20070,6 +20195,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
@@ -20087,6 +20214,8 @@ export namespace Prisma {
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

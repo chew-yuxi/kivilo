@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { startCheckOut } from '@/app/inspections/[id]/actions'
+import { startCheckOut } from '@/lib/actions'
 
 export function CheckOutButton({
   baselineId,

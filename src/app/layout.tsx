@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import Link from 'next/link'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { UploadQueueProvider } from '@/components/upload-queue'
-import { ServiceWorker } from '@/components/service-worker'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -22,31 +19,16 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
+/// Deliberately bare. The inspector-facing chrome (header, upload queue, service
+/// worker) lives in the `(app)` group, so a shared report opens as a clean document
+/// with none of it. A landlord following a link is not a user of this app.
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
-        <UploadQueueProvider>
-          <header className="border-b border-gray-200 bg-white">
-            <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-6">
-              <Link href="/" className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full bg-brand-500" />
-                <span className="text-sm font-semibold tracking-tight">Kivilo</span>
-              </Link>
-              <span className="hidden text-sm text-gray-400 sm:inline">
-                Check-in / check-out
-              </span>
-              <div className="ml-auto">
-                <ServiceWorker />
-              </div>
-            </div>
-          </header>
-          <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10 pb-24">{children}</main>
-        </UploadQueueProvider>
-      </body>
+      <body className="min-h-full font-sans">{children}</body>
     </html>
   )
 }

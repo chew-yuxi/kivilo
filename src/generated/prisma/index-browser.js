@@ -165,6 +165,8 @@ exports.Prisma.InspectionScalarFieldEnum = {
   baselineId: 'baselineId',
   summary: 'summary',
   processingError: 'processingError',
+  shareToken: 'shareToken',
+  sharedAt: 'sharedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

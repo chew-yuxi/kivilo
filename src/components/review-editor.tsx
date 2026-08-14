@@ -9,7 +9,7 @@ import {
   deleteItem,
   addItem,
   markRoomReviewed,
-} from '@/app/inspections/[id]/actions'
+} from '@/lib/actions'
 import type { ItemCategory, ItemCondition } from '@/generated/prisma'
 
 export type EditableItem = {

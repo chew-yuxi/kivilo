@@ -3,7 +3,7 @@
 import { useTransition } from 'react'
 import { sgd } from '@/lib/format'
 import { VERDICTS } from '@/lib/inspection/schema'
-import { runFindings, updateFinding } from '@/app/inspections/[id]/actions'
+import { runFindings, updateFinding } from '@/lib/actions'
 import type { ChangeType, Verdict } from '@/generated/prisma'
 
 export type FindingRow = {

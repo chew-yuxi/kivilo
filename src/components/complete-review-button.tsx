@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
-import { completeReview } from '@/app/inspections/[id]/actions'
+import { completeReview } from '@/lib/actions'
 
 export function CompleteReviewButton({
   inspectionId,

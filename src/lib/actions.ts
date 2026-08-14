@@ -1,5 +1,6 @@
 'use server'
 
+import { randomBytes } from 'node:crypto'
 import { after } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
@@ -225,6 +226,45 @@ export async function updateFinding(
   await db.finding.update({
     where: { id: findingId },
     data: { ...data, editedByHuman: true, confidence: null },
+  })
+  revalidate(inspectionId)
+}
+
+// ---------------------------------------------------------------------------
+// Sharing
+// ---------------------------------------------------------------------------
+
+/// Mints the read-only link handed to the landlord and tenant. The token is the only
+/// credential guarding a document that names both parties and their unit, so it is
+/// 256 bits of CSPRNG output rather than a cuid or anything derived from the row.
+/// Calling this twice returns the same link; revoke and re-share to rotate it.
+export async function shareReport(inspectionId: string) {
+  const existing = await db.inspection.findUniqueOrThrow({
+    where: { id: inspectionId },
+    select: { shareToken: true, status: true },
+  })
+
+  if (existing.status !== 'COMPLETED') {
+    throw new Error('Only a countersigned report can be shared')
+  }
+  if (existing.shareToken) return existing.shareToken
+
+  const token = randomBytes(32).toString('base64url')
+  await db.inspection.update({
+    where: { id: inspectionId },
+    data: { shareToken: token, sharedAt: new Date() },
+  })
+
+  revalidate(inspectionId)
+  return token
+}
+
+/// Revoking clears the token, so the old link 404s exactly like a report that never
+/// existed. Sharing again mints a new one.
+export async function revokeReportLink(inspectionId: string) {
+  await db.inspection.update({
+    where: { id: inspectionId },
+    data: { shareToken: null, sharedAt: null },
   })
   revalidate(inspectionId)
 }

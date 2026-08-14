@@ -10,7 +10,7 @@ import {
   deleteCapture,
   finishRoomCapture,
   reprocessRoom,
-} from '@/app/inspections/[id]/actions'
+} from '@/lib/actions'
 import type { RoomStatus, CaptureKind } from '@/generated/prisma'
 
 export type CaptureRow = {

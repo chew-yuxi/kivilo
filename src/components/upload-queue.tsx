@@ -13,7 +13,7 @@ import {
   getServerQueueSnapshot,
   type PendingCapture,
 } from '@/lib/offline-queue'
-import { requestUploadUrl, registerCapture } from '@/app/inspections/[id]/actions'
+import { requestUploadUrl, registerCapture } from '@/lib/actions'
 
 const CAPTURE_BUCKET = 'captures'
 const MAX_ATTEMPTS = 5

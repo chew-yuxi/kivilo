@@ -66,7 +66,28 @@ pnpm dev
   is required: `PageProps` / `LayoutProps` are generated, so a bare `tsc` fails.
 - `pnpm lint`: ESLint, zero warnings tolerated
 - `pnpm build`: production build
-- `pnpm test`: Vitest
+- `pnpm test`: Vitest, hermetic and fast
+- `pnpm test:integration`: Vitest against the local Postgres. Needs `supabase start`.
+  Kept separate so a stopped stack does not look like a broken build.
+
+## Layout split
+
+`src/app/(app)/` is everything an inspector sees and carries the header, the upload
+queue, and the service worker. `src/app/reports/[token]/` sits outside that group so a
+shared report renders as a clean document. A landlord following a link is not a user of
+this app and should never meet an install prompt. The root layout is deliberately bare
+for the same reason.
+
+Server actions live in `src/lib/actions.ts` rather than a route folder, since components
+across several routes import them.
+
+## Sharing a report
+
+`shareToken` on Inspection is an unguessable bearer credential (32 random bytes,
+base64url) and the only thing guarding a document naming both parties and their unit.
+The report page is `noindex`, and an unknown or revoked token 404s exactly like a report
+that never existed. Signed storage URLs are minted per render, so links keep working
+without any object becoming public.
 
 ## Why photos as well as video
 
@@ -102,6 +123,11 @@ Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as 
 - `prisma migrate reset` has no `--skip-seed` flag in Prisma 7. Passing it silently
   prints help instead of running. It also refuses to run for an agent without
   `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION`; ask the user rather than routing around it.
+- Vitest 4 fails a test when a module mock is left with a persistently throwing
+  `mockImplementation`, even if the code under test catches it. Use
+  `mockImplementationOnce` to scope the throw to the call it is meant for.
+- `prisma migrate dev` aborts non-interactively whenever it has a warning to confirm,
+  such as adding a unique index. Hand-write the migration SQL and `prisma migrate deploy`.
 - Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.

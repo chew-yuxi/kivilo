@@ -9,6 +9,7 @@ import { FindingsPanel, type FindingRow } from '@/components/findings-panel'
 import { ProcessingPoller } from '@/components/processing-poller'
 import { CheckOutButton } from '@/components/check-out-button'
 import { CompleteReviewButton } from '@/components/complete-review-button'
+import { ShareReport } from '@/components/share-report'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,6 +143,10 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             </div>
           </section>
         </>
+      )}
+
+      {status === 'COMPLETED' && (
+        <ShareReport inspectionId={id} shareToken={inspection.shareToken} />
       )}
 
       {status === 'COMPLETED' && kind === 'CHECK_IN' && (

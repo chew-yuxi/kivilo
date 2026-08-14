@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useTransition } from 'react'
-import { signInspection } from '@/app/inspections/[id]/actions'
+import { signInspection } from '@/lib/actions'
 
 export function SignaturePad({
   inspectionId,
