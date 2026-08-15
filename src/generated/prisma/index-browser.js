@@ -127,6 +127,7 @@ exports.Prisma.StakeholderScalarFieldEnum = {
   idNumber: 'idNumber',
   email: 'email',
   phone: 'phone',
+  authUserId: 'authUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

@@ -80,6 +80,10 @@ describe('processRoom', () => {
   beforeEach(() => vi.mocked(extractRoom).mockReset())
 
   afterAll(async () => {
+    // Fixtures are disposable and shared one database, so clear them rather than
+    // letting every run silt up the dev data.
+    await db.property.deleteMany({ where: { postalCode: '000000' } })
+    await db.stakeholder.deleteMany({ where: { tenanciesAsAgent: { none: {} }, tenanciesAsLandlord: { none: {} }, tenanciesAsTenant: { none: {} }, authUserId: null, inspectionsRun: { none: {} } } })
     await db.$disconnect()
   })
 

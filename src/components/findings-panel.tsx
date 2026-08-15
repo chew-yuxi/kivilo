@@ -107,7 +107,7 @@ export function FindingsPanel({
 
             <p className="mt-2 text-sm text-gray-600">{finding.rationale}</p>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <select
                 defaultValue={finding.verdict}
                 onChange={(e) =>

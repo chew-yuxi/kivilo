@@ -5,6 +5,7 @@ import { after } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
+import { requireAgent, authorizeInspection, authorizeRoom } from '@/lib/auth'
 import { createUploadUrl } from '@/lib/storage'
 import { processRoom, generateFindings } from '@/lib/inspection/process'
 import type { CaptureKind, ItemCategory, ItemCondition, Verdict } from '@/generated/prisma'
@@ -14,11 +15,32 @@ function revalidate(inspectionId: string) {
   revalidatePath('/')
 }
 
+// Every action below starts by resolving the signed-in agent and checking that the id
+// it was handed belongs to a deal that agent is on. Server actions are public HTTP
+// endpoints: an id in an argument is attacker-controlled, so none of these may trust
+// one. See src/lib/auth.ts, which is the boundary.
+
+/// Resolves the item's room, authorizes it, and confirms the item really sits in the
+/// inspection the caller named, so a valid item id cannot be paired with someone
+/// else's inspection id.
+async function authorizeItem(itemId: string, inspectionId: string, agentId: string) {
+  const item = await db.inspectionItem.findUnique({
+    where: { id: itemId },
+    select: { id: true, room: { select: { inspectionId: true } } },
+  })
+  if (!item || item.room.inspectionId !== inspectionId) throw new Error('Item not found')
+  await authorizeInspection(inspectionId, agentId)
+  return item
+}
+
 // ---------------------------------------------------------------------------
 // Rooms
 // ---------------------------------------------------------------------------
 
 export async function addRoom(inspectionId: string, name: string) {
+  const agent = await requireAgent()
+  await authorizeInspection(inspectionId, agent.id)
+
   const last = await db.room.findFirst({
     where: { inspectionId },
     orderBy: { order: 'desc' },
@@ -34,11 +56,17 @@ export async function addRoom(inspectionId: string, name: string) {
 }
 
 export async function renameRoom(roomId: string, inspectionId: string, name: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   await db.room.update({ where: { id: roomId }, data: { name } })
   revalidate(inspectionId)
 }
 
 export async function deleteRoom(roomId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   await db.room.delete({ where: { id: roomId } })
   revalidate(inspectionId)
 }
@@ -46,6 +74,9 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
 /// Re-runs extraction for one room. Its own items are replaced; every other room,
 /// including ones already reviewed, is untouched.
 export async function reprocessRoom(roomId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
   revalidate(inspectionId)
 
@@ -57,6 +88,9 @@ export async function reprocessRoom(roomId: string, inspectionId: string) {
 }
 
 export async function markRoomReviewed(roomId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   await db.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
   revalidate(inspectionId)
 }
@@ -68,6 +102,9 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
 /// The browser PUTs media straight to storage with this. It never passes through a
 /// function, because a room's walkthrough is far past the serverless body limit.
 export async function requestUploadUrl(roomId: string, filename: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
   const storagePath = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
   const { signedUrl, token } = await createUploadUrl(storagePath)
@@ -84,6 +121,9 @@ export async function registerCapture(input: {
   durationSec: number | null
   note: string | null
 }) {
+  const agent = await requireAgent()
+  await authorizeRoom(input.roomId, agent.id)
+
   await db.capture.create({
     data: {
       roomId: input.roomId,
@@ -106,6 +146,14 @@ export async function registerCapture(input: {
 }
 
 export async function deleteCapture(captureId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  const capture = await db.capture.findUnique({
+    where: { id: captureId },
+    select: { roomId: true },
+  })
+  if (!capture) throw new Error('Capture not found')
+  await authorizeRoom(capture.roomId, agent.id)
+
   await db.capture.delete({ where: { id: captureId } })
   revalidate(inspectionId)
 }
@@ -113,6 +161,9 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
 /// Called once the inspector says the room is fully captured. Extraction takes minutes,
 /// so the page polls the room's status rather than waiting on the response.
 export async function finishRoomCapture(roomId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
   revalidate(inspectionId)
 
@@ -140,6 +191,9 @@ export async function updateItem(
     meterReading?: string | null
   },
 ) {
+  const agent = await requireAgent()
+  await authorizeItem(itemId, inspectionId, agent.id)
+
   await db.inspectionItem.update({
     where: { id: itemId },
     // A human has taken ownership of this line; the model's confidence no longer applies.
@@ -149,11 +203,17 @@ export async function updateItem(
 }
 
 export async function deleteItem(itemId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeItem(itemId, inspectionId, agent.id)
+
   await db.inspectionItem.delete({ where: { id: itemId } })
   revalidate(inspectionId)
 }
 
 export async function addItem(roomId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+
   await db.inspectionItem.create({
     data: {
       roomId,
@@ -171,6 +231,9 @@ export async function addItem(roomId: string, inspectionId: string) {
 // ---------------------------------------------------------------------------
 
 export async function completeReview(inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeInspection(inspectionId, agent.id)
+
   const unreviewed = await db.room.count({
     where: { inspectionId, status: { not: 'REVIEWED' } },
   })
@@ -190,6 +253,9 @@ export async function signInspection(
   stakeholderId: string,
   imageData: string,
 ) {
+  const agent = await requireAgent()
+  await authorizeInspection(inspectionId, agent.id)
+
   const ip = (await headers()).get('x-forwarded-for')
 
   await db.signature.upsert({
@@ -214,6 +280,9 @@ export async function signInspection(
 }
 
 export async function runFindings(inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeInspection(inspectionId, agent.id)
+
   await generateFindings(inspectionId)
   revalidate(inspectionId)
 }
@@ -223,6 +292,14 @@ export async function updateFinding(
   inspectionId: string,
   data: { verdict?: Verdict; rationale?: string; estimatedCost?: string | null },
 ) {
+  const agent = await requireAgent()
+  const finding = await db.finding.findUnique({
+    where: { id: findingId },
+    select: { inspectionId: true },
+  })
+  if (!finding || finding.inspectionId !== inspectionId) throw new Error('Finding not found')
+  await authorizeInspection(inspectionId, agent.id)
+
   await db.finding.update({
     where: { id: findingId },
     data: { ...data, editedByHuman: true, confidence: null },
@@ -239,6 +316,9 @@ export async function updateFinding(
 /// 256 bits of CSPRNG output rather than a cuid or anything derived from the row.
 /// Calling this twice returns the same link; revoke and re-share to rotate it.
 export async function shareReport(inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeInspection(inspectionId, agent.id)
+
   const existing = await db.inspection.findUniqueOrThrow({
     where: { id: inspectionId },
     select: { shareToken: true, status: true },
@@ -262,6 +342,9 @@ export async function shareReport(inspectionId: string) {
 /// Revoking clears the token, so the old link 404s exactly like a report that never
 /// existed. Sharing again mints a new one.
 export async function revokeReportLink(inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeInspection(inspectionId, agent.id)
+
   await db.inspection.update({
     where: { id: inspectionId },
     data: { shareToken: null, sharedAt: null },
@@ -272,6 +355,9 @@ export async function revokeReportLink(inspectionId: string) {
 /// Opens the check-out against a completed check-in. Both reports then live on the
 /// same property record and the diff has a baseline to measure from.
 export async function startCheckOut(baselineId: string) {
+  const agent = await requireAgent()
+  await authorizeInspection(baselineId, agent.id)
+
   const baseline = await db.inspection.findUniqueOrThrow({
     where: { id: baselineId },
     include: { rooms: { orderBy: { order: 'asc' } } },

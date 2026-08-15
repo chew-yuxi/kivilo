@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
+import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { ReviewEditor, type EvidenceCapture } from '@/components/review-editor'
 
@@ -11,8 +12,10 @@ export default async function RoomReviewPage({
 }: PageProps<'/inspections/[id]/rooms/[roomId]'>) {
   const { id, roomId } = await params
 
-  const room = await db.room.findUnique({
-    where: { id: roomId },
+  const agent = await requireAgent()
+
+  const room = await db.room.findFirst({
+    where: { id: roomId, inspection: inspectionScope(agent.id) },
     include: {
       items: { orderBy: { createdAt: 'asc' } },
       captures: { orderBy: { createdAt: 'asc' } },

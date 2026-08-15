@@ -8,8 +8,12 @@ export function ServiceWorker() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null)
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch((error) => {
+    // Development only ever registered it to be confusing: dev asset filenames are
+    // stable, so the cache-first rule served yesterday's CSS and JS. Offline capture
+    // does not depend on the worker anyway, since the queue lives in IndexedDB.
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+      const build = process.env.NEXT_PUBLIC_BUILD_ID || 'unknown'
+      navigator.serviceWorker.register(`/sw.js?v=${build}`).catch((error) => {
         // A failed registration costs offline page loads, not captures, which are
         // already safe in IndexedDB. Don't take the app down over it.
         console.error('Service worker registration failed:', error)

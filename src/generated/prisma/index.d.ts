@@ -2076,6 +2076,7 @@ export namespace Prisma {
     idNumber: string | null
     email: string | null
     phone: string | null
+    authUserId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2087,6 +2088,7 @@ export namespace Prisma {
     idNumber: string | null
     email: string | null
     phone: string | null
+    authUserId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2098,6 +2100,7 @@ export namespace Prisma {
     idNumber: number
     email: number
     phone: number
+    authUserId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2111,6 +2114,7 @@ export namespace Prisma {
     idNumber?: true
     email?: true
     phone?: true
+    authUserId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2122,6 +2126,7 @@ export namespace Prisma {
     idNumber?: true
     email?: true
     phone?: true
+    authUserId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2133,6 +2138,7 @@ export namespace Prisma {
     idNumber?: true
     email?: true
     phone?: true
+    authUserId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2217,6 +2223,7 @@ export namespace Prisma {
     idNumber: string | null
     email: string | null
     phone: string | null
+    authUserId: string | null
     createdAt: Date
     updatedAt: Date
     _count: StakeholderCountAggregateOutputType | null
@@ -2245,6 +2252,7 @@ export namespace Prisma {
     idNumber?: boolean
     email?: boolean
     phone?: boolean
+    authUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenanciesAsLandlord?: boolean | Stakeholder$tenanciesAsLandlordArgs<ExtArgs>
@@ -2262,6 +2270,7 @@ export namespace Prisma {
     idNumber?: boolean
     email?: boolean
     phone?: boolean
+    authUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["stakeholder"]>
@@ -2273,6 +2282,7 @@ export namespace Prisma {
     idNumber?: boolean
     email?: boolean
     phone?: boolean
+    authUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["stakeholder"]>
@@ -2284,11 +2294,12 @@ export namespace Prisma {
     idNumber?: boolean
     email?: boolean
     phone?: boolean
+    authUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
+  export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "authUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
   export type StakeholderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenanciesAsLandlord?: boolean | Stakeholder$tenanciesAsLandlordArgs<ExtArgs>
     tenanciesAsTenant?: boolean | Stakeholder$tenanciesAsTenantArgs<ExtArgs>
@@ -2316,6 +2327,12 @@ export namespace Prisma {
       idNumber: string | null
       email: string | null
       phone: string | null
+      /**
+       * Supabase auth user id, set when someone signs in and claims this stakeholder.
+       * Most stakeholders (landlords, tenants) never sign in and leave this null; it is
+       * what separates "a person on a deal" from "a person with a login".
+       */
+      authUserId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["stakeholder"]>
@@ -2752,6 +2769,7 @@ export namespace Prisma {
     readonly idNumber: FieldRef<"Stakeholder", 'String'>
     readonly email: FieldRef<"Stakeholder", 'String'>
     readonly phone: FieldRef<"Stakeholder", 'String'>
+    readonly authUserId: FieldRef<"Stakeholder", 'String'>
     readonly createdAt: FieldRef<"Stakeholder", 'DateTime'>
     readonly updatedAt: FieldRef<"Stakeholder", 'DateTime'>
   }
@@ -13076,6 +13094,7 @@ export namespace Prisma {
     idNumber: 'idNumber',
     email: 'email',
     phone: 'phone',
+    authUserId: 'authUserId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13473,6 +13492,7 @@ export namespace Prisma {
     idNumber?: StringNullableFilter<"Stakeholder"> | string | null
     email?: StringNullableFilter<"Stakeholder"> | string | null
     phone?: StringNullableFilter<"Stakeholder"> | string | null
+    authUserId?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
     tenanciesAsLandlord?: TenancyListRelationFilter
@@ -13489,6 +13509,7 @@ export namespace Prisma {
     idNumber?: SortOrderInput | SortOrder
     email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
+    authUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenanciesAsLandlord?: TenancyOrderByRelationAggregateInput
@@ -13500,6 +13521,7 @@ export namespace Prisma {
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    authUserId?: string
     AND?: StakeholderWhereInput | StakeholderWhereInput[]
     OR?: StakeholderWhereInput[]
     NOT?: StakeholderWhereInput | StakeholderWhereInput[]
@@ -13515,7 +13537,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyListRelationFilter
     inspectionsRun?: InspectionListRelationFilter
     signatures?: SignatureListRelationFilter
-  }, "id">
+  }, "id" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
     id?: SortOrder
@@ -13524,6 +13546,7 @@ export namespace Prisma {
     idNumber?: SortOrderInput | SortOrder
     email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
+    authUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: StakeholderCountOrderByAggregateInput
@@ -13541,6 +13564,7 @@ export namespace Prisma {
     idNumber?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     email?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     phone?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
+    authUserId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
   }
@@ -14275,6 +14299,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
@@ -14291,6 +14316,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
@@ -14307,6 +14333,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
@@ -14323,6 +14350,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
@@ -14339,6 +14367,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14350,6 +14379,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14361,6 +14391,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15232,6 +15263,7 @@ export namespace Prisma {
     idNumber?: SortOrder
     email?: SortOrder
     phone?: SortOrder
+    authUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15243,6 +15275,7 @@ export namespace Prisma {
     idNumber?: SortOrder
     email?: SortOrder
     phone?: SortOrder
+    authUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15254,6 +15287,7 @@ export namespace Prisma {
     idNumber?: SortOrder
     email?: SortOrder
     phone?: SortOrder
+    authUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -17946,6 +17980,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
@@ -17961,6 +17996,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
@@ -17981,6 +18017,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
@@ -17996,6 +18033,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
@@ -18016,6 +18054,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
@@ -18031,6 +18070,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
@@ -18141,6 +18181,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
@@ -18156,6 +18197,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
@@ -18182,6 +18224,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
@@ -18197,6 +18240,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
@@ -18223,6 +18267,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
@@ -18238,6 +18283,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
@@ -18302,6 +18348,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
@@ -18317,6 +18364,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
@@ -18571,6 +18619,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
@@ -18586,6 +18635,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
@@ -19718,6 +19768,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
@@ -19733,6 +19784,7 @@ export namespace Prisma {
     idNumber?: string | null
     email?: string | null
     phone?: string | null
+    authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
@@ -19813,6 +19865,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
@@ -19828,6 +19881,7 @@ export namespace Prisma {
     idNumber?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput

@@ -19,7 +19,7 @@ when someone is ready to re-migrate and re-seed.
 2. **Root causes only.** No `try/catch` that swallows errors, no `?? []` patches on symptoms.
 3. **Minimal impact.** Touch only what the task requires.
 
-## Three invariants
+## Four invariants
 
 **AI is the scribe, not the witness.** The timestamped video is the evidence. Every
 model-authored row carries a `confidence`, and `editedByHuman` flips the moment a person
@@ -30,6 +30,14 @@ add a path that writes model output straight to a signed report.
 the instant it is taken and only leaves the queue once storage confirms it; a failed
 upload increments `attempts` and is retried, never discarded. Inspectors work where the
 signal is worst, and losing a walkthrough is the failure that loses you the agent.
+
+**Authorization lives in the data layer, not the proxy.** `src/proxy.ts` refreshes the
+session and redirects signed-out visitors, and Next's own docs say proxy must not be
+used as an authorization solution. The boundary is `src/lib/auth.ts`: every server
+action calls `requireAgent()` then `authorizeInspection` / `authorizeRoom`, and every
+page query is filtered by `inspectionScope`. Server actions are public HTTP endpoints
+and every id they take is attacker-controlled, so none of them may trust one. A refusal
+returns the same error as a missing row, so the API cannot be used to enumerate ids.
 
 **Rooms are independent.** Extraction is scoped to one room (`processRoom`), so
 re-shooting the kitchen cannot touch a bedroom someone already reviewed. Anything that
@@ -70,6 +78,17 @@ pnpm dev
 - `pnpm test:integration`: Vitest against the local Postgres. Needs `supabase start`.
   Kept separate so a stopped stack does not look like a broken build.
 
+## Auth
+
+Supabase Auth, emailed six digit code rather than a magic link: a link opens the phone's
+default browser, so an installed PWA would send the agent to Safari with no session in
+the app. On first sign-in an agent claims an existing Stakeholder with the same verified
+address, or gets a new one, so someone already named on a deal keeps their tenancies
+instead of becoming a duplicate.
+
+Locally the code arrives in mailpit on port 56324; the message body is readable through
+its API at `/api/v1/messages`.
+
 ## Layout split
 
 `src/app/(app)/` is everything an inspector sees and carries the header, the upload
@@ -80,6 +99,10 @@ for the same reason.
 
 Server actions live in `src/lib/actions.ts` rather than a route folder, since components
 across several routes import them.
+
+`/login` and `/offline` sit outside `(app)` and are static. `/offline` in particular must
+render identically with or without a session, because it is what the service worker
+caches at install and serves when a navigation fails.
 
 ## Sharing a report
 
@@ -128,6 +151,11 @@ Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as 
   `mockImplementationOnce` to scope the throw to the call it is meant for.
 - `prisma migrate dev` aborts non-interactively whenever it has a warning to confirm,
   such as adding a unique index. Hand-write the migration SQL and `prisma migrate deploy`.
+- Turbopack caches Tailwind's generated CSS in `.next` in a way that survives a dev
+  server restart. If a class you just wrote has no effect, `rm -rf .next` before
+  debugging the config; check a production build first, which regenerates from scratch.
+- Next sets its own `Cache-Control` on dynamic routes and it overrides both
+  `next.config.ts` headers and anything the proxy sets.
 - Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.

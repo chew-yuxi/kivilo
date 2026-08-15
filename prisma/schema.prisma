@@ -24,6 +24,10 @@ model Stakeholder {
   idNumber  String?
   email     String?
   phone     String?
+  /// Supabase auth user id, set when someone signs in and claims this stakeholder.
+  /// Most stakeholders (landlords, tenants) never sign in and leave this null; it is
+  /// what separates "a person on a deal" from "a person with a login".
+  authUserId String?        @unique
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 

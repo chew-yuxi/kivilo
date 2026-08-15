@@ -1,12 +1,16 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import { requireAgent, inspectionScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { StatusBadge } from '@/components/status-badge'
 
 export const dynamic = 'force-dynamic'
 
 export default async function InspectionsPage() {
+  const agent = await requireAgent()
+
   const inspections = await db.inspection.findMany({
+    where: inspectionScope(agent.id),
     orderBy: { createdAt: 'desc' },
     include: {
       tenancy: { include: { property: true, tenant: true } },

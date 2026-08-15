@@ -1,11 +1,15 @@
 import Link from 'next/link'
 import { UploadQueueProvider } from '@/components/upload-queue'
 import { ServiceWorker } from '@/components/service-worker'
+import { SignOut } from '@/components/sign-out'
+import { requireAgent } from '@/lib/auth'
 
 /// Everything an inspector sees. Shared reports live outside this group and get none
 /// of it, so a landlord following a link never meets the upload queue or an install
 /// prompt for an app they have no reason to install.
-export default function AppLayout({ children }: LayoutProps<'/'>) {
+export default async function AppLayout({ children }: LayoutProps<'/'>) {
+  const agent = await requireAgent()
+
   return (
     <UploadQueueProvider>
       <div className="flex min-h-full flex-col bg-gray-50">
@@ -16,8 +20,9 @@ export default function AppLayout({ children }: LayoutProps<'/'>) {
               <span className="text-sm font-semibold tracking-tight">Kivilo</span>
             </Link>
             <span className="hidden text-sm text-gray-400 sm:inline">Check-in / check-out</span>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-3">
               <ServiceWorker />
+              <SignOut email={agent.email} />
             </div>
           </div>
         </header>

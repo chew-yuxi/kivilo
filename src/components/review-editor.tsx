@@ -54,12 +54,14 @@ function ItemRow({
   const lowConfidence = item.confidence !== null && item.confidence < 0.6
 
   return (
+    // Stacked on a phone, which is where this is actually used, and a single row from
+    // sm upward where there is room for one.
     <div
-      className={`grid grid-cols-12 items-start gap-3 border-t border-gray-100 px-4 py-3 ${
+      className={`grid grid-cols-1 items-start gap-2 border-t border-gray-100 px-4 py-3 sm:grid-cols-12 sm:gap-3 ${
         pending ? 'opacity-60' : ''
       }`}
     >
-      <div className="col-span-4">
+      <div className="sm:col-span-4">
         <input
           defaultValue={item.name}
           onBlur={(e) => e.target.value !== item.name && save({ name: e.target.value })}
@@ -106,11 +108,11 @@ function ItemRow({
         </div>
       </div>
 
-      <div className="col-span-2">
+      <div className="sm:col-span-2">
         <select
           defaultValue={item.condition}
           onChange={(e) => save({ condition: e.target.value as ItemCondition })}
-          className={`w-full rounded px-2 py-1 text-xs font-medium focus:outline-none ${CONDITION_TONE[item.condition]}`}
+          className={`w-full rounded px-2 py-2 text-xs font-medium focus:outline-none sm:py-1 ${CONDITION_TONE[item.condition]}`}
         >
           {CONDITIONS.map((c) => (
             <option key={c} value={c}>
@@ -128,7 +130,7 @@ function ItemRow({
         )}
       </div>
 
-      <div className="col-span-5">
+      <div className="sm:col-span-5">
         <textarea
           defaultValue={item.notes ?? ''}
           rows={2}
@@ -140,11 +142,12 @@ function ItemRow({
         />
       </div>
 
-      <div className="col-span-1 text-right">
+      <div className="text-right sm:col-span-1">
         <button
           type="button"
           onClick={() => startTransition(() => void deleteItem(item.id, inspectionId))}
-          className="px-1 text-xs text-gray-400 hover:text-red-600"
+          // Big enough to hit with a thumb, and pushed clear of the notes field above.
+          className="-my-1 px-2 py-1 text-xs text-gray-400 hover:text-red-600"
         >
           Remove
         </button>

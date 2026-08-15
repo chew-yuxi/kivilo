@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
+import { requireAgent, inspectionScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { StatusBadge } from '@/components/status-badge'
 import { RoomCapture, type RoomRow } from '@/components/room-capture'
@@ -16,8 +17,12 @@ export const dynamic = 'force-dynamic'
 export default async function InspectionPage({ params }: PageProps<'/inspections/[id]'>) {
   const { id } = await params
 
-  const inspection = await db.inspection.findUnique({
-    where: { id },
+  const agent = await requireAgent()
+
+  // Scoped rather than found-then-checked, so an inspection belonging to another agent
+  // is indistinguishable from one that does not exist.
+  const inspection = await db.inspection.findFirst({
+    where: { AND: [{ id }, inspectionScope(agent.id)] },
     include: {
       tenancy: { include: { property: true, landlord: true, tenant: true, agent: true } },
       rooms: {
