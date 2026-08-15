@@ -8,7 +8,13 @@ import { db } from '@/lib/db'
 import { requireAgent, authorizeInspection, authorizeRoom } from '@/lib/auth'
 import { createUploadUrl } from '@/lib/storage'
 import { processRoom, generateFindings } from '@/lib/inspection/process'
-import type { CaptureKind, ItemCategory, ItemCondition, Verdict } from '@/generated/prisma'
+import type {
+  CaptureKind,
+  ItemCategory,
+  ItemCondition,
+  PropertyType,
+  Verdict,
+} from '@/generated/prisma'
 
 function revalidate(inspectionId: string) {
   revalidatePath(`/inspections/${inspectionId}`)
@@ -31,6 +37,84 @@ async function authorizeItem(itemId: string, inspectionId: string, agentId: stri
   if (!item || item.room.inspectionId !== inspectionId) throw new Error('Item not found')
   await authorizeInspection(inspectionId, agentId)
   return item
+}
+
+// ---------------------------------------------------------------------------
+// Creating a deal
+// ---------------------------------------------------------------------------
+
+/// Creates the property, both stakeholders, the tenancy, and the check-in in one go.
+/// The signed-in agent is put on the tenancy, which is what makes the result visible
+/// to them and to nobody else.
+///
+/// This deliberately creates a thin tenancy rather than a full deal record. M1 owns the
+/// deal wizard; this is the least a check-in needs in order to exist, and M1 will
+/// extend these rows rather than replace them.
+export async function createInspection(input: {
+  line1: string
+  unit: string | null
+  postalCode: string
+  propertyType: PropertyType
+  landlordName: string
+  landlordEmail: string | null
+  tenantName: string
+  tenantEmail: string | null
+  startDate: string
+  endDate: string
+  monthlyRent: string
+  deposit: string
+}) {
+  const agent = await requireAgent()
+
+  const required = [input.line1, input.postalCode, input.landlordName, input.tenantName]
+  if (required.some((value) => !value.trim())) {
+    throw new Error('Address, postal code, landlord, and tenant are all required')
+  }
+
+  const start = new Date(input.startDate)
+  const end = new Date(input.endDate)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    throw new Error('Tenancy dates are not valid')
+  }
+  if (end <= start) {
+    throw new Error('The tenancy must end after it starts')
+  }
+
+  const inspection = await db.inspection.create({
+    data: {
+      kind: 'CHECK_IN',
+      // Same reason as the agent below: a scalar id cannot sit beside nested creates.
+      conductedBy: { connect: { id: agent.id } },
+      tenancy: {
+        create: {
+          startDate: start,
+          endDate: end,
+          monthlyRent: input.monthlyRent || '0',
+          deposit: input.deposit || '0',
+          // connect rather than a scalar agentId: Prisma will not mix a foreign key
+          // with nested relation creates in the same input.
+          agent: { connect: { id: agent.id } },
+          property: {
+            create: {
+              line1: input.line1.trim(),
+              unit: input.unit?.trim() || null,
+              postalCode: input.postalCode.trim(),
+              type: input.propertyType,
+            },
+          },
+          landlord: {
+            create: { name: input.landlordName.trim(), email: input.landlordEmail?.trim() || null },
+          },
+          tenant: {
+            create: { name: input.tenantName.trim(), email: input.tenantEmail?.trim() || null },
+          },
+        },
+      },
+    },
+  })
+
+  revalidatePath('/')
+  return inspection.id
 }
 
 // ---------------------------------------------------------------------------
