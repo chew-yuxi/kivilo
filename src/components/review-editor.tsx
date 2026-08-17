@@ -193,7 +193,9 @@ export function ReviewEditor({
   return (
     <div className="space-y-6">
       {captures.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2">
+        // A swipeable strip on a phone so the first item is on screen without
+        // scrolling past every photo; a grid where there is room for one.
+        <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0">
           {captures.map((capture) =>
             capture.kind === 'VIDEO' ? (
               <video
@@ -204,7 +206,7 @@ export function ReviewEditor({
                 }}
                 src={capture.url}
                 controls
-                className="w-full rounded-lg border border-gray-200 bg-black"
+                className="h-44 w-auto max-w-[85vw] shrink-0 snap-start rounded-lg border border-gray-200 bg-black sm:h-auto sm:w-full sm:max-w-none"
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
@@ -213,7 +215,7 @@ export function ReviewEditor({
                 id={`capture-${capture.id}`}
                 src={capture.url}
                 alt="Inspection photo"
-                className="w-full rounded-lg border border-gray-200 object-cover"
+                className="h-44 w-auto max-w-[85vw] shrink-0 snap-start rounded-lg border border-gray-200 object-cover sm:h-auto sm:w-full sm:max-w-none"
               />
             ),
           )}

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useUploadQueue } from '@/components/upload-queue'
 import {
   addRoom,
@@ -102,7 +102,7 @@ function RoomCard({
           </p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
+          className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
         >
           {badge.text}
         </span>
@@ -190,6 +190,12 @@ function CaptureSheet({
   const [saving, setSaving] = useState(false)
   const [pending, startTransition] = useTransition()
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   async function capture(file: File, kind: CaptureKind) {
     setSaving(true)
     try {
@@ -211,8 +217,16 @@ function CaptureSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 sm:items-center">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-6 sm:rounded-2xl">
+    <div
+      className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-label={`Capture ${room.name}`}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:rounded-2xl"
+      >
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-base font-semibold">{room.name}</h2>

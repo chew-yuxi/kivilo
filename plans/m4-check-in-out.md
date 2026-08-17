@@ -81,9 +81,13 @@ person touches it. Nothing is countersignable until a human has passed through r
    the video's condition for the same item.
 10. ~~PWA~~: done. Installable, offline shell, IndexedDB capture queue that survives
     no-signal capture and drains itself when connectivity returns.
-11. Still to do: PDF or shareable web report, Playwright e2e for capture → review →
-    sign, the polish pass to the Linear/Stripe bar, and a regression test pinning
-    room-scoped reprocessing (currently verified by hand only).
+11. ~~Shareable report~~: done 2026-08-14, a revocable token link rather than a PDF.
+12. ~~Room-scoped reprocessing regression test~~: done 2026-08-14 (`pnpm test:integration`).
+13. ~~Playwright e2e for capture → review → sign~~: done 2026-08-17 (`pnpm test:e2e`,
+    the whole check-in on a phone viewport, Gemini faked behind an env flag).
+14. ~~Polish pass~~: done 2026-08-17. Phone-first: agreed inventory no longer clips,
+    inventory shown before the signature pads, evidence strip on review, sheet closes on
+    backdrop tap. Deploy is next.
 18. Native app: deferred behind the PWA, per the 2026-08-13 decision.
 
 ## Verification

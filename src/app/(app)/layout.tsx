@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
     <UploadQueueProvider>
       <div className="flex min-h-full flex-col bg-gray-50">
         <header className="border-b border-gray-200 bg-white">
-          <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-6">
+          <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4 sm:px-6">
             <Link href="/" className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-brand-500" />
               <span className="text-sm font-semibold tracking-tight">Kivilo</span>
@@ -26,7 +26,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             </div>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10 pb-24">{children}</main>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-10">{children}</main>
       </div>
     </UploadQueueProvider>
   )

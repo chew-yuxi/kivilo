@@ -54,6 +54,9 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
   // state would also mean flush() sets state synchronously, which React forbids
   // inside an effect body.
   const flushing = useRef(false)
+  // Set when a capture arrives mid-flush, so the pass runs again as soon as it ends
+  // instead of leaving the new capture to the 20 second timer.
+  const again = useRef(false)
 
   const pending = useSyncExternalStore(
     subscribeToQueue,
@@ -70,43 +73,50 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
   )
 
   const flush = useCallback(async () => {
-    if (flushing.current || !navigator.onLine) return
+    if (!navigator.onLine) return
+    if (flushing.current) {
+      again.current = true
+      return
+    }
     flushing.current = true
     try {
       let uploadedAny = false
 
-      for (const capture of await listPending()) {
-        if (capture.attempts >= MAX_ATTEMPTS) continue
-        try {
-          const { storagePath, token } = await requestUploadUrl(capture.roomId, capture.filename)
+      do {
+        again.current = false
+        for (const capture of await listPending()) {
+          if (capture.attempts >= MAX_ATTEMPTS) continue
+          try {
+            const { storagePath, token } = await requestUploadUrl(capture.roomId, capture.filename)
 
-          const { error } = await browserClient()
-            .storage.from(CAPTURE_BUCKET)
-            .uploadToSignedUrl(storagePath, token, capture.blob)
-          if (error) throw error
+            const { error } = await browserClient()
+              .storage.from(CAPTURE_BUCKET)
+              .uploadToSignedUrl(storagePath, token, capture.blob)
+            if (error) throw error
 
-          await registerCapture({
-            roomId: capture.roomId,
-            inspectionId: capture.inspectionId,
-            kind: capture.kind,
-            storagePath,
-            mimeType: capture.mimeType,
-            sizeBytes: capture.blob.size,
-            durationSec: capture.durationSec,
-            note: capture.note,
-          })
+            await registerCapture({
+              roomId: capture.roomId,
+              inspectionId: capture.inspectionId,
+              kind: capture.kind,
+              storagePath,
+              mimeType: capture.mimeType,
+              sizeBytes: capture.blob.size,
+              durationSec: capture.durationSec,
+              note: capture.note,
+            })
 
-          await remove(capture.id!)
-          uploadedAny = true
-        } catch (error) {
-          // Keep the capture. A failed attempt is a retry, never a discard.
-          await update({
-            ...capture,
-            attempts: capture.attempts + 1,
-            lastError: error instanceof Error ? error.message : String(error),
-          })
+            await remove(capture.id!)
+            uploadedAny = true
+          } catch (error) {
+            // Keep the capture. A failed attempt is a retry, never a discard.
+            await update({
+              ...capture,
+              attempts: capture.attempts + 1,
+              lastError: error instanceof Error ? error.message : String(error),
+            })
+          }
         }
-      }
+      } while (again.current)
 
       if (uploadedAny) router.refresh()
     } finally {

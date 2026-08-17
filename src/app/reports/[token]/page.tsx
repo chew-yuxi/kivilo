@@ -72,9 +72,9 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
   const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long' })
 
   return (
-    <article className="mx-auto max-w-3xl bg-white p-10 print:p-0">
+    <article className="mx-auto max-w-3xl bg-white p-5 sm:p-10 print:p-0">
       <header className="border-b border-gray-300 pb-6">
-        <div className="flex items-start justify-between gap-6">
+        <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
               Kivilo condition report

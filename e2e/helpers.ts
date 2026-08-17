@@ -50,6 +50,7 @@ export const FIXTURES = {
 
 /// Draws a stroke on a signature canvas so the Sign button enables.
 export async function scribble(page: Page, canvas: ReturnType<Page['locator']>) {
+  await canvas.scrollIntoViewIfNeeded()
   const box = (await canvas.boundingBox())!
   await page.mouse.move(box.x + 20, box.y + 40)
   await page.mouse.down()

@@ -7,7 +7,7 @@ export function PrintButton() {
     <button
       type="button"
       onClick={() => window.print()}
-      className="shrink-0 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 print:hidden"
+      className="self-start rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 print:hidden"
     >
       Print or save PDF
     </button>

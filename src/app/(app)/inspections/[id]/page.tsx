@@ -120,7 +120,22 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       {(status === 'AWAITING_SIGNATURE' || status === 'COMPLETED') && (
         <>
           <section className="space-y-3">
+            <h2 className="text-sm font-medium">Agreed inventory</h2>
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+              {inspection.rooms.map((room) => (
+                <AgreedRoom key={room.id} roomId={room.id} name={room.name} />
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-3">
             <h2 className="text-sm font-medium">Signatures</h2>
+            {status === 'AWAITING_SIGNATURE' && (
+              <p className="text-sm text-gray-500">
+                Go through the inventory above with both parties, then hand the phone to
+                each of them to sign. The report freezes once both have.
+              </p>
+            )}
             <div className="grid gap-3 sm:grid-cols-2">
               <SignaturePad
                 inspectionId={id}
@@ -136,15 +151,6 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
                 role="tenant"
                 signedAt={signatureFor(tenancy.tenantId)}
               />
-            </div>
-          </section>
-
-          <section className="space-y-3">
-            <h2 className="text-sm font-medium">Agreed inventory</h2>
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-              {inspection.rooms.map((room) => (
-                <AgreedRoom key={room.id} roomId={room.id} name={room.name} />
-              ))}
             </div>
           </section>
         </>
@@ -184,20 +190,21 @@ async function AgreedRoom({ roomId, name }: { roomId: string; name: string }) {
         {name}
       </h3>
       {items.map((item) => (
+        // Stacked on a phone, one row from sm up, same as the review editor.
         <div
           key={item.id}
-          className="flex items-baseline gap-4 border-t border-gray-100 px-4 py-2.5 text-sm"
+          className="grid grid-cols-1 gap-x-4 gap-y-1 border-t border-gray-100 px-4 py-2.5 text-sm sm:grid-cols-12 sm:items-baseline"
         >
-          <span className="w-56 shrink-0">
+          <span className="sm:col-span-4">
             <span className="font-medium">{item.name}</span>
             {item.identifier && (
-              <span className="mt-0.5 block font-mono text-xs text-gray-500">
+              <span className="mt-0.5 block break-all font-mono text-xs text-gray-500">
                 {item.identifier}
               </span>
             )}
           </span>
-          <span className="w-20 shrink-0 text-xs text-gray-500">{item.condition}</span>
-          <span className="text-gray-600">
+          <span className="text-xs text-gray-500 sm:col-span-2">{item.condition}</span>
+          <span className="text-gray-600 sm:col-span-6">
             {item.meterReading ? `Reading: ${item.meterReading}` : item.notes}
           </span>
         </div>
