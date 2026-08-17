@@ -29,6 +29,31 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 5. **Deploy**, then sign in once and confirm you land on an empty inspection list rather
    than someone else's.
 
+## Where it is (2026-08-18)
+
+- Live at https://kivilo-one.vercel.app (Vercel project `chewyuxis-projects/kivilo`,
+  auto-deploys from `main` on github.com/chew-yuxi/kivilo).
+- Supabase project `kivilo`, ref `dksfpjcmfrqztqgnwgbm`, **Singapore**. Migrated, private
+  `captures` bucket created, auth site URL and allow list set to the Vercel origin, OTP
+  length set to 6 to match the app copy.
+- Production env: everything in `.env.example` except `ANTHROPIC_API_KEY`, which is not
+  set anywhere yet. Values live in the untracked `.env.deploy` locally; the database
+  password is in `~/.kivilo-db-password`.
+
+Still open, and each one bites before the first real inspection:
+
+- **Upload cap.** The Supabase free plan caps every upload at 50 MB, project wide, so the
+  bucket could not be created with the 2 GB per-file limit `scripts/setup-storage.ts`
+  asks for and inherits the 50 MB cap. A phone walkthrough is far past that. Upgrade the
+  project to Pro and raise the global file size limit, then re-run `pnpm setup:storage`
+  after deleting the bucket, or set the bucket limit in the dashboard.
+- **Auth email.** No custom SMTP yet, so codes go out through Supabase's default mailer,
+  which is rate limited to a handful an hour and lands in spam. Fine for the first
+  sign-in, not for agents.
+- **`ANTHROPIC_API_KEY`** is unset, so the check-out diff cannot run.
+- **Domain.** kivilo.io / kivilo.sg were free on 2026-08-14. Once bought, add it to
+  Vercel and update the Supabase auth site URL and allow list.
+
 ## Before real agents use it
 
 These are known gaps, not oversights. Decide each one deliberately.
