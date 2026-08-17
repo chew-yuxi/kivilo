@@ -42,3 +42,7 @@ next-env.d.ts
 
 # Supabase local stack
 /supabase/.temp
+
+# Playwright
+/test-results
+/playwright-report

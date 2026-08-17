@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { supabaseServer } from '@/lib/supabase/server'
-import type { Prisma, Stakeholder } from '@/generated/prisma'
+import { Prisma, type Stakeholder } from '@/generated/prisma'
 
 /// This module is the authorization boundary. The proxy does an optimistic redirect so
 /// signed-out visitors are not shown a loading shell, but it is not a security control:
@@ -35,13 +35,24 @@ export async function currentAgent(): Promise<Stakeholder | null> {
     }
   }
 
-  return db.stakeholder.create({
-    data: {
-      name: user.email?.split('@')[0] ?? 'Agent',
-      email: user.email ?? null,
-      authUserId: user.id,
-    },
-  })
+  // The layout and the page both resolve the agent, in parallel, on the same first
+  // request, so two of these can race to insert. Prisma's upsert is not atomic under
+  // the driver adapter, so the loser is caught on the unique index and reads the
+  // winner's row instead.
+  try {
+    return await db.stakeholder.create({
+      data: {
+        name: user.email?.split('@')[0] ?? 'Agent',
+        email: user.email ?? null,
+        authUserId: user.id,
+      },
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return db.stakeholder.findUniqueOrThrow({ where: { authUserId: user.id } })
+    }
+    throw error
+  }
 }
 
 export async function requireAgent(): Promise<Stakeholder> {

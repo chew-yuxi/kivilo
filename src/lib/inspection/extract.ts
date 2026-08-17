@@ -47,12 +47,59 @@ export type CaptureInput = {
   note: string | null
 }
 
-export async function extractRoom(input: {
+type RoomInput = {
   captures: CaptureInput[]
   roomName: string
   kind: 'CHECK_IN' | 'CHECK_OUT'
   propertyLabel: string
-}): Promise<RoomExtraction> {
+}
+
+/// The end-to-end suite walks the real capture, upload, review, and signing path but
+/// cannot pay a Gemini call per run or wait minutes for it, so this stands in for the
+/// model when KIVILO_FAKE_EXTRACTION=1. It has the same shape a real extraction has,
+/// including refs that point at the room's actual captures. It is refused on Vercel so
+/// a stray env var can never draft a real report from nothing.
+function fakeExtraction(input: RoomInput): RoomExtraction {
+  if (process.env.VERCEL) {
+    throw new Error('KIVILO_FAKE_EXTRACTION is for local end-to-end tests only')
+  }
+  const video = input.captures.find((c) => c.kind === 'VIDEO') ?? input.captures[0]
+  const photo = input.captures.find((c) => c.kind === 'PHOTO') ?? video
+  return {
+    summary: `${input.roomName} in fair overall condition, one appliance identified from its label.`,
+    transcript: `Okay, ${input.roomName.toLowerCase()}. Worktop has a chip to the right of the sink.`,
+    items: [
+      {
+        name: 'Refrigerator',
+        category: 'APPLIANCE',
+        condition: 'GOOD',
+        quantity: 1,
+        notes: 'Small dent on the lower door.',
+        identifier: 'SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N',
+        meterReading: null,
+        sourceCaptureRef: photo.ref,
+        sourceTimestampSec: null,
+        confidence: 0.92,
+      },
+      {
+        name: 'Worktop',
+        category: 'SURFACE',
+        condition: 'FAIR',
+        quantity: 1,
+        notes: 'Chip to the right of the sink, as narrated.',
+        identifier: null,
+        meterReading: null,
+        sourceCaptureRef: video.ref,
+        sourceTimestampSec: 3,
+        confidence: 0.55,
+      },
+    ],
+  }
+}
+
+export async function extractRoom(input: RoomInput): Promise<RoomExtraction> {
+  if (process.env.KIVILO_FAKE_EXTRACTION === '1') return fakeExtraction(input)
+
   const header = [
     `${input.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} of ${input.propertyLabel}.`,
     `Room: ${input.roomName}.`,

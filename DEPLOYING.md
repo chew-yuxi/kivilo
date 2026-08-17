@@ -23,7 +23,9 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
    it to the redirect allow list. Sign-in is an emailed six digit code, so configure a
    real SMTP sender; the default Supabase mailer is rate limited and not for production.
 4. **Environment.** Set every variable in `.env.example`. `SUPABASE_SERVICE_ROLE_KEY`
-   is server only and must not be exposed to the browser.
+   is server only and must not be exposed to the browser. Never set
+   `KIVILO_FAKE_EXTRACTION`; it is the e2e suite's stand-in for Gemini and the app
+   refuses it on Vercel anyway.
 5. **Deploy**, then sign in once and confirm you land on an empty inspection list rather
    than someone else's.
 

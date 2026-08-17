@@ -77,6 +77,14 @@ pnpm dev
 - `pnpm test`: Vitest, hermetic and fast
 - `pnpm test:integration`: Vitest against the local Postgres. Needs `supabase start`.
   Kept separate so a stopped stack does not look like a broken build.
+- `pnpm test:e2e`: Playwright, the whole check-in on a phone viewport: sign in with the
+  emailed code (read back from mailpit), create the deal, capture, extraction, review,
+  send for signature, both signatures, share link with no session, revoke, and a
+  second agent getting 404. Needs `supabase start`; starts its own dev server on port
+  3111 with `KIVILO_FAKE_EXTRACTION=1`, which swaps Gemini for a canned inventory
+  (`fakeExtraction` in `src/lib/inspection/extract.ts`) and is refused on Vercel.
+  Everything else in the run is the real path. First run: `pnpm exec playwright
+  install chromium`.
 
 ## Auth
 
