@@ -20,8 +20,10 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
    idempotent, so it is safe to re-run. Confirm in the Supabase dashboard that the
    bucket is **not** public: every read goes through a signed URL minted server side.
 3. **Auth.** In Supabase Auth settings, set the site URL to the deployed origin and add
-   it to the redirect allow list. Sign-in is an emailed six digit code, so configure a
-   real SMTP sender; the default Supabase mailer is rate limited and not for production.
+   it to the redirect allow list. Sign-in is an emailed six digit code, so in Auth →
+   Email Templates change **Magic Link** to show `{{ .Token }}` (the default body is a
+   `{{ .ConfirmationURL }}` link, which the app cannot use), and configure a real SMTP
+   sender; the default Supabase mailer is rate limited and not for production.
 4. **Environment.** Set every variable in `.env.example`. `SUPABASE_SERVICE_ROLE_KEY`
    is server only and must not be exposed to the browser. Never set
    `KIVILO_FAKE_EXTRACTION`; it is the e2e suite's stand-in for Gemini and the app
@@ -33,9 +35,12 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 
 - Live at https://kivilo-one.vercel.app (Vercel project `chewyuxis-projects/kivilo`,
   auto-deploys from `main` on github.com/chew-yuxi/kivilo).
-- Supabase project `kivilo`, ref `dksfpjcmfrqztqgnwgbm`, **Singapore**. Migrated, private
-  `captures` bucket created, auth site URL and allow list set to the Vercel origin, OTP
-  length set to 6 to match the app copy.
+- **No Supabase project right now.** `dksfpjcmfrqztqgnwgbm` (Singapore) was deleted on
+  2026-08-19 to recreate Kivilo under an account that will carry Pro. The Vercel env
+  still points at it, so the deploy is down until steps 1 to 4 are redone against the
+  new project. When redoing step 3, also set the **Magic Link email template** to
+  contain `{{ .Token }}`; the dashboard default is a confirmation link, which is what
+  the first smoke test received instead of a code.
 - Production env: everything in `.env.example` except `ANTHROPIC_API_KEY`, which is not
   set anywhere yet. Values live in the untracked `.env.deploy` locally; the database
   password is in `~/.kivilo-db-password`.
