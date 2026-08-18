@@ -89,7 +89,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/" className="text-sm text-gray-500 hover:underline">
+        <Link href="/inspections" className="text-sm text-gray-500 hover:underline">
           ← All inspections
         </Link>
         <div className="mt-3 flex items-start justify-between gap-6">

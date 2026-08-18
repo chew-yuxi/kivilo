@@ -108,7 +108,8 @@ for the same reason.
 Server actions live in `src/lib/actions.ts` rather than a route folder, since components
 across several routes import them.
 
-`/login` and `/offline` sit outside `(app)` and are static. `/offline` in particular must
+`/` is the public landing page, static and outside `(app)`; the inspector's list is at
+`/inspections`. `/login` and `/offline` also sit outside `(app)` and are static. `/offline` in particular must
 render identically with or without a session, because it is what the service worker
 caches at install and serves when a navigation fails.
 

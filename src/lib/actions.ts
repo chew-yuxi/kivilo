@@ -18,7 +18,7 @@ import type {
 
 function revalidate(inspectionId: string) {
   revalidatePath(`/inspections/${inspectionId}`)
-  revalidatePath('/')
+  revalidatePath('/inspections')
 }
 
 // Every action below starts by resolving the signed-in agent and checking that the id
@@ -113,7 +113,7 @@ export async function createInspection(input: {
     },
   })
 
-  revalidatePath('/')
+  revalidatePath('/inspections')
   return inspection.id
 }
 

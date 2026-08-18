@@ -9,7 +9,7 @@ import { supabaseBrowser } from '@/lib/supabase/client'
 /// were just using, with no session in the app itself. A code keeps them where they are.
 export function LoginForm() {
   const router = useRouter()
-  const next = useSearchParams().get('next') || '/'
+  const next = useSearchParams().get('next') || '/inspections'
 
   const [stage, setStage] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')

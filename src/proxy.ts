@@ -44,5 +44,5 @@ export async function proxy(request: NextRequest) {
 export const config = {
   /// Only the inspector-facing app. Shared reports are deliberately outside it: the
   /// token in the URL is the credential, and a landlord has no account.
-  matcher: ['/', '/inspections/:path*'],
+  matcher: ['/inspections/:path*'],
 }
