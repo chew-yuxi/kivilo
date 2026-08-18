@@ -11,9 +11,6 @@ export default function LoginPage() {
         <span className="text-sm font-semibold tracking-tight">Kivilo</span>
       </div>
       <h1 className="mt-6 text-xl font-semibold tracking-tight">Sign in</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        We send a six digit code to your email. No password to remember on site.
-      </p>
       <Suspense>
         <LoginForm />
       </Suspense>
