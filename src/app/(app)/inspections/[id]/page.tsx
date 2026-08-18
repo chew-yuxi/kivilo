@@ -34,6 +34,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       },
       signatures: true,
       checkOut: { select: { id: true } },
+      baseline: { select: { id: true, conductedAt: true } },
       findings: {
         orderBy: { createdAt: 'asc' },
         include: {
@@ -99,6 +100,20 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             <p className="mt-1 text-sm text-gray-500">
               {propertyLabel(tenancy.property)} · {tenancy.tenant.name}
             </p>
+            {inspection.baseline && (
+              <p className="mt-1 text-sm text-gray-500">
+                Rooms copied from, and compared against,{' '}
+                <Link
+                  href={`/inspections/${inspection.baseline.id}`}
+                  className="text-brand-600 hover:underline"
+                >
+                  the check-in
+                </Link>
+                {inspection.baseline.conductedAt &&
+                  ` of ${inspection.baseline.conductedAt.toLocaleDateString('en-SG', { dateStyle: 'long' })}`}
+                .
+              </p>
+            )}
           </div>
           <StatusBadge status={status} />
         </div>

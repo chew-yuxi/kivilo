@@ -8,7 +8,7 @@ export function freshEmail(label: string) {
   return `e2e-${label}-${Date.now().toString(36)}@kivilo.test`
 }
 
-async function latestCodeFor(email: string): Promise<string | null> {
+export async function latestCodeFor(email: string): Promise<string | null> {
   const list = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`)
   const { messages } = (await list.json()) as { messages: { ID: string }[] }
   if (!messages?.length) return null

@@ -40,7 +40,7 @@ export function LoginForm() {
       type: 'email',
     })
     setBusy(false)
-    if (error) return setError(error.message)
+    if (error) return setError('That code is not right, or it has expired. Check the email or request a new one.')
 
     // Full navigation so the server picks up the new session cookie.
     router.replace(next)
@@ -61,6 +61,13 @@ export function LoginForm() {
           className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
         />
       </label>
+
+      {stage === 'code' && (
+        <p className="text-sm text-gray-500">
+          Sent to <span className="font-medium text-gray-700">{email}</span>. It can take a
+          minute; check spam if it does not arrive.
+        </p>
+      )}
 
       {stage === 'code' && (
         <label className="block text-xs font-medium text-gray-600">

@@ -59,13 +59,14 @@ export default async function InspectionsPage() {
                 className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
+                  <p className="text-sm font-medium">
                     {propertyLabel(inspection.tenancy.property)}
                   </p>
                   <p className="mt-0.5 text-xs text-gray-500">
                     {inspection.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} ·{' '}
                     {inspection.tenancy.tenant.name}
-                    {inspection._count.rooms > 0 && ` · ${inspection._count.rooms} rooms`}
+                    {inspection._count.rooms > 0 &&
+                      ` · ${inspection._count.rooms} room${inspection._count.rooms === 1 ? '' : 's'}`}
                   </p>
                 </div>
                 <StatusBadge status={inspection.status} />

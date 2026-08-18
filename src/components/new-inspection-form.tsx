@@ -31,7 +31,11 @@ export function NewInspectionForm() {
   const [error, setError] = useState<string | null>(null)
   const dates = defaultDates()
 
-  function submit(formData: FormData) {
+  // onSubmit rather than a form action: React resets a form once its action returns,
+  // which after a validation error would wipe everything the agent had typed.
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
     const value = (name: string) => String(formData.get(name) ?? '')
     setError(null)
 
@@ -59,7 +63,7 @@ export function NewInspectionForm() {
   }
 
   return (
-    <form action={submit} className="mt-8 space-y-8">
+    <form onSubmit={submit} className="mt-8 space-y-8">
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">Property</legend>
         <label className="block text-xs font-medium text-gray-600">

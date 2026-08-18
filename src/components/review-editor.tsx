@@ -230,13 +230,6 @@ export function ReviewEditor({
               {items.length} items · {unreviewed} not yet touched by a person
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => startTransition(() => void addItem(roomId, inspectionId))}
-            className="text-xs text-brand-600 hover:underline"
-          >
-            Add item
-          </button>
         </div>
 
         {items.map((item) => (
@@ -253,6 +246,18 @@ export function ReviewEditor({
             No items in this room yet.
           </p>
         )}
+
+        {/* At the bottom, where the new row appears, so it is on screen when it does. */}
+        <div className="border-t border-gray-100 px-4 py-3">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => startTransition(() => void addItem(roomId, inspectionId))}
+            className="text-sm font-medium text-brand-600 hover:underline disabled:opacity-50"
+          >
+            + Add an item the model missed
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-end gap-4">

@@ -2,7 +2,7 @@ import type { InspectionStatus } from '@/generated/prisma'
 
 const LABELS: Record<InspectionStatus, { text: string; className: string }> = {
   DRAFT: { text: 'Awaiting capture', className: 'bg-gray-100 text-gray-700' },
-  CAPTURING: { text: 'Uploading', className: 'bg-blue-50 text-blue-700' },
+  CAPTURING: { text: 'In progress', className: 'bg-blue-50 text-blue-700' },
   PROCESSING: { text: 'Reading walkthrough', className: 'bg-blue-50 text-blue-700' },
   REVIEW: { text: 'Needs review', className: 'bg-amber-50 text-amber-800' },
   AWAITING_SIGNATURE: { text: 'Awaiting signatures', className: 'bg-brand-50 text-brand-700' },

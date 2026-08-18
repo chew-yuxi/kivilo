@@ -96,7 +96,12 @@ function RoomCard({
           />
           <p className="mt-1 px-1 text-xs text-gray-500">
             {videos > 0 || photos > 0
-              ? `${videos} video${videos === 1 ? '' : 's'}, ${photos} photo${photos === 1 ? '' : 's'}`
+              ? [
+                  videos > 0 && `${videos} video${videos === 1 ? '' : 's'}`,
+                  photos > 0 && `${photos} photo${photos === 1 ? '' : 's'}`,
+                ]
+                  .filter(Boolean)
+                  .join(', ')
               : 'Nothing captured yet'}
             {room.itemCount > 0 && ` · ${room.itemCount} items`}
           </p>
