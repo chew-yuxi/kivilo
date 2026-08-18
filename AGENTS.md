@@ -139,6 +139,13 @@ pnpm exec tsx scripts/dev-run-room.ts "Kitchen" walkthrough.mp4 label.jpg
 
 Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as VIDEO.
 
+Image generation goes through Based AI (`src/lib/based-ai.ts`, OpenAI-compatible
+`ai.based.one/v1`, needs `BASED_AI_API_KEY`). Nothing in the product calls it yet; try it with:
+
+```bash
+pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out.png
+```
+
 ## Lessons
 
 - Prisma 7 dropped `url` from the `datasource` block. The connection string lives in
