@@ -20,7 +20,8 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
    idempotent, so it is safe to re-run. Confirm in the Supabase dashboard that the
    bucket is **not** public: every read goes through a signed URL minted server side.
 3. **Auth.** In Supabase Auth settings, set the site URL to the deployed origin and add
-   it to the redirect allow list. Sign-in is an emailed six digit code, so in Auth →
+   it to the redirect allow list. Raise the storage file size limit first (see the
+   upload cap note below), otherwise step 2 fails. Sign-in is an emailed six digit code, so in Auth →
    Email Templates change **Magic Link** to show `{{ .Token }}` (the default body is a
    `{{ .ConfirmationURL }}` link, which the app cannot use), and configure a real SMTP
    sender; the default Supabase mailer is rate limited and not for production.
@@ -31,27 +32,37 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 5. **Deploy**, then sign in once and confirm you land on an empty inspection list rather
    than someone else's.
 
-## Where it is (2026-08-18)
+## Where it is (2026-08-20)
 
 - Live at https://kivilo-one.vercel.app (Vercel project `chewyuxis-projects/kivilo`,
   auto-deploys from `main` on github.com/chew-yuxi/kivilo).
-- **No Supabase project right now.** `dksfpjcmfrqztqgnwgbm` (Singapore) was deleted on
-  2026-08-19 to recreate Kivilo under an account that will carry Pro. The Vercel env
-  still points at it, so the deploy is down until steps 1 to 4 are redone against the
-  new project. When redoing step 3, also set the **Magic Link email template** to
-  contain `{{ .Token }}`; the dashboard default is a confirmation link, which is what
-  the first smoke test received instead of a code.
+- Supabase project `kivilo`, ref `ezisetpbwmentmdqvdjz`, **Singapore**, org
+  `chew-yuxi's Org`. Replaces `dksfpjcmfrqztqgnwgbm`, which was deleted 2026-08-19.
+  Migrated (4 migrations), private `captures` bucket created, site URL and allow list
+  set to the Vercel origin, OTP length 6, and the Magic Link template rewritten to show
+  `{{ .Token }}`. The database password was reset when the project was handed over, so
+  `~/.kivilo-db-password` and `.env.deploy` hold the current one.
 - Production env: everything in `.env.example` except `ANTHROPIC_API_KEY`, which is not
   set anywhere yet. Values live in the untracked `.env.deploy` locally; the database
   password is in `~/.kivilo-db-password`.
 
 Still open, and each one bites before the first real inspection:
 
-- **Upload cap.** The Supabase free plan caps every upload at 50 MB, project wide, so the
-  bucket could not be created with the 2 GB per-file limit `scripts/setup-storage.ts`
-  asks for and inherits the 50 MB cap. A phone walkthrough is far past that. Upgrade the
-  project to Pro and raise the global file size limit, then re-run `pnpm setup:storage`
-  after deleting the bucket, or set the bucket limit in the dashboard.
+- **Upload cap, mostly solved.** A new project starts with a project-wide 50 MB limit,
+  and `scripts/setup-storage.ts` fails with `EntityTooLarge` because it asks for a 2 GB
+  bucket. The dashboard gates raising that behind Pro, but the management API does not:
+
+  ```bash
+  curl -X PATCH -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+    -H 'content-type: application/json' -d '{"fileSizeLimit":2147483648}' \
+    https://api.supabase.com/v1/projects/<ref>/config/storage
+  ```
+
+  Run that *before* `pnpm setup:storage`. Verified on 2026-08-20 by uploading a 60 MB
+  object to the live bucket and deleting it again, so the cap is not re-enforced at
+  upload time. What the free plan still limits is **total** storage (1 GB), which a
+  handful of real walkthroughs will exhaust. That, not the per-file cap, is the reason
+  to go Pro.
 - **Auth email.** No custom SMTP yet, so codes go out through Supabase's default mailer,
   which is rate limited to a handful an hour and lands in spam. Fine for the first
   sign-in, not for agents.
