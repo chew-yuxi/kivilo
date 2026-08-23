@@ -39,10 +39,16 @@ export function LoginForm() {
       token: code.trim(),
       type: 'email',
     })
-    setBusy(false)
-    if (error) return setError('That code is not right, or it has expired. Check the email or request a new one.')
+    if (error) {
+      setBusy(false)
+      return setError('That code is not right, or it has expired. Check the email or request a new one.')
+    }
 
-    // Full navigation so the server picks up the new session cookie.
+    // Deliberately stay busy. The code has been accepted, but /inspections is a server
+    // render that also provisions the agent on a first sign-in, so it can take seconds
+    // on a cold start. Clearing the flag here put the button back to "Sign in" while the
+    // page had visibly not moved, which reads as a sign-in that silently failed. The
+    // component unmounts on navigation, so there is nothing to reset.
     router.replace(next)
     router.refresh()
   }
