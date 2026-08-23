@@ -34,8 +34,13 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 
 ## Where it is (2026-08-20)
 
-- Live at https://kivilo-one.vercel.app (Vercel project `chewyuxis-projects/kivilo`,
-  auto-deploys from `main` on github.com/chew-yuxi/kivilo).
+- Live at **https://kivilo.nottoosweetlabs.com** (Vercel project
+  `chewyuxis-projects/kivilo`, auto-deploys from `main` on github.com/chew-yuxi/kivilo).
+  `kivilo-one.vercel.app` still resolves and stays in the auth allow list. The custom
+  domain needed a `_vercel.nottoosweetlabs.com` TXT record plus an explicit verify call,
+  since the apex is not a domain in this Vercel team; DNS is at Cloudflare and the
+  subdomain must stay grey-cloud, because proxying it would hide Vercel's IPs and break
+  certificate issuance.
 - Supabase project `kivilo`, ref `ezisetpbwmentmdqvdjz`, **Singapore**, org
   `chew-yuxi's Org`. Replaces `dksfpjcmfrqztqgnwgbm`, which was deleted 2026-08-19.
   Migrated (4 migrations), private `captures` bucket created, site URL and allow list
@@ -74,13 +79,17 @@ Still open, and each one bites before the first real inspection:
   2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` on Vercel and redeploy, so the route
      can actually send before anything calls it.
   3. Enable the hook, pointing it at the deployed route and reusing the secret already
-     set as `SEND_EMAIL_HOOK_SECRET` on Vercel (also in `.env.deploy`):
+     set as `SEND_EMAIL_HOOK_SECRET` on Vercel (also in `.env.deploy`). Two things the
+     dashboard gets wrong and this does not: the URI must have **no trailing dot**, and
+     the secret must be the **`v1,whsec_<base64>`** value already on Vercel, not a bare
+     hex string the UI generates. A mismatch on either fails every send, and because the
+     hook replaces the built-in mailer, that means nobody can sign in at all:
 
      ```bash
      curl -X PATCH -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
        -H 'content-type: application/json' \
        -d '{"hook_send_email_enabled":true,
-            "hook_send_email_uri":"https://kivilo-one.vercel.app/api/auth/send-email",
+            "hook_send_email_uri":"https://kivilo.nottoosweetlabs.com/api/auth/send-email",
             "hook_send_email_secrets":"<the same v1,whsec_... value>"}' \
        https://api.supabase.com/v1/projects/<ref>/config/auth
      ```
@@ -92,8 +101,9 @@ Still open, and each one bites before the first real inspection:
   Leave the hook off locally. The built-in mailer keeps delivering to mailpit, which is
   where `pnpm test:e2e` reads the code from.
 - **`ANTHROPIC_API_KEY`** is unset, so the check-out diff cannot run.
-- **Domain.** kivilo.io / kivilo.sg were free on 2026-08-14. Once bought, add it to
-  Vercel and update the Supabase auth site URL and allow list.
+- **Domain.** Settled as `kivilo.nottoosweetlabs.com` on 2026-08-23; the Supabase auth
+  site URL and allow list already point at it. kivilo.io was still unregistered that day
+  if a standalone name is ever wanted.
 
 ## Before real agents use it
 
