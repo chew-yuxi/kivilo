@@ -97,6 +97,21 @@ instead of becoming a duplicate.
 Locally the code arrives in mailpit on port 56324; the message body is readable through
 its API at `/api/v1/messages`.
 
+**Who sends that email depends on the environment.** Supabase's built-in mailer is capped
+at two messages an hour project wide, which is unusable for a demo, so in production a
+Send Email Hook POSTs the code to `src/app/api/auth/send-email/route.ts` and we deliver it
+through Resend, with the wording in `src/lib/email.ts`. Supabase still mints the code,
+sets its expiry, validates it on `verifyOtp`, and rate limits it, so the hook is a mail
+transport and not an authorization boundary; `signInWithOtp` in the login form is
+unchanged. The hook is deliberately left **off locally**, so the built-in mailer keeps
+delivering to mailpit and `pnpm test:e2e` reads the code back exactly as before. That is
+also why there is no environment branch in the sending code.
+
+The hook request carries no session, so `SEND_EMAIL_HOOK_SECRET` is the only thing
+separating Supabase from anyone who finds the URL. Verify it before reading the payload,
+and keep `src/proxy.ts` off `/api/**`: a webhook has no cookie and would be redirected to
+`/login`.
+
 ## Layout split
 
 `src/app/(app)/` is everything an inspector sees and carries the header, the upload

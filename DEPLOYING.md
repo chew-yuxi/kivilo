@@ -63,9 +63,34 @@ Still open, and each one bites before the first real inspection:
   upload time. What the free plan still limits is **total** storage (1 GB), which a
   handful of real walkthroughs will exhaust. That, not the per-file cap, is the reason
   to go Pro.
-- **Auth email.** No custom SMTP yet, so codes go out through Supabase's default mailer,
-  which is rate limited to a handful an hour and lands in spam. Fine for the first
-  sign-in, not for agents.
+- **Auth email.** Codes still go out through Supabase's built-in mailer, which is capped
+  at **two messages an hour, project wide** (`rate_limit_email_sent = 2`). That is the
+  single thing that makes the app hard to demo, and it is not a deliverability problem
+  you can tune around. The code to replace it is written and merged but **not switched
+  on**; finish it as follows, in this order, because enabling the hook before Resend can
+  send would break sign-in outright:
+
+  1. Verify a sender domain in Resend and create an API key.
+  2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` on Vercel and redeploy, so the route
+     can actually send before anything calls it.
+  3. Enable the hook, pointing it at the deployed route and reusing the secret already
+     set as `SEND_EMAIL_HOOK_SECRET` on Vercel (also in `.env.deploy`):
+
+     ```bash
+     curl -X PATCH -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+       -H 'content-type: application/json' \
+       -d '{"hook_send_email_enabled":true,
+            "hook_send_email_uri":"https://kivilo-one.vercel.app/api/auth/send-email",
+            "hook_send_email_secrets":"<the same v1,whsec_... value>"}' \
+       https://api.supabase.com/v1/projects/<ref>/config/auth
+     ```
+
+  4. Raise `rate_limit_email_sent`, which does **not** lift itself when the hook takes
+     over sending.
+  5. Sign in once and confirm the email is the Resend one, not Supabase's.
+
+  Leave the hook off locally. The built-in mailer keeps delivering to mailpit, which is
+  where `pnpm test:e2e` reads the code from.
 - **`ANTHROPIC_API_KEY`** is unset, so the check-out diff cannot run.
 - **Domain.** kivilo.io / kivilo.sg were free on 2026-08-14. Once bought, add it to
   Vercel and update the Supabase auth site URL and allow list.
