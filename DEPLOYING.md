@@ -68,38 +68,18 @@ Still open, and each one bites before the first real inspection:
   upload time. What the free plan still limits is **total** storage (1 GB), which a
   handful of real walkthroughs will exhaust. That, not the per-file cap, is the reason
   to go Pro.
-- **Auth email.** Codes still go out through Supabase's built-in mailer, which is capped
-  at **two messages an hour, project wide** (`rate_limit_email_sent = 2`). That is the
-  single thing that makes the app hard to demo, and it is not a deliverability problem
-  you can tune around. The code to replace it is written and merged but **not switched
-  on**; finish it as follows, in this order, because enabling the hook before Resend can
-  send would break sign-in outright:
+- **Auth email: done, 2026-08-23.** Sign-in codes go out through Resend, not Supabase's
+  built-in mailer. Supabase's Send Email Hook POSTs the code to
+  `https://kivilo.nottoosweetlabs.com/api/auth/send-email`, which verifies the webhook
+  signature and sends via Resend from `Kivilo <noreply@kivilo.nottoosweetlabs.com>`.
+  `rate_limit_email_sent` is raised from 2 to 100; it does **not** lift itself when the
+  hook takes over. Verified end to end: a real code was delivered to a Gmail address.
 
-  1. Verify a sender domain in Resend and create an API key.
-  2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` on Vercel and redeploy, so the route
-     can actually send before anything calls it.
-  3. Enable the hook, pointing it at the deployed route and reusing the secret already
-     set as `SEND_EMAIL_HOOK_SECRET` on Vercel (also in `.env.deploy`). Two things the
-     dashboard gets wrong and this does not: the URI must have **no trailing dot**, and
-     the secret must be the **`v1,whsec_<base64>`** value already on Vercel, not a bare
-     hex string the UI generates. A mismatch on either fails every send, and because the
-     hook replaces the built-in mailer, that means nobody can sign in at all:
+  Order matters if this is ever rebuilt. The hook *replaces* the built-in mailer, so any
+  misconfiguration is total sign-in failure rather than a degraded path. Deploy the
+  route and set `RESEND_API_KEY` / `RESEND_FROM_EMAIL` **first**, and only then enable
+  the hook.
 
-     ```bash
-     curl -X PATCH -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
-       -H 'content-type: application/json' \
-       -d '{"hook_send_email_enabled":true,
-            "hook_send_email_uri":"https://kivilo.nottoosweetlabs.com/api/auth/send-email",
-            "hook_send_email_secrets":"<the same v1,whsec_... value>"}' \
-       https://api.supabase.com/v1/projects/<ref>/config/auth
-     ```
-
-  4. Raise `rate_limit_email_sent`, which does **not** lift itself when the hook takes
-     over sending.
-  5. Sign in once and confirm the email is the Resend one, not Supabase's.
-
-  Leave the hook off locally. The built-in mailer keeps delivering to mailpit, which is
-  where `pnpm test:e2e` reads the code from.
 - **`ANTHROPIC_API_KEY`** is unset, so the check-out diff cannot run.
 - **Domain.** Settled as `kivilo.nottoosweetlabs.com` on 2026-08-23; the Supabase auth
   site URL and allow list already point at it. kivilo.io was still unregistered that day
@@ -131,3 +111,21 @@ These are known gaps, not oversights. Decide each one deliberately.
 Migrations are additive so far, so redeploying an older build is safe. The one thing
 that is not reversible is a `prisma migrate reset`, which drops everything; it exists
 for local development and should never be run against a deployed database.
+
+## Reading Supabase hook failures
+
+The auth API reports a broken Send Email Hook as a generic 500, and the message is the
+only clue. Two that cost real time:
+
+- `"Unexpected status code returned from hook: 404"` means the URI is wrong. A trailing
+  dot pasted into the dashboard field does exactly this.
+- `"Hook requires authorization token"` does **not** mean a token is missing from the
+  request. It is how Supabase surfaces a **401 from your own route**, which in practice
+  means the secret on Supabase and the one in `SEND_EMAIL_HOOK_SECRET` disagree.
+
+Do not try to compare the two by reading the secret back. `GET /config/auth` returns
+`hook_send_email_secrets` as an opaque hex value that does not change to match whatever
+you PATCH in, so it looks like the write silently failed when it did not. The write is
+validated (a wrong format is rejected with a clear error), so if the PATCH returns no
+error, it took. The way to resolve a suspected mismatch is to set a **fresh** secret on
+both sides at once and redeploy, never to reverse engineer the displayed value.
