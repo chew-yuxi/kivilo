@@ -13,9 +13,14 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 
 ## First deploy
 
-1. **Database.** Point `DATABASE_URL` at the Supabase Postgres and run
-   `pnpm exec prisma migrate deploy`. Do not run `migrate dev` against a deployed
-   database; it is interactive and can reset.
+1. **Database.** Point `DATABASE_URL` at Supabase's **transaction** pooler, port
+   `6543`, and `DIRECT_URL` at the **session** pooler, port `5432`. The session pooler
+   pins a Postgres backend per client and caps the project at 15 of them, which warm
+   Vercel instances exhaust between them; the transaction pooler admits ~200. Migrations
+   are the exception, since they take advisory locks a transaction pooler will not hold,
+   which is why `prisma.config.ts` reads `DIRECT_URL`. Run `pnpm exec prisma migrate
+   deploy`. Do not run `migrate dev` against a deployed database; it is interactive and
+   can reset.
 2. **Storage.** `pnpm setup:storage` creates the private `captures` bucket. It is
    idempotent, so it is safe to re-run. Confirm in the Supabase dashboard that the
    bucket is **not** public: every read goes through a signed URL minted server side.

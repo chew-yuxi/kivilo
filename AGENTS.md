@@ -187,6 +187,11 @@ pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out
   debugging the config; check a production build first, which regenerates from scratch.
 - Next sets its own `Cache-Control` on dynamic routes and it overrides both
   `next.config.ts` headers and anything the proxy sets.
+- Supabase's session pooler (port 5432) caps the whole project at 15 clients, and a
+  Fluid Compute instance holds its own pg pool, so a couple of warm instances take every
+  slot and pages start failing with a digest and no stack. Runtime belongs on the
+  transaction pooler (6543). It shows up on the heaviest page first, because Prisma
+  issues a query per relation: `/inspections` fires 4, `/inspections/[id]` fires 16.
 - Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.
