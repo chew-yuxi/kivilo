@@ -194,6 +194,10 @@ function CaptureSheet({
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
   const [pending, startTransition] = useTransition()
+  // Captures queued in this sheet's session, so the photo nudge reacts immediately
+  // rather than waiting on the upload to round-trip through the server.
+  const [tookVideo, setTookVideo] = useState(false)
+  const [tookPhoto, setTookPhoto] = useState(false)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -215,11 +219,16 @@ function CaptureSheet({
         note: note.trim() || null,
         createdAt: Date.now(),
       })
+      if (kind === 'VIDEO') setTookVideo(true)
+      else setTookPhoto(true)
       setNote('')
     } finally {
       setSaving(false)
     }
   }
+
+  const hasVideo = tookVideo || room.captures.some((c) => c.kind === 'VIDEO')
+  const hasPhoto = tookPhoto || room.captures.some((c) => c.kind === 'PHOTO')
 
   return (
     <div
@@ -236,8 +245,8 @@ function CaptureSheet({
           <div>
             <h2 className="text-base font-semibold">{room.name}</h2>
             <p className="mt-0.5 text-sm text-gray-500">
-              Walk the room narrating what you see, then photograph anything with small
-              print on it.
+              Photos are what the model reads. Video is the room&apos;s timestamped
+              evidence if the report is ever disputed.
             </p>
           </div>
           <button type="button" onClick={onClose} className="text-sm text-gray-400 hover:text-gray-700">
@@ -273,37 +282,50 @@ function CaptureSheet({
           type="file"
           accept="image/*"
           capture="environment"
+          multiple
           className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) void capture(file, 'PHOTO')
+          onChange={async (e) => {
+            for (const file of Array.from(e.target.files ?? [])) {
+              await capture(file, 'PHOTO')
+            }
             e.target.value = ''
           }}
         />
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => videoInput.current?.click()}
-            className="rounded-md bg-brand-500 px-4 py-3 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
-          >
-            Record walkthrough
-          </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => photoInput.current?.click()}
-            className="rounded-md border border-gray-300 px-4 py-3 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-          >
-            Photograph a label
-          </button>
-        </div>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => photoInput.current?.click()}
+          className="mt-4 w-full rounded-md bg-brand-500 px-4 py-3 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+        >
+          Take photos
+        </button>
 
-        <p className="mt-3 text-xs text-gray-500">
-          Photograph rating plates, model and serial labels, and meter faces up close.
-          Video is compressed too far to read small print reliably. The photo is what
-          gets transcribed character-for-character.
+        <ul className="mt-3 space-y-0.5 text-xs text-gray-500">
+          <li>· The room from each corner</li>
+          <li>· Every appliance and fixture</li>
+          <li>· Rating plates, serials and meter faces, up close</li>
+          <li>· Any damage, close-up</li>
+        </ul>
+
+        {hasVideo && !hasPhoto && (
+          <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Now photograph the labels in this room — video is compressed too far for
+            small print. The photo is what gets transcribed character-for-character.
+          </p>
+        )}
+
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => videoInput.current?.click()}
+          className="mt-4 w-full rounded-md border border-gray-300 px-4 py-3 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+        >
+          Record narrated walkthrough
+        </button>
+        <p className="mt-1.5 text-xs text-gray-500">
+          Recommended: walk the room once, saying what you see. It settles
+          &ldquo;you just didn&apos;t photograph it&rdquo; arguments later.
         </p>
 
         {room.captures.length > 0 && (
