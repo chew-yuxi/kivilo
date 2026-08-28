@@ -6,17 +6,16 @@ import { createClient } from '@supabase/supabase-js'
 import {
   enqueue,
   listPending,
-  remove,
-  update,
+  patch,
+  take,
   subscribeToQueue,
   getQueueSnapshot,
   getServerQueueSnapshot,
   type PendingCapture,
 } from '@/lib/offline-queue'
-import { requestUploadUrl, registerCapture } from '@/lib/actions'
+import { requestUploadUrl, registerCapture, updateCaptureNote, deleteCapture } from '@/lib/actions'
 
 const CAPTURE_BUCKET = 'captures'
-const MAX_ATTEMPTS = 5
 
 const browserClient = () =>
   createClient(
@@ -29,6 +28,11 @@ type QueueState = {
   pending: PendingCapture[]
   online: boolean
   add: (capture: Parameters<typeof enqueue>[0]) => Promise<void>
+  /// Runs an upload pass now rather than waiting for the timer.
+  flush: () => void
+  /// The server row a queued capture became once it uploaded, so a note typed or a
+  /// delete tapped against the phone's copy can follow it to the server.
+  uploadedIdFor: (queueId: number) => string | null
 }
 
 const QueueContext = createContext<QueueState | null>(null)
@@ -57,6 +61,7 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
   // Set when a capture arrives mid-flush, so the pass runs again as soon as it ends
   // instead of leaving the new capture to the 20 second timer.
   const again = useRef(false)
+  const uploaded = useRef(new Map<number, string>())
 
   const pending = useSyncExternalStore(
     subscribeToQueue,
@@ -84,33 +89,56 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
 
       do {
         again.current = false
-        for (const capture of await listPending()) {
-          if (capture.attempts >= MAX_ATTEMPTS) continue
+        // Nothing is ever given up on. A capture that keeps failing goes to the back of
+        // the line so it cannot hold up the ones taken after it.
+        const queue = (await listPending()).sort(
+          (a, b) => a.attempts - b.attempts || a.createdAt - b.createdAt,
+        )
+        for (const capture of queue) {
+          const id = capture.id!
           try {
-            const { storagePath, token } = await requestUploadUrl(capture.roomId, capture.filename)
+            // A record that already carries a server id had its bytes accepted on an
+            // earlier pass that failed after that point. It is never sent again; only
+            // the hand-over below is left to do.
+            let captureId = capture.uploadedId ?? uploaded.current.get(id) ?? null
+            const resumed = captureId !== null
 
-            const { error } = await browserClient()
-              .storage.from(CAPTURE_BUCKET)
-              .uploadToSignedUrl(storagePath, token, capture.blob)
-            if (error) throw error
+            if (!captureId) {
+              const { storagePath, token } = await requestUploadUrl(capture.roomId, capture.filename)
 
-            await registerCapture({
-              roomId: capture.roomId,
-              inspectionId: capture.inspectionId,
-              kind: capture.kind,
-              storagePath,
-              mimeType: capture.mimeType,
-              sizeBytes: capture.blob.size,
-              durationSec: capture.durationSec,
-              note: capture.note,
-            })
+              const { error } = await browserClient()
+                .storage.from(CAPTURE_BUCKET)
+                .uploadToSignedUrl(storagePath, token, capture.blob)
+              if (error) throw error
 
-            await remove(capture.id!)
+              captureId = await registerCapture({
+                roomId: capture.roomId,
+                inspectionId: capture.inspectionId,
+                kind: capture.kind,
+                storagePath,
+                mimeType: capture.mimeType,
+                sizeBytes: capture.blob.size,
+                durationSec: capture.durationSec,
+                note: capture.note,
+              })
+              uploaded.current.set(id, captureId)
+              await patch(id, { uploadedId: captureId })
+            }
+
+            // Hand over. The record as it is at the moment of removal is the truth about
+            // what the inspector did while the bytes were in flight: a note typed
+            // against the phone's copy follows it to the server row, and a copy they
+            // deleted takes the server row with it.
+            const taken = await take(id)
+            if (!taken) {
+              await deleteCapture(captureId, capture.inspectionId)
+            } else if (resumed || taken.note !== capture.note) {
+              await updateCaptureNote(captureId, capture.inspectionId, taken.note)
+            }
             uploadedAny = true
           } catch (error) {
             // Keep the capture. A failed attempt is a retry, never a discard.
-            await update({
-              ...capture,
+            await patch(id, {
               attempts: capture.attempts + 1,
               lastError: error instanceof Error ? error.message : String(error),
             })
@@ -148,42 +176,31 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
     [flush],
   )
 
+  const uploadedIdFor = useCallback((queueId: number) => uploaded.current.get(queueId) ?? null, [])
+
   return (
-    <QueueContext.Provider value={{ pending, online, add }}>
+    <QueueContext.Provider
+      value={{ pending, online, add, flush: () => void flush(), uploadedIdFor }}
+    >
       {children}
-      <QueueBanner pending={pending} online={online} />
     </QueueContext.Provider>
   )
 }
 
-function QueueBanner({ pending, online }: { pending: PendingCapture[]; online: boolean }) {
+/// One line in the header. Per-capture state lives on the capture itself, on the room
+/// screen; this only says that something is still leaving the phone.
+export function QueueStatus() {
+  const { pending, online } = useUploadQueue()
   if (online && pending.length === 0) return null
 
-  const stuck = pending.filter((c) => c.attempts >= MAX_ATTEMPTS)
-  const bytes = pending.reduce((sum, c) => sum + c.blob.size, 0)
-
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 px-6 py-3 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center gap-3 text-sm">
-        <span
-          className={`size-2 shrink-0 rounded-full ${online ? 'bg-amber-500' : 'bg-gray-400'}`}
-        />
-        <p className="flex-1 text-gray-700">
-          {!online && 'Offline. '}
-          {pending.length > 0 ? (
-            <>
-              {pending.length} capture{pending.length === 1 ? '' : 's'} saved on this device
-              {' '}({(bytes / 1_000_000).toFixed(0)} MB)
-              {online ? ', uploading now.' : '. They will upload when you have signal.'}
-            </>
-          ) : (
-            'Captures you take now are saved on this device and upload later.'
-          )}
-        </p>
-        {stuck.length > 0 && (
-          <span className="text-xs text-red-600">{stuck.length} failed repeatedly</span>
-        )}
-      </div>
-    </div>
+    <span className="flex items-center gap-1.5 text-xs text-gray-600">
+      <span className={`size-2 shrink-0 rounded-full ${online ? 'bg-amber-500' : 'bg-gray-400'}`} />
+      {!online
+        ? pending.length > 0
+          ? `Offline, ${pending.length} saved here`
+          : 'Offline'
+        : `Uploading ${pending.length}`}
+    </span>
   )
 }

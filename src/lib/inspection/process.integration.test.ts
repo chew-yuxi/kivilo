@@ -147,6 +147,45 @@ describe('processRoom', () => {
     expect(items.map((i) => i.name)).toEqual(['Hob'])
   })
 
+  /// "Capture more" on a reviewed room, then Done, re-reads that room. The corrections
+  /// the agent already made in it must survive, and must not come back doubled.
+  it('keeps rows a person edited when its own room is re-read, without duplicating them', async () => {
+    const { kitchen } = await fixture()
+
+    vi.mocked(extractRoom).mockResolvedValue({
+      ...extracted('Oven', kitchen.capture.id),
+      items: [
+        extracted('Oven', kitchen.capture.id).items[0],
+        extracted('Worktop', kitchen.capture.id).items[0],
+      ],
+    })
+    await processRoom(kitchen.room.id)
+    const worktop = await db.inspectionItem.findFirstOrThrow({
+      where: { roomId: kitchen.room.id, name: 'Worktop' },
+    })
+    await db.inspectionItem.update({
+      where: { id: worktop.id },
+      data: { name: 'Quartz worktop', editedByHuman: true, confidence: null },
+    })
+
+    vi.mocked(extractRoom).mockResolvedValue({
+      ...extracted('Hob', kitchen.capture.id),
+      items: [
+        extracted('Hob', kitchen.capture.id).items[0],
+        extracted('quartz worktop', kitchen.capture.id).items[0],
+      ],
+    })
+    await processRoom(kitchen.room.id)
+
+    const items = await db.inspectionItem.findMany({
+      where: { roomId: kitchen.room.id },
+      orderBy: { createdAt: 'asc' },
+    })
+    expect(items.map((i) => i.name)).toEqual(['Quartz worktop', 'Hob'])
+    expect(items[0].id).toBe(worktop.id)
+    expect(items[0].editedByHuman).toBe(true)
+  })
+
   it('parks the room as FAILED with the reason when extraction throws', async () => {
     const { kitchen } = await fixture()
     // Once, not persistent. A throwing implementation left in place is reported by

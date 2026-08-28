@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { UploadQueueProvider } from '@/components/upload-queue'
+import { UploadQueueProvider, QueueStatus } from '@/components/upload-queue'
 import { ServiceWorker } from '@/components/service-worker'
 import { SignOut } from '@/components/sign-out'
 import { requireAgent } from '@/lib/auth'
@@ -21,12 +21,13 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             </Link>
             <span className="hidden text-sm text-gray-400 sm:inline">Check-in / check-out</span>
             <div className="ml-auto flex items-center gap-3">
+              <QueueStatus />
               <ServiceWorker />
               <SignOut email={agent.email} />
             </div>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24 sm:px-6 sm:py-10">{children}</main>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">{children}</main>
       </div>
     </UploadQueueProvider>
   )

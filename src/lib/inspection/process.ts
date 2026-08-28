@@ -45,11 +45,25 @@ export async function processRoom(roomId: string) {
     const captureIds = new Set(room.captures.map((c) => c.id))
     const now = new Date()
 
+    // A row a person has edited is theirs, not the model's, and a re-read (a photo added
+    // to a reviewed room, say) must not throw it away. Those rows stay; the model's own
+    // rows are replaced, minus any that would duplicate a kept row by name.
+    const kept = await db.inspectionItem.findMany({
+      where: { roomId, editedByHuman: true },
+      select: { name: true },
+    })
+    const keptNames = new Set(kept.map((item) => item.name.trim().toLowerCase()))
+    const fresh = extraction.items.filter(
+      (item) => !keptNames.has(item.name.trim().toLowerCase()),
+    )
+
     await db.$transaction([
-      // Only this room's items are replaced.
-      db.inspectionItem.deleteMany({ where: { roomId } }),
+      // Only this room's model-authored items are replaced.
+      db.inspectionItem.deleteMany({ where: { roomId, editedByHuman: false } }),
+      // Only what the model saw. A capture that lands while it is reading stays
+      // unstamped, so it shows as new against the draft instead of vanishing into it.
       db.capture.updateMany({
-        where: { roomId },
+        where: { id: { in: [...captureIds] } },
         data: { processedAt: now },
       }),
       db.capture.update({
@@ -57,7 +71,7 @@ export async function processRoom(roomId: string) {
         data: { transcript: extraction.transcript },
       }),
       db.inspectionItem.createMany({
-        data: extraction.items.map((item) => ({
+        data: fresh.map((item) => ({
           roomId,
           name: item.name,
           category: item.category,

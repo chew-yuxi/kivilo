@@ -163,6 +163,7 @@ export function ReviewEditor({
   items,
   captures,
   alreadyReviewed,
+  nextHref,
 }: {
   inspectionId: string
   roomId: string
@@ -170,6 +171,8 @@ export function ReviewEditor({
   items: EditableItem[]
   captures: EvidenceCapture[]
   alreadyReviewed: boolean
+  /// Where "Mark room reviewed" goes: the next room still needing the inspector.
+  nextHref: string
 }) {
   const router = useRouter()
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
@@ -272,7 +275,7 @@ export function ReviewEditor({
           onClick={() =>
             startTransition(async () => {
               await markRoomReviewed(roomId, inspectionId)
-              router.push(`/inspections/${inspectionId}`)
+              router.push(alreadyReviewed ? `/inspections/${inspectionId}` : nextHref)
             })
           }
           className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"

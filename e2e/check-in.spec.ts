@@ -21,23 +21,29 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page.getByRole('heading', { name: 'Check-in', exact: true })).toBeVisible()
   const inspectionUrl = page.url()
 
-  // Capture the kitchen: one walkthrough and one label photo, through the offline
-  // queue and a signed upload URL, exactly as the phone does it.
+  // Capture the kitchen: one label photo and one walkthrough, through the offline
+  // queue and a signed upload URL, exactly as the phone does it. The photo is on
+  // screen from the phone's own copy before the upload has finished, and its note is
+  // typed against it afterwards.
   await page.getByRole('button', { name: 'Kitchen' }).click()
-  await page.getByRole('button', { name: 'Start capture' }).click()
-  await page.getByPlaceholder('e.g. Chip on the worktop').fill('Fridge rating plate')
+  await page.getByRole('link', { name: 'Start with Kitchen' }).click()
+  await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}\/capture$/)
   await page.locator('input[type=file][accept="image/*"]').setInputFiles(FIXTURES.photo)
+  await page.getByRole('button', { name: /^Photo 1/ }).click()
+  await page.getByRole('textbox', { name: 'Note' }).fill('Fridge rating plate')
+  await page.getByRole('button', { name: 'Save note' }).click()
   await expect(page.getByText('Fridge rating plate')).toBeVisible()
   await page.locator('input[type=file][accept="video/*"]').setInputFiles(FIXTURES.video)
-  await expect(page.getByRole('listitem').filter({ hasText: 'Video' })).toBeVisible()
-  await expect(page.getByText('1 capture saved on this device')).toBeHidden()
+  await expect(page.getByRole('button', { name: /^Video 2/ })).toBeVisible()
 
-  // Done with the room hands it to extraction; the page polls until the draft is in.
+  // Done waits for the room's uploads, hands it to extraction, and moves on; with no
+  // next room that is the list, which polls until the draft is in.
   await page.getByRole('button', { name: 'Done with Kitchen' }).click()
-  await expect(page.getByRole('link', { name: 'Review' })).toBeVisible({ timeout: 30_000 })
+  await expect(page).toHaveURL(inspectionUrl)
+  await expect(page.getByText('Needs review')).toBeVisible({ timeout: 30_000 })
 
   // Review: the draft is the model's, and a person touching a line takes it over.
-  await page.getByRole('link', { name: 'Review' }).click()
+  await page.getByRole('link', { name: 'Continue with Kitchen' }).click()
   await expect(page.getByText('2 items · 2 not yet touched by a person')).toBeVisible()
   await expect(page.locator('input[value="SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N"]')).toBeVisible()
   await expect(page.getByText('unsure')).toBeVisible()

@@ -8,7 +8,8 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 - A Supabase project, in the Singapore region. The captures are video of people's homes
   and the stakeholder records carry NRIC and FIN numbers, so data residency is a real
   decision rather than a default.
-- A Vercel project (or any Node host) for the app.
+- A Vercel project (or any Node host) for the app. `vercel.json` pins functions to
+  `sin1` so they sit next to the database; leave that in place.
 - A Google Generative AI key for extraction and an Anthropic key for the check-out diff.
 
 ## First deploy

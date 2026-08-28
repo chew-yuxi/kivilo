@@ -56,13 +56,12 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     status: room.status,
     processingError: room.processingError,
     itemCount: room._count.items,
-    captures: room.captures.map((capture) => ({
-      id: capture.id,
-      kind: capture.kind,
-      note: capture.note,
-      durationSec: capture.durationSec,
-      sizeBytes: capture.sizeBytes,
-    })),
+    videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
+    photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
+    newSinceDraft:
+      room.status === 'REVIEW' || room.status === 'REVIEWED'
+        ? room.captures.filter((capture) => capture.processedAt === null).length
+        : 0,
   }))
 
   const anyProcessing = rooms.some((room) => room.status === 'PROCESSING')

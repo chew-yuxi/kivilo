@@ -23,6 +23,9 @@ export type PendingCapture = {
   createdAt: number
   attempts: number
   lastError: string | null
+  /// Set the moment the server has the bytes. From then on the record is only a
+  /// hand-over of the phone's copy (its note, or its deletion) and is never sent again.
+  uploadedId?: string
 }
 
 function open(): Promise<IDBDatabase> {
@@ -90,17 +93,58 @@ export function getServerQueueSnapshot() {
   return EMPTY
 }
 
-export async function enqueue(capture: Omit<PendingCapture, 'id' | 'attempts' | 'lastError'>) {
+export async function enqueue(
+  capture: Omit<PendingCapture, 'id' | 'attempts' | 'lastError' | 'uploadedId'>,
+) {
   await transact('readwrite', (store) => store.add({ ...capture, attempts: 0, lastError: null }))
   await refreshSnapshot()
 }
 
-export async function remove(id: number) {
-  await transact('readwrite', (store) => store.delete(id))
-  await refreshSnapshot()
+/// Read-then-write in one transaction, so a stale copy can never be put back over a
+/// record the uploader has just removed. Resolves to the record as it was read, or null
+/// if it was no longer there.
+function withRecord(id: number, apply: (store: IDBObjectStore, record: PendingCapture) => void) {
+  return open().then(
+    (database) =>
+      new Promise<PendingCapture | null>((resolve, reject) => {
+        const tx = database.transaction(STORE, 'readwrite')
+        const store = tx.objectStore(STORE)
+        const request = store.get(id) as IDBRequest<PendingCapture | undefined>
+        let record: PendingCapture | null = null
+        request.onsuccess = () => {
+          if (!request.result) return
+          record = request.result
+          apply(store, record)
+        }
+        tx.oncomplete = () => {
+          database.close()
+          resolve(record)
+        }
+        tx.onerror = () => reject(tx.error)
+        tx.onabort = () => reject(tx.error)
+      }),
+  )
 }
 
-export async function update(capture: PendingCapture) {
-  await transact('readwrite', (store) => store.put(capture))
+/// Changes a queued capture in place. The inspector's note goes on this way while the
+/// capture is still on the phone; the uploader records a failed attempt, and then the
+/// server id, this way. Resolves to whether the record was still queued.
+export async function patch(
+  id: number,
+  changes: Partial<Pick<PendingCapture, 'note' | 'attempts' | 'lastError' | 'uploadedId'>>,
+) {
+  const record = await withRecord(id, (store, current) => void store.put({ ...current, ...changes }))
   await refreshSnapshot()
+  return record !== null
+}
+
+/// Removes a queued capture and resolves to the record as it was at that moment, or
+/// null if it had already gone. The uploader hands over from that record, so a note
+/// typed right up to the delete still reaches the server row; a null tells it the
+/// inspector deleted the capture while it was in flight. The viewer uses null to
+/// notice that a capture finished uploading meanwhile.
+export async function take(id: number) {
+  const record = await withRecord(id, (store) => void store.delete(id))
+  await refreshSnapshot()
+  return record
 }

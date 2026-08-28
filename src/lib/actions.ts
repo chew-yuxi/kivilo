@@ -155,22 +155,6 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
   revalidate(inspectionId)
 }
 
-/// Re-runs extraction for one room. Its own items are replaced; every other room,
-/// including ones already reviewed, is untouched.
-export async function reprocessRoom(roomId: string, inspectionId: string) {
-  const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
-
-  await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
-  revalidate(inspectionId)
-
-  after(async () => {
-    await processRoom(roomId).catch((error) => {
-      console.error(`Processing failed for room ${roomId}:`, error)
-    })
-  })
-}
-
 export async function markRoomReviewed(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
   await authorizeRoom(roomId, agent.id)
@@ -206,9 +190,12 @@ export async function registerCapture(input: {
   note: string | null
 }) {
   const agent = await requireAgent()
-  await authorizeRoom(input.roomId, agent.id)
+  const room = await authorizeRoom(input.roomId, agent.id)
+  // The inspection id is client-supplied too; it must be the room's own, or the
+  // status write below would land on a deal the caller is not on.
+  if (room.inspectionId !== input.inspectionId) throw new Error('Room not found')
 
-  await db.capture.create({
+  const created = await db.capture.create({
     data: {
       roomId: input.roomId,
       kind: input.kind,
@@ -220,13 +207,34 @@ export async function registerCapture(input: {
     },
   })
 
-  await db.room.update({ where: { id: input.roomId }, data: { status: 'CAPTURING' } })
-  await db.inspection.update({
-    where: { id: input.inspectionId },
+  // A capture can land after the room has moved on: the inspector tapped Done on a slow
+  // connection, or is adding a photo to a room already drafted. Only a room that has not
+  // been read yet moves to CAPTURING; a drafted room keeps its status and the capture
+  // shows as new against the draft (processedAt stays null until the next read).
+  await db.room.updateMany({
+    where: { id: input.roomId, status: { in: ['PENDING', 'FAILED'] } },
+    data: { status: 'CAPTURING' },
+  })
+  await db.inspection.updateMany({
+    where: { id: input.inspectionId, status: 'DRAFT' },
     data: { status: 'CAPTURING', conductedAt: new Date() },
   })
 
   revalidate(input.inspectionId)
+  return created.id
+}
+
+export async function updateCaptureNote(captureId: string, inspectionId: string, note: string | null) {
+  const agent = await requireAgent()
+  const capture = await db.capture.findUnique({
+    where: { id: captureId },
+    select: { roomId: true },
+  })
+  if (!capture) throw new Error('Capture not found')
+  await authorizeRoom(capture.roomId, agent.id)
+
+  await db.capture.update({ where: { id: captureId }, data: { note } })
+  revalidate(inspectionId)
 }
 
 export async function deleteCapture(captureId: string, inspectionId: string) {

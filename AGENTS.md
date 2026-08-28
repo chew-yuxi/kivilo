@@ -192,6 +192,15 @@ pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out
   slot and pages start failing with a digest and no stack. Runtime belongs on the
   transaction pooler (6543). It shows up on the heaviest page first, because Prisma
   issues a query per relation: `/inspections` fires 4, `/inspections/[id]` fires 16.
+- Vercel's default function region is `iad1` (Virginia) and the database is in
+  Singapore, so without `vercel.json` pinning `regions` to `sin1` every server action
+  and every dynamic render crosses the Pacific twice; `/inspections/[id]` at 16 queries
+  a render cost 3 to 4 s of pure latency. Check with the `x-vercel-id` response header
+  on a dynamic route: it reads `edge::function`, and the function half must be `sin1`.
+- A server action that calls `revalidatePath` returns the current page's fresh RSC
+  payload in its own response, whatever path it revalidated. That is why the review
+  editor and the capture grid update without a `router.refresh()`; add one only for
+  changes that never went through an action, such as a queue write on the phone.
 - Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.
