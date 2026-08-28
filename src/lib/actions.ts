@@ -198,9 +198,14 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
 
 /// The browser PUTs media straight to storage with this. It never passes through a
 /// function, because a room's walkthrough is far past the serverless body limit.
-export async function requestUploadUrl(roomId: string, filename: string) {
+export async function requestUploadUrl(roomId: string, inspectionId: string, filename: string) {
   const agent = await requireAgent()
-  assertNotCountersigned((await authorizeRoom(roomId, agent.id)).inspection)
+  const room = await authorizeRoom(roomId, agent.id)
+  // Both ids come from the client, so the pairing is checked here exactly as
+  // registerCapture checks it. Without this a room id could be presented against
+  // another inspection the caller happens to be on.
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertNotCountersigned(room.inspection)
 
   const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
   const storagePath = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`

@@ -1,4 +1,6 @@
+import { cache } from 'react'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import { db } from '@/lib/db'
 import { supabaseServer } from '@/lib/supabase/server'
@@ -10,14 +12,28 @@ import { Prisma, type Stakeholder } from '@/generated/prisma'
 
 /// The signed-in agent, or null. Uses `getUser`, which verifies the JWT with the auth
 /// server, rather than `getSession`, which trusts whatever is in the cookie.
-export async function currentAgent(): Promise<Stakeholder | null> {
+/// The one place the signed-in agent is resolved, whatever the client. A browser sends
+/// a session cookie; a native client sends its access token in an Authorization header.
+/// Both are verified against the auth server and both land on the same Stakeholder, so
+/// every server action works unchanged from either, and there is one boundary rather
+/// than a second one bolted on for the app.
+///
+/// A header cannot be used to escalate: presenting a valid token for a user is what
+/// being that user means, and an invalid one resolves to nobody.
+///
+/// Memoized per request, because a page render resolves the agent in the layout and
+/// again in the page, and each resolution is a round trip to the auth server.
+export const currentAgent = cache(async (): Promise<Stakeholder | null> => {
+  const bearer = (await headers()).get('authorization')
+  if (bearer) return agentFromBearer(bearer)
+
   const supabase = await supabaseServer()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return null
   return resolveAgent(user)
-}
+})
 
 /// The same boundary reached by a different transport. A native client holds an access
 /// token rather than a cookie, and `getUser(jwt)` verifies it with a request to the auth

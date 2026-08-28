@@ -1,4 +1,4 @@
-import { agentFromBearer } from '@/lib/auth'
+import { currentAgent } from '@/lib/auth'
 import type { Stakeholder } from '@/generated/prisma'
 
 /// Transport for the native client. These handlers are deliberately thin: they resolve
@@ -12,7 +12,9 @@ export function authed<P>(
   handler: (agent: Stakeholder, params: P, request: Request) => Promise<unknown>,
 ) {
   return async (request: Request, context: { params: Promise<P> }) => {
-    const agent = await agentFromBearer(request.headers.get('authorization'))
+    // Resolves the same way the action inside will, and is memoized per request, so the
+    // token is verified once however many times it is asked for.
+    const agent = await currentAgent()
     if (!agent) {
       return Response.json({ error: 'unauthorized' }, { status: 401 })
     }

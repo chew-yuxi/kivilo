@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { accessTokenFor, freshEmail, signIn } from './helpers'
+import { accessTokenFor, freshEmail, signIn, FIXTURES } from './helpers'
 
 /// The native client speaks to the same backend over HTTP with a bearer token instead of
 /// a cookie. That is a second front door onto one authorization boundary, so what this
@@ -68,4 +68,108 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
 
   const theirList = await request.get('/api/v1/inspections', { headers: outsider })
   expect(await theirList.json()).toEqual([])
+})
+
+/// The capture path as a native client walks it: no browser, no cookie, bytes going
+/// straight to storage with a one-shot credential. Deliberately no page at all, because
+/// the point is that the app never needs one.
+test('a native client can create and capture a room end to end', async ({ request }) => {
+  const headers = { Authorization: `Bearer ${await accessTokenFor(freshEmail('api-capture'))}` }
+
+  const created = await request.post('/api/v1/inspections', {
+    headers,
+    data: {
+      line1: '1 Raffles Place',
+      postalCode: '048616',
+      propertyType: 'PRIVATE_NON_LANDED',
+      landlordName: 'Ng Wei Liang',
+      tenantName: 'Sofia Alvarez',
+      startDate: '2026-09-01',
+      endDate: '2028-08-31',
+      monthlyRent: '4200',
+      deposit: '8400',
+    },
+  })
+  expect(created.status()).toBe(200)
+  const inspectionId = (await created.json()).id as string
+
+  const room = await request.post(`/api/v1/inspections/${inspectionId}/rooms`, {
+    headers,
+    data: { name: 'Kitchen' },
+  })
+  expect(room.status()).toBe(200)
+  const roomId = (await room.json()).id as string
+
+  // A one-shot credential for one object. The bytes never pass through a function.
+  const upload = await request.post(
+    `/api/v1/inspections/${inspectionId}/rooms/${roomId}/upload-url`,
+    { headers, data: { filename: 'label.png' } },
+  )
+  expect(upload.status()).toBe(200)
+  const { storagePath, signedUrl } = await upload.json()
+
+  const put = await request.put(signedUrl, {
+    headers: { 'content-type': FIXTURES.photo.mimeType },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(put.ok()).toBeTruthy()
+
+  const registered = await request.post(
+    `/api/v1/inspections/${inspectionId}/rooms/${roomId}/captures`,
+    {
+      headers,
+      data: {
+        kind: 'PHOTO',
+        storagePath,
+        mimeType: FIXTURES.photo.mimeType,
+        sizeBytes: FIXTURES.photo.buffer.length,
+        note: 'Fridge rating plate',
+        annotations: {
+          w: 640,
+          h: 480,
+          marks: [{ shape: 'ring', cx: 0.425, cy: 0.425, rx: 0.12, ry: 0.16 }],
+        },
+      },
+    },
+  )
+  expect(registered.status()).toBe(200)
+
+  // The room reads back with the capture, a signed URL for it, and the marks parsed
+  // into the same shape the web client stores, because it is the same column.
+  const context = await request.get(`/api/v1/inspections/${inspectionId}/rooms/${roomId}`, {
+    headers,
+  })
+  expect(context.status()).toBe(200)
+  const body = await context.json()
+  expect(body.position).toEqual({ index: 1, total: 1 })
+  expect(body.next).toBeNull()
+  expect(body.captures).toHaveLength(1)
+  expect(body.captures[0]).toMatchObject({
+    kind: 'PHOTO',
+    note: 'Fridge rating plate',
+    processed: false,
+    annotations: { w: 640, h: 480, marks: [{ shape: 'ring' }] },
+  })
+  expect(body.captures[0].url).toContain('token=')
+
+  const finished = await request.post(
+    `/api/v1/inspections/${inspectionId}/rooms/${roomId}/finish`,
+    { headers },
+  )
+  expect(finished.status()).toBe(200)
+
+  // Extraction is the same background job the web client triggers, so the room lands in
+  // review with a draft a human still has to pass through before anything is signed.
+  await expect
+    .poll(
+      async () => {
+        const detail = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
+        return (await detail.json()).rooms[0].status
+      },
+      { timeout: 30_000 },
+    )
+    .toBe('REVIEW')
+
+  const drafted = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
+  expect((await drafted.json()).rooms[0].items).toBeGreaterThan(0)
 })

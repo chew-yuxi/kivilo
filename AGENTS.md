@@ -144,6 +144,29 @@ instead, which is why `Capture.kind` exists and why the extraction prompt tells 
 to read text only from photos. This is a capture-quality problem, not a model problem;
 swapping in a dedicated OCR engine on the same video would fail the same way.
 
+## Two clients, one boundary
+
+The inspector exists twice: the PWA under `src/app/(app)`, and a Flutter app in
+`mobile/`. They share a backend, and more importantly they share the *authorization*
+boundary, because a second one would have to be kept correct forever.
+
+`currentAgent()` in `src/lib/auth.ts` is where that happens. A browser sends a session
+cookie; the app sends its Supabase access token in an `Authorization` header. Both are
+verified against the auth server (`getUser(jwt)` is a real `GET /user`, not a local
+decode) and both resolve to the same `Stakeholder`, so **every server action works
+unchanged from either transport** and nothing below that line knows which client it is
+serving. It is memoized with React `cache()` per request, because a render resolves the
+agent in the layout and again in the page.
+
+A header cannot be used to escalate: holding a valid token for a user is what being that
+user means. `src/lib/api/route.ts` is transport only, holds no authorization logic, and
+returns the same 404 body for a refusal and a missing row so the API cannot enumerate ids.
+The endpoints under `src/app/api/v1/` are thin delegations to the same functions the PWA
+calls. `e2e/api.spec.ts` drives them with no browser and no cookie at all.
+
+Keep `src/proxy.ts` off `/api/**`, which it already is: a request with a bearer and no
+cookie would otherwise be redirected to `/login`.
+
 ## A signed report stops moving
 
 Sending for signature is the moment the report stops being a working document and becomes

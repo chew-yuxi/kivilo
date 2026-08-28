@@ -139,7 +139,7 @@ describe.each(['AWAITING_SIGNATURE', 'COMPLETED'] as const)(
 describe('captures still in flight', () => {
   it('may still land while the report is awaiting signature', async () => {
     const d = await deal('H', 'AWAITING_SIGNATURE')
-    await expect(requestUploadUrl(d.room.id, 'late.jpg')).resolves.toMatchObject({ token: 'tok' })
+    await expect(requestUploadUrl(d.room.id, d.inspection.id, 'late.jpg')).resolves.toMatchObject({ token: 'tok' })
     await expect(
       registerCapture({
         roomId: d.room.id,
@@ -156,7 +156,7 @@ describe('captures still in flight', () => {
 
   it('is refused once both parties have signed', async () => {
     const d = await deal('I', 'COMPLETED')
-    await expect(requestUploadUrl(d.room.id, 'late.jpg')).rejects.toThrow(SIGNED)
+    await expect(requestUploadUrl(d.room.id, d.inspection.id, 'late.jpg')).rejects.toThrow(SIGNED)
     await expect(
       registerCapture({
         roomId: d.room.id,
@@ -180,6 +180,6 @@ describe('an inspection still in progress', () => {
     await expect(renameRoom(d.room.id, d.inspection.id, 'Scullery')).resolves.toBeUndefined()
     await expect(updateItem(d.item.id, d.inspection.id, { name: 'Hob' })).resolves.toBeUndefined()
     await expect(updateCaptureNote(d.capture.id, d.inspection.id, 'plate')).resolves.toBeUndefined()
-    await expect(requestUploadUrl(d.room.id, 'x.jpg')).resolves.toMatchObject({ token: 'tok' })
+    await expect(requestUploadUrl(d.room.id, d.inspection.id, 'x.jpg')).resolves.toMatchObject({ token: 'tok' })
   })
 })

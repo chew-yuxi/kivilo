@@ -111,7 +111,11 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
             const resumed = captureId !== null
 
             if (!captureId) {
-              const { storagePath, token } = await requestUploadUrl(capture.roomId, capture.filename)
+              const { storagePath, token } = await requestUploadUrl(
+                capture.roomId,
+                capture.inspectionId,
+                capture.filename,
+              )
 
               const { error } = await browserClient()
                 .storage.from(CAPTURE_BUCKET)
