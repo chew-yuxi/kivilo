@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test'
+import { createClient } from '@supabase/supabase-js'
 
 /// Local Supabase delivers auth email to mailpit; the six digit code is read back
 /// out of its API, so sign-in in the suite is the same flow an agent uses.
@@ -28,6 +29,26 @@ export async function signIn(page: Page, email: string) {
   await page.getByLabel('Six digit code').fill(code)
   await page.getByRole('button', { name: 'Sign in' }).click()
   await expect(page.getByRole('heading', { name: 'Inspections' })).toBeVisible()
+}
+
+/// Signs in the way a native client does: no cookies, no browser, just the emailed code
+/// and the access token that comes back. The token is what the Flutter app puts in an
+/// Authorization header, so this is the API suite's front door.
+export async function accessTokenFor(email: string): Promise<string> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } },
+  )
+  await supabase.auth.signInWithOtp({ email })
+  await expect.poll(() => latestCodeFor(email), { timeout: 20_000 }).not.toBeNull()
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token: (await latestCodeFor(email))!,
+    type: 'email',
+  })
+  if (error) throw error
+  return data.session!.access_token
 }
 
 /// The smallest files the upload path accepts. The video is not decodable, which the

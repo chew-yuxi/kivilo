@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { createClient } from '@supabase/supabase-js'
 import { db } from '@/lib/db'
 import { supabaseServer } from '@/lib/supabase/server'
 import { Prisma, type Stakeholder } from '@/generated/prisma'
@@ -15,7 +16,35 @@ export async function currentAgent(): Promise<Stakeholder | null> {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return null
+  return resolveAgent(user)
+}
 
+/// The same boundary reached by a different transport. A native client holds an access
+/// token rather than a cookie, and `getUser(jwt)` verifies it with a request to the auth
+/// server exactly as the cookie path does, so this is not a weaker check. Everything
+/// below it, `inspectionScope` and the `authorize*` helpers, is shared, which is what
+/// stops a second client becoming a second authorization boundary.
+export async function agentFromBearer(authorization: string | null): Promise<Stakeholder | null> {
+  const token = authorization?.match(/^Bearer (.+)$/i)?.[1]
+  if (!token) return null
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  )
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token)
+  if (error || !user) return null
+  return resolveAgent(user)
+}
+
+/// Turns a verified Supabase user into the Stakeholder row the rest of the app scopes
+/// by. Shared by both transports so a Flutter sign-in and a browser sign-in land on the
+/// same person rather than creating two.
+async function resolveAgent(user: { id: string; email?: string | null }): Promise<Stakeholder> {
   const linked = await db.stakeholder.findUnique({ where: { authUserId: user.id } })
   if (linked) return linked
 

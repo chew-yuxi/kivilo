@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import 'dotenv/config'
 
 /// End-to-end suite against the local Supabase stack. `pnpm test:e2e` starts the dev
 /// server itself, on its own port so a `pnpm dev` already running is left alone.
