@@ -4,6 +4,8 @@ import { db } from '@/lib/db'
 import { createDownloadUrl } from '@/lib/storage'
 import { propertyLabel, sgd } from '@/lib/format'
 import { PrintButton } from '@/components/print-button'
+import { MarkOverlay } from '@/components/mark-overlay'
+import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +53,10 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
 
   // Signed URLs are minted per render, so a link shared today still resolves next month
   // without the storage objects ever being public.
-  const photosByRoom = new Map<string, { id: string; url: string; note: string | null }[]>()
+  const photosByRoom = new Map<
+    string,
+    { id: string; url: string; note: string | null; annotations: StoredAnnotations | null }[]
+  >()
   for (const room of inspection.rooms) {
     photosByRoom.set(
       room.id,
@@ -60,6 +65,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
           id: capture.id,
           url: await createDownloadUrl(capture.storagePath, 60 * 60 * 24),
           note: capture.note,
+          annotations: toAnnotations(capture.annotations),
         })),
       ),
     )
@@ -215,22 +221,25 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
               </table>
 
               {photos.length > 0 && (
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {photos.map((photo) => (
-                    <figure key={photo.id} className="break-inside-avoid">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={photo.url}
-                        alt={photo.note ?? `${room.name} evidence photo`}
-                        className="w-full rounded border border-gray-200 object-cover"
-                      />
-                      {photo.note && (
-                        <figcaption className="mt-1 text-xs text-gray-500">
-                          {photo.note}
-                        </figcaption>
-                      )}
-                    </figure>
-                  ))}
+                <div className="mt-3 space-y-2">
+                  {/* A marked photo gets the full column. A ring around a chip that is
+                      5 percent of the frame is 11px across in a 3-up tile and useless
+                      on paper; at full width it is legible, which is the only reason
+                      the mark exists. */}
+                  {photos
+                    .filter((photo) => photo.annotations)
+                    .map((photo) => (
+                      <ReportPhoto key={photo.id} photo={photo} roomName={room.name} />
+                    ))}
+                  {photos.some((photo) => !photo.annotations) && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {photos
+                        .filter((photo) => !photo.annotations)
+                        .map((photo) => (
+                          <ReportPhoto key={photo.id} photo={photo} roomName={room.name} />
+                        ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -268,8 +277,42 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
       <footer className="mt-8 border-t border-gray-200 pt-4 text-xs leading-relaxed text-gray-500">
         Rooms and items in this report were drafted from a recorded walkthrough and then
         reviewed, corrected, and agreed by the people named above. The recordings and
-        photographs are retained as the underlying evidence.
+        photographs are retained as the underlying evidence. Where a photograph carries
+        marks, the inspector drew them to point out a detail; they are recorded
+        separately and nothing has been painted onto the photograph itself.
       </footer>
     </article>
+  )
+}
+
+/// One evidence photograph. The `relative` wrapper contains only the <img>, never the
+/// caption, so the overlay's box is exactly the picture's box.
+function ReportPhoto({
+  photo,
+  roomName,
+}: {
+  photo: { id: string; url: string; note: string | null; annotations: StoredAnnotations | null }
+  roomName: string
+}) {
+  const marks = photo.annotations?.marks.length ?? 0
+  // Also the fallback when the signed URL has expired and the picture will not load:
+  // the reader gets the sentence rather than marks floating over a broken image.
+  const caption = [photo.note, marks > 0 && `${marks} area${marks === 1 ? '' : 's'} marked`]
+    .filter(Boolean)
+    .join(' · ')
+
+  return (
+    <figure className="break-inside-avoid">
+      <div className="relative overflow-hidden rounded border border-gray-200">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photo.url}
+          alt={photo.note ?? `${roomName} evidence photo`}
+          className="block w-full"
+        />
+        <MarkOverlay annotations={photo.annotations} />
+      </div>
+      {caption && <figcaption className="mt-1 text-xs text-gray-500">{caption}</figcaption>}
+    </figure>
   )
 }

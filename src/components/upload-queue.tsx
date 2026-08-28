@@ -13,7 +13,13 @@ import {
   getServerQueueSnapshot,
   type PendingCapture,
 } from '@/lib/offline-queue'
-import { requestUploadUrl, registerCapture, updateCaptureNote, deleteCapture } from '@/lib/actions'
+import {
+  requestUploadUrl,
+  registerCapture,
+  updateCaptureNote,
+  annotateCapture,
+  deleteCapture,
+} from '@/lib/actions'
 
 const CAPTURE_BUCKET = 'captures'
 
@@ -27,7 +33,8 @@ const browserClient = () =>
 type QueueState = {
   pending: PendingCapture[]
   online: boolean
-  add: (capture: Parameters<typeof enqueue>[0]) => Promise<void>
+  /// Resolves to the queue id, so the caller can point at the capture it just took.
+  add: (capture: Parameters<typeof enqueue>[0]) => Promise<number>
   /// Runs an upload pass now rather than waiting for the timer.
   flush: () => void
   /// The server row a queued capture became once it uploaded, so a note typed or a
@@ -120,10 +127,13 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
                 sizeBytes: capture.blob.size,
                 durationSec: capture.durationSec,
                 note: capture.note,
+                annotations: capture.annotations,
               })
-              uploaded.current.set(id, captureId)
               await patch(id, { uploadedId: captureId })
             }
+            // Set on the resumed path as well, or the Viewer's post-take fallback has
+            // no server id to fall back to.
+            uploaded.current.set(id, captureId)
 
             // Hand over. The record as it is at the moment of removal is the truth about
             // what the inspector did while the bytes were in flight: a note typed
@@ -132,8 +142,23 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
             const taken = await take(id)
             if (!taken) {
               await deleteCapture(captureId, capture.inspectionId)
-            } else if (resumed || taken.note !== capture.note) {
-              await updateCaptureNote(captureId, capture.inspectionId, taken.note)
+            } else {
+              if (resumed || taken.note !== capture.note) {
+                await updateCaptureNote(captureId, capture.inspectionId, taken.note)
+              }
+              // Presence on either copy, not inequality: two IndexedDB reads of the
+              // same record are separate structured clones and never ===, so an
+              // inequality would fire on every upload of every marked photo anyway.
+              // Checking both copies is what makes "the inspector cleared the marks
+              // while this was uploading" reach the server instead of being reverted by
+              // the marks registerCapture already wrote. Gated on PHOTO because
+              // annotateCapture refuses anything else.
+              if (
+                capture.kind === 'PHOTO' &&
+                (resumed || capture.annotations || taken.annotations)
+              ) {
+                await annotateCapture(captureId, capture.inspectionId, taken.annotations)
+              }
             }
             uploadedAny = true
           } catch (error) {
@@ -170,8 +195,9 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
 
   const add = useCallback(
     async (capture: Parameters<typeof enqueue>[0]) => {
-      await enqueue(capture)
+      const id = await enqueue(capture)
       void flush()
+      return id
     },
     [flush],
   )

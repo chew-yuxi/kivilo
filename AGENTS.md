@@ -144,6 +144,40 @@ instead, which is why `Capture.kind` exists and why the extraction prompt tells 
 to read text only from photos. This is a capture-quality problem, not a model problem;
 swapping in a dedicated OCR engine on the same video would fail the same way.
 
+## Marking up a photo
+
+The inspector can circle a chip or point an arrow at a crack, on the phone, in the
+capture Viewer. **The marks are data beside the photograph, never painted into it.** The
+capture is the evidence, and a report whose photographs have been rewritten is worth less
+than one whose photographs have not; the report footer says so, because that is what makes
+the mark admissible rather than suspicious.
+
+Geometry is normalized 0..1 against the image's upright intrinsic box, stored with that
+box's size on `Capture.annotations` (`src/lib/annotations.ts`). Everything renders it
+through `MarkOverlay`: an `<svg viewBox="0 0 w h" preserveAspectRatio="xMidYMid meet">`
+occupying the same CSS box as the `<img>`. `xMidYMid meet` **is** `object-fit: contain`
+with centred position, so the browser does the identical letterbox arithmetic for the
+picture and for the marks and they cannot drift apart. Two rules follow: the `<img>` under
+an overlay must be `object-contain` or unconstrained, never `object-cover`, and the
+positioned box must wrap the image alone, never the image plus its caption, and never a
+box that can grow past it. Two ways it grows: a flex or grid item stretches to its row
+(the evidence strip needs `self-start`), and `max-h-full max-w-full` does not scale an
+image up, so a picture smaller than its container leaves the element shrunk while the
+overlay still spans the box. Both were measured at over 100px of drift before they were
+fixed, and both are guarded by the alignment assertions in `e2e/check-in.spec.ts`.
+
+Drawing reads pointer positions through `svg.getScreenCTM().inverse()`, not
+`getBoundingClientRect()` as `signature-pad.tsx` does. The rect is the element's box, but
+the picture inside it is letterboxed, so the rect puts every mark in the wrong place on any
+photo whose aspect does not match its container.
+
+Gemini reads the original bytes and the extraction prompt is unchanged. A ring burned into
+what the model reads either gets listed as an item, which breaks scribe-not-witness, or
+covers the serial the prompt demands be transcribed character-for-character.
+
+Marks stop once the inspection is `AWAITING_SIGNATURE`: a red ring is a stronger claim
+than a caption, and the report is the artefact both parties are signing.
+
 ## Dev scripts
 
 The capture flow expects a phone. To exercise one room's pipeline without one:
@@ -201,6 +235,16 @@ pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out
   payload in its own response, whatever path it revalidated. That is why the review
   editor and the capture grid update without a `router.refresh()`; add one only for
   changes that never went through an action, such as a queue write on the phone.
+- A nullable Prisma `Json?` column needs `Prisma.DbNull` to write SQL NULL. Plain `null`
+  is a type error, and `Prisma.JsonNull` writes a JSON null that reads back as a row of
+  the wrong shape. `Prisma` has to be a value import, not a type-only one.
+- EXIF orientation is applied by both Chromium and WebKit everywhere it could matter:
+  `<img>` layout, `naturalWidth`/`naturalHeight`, `drawImage`, and `createImageBitmap`
+  in either `imageOrientation` mode. So a canvas re-encode outputs an upright, tagless
+  image and no rotation compensation belongs anywhere in this codebase. Verified with a
+  probe, not assumed. The gap: `downscale()` returns null for a photo already under
+  2048px, so that one goes up with its EXIF intact. Harmless while every consumer is a
+  browser; it must lose that early return before anything ever flattens server side.
 - Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.

@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
+import { toAnnotations } from '@/lib/annotations'
 import { ReviewEditor, type EvidenceCapture } from '@/components/review-editor'
 
 export const dynamic = 'force-dynamic'
@@ -38,6 +39,7 @@ export default async function RoomReviewPage({
       id: capture.id,
       kind: capture.kind,
       url: await createDownloadUrl(capture.storagePath),
+      annotations: toAnnotations(capture.annotations),
     })),
   )
 

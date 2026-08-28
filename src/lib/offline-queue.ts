@@ -1,5 +1,7 @@
 'use client'
 
+import type { AnnotationInput } from '@/lib/annotations'
+
 /// Captures are recorded where the signal is worst: empty units, basements, lift
 /// lobbies. A capture is written to IndexedDB the moment it is taken and only leaves
 /// the queue once storage has confirmed it. Losing a walkthrough because the upload
@@ -20,6 +22,9 @@ export type PendingCapture = {
   mimeType: string
   durationSec: number | null
   note: string | null
+  /// Marks drawn while the capture is still on the phone. Plain numbers, so IndexedDB
+  /// structured-clones them with no serialization step.
+  annotations: AnnotationInput | null
   createdAt: number
   attempts: number
   lastError: string | null
@@ -93,11 +98,16 @@ export function getServerQueueSnapshot() {
   return EMPTY
 }
 
+/// Resolves to the key IndexedDB assigned, so the caller can point at the capture it
+/// just took without re-reading the queue.
 export async function enqueue(
   capture: Omit<PendingCapture, 'id' | 'attempts' | 'lastError' | 'uploadedId'>,
 ) {
-  await transact('readwrite', (store) => store.add({ ...capture, attempts: 0, lastError: null }))
+  const key = await transact<IDBValidKey>('readwrite', (store) =>
+    store.add({ ...capture, attempts: 0, lastError: null }),
+  )
   await refreshSnapshot()
+  return key as number
 }
 
 /// Read-then-write in one transaction, so a stale copy can never be put back over a
@@ -131,7 +141,9 @@ function withRecord(id: number, apply: (store: IDBObjectStore, record: PendingCa
 /// server id, this way. Resolves to whether the record was still queued.
 export async function patch(
   id: number,
-  changes: Partial<Pick<PendingCapture, 'note' | 'attempts' | 'lastError' | 'uploadedId'>>,
+  changes: Partial<
+    Pick<PendingCapture, 'note' | 'annotations' | 'attempts' | 'lastError' | 'uploadedId'>
+  >,
 ) {
   const record = await withRecord(id, (store, current) => void store.put({ ...current, ...changes }))
   await refreshSnapshot()

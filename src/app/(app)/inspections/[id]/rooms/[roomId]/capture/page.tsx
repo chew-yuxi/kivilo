@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
+import { toAnnotations } from '@/lib/annotations'
 import { RoomCaptureScreen, type ServerCapture } from '@/components/room-capture-screen'
 
 export const dynamic = 'force-dynamic'
@@ -48,6 +49,7 @@ export default async function RoomCapturePage({
       note: capture.note,
       durationSec: capture.durationSec,
       url: await createDownloadUrl(capture.storagePath),
+      annotations: toAnnotations(capture.annotations),
       processed: capture.processedAt !== null,
     })),
   )

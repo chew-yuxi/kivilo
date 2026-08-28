@@ -8,6 +8,8 @@ import { db } from '@/lib/db'
 import { requireAgent, authorizeInspection, authorizeRoom } from '@/lib/auth'
 import { createUploadUrl } from '@/lib/storage'
 import { processRoom, generateFindings } from '@/lib/inspection/process'
+import { annotationInputSchema } from '@/lib/annotations'
+import { Prisma } from '@/generated/prisma'
 import type {
   CaptureKind,
   ItemCategory,
@@ -188,12 +190,32 @@ export async function registerCapture(input: {
   sizeBytes: number
   durationSec: number | null
   note: string | null
+  /// Marks drawn while the photo was still queued on the phone, so an annotated
+  /// capture arrives already annotated, atomically with its row.
+  annotations?: unknown
 }) {
   const agent = await requireAgent()
   const room = await authorizeRoom(input.roomId, agent.id)
   // The inspection id is client-supplied too; it must be the room's own, or the
   // status write below would land on a deal the caller is not on.
   if (room.inspectionId !== input.inspectionId) throw new Error('Room not found')
+
+  // Marks arriving with a capture get the same guards annotateCapture applies. The
+  // capture itself is never rejected over them: the photograph is the evidence and has
+  // to land, whereas a mark is an annotation on it. The extra read only happens for the
+  // small minority of captures that carry marks.
+  let annotations: Prisma.InputJsonValue | typeof Prisma.DbNull = Prisma.DbNull
+  if (input.annotations && input.kind === 'PHOTO') {
+    const { status } = await authorizeInspection(input.inspectionId, agent.id)
+    if (status !== 'AWAITING_SIGNATURE' && status !== 'COMPLETED') {
+      annotations = {
+        v: 1,
+        ...annotationInputSchema.parse(input.annotations),
+        by: agent.id,
+        at: new Date().toISOString(),
+      }
+    }
+  }
 
   const created = await db.capture.create({
     data: {
@@ -204,6 +226,7 @@ export async function registerCapture(input: {
       sizeBytes: input.sizeBytes,
       durationSec: input.durationSec,
       note: input.note,
+      annotations,
     },
   })
 
@@ -234,6 +257,49 @@ export async function updateCaptureNote(captureId: string, inspectionId: string,
   await authorizeRoom(capture.roomId, agent.id)
 
   await db.capture.update({ where: { id: captureId }, data: { note } })
+  revalidate(inspectionId)
+}
+
+/// Replaces the marks on one photo, or clears them when passed null. The stored
+/// object is never touched: what changes is a column beside it.
+export async function annotateCapture(
+  captureId: string,
+  inspectionId: string,
+  input: unknown,
+) {
+  const agent = await requireAgent()
+  const capture = await db.capture.findUnique({
+    where: { id: captureId },
+    select: { roomId: true, kind: true },
+  })
+  if (!capture) throw new Error('Capture not found')
+  const room = await authorizeRoom(capture.roomId, agent.id)
+  // The inspection id is client-supplied and must be the capture's own, so a valid
+  // capture id cannot be paired with another agent's inspection id.
+  if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
+
+  const inspection = await authorizeInspection(inspectionId, agent.id)
+  // A red ring is a stronger claim than a caption, and the report is the artefact both
+  // parties are signing. Once it has gone out, the evidence stops moving.
+  if (inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED') {
+    throw new Error('This report has been sent for signature and can no longer be marked up')
+  }
+  if (capture.kind !== 'PHOTO') throw new Error('Only photos can be marked up')
+
+  // Parsing rather than clamping: this is a public HTTP endpoint, so an out-of-range
+  // payload is a rejection, not a silent truncation.
+  const parsed = input === null ? null : annotationInputSchema.parse(input)
+
+  await db.capture.update({
+    where: { id: captureId },
+    data: {
+      // Prisma needs DbNull to write SQL NULL to a Json? column; JsonNull would write a
+      // JSON null, which reads back as a row of the wrong shape.
+      annotations: parsed
+        ? { v: 1, ...parsed, by: agent.id, at: new Date().toISOString() }
+        : Prisma.DbNull,
+    },
+  })
   revalidate(inspectionId)
 }
 

@@ -7054,6 +7054,7 @@ export namespace Prisma {
     durationSec: number
     transcript: number
     note: number
+    annotations: number
     processedAt: number
     createdAt: number
     _all: number
@@ -7108,6 +7109,7 @@ export namespace Prisma {
     durationSec?: true
     transcript?: true
     note?: true
+    annotations?: true
     processedAt?: true
     createdAt?: true
     _all?: true
@@ -7209,6 +7211,7 @@ export namespace Prisma {
     durationSec: number | null
     transcript: string | null
     note: string | null
+    annotations: JsonValue | null
     processedAt: Date | null
     createdAt: Date
     _count: CaptureCountAggregateOutputType | null
@@ -7242,6 +7245,7 @@ export namespace Prisma {
     durationSec?: boolean
     transcript?: boolean
     note?: boolean
+    annotations?: boolean
     processedAt?: boolean
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
@@ -7259,6 +7263,7 @@ export namespace Prisma {
     durationSec?: boolean
     transcript?: boolean
     note?: boolean
+    annotations?: boolean
     processedAt?: boolean
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
@@ -7274,6 +7279,7 @@ export namespace Prisma {
     durationSec?: boolean
     transcript?: boolean
     note?: boolean
+    annotations?: boolean
     processedAt?: boolean
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
@@ -7289,11 +7295,12 @@ export namespace Prisma {
     durationSec?: boolean
     transcript?: boolean
     note?: boolean
+    annotations?: boolean
     processedAt?: boolean
     createdAt?: boolean
   }
 
-  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
+  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "annotations" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
   export type CaptureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     items?: boolean | Capture$itemsArgs<ExtArgs>
@@ -7328,6 +7335,14 @@ export namespace Prisma {
        * Inspector's own note attached at capture time, before any model sees it.
        */
       note: string | null
+      /**
+       * Rings and arrows the inspector drew over this photo, with the intrinsic size of
+       * the upright image they were drawn against. Data over an unmodified original: the
+       * object at storagePath is never rewritten. Shape and parser live in
+       * src/lib/annotations.ts. Human-authored by construction, so it carries its own
+       * author and time and never a confidence.
+       */
+      annotations: Prisma.JsonValue | null
       processedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["capture"]>
@@ -7764,6 +7779,7 @@ export namespace Prisma {
     readonly durationSec: FieldRef<"Capture", 'Int'>
     readonly transcript: FieldRef<"Capture", 'String'>
     readonly note: FieldRef<"Capture", 'String'>
+    readonly annotations: FieldRef<"Capture", 'Json'>
     readonly processedAt: FieldRef<"Capture", 'DateTime'>
     readonly createdAt: FieldRef<"Capture", 'DateTime'>
   }
@@ -13161,6 +13177,7 @@ export namespace Prisma {
     durationSec: 'durationSec',
     transcript: 'transcript',
     note: 'note',
+    annotations: 'annotations',
     processedAt: 'processedAt',
     createdAt: 'createdAt'
   };
@@ -13241,6 +13258,14 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -13255,6 +13280,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -13385,6 +13419,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -13859,6 +13907,7 @@ export namespace Prisma {
     durationSec?: IntNullableFilter<"Capture"> | number | null
     transcript?: StringNullableFilter<"Capture"> | string | null
     note?: StringNullableFilter<"Capture"> | string | null
+    annotations?: JsonNullableFilter<"Capture">
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
@@ -13875,6 +13924,7 @@ export namespace Prisma {
     durationSec?: SortOrderInput | SortOrder
     transcript?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     room?: RoomOrderByWithRelationInput
@@ -13894,6 +13944,7 @@ export namespace Prisma {
     durationSec?: IntNullableFilter<"Capture"> | number | null
     transcript?: StringNullableFilter<"Capture"> | string | null
     note?: StringNullableFilter<"Capture"> | string | null
+    annotations?: JsonNullableFilter<"Capture">
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
@@ -13910,6 +13961,7 @@ export namespace Prisma {
     durationSec?: SortOrderInput | SortOrder
     transcript?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: CaptureCountOrderByAggregateInput
@@ -13932,6 +13984,7 @@ export namespace Prisma {
     durationSec?: IntNullableWithAggregatesFilter<"Capture"> | number | null
     transcript?: StringNullableWithAggregatesFilter<"Capture"> | string | null
     note?: StringNullableWithAggregatesFilter<"Capture"> | string | null
+    annotations?: JsonNullableWithAggregatesFilter<"Capture">
     processedAt?: DateTimeNullableWithAggregatesFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Capture"> | Date | string
   }
@@ -14702,6 +14755,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
@@ -14718,6 +14772,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
@@ -14732,6 +14787,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
@@ -14748,6 +14804,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
@@ -14763,6 +14820,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
   }
@@ -14776,6 +14834,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14790,6 +14849,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15658,6 +15718,29 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type RoomScalarRelationFilter = {
     is?: RoomWhereInput
@@ -15684,6 +15767,7 @@ export namespace Prisma {
     durationSec?: SortOrder
     transcript?: SortOrder
     note?: SortOrder
+    annotations?: SortOrder
     processedAt?: SortOrder
     createdAt?: SortOrder
   }
@@ -15766,6 +15850,32 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumRoomStatusFilter<$PrismaModel = never> = {
@@ -17436,6 +17546,29 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumRoomStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.RoomStatus | EnumRoomStatusFieldRefInput<$PrismaModel>
@@ -19023,6 +19156,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
     items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
@@ -19037,6 +19171,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
@@ -19178,6 +19313,7 @@ export namespace Prisma {
     durationSec?: IntNullableFilter<"Capture"> | number | null
     transcript?: StringNullableFilter<"Capture"> | string | null
     note?: StringNullableFilter<"Capture"> | string | null
+    annotations?: JsonNullableFilter<"Capture">
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
     createdAt?: DateTimeFilter<"Capture"> | Date | string
   }
@@ -19236,6 +19372,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
@@ -19251,6 +19388,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
   }
@@ -19391,6 +19529,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
@@ -19406,6 +19545,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20487,6 +20627,7 @@ export namespace Prisma {
     durationSec?: number | null
     transcript?: string | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
   }
@@ -20517,6 +20658,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
@@ -20531,6 +20673,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
@@ -20545,6 +20688,7 @@ export namespace Prisma {
     durationSec?: NullableIntFieldUpdateOperationsInput | number | null
     transcript?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

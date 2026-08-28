@@ -3,6 +3,8 @@
 import { useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { timecode } from '@/lib/format'
+import { MarkOverlay } from '@/components/mark-overlay'
+import type { StoredAnnotations } from '@/lib/annotations'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import {
   updateItem,
@@ -27,7 +29,12 @@ export type EditableItem = {
   editedByHuman: boolean
 }
 
-export type EvidenceCapture = { id: string; kind: 'VIDEO' | 'PHOTO'; url: string }
+export type EvidenceCapture = {
+  id: string
+  kind: 'VIDEO' | 'PHOTO'
+  url: string
+  annotations: StoredAnnotations | null
+}
 
 const CONDITION_TONE: Record<ItemCondition, string> = {
   NEW: 'text-emerald-700 bg-emerald-50',
@@ -212,14 +219,28 @@ export function ReviewEditor({
                 className="h-44 w-auto max-w-[85vw] shrink-0 snap-start rounded-lg border border-gray-200 bg-black sm:h-auto sm:w-full sm:max-w-none"
               />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              // The wrapper carries the layout and the scroll anchor so the overlay can
+              // span exactly the photo's own box. object-contain, not object-cover:
+              // h-44 with max-w-[85vw] genuinely crops a wide photo on a phone, and a
+              // mark over a cropped picture points at the wrong thing.
+              <div
                 key={capture.id}
                 id={`capture-${capture.id}`}
-                src={capture.url}
-                alt="Inspection photo"
-                className="h-44 w-auto max-w-[85vw] shrink-0 snap-start rounded-lg border border-gray-200 object-cover sm:h-auto sm:w-full sm:max-w-none"
-              />
+                // self-start matters: from sm up this is a grid item, and without it
+                // the wrapper stretches to the tallest photo in the row while the image
+                // keeps its own height, so the overlay would letterbox inside a taller
+                // box and slide every mark down. The positioned box must be the
+                // picture's box, on every surface.
+                className="relative shrink-0 snap-start self-start overflow-hidden rounded-lg border border-gray-200 sm:w-full"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={capture.url}
+                  alt="Inspection photo"
+                  className="block h-44 w-auto max-w-[85vw] object-contain sm:h-auto sm:w-full sm:max-w-none"
+                />
+                <MarkOverlay annotations={capture.annotations} />
+              </div>
             ),
           )}
         </div>

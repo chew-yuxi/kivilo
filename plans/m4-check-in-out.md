@@ -96,6 +96,22 @@ person touches it. Nothing is countersignable until a human has passed through r
 - `pnpm test` (Vitest): the extraction schema and the diff classifier get real unit tests
 - `pnpm test:e2e` for the capture→review→sign path
 
+## Follow-ups from the annotation work (2026-08-28)
+
+- `updateCaptureNote` and `deleteCapture` do not check the inspection's status, so a
+  caption can still be edited and a photo deleted after the report has gone out for
+  signature. `annotateCapture` does check. Closing the gap is a behaviour change to two
+  existing actions and deserves its own review rather than being smuggled in.
+- `updateCaptureNote` does not verify that the capture belongs to the inspection id it
+  was handed. `annotateCapture` does. Same fix, same review.
+- In the upload queue's flush, a failure after `take(id)` calls `patch(id, ...)` on a
+  record that no longer exists, so the failure is dropped with no retry. Re-enqueueing
+  when `patch` returns false belongs to the queue, not to any one feature.
+- No flattened copy of a marked photo exists, so an agent who long-presses a report photo
+  to forward it sends the unmarked original. If that matters, the hook is a client-side
+  canvas flatten in the Viewer, and `downscale()` must lose its `scale === 1` early
+  return first so every stored photo is upright and tagless.
+
 ## Open questions
 
 - PDPA: video retention period and where the bucket lives (SG region).

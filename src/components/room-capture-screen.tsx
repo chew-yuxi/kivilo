@@ -6,11 +6,15 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { useUploadQueue } from '@/components/upload-queue'
 import { ProcessingPoller } from '@/components/processing-poller'
 import { patch, take, type PendingCapture } from '@/lib/offline-queue'
+import { MarkOverlay } from '@/components/mark-overlay'
+import { MarkEditor, type Tool } from '@/components/mark-editor'
+import { MAX_MARKS, type AnnotationInput, type Mark, type StoredAnnotations } from '@/lib/annotations'
 import {
   renameRoom,
   deleteRoom,
   deleteCapture,
   updateCaptureNote,
+  annotateCapture,
   finishRoomCapture,
 } from '@/lib/actions'
 import type { CaptureKind, RoomStatus } from '@/generated/prisma'
@@ -21,14 +25,22 @@ export type ServerCapture = {
   note: string | null
   durationSec: number | null
   url: string
+  annotations: StoredAnnotations | null
   /// False once a capture arrived after the room's last read: new against the draft.
   processed: boolean
 }
 
 /// One thing on the screen, whether it is still on the phone or already on the server.
-type Tile =
-  | { source: 'server'; key: string; kind: CaptureKind; note: string | null; capture: ServerCapture }
-  | { source: 'queue'; key: string; kind: CaptureKind; note: string | null; capture: PendingCapture }
+/// `marks` is the same shape either way, since the phone stores what it would send.
+type Tile = {
+  key: string
+  kind: CaptureKind
+  note: string | null
+  marks: AnnotationInput | null
+} & (
+  | { source: 'server'; capture: ServerCapture }
+  | { source: 'queue'; capture: PendingCapture }
+)
 
 /// Longest edge a photo is sent at. A phone camera frame is 4 to 6 MB; at this size it
 /// is a fifth of that and a rating plate is still legible, which is all the model needs.
@@ -77,15 +89,33 @@ function readDuration(file: File): Promise<number | null> {
   })
 }
 
+/// Full size is h-full w-full, not max-h-full max-w-full. With max-*, an image smaller
+/// than its container is not scaled up, so the element shrinks to the picture while the
+/// overlay still spans the container, and the two disagree by as much as 148px. Filling
+/// the box and letting object-contain letterbox inside it is the same arithmetic
+/// preserveAspectRatio="xMidYMid meet" does, so picture and marks coincide at any size.
+/// Verified by pixel probe across phone, portrait and desktop-sized boxes.
 const mediaClass = (full: boolean) =>
-  full ? 'max-h-full max-w-full object-contain' : 'h-full w-full object-cover'
+  full ? 'h-full w-full object-contain' : 'h-full w-full object-cover'
 
 /// The fragment asks for a frame just after the start, which is what makes a video
 /// thumbnail show a picture instead of black on iOS.
 const mediaSrc = (kind: CaptureKind, url: string, full: boolean) =>
   kind === 'VIDEO' && !full ? `${url}#t=0.1` : url
 
-function Media({ kind, url, full = false }: { kind: CaptureKind; url: string; full?: boolean }) {
+function Media({
+  kind,
+  url,
+  full = false,
+  onReady,
+}: {
+  kind: CaptureKind
+  url: string
+  full?: boolean
+  /// The upright intrinsic size, once the browser has it. Marks are stored against
+  /// this, so nothing is ever re-measured on the server.
+  onReady?: (w: number, h: number) => void
+}) {
   if (kind === 'VIDEO') {
     return (
       <video
@@ -98,15 +128,30 @@ function Media({ kind, url, full = false }: { kind: CaptureKind; url: string; fu
       />
     )
   }
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt="" className={mediaClass(full)} />
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt=""
+      onLoad={(e) => onReady?.(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)}
+      className={mediaClass(full)}
+    />
+  )
 }
 
 /// A capture still on the phone is shown from its blob. The object URL is owned by the
 /// effect, created and assigned there and revoked on cleanup, so a remount (StrictMode
 /// in development does one on purpose) gets a fresh URL instead of a revoked one, and
 /// nothing keeps a 12 MB video alive after the tile is gone.
-function QueuedMedia({ capture, full = false }: { capture: PendingCapture; full?: boolean }) {
+function QueuedMedia({
+  capture,
+  full = false,
+  onReady,
+}: {
+  capture: PendingCapture
+  full?: boolean
+  onReady?: (w: number, h: number) => void
+}) {
   const element = useRef<HTMLImageElement & HTMLVideoElement>(null)
   // Keyed on the record, not the Blob: every queue read structured-clones a fresh
   // Blob, and the bytes behind a queue id never change.
@@ -130,8 +175,17 @@ function QueuedMedia({ capture, full = false }: { capture: PendingCapture; full?
       />
     )
   }
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img ref={element} alt="" className={mediaClass(full)} />
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      ref={element}
+      alt=""
+      // src is assigned in the effect, so onLoad is the only way the parent learns the
+      // intrinsic size of a capture that is still on the phone.
+      onLoad={(e) => onReady?.(e.currentTarget.naturalWidth, e.currentTarget.naturalHeight)}
+      className={mediaClass(full)}
+    />
+  )
 }
 
 function tileState(tile: Tile, online: boolean, drafted: boolean): string | null {
@@ -144,24 +198,41 @@ function tileState(tile: Tile, online: boolean, drafted: boolean): string | null
   return null
 }
 
-/// Full screen look at one capture, with its note and a two-step delete. A <dialog>
-/// so Escape and the Android back gesture close it instead of leaving the room.
+/// Full screen look at one capture: its note, a two-step delete, and the surface the
+/// inspector marks it up on. A <dialog>, so Escape and the Android back gesture close it
+/// rather than leaving the room, and so annotate mode is one boolean rather than a
+/// second route with its own history entry.
 function Viewer({
   tile,
   inspectionId,
+  startAnnotating = false,
   onClose,
 }: {
   tile: Tile
   inspectionId: string
+  startAnnotating?: boolean
   onClose: () => void
 }) {
   const router = useRouter()
   const dialog = useRef<HTMLDialogElement>(null)
-  const { flush, uploadedIdFor } = useUploadQueue()
+  const { flush, online, uploadedIdFor } = useUploadQueue()
   const [note, setNote] = useState(tile.note ?? '')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Marks are only meaningful once the browser has decoded the image, because their
+  // coordinate space is its intrinsic size.
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null)
+  const [annotating, setAnnotating] = useState(startAnnotating)
+  const [tool, setTool] = useState<Tool>('ring')
+  const saved = tile.marks?.marks ?? []
+  const [marks, setMarks] = useState<Mark[]>(saved)
+  // How far back Undo may reach. It starts at what was already saved, and drops to zero
+  // when the inspector clears the set, so Undo still works on what they draw next.
+  const [floor, setFloor] = useState(saved.length)
+  const [dirty, setDirty] = useState(false)
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
 
   useEffect(() => {
     dialog.current?.showModal()
@@ -175,6 +246,9 @@ function Viewer({
       router.refresh()
       dialog.current?.close()
     } catch (e) {
+      // Left open, with the marks still on screen. On the connections this product is
+      // built for, a save that quietly failed is the inspector circling four defects,
+      // walking out, and none of them existing.
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setBusy(false)
@@ -197,6 +271,23 @@ function Viewer({
       await updateCaptureNote(serverId, inspectionId, trimmed)
     })
 
+  /// One write per marking session, not one per stroke, so a half-drawn set is never
+  /// what got persisted. Same three branches as the note, in the same order.
+  const saveMarks = () =>
+    run(async () => {
+      const input: AnnotationInput | null =
+        marks.length > 0 && natural ? { w: natural.w, h: natural.h, marks } : null
+      if (tile.source === 'server') {
+        await annotateCapture(tile.capture.id, inspectionId, input)
+        return
+      }
+      const id = tile.capture.id!
+      if (await patch(id, { annotations: input })) return
+      const serverId = uploadedIdFor(id)
+      if (!serverId) throw new Error('This capture is no longer on the phone')
+      await annotateCapture(serverId, inspectionId, input)
+    })
+
   const destroy = () =>
     run(async () => {
       if (tile.source === 'server') {
@@ -209,37 +300,101 @@ function Viewer({
       if (serverId) await deleteCapture(serverId, inspectionId)
     })
 
+  const addMark = (mark: Mark) => {
+    // The server accepts no more than this, and a queued capture carrying too many
+    // would fail validation on every upload attempt and never leave the phone.
+    setMarks((current) => (current.length >= MAX_MARKS ? current : [...current, mark]))
+    setDirty(true)
+  }
+
+  const clearMarks = () => {
+    setMarks([])
+    setFloor(0)
+    setDirty(true)
+  }
+
+  const leaveAnnotating = () => {
+    setMarks(saved)
+    setFloor(saved.length)
+    setDirty(false)
+    setConfirmDiscard(false)
+    setAnnotating(false)
+  }
+
+  const tryClose = () => {
+    if (annotating && dirty) {
+      setConfirmDiscard(true)
+      return
+    }
+    dialog.current?.close()
+  }
+
   const noun = tile.kind === 'VIDEO' ? 'video' : 'photo'
   const failed = tile.source === 'queue' && tile.capture.attempts > 0
+  const canMark = tile.kind === 'PHOTO' && natural !== null
+  // Undo only reaches back into this session. Clearing marks that were already saved is
+  // Remove marks, which shows the result before an explicit save confirms it.
+  const canUndo = marks.length > floor
 
   return (
     <dialog
       ref={dialog}
       onClose={onClose}
+      onCancel={(event) => {
+        // Escape and the Android back gesture. Unsaved marks get one interception, then
+        // a second press closes and loses them, exactly as it loses an untyped note.
+        if (annotating && dirty && !confirmDiscard) {
+          event.preventDefault()
+          setConfirmDiscard(true)
+        }
+      }}
       className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-black p-0 text-white backdrop:bg-black"
     >
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between px-4 py-2">
-          <span className="text-sm capitalize text-gray-300">{noun}</span>
+          <span className="text-sm text-gray-300">
+            {annotating ? (tool === 'ring' ? 'Drag a ring, or tap to point' : 'Drag from the spot') : <span className="capitalize">{noun}</span>}
+          </span>
           <button
             type="button"
-            onClick={() => dialog.current?.close()}
+            onClick={tryClose}
             className="rounded-md px-3 py-2 text-sm font-medium active:bg-white/10"
           >
             Close
           </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 items-center justify-center">
+        {/* relative on the flex container, not on a wrapper around the image: a wrapper
+            would give the image an auto-height containing block, max-h-full would
+            resolve to none, and a portrait photo would overflow the note and buttons.
+            Flex centres the contained image in both axes and xMidYMid centres the
+            viewBox in both axes, so the two boxes coincide exactly. */}
+        <div className="relative flex min-h-0 flex-1 items-center justify-center">
           {tile.source === 'queue' ? (
-            <QueuedMedia capture={tile.capture} full />
+            <QueuedMedia capture={tile.capture} full onReady={(w, h) => setNatural({ w, h })} />
           ) : (
-            <Media kind={tile.kind} url={tile.capture.url} full />
+            <Media
+              kind={tile.kind}
+              url={tile.capture.url}
+              full
+              onReady={(w, h) => setNatural({ w, h })}
+            />
+          )}
+          {annotating && natural ? (
+            <MarkEditor
+              w={natural.w}
+              h={natural.h}
+              marks={marks}
+              tool={tool}
+              onAdd={addMark}
+            />
+          ) : (
+            <MarkOverlay annotations={tile.marks} />
           )}
         </div>
 
         <div className="space-y-3 bg-gray-900 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
-          {failed && (
+          {failed && !annotating && (
             <p className="text-xs text-amber-300">
               Upload failed {tile.capture.attempts} time{tile.capture.attempts === 1 ? '' : 's'}
               {tile.capture.lastError && `: ${tile.capture.lastError}`}. It stays on this phone
@@ -249,53 +404,155 @@ function Viewer({
               </button>
             </p>
           )}
-          <textarea
-            aria-label="Note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={2}
-            placeholder="What is this? e.g. Chip on the worktop, right of the sink"
-            className="w-full resize-none rounded-md bg-gray-800 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none"
-          />
+
           {error && <p className="text-sm text-red-300">{error}</p>}
-          <div className="flex items-center justify-between gap-3">
-            {confirmDelete ? (
-              <div className="flex items-center gap-2 text-sm">
-                <span>Delete this {noun}?</span>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={destroy}
-                  className="rounded-md bg-red-600 px-3 py-2 font-medium disabled:opacity-50"
-                >
-                  Delete
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(false)}
-                  className="rounded-md px-3 py-2"
-                >
-                  Keep
-                </button>
+
+          {annotating ? (
+            <>
+              {!online && tile.source === 'server' && (
+                <p className="text-xs text-amber-300">
+                  Needs signal to save marks on a photo that has already uploaded.
+                </p>
+              )}
+              {confirmDiscard ? (
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span>Discard these marks?</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={leaveAnnotating}
+                      className="rounded-md bg-red-600 px-3 py-2 font-medium"
+                    >
+                      Discard
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDiscard(false)}
+                      className="rounded-md px-3 py-2"
+                    >
+                      Keep drawing
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <div className="flex overflow-hidden rounded-md border border-gray-700">
+                      {(['ring', 'arrow'] as const).map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          aria-pressed={tool === option}
+                          onClick={() => setTool(option)}
+                          className={`px-4 py-3 text-sm font-medium capitalize ${
+                            tool === option ? 'bg-white text-gray-900' : 'text-gray-200'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!canUndo}
+                      onClick={() => setMarks((current) => current.slice(0, -1))}
+                      className="rounded-md px-4 py-3 text-sm text-gray-200 active:bg-white/10 disabled:opacity-40"
+                    >
+                      Undo
+                    </button>
+                    {marks.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={clearMarks}
+                        className="rounded-md px-4 py-3 text-sm text-gray-200 active:bg-white/10"
+                      >
+                        Remove marks
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => (dirty ? setConfirmDiscard(true) : setAnnotating(false))}
+                      className="rounded-md px-4 py-3 text-sm text-gray-300 active:bg-white/10"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy || !dirty}
+                      onClick={saveMarks}
+                      data-marks={marks.length}
+                      className="rounded-md bg-brand-500 px-4 py-3 text-sm font-medium disabled:opacity-50"
+                    >
+                      Save marks
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <textarea
+                aria-label="Note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={2}
+                placeholder="What is this? e.g. Chip on the worktop, right of the sink"
+                className="w-full resize-none rounded-md bg-gray-800 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none"
+              />
+              <div className="flex items-center justify-between gap-3">
+                {confirmDelete ? (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span>Delete this {noun}?</span>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={destroy}
+                      className="rounded-md bg-red-600 px-3 py-2 font-medium disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDelete(false)}
+                      className="rounded-md px-3 py-2"
+                    >
+                      Keep
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(true)}
+                    className="rounded-md px-3 py-2 text-sm text-gray-300 active:bg-white/10"
+                  >
+                    Delete
+                  </button>
+                )}
+                <div className="flex items-center gap-2">
+                  {tile.kind === 'PHOTO' && (
+                    <button
+                      type="button"
+                      disabled={!canMark}
+                      onClick={() => setAnnotating(true)}
+                      className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-white active:bg-white/10 disabled:opacity-40"
+                    >
+                      {saved.length > 0 ? 'Edit marks' : 'Mark up'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={saveNote}
+                    className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium disabled:opacity-50"
+                  >
+                    Save note
+                  </button>
+                </div>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="rounded-md px-3 py-2 text-sm text-gray-300 active:bg-white/10"
-              >
-                Delete
-              </button>
-            )}
-            <button
-              type="button"
-              disabled={busy}
-              onClick={saveNote}
-              className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium disabled:opacity-50"
-            >
-              Save note
-            </button>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </dialog>
@@ -316,12 +573,15 @@ export function RoomCaptureScreen({
   next: { href: string; name: string } | null
 }) {
   const router = useRouter()
-  const { pending, online, add } = useUploadQueue()
+  const { pending, online, add, uploadedIdFor } = useUploadQueue()
   const photoInput = useRef<HTMLInputElement>(null)
   const videoInput = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [viewing, setViewing] = useState<Tile | null>(null)
+  const [viewing, setViewing] = useState<{ tile: Tile; annotate: boolean } | null>(null)
+  // The queue id of the shot just taken, so the one photo the inspector is still
+  // thinking about is one tap from being marked up.
+  const [justShot, setJustShot] = useState<number | null>(null)
   const [finishing, startFinish] = useTransition()
   const [busy, startTransition] = useTransition()
 
@@ -336,6 +596,7 @@ export function RoomCaptureScreen({
       key: c.id,
       kind: c.kind,
       note: c.note,
+      marks: c.annotations,
       capture: c,
     })),
     ...queued.map((c) => ({
@@ -343,9 +604,21 @@ export function RoomCaptureScreen({
       key: `queue-${c.id}`,
       kind: c.kind,
       note: c.note,
+      marks: c.annotations,
       capture: c,
     })),
   ]
+
+  // Still on the phone, or already uploaded and now a server tile. Either way it is the
+  // same photograph, so the row follows it across the hand-over instead of vanishing.
+  const lastShot =
+    justShot === null
+      ? null
+      : (tiles.find((tile) => tile.source === 'queue' && tile.capture.id === justShot) ??
+        tiles.find(
+          (tile) => tile.source === 'server' && tile.capture.id === uploadedIdFor(justShot),
+        ) ??
+        null)
 
   const inspectionHref = `/inspections/${inspectionId}`
   const reviewHref = `${inspectionHref}/rooms/${room.id}`
@@ -355,7 +628,7 @@ export function RoomCaptureScreen({
     setError(null)
     try {
       const shrunk = kind === 'PHOTO' ? await downscale(file) : null
-      await add({
+      const id = await add({
         roomId: room.id,
         inspectionId,
         kind,
@@ -364,8 +637,11 @@ export function RoomCaptureScreen({
         mimeType: shrunk ? 'image/jpeg' : file.type || (kind === 'VIDEO' ? 'video/mp4' : 'image/jpeg'),
         durationSec: kind === 'VIDEO' ? await readDuration(file) : null,
         note: null,
+        annotations: null,
         createdAt: Date.now(),
       })
+      // Video is not markable, so it never offers the row.
+      setJustShot(kind === 'PHOTO' ? id : null)
     } catch (e) {
       // The one place a capture can actually be lost: the phone refused to store it.
       setError(
@@ -490,10 +766,32 @@ export function RoomCaptureScreen({
           >
             {saving ? 'Saving' : 'Take a photo'}
           </button>
-          <p className="text-sm text-gray-600">
-            Each corner, every appliance and fixture, rating plates and meters up close, any
-            damage.
-          </p>
+          {lastShot ? (
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2">
+              <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                {lastShot.source === 'queue' ? (
+                  <QueuedMedia capture={lastShot.capture} />
+                ) : (
+                  <Media kind={lastShot.kind} url={lastShot.capture.url} />
+                )}
+              </div>
+              <p className="min-w-0 flex-1 text-sm text-gray-600">
+                {lastShot.marks ? 'Marked' : 'Circle the damage'}
+              </p>
+              <button
+                type="button"
+                onClick={() => setViewing({ tile: lastShot, annotate: true })}
+                className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium active:bg-gray-100"
+              >
+                Mark it up ›
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">
+              Each corner, every appliance and fixture, rating plates and meters up close, any
+              damage.
+            </p>
+          )}
           <button
             type="button"
             disabled={saving}
@@ -516,8 +814,10 @@ export function RoomCaptureScreen({
               <li key={tile.key}>
                 <button
                   type="button"
-                  onClick={() => setViewing(tile)}
-                  aria-label={`${noun} ${index + 1}${tile.note ? `: ${tile.note}` : ''}`}
+                  onClick={() => setViewing({ tile, annotate: false })}
+                  aria-label={`${noun} ${index + 1}${tile.note ? `: ${tile.note}` : ''}${
+                    tile.marks ? ', marked' : ''
+                  }`}
                   className="block w-full text-left"
                 >
                   <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
@@ -529,6 +829,11 @@ export function RoomCaptureScreen({
                     {state && (
                       <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white">
                         {state}
+                      </span>
+                    )}
+                    {tile.marks && (
+                      <span className="absolute bottom-1 right-1 rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-medium text-white">
+                        Marked
                       </span>
                     )}
                   </div>
@@ -590,9 +895,10 @@ export function RoomCaptureScreen({
 
       {viewing && (
         <Viewer
-          key={viewing.key}
-          tile={viewing}
+          key={viewing.tile.key}
+          tile={viewing.tile}
           inspectionId={inspectionId}
+          startAnnotating={viewing.annotate}
           onClose={() => setViewing(null)}
         />
       )}

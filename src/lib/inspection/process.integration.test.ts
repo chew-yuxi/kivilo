@@ -186,6 +186,31 @@ describe('processRoom', () => {
     expect(items[0].editedByHuman).toBe(true)
   })
 
+  /// Marks are the inspector's own work on the evidence layer, and processRoom writes
+  /// processedAt across the room's captures. It must not tread on them.
+  it('leaves the marks a person drew on a photo untouched by a re-read', async () => {
+    const { kitchen } = await fixture()
+    const annotations = {
+      v: 1,
+      w: 1536,
+      h: 2048,
+      marks: [{ shape: 'ring', cx: 0.6836, cy: 0.3418, rx: 0.09, ry: 0.0675 }],
+      by: 'agent_1',
+      at: '2026-08-28T00:00:00.000Z',
+    }
+    await db.capture.update({
+      where: { id: kitchen.capture.id },
+      data: { annotations },
+    })
+
+    vi.mocked(extractRoom).mockResolvedValue(extracted('Oven', kitchen.capture.id))
+    await processRoom(kitchen.room.id)
+
+    const capture = await db.capture.findUniqueOrThrow({ where: { id: kitchen.capture.id } })
+    expect(capture.annotations).toEqual(annotations)
+    expect(capture.processedAt).not.toBeNull()
+  })
+
   it('parks the room as FAILED with the reason when extraction throws', async () => {
     const { kitchen } = await fixture()
     // Once, not persistent. A throwing implementation left in place is reported by

@@ -158,6 +158,12 @@ model Capture {
   transcript  String?
   /// Inspector's own note attached at capture time, before any model sees it.
   note        String?
+  /// Rings and arrows the inspector drew over this photo, with the intrinsic size of
+  /// the upright image they were drawn against. Data over an unmodified original: the
+  /// object at storagePath is never rewritten. Shape and parser live in
+  /// src/lib/annotations.ts. Human-authored by construction, so it carries its own
+  /// author and time and never a confidence.
+  annotations Json?
   processedAt DateTime?
   createdAt   DateTime    @default(now())
 
