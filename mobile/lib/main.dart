@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
 import 'screens/inspections_screen.dart';
+import 'services/secure_session_store.dart';
 import 'screens/sign_in_screen.dart';
 
 Future<void> main() async {
@@ -12,6 +13,9 @@ Future<void> main() async {
     await Supabase.initialize(
       url: Config.supabaseUrl,
       publishableKey: Config.supabaseAnonKey,
+      // Keychain and EncryptedSharedPreferences rather than the default plaintext store.
+      // The refresh token here opens an account holding photographs of people's homes.
+      authOptions: const FlutterAuthClientOptions(localStorage: SecureSessionStore()),
     );
     // Without this, a token refresh that fails while the phone has no signal is an
     // unhandled zone error and takes the app down. An inspector is offline by default,

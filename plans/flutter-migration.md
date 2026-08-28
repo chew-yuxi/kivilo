@@ -28,8 +28,24 @@ Ahead of the plan below, because they de-risk the rest and are additive:
 - **`mobile/` exists** and runs: six digit sign-in, the inspection list, and one
   inspection's rooms, read only. `flutter analyze` is clean.
 
-Known gaps in what is there: the Supabase session is in the default store rather than
-`flutter_secure_storage`, and there are no write endpoints yet.
+Then, same day:
+
+- **The seam actually works for writes.** The first cut could not have: every write
+  endpoint delegates to a server action, and the actions resolve the agent through
+  `requireAgent`, which reads a cookie. Fixed in one place, `currentAgent`, which now
+  takes a bearer token from the Authorization header when there is one. So a server
+  action serves either client unchanged and there is still one boundary.
+- **The capture path is open**: create an inspection, add a room, take a signed upload
+  credential, PUT bytes straight to storage, register the capture with marks, finish the
+  room. `e2e/api.spec.ts` walks all of it with no browser at all.
+- **The session moved to the Keychain**, off the default plaintext store.
+- **`lib/services/capture_queue.dart`**, drift-backed, with 9 tests pinning the
+  invariant: nothing discarded however often it fails, failures sorted to the back of the
+  line, a lease so two isolates cannot claim one row, no re-upload once the server has the
+  bytes, and `take` reporting the record atomically so a note typed mid-flight is not lost.
+
+Known gaps: no camera UI yet, so nothing fills the queue; no uploader draining it; review
+and signing are still web-only.
 
 # THE PLAN: Kivilo on Flutter
 

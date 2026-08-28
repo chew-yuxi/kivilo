@@ -39,5 +39,17 @@ agent's inspection is indistinguishable from one that never existed.
 ## What is here so far
 
 Sign in with the emailed six digit code, the inspection list, and one inspection's rooms,
-read only. Capture, review and signing are still the web app's job. The order of work,
+read only. The session is kept in the Keychain, not the default plaintext store, because
+the refresh token opens an account holding photographs of people's homes.
+
+`lib/services/capture_queue.dart` is the durable capture queue, ahead of the camera UI
+that will fill it, because it is the piece that carries the never-lose-a-capture
+invariant and it is the piece that can be tested without a phone. It mirrors
+`src/lib/offline-queue.ts` deliberately: same ordering, same hand-over rules, no maximum
+attempt count. Two things it has that the web client does not need: a `claimedAt` lease,
+because a background transfer runs in its own isolate with its own database handle and an
+in-memory guard would not be seen across that boundary, and a relative file path, because
+iOS moves the app container between launches.
+
+Capture, review and signing are still the web app's job. The order of work,
 and what each milestone unblocks, is in `plans/flutter-migration.md`.
