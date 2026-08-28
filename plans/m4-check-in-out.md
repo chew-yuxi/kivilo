@@ -98,12 +98,16 @@ person touches it. Nothing is countersignable until a human has passed through r
 
 ## Follow-ups from the annotation work (2026-08-28)
 
-- `updateCaptureNote` and `deleteCapture` do not check the inspection's status, so a
-  caption can still be edited and a photo deleted after the report has gone out for
-  signature. `annotateCapture` does check. Closing the gap is a behaviour change to two
-  existing actions and deserves its own review rather than being smuggled in.
-- `updateCaptureNote` does not verify that the capture belongs to the inspection id it
-  was handed. `annotateCapture` does. Same fix, same review.
+- ~~Status gaps on `updateCaptureNote` / `deleteCapture`~~: done 2026-08-28, and the
+  gap was wider than logged. Every action that changes what the report says now goes
+  through `assertOpen`, and new bytes through `assertNotCountersigned`. The one that
+  mattered most was `finishRoomCapture`, which re-runs extraction and replaces a room's
+  whole inventory; on a countersigned report that rewrote the lines both parties signed.
+  Pinned by `src/lib/signature-freeze.integration.test.ts`, confirmed to fail without
+  the guards.
+- `updateCaptureNote` still does not verify that the capture belongs to the inspection id
+  it was handed. `annotateCapture` does. Small, and worth doing next time that file is
+  open.
 - In the upload queue's flush, a failure after `take(id)` calls `patch(id, ...)` on a
   record that no longer exists, so the failure is dropped with no retry. Re-enqueueing
   when `patch` returns false belongs to the queue, not to any one feature.

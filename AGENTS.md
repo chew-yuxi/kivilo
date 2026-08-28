@@ -144,6 +144,23 @@ instead, which is why `Capture.kind` exists and why the extraction prompt tells 
 to read text only from photos. This is a capture-quality problem, not a model problem;
 swapping in a dedicated OCR engine on the same video would fail the same way.
 
+## A signed report stops moving
+
+Sending for signature is the moment the report stops being a working document and becomes
+the thing two people are agreeing to. `/reports/[token]` renders rooms, items and photo
+captures at `AWAITING_SIGNATURE` and `COMPLETED`, so every action that changes what it
+says calls `assertOpen` and refuses from that point: rooms, items, captions, marks,
+deletes, and above all `finishRoomCapture`, which re-reads a room and replaces its whole
+inventory. The capture page's status filter is a convenience, not the control; a server
+action is a public HTTP endpoint and the guard has to be in the action.
+
+New bytes are the one exception, via `assertNotCountersigned`. A capture taken before the
+agent tapped Send may still be draining out of the phone's queue, and refusing it would
+strand it there forever, which is exactly what the capture invariant forbids. So
+`requestUploadUrl` and `registerCapture` are allowed until countersignature and refused
+after it. Signing, findings and sharing are deliberately not guarded, since they are what
+happens *after* the freeze. Pinned by `src/lib/signature-freeze.integration.test.ts`.
+
 ## Marking up a photo
 
 The inspector can circle a chip or point an arrow at a crack, on the phone, in the

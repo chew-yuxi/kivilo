@@ -92,6 +92,8 @@ export async function authorizeRoom(roomId: string, agentId: string) {
     select: { id: true, inspectionId: true },
   })
   if (!room) throw new Error('Room not found')
-  await authorizeInspection(room.inspectionId, agentId)
-  return room
+  // Returned, not discarded: callers gate on the inspection's status and would
+  // otherwise read it a second time on every capture.
+  const inspection = await authorizeInspection(room.inspectionId, agentId)
+  return { ...room, inspection }
 }

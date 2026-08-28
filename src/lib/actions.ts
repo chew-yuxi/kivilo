@@ -11,6 +11,7 @@ import { processRoom, generateFindings } from '@/lib/inspection/process'
 import { annotationInputSchema } from '@/lib/annotations'
 import { Prisma } from '@/generated/prisma'
 import type {
+  InspectionStatus,
   CaptureKind,
   ItemCategory,
   ItemCondition,
@@ -21,6 +22,32 @@ import type {
 function revalidate(inspectionId: string) {
   revalidatePath(`/inspections/${inspectionId}`)
   revalidatePath('/inspections')
+}
+
+type WithStatus = { status: InspectionStatus }
+
+/// Sending a report for signature is the moment it stops being a working document and
+/// becomes the thing two people are agreeing to. Nothing that changes what it SAYS may
+/// run after that: not a new room, not an item, not a caption, not a mark, and above all
+/// not a re-read, which replaces the whole room's inventory.
+///
+/// The report page renders rooms, items and photo captures for an inspection at
+/// AWAITING_SIGNATURE and COMPLETED, so without this an agent could alter a countersigned
+/// document and the landlord's copy would silently change under them.
+function assertOpen(inspection: WithStatus) {
+  if (inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED') {
+    throw new Error('This report has been sent for signature and can no longer be changed')
+  }
+}
+
+/// Bytes are a weaker case than content. A capture taken before the agent tapped Send
+/// may still be draining out of the phone's queue, and refusing it would strand it there
+/// forever, which is the one thing the capture invariant forbids. So new bytes are
+/// allowed right up to countersignature and refused after it.
+function assertNotCountersigned(inspection: WithStatus) {
+  if (inspection.status === 'COMPLETED') {
+    throw new Error('This report has been countersigned and can no longer be changed')
+  }
 }
 
 // Every action below starts by resolving the signed-in agent and checking that the id
@@ -37,7 +64,7 @@ async function authorizeItem(itemId: string, inspectionId: string, agentId: stri
     select: { id: true, room: { select: { inspectionId: true } } },
   })
   if (!item || item.room.inspectionId !== inspectionId) throw new Error('Item not found')
-  await authorizeInspection(inspectionId, agentId)
+  assertOpen(await authorizeInspection(inspectionId, agentId))
   return item
 }
 
@@ -125,7 +152,7 @@ export async function createInspection(input: {
 
 export async function addRoom(inspectionId: string, name: string) {
   const agent = await requireAgent()
-  await authorizeInspection(inspectionId, agent.id)
+  assertOpen(await authorizeInspection(inspectionId, agent.id))
 
   const last = await db.room.findFirst({
     where: { inspectionId },
@@ -143,7 +170,7 @@ export async function addRoom(inspectionId: string, name: string) {
 
 export async function renameRoom(roomId: string, inspectionId: string, name: string) {
   const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
+  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
 
   await db.room.update({ where: { id: roomId }, data: { name } })
   revalidate(inspectionId)
@@ -151,7 +178,7 @@ export async function renameRoom(roomId: string, inspectionId: string, name: str
 
 export async function deleteRoom(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
+  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
 
   await db.room.delete({ where: { id: roomId } })
   revalidate(inspectionId)
@@ -159,7 +186,7 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
 
 export async function markRoomReviewed(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
+  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
 
   await db.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
   revalidate(inspectionId)
@@ -173,7 +200,7 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
 /// function, because a room's walkthrough is far past the serverless body limit.
 export async function requestUploadUrl(roomId: string, filename: string) {
   const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
+  assertNotCountersigned((await authorizeRoom(roomId, agent.id)).inspection)
 
   const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
   const storagePath = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
@@ -199,6 +226,7 @@ export async function registerCapture(input: {
   // The inspection id is client-supplied too; it must be the room's own, or the
   // status write below would land on a deal the caller is not on.
   if (room.inspectionId !== input.inspectionId) throw new Error('Room not found')
+  assertNotCountersigned(room.inspection)
 
   // Marks arriving with a capture get the same guards annotateCapture applies. The
   // capture itself is never rejected over them: the photograph is the evidence and has
@@ -254,7 +282,7 @@ export async function updateCaptureNote(captureId: string, inspectionId: string,
     select: { roomId: true },
   })
   if (!capture) throw new Error('Capture not found')
-  await authorizeRoom(capture.roomId, agent.id)
+  assertOpen((await authorizeRoom(capture.roomId, agent.id)).inspection)
 
   await db.capture.update({ where: { id: captureId }, data: { note } })
   revalidate(inspectionId)
@@ -277,13 +305,7 @@ export async function annotateCapture(
   // The inspection id is client-supplied and must be the capture's own, so a valid
   // capture id cannot be paired with another agent's inspection id.
   if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
-
-  const inspection = await authorizeInspection(inspectionId, agent.id)
-  // A red ring is a stronger claim than a caption, and the report is the artefact both
-  // parties are signing. Once it has gone out, the evidence stops moving.
-  if (inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED') {
-    throw new Error('This report has been sent for signature and can no longer be marked up')
-  }
+  assertOpen(room.inspection)
   if (capture.kind !== 'PHOTO') throw new Error('Only photos can be marked up')
 
   // Parsing rather than clamping: this is a public HTTP endpoint, so an out-of-range
@@ -310,7 +332,7 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
     select: { roomId: true },
   })
   if (!capture) throw new Error('Capture not found')
-  await authorizeRoom(capture.roomId, agent.id)
+  assertOpen((await authorizeRoom(capture.roomId, agent.id)).inspection)
 
   await db.capture.delete({ where: { id: captureId } })
   revalidate(inspectionId)
@@ -320,7 +342,9 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
 /// so the page polls the room's status rather than waiting on the response.
 export async function finishRoomCapture(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
+  // Re-reading a room deletes and rewrites its inventory. On a signed report that would
+  // change the very lines both parties put their names to.
+  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
 
   await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
   revalidate(inspectionId)
@@ -370,7 +394,7 @@ export async function deleteItem(itemId: string, inspectionId: string) {
 
 export async function addItem(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  await authorizeRoom(roomId, agent.id)
+  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
 
   await db.inspectionItem.create({
     data: {
