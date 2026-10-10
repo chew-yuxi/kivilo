@@ -30,8 +30,8 @@ Hopshift's existing company records identify **NotTooSweetLabs Pte. Ltd.** in
 **Singapore**. Its Apple release project uses team `4N9TA3WSYM`, and its public
 support address is `support@hopshift.app`. These are a starting point for the same
 company's Kivilo listing; confirm that the address receives Kivilo support mail.
-The D-U-N-S number and Google Play organization enrollment are not recorded in the
-accessible Hopshift release files. Do not invent either value in a store form.
+The company confirmed D-U-N-S **659161629** on 2026-10-10. Google Play organization
+enrollment is still not recorded in the accessible Hopshift release files.
 
 1. Enrol the existing legal company as an organization in Apple Developer and Google
    Play Console. Both require matching legal identity and a D-U-N-S record. Record the
