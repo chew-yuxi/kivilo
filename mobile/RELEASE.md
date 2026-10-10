@@ -37,7 +37,10 @@ enrollment is still not recorded in the accessible Hopshift release files.
    Play Console. Both require matching legal identity and a D-U-N-S record. Record the
    company account holder and grant release access without sharing their password.
 2. In App Store Connect, register `one.kivilo.kivilo`; select the organization's team
-   for Runner signing in Xcode. Create the app record and enable TestFlight.
+   for Runner signing in Xcode. Create the app record and enable TestFlight. Verify
+   the signed app has an application identifier and Keychain access group before
+   testing sign-in: an unsigned simulator build fails during Supabase initialization
+   with Keychain error `-34018`, before Flutter draws its first screen.
 3. In Play Console, create the app with the same application ID and enrol in Play App
    Signing. Generate and back up an upload keystore. Supply its path and credentials in
    `KIVILO_UPLOAD_KEYSTORE`, `KIVILO_UPLOAD_STORE_PASSWORD`, `KIVILO_UPLOAD_KEY_ALIAS`,
