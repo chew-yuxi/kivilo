@@ -50,6 +50,42 @@ enrollment is still not recorded in the accessible Hopshift release files.
    `SUPABASE_ANON_KEY`, and HTTPS `API_BASE`. These are client-side configuration, never
    service-role credentials. Confirm both origins point to the same production project.
 
+## Firebase Cloud Messaging
+
+Firebase is used for mobile push notifications; Supabase remains the account and data
+backend. Register **two** apps in one Firebase project: Android package
+`one.kivilo.kivilo` and iOS bundle ID `one.kivilo.kivilo`. They have different Firebase
+App IDs even though the package and bundle strings match. Put both App IDs in the
+ignored `env.json` as `FIREBASE_ANDROID_APP_ID` and `FIREBASE_IOS_APP_ID`, with the
+corresponding `FIREBASE_ANDROID_API_KEY` and `FIREBASE_IOS_API_KEY`, plus the project's
+`FIREBASE_MESSAGING_SENDER_ID` and `FIREBASE_PROJECT_ID`. The app selects its own
+platform's App ID and API key at runtime. These client configuration values are not an
+Admin SDK credential. Do not reuse Hopshift's Firebase app configuration.
+
+Registered project: `kivilo-b4e14` (sender ID `328187705191`). Android App ID:
+`1:328187705191:android:3ede4d52349cf9065ba1c2`. iOS App ID:
+`1:328187705191:ios:b6a777cebec68dfb5ba1c2`. Both apps use
+`one.kivilo.kivilo`; the Apple app has team ID `4N9TA3WSYM`. FCM HTTP v1 is
+enabled. APNs and server credentials remain to be added.
+
+The checked-in iOS and Android client files match project `kivilo-b4e14` and the
+Kivilo bundle/package ID. The iOS plist is part of the Runner target, and the Android
+Google Services plugin processes its JSON at build time. Keep `env.json` matched to
+those files; see the [FlutterFire setup](https://firebase.google.com/docs/flutter/setup).
+Enable Push Notifications and Background Modes for the iOS App ID and Runner target.
+Upload the Apple APNs `.p8` authentication key, its key ID, and team
+`4N9TA3WSYM` in Firebase's Cloud Messaging settings. Verify the distribution-signed
+app has `aps-environment=production`; a development entitlement is not a release test.
+See the [FCM Flutter setup](https://firebase.google.com/docs/cloud-messaging/flutter/get-started)
+and [Apple entitlement reference](https://developer.apple.com/documentation/BundleResources/Entitlements/aps-environment).
+
+The server sends pushes with Firebase Admin from `FIREBASE_SERVICE_ACCOUNT_JSON` in
+the production secret manager. Never put that JSON or the APNs `.p8` key in the Flutter
+build or this repository. Send a test message to an Android
+device and a distribution-signed iPhone, then check foreground, background, and tap
+behavior. The existing scheduled notification outbox runs every 15 minutes, so allow
+for that delay when testing an app-generated notification.
+
 Build from `mobile/`:
 
 ```bash

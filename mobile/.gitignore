@@ -43,6 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.kotlin/
 
 # Build-time configuration: Supabase origin, publishable key, API origin.
 # Copy env.example.json to env.json and fill it in.

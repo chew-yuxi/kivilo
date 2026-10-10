@@ -16,7 +16,7 @@ Future<void> main() async {
 
   if (Config.isPushComplete) {
     await Firebase.initializeApp(
-      options: const FirebaseOptions(
+      options: FirebaseOptions(
         apiKey: Config.firebaseApiKey,
         appId: Config.firebaseAppId,
         messagingSenderId: Config.firebaseMessagingSenderId,
