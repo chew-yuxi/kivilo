@@ -6,6 +6,7 @@ import { propertyLabel, sgd } from '@/lib/format'
 import { PrintButton } from '@/components/print-button'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
+import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,14 +35,13 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
         orderBy: { order: 'asc' },
         include: {
           items: { orderBy: { createdAt: 'asc' } },
-          captures: { where: { kind: 'PHOTO' }, orderBy: { createdAt: 'asc' } },
+          // Late phone uploads may finish after Send. Their bytes remain safely in
+          // private storage, but unprocessed evidence is not part of the agreed report.
+          captures: { where: { kind: 'PHOTO', processedAt: { not: null } }, orderBy: { createdAt: 'asc' } },
         },
       },
       signatures: { include: { stakeholder: true } },
-      findings: {
-        orderBy: { createdAt: 'asc' },
-        include: { item: { include: { room: true } }, baselineItem: { include: { room: true } } },
-      },
+      assessments: { orderBy: { version: 'desc' }, take: 1 },
     },
   })
 
@@ -71,7 +71,9 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
     )
   }
 
-  const liable = inspection.findings.filter((f) => f.verdict === 'TENANT_LIABLE')
+  const published = inspection.assessments[0] ?? null
+  const assessment = published ? assessmentSnapshotSchema.parse(published.snapshot) : null
+  const liable = assessment?.findings.filter((f) => f.verdict === 'TENANT_LIABLE') ?? []
   const claimTotal = liable.reduce((sum, f) => sum + Number(f.estimatedCost ?? 0), 0)
   const itemCount = inspection.rooms.reduce((n, room) => n + room.items.length, 0)
 
@@ -129,48 +131,6 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
           </div>
         </dl>
       </header>
-
-      {inspection.summary && (
-        <p className="mt-6 text-sm leading-relaxed text-gray-700">{inspection.summary}</p>
-      )}
-
-      {isCheckOut && inspection.findings.length > 0 && (
-        <section className="mt-8 break-inside-avoid">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-            Deposit position
-          </h2>
-          <p className="mt-2 text-sm text-gray-700">
-            {liable.length} of {inspection.findings.length} findings are drafted as tenant
-            liability, totalling <strong>{sgd(claimTotal)}</strong> against a deposit of{' '}
-            {sgd(tenancy.deposit.toString())}. Each finding below states the reasoning so
-            both parties can see how it was reached.
-          </p>
-
-          <ul className="mt-4 space-y-3">
-            {inspection.findings.map((finding) => (
-              <li
-                key={finding.id}
-                className="break-inside-avoid rounded border border-gray-200 p-3 text-sm"
-              >
-                <div className="flex items-baseline justify-between gap-4">
-                  <span className="font-medium">
-                    {finding.item
-                      ? `${finding.item.room.name}, ${finding.item.name}`
-                      : finding.baselineItem
-                        ? `${finding.baselineItem.room.name}, ${finding.baselineItem.name}`
-                        : 'Unmatched item'}
-                  </span>
-                  <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">
-                    {VERDICT_LABEL[finding.verdict]}
-                    {finding.estimatedCost && `, ${sgd(finding.estimatedCost.toString())}`}
-                  </span>
-                </div>
-                <p className="mt-1 text-gray-600">{finding.rationale}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       <section className="mt-8">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
@@ -273,6 +233,38 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
           )}
         </div>
       </section>
+
+      {isCheckOut && assessment && published && (
+        <section className="mt-10 break-inside-avoid border-t border-gray-300 pt-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Separate post-signature assessment · version {published.version}
+          </h2>
+          <p className="mt-2 text-xs text-gray-500">
+            Reviewed and published {published.publishedAt.toLocaleString('en-SG')}.
+            This assessment is separate from the signed inventory above.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-gray-700">{assessment.summary}</p>
+          <p className="mt-4 text-sm text-gray-700">
+            {liable.length} of {assessment.findings.length} findings assess tenant liability,
+            totalling <strong>{sgd(claimTotal)}</strong> against a deposit of{' '}
+            {sgd(tenancy.deposit.toString())}.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {assessment.findings.map((finding) => (
+              <li key={finding.id} className="break-inside-avoid rounded border border-gray-200 p-3 text-sm">
+                <div className="flex items-baseline justify-between gap-4">
+                  <span className="font-medium">{finding.itemLabel}</span>
+                  <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">
+                    {VERDICT_LABEL[finding.verdict]}
+                    {finding.estimatedCost && `, ${sgd(finding.estimatedCost)}`}
+                  </span>
+                </div>
+                <p className="mt-1 text-gray-600">{finding.rationale}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <footer className="mt-8 border-t border-gray-200 pt-4 text-xs leading-relaxed text-gray-500">
         Rooms and items in this report were drafted from a recorded walkthrough and then

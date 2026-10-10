@@ -1,12 +1,12 @@
 'use server'
 
-import { randomBytes } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 import { after } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
 import { requireAgent, authorizeInspection, authorizeRoom } from '@/lib/auth'
-import { createUploadUrl } from '@/lib/storage'
+import { captureExists, createUploadUrl } from '@/lib/storage'
 import { processRoom, generateFindings } from '@/lib/inspection/process'
 import { annotationInputSchema } from '@/lib/annotations'
 import { Prisma } from '@/generated/prisma'
@@ -48,6 +48,27 @@ function assertNotCountersigned(inspection: WithStatus) {
   if (inspection.status === 'COMPLETED') {
     throw new Error('This report has been countersigned and can no longer be changed')
   }
+}
+
+// Lock the parent row for both content edits and Send. A status check made before an
+// unconditional item/caption update can race with Send and change what was signed.
+// The row lock makes those two operations occur in a definite order.
+async function lockInspection(tx: Prisma.TransactionClient, inspectionId: string) {
+  const rows = await tx.$queryRaw<{ status: InspectionStatus }[]>`
+    SELECT "status" FROM "Inspection" WHERE "id" = ${inspectionId} FOR UPDATE
+  `
+  if (rows.length !== 1) throw new Error('Inspection not found')
+  return rows[0]
+}
+
+async function editOpenInspection<T>(
+  inspectionId: string,
+  edit: (tx: Prisma.TransactionClient) => Promise<T>,
+) {
+  return db.$transaction(async (tx) => {
+    assertOpen(await lockInspection(tx, inspectionId))
+    return edit(tx)
+  })
 }
 
 // Every action below starts by resolving the signed-in agent and checking that the id
@@ -154,14 +175,15 @@ export async function addRoom(inspectionId: string, name: string) {
   const agent = await requireAgent()
   assertOpen(await authorizeInspection(inspectionId, agent.id))
 
-  const last = await db.room.findFirst({
-    where: { inspectionId },
-    orderBy: { order: 'desc' },
-    select: { order: true },
-  })
-
-  const room = await db.room.create({
-    data: { inspectionId, name, order: (last?.order ?? -1) + 1 },
+  const room = await editOpenInspection(inspectionId, async (tx) => {
+    const last = await tx.room.findFirst({
+      where: { inspectionId },
+      orderBy: { order: 'desc' },
+      select: { order: true },
+    })
+    return tx.room.create({
+      data: { inspectionId, name, order: (last?.order ?? -1) + 1 },
+    })
   })
 
   revalidate(inspectionId)
@@ -170,25 +192,54 @@ export async function addRoom(inspectionId: string, name: string) {
 
 export async function renameRoom(roomId: string, inspectionId: string, name: string) {
   const agent = await requireAgent()
-  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertOpen(room.inspection)
 
-  await db.room.update({ where: { id: roomId }, data: { name } })
+  await editOpenInspection(inspectionId, (tx) =>
+    tx.room.update({ where: { id: roomId }, data: { name } }))
   revalidate(inspectionId)
 }
 
 export async function deleteRoom(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertOpen(room.inspection)
 
-  await db.room.delete({ where: { id: roomId } })
+  await editOpenInspection(inspectionId, async (tx) => {
+    const current = await tx.room.findFirst({
+      where: { id: roomId, inspectionId },
+      select: { id: true },
+    })
+    if (!current) throw new Error('Room not found')
+    // Signed upload URLs issued before deletion can still write for two hours.
+    // Keep the prefix in a durable outbox before cascading away its capture rows.
+    await tx.storagePurge.create({
+      data: { path: roomId, isPrefix: true, readyAt: new Date(Date.now() + 3 * 60 * 60 * 1000) },
+    })
+    await tx.room.delete({ where: { id: roomId } })
+  })
   revalidate(inspectionId)
 }
 
 export async function markRoomReviewed(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertOpen(room.inspection)
 
-  await db.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
+  await editOpenInspection(inspectionId, async (tx) => {
+    const current = await tx.room.findUniqueOrThrow({ where: { id: roomId }, select: { status: true } })
+    if (current.status !== 'REVIEW' && current.status !== 'REVIEWED') {
+      throw new Error('Room must be processed before review')
+    }
+    const unprocessed = await tx.capture.count({ where: { roomId, processedAt: null } })
+    if (unprocessed > 0) {
+      throw new Error('Process all new captures before reviewing this room')
+    }
+    await tx.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
+  })
   revalidate(inspectionId)
 }
 
@@ -198,7 +249,28 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
 
 /// The browser PUTs media straight to storage with this. It never passes through a
 /// function, because a room's walkthrough is far past the serverless body limit.
-export async function requestUploadUrl(roomId: string, inspectionId: string, filename: string) {
+export async function requestUploadUrl(
+  roomId: string,
+  inspectionId: string,
+  filename: string,
+): Promise<{ storagePath: string; signedUrl: string; token: string; alreadyUploaded: false }>
+export async function requestUploadUrl(
+  roomId: string,
+  inspectionId: string,
+  filename: string,
+  clientId: string | undefined,
+): Promise<{
+  storagePath: string
+  signedUrl: string | null
+  token: string | null
+  alreadyUploaded: boolean
+}>
+export async function requestUploadUrl(
+  roomId: string,
+  inspectionId: string,
+  filename: string,
+  clientId?: string,
+) {
   const agent = await requireAgent()
   const room = await authorizeRoom(roomId, agent.id)
   // Both ids come from the client, so the pairing is checked here exactly as
@@ -208,14 +280,40 @@ export async function requestUploadUrl(roomId: string, inspectionId: string, fil
   assertNotCountersigned(room.inspection)
 
   const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
-  const storagePath = `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
-  const { signedUrl, token } = await createUploadUrl(storagePath)
-  return { storagePath, signedUrl, token }
+  if (!/^(jpe?g|png|heic|heif|mp4|mov|webm)$/.test(extension)) {
+    throw new Error('Unsupported capture file type')
+  }
+  if (clientId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clientId)) {
+    throw new Error('Invalid capture client id')
+  }
+  const storagePath = clientId
+    ? `${roomId}/${clientId}.${extension}`
+    : `${roomId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
+  // Hold the same parent lock as Send and account-erasure cleanup while issuing a
+  // signed token. Otherwise an already authorized request could mint a two-hour
+  // upload credential for a room after its inspection was deleted.
+  return db.$transaction(async (tx) => {
+    assertNotCountersigned(await lockInspection(tx, inspectionId))
+    const currentRoom = await tx.room.findFirst({
+      where: { id: roomId, inspectionId },
+      select: { id: true },
+    })
+    if (!currentRoom) throw new Error('Room not found')
+    if (await tx.storagePurge.findUnique({ where: { path: storagePath }, select: { id: true } })) {
+      throw new Error('Capture was deleted')
+    }
+    if (clientId && await captureExists(storagePath)) {
+      return { storagePath, signedUrl: null, token: null, alreadyUploaded: true }
+    }
+    const { signedUrl, token } = await createUploadUrl(storagePath)
+    return { storagePath, signedUrl, token, alreadyUploaded: false }
+  })
 }
 
 export async function registerCapture(input: {
   roomId: string
   inspectionId: string
+  clientId?: string
   kind: CaptureKind
   storagePath: string
   mimeType: string
@@ -231,50 +329,112 @@ export async function registerCapture(input: {
   // The inspection id is client-supplied too; it must be the room's own, or the
   // status write below would land on a deal the caller is not on.
   if (room.inspectionId !== input.inspectionId) throw new Error('Room not found')
-  assertNotCountersigned(room.inspection)
-
-  // Marks arriving with a capture get the same guards annotateCapture applies. The
-  // capture itself is never rejected over them: the photograph is the evidence and has
-  // to land, whereas a mark is an annotation on it. The extra read only happens for the
-  // small minority of captures that carry marks.
-  let annotations: Prisma.InputJsonValue | typeof Prisma.DbNull = Prisma.DbNull
-  if (input.annotations && input.kind === 'PHOTO') {
-    const { status } = await authorizeInspection(input.inspectionId, agent.id)
-    if (status !== 'AWAITING_SIGNATURE' && status !== 'COMPLETED') {
-      annotations = {
-        v: 1,
-        ...annotationInputSchema.parse(input.annotations),
-        by: agent.id,
-        at: new Date().toISOString(),
-      }
+  if (!input.storagePath.startsWith(`${input.roomId}/`)) {
+    throw new Error('Capture path does not belong to room')
+  }
+  if (input.clientId) {
+    const prefix = `${input.roomId}/${input.clientId}.`
+    const extension = input.storagePath.startsWith(prefix)
+      ? input.storagePath.slice(prefix.length)
+      : ''
+    if (!/^(jpe?g|png|heic|heif|mp4|mov|webm)$/.test(extension)) {
+      throw new Error('Capture path does not match client id')
     }
   }
+  if (input.clientId) {
+    const existing = await db.capture.findUnique({ where: { clientId: input.clientId } })
+    if (existing) {
+      if (existing.roomId !== input.roomId) throw new Error('Capture not found')
+      if (existing.storagePath !== input.storagePath || existing.kind !== input.kind ||
+          existing.mimeType !== input.mimeType || existing.sizeBytes !== input.sizeBytes ||
+          existing.durationSec !== input.durationSec) {
+        throw new Error('Capture client id already registered with different media')
+      }
+      return existing.id
+    }
+  }
+  assertNotCountersigned(room.inspection)
 
-  const created = await db.capture.create({
-    data: {
-      roomId: input.roomId,
-      kind: input.kind,
-      storagePath: input.storagePath,
-      mimeType: input.mimeType,
-      sizeBytes: input.sizeBytes,
-      durationSec: input.durationSec,
-      note: input.note,
-      annotations,
-    },
-  })
+  // The registration call is public and storagePath is client-supplied. The server
+  // must confirm handover itself before a row can appear in extraction or a report.
+  if (!await captureExists(input.storagePath)) {
+    throw new Error('Capture has not reached storage')
+  }
 
-  // A capture can land after the room has moved on: the inspector tapped Done on a slow
-  // connection, or is adding a photo to a room already drafted. Only a room that has not
-  // been read yet moves to CAPTURING; a drafted room keeps its status and the capture
-  // shows as new against the draft (processedAt stays null until the next read).
-  await db.room.updateMany({
-    where: { id: input.roomId, status: { in: ['PENDING', 'FAILED'] } },
-    data: { status: 'CAPTURING' },
-  })
-  await db.inspection.updateMany({
-    where: { id: input.inspectionId, status: 'DRAFT' },
-    data: { status: 'CAPTURING', conductedAt: new Date() },
-  })
+  let created: { id: string }
+  try {
+    created = await db.$transaction(async (tx) => {
+      const inspection = await lockInspection(tx, input.inspectionId)
+      assertNotCountersigned(inspection)
+      const currentRoom = await tx.room.findFirst({
+        where: { id: input.roomId, inspectionId: input.inspectionId },
+        select: { id: true },
+      })
+      if (!currentRoom) throw new Error('Room not found')
+      if (await tx.storagePurge.findUnique({
+        where: { path: input.storagePath },
+        select: { id: true },
+      })) {
+        throw new Error('Capture was deleted')
+      }
+      // Parse marks only after locking the status against Send. A previously queued
+      // photograph still lands, but a mark cannot slip into the frozen report.
+      let annotations: Prisma.InputJsonValue | typeof Prisma.DbNull = Prisma.DbNull
+      if (input.annotations && input.kind === 'PHOTO' && inspection.status !== 'AWAITING_SIGNATURE') {
+        annotations = {
+          v: 1,
+          ...annotationInputSchema.parse(input.annotations),
+          by: agent.id,
+          at: new Date().toISOString(),
+        }
+      }
+      const capture = await tx.capture.create({
+        data: {
+          roomId: input.roomId,
+          clientId: input.clientId,
+          kind: input.kind,
+          storagePath: input.storagePath,
+          mimeType: input.mimeType,
+          sizeBytes: input.sizeBytes,
+          durationSec: input.durationSec,
+          note: input.note,
+          annotations,
+        },
+      })
+      // A late upload cannot move a drafted room back to CAPTURING.
+      await tx.room.updateMany({
+        where: { id: input.roomId, status: { in: ['PENDING', 'FAILED'] } },
+        data: { status: 'CAPTURING' },
+      })
+      // A room reviewed before a delayed capture registered needs another model pass
+      // and human review. Once sent, late bytes stay stored but cannot alter status.
+      if (inspection.status !== 'AWAITING_SIGNATURE') {
+        await tx.room.updateMany({
+          where: { id: input.roomId, status: 'REVIEWED' },
+          data: { status: 'REVIEW' },
+        })
+      }
+      await tx.inspection.updateMany({
+        where: { id: input.inspectionId, status: 'DRAFT' },
+        data: { status: 'CAPTURING', conductedAt: new Date() },
+      })
+      return capture
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const existing = input.clientId
+        ? await db.capture.findUnique({ where: { clientId: input.clientId } })
+        : await db.capture.findUnique({ where: { storagePath: input.storagePath } })
+      if (existing && existing.clientId === (input.clientId ?? null) &&
+          existing.roomId === input.roomId && existing.storagePath === input.storagePath &&
+          existing.kind === input.kind && existing.mimeType === input.mimeType &&
+          existing.sizeBytes === input.sizeBytes && existing.durationSec === input.durationSec) {
+        return existing.id
+      }
+      throw new Error('Capture is already registered with different media')
+    }
+    throw error
+  }
 
   revalidate(input.inspectionId)
   return created.id
@@ -287,9 +447,12 @@ export async function updateCaptureNote(captureId: string, inspectionId: string,
     select: { roomId: true },
   })
   if (!capture) throw new Error('Capture not found')
-  assertOpen((await authorizeRoom(capture.roomId, agent.id)).inspection)
+  const room = await authorizeRoom(capture.roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
+  assertOpen(room.inspection)
 
-  await db.capture.update({ where: { id: captureId }, data: { note } })
+  await editOpenInspection(inspectionId, (tx) =>
+    tx.capture.update({ where: { id: captureId }, data: { note } }))
   revalidate(inspectionId)
 }
 
@@ -317,16 +480,17 @@ export async function annotateCapture(
   // payload is a rejection, not a silent truncation.
   const parsed = input === null ? null : annotationInputSchema.parse(input)
 
-  await db.capture.update({
-    where: { id: captureId },
-    data: {
-      // Prisma needs DbNull to write SQL NULL to a Json? column; JsonNull would write a
-      // JSON null, which reads back as a row of the wrong shape.
-      annotations: parsed
-        ? { v: 1, ...parsed, by: agent.id, at: new Date().toISOString() }
-        : Prisma.DbNull,
-    },
-  })
+  await editOpenInspection(inspectionId, (tx) =>
+    tx.capture.update({
+      where: { id: captureId },
+      data: {
+        // Prisma needs DbNull to write SQL NULL to a Json? column; JsonNull would write a
+        // JSON null, which reads back as a row of the wrong shape.
+        annotations: parsed
+          ? { v: 1, ...parsed, by: agent.id, at: new Date().toISOString() }
+          : Prisma.DbNull,
+      },
+    }))
   revalidate(inspectionId)
 }
 
@@ -337,9 +501,22 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
     select: { roomId: true },
   })
   if (!capture) throw new Error('Capture not found')
-  assertOpen((await authorizeRoom(capture.roomId, agent.id)).inspection)
+  const room = await authorizeRoom(capture.roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
+  assertOpen(room.inspection)
 
-  await db.capture.delete({ where: { id: captureId } })
+  await editOpenInspection(inspectionId, async (tx) => {
+    const current = await tx.capture.findUnique({
+      where: { id: captureId },
+      select: { roomId: true, storagePath: true },
+    })
+    if (!current || current.roomId !== capture.roomId) throw new Error('Capture not found')
+    // The object can outlive the DB row, so record the exact path transactionally.
+    await tx.storagePurge.create({
+      data: { path: current.storagePath, isPrefix: false, readyAt: new Date(Date.now() + 3 * 60 * 60 * 1000) },
+    })
+    await tx.capture.delete({ where: { id: captureId } })
+  })
   revalidate(inspectionId)
 }
 
@@ -349,13 +526,39 @@ export async function finishRoomCapture(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
   // Re-reading a room deletes and rewrites its inventory. On a signed report that would
   // change the very lines both parties put their names to.
-  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertOpen(room.inspection)
+  const inspection = await db.inspection.findUniqueOrThrow({
+    where: { id: inspectionId },
+    select: { aiConsentAt: true },
+  })
+  if (!inspection.aiConsentAt) throw new Error('AI processing consent is required')
 
-  await db.room.update({ where: { id: roomId }, data: { status: 'PROCESSING' } })
+  const attemptId = randomUUID()
+  const staleBefore = new Date(Date.now() - 30 * 60 * 1000)
+  const claimed = await editOpenInspection(inspectionId, (tx) =>
+    tx.room.updateMany({
+      where: {
+        id: roomId,
+        OR: [
+          { status: { not: 'PROCESSING' } },
+          { processingStartedAt: null },
+          { processingStartedAt: { lt: staleBefore } },
+        ],
+      },
+      data: {
+        status: 'PROCESSING',
+        processingError: null,
+        processingAttemptId: attemptId,
+        processingStartedAt: new Date(),
+      },
+    }))
+  if (claimed.count === 0) return
   revalidate(inspectionId)
 
   after(async () => {
-    await processRoom(roomId).catch((error) => {
+    await processRoom(roomId, attemptId).catch((error) => {
       console.error(`Processing failed for room ${roomId}:`, error)
     })
   })
@@ -381,11 +584,12 @@ export async function updateItem(
   const agent = await requireAgent()
   await authorizeItem(itemId, inspectionId, agent.id)
 
-  await db.inspectionItem.update({
-    where: { id: itemId },
-    // A human has taken ownership of this line; the model's confidence no longer applies.
-    data: { ...data, editedByHuman: true, confidence: null },
-  })
+  await editOpenInspection(inspectionId, (tx) =>
+    tx.inspectionItem.update({
+      where: { id: itemId },
+      // A human has taken ownership of this line; the model's confidence no longer applies.
+      data: { ...data, editedByHuman: true, confidence: null },
+    }))
   revalidate(inspectionId)
 }
 
@@ -393,24 +597,29 @@ export async function deleteItem(itemId: string, inspectionId: string) {
   const agent = await requireAgent()
   await authorizeItem(itemId, inspectionId, agent.id)
 
-  await db.inspectionItem.delete({ where: { id: itemId } })
+  await editOpenInspection(inspectionId, (tx) =>
+    tx.inspectionItem.delete({ where: { id: itemId } }))
   revalidate(inspectionId)
 }
 
 export async function addItem(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  assertOpen((await authorizeRoom(roomId, agent.id)).inspection)
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertOpen(room.inspection)
 
-  await db.inspectionItem.create({
-    data: {
-      roomId,
-      name: 'New item',
-      category: 'FIXTURE',
-      condition: 'GOOD',
-      editedByHuman: true,
-    },
-  })
+  const item = await editOpenInspection(inspectionId, (tx) =>
+    tx.inspectionItem.create({
+      data: {
+        roomId,
+        name: 'New item',
+        category: 'FIXTURE',
+        condition: 'GOOD',
+        editedByHuman: true,
+      },
+    }))
   revalidate(inspectionId)
+  return item.id
 }
 
 // ---------------------------------------------------------------------------
@@ -419,18 +628,30 @@ export async function addItem(roomId: string, inspectionId: string) {
 
 export async function completeReview(inspectionId: string) {
   const agent = await requireAgent()
-  await authorizeInspection(inspectionId, agent.id)
+  assertOpen(await authorizeInspection(inspectionId, agent.id))
 
-  const unreviewed = await db.room.count({
-    where: { inspectionId, status: { not: 'REVIEWED' } },
-  })
-  if (unreviewed > 0) {
-    throw new Error(`${unreviewed} rooms still need review`)
-  }
+  await editOpenInspection(inspectionId, async (tx) => {
+    const rooms = await tx.room.count({ where: { inspectionId } })
+    if (rooms === 0) throw new Error('Add and review at least one room before sending')
 
-  await db.inspection.update({
-    where: { id: inspectionId },
-    data: { status: 'AWAITING_SIGNATURE' },
+    const unreviewed = await tx.room.count({
+      where: { inspectionId, status: { not: 'REVIEWED' } },
+    })
+    if (unreviewed > 0) {
+      throw new Error(`${unreviewed} rooms still need review`)
+    }
+
+    const unprocessed = await tx.capture.count({
+      where: { room: { inspectionId }, processedAt: null },
+    })
+    if (unprocessed > 0) {
+      throw new Error('Process all new captures before sending for signature')
+    }
+
+    await tx.inspection.update({
+      where: { id: inspectionId },
+      data: { status: 'AWAITING_SIGNATURE' },
+    })
   })
   revalidate(inspectionId)
 }
@@ -441,34 +662,65 @@ export async function signInspection(
   imageData: string,
 ) {
   const agent = await requireAgent()
-  await authorizeInspection(inspectionId, agent.id)
+  const authorized = await authorizeInspection(inspectionId, agent.id)
+  if (authorized.status !== 'AWAITING_SIGNATURE' && authorized.status !== 'COMPLETED') {
+    throw new Error('Report is not awaiting signature')
+  }
+
+  if (!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2_000_000) {
+    throw new Error('Invalid signature image')
+  }
 
   const ip = (await headers()).get('x-forwarded-for')
+  await db.$transaction(async (tx) => {
+    // Insert and finalization are one commit. A retry after a lost response can
+    // always recover completion instead of getting stuck with two signature rows
+    // and an inspection still awaiting signature.
+    const current = await lockInspection(tx, inspectionId)
+    if (current.status !== 'AWAITING_SIGNATURE' && current.status !== 'COMPLETED') {
+      throw new Error('Report is not awaiting signature')
+    }
+    const tenancy = await tx.tenancy.findUniqueOrThrow({
+      where: { id: authorized.tenancyId },
+      select: { landlordId: true, tenantId: true },
+    })
+    const required = [tenancy.landlordId, tenancy.tenantId]
+    if (!required.includes(stakeholderId)) throw new Error('Signature party not found')
 
-  await db.signature.upsert({
-    where: { inspectionId_stakeholderId: { inspectionId, stakeholderId } },
-    create: { inspectionId, stakeholderId, imageData, ipAddress: ip },
-    update: { imageData, ipAddress: ip, signedAt: new Date() },
+    const existing = await tx.signature.findUnique({
+      where: { inspectionId_stakeholderId: { inspectionId, stakeholderId } },
+    })
+    if (!existing) {
+      if (current.status === 'COMPLETED') throw new Error('Report is already countersigned')
+      await tx.signature.create({
+        data: { inspectionId, stakeholderId, imageData, ipAddress: ip },
+      })
+    }
+
+    const signatures = await tx.signature.findMany({
+      where: { inspectionId, stakeholderId: { in: required } },
+      select: { stakeholderId: true },
+    })
+    const signed = new Set(signatures.map((signature) => signature.stakeholderId))
+    if (required.every((id) => signed.has(id)) && current.status !== 'COMPLETED') {
+      await tx.inspection.update({ where: { id: inspectionId }, data: { status: 'COMPLETED' } })
+    }
   })
-
-  const inspection = await db.inspection.findUniqueOrThrow({
-    where: { id: inspectionId },
-    include: { tenancy: true, signatures: true },
-  })
-
-  // The report freezes only once both sides of the tenancy have signed.
-  const required = [inspection.tenancy.landlordId, inspection.tenancy.tenantId]
-  const signed = new Set(inspection.signatures.map((s) => s.stakeholderId))
-  if (required.every((id) => signed.has(id))) {
-    await db.inspection.update({ where: { id: inspectionId }, data: { status: 'COMPLETED' } })
-  }
 
   revalidate(inspectionId)
 }
 
 export async function runFindings(inspectionId: string) {
   const agent = await requireAgent()
-  await authorizeInspection(inspectionId, agent.id)
+  const authorized = await authorizeInspection(inspectionId, agent.id)
+  if (authorized.kind !== 'CHECK_OUT' || !['AWAITING_SIGNATURE', 'COMPLETED'].includes(authorized.status)) {
+    throw new Error('Findings require a reviewed check-out')
+  }
+  const inspection = await db.inspection.findUniqueOrThrow({
+    where: { id: inspectionId },
+    select: { aiConsentAt: true },
+  })
+  if (!inspection.aiConsentAt) throw new Error('AI processing consent is required')
 
   await generateFindings(inspectionId)
   revalidate(inspectionId)
@@ -517,13 +769,18 @@ export async function shareReport(inspectionId: string) {
   if (existing.shareToken) return existing.shareToken
 
   const token = randomBytes(32).toString('base64url')
-  await db.inspection.update({
-    where: { id: inspectionId },
+  await db.inspection.updateMany({
+    where: { id: inspectionId, shareToken: null },
     data: { shareToken: token, sharedAt: new Date() },
   })
 
+  const current = await db.inspection.findUniqueOrThrow({
+    where: { id: inspectionId },
+    select: { shareToken: true },
+  })
+  if (!current.shareToken) throw new Error('Share link changed; retry')
   revalidate(inspectionId)
-  return token
+  return current.shareToken
 }
 
 /// Revoking clears the token, so the old link 404s exactly like a report that never
@@ -543,28 +800,42 @@ export async function revokeReportLink(inspectionId: string) {
 /// same property record and the diff has a baseline to measure from.
 export async function startCheckOut(baselineId: string) {
   const agent = await requireAgent()
-  await authorizeInspection(baselineId, agent.id)
+  const authorized = await authorizeInspection(baselineId, agent.id)
+  if (authorized.kind !== 'CHECK_IN' || authorized.status !== 'COMPLETED') {
+    throw new Error('Only a completed check-in can start check-out')
+  }
 
   const baseline = await db.inspection.findUniqueOrThrow({
     where: { id: baselineId },
     include: { rooms: { orderBy: { order: 'asc' } } },
   })
 
-  const checkOut = await db.inspection.create({
-    data: {
+  const existing = await db.inspection.findUnique({ where: { baselineId }, select: { id: true } })
+  if (existing) return existing.id
+
+  try {
+    const checkOut = await db.inspection.create({
+      data: {
       tenancyId: baseline.tenancyId,
       kind: 'CHECK_OUT',
       status: 'DRAFT',
       baselineId,
-      conductedById: baseline.conductedById,
+      conductedById: agent.id,
       // Pre-create the same rooms so the inspector walks the same route, and the
       // diff compares like with like rather than guessing at renamed rooms.
       rooms: {
         create: baseline.rooms.map((room) => ({ name: room.name, order: room.order })),
       },
-    },
-  })
+      },
+    })
 
-  revalidate(baselineId)
-  return checkOut.id
+    revalidate(baselineId)
+    return checkOut.id
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const existing = await db.inspection.findUnique({ where: { baselineId }, select: { id: true } })
+      if (existing) return existing.id
+    }
+    throw error
+  }
 }

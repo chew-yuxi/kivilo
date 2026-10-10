@@ -31,11 +31,12 @@ model Stakeholder {
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
-  tenanciesAsLandlord Tenancy[]    @relation("LandlordTenancies")
-  tenanciesAsTenant   Tenancy[]    @relation("TenantTenancies")
-  tenanciesAsAgent    Tenancy[]    @relation("AgentTenancies")
+  tenanciesAsLandlord Tenancy[]                @relation("LandlordTenancies")
+  tenanciesAsTenant   Tenancy[]                @relation("TenantTenancies")
+  tenanciesAsAgent    Tenancy[]                @relation("AgentTenancies")
   inspectionsRun      Inspection[]
   signatures          Signature[]
+  deletionRequests    AccountDeletionRequest[]
 
   @@index([name])
 }
@@ -120,6 +121,9 @@ model Inspection {
   /// null, which is why it is nullable rather than generated with the row.
   shareToken      String?          @unique
   sharedAt        DateTime?
+  /// Consent by the inspector before home media is sent to external AI providers.
+  aiConsentAt     DateTime?
+  aiConsentById   String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -128,9 +132,10 @@ model Inspection {
   baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
   checkOut    Inspection?  @relation("Baseline")
 
-  rooms      Room[]
-  findings   Finding[]
-  signatures Signature[]
+  rooms       Room[]
+  findings    Finding[]
+  signatures  Signature[]
+  assessments AssessmentVersion[]
 
   @@index([tenancyId, kind])
 }
@@ -148,9 +153,11 @@ enum CaptureKind {
 /// one room without disturbing rooms already reviewed.
 model Capture {
   id          String      @id @default(cuid())
+  /// Stable native-client id. A lost registration response must not create another row.
+  clientId    String?     @unique
   roomId      String
   kind        CaptureKind @default(VIDEO)
-  storagePath String
+  storagePath String      @unique
   mimeType    String
   sizeBytes   Int
   durationSec Int?
@@ -185,14 +192,16 @@ enum RoomStatus {
 }
 
 model Room {
-  id              String     @id @default(cuid())
-  inspectionId    String
-  name            String
-  order           Int
-  status          RoomStatus @default(PENDING)
-  processingError String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id                  String     @id @default(cuid())
+  inspectionId        String
+  name                String
+  order               Int
+  status              RoomStatus @default(PENDING)
+  processingError     String?
+  processingAttemptId String?
+  processingStartedAt DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
 
   inspection Inspection       @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
   captures   Capture[]
@@ -300,4 +309,75 @@ model Signature {
   stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id])
 
   @@unique([inspectionId, stakeholderId])
+}
+
+/// A human-published, immutable assessment. The signed inventory has its own lifecycle.
+model AssessmentVersion {
+  id            String   @id @default(cuid())
+  inspectionId  String
+  version       Int
+  snapshot      Json
+  contentHash   String
+  publishedAt   DateTime @default(now())
+  publishedById String
+
+  inspection Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@unique([inspectionId, version])
+  @@index([inspectionId, publishedAt])
+}
+
+enum DeletionRequestStatus {
+  REQUESTED
+  PROCESSING
+  COMPLETED
+}
+
+/// In-app requests are fulfilled by an operator under the approved retention policy.
+model AccountDeletionRequest {
+  id                      String                @id @default(cuid())
+  stakeholderId           String                @unique
+  status                  DeletionRequestStatus @default(REQUESTED)
+  requestedAt             DateTime              @default(now())
+  dueAt                   DateTime
+  completedAt             DateTime?
+  notificationSentAt      DateTime?
+  processingPolicyVersion String?
+  fulfilledUnderPolicy    String?
+  email                   String?
+
+  stakeholder   Stakeholder                   @relation(fields: [stakeholderId], references: [id])
+  storagePurges AccountDeletionStoragePurge[]
+
+  @@index([status, dueAt])
+  @@index([stakeholderId, requestedAt])
+}
+
+/// A durable prefix manifest for media belonging to an erased draft room. Signed
+/// upload URLs can remain valid for two hours after the room row is deleted; cleanup
+/// only completes after that window and a verified empty Storage listing.
+model AccountDeletionStoragePurge {
+  id          String    @id @default(cuid())
+  requestId   String
+  roomId      String    @unique
+  readyAt     DateTime
+  completedAt DateTime?
+
+  request AccountDeletionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, completedAt])
+}
+
+/// Tombstone for a capture or room removed from the working report. The DB row may
+/// disappear before a still-valid signed upload URL expires, so Storage removal is
+/// delayed and retried independently of the request that deleted the row.
+model StoragePurge {
+  id          String    @id @default(cuid())
+  path        String    @unique
+  isPrefix    Boolean
+  readyAt     DateTime
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([completedAt, readyAt])
 }

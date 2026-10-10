@@ -20,6 +20,8 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page).toHaveURL(/\/inspections\/c[a-z0-9]{20,}$/)
   await expect(page.getByRole('heading', { name: 'Check-in', exact: true })).toBeVisible()
   const inspectionUrl = page.url()
+  await page.getByRole('button', { name: 'I agree to AI processing for this inspection' }).click()
+  await expect(page.getByRole('button', { name: 'I agree to AI processing for this inspection' })).toHaveCount(0)
 
   // Capture the kitchen: one label photo and one walkthrough, through the offline
   // queue and a signed upload URL, exactly as the phone does it. The photo is on

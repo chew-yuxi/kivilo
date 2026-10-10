@@ -8,6 +8,10 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Kivilo</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Record room walkthroughs and photograph property conditions.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Record narration alongside room walkthrough videos.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

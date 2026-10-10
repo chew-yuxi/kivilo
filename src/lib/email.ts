@@ -64,3 +64,17 @@ export async function sendSignInCode(to: string, code: string) {
   const { error } = await resend().emails.send({ from: sender(), to, subject, text, html })
   if (error) throw new Error(`Resend refused the sign-in email: ${error.message}`)
 }
+
+export async function sendAccountDeletionComplete(to: string, requestId: string) {
+  const { error } = await resend().emails.send({
+    from: sender(),
+    to,
+    subject: 'Your Kivilo account deletion is complete',
+    text: [
+      'Your Kivilo account has been deleted.',
+      '',
+      'Data retained for other parties or a legal obligation remains subject to our published retention policy.',
+    ].join('\n'),
+  }, { idempotencyKey: `account-deletion-${requestId}` })
+  if (error) throw new Error(`Resend refused the account deletion email: ${error.message}`)
+}

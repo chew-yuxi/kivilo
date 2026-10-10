@@ -60,6 +60,30 @@ export type Finding = $Result.DefaultSelection<Prisma.$FindingPayload>
  * 
  */
 export type Signature = $Result.DefaultSelection<Prisma.$SignaturePayload>
+/**
+ * Model AssessmentVersion
+ * A human-published, immutable assessment. The signed inventory has its own lifecycle.
+ */
+export type AssessmentVersion = $Result.DefaultSelection<Prisma.$AssessmentVersionPayload>
+/**
+ * Model AccountDeletionRequest
+ * In-app requests are fulfilled by an operator under the approved retention policy.
+ */
+export type AccountDeletionRequest = $Result.DefaultSelection<Prisma.$AccountDeletionRequestPayload>
+/**
+ * Model AccountDeletionStoragePurge
+ * A durable prefix manifest for media belonging to an erased draft room. Signed
+ * upload URLs can remain valid for two hours after the room row is deleted; cleanup
+ * only completes after that window and a verified empty Storage listing.
+ */
+export type AccountDeletionStoragePurge = $Result.DefaultSelection<Prisma.$AccountDeletionStoragePurgePayload>
+/**
+ * Model StoragePurge
+ * Tombstone for a capture or room removed from the working report. The DB row may
+ * disappear before a still-valid signed upload URL expires, so Storage removal is
+ * delayed and retried independently of the request that deleted the row.
+ */
+export type StoragePurge = $Result.DefaultSelection<Prisma.$StoragePurgePayload>
 
 /**
  * Enums
@@ -166,6 +190,15 @@ export const Verdict: {
 
 export type Verdict = (typeof Verdict)[keyof typeof Verdict]
 
+
+export const DeletionRequestStatus: {
+  REQUESTED: 'REQUESTED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED'
+};
+
+export type DeletionRequestStatus = (typeof DeletionRequestStatus)[keyof typeof DeletionRequestStatus]
+
 }
 
 export type StakeholderKind = $Enums.StakeholderKind
@@ -207,6 +240,10 @@ export const ChangeType: typeof $Enums.ChangeType
 export type Verdict = $Enums.Verdict
 
 export const Verdict: typeof $Enums.Verdict
+
+export type DeletionRequestStatus = $Enums.DeletionRequestStatus
+
+export const DeletionRequestStatus: typeof $Enums.DeletionRequestStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -418,6 +455,46 @@ export class PrismaClient<
     * ```
     */
   get signature(): Prisma.SignatureDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.assessmentVersion`: Exposes CRUD operations for the **AssessmentVersion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssessmentVersions
+    * const assessmentVersions = await prisma.assessmentVersion.findMany()
+    * ```
+    */
+  get assessmentVersion(): Prisma.AssessmentVersionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.accountDeletionRequest`: Exposes CRUD operations for the **AccountDeletionRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AccountDeletionRequests
+    * const accountDeletionRequests = await prisma.accountDeletionRequest.findMany()
+    * ```
+    */
+  get accountDeletionRequest(): Prisma.AccountDeletionRequestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.accountDeletionStoragePurge`: Exposes CRUD operations for the **AccountDeletionStoragePurge** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AccountDeletionStoragePurges
+    * const accountDeletionStoragePurges = await prisma.accountDeletionStoragePurge.findMany()
+    * ```
+    */
+  get accountDeletionStoragePurge(): Prisma.AccountDeletionStoragePurgeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.storagePurge`: Exposes CRUD operations for the **StoragePurge** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StoragePurges
+    * const storagePurges = await prisma.storagePurge.findMany()
+    * ```
+    */
+  get storagePurge(): Prisma.StoragePurgeDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -873,7 +950,11 @@ export namespace Prisma {
     Room: 'Room',
     InspectionItem: 'InspectionItem',
     Finding: 'Finding',
-    Signature: 'Signature'
+    Signature: 'Signature',
+    AssessmentVersion: 'AssessmentVersion',
+    AccountDeletionRequest: 'AccountDeletionRequest',
+    AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
+    StoragePurge: 'StoragePurge'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -889,7 +970,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "finding" | "signature"
+      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1559,6 +1640,302 @@ export namespace Prisma {
           }
         }
       }
+      AssessmentVersion: {
+        payload: Prisma.$AssessmentVersionPayload<ExtArgs>
+        fields: Prisma.AssessmentVersionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssessmentVersionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssessmentVersionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>
+          }
+          findFirst: {
+            args: Prisma.AssessmentVersionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssessmentVersionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>
+          }
+          findMany: {
+            args: Prisma.AssessmentVersionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>[]
+          }
+          create: {
+            args: Prisma.AssessmentVersionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>
+          }
+          createMany: {
+            args: Prisma.AssessmentVersionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssessmentVersionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>[]
+          }
+          delete: {
+            args: Prisma.AssessmentVersionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>
+          }
+          update: {
+            args: Prisma.AssessmentVersionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>
+          }
+          deleteMany: {
+            args: Prisma.AssessmentVersionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssessmentVersionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AssessmentVersionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>[]
+          }
+          upsert: {
+            args: Prisma.AssessmentVersionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentVersionPayload>
+          }
+          aggregate: {
+            args: Prisma.AssessmentVersionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssessmentVersion>
+          }
+          groupBy: {
+            args: Prisma.AssessmentVersionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentVersionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssessmentVersionCountArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentVersionCountAggregateOutputType> | number
+          }
+        }
+      }
+      AccountDeletionRequest: {
+        payload: Prisma.$AccountDeletionRequestPayload<ExtArgs>
+        fields: Prisma.AccountDeletionRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AccountDeletionRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AccountDeletionRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.AccountDeletionRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AccountDeletionRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>
+          }
+          findMany: {
+            args: Prisma.AccountDeletionRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>[]
+          }
+          create: {
+            args: Prisma.AccountDeletionRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>
+          }
+          createMany: {
+            args: Prisma.AccountDeletionRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AccountDeletionRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.AccountDeletionRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>
+          }
+          update: {
+            args: Prisma.AccountDeletionRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.AccountDeletionRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AccountDeletionRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AccountDeletionRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.AccountDeletionRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.AccountDeletionRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAccountDeletionRequest>
+          }
+          groupBy: {
+            args: Prisma.AccountDeletionRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AccountDeletionRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AccountDeletionRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<AccountDeletionRequestCountAggregateOutputType> | number
+          }
+        }
+      }
+      AccountDeletionStoragePurge: {
+        payload: Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>
+        fields: Prisma.AccountDeletionStoragePurgeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AccountDeletionStoragePurgeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AccountDeletionStoragePurgeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>
+          }
+          findFirst: {
+            args: Prisma.AccountDeletionStoragePurgeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AccountDeletionStoragePurgeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>
+          }
+          findMany: {
+            args: Prisma.AccountDeletionStoragePurgeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>[]
+          }
+          create: {
+            args: Prisma.AccountDeletionStoragePurgeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>
+          }
+          createMany: {
+            args: Prisma.AccountDeletionStoragePurgeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AccountDeletionStoragePurgeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>[]
+          }
+          delete: {
+            args: Prisma.AccountDeletionStoragePurgeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>
+          }
+          update: {
+            args: Prisma.AccountDeletionStoragePurgeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>
+          }
+          deleteMany: {
+            args: Prisma.AccountDeletionStoragePurgeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AccountDeletionStoragePurgeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AccountDeletionStoragePurgeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>[]
+          }
+          upsert: {
+            args: Prisma.AccountDeletionStoragePurgeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountDeletionStoragePurgePayload>
+          }
+          aggregate: {
+            args: Prisma.AccountDeletionStoragePurgeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAccountDeletionStoragePurge>
+          }
+          groupBy: {
+            args: Prisma.AccountDeletionStoragePurgeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AccountDeletionStoragePurgeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AccountDeletionStoragePurgeCountArgs<ExtArgs>
+            result: $Utils.Optional<AccountDeletionStoragePurgeCountAggregateOutputType> | number
+          }
+        }
+      }
+      StoragePurge: {
+        payload: Prisma.$StoragePurgePayload<ExtArgs>
+        fields: Prisma.StoragePurgeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StoragePurgeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StoragePurgeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>
+          }
+          findFirst: {
+            args: Prisma.StoragePurgeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StoragePurgeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>
+          }
+          findMany: {
+            args: Prisma.StoragePurgeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>[]
+          }
+          create: {
+            args: Prisma.StoragePurgeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>
+          }
+          createMany: {
+            args: Prisma.StoragePurgeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StoragePurgeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>[]
+          }
+          delete: {
+            args: Prisma.StoragePurgeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>
+          }
+          update: {
+            args: Prisma.StoragePurgeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>
+          }
+          deleteMany: {
+            args: Prisma.StoragePurgeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StoragePurgeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StoragePurgeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>[]
+          }
+          upsert: {
+            args: Prisma.StoragePurgeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StoragePurgePayload>
+          }
+          aggregate: {
+            args: Prisma.StoragePurgeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStoragePurge>
+          }
+          groupBy: {
+            args: Prisma.StoragePurgeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StoragePurgeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StoragePurgeCountArgs<ExtArgs>
+            result: $Utils.Optional<StoragePurgeCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1691,6 +2068,10 @@ export namespace Prisma {
     inspectionItem?: InspectionItemOmit
     finding?: FindingOmit
     signature?: SignatureOmit
+    assessmentVersion?: AssessmentVersionOmit
+    accountDeletionRequest?: AccountDeletionRequestOmit
+    accountDeletionStoragePurge?: AccountDeletionStoragePurgeOmit
+    storagePurge?: StoragePurgeOmit
   }
 
   /* Types for Logging */
@@ -1776,6 +2157,7 @@ export namespace Prisma {
     tenanciesAsAgent: number
     inspectionsRun: number
     signatures: number
+    deletionRequests: number
   }
 
   export type StakeholderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1784,6 +2166,7 @@ export namespace Prisma {
     tenanciesAsAgent?: boolean | StakeholderCountOutputTypeCountTenanciesAsAgentArgs
     inspectionsRun?: boolean | StakeholderCountOutputTypeCountInspectionsRunArgs
     signatures?: boolean | StakeholderCountOutputTypeCountSignaturesArgs
+    deletionRequests?: boolean | StakeholderCountOutputTypeCountDeletionRequestsArgs
   }
 
   // Custom InputTypes
@@ -1830,6 +2213,13 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountSignaturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SignatureWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountDeletionRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccountDeletionRequestWhereInput
   }
 
 
@@ -1903,12 +2293,14 @@ export namespace Prisma {
     rooms: number
     findings: number
     signatures: number
+    assessments: number
   }
 
   export type InspectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rooms?: boolean | InspectionCountOutputTypeCountRoomsArgs
     findings?: boolean | InspectionCountOutputTypeCountFindingsArgs
     signatures?: boolean | InspectionCountOutputTypeCountSignaturesArgs
+    assessments?: boolean | InspectionCountOutputTypeCountAssessmentsArgs
   }
 
   // Custom InputTypes
@@ -1941,6 +2333,13 @@ export namespace Prisma {
    */
   export type InspectionCountOutputTypeCountSignaturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SignatureWhereInput
+  }
+
+  /**
+   * InspectionCountOutputType without action
+   */
+  export type InspectionCountOutputTypeCountAssessmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentVersionWhereInput
   }
 
 
@@ -2052,6 +2451,37 @@ export namespace Prisma {
    */
   export type InspectionItemCountOutputTypeCountFindingsAsBaselineArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FindingWhereInput
+  }
+
+
+  /**
+   * Count Type AccountDeletionRequestCountOutputType
+   */
+
+  export type AccountDeletionRequestCountOutputType = {
+    storagePurges: number
+  }
+
+  export type AccountDeletionRequestCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    storagePurges?: boolean | AccountDeletionRequestCountOutputTypeCountStoragePurgesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AccountDeletionRequestCountOutputType without action
+   */
+  export type AccountDeletionRequestCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequestCountOutputType
+     */
+    select?: AccountDeletionRequestCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AccountDeletionRequestCountOutputType without action
+   */
+  export type AccountDeletionRequestCountOutputTypeCountStoragePurgesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccountDeletionStoragePurgeWhereInput
   }
 
 
@@ -2260,6 +2690,7 @@ export namespace Prisma {
     tenanciesAsAgent?: boolean | Stakeholder$tenanciesAsAgentArgs<ExtArgs>
     inspectionsRun?: boolean | Stakeholder$inspectionsRunArgs<ExtArgs>
     signatures?: boolean | Stakeholder$signaturesArgs<ExtArgs>
+    deletionRequests?: boolean | Stakeholder$deletionRequestsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["stakeholder"]>
 
@@ -2306,6 +2737,7 @@ export namespace Prisma {
     tenanciesAsAgent?: boolean | Stakeholder$tenanciesAsAgentArgs<ExtArgs>
     inspectionsRun?: boolean | Stakeholder$inspectionsRunArgs<ExtArgs>
     signatures?: boolean | Stakeholder$signaturesArgs<ExtArgs>
+    deletionRequests?: boolean | Stakeholder$deletionRequestsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StakeholderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2319,6 +2751,7 @@ export namespace Prisma {
       tenanciesAsAgent: Prisma.$TenancyPayload<ExtArgs>[]
       inspectionsRun: Prisma.$InspectionPayload<ExtArgs>[]
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
+      deletionRequests: Prisma.$AccountDeletionRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2734,6 +3167,7 @@ export namespace Prisma {
     tenanciesAsAgent<T extends Stakeholder$tenanciesAsAgentArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$tenanciesAsAgentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inspectionsRun<T extends Stakeholder$inspectionsRunArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$inspectionsRunArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatures<T extends Stakeholder$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    deletionRequests<T extends Stakeholder$deletionRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deletionRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3282,6 +3716,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SignatureScalarFieldEnum | SignatureScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.deletionRequests
+   */
+  export type Stakeholder$deletionRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    where?: AccountDeletionRequestWhereInput
+    orderBy?: AccountDeletionRequestOrderByWithRelationInput | AccountDeletionRequestOrderByWithRelationInput[]
+    cursor?: AccountDeletionRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AccountDeletionRequestScalarFieldEnum | AccountDeletionRequestScalarFieldEnum[]
   }
 
   /**
@@ -5678,6 +6136,8 @@ export namespace Prisma {
     processingError: string | null
     shareToken: string | null
     sharedAt: Date | null
+    aiConsentAt: Date | null
+    aiConsentById: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5694,6 +6154,8 @@ export namespace Prisma {
     processingError: string | null
     shareToken: string | null
     sharedAt: Date | null
+    aiConsentAt: Date | null
+    aiConsentById: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5710,6 +6172,8 @@ export namespace Prisma {
     processingError: number
     shareToken: number
     sharedAt: number
+    aiConsentAt: number
+    aiConsentById: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5728,6 +6192,8 @@ export namespace Prisma {
     processingError?: true
     shareToken?: true
     sharedAt?: true
+    aiConsentAt?: true
+    aiConsentById?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5744,6 +6210,8 @@ export namespace Prisma {
     processingError?: true
     shareToken?: true
     sharedAt?: true
+    aiConsentAt?: true
+    aiConsentById?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5760,6 +6228,8 @@ export namespace Prisma {
     processingError?: true
     shareToken?: true
     sharedAt?: true
+    aiConsentAt?: true
+    aiConsentById?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5849,6 +6319,8 @@ export namespace Prisma {
     processingError: string | null
     shareToken: string | null
     sharedAt: Date | null
+    aiConsentAt: Date | null
+    aiConsentById: string | null
     createdAt: Date
     updatedAt: Date
     _count: InspectionCountAggregateOutputType | null
@@ -5882,6 +6354,8 @@ export namespace Prisma {
     processingError?: boolean
     shareToken?: boolean
     sharedAt?: boolean
+    aiConsentAt?: boolean
+    aiConsentById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -5891,6 +6365,7 @@ export namespace Prisma {
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
+    assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -5906,6 +6381,8 @@ export namespace Prisma {
     processingError?: boolean
     shareToken?: boolean
     sharedAt?: boolean
+    aiConsentAt?: boolean
+    aiConsentById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -5925,6 +6402,8 @@ export namespace Prisma {
     processingError?: boolean
     shareToken?: boolean
     sharedAt?: boolean
+    aiConsentAt?: boolean
+    aiConsentById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -5944,11 +6423,13 @@ export namespace Prisma {
     processingError?: boolean
     shareToken?: boolean
     sharedAt?: boolean
+    aiConsentAt?: boolean
+    aiConsentById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
@@ -5957,6 +6438,7 @@ export namespace Prisma {
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
+    assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InspectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5980,6 +6462,7 @@ export namespace Prisma {
       rooms: Prisma.$RoomPayload<ExtArgs>[]
       findings: Prisma.$FindingPayload<ExtArgs>[]
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
+      assessments: Prisma.$AssessmentVersionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6001,6 +6484,11 @@ export namespace Prisma {
        */
       shareToken: string | null
       sharedAt: Date | null
+      /**
+       * Consent by the inspector before home media is sent to external AI providers.
+       */
+      aiConsentAt: Date | null
+      aiConsentById: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["inspection"]>
@@ -6404,6 +6892,7 @@ export namespace Prisma {
     rooms<T extends Inspection$roomsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findings<T extends Inspection$findingsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatures<T extends Inspection$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assessments<T extends Inspection$assessmentsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6444,6 +6933,8 @@ export namespace Prisma {
     readonly processingError: FieldRef<"Inspection", 'String'>
     readonly shareToken: FieldRef<"Inspection", 'String'>
     readonly sharedAt: FieldRef<"Inspection", 'DateTime'>
+    readonly aiConsentAt: FieldRef<"Inspection", 'DateTime'>
+    readonly aiConsentById: FieldRef<"Inspection", 'String'>
     readonly createdAt: FieldRef<"Inspection", 'DateTime'>
     readonly updatedAt: FieldRef<"Inspection", 'DateTime'>
   }
@@ -6976,6 +7467,30 @@ export namespace Prisma {
   }
 
   /**
+   * Inspection.assessments
+   */
+  export type Inspection$assessmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    where?: AssessmentVersionWhereInput
+    orderBy?: AssessmentVersionOrderByWithRelationInput | AssessmentVersionOrderByWithRelationInput[]
+    cursor?: AssessmentVersionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssessmentVersionScalarFieldEnum | AssessmentVersionScalarFieldEnum[]
+  }
+
+  /**
    * Inspection without action
    */
   export type InspectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7018,6 +7533,7 @@ export namespace Prisma {
 
   export type CaptureMinAggregateOutputType = {
     id: string | null
+    clientId: string | null
     roomId: string | null
     kind: $Enums.CaptureKind | null
     storagePath: string | null
@@ -7032,6 +7548,7 @@ export namespace Prisma {
 
   export type CaptureMaxAggregateOutputType = {
     id: string | null
+    clientId: string | null
     roomId: string | null
     kind: $Enums.CaptureKind | null
     storagePath: string | null
@@ -7046,6 +7563,7 @@ export namespace Prisma {
 
   export type CaptureCountAggregateOutputType = {
     id: number
+    clientId: number
     roomId: number
     kind: number
     storagePath: number
@@ -7073,6 +7591,7 @@ export namespace Prisma {
 
   export type CaptureMinAggregateInputType = {
     id?: true
+    clientId?: true
     roomId?: true
     kind?: true
     storagePath?: true
@@ -7087,6 +7606,7 @@ export namespace Prisma {
 
   export type CaptureMaxAggregateInputType = {
     id?: true
+    clientId?: true
     roomId?: true
     kind?: true
     storagePath?: true
@@ -7101,6 +7621,7 @@ export namespace Prisma {
 
   export type CaptureCountAggregateInputType = {
     id?: true
+    clientId?: true
     roomId?: true
     kind?: true
     storagePath?: true
@@ -7203,6 +7724,7 @@ export namespace Prisma {
 
   export type CaptureGroupByOutputType = {
     id: string
+    clientId: string | null
     roomId: string
     kind: $Enums.CaptureKind
     storagePath: string
@@ -7237,6 +7759,7 @@ export namespace Prisma {
 
   export type CaptureSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     roomId?: boolean
     kind?: boolean
     storagePath?: boolean
@@ -7255,6 +7778,7 @@ export namespace Prisma {
 
   export type CaptureSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     roomId?: boolean
     kind?: boolean
     storagePath?: boolean
@@ -7271,6 +7795,7 @@ export namespace Prisma {
 
   export type CaptureSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     roomId?: boolean
     kind?: boolean
     storagePath?: boolean
@@ -7287,6 +7812,7 @@ export namespace Prisma {
 
   export type CaptureSelectScalar = {
     id?: boolean
+    clientId?: boolean
     roomId?: boolean
     kind?: boolean
     storagePath?: boolean
@@ -7300,7 +7826,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "annotations" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
+  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "annotations" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
   export type CaptureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     items?: boolean | Capture$itemsArgs<ExtArgs>
@@ -7321,6 +7847,10 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      /**
+       * Stable native-client id. A lost registration response must not create another row.
+       */
+      clientId: string | null
       roomId: string
       kind: $Enums.CaptureKind
       storagePath: string
@@ -7771,6 +8301,7 @@ export namespace Prisma {
    */
   interface CaptureFieldRefs {
     readonly id: FieldRef<"Capture", 'String'>
+    readonly clientId: FieldRef<"Capture", 'String'>
     readonly roomId: FieldRef<"Capture", 'String'>
     readonly kind: FieldRef<"Capture", 'CaptureKind'>
     readonly storagePath: FieldRef<"Capture", 'String'>
@@ -8252,6 +8783,8 @@ export namespace Prisma {
     order: number | null
     status: $Enums.RoomStatus | null
     processingError: string | null
+    processingAttemptId: string | null
+    processingStartedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8263,6 +8796,8 @@ export namespace Prisma {
     order: number | null
     status: $Enums.RoomStatus | null
     processingError: string | null
+    processingAttemptId: string | null
+    processingStartedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8274,6 +8809,8 @@ export namespace Prisma {
     order: number
     status: number
     processingError: number
+    processingAttemptId: number
+    processingStartedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8295,6 +8832,8 @@ export namespace Prisma {
     order?: true
     status?: true
     processingError?: true
+    processingAttemptId?: true
+    processingStartedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8306,6 +8845,8 @@ export namespace Prisma {
     order?: true
     status?: true
     processingError?: true
+    processingAttemptId?: true
+    processingStartedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8317,6 +8858,8 @@ export namespace Prisma {
     order?: true
     status?: true
     processingError?: true
+    processingAttemptId?: true
+    processingStartedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8415,6 +8958,8 @@ export namespace Prisma {
     order: number
     status: $Enums.RoomStatus
     processingError: string | null
+    processingAttemptId: string | null
+    processingStartedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: RoomCountAggregateOutputType | null
@@ -8445,6 +8990,8 @@ export namespace Prisma {
     order?: boolean
     status?: boolean
     processingError?: boolean
+    processingAttemptId?: boolean
+    processingStartedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -8460,6 +9007,8 @@ export namespace Prisma {
     order?: boolean
     status?: boolean
     processingError?: boolean
+    processingAttemptId?: boolean
+    processingStartedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -8472,6 +9021,8 @@ export namespace Prisma {
     order?: boolean
     status?: boolean
     processingError?: boolean
+    processingAttemptId?: boolean
+    processingStartedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -8484,11 +9035,13 @@ export namespace Prisma {
     order?: boolean
     status?: boolean
     processingError?: boolean
+    processingAttemptId?: boolean
+    processingStartedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
+  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "processingAttemptId" | "processingStartedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
   export type RoomInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     captures?: boolean | Room$capturesArgs<ExtArgs>
@@ -8516,6 +9069,8 @@ export namespace Prisma {
       order: number
       status: $Enums.RoomStatus
       processingError: string | null
+      processingAttemptId: string | null
+      processingStartedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["room"]>
@@ -8950,6 +9505,8 @@ export namespace Prisma {
     readonly order: FieldRef<"Room", 'Int'>
     readonly status: FieldRef<"Room", 'RoomStatus'>
     readonly processingError: FieldRef<"Room", 'String'>
+    readonly processingAttemptId: FieldRef<"Room", 'String'>
+    readonly processingStartedAt: FieldRef<"Room", 'DateTime'>
     readonly createdAt: FieldRef<"Room", 'DateTime'>
     readonly updatedAt: FieldRef<"Room", 'DateTime'>
   }
@@ -13090,6 +13647,4359 @@ export namespace Prisma {
 
 
   /**
+   * Model AssessmentVersion
+   */
+
+  export type AggregateAssessmentVersion = {
+    _count: AssessmentVersionCountAggregateOutputType | null
+    _avg: AssessmentVersionAvgAggregateOutputType | null
+    _sum: AssessmentVersionSumAggregateOutputType | null
+    _min: AssessmentVersionMinAggregateOutputType | null
+    _max: AssessmentVersionMaxAggregateOutputType | null
+  }
+
+  export type AssessmentVersionAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type AssessmentVersionSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type AssessmentVersionMinAggregateOutputType = {
+    id: string | null
+    inspectionId: string | null
+    version: number | null
+    contentHash: string | null
+    publishedAt: Date | null
+    publishedById: string | null
+  }
+
+  export type AssessmentVersionMaxAggregateOutputType = {
+    id: string | null
+    inspectionId: string | null
+    version: number | null
+    contentHash: string | null
+    publishedAt: Date | null
+    publishedById: string | null
+  }
+
+  export type AssessmentVersionCountAggregateOutputType = {
+    id: number
+    inspectionId: number
+    version: number
+    snapshot: number
+    contentHash: number
+    publishedAt: number
+    publishedById: number
+    _all: number
+  }
+
+
+  export type AssessmentVersionAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type AssessmentVersionSumAggregateInputType = {
+    version?: true
+  }
+
+  export type AssessmentVersionMinAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    version?: true
+    contentHash?: true
+    publishedAt?: true
+    publishedById?: true
+  }
+
+  export type AssessmentVersionMaxAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    version?: true
+    contentHash?: true
+    publishedAt?: true
+    publishedById?: true
+  }
+
+  export type AssessmentVersionCountAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    version?: true
+    snapshot?: true
+    contentHash?: true
+    publishedAt?: true
+    publishedById?: true
+    _all?: true
+  }
+
+  export type AssessmentVersionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentVersion to aggregate.
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentVersions to fetch.
+     */
+    orderBy?: AssessmentVersionOrderByWithRelationInput | AssessmentVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssessmentVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssessmentVersions
+    **/
+    _count?: true | AssessmentVersionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AssessmentVersionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AssessmentVersionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssessmentVersionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssessmentVersionMaxAggregateInputType
+  }
+
+  export type GetAssessmentVersionAggregateType<T extends AssessmentVersionAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssessmentVersion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssessmentVersion[P]>
+      : GetScalarType<T[P], AggregateAssessmentVersion[P]>
+  }
+
+
+
+
+  export type AssessmentVersionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentVersionWhereInput
+    orderBy?: AssessmentVersionOrderByWithAggregationInput | AssessmentVersionOrderByWithAggregationInput[]
+    by: AssessmentVersionScalarFieldEnum[] | AssessmentVersionScalarFieldEnum
+    having?: AssessmentVersionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssessmentVersionCountAggregateInputType | true
+    _avg?: AssessmentVersionAvgAggregateInputType
+    _sum?: AssessmentVersionSumAggregateInputType
+    _min?: AssessmentVersionMinAggregateInputType
+    _max?: AssessmentVersionMaxAggregateInputType
+  }
+
+  export type AssessmentVersionGroupByOutputType = {
+    id: string
+    inspectionId: string
+    version: number
+    snapshot: JsonValue
+    contentHash: string
+    publishedAt: Date
+    publishedById: string
+    _count: AssessmentVersionCountAggregateOutputType | null
+    _avg: AssessmentVersionAvgAggregateOutputType | null
+    _sum: AssessmentVersionSumAggregateOutputType | null
+    _min: AssessmentVersionMinAggregateOutputType | null
+    _max: AssessmentVersionMaxAggregateOutputType | null
+  }
+
+  type GetAssessmentVersionGroupByPayload<T extends AssessmentVersionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssessmentVersionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssessmentVersionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssessmentVersionGroupByOutputType[P]>
+            : GetScalarType<T[P], AssessmentVersionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssessmentVersionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    version?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentVersion"]>
+
+  export type AssessmentVersionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    version?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentVersion"]>
+
+  export type AssessmentVersionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    version?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentVersion"]>
+
+  export type AssessmentVersionSelectScalar = {
+    id?: boolean
+    inspectionId?: boolean
+    version?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+  }
+
+  export type AssessmentVersionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "version" | "snapshot" | "contentHash" | "publishedAt" | "publishedById", ExtArgs["result"]["assessmentVersion"]>
+  export type AssessmentVersionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }
+  export type AssessmentVersionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }
+  export type AssessmentVersionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }
+
+  export type $AssessmentVersionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssessmentVersion"
+    objects: {
+      inspection: Prisma.$InspectionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      inspectionId: string
+      version: number
+      snapshot: Prisma.JsonValue
+      contentHash: string
+      publishedAt: Date
+      publishedById: string
+    }, ExtArgs["result"]["assessmentVersion"]>
+    composites: {}
+  }
+
+  type AssessmentVersionGetPayload<S extends boolean | null | undefined | AssessmentVersionDefaultArgs> = $Result.GetResult<Prisma.$AssessmentVersionPayload, S>
+
+  type AssessmentVersionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AssessmentVersionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AssessmentVersionCountAggregateInputType | true
+    }
+
+  export interface AssessmentVersionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssessmentVersion'], meta: { name: 'AssessmentVersion' } }
+    /**
+     * Find zero or one AssessmentVersion that matches the filter.
+     * @param {AssessmentVersionFindUniqueArgs} args - Arguments to find a AssessmentVersion
+     * @example
+     * // Get one AssessmentVersion
+     * const assessmentVersion = await prisma.assessmentVersion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssessmentVersionFindUniqueArgs>(args: SelectSubset<T, AssessmentVersionFindUniqueArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AssessmentVersion that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AssessmentVersionFindUniqueOrThrowArgs} args - Arguments to find a AssessmentVersion
+     * @example
+     * // Get one AssessmentVersion
+     * const assessmentVersion = await prisma.assessmentVersion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssessmentVersionFindUniqueOrThrowArgs>(args: SelectSubset<T, AssessmentVersionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentVersion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionFindFirstArgs} args - Arguments to find a AssessmentVersion
+     * @example
+     * // Get one AssessmentVersion
+     * const assessmentVersion = await prisma.assessmentVersion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssessmentVersionFindFirstArgs>(args?: SelectSubset<T, AssessmentVersionFindFirstArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentVersion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionFindFirstOrThrowArgs} args - Arguments to find a AssessmentVersion
+     * @example
+     * // Get one AssessmentVersion
+     * const assessmentVersion = await prisma.assessmentVersion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssessmentVersionFindFirstOrThrowArgs>(args?: SelectSubset<T, AssessmentVersionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AssessmentVersions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssessmentVersions
+     * const assessmentVersions = await prisma.assessmentVersion.findMany()
+     * 
+     * // Get first 10 AssessmentVersions
+     * const assessmentVersions = await prisma.assessmentVersion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assessmentVersionWithIdOnly = await prisma.assessmentVersion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssessmentVersionFindManyArgs>(args?: SelectSubset<T, AssessmentVersionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AssessmentVersion.
+     * @param {AssessmentVersionCreateArgs} args - Arguments to create a AssessmentVersion.
+     * @example
+     * // Create one AssessmentVersion
+     * const AssessmentVersion = await prisma.assessmentVersion.create({
+     *   data: {
+     *     // ... data to create a AssessmentVersion
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssessmentVersionCreateArgs>(args: SelectSubset<T, AssessmentVersionCreateArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AssessmentVersions.
+     * @param {AssessmentVersionCreateManyArgs} args - Arguments to create many AssessmentVersions.
+     * @example
+     * // Create many AssessmentVersions
+     * const assessmentVersion = await prisma.assessmentVersion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssessmentVersionCreateManyArgs>(args?: SelectSubset<T, AssessmentVersionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssessmentVersions and returns the data saved in the database.
+     * @param {AssessmentVersionCreateManyAndReturnArgs} args - Arguments to create many AssessmentVersions.
+     * @example
+     * // Create many AssessmentVersions
+     * const assessmentVersion = await prisma.assessmentVersion.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssessmentVersions and only return the `id`
+     * const assessmentVersionWithIdOnly = await prisma.assessmentVersion.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssessmentVersionCreateManyAndReturnArgs>(args?: SelectSubset<T, AssessmentVersionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AssessmentVersion.
+     * @param {AssessmentVersionDeleteArgs} args - Arguments to delete one AssessmentVersion.
+     * @example
+     * // Delete one AssessmentVersion
+     * const AssessmentVersion = await prisma.assessmentVersion.delete({
+     *   where: {
+     *     // ... filter to delete one AssessmentVersion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssessmentVersionDeleteArgs>(args: SelectSubset<T, AssessmentVersionDeleteArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AssessmentVersion.
+     * @param {AssessmentVersionUpdateArgs} args - Arguments to update one AssessmentVersion.
+     * @example
+     * // Update one AssessmentVersion
+     * const assessmentVersion = await prisma.assessmentVersion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssessmentVersionUpdateArgs>(args: SelectSubset<T, AssessmentVersionUpdateArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AssessmentVersions.
+     * @param {AssessmentVersionDeleteManyArgs} args - Arguments to filter AssessmentVersions to delete.
+     * @example
+     * // Delete a few AssessmentVersions
+     * const { count } = await prisma.assessmentVersion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssessmentVersionDeleteManyArgs>(args?: SelectSubset<T, AssessmentVersionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentVersions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssessmentVersions
+     * const assessmentVersion = await prisma.assessmentVersion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssessmentVersionUpdateManyArgs>(args: SelectSubset<T, AssessmentVersionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentVersions and returns the data updated in the database.
+     * @param {AssessmentVersionUpdateManyAndReturnArgs} args - Arguments to update many AssessmentVersions.
+     * @example
+     * // Update many AssessmentVersions
+     * const assessmentVersion = await prisma.assessmentVersion.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AssessmentVersions and only return the `id`
+     * const assessmentVersionWithIdOnly = await prisma.assessmentVersion.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AssessmentVersionUpdateManyAndReturnArgs>(args: SelectSubset<T, AssessmentVersionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AssessmentVersion.
+     * @param {AssessmentVersionUpsertArgs} args - Arguments to update or create a AssessmentVersion.
+     * @example
+     * // Update or create a AssessmentVersion
+     * const assessmentVersion = await prisma.assessmentVersion.upsert({
+     *   create: {
+     *     // ... data to create a AssessmentVersion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssessmentVersion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssessmentVersionUpsertArgs>(args: SelectSubset<T, AssessmentVersionUpsertArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AssessmentVersions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionCountArgs} args - Arguments to filter AssessmentVersions to count.
+     * @example
+     * // Count the number of AssessmentVersions
+     * const count = await prisma.assessmentVersion.count({
+     *   where: {
+     *     // ... the filter for the AssessmentVersions we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssessmentVersionCountArgs>(
+      args?: Subset<T, AssessmentVersionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssessmentVersionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssessmentVersion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssessmentVersionAggregateArgs>(args: Subset<T, AssessmentVersionAggregateArgs>): Prisma.PrismaPromise<GetAssessmentVersionAggregateType<T>>
+
+    /**
+     * Group by AssessmentVersion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentVersionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssessmentVersionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssessmentVersionGroupByArgs['orderBy'] }
+        : { orderBy?: AssessmentVersionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssessmentVersionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssessmentVersionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssessmentVersion model
+   */
+  readonly fields: AssessmentVersionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssessmentVersion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssessmentVersionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssessmentVersion model
+   */
+  interface AssessmentVersionFieldRefs {
+    readonly id: FieldRef<"AssessmentVersion", 'String'>
+    readonly inspectionId: FieldRef<"AssessmentVersion", 'String'>
+    readonly version: FieldRef<"AssessmentVersion", 'Int'>
+    readonly snapshot: FieldRef<"AssessmentVersion", 'Json'>
+    readonly contentHash: FieldRef<"AssessmentVersion", 'String'>
+    readonly publishedAt: FieldRef<"AssessmentVersion", 'DateTime'>
+    readonly publishedById: FieldRef<"AssessmentVersion", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssessmentVersion findUnique
+   */
+  export type AssessmentVersionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentVersion to fetch.
+     */
+    where: AssessmentVersionWhereUniqueInput
+  }
+
+  /**
+   * AssessmentVersion findUniqueOrThrow
+   */
+  export type AssessmentVersionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentVersion to fetch.
+     */
+    where: AssessmentVersionWhereUniqueInput
+  }
+
+  /**
+   * AssessmentVersion findFirst
+   */
+  export type AssessmentVersionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentVersion to fetch.
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentVersions to fetch.
+     */
+    orderBy?: AssessmentVersionOrderByWithRelationInput | AssessmentVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentVersions.
+     */
+    cursor?: AssessmentVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentVersions.
+     */
+    distinct?: AssessmentVersionScalarFieldEnum | AssessmentVersionScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentVersion findFirstOrThrow
+   */
+  export type AssessmentVersionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentVersion to fetch.
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentVersions to fetch.
+     */
+    orderBy?: AssessmentVersionOrderByWithRelationInput | AssessmentVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentVersions.
+     */
+    cursor?: AssessmentVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentVersions.
+     */
+    distinct?: AssessmentVersionScalarFieldEnum | AssessmentVersionScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentVersion findMany
+   */
+  export type AssessmentVersionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentVersions to fetch.
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentVersions to fetch.
+     */
+    orderBy?: AssessmentVersionOrderByWithRelationInput | AssessmentVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssessmentVersions.
+     */
+    cursor?: AssessmentVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentVersions.
+     */
+    distinct?: AssessmentVersionScalarFieldEnum | AssessmentVersionScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentVersion create
+   */
+  export type AssessmentVersionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssessmentVersion.
+     */
+    data: XOR<AssessmentVersionCreateInput, AssessmentVersionUncheckedCreateInput>
+  }
+
+  /**
+   * AssessmentVersion createMany
+   */
+  export type AssessmentVersionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssessmentVersions.
+     */
+    data: AssessmentVersionCreateManyInput | AssessmentVersionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssessmentVersion createManyAndReturn
+   */
+  export type AssessmentVersionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * The data used to create many AssessmentVersions.
+     */
+    data: AssessmentVersionCreateManyInput | AssessmentVersionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentVersion update
+   */
+  export type AssessmentVersionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssessmentVersion.
+     */
+    data: XOR<AssessmentVersionUpdateInput, AssessmentVersionUncheckedUpdateInput>
+    /**
+     * Choose, which AssessmentVersion to update.
+     */
+    where: AssessmentVersionWhereUniqueInput
+  }
+
+  /**
+   * AssessmentVersion updateMany
+   */
+  export type AssessmentVersionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssessmentVersions.
+     */
+    data: XOR<AssessmentVersionUpdateManyMutationInput, AssessmentVersionUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentVersions to update
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * Limit how many AssessmentVersions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentVersion updateManyAndReturn
+   */
+  export type AssessmentVersionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * The data used to update AssessmentVersions.
+     */
+    data: XOR<AssessmentVersionUpdateManyMutationInput, AssessmentVersionUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentVersions to update
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * Limit how many AssessmentVersions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentVersion upsert
+   */
+  export type AssessmentVersionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssessmentVersion to update in case it exists.
+     */
+    where: AssessmentVersionWhereUniqueInput
+    /**
+     * In case the AssessmentVersion found by the `where` argument doesn't exist, create a new AssessmentVersion with this data.
+     */
+    create: XOR<AssessmentVersionCreateInput, AssessmentVersionUncheckedCreateInput>
+    /**
+     * In case the AssessmentVersion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssessmentVersionUpdateInput, AssessmentVersionUncheckedUpdateInput>
+  }
+
+  /**
+   * AssessmentVersion delete
+   */
+  export type AssessmentVersionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+    /**
+     * Filter which AssessmentVersion to delete.
+     */
+    where: AssessmentVersionWhereUniqueInput
+  }
+
+  /**
+   * AssessmentVersion deleteMany
+   */
+  export type AssessmentVersionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentVersions to delete
+     */
+    where?: AssessmentVersionWhereInput
+    /**
+     * Limit how many AssessmentVersions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentVersion without action
+   */
+  export type AssessmentVersionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersion
+     */
+    select?: AssessmentVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentVersion
+     */
+    omit?: AssessmentVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentVersionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AccountDeletionRequest
+   */
+
+  export type AggregateAccountDeletionRequest = {
+    _count: AccountDeletionRequestCountAggregateOutputType | null
+    _min: AccountDeletionRequestMinAggregateOutputType | null
+    _max: AccountDeletionRequestMaxAggregateOutputType | null
+  }
+
+  export type AccountDeletionRequestMinAggregateOutputType = {
+    id: string | null
+    stakeholderId: string | null
+    status: $Enums.DeletionRequestStatus | null
+    requestedAt: Date | null
+    dueAt: Date | null
+    completedAt: Date | null
+    notificationSentAt: Date | null
+    processingPolicyVersion: string | null
+    fulfilledUnderPolicy: string | null
+    email: string | null
+  }
+
+  export type AccountDeletionRequestMaxAggregateOutputType = {
+    id: string | null
+    stakeholderId: string | null
+    status: $Enums.DeletionRequestStatus | null
+    requestedAt: Date | null
+    dueAt: Date | null
+    completedAt: Date | null
+    notificationSentAt: Date | null
+    processingPolicyVersion: string | null
+    fulfilledUnderPolicy: string | null
+    email: string | null
+  }
+
+  export type AccountDeletionRequestCountAggregateOutputType = {
+    id: number
+    stakeholderId: number
+    status: number
+    requestedAt: number
+    dueAt: number
+    completedAt: number
+    notificationSentAt: number
+    processingPolicyVersion: number
+    fulfilledUnderPolicy: number
+    email: number
+    _all: number
+  }
+
+
+  export type AccountDeletionRequestMinAggregateInputType = {
+    id?: true
+    stakeholderId?: true
+    status?: true
+    requestedAt?: true
+    dueAt?: true
+    completedAt?: true
+    notificationSentAt?: true
+    processingPolicyVersion?: true
+    fulfilledUnderPolicy?: true
+    email?: true
+  }
+
+  export type AccountDeletionRequestMaxAggregateInputType = {
+    id?: true
+    stakeholderId?: true
+    status?: true
+    requestedAt?: true
+    dueAt?: true
+    completedAt?: true
+    notificationSentAt?: true
+    processingPolicyVersion?: true
+    fulfilledUnderPolicy?: true
+    email?: true
+  }
+
+  export type AccountDeletionRequestCountAggregateInputType = {
+    id?: true
+    stakeholderId?: true
+    status?: true
+    requestedAt?: true
+    dueAt?: true
+    completedAt?: true
+    notificationSentAt?: true
+    processingPolicyVersion?: true
+    fulfilledUnderPolicy?: true
+    email?: true
+    _all?: true
+  }
+
+  export type AccountDeletionRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccountDeletionRequest to aggregate.
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionRequests to fetch.
+     */
+    orderBy?: AccountDeletionRequestOrderByWithRelationInput | AccountDeletionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AccountDeletionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AccountDeletionRequests
+    **/
+    _count?: true | AccountDeletionRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AccountDeletionRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AccountDeletionRequestMaxAggregateInputType
+  }
+
+  export type GetAccountDeletionRequestAggregateType<T extends AccountDeletionRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateAccountDeletionRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAccountDeletionRequest[P]>
+      : GetScalarType<T[P], AggregateAccountDeletionRequest[P]>
+  }
+
+
+
+
+  export type AccountDeletionRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccountDeletionRequestWhereInput
+    orderBy?: AccountDeletionRequestOrderByWithAggregationInput | AccountDeletionRequestOrderByWithAggregationInput[]
+    by: AccountDeletionRequestScalarFieldEnum[] | AccountDeletionRequestScalarFieldEnum
+    having?: AccountDeletionRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AccountDeletionRequestCountAggregateInputType | true
+    _min?: AccountDeletionRequestMinAggregateInputType
+    _max?: AccountDeletionRequestMaxAggregateInputType
+  }
+
+  export type AccountDeletionRequestGroupByOutputType = {
+    id: string
+    stakeholderId: string
+    status: $Enums.DeletionRequestStatus
+    requestedAt: Date
+    dueAt: Date
+    completedAt: Date | null
+    notificationSentAt: Date | null
+    processingPolicyVersion: string | null
+    fulfilledUnderPolicy: string | null
+    email: string | null
+    _count: AccountDeletionRequestCountAggregateOutputType | null
+    _min: AccountDeletionRequestMinAggregateOutputType | null
+    _max: AccountDeletionRequestMaxAggregateOutputType | null
+  }
+
+  type GetAccountDeletionRequestGroupByPayload<T extends AccountDeletionRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AccountDeletionRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AccountDeletionRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AccountDeletionRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], AccountDeletionRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AccountDeletionRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stakeholderId?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    dueAt?: boolean
+    completedAt?: boolean
+    notificationSentAt?: boolean
+    processingPolicyVersion?: boolean
+    fulfilledUnderPolicy?: boolean
+    email?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+    storagePurges?: boolean | AccountDeletionRequest$storagePurgesArgs<ExtArgs>
+    _count?: boolean | AccountDeletionRequestCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountDeletionRequest"]>
+
+  export type AccountDeletionRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stakeholderId?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    dueAt?: boolean
+    completedAt?: boolean
+    notificationSentAt?: boolean
+    processingPolicyVersion?: boolean
+    fulfilledUnderPolicy?: boolean
+    email?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountDeletionRequest"]>
+
+  export type AccountDeletionRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stakeholderId?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    dueAt?: boolean
+    completedAt?: boolean
+    notificationSentAt?: boolean
+    processingPolicyVersion?: boolean
+    fulfilledUnderPolicy?: boolean
+    email?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountDeletionRequest"]>
+
+  export type AccountDeletionRequestSelectScalar = {
+    id?: boolean
+    stakeholderId?: boolean
+    status?: boolean
+    requestedAt?: boolean
+    dueAt?: boolean
+    completedAt?: boolean
+    notificationSentAt?: boolean
+    processingPolicyVersion?: boolean
+    fulfilledUnderPolicy?: boolean
+    email?: boolean
+  }
+
+  export type AccountDeletionRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "stakeholderId" | "status" | "requestedAt" | "dueAt" | "completedAt" | "notificationSentAt" | "processingPolicyVersion" | "fulfilledUnderPolicy" | "email", ExtArgs["result"]["accountDeletionRequest"]>
+  export type AccountDeletionRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+    storagePurges?: boolean | AccountDeletionRequest$storagePurgesArgs<ExtArgs>
+    _count?: boolean | AccountDeletionRequestCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AccountDeletionRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AccountDeletionRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $AccountDeletionRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AccountDeletionRequest"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+      storagePurges: Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      stakeholderId: string
+      status: $Enums.DeletionRequestStatus
+      requestedAt: Date
+      dueAt: Date
+      completedAt: Date | null
+      notificationSentAt: Date | null
+      processingPolicyVersion: string | null
+      fulfilledUnderPolicy: string | null
+      email: string | null
+    }, ExtArgs["result"]["accountDeletionRequest"]>
+    composites: {}
+  }
+
+  type AccountDeletionRequestGetPayload<S extends boolean | null | undefined | AccountDeletionRequestDefaultArgs> = $Result.GetResult<Prisma.$AccountDeletionRequestPayload, S>
+
+  type AccountDeletionRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AccountDeletionRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AccountDeletionRequestCountAggregateInputType | true
+    }
+
+  export interface AccountDeletionRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AccountDeletionRequest'], meta: { name: 'AccountDeletionRequest' } }
+    /**
+     * Find zero or one AccountDeletionRequest that matches the filter.
+     * @param {AccountDeletionRequestFindUniqueArgs} args - Arguments to find a AccountDeletionRequest
+     * @example
+     * // Get one AccountDeletionRequest
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AccountDeletionRequestFindUniqueArgs>(args: SelectSubset<T, AccountDeletionRequestFindUniqueArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AccountDeletionRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AccountDeletionRequestFindUniqueOrThrowArgs} args - Arguments to find a AccountDeletionRequest
+     * @example
+     * // Get one AccountDeletionRequest
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AccountDeletionRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, AccountDeletionRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AccountDeletionRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestFindFirstArgs} args - Arguments to find a AccountDeletionRequest
+     * @example
+     * // Get one AccountDeletionRequest
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AccountDeletionRequestFindFirstArgs>(args?: SelectSubset<T, AccountDeletionRequestFindFirstArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AccountDeletionRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestFindFirstOrThrowArgs} args - Arguments to find a AccountDeletionRequest
+     * @example
+     * // Get one AccountDeletionRequest
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AccountDeletionRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, AccountDeletionRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AccountDeletionRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AccountDeletionRequests
+     * const accountDeletionRequests = await prisma.accountDeletionRequest.findMany()
+     * 
+     * // Get first 10 AccountDeletionRequests
+     * const accountDeletionRequests = await prisma.accountDeletionRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const accountDeletionRequestWithIdOnly = await prisma.accountDeletionRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AccountDeletionRequestFindManyArgs>(args?: SelectSubset<T, AccountDeletionRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AccountDeletionRequest.
+     * @param {AccountDeletionRequestCreateArgs} args - Arguments to create a AccountDeletionRequest.
+     * @example
+     * // Create one AccountDeletionRequest
+     * const AccountDeletionRequest = await prisma.accountDeletionRequest.create({
+     *   data: {
+     *     // ... data to create a AccountDeletionRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends AccountDeletionRequestCreateArgs>(args: SelectSubset<T, AccountDeletionRequestCreateArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AccountDeletionRequests.
+     * @param {AccountDeletionRequestCreateManyArgs} args - Arguments to create many AccountDeletionRequests.
+     * @example
+     * // Create many AccountDeletionRequests
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AccountDeletionRequestCreateManyArgs>(args?: SelectSubset<T, AccountDeletionRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AccountDeletionRequests and returns the data saved in the database.
+     * @param {AccountDeletionRequestCreateManyAndReturnArgs} args - Arguments to create many AccountDeletionRequests.
+     * @example
+     * // Create many AccountDeletionRequests
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AccountDeletionRequests and only return the `id`
+     * const accountDeletionRequestWithIdOnly = await prisma.accountDeletionRequest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AccountDeletionRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, AccountDeletionRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AccountDeletionRequest.
+     * @param {AccountDeletionRequestDeleteArgs} args - Arguments to delete one AccountDeletionRequest.
+     * @example
+     * // Delete one AccountDeletionRequest
+     * const AccountDeletionRequest = await prisma.accountDeletionRequest.delete({
+     *   where: {
+     *     // ... filter to delete one AccountDeletionRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AccountDeletionRequestDeleteArgs>(args: SelectSubset<T, AccountDeletionRequestDeleteArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AccountDeletionRequest.
+     * @param {AccountDeletionRequestUpdateArgs} args - Arguments to update one AccountDeletionRequest.
+     * @example
+     * // Update one AccountDeletionRequest
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AccountDeletionRequestUpdateArgs>(args: SelectSubset<T, AccountDeletionRequestUpdateArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AccountDeletionRequests.
+     * @param {AccountDeletionRequestDeleteManyArgs} args - Arguments to filter AccountDeletionRequests to delete.
+     * @example
+     * // Delete a few AccountDeletionRequests
+     * const { count } = await prisma.accountDeletionRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AccountDeletionRequestDeleteManyArgs>(args?: SelectSubset<T, AccountDeletionRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccountDeletionRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AccountDeletionRequests
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AccountDeletionRequestUpdateManyArgs>(args: SelectSubset<T, AccountDeletionRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccountDeletionRequests and returns the data updated in the database.
+     * @param {AccountDeletionRequestUpdateManyAndReturnArgs} args - Arguments to update many AccountDeletionRequests.
+     * @example
+     * // Update many AccountDeletionRequests
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AccountDeletionRequests and only return the `id`
+     * const accountDeletionRequestWithIdOnly = await prisma.accountDeletionRequest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AccountDeletionRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, AccountDeletionRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AccountDeletionRequest.
+     * @param {AccountDeletionRequestUpsertArgs} args - Arguments to update or create a AccountDeletionRequest.
+     * @example
+     * // Update or create a AccountDeletionRequest
+     * const accountDeletionRequest = await prisma.accountDeletionRequest.upsert({
+     *   create: {
+     *     // ... data to create a AccountDeletionRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AccountDeletionRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AccountDeletionRequestUpsertArgs>(args: SelectSubset<T, AccountDeletionRequestUpsertArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AccountDeletionRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestCountArgs} args - Arguments to filter AccountDeletionRequests to count.
+     * @example
+     * // Count the number of AccountDeletionRequests
+     * const count = await prisma.accountDeletionRequest.count({
+     *   where: {
+     *     // ... the filter for the AccountDeletionRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends AccountDeletionRequestCountArgs>(
+      args?: Subset<T, AccountDeletionRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AccountDeletionRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AccountDeletionRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AccountDeletionRequestAggregateArgs>(args: Subset<T, AccountDeletionRequestAggregateArgs>): Prisma.PrismaPromise<GetAccountDeletionRequestAggregateType<T>>
+
+    /**
+     * Group by AccountDeletionRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AccountDeletionRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AccountDeletionRequestGroupByArgs['orderBy'] }
+        : { orderBy?: AccountDeletionRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AccountDeletionRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAccountDeletionRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AccountDeletionRequest model
+   */
+  readonly fields: AccountDeletionRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AccountDeletionRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AccountDeletionRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    storagePurges<T extends AccountDeletionRequest$storagePurgesArgs<ExtArgs> = {}>(args?: Subset<T, AccountDeletionRequest$storagePurgesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AccountDeletionRequest model
+   */
+  interface AccountDeletionRequestFieldRefs {
+    readonly id: FieldRef<"AccountDeletionRequest", 'String'>
+    readonly stakeholderId: FieldRef<"AccountDeletionRequest", 'String'>
+    readonly status: FieldRef<"AccountDeletionRequest", 'DeletionRequestStatus'>
+    readonly requestedAt: FieldRef<"AccountDeletionRequest", 'DateTime'>
+    readonly dueAt: FieldRef<"AccountDeletionRequest", 'DateTime'>
+    readonly completedAt: FieldRef<"AccountDeletionRequest", 'DateTime'>
+    readonly notificationSentAt: FieldRef<"AccountDeletionRequest", 'DateTime'>
+    readonly processingPolicyVersion: FieldRef<"AccountDeletionRequest", 'String'>
+    readonly fulfilledUnderPolicy: FieldRef<"AccountDeletionRequest", 'String'>
+    readonly email: FieldRef<"AccountDeletionRequest", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AccountDeletionRequest findUnique
+   */
+  export type AccountDeletionRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionRequest to fetch.
+     */
+    where: AccountDeletionRequestWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionRequest findUniqueOrThrow
+   */
+  export type AccountDeletionRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionRequest to fetch.
+     */
+    where: AccountDeletionRequestWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionRequest findFirst
+   */
+  export type AccountDeletionRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionRequest to fetch.
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionRequests to fetch.
+     */
+    orderBy?: AccountDeletionRequestOrderByWithRelationInput | AccountDeletionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccountDeletionRequests.
+     */
+    cursor?: AccountDeletionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountDeletionRequests.
+     */
+    distinct?: AccountDeletionRequestScalarFieldEnum | AccountDeletionRequestScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionRequest findFirstOrThrow
+   */
+  export type AccountDeletionRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionRequest to fetch.
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionRequests to fetch.
+     */
+    orderBy?: AccountDeletionRequestOrderByWithRelationInput | AccountDeletionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccountDeletionRequests.
+     */
+    cursor?: AccountDeletionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountDeletionRequests.
+     */
+    distinct?: AccountDeletionRequestScalarFieldEnum | AccountDeletionRequestScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionRequest findMany
+   */
+  export type AccountDeletionRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionRequests to fetch.
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionRequests to fetch.
+     */
+    orderBy?: AccountDeletionRequestOrderByWithRelationInput | AccountDeletionRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AccountDeletionRequests.
+     */
+    cursor?: AccountDeletionRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountDeletionRequests.
+     */
+    distinct?: AccountDeletionRequestScalarFieldEnum | AccountDeletionRequestScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionRequest create
+   */
+  export type AccountDeletionRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AccountDeletionRequest.
+     */
+    data: XOR<AccountDeletionRequestCreateInput, AccountDeletionRequestUncheckedCreateInput>
+  }
+
+  /**
+   * AccountDeletionRequest createMany
+   */
+  export type AccountDeletionRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AccountDeletionRequests.
+     */
+    data: AccountDeletionRequestCreateManyInput | AccountDeletionRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AccountDeletionRequest createManyAndReturn
+   */
+  export type AccountDeletionRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many AccountDeletionRequests.
+     */
+    data: AccountDeletionRequestCreateManyInput | AccountDeletionRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccountDeletionRequest update
+   */
+  export type AccountDeletionRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AccountDeletionRequest.
+     */
+    data: XOR<AccountDeletionRequestUpdateInput, AccountDeletionRequestUncheckedUpdateInput>
+    /**
+     * Choose, which AccountDeletionRequest to update.
+     */
+    where: AccountDeletionRequestWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionRequest updateMany
+   */
+  export type AccountDeletionRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AccountDeletionRequests.
+     */
+    data: XOR<AccountDeletionRequestUpdateManyMutationInput, AccountDeletionRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which AccountDeletionRequests to update
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * Limit how many AccountDeletionRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AccountDeletionRequest updateManyAndReturn
+   */
+  export type AccountDeletionRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update AccountDeletionRequests.
+     */
+    data: XOR<AccountDeletionRequestUpdateManyMutationInput, AccountDeletionRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which AccountDeletionRequests to update
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * Limit how many AccountDeletionRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccountDeletionRequest upsert
+   */
+  export type AccountDeletionRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AccountDeletionRequest to update in case it exists.
+     */
+    where: AccountDeletionRequestWhereUniqueInput
+    /**
+     * In case the AccountDeletionRequest found by the `where` argument doesn't exist, create a new AccountDeletionRequest with this data.
+     */
+    create: XOR<AccountDeletionRequestCreateInput, AccountDeletionRequestUncheckedCreateInput>
+    /**
+     * In case the AccountDeletionRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AccountDeletionRequestUpdateInput, AccountDeletionRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * AccountDeletionRequest delete
+   */
+  export type AccountDeletionRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+    /**
+     * Filter which AccountDeletionRequest to delete.
+     */
+    where: AccountDeletionRequestWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionRequest deleteMany
+   */
+  export type AccountDeletionRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccountDeletionRequests to delete
+     */
+    where?: AccountDeletionRequestWhereInput
+    /**
+     * Limit how many AccountDeletionRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AccountDeletionRequest.storagePurges
+   */
+  export type AccountDeletionRequest$storagePurgesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    where?: AccountDeletionStoragePurgeWhereInput
+    orderBy?: AccountDeletionStoragePurgeOrderByWithRelationInput | AccountDeletionStoragePurgeOrderByWithRelationInput[]
+    cursor?: AccountDeletionStoragePurgeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AccountDeletionStoragePurgeScalarFieldEnum | AccountDeletionStoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionRequest without action
+   */
+  export type AccountDeletionRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionRequest
+     */
+    select?: AccountDeletionRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionRequest
+     */
+    omit?: AccountDeletionRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AccountDeletionStoragePurge
+   */
+
+  export type AggregateAccountDeletionStoragePurge = {
+    _count: AccountDeletionStoragePurgeCountAggregateOutputType | null
+    _min: AccountDeletionStoragePurgeMinAggregateOutputType | null
+    _max: AccountDeletionStoragePurgeMaxAggregateOutputType | null
+  }
+
+  export type AccountDeletionStoragePurgeMinAggregateOutputType = {
+    id: string | null
+    requestId: string | null
+    roomId: string | null
+    readyAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type AccountDeletionStoragePurgeMaxAggregateOutputType = {
+    id: string | null
+    requestId: string | null
+    roomId: string | null
+    readyAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type AccountDeletionStoragePurgeCountAggregateOutputType = {
+    id: number
+    requestId: number
+    roomId: number
+    readyAt: number
+    completedAt: number
+    _all: number
+  }
+
+
+  export type AccountDeletionStoragePurgeMinAggregateInputType = {
+    id?: true
+    requestId?: true
+    roomId?: true
+    readyAt?: true
+    completedAt?: true
+  }
+
+  export type AccountDeletionStoragePurgeMaxAggregateInputType = {
+    id?: true
+    requestId?: true
+    roomId?: true
+    readyAt?: true
+    completedAt?: true
+  }
+
+  export type AccountDeletionStoragePurgeCountAggregateInputType = {
+    id?: true
+    requestId?: true
+    roomId?: true
+    readyAt?: true
+    completedAt?: true
+    _all?: true
+  }
+
+  export type AccountDeletionStoragePurgeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccountDeletionStoragePurge to aggregate.
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionStoragePurges to fetch.
+     */
+    orderBy?: AccountDeletionStoragePurgeOrderByWithRelationInput | AccountDeletionStoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AccountDeletionStoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionStoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionStoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AccountDeletionStoragePurges
+    **/
+    _count?: true | AccountDeletionStoragePurgeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AccountDeletionStoragePurgeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AccountDeletionStoragePurgeMaxAggregateInputType
+  }
+
+  export type GetAccountDeletionStoragePurgeAggregateType<T extends AccountDeletionStoragePurgeAggregateArgs> = {
+        [P in keyof T & keyof AggregateAccountDeletionStoragePurge]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAccountDeletionStoragePurge[P]>
+      : GetScalarType<T[P], AggregateAccountDeletionStoragePurge[P]>
+  }
+
+
+
+
+  export type AccountDeletionStoragePurgeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccountDeletionStoragePurgeWhereInput
+    orderBy?: AccountDeletionStoragePurgeOrderByWithAggregationInput | AccountDeletionStoragePurgeOrderByWithAggregationInput[]
+    by: AccountDeletionStoragePurgeScalarFieldEnum[] | AccountDeletionStoragePurgeScalarFieldEnum
+    having?: AccountDeletionStoragePurgeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AccountDeletionStoragePurgeCountAggregateInputType | true
+    _min?: AccountDeletionStoragePurgeMinAggregateInputType
+    _max?: AccountDeletionStoragePurgeMaxAggregateInputType
+  }
+
+  export type AccountDeletionStoragePurgeGroupByOutputType = {
+    id: string
+    requestId: string
+    roomId: string
+    readyAt: Date
+    completedAt: Date | null
+    _count: AccountDeletionStoragePurgeCountAggregateOutputType | null
+    _min: AccountDeletionStoragePurgeMinAggregateOutputType | null
+    _max: AccountDeletionStoragePurgeMaxAggregateOutputType | null
+  }
+
+  type GetAccountDeletionStoragePurgeGroupByPayload<T extends AccountDeletionStoragePurgeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AccountDeletionStoragePurgeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AccountDeletionStoragePurgeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AccountDeletionStoragePurgeGroupByOutputType[P]>
+            : GetScalarType<T[P], AccountDeletionStoragePurgeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AccountDeletionStoragePurgeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    roomId?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    request?: boolean | AccountDeletionRequestDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountDeletionStoragePurge"]>
+
+  export type AccountDeletionStoragePurgeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    roomId?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    request?: boolean | AccountDeletionRequestDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountDeletionStoragePurge"]>
+
+  export type AccountDeletionStoragePurgeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    roomId?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    request?: boolean | AccountDeletionRequestDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountDeletionStoragePurge"]>
+
+  export type AccountDeletionStoragePurgeSelectScalar = {
+    id?: boolean
+    requestId?: boolean
+    roomId?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+  }
+
+  export type AccountDeletionStoragePurgeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requestId" | "roomId" | "readyAt" | "completedAt", ExtArgs["result"]["accountDeletionStoragePurge"]>
+  export type AccountDeletionStoragePurgeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | AccountDeletionRequestDefaultArgs<ExtArgs>
+  }
+  export type AccountDeletionStoragePurgeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | AccountDeletionRequestDefaultArgs<ExtArgs>
+  }
+  export type AccountDeletionStoragePurgeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | AccountDeletionRequestDefaultArgs<ExtArgs>
+  }
+
+  export type $AccountDeletionStoragePurgePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AccountDeletionStoragePurge"
+    objects: {
+      request: Prisma.$AccountDeletionRequestPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      requestId: string
+      roomId: string
+      readyAt: Date
+      completedAt: Date | null
+    }, ExtArgs["result"]["accountDeletionStoragePurge"]>
+    composites: {}
+  }
+
+  type AccountDeletionStoragePurgeGetPayload<S extends boolean | null | undefined | AccountDeletionStoragePurgeDefaultArgs> = $Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload, S>
+
+  type AccountDeletionStoragePurgeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AccountDeletionStoragePurgeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AccountDeletionStoragePurgeCountAggregateInputType | true
+    }
+
+  export interface AccountDeletionStoragePurgeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AccountDeletionStoragePurge'], meta: { name: 'AccountDeletionStoragePurge' } }
+    /**
+     * Find zero or one AccountDeletionStoragePurge that matches the filter.
+     * @param {AccountDeletionStoragePurgeFindUniqueArgs} args - Arguments to find a AccountDeletionStoragePurge
+     * @example
+     * // Get one AccountDeletionStoragePurge
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AccountDeletionStoragePurgeFindUniqueArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeFindUniqueArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AccountDeletionStoragePurge that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AccountDeletionStoragePurgeFindUniqueOrThrowArgs} args - Arguments to find a AccountDeletionStoragePurge
+     * @example
+     * // Get one AccountDeletionStoragePurge
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AccountDeletionStoragePurgeFindUniqueOrThrowArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AccountDeletionStoragePurge that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeFindFirstArgs} args - Arguments to find a AccountDeletionStoragePurge
+     * @example
+     * // Get one AccountDeletionStoragePurge
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AccountDeletionStoragePurgeFindFirstArgs>(args?: SelectSubset<T, AccountDeletionStoragePurgeFindFirstArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AccountDeletionStoragePurge that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeFindFirstOrThrowArgs} args - Arguments to find a AccountDeletionStoragePurge
+     * @example
+     * // Get one AccountDeletionStoragePurge
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AccountDeletionStoragePurgeFindFirstOrThrowArgs>(args?: SelectSubset<T, AccountDeletionStoragePurgeFindFirstOrThrowArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AccountDeletionStoragePurges that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AccountDeletionStoragePurges
+     * const accountDeletionStoragePurges = await prisma.accountDeletionStoragePurge.findMany()
+     * 
+     * // Get first 10 AccountDeletionStoragePurges
+     * const accountDeletionStoragePurges = await prisma.accountDeletionStoragePurge.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const accountDeletionStoragePurgeWithIdOnly = await prisma.accountDeletionStoragePurge.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AccountDeletionStoragePurgeFindManyArgs>(args?: SelectSubset<T, AccountDeletionStoragePurgeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AccountDeletionStoragePurge.
+     * @param {AccountDeletionStoragePurgeCreateArgs} args - Arguments to create a AccountDeletionStoragePurge.
+     * @example
+     * // Create one AccountDeletionStoragePurge
+     * const AccountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.create({
+     *   data: {
+     *     // ... data to create a AccountDeletionStoragePurge
+     *   }
+     * })
+     * 
+     */
+    create<T extends AccountDeletionStoragePurgeCreateArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeCreateArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AccountDeletionStoragePurges.
+     * @param {AccountDeletionStoragePurgeCreateManyArgs} args - Arguments to create many AccountDeletionStoragePurges.
+     * @example
+     * // Create many AccountDeletionStoragePurges
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AccountDeletionStoragePurgeCreateManyArgs>(args?: SelectSubset<T, AccountDeletionStoragePurgeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AccountDeletionStoragePurges and returns the data saved in the database.
+     * @param {AccountDeletionStoragePurgeCreateManyAndReturnArgs} args - Arguments to create many AccountDeletionStoragePurges.
+     * @example
+     * // Create many AccountDeletionStoragePurges
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AccountDeletionStoragePurges and only return the `id`
+     * const accountDeletionStoragePurgeWithIdOnly = await prisma.accountDeletionStoragePurge.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AccountDeletionStoragePurgeCreateManyAndReturnArgs>(args?: SelectSubset<T, AccountDeletionStoragePurgeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AccountDeletionStoragePurge.
+     * @param {AccountDeletionStoragePurgeDeleteArgs} args - Arguments to delete one AccountDeletionStoragePurge.
+     * @example
+     * // Delete one AccountDeletionStoragePurge
+     * const AccountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.delete({
+     *   where: {
+     *     // ... filter to delete one AccountDeletionStoragePurge
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AccountDeletionStoragePurgeDeleteArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeDeleteArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AccountDeletionStoragePurge.
+     * @param {AccountDeletionStoragePurgeUpdateArgs} args - Arguments to update one AccountDeletionStoragePurge.
+     * @example
+     * // Update one AccountDeletionStoragePurge
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AccountDeletionStoragePurgeUpdateArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeUpdateArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AccountDeletionStoragePurges.
+     * @param {AccountDeletionStoragePurgeDeleteManyArgs} args - Arguments to filter AccountDeletionStoragePurges to delete.
+     * @example
+     * // Delete a few AccountDeletionStoragePurges
+     * const { count } = await prisma.accountDeletionStoragePurge.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AccountDeletionStoragePurgeDeleteManyArgs>(args?: SelectSubset<T, AccountDeletionStoragePurgeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccountDeletionStoragePurges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AccountDeletionStoragePurges
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AccountDeletionStoragePurgeUpdateManyArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccountDeletionStoragePurges and returns the data updated in the database.
+     * @param {AccountDeletionStoragePurgeUpdateManyAndReturnArgs} args - Arguments to update many AccountDeletionStoragePurges.
+     * @example
+     * // Update many AccountDeletionStoragePurges
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AccountDeletionStoragePurges and only return the `id`
+     * const accountDeletionStoragePurgeWithIdOnly = await prisma.accountDeletionStoragePurge.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AccountDeletionStoragePurgeUpdateManyAndReturnArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AccountDeletionStoragePurge.
+     * @param {AccountDeletionStoragePurgeUpsertArgs} args - Arguments to update or create a AccountDeletionStoragePurge.
+     * @example
+     * // Update or create a AccountDeletionStoragePurge
+     * const accountDeletionStoragePurge = await prisma.accountDeletionStoragePurge.upsert({
+     *   create: {
+     *     // ... data to create a AccountDeletionStoragePurge
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AccountDeletionStoragePurge we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AccountDeletionStoragePurgeUpsertArgs>(args: SelectSubset<T, AccountDeletionStoragePurgeUpsertArgs<ExtArgs>>): Prisma__AccountDeletionStoragePurgeClient<$Result.GetResult<Prisma.$AccountDeletionStoragePurgePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AccountDeletionStoragePurges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeCountArgs} args - Arguments to filter AccountDeletionStoragePurges to count.
+     * @example
+     * // Count the number of AccountDeletionStoragePurges
+     * const count = await prisma.accountDeletionStoragePurge.count({
+     *   where: {
+     *     // ... the filter for the AccountDeletionStoragePurges we want to count
+     *   }
+     * })
+    **/
+    count<T extends AccountDeletionStoragePurgeCountArgs>(
+      args?: Subset<T, AccountDeletionStoragePurgeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AccountDeletionStoragePurgeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AccountDeletionStoragePurge.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AccountDeletionStoragePurgeAggregateArgs>(args: Subset<T, AccountDeletionStoragePurgeAggregateArgs>): Prisma.PrismaPromise<GetAccountDeletionStoragePurgeAggregateType<T>>
+
+    /**
+     * Group by AccountDeletionStoragePurge.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountDeletionStoragePurgeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AccountDeletionStoragePurgeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AccountDeletionStoragePurgeGroupByArgs['orderBy'] }
+        : { orderBy?: AccountDeletionStoragePurgeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AccountDeletionStoragePurgeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAccountDeletionStoragePurgeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AccountDeletionStoragePurge model
+   */
+  readonly fields: AccountDeletionStoragePurgeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AccountDeletionStoragePurge.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AccountDeletionStoragePurgeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    request<T extends AccountDeletionRequestDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AccountDeletionRequestDefaultArgs<ExtArgs>>): Prisma__AccountDeletionRequestClient<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AccountDeletionStoragePurge model
+   */
+  interface AccountDeletionStoragePurgeFieldRefs {
+    readonly id: FieldRef<"AccountDeletionStoragePurge", 'String'>
+    readonly requestId: FieldRef<"AccountDeletionStoragePurge", 'String'>
+    readonly roomId: FieldRef<"AccountDeletionStoragePurge", 'String'>
+    readonly readyAt: FieldRef<"AccountDeletionStoragePurge", 'DateTime'>
+    readonly completedAt: FieldRef<"AccountDeletionStoragePurge", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AccountDeletionStoragePurge findUnique
+   */
+  export type AccountDeletionStoragePurgeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionStoragePurge to fetch.
+     */
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionStoragePurge findUniqueOrThrow
+   */
+  export type AccountDeletionStoragePurgeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionStoragePurge to fetch.
+     */
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionStoragePurge findFirst
+   */
+  export type AccountDeletionStoragePurgeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionStoragePurge to fetch.
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionStoragePurges to fetch.
+     */
+    orderBy?: AccountDeletionStoragePurgeOrderByWithRelationInput | AccountDeletionStoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccountDeletionStoragePurges.
+     */
+    cursor?: AccountDeletionStoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionStoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionStoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountDeletionStoragePurges.
+     */
+    distinct?: AccountDeletionStoragePurgeScalarFieldEnum | AccountDeletionStoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionStoragePurge findFirstOrThrow
+   */
+  export type AccountDeletionStoragePurgeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionStoragePurge to fetch.
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionStoragePurges to fetch.
+     */
+    orderBy?: AccountDeletionStoragePurgeOrderByWithRelationInput | AccountDeletionStoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccountDeletionStoragePurges.
+     */
+    cursor?: AccountDeletionStoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionStoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionStoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountDeletionStoragePurges.
+     */
+    distinct?: AccountDeletionStoragePurgeScalarFieldEnum | AccountDeletionStoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionStoragePurge findMany
+   */
+  export type AccountDeletionStoragePurgeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountDeletionStoragePurges to fetch.
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountDeletionStoragePurges to fetch.
+     */
+    orderBy?: AccountDeletionStoragePurgeOrderByWithRelationInput | AccountDeletionStoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AccountDeletionStoragePurges.
+     */
+    cursor?: AccountDeletionStoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountDeletionStoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountDeletionStoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountDeletionStoragePurges.
+     */
+    distinct?: AccountDeletionStoragePurgeScalarFieldEnum | AccountDeletionStoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * AccountDeletionStoragePurge create
+   */
+  export type AccountDeletionStoragePurgeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AccountDeletionStoragePurge.
+     */
+    data: XOR<AccountDeletionStoragePurgeCreateInput, AccountDeletionStoragePurgeUncheckedCreateInput>
+  }
+
+  /**
+   * AccountDeletionStoragePurge createMany
+   */
+  export type AccountDeletionStoragePurgeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AccountDeletionStoragePurges.
+     */
+    data: AccountDeletionStoragePurgeCreateManyInput | AccountDeletionStoragePurgeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AccountDeletionStoragePurge createManyAndReturn
+   */
+  export type AccountDeletionStoragePurgeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * The data used to create many AccountDeletionStoragePurges.
+     */
+    data: AccountDeletionStoragePurgeCreateManyInput | AccountDeletionStoragePurgeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccountDeletionStoragePurge update
+   */
+  export type AccountDeletionStoragePurgeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AccountDeletionStoragePurge.
+     */
+    data: XOR<AccountDeletionStoragePurgeUpdateInput, AccountDeletionStoragePurgeUncheckedUpdateInput>
+    /**
+     * Choose, which AccountDeletionStoragePurge to update.
+     */
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionStoragePurge updateMany
+   */
+  export type AccountDeletionStoragePurgeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AccountDeletionStoragePurges.
+     */
+    data: XOR<AccountDeletionStoragePurgeUpdateManyMutationInput, AccountDeletionStoragePurgeUncheckedUpdateManyInput>
+    /**
+     * Filter which AccountDeletionStoragePurges to update
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * Limit how many AccountDeletionStoragePurges to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AccountDeletionStoragePurge updateManyAndReturn
+   */
+  export type AccountDeletionStoragePurgeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * The data used to update AccountDeletionStoragePurges.
+     */
+    data: XOR<AccountDeletionStoragePurgeUpdateManyMutationInput, AccountDeletionStoragePurgeUncheckedUpdateManyInput>
+    /**
+     * Filter which AccountDeletionStoragePurges to update
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * Limit how many AccountDeletionStoragePurges to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccountDeletionStoragePurge upsert
+   */
+  export type AccountDeletionStoragePurgeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AccountDeletionStoragePurge to update in case it exists.
+     */
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+    /**
+     * In case the AccountDeletionStoragePurge found by the `where` argument doesn't exist, create a new AccountDeletionStoragePurge with this data.
+     */
+    create: XOR<AccountDeletionStoragePurgeCreateInput, AccountDeletionStoragePurgeUncheckedCreateInput>
+    /**
+     * In case the AccountDeletionStoragePurge was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AccountDeletionStoragePurgeUpdateInput, AccountDeletionStoragePurgeUncheckedUpdateInput>
+  }
+
+  /**
+   * AccountDeletionStoragePurge delete
+   */
+  export type AccountDeletionStoragePurgeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+    /**
+     * Filter which AccountDeletionStoragePurge to delete.
+     */
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * AccountDeletionStoragePurge deleteMany
+   */
+  export type AccountDeletionStoragePurgeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccountDeletionStoragePurges to delete
+     */
+    where?: AccountDeletionStoragePurgeWhereInput
+    /**
+     * Limit how many AccountDeletionStoragePurges to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AccountDeletionStoragePurge without action
+   */
+  export type AccountDeletionStoragePurgeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountDeletionStoragePurge
+     */
+    select?: AccountDeletionStoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountDeletionStoragePurge
+     */
+    omit?: AccountDeletionStoragePurgeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountDeletionStoragePurgeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model StoragePurge
+   */
+
+  export type AggregateStoragePurge = {
+    _count: StoragePurgeCountAggregateOutputType | null
+    _min: StoragePurgeMinAggregateOutputType | null
+    _max: StoragePurgeMaxAggregateOutputType | null
+  }
+
+  export type StoragePurgeMinAggregateOutputType = {
+    id: string | null
+    path: string | null
+    isPrefix: boolean | null
+    readyAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type StoragePurgeMaxAggregateOutputType = {
+    id: string | null
+    path: string | null
+    isPrefix: boolean | null
+    readyAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type StoragePurgeCountAggregateOutputType = {
+    id: number
+    path: number
+    isPrefix: number
+    readyAt: number
+    completedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type StoragePurgeMinAggregateInputType = {
+    id?: true
+    path?: true
+    isPrefix?: true
+    readyAt?: true
+    completedAt?: true
+    createdAt?: true
+  }
+
+  export type StoragePurgeMaxAggregateInputType = {
+    id?: true
+    path?: true
+    isPrefix?: true
+    readyAt?: true
+    completedAt?: true
+    createdAt?: true
+  }
+
+  export type StoragePurgeCountAggregateInputType = {
+    id?: true
+    path?: true
+    isPrefix?: true
+    readyAt?: true
+    completedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type StoragePurgeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StoragePurge to aggregate.
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StoragePurges to fetch.
+     */
+    orderBy?: StoragePurgeOrderByWithRelationInput | StoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StoragePurges
+    **/
+    _count?: true | StoragePurgeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StoragePurgeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StoragePurgeMaxAggregateInputType
+  }
+
+  export type GetStoragePurgeAggregateType<T extends StoragePurgeAggregateArgs> = {
+        [P in keyof T & keyof AggregateStoragePurge]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStoragePurge[P]>
+      : GetScalarType<T[P], AggregateStoragePurge[P]>
+  }
+
+
+
+
+  export type StoragePurgeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StoragePurgeWhereInput
+    orderBy?: StoragePurgeOrderByWithAggregationInput | StoragePurgeOrderByWithAggregationInput[]
+    by: StoragePurgeScalarFieldEnum[] | StoragePurgeScalarFieldEnum
+    having?: StoragePurgeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StoragePurgeCountAggregateInputType | true
+    _min?: StoragePurgeMinAggregateInputType
+    _max?: StoragePurgeMaxAggregateInputType
+  }
+
+  export type StoragePurgeGroupByOutputType = {
+    id: string
+    path: string
+    isPrefix: boolean
+    readyAt: Date
+    completedAt: Date | null
+    createdAt: Date
+    _count: StoragePurgeCountAggregateOutputType | null
+    _min: StoragePurgeMinAggregateOutputType | null
+    _max: StoragePurgeMaxAggregateOutputType | null
+  }
+
+  type GetStoragePurgeGroupByPayload<T extends StoragePurgeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StoragePurgeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StoragePurgeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StoragePurgeGroupByOutputType[P]>
+            : GetScalarType<T[P], StoragePurgeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StoragePurgeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    path?: boolean
+    isPrefix?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["storagePurge"]>
+
+  export type StoragePurgeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    path?: boolean
+    isPrefix?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["storagePurge"]>
+
+  export type StoragePurgeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    path?: boolean
+    isPrefix?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["storagePurge"]>
+
+  export type StoragePurgeSelectScalar = {
+    id?: boolean
+    path?: boolean
+    isPrefix?: boolean
+    readyAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type StoragePurgeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "path" | "isPrefix" | "readyAt" | "completedAt" | "createdAt", ExtArgs["result"]["storagePurge"]>
+
+  export type $StoragePurgePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StoragePurge"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      path: string
+      isPrefix: boolean
+      readyAt: Date
+      completedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["storagePurge"]>
+    composites: {}
+  }
+
+  type StoragePurgeGetPayload<S extends boolean | null | undefined | StoragePurgeDefaultArgs> = $Result.GetResult<Prisma.$StoragePurgePayload, S>
+
+  type StoragePurgeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StoragePurgeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StoragePurgeCountAggregateInputType | true
+    }
+
+  export interface StoragePurgeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StoragePurge'], meta: { name: 'StoragePurge' } }
+    /**
+     * Find zero or one StoragePurge that matches the filter.
+     * @param {StoragePurgeFindUniqueArgs} args - Arguments to find a StoragePurge
+     * @example
+     * // Get one StoragePurge
+     * const storagePurge = await prisma.storagePurge.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StoragePurgeFindUniqueArgs>(args: SelectSubset<T, StoragePurgeFindUniqueArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StoragePurge that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StoragePurgeFindUniqueOrThrowArgs} args - Arguments to find a StoragePurge
+     * @example
+     * // Get one StoragePurge
+     * const storagePurge = await prisma.storagePurge.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StoragePurgeFindUniqueOrThrowArgs>(args: SelectSubset<T, StoragePurgeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StoragePurge that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeFindFirstArgs} args - Arguments to find a StoragePurge
+     * @example
+     * // Get one StoragePurge
+     * const storagePurge = await prisma.storagePurge.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StoragePurgeFindFirstArgs>(args?: SelectSubset<T, StoragePurgeFindFirstArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StoragePurge that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeFindFirstOrThrowArgs} args - Arguments to find a StoragePurge
+     * @example
+     * // Get one StoragePurge
+     * const storagePurge = await prisma.storagePurge.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StoragePurgeFindFirstOrThrowArgs>(args?: SelectSubset<T, StoragePurgeFindFirstOrThrowArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StoragePurges that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StoragePurges
+     * const storagePurges = await prisma.storagePurge.findMany()
+     * 
+     * // Get first 10 StoragePurges
+     * const storagePurges = await prisma.storagePurge.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const storagePurgeWithIdOnly = await prisma.storagePurge.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StoragePurgeFindManyArgs>(args?: SelectSubset<T, StoragePurgeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StoragePurge.
+     * @param {StoragePurgeCreateArgs} args - Arguments to create a StoragePurge.
+     * @example
+     * // Create one StoragePurge
+     * const StoragePurge = await prisma.storagePurge.create({
+     *   data: {
+     *     // ... data to create a StoragePurge
+     *   }
+     * })
+     * 
+     */
+    create<T extends StoragePurgeCreateArgs>(args: SelectSubset<T, StoragePurgeCreateArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StoragePurges.
+     * @param {StoragePurgeCreateManyArgs} args - Arguments to create many StoragePurges.
+     * @example
+     * // Create many StoragePurges
+     * const storagePurge = await prisma.storagePurge.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StoragePurgeCreateManyArgs>(args?: SelectSubset<T, StoragePurgeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StoragePurges and returns the data saved in the database.
+     * @param {StoragePurgeCreateManyAndReturnArgs} args - Arguments to create many StoragePurges.
+     * @example
+     * // Create many StoragePurges
+     * const storagePurge = await prisma.storagePurge.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StoragePurges and only return the `id`
+     * const storagePurgeWithIdOnly = await prisma.storagePurge.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StoragePurgeCreateManyAndReturnArgs>(args?: SelectSubset<T, StoragePurgeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StoragePurge.
+     * @param {StoragePurgeDeleteArgs} args - Arguments to delete one StoragePurge.
+     * @example
+     * // Delete one StoragePurge
+     * const StoragePurge = await prisma.storagePurge.delete({
+     *   where: {
+     *     // ... filter to delete one StoragePurge
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StoragePurgeDeleteArgs>(args: SelectSubset<T, StoragePurgeDeleteArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StoragePurge.
+     * @param {StoragePurgeUpdateArgs} args - Arguments to update one StoragePurge.
+     * @example
+     * // Update one StoragePurge
+     * const storagePurge = await prisma.storagePurge.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StoragePurgeUpdateArgs>(args: SelectSubset<T, StoragePurgeUpdateArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StoragePurges.
+     * @param {StoragePurgeDeleteManyArgs} args - Arguments to filter StoragePurges to delete.
+     * @example
+     * // Delete a few StoragePurges
+     * const { count } = await prisma.storagePurge.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StoragePurgeDeleteManyArgs>(args?: SelectSubset<T, StoragePurgeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StoragePurges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StoragePurges
+     * const storagePurge = await prisma.storagePurge.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StoragePurgeUpdateManyArgs>(args: SelectSubset<T, StoragePurgeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StoragePurges and returns the data updated in the database.
+     * @param {StoragePurgeUpdateManyAndReturnArgs} args - Arguments to update many StoragePurges.
+     * @example
+     * // Update many StoragePurges
+     * const storagePurge = await prisma.storagePurge.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StoragePurges and only return the `id`
+     * const storagePurgeWithIdOnly = await prisma.storagePurge.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StoragePurgeUpdateManyAndReturnArgs>(args: SelectSubset<T, StoragePurgeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StoragePurge.
+     * @param {StoragePurgeUpsertArgs} args - Arguments to update or create a StoragePurge.
+     * @example
+     * // Update or create a StoragePurge
+     * const storagePurge = await prisma.storagePurge.upsert({
+     *   create: {
+     *     // ... data to create a StoragePurge
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StoragePurge we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StoragePurgeUpsertArgs>(args: SelectSubset<T, StoragePurgeUpsertArgs<ExtArgs>>): Prisma__StoragePurgeClient<$Result.GetResult<Prisma.$StoragePurgePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StoragePurges.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeCountArgs} args - Arguments to filter StoragePurges to count.
+     * @example
+     * // Count the number of StoragePurges
+     * const count = await prisma.storagePurge.count({
+     *   where: {
+     *     // ... the filter for the StoragePurges we want to count
+     *   }
+     * })
+    **/
+    count<T extends StoragePurgeCountArgs>(
+      args?: Subset<T, StoragePurgeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StoragePurgeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StoragePurge.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StoragePurgeAggregateArgs>(args: Subset<T, StoragePurgeAggregateArgs>): Prisma.PrismaPromise<GetStoragePurgeAggregateType<T>>
+
+    /**
+     * Group by StoragePurge.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StoragePurgeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StoragePurgeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StoragePurgeGroupByArgs['orderBy'] }
+        : { orderBy?: StoragePurgeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StoragePurgeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStoragePurgeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StoragePurge model
+   */
+  readonly fields: StoragePurgeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StoragePurge.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StoragePurgeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StoragePurge model
+   */
+  interface StoragePurgeFieldRefs {
+    readonly id: FieldRef<"StoragePurge", 'String'>
+    readonly path: FieldRef<"StoragePurge", 'String'>
+    readonly isPrefix: FieldRef<"StoragePurge", 'Boolean'>
+    readonly readyAt: FieldRef<"StoragePurge", 'DateTime'>
+    readonly completedAt: FieldRef<"StoragePurge", 'DateTime'>
+    readonly createdAt: FieldRef<"StoragePurge", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StoragePurge findUnique
+   */
+  export type StoragePurgeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * Filter, which StoragePurge to fetch.
+     */
+    where: StoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * StoragePurge findUniqueOrThrow
+   */
+  export type StoragePurgeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * Filter, which StoragePurge to fetch.
+     */
+    where: StoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * StoragePurge findFirst
+   */
+  export type StoragePurgeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * Filter, which StoragePurge to fetch.
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StoragePurges to fetch.
+     */
+    orderBy?: StoragePurgeOrderByWithRelationInput | StoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StoragePurges.
+     */
+    cursor?: StoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StoragePurges.
+     */
+    distinct?: StoragePurgeScalarFieldEnum | StoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * StoragePurge findFirstOrThrow
+   */
+  export type StoragePurgeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * Filter, which StoragePurge to fetch.
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StoragePurges to fetch.
+     */
+    orderBy?: StoragePurgeOrderByWithRelationInput | StoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StoragePurges.
+     */
+    cursor?: StoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StoragePurges.
+     */
+    distinct?: StoragePurgeScalarFieldEnum | StoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * StoragePurge findMany
+   */
+  export type StoragePurgeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * Filter, which StoragePurges to fetch.
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StoragePurges to fetch.
+     */
+    orderBy?: StoragePurgeOrderByWithRelationInput | StoragePurgeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StoragePurges.
+     */
+    cursor?: StoragePurgeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StoragePurges from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StoragePurges.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StoragePurges.
+     */
+    distinct?: StoragePurgeScalarFieldEnum | StoragePurgeScalarFieldEnum[]
+  }
+
+  /**
+   * StoragePurge create
+   */
+  export type StoragePurgeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * The data needed to create a StoragePurge.
+     */
+    data: XOR<StoragePurgeCreateInput, StoragePurgeUncheckedCreateInput>
+  }
+
+  /**
+   * StoragePurge createMany
+   */
+  export type StoragePurgeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StoragePurges.
+     */
+    data: StoragePurgeCreateManyInput | StoragePurgeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StoragePurge createManyAndReturn
+   */
+  export type StoragePurgeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * The data used to create many StoragePurges.
+     */
+    data: StoragePurgeCreateManyInput | StoragePurgeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StoragePurge update
+   */
+  export type StoragePurgeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * The data needed to update a StoragePurge.
+     */
+    data: XOR<StoragePurgeUpdateInput, StoragePurgeUncheckedUpdateInput>
+    /**
+     * Choose, which StoragePurge to update.
+     */
+    where: StoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * StoragePurge updateMany
+   */
+  export type StoragePurgeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StoragePurges.
+     */
+    data: XOR<StoragePurgeUpdateManyMutationInput, StoragePurgeUncheckedUpdateManyInput>
+    /**
+     * Filter which StoragePurges to update
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * Limit how many StoragePurges to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StoragePurge updateManyAndReturn
+   */
+  export type StoragePurgeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * The data used to update StoragePurges.
+     */
+    data: XOR<StoragePurgeUpdateManyMutationInput, StoragePurgeUncheckedUpdateManyInput>
+    /**
+     * Filter which StoragePurges to update
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * Limit how many StoragePurges to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StoragePurge upsert
+   */
+  export type StoragePurgeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * The filter to search for the StoragePurge to update in case it exists.
+     */
+    where: StoragePurgeWhereUniqueInput
+    /**
+     * In case the StoragePurge found by the `where` argument doesn't exist, create a new StoragePurge with this data.
+     */
+    create: XOR<StoragePurgeCreateInput, StoragePurgeUncheckedCreateInput>
+    /**
+     * In case the StoragePurge was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StoragePurgeUpdateInput, StoragePurgeUncheckedUpdateInput>
+  }
+
+  /**
+   * StoragePurge delete
+   */
+  export type StoragePurgeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+    /**
+     * Filter which StoragePurge to delete.
+     */
+    where: StoragePurgeWhereUniqueInput
+  }
+
+  /**
+   * StoragePurge deleteMany
+   */
+  export type StoragePurgeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StoragePurges to delete
+     */
+    where?: StoragePurgeWhereInput
+    /**
+     * Limit how many StoragePurges to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StoragePurge without action
+   */
+  export type StoragePurgeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StoragePurge
+     */
+    select?: StoragePurgeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StoragePurge
+     */
+    omit?: StoragePurgeOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -13160,6 +18070,8 @@ export namespace Prisma {
     processingError: 'processingError',
     shareToken: 'shareToken',
     sharedAt: 'sharedAt',
+    aiConsentAt: 'aiConsentAt',
+    aiConsentById: 'aiConsentById',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13169,6 +18081,7 @@ export namespace Prisma {
 
   export const CaptureScalarFieldEnum: {
     id: 'id',
+    clientId: 'clientId',
     roomId: 'roomId',
     kind: 'kind',
     storagePath: 'storagePath',
@@ -13192,6 +18105,8 @@ export namespace Prisma {
     order: 'order',
     status: 'status',
     processingError: 'processingError',
+    processingAttemptId: 'processingAttemptId',
+    processingStartedAt: 'processingStartedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13250,6 +18165,58 @@ export namespace Prisma {
   export type SignatureScalarFieldEnum = (typeof SignatureScalarFieldEnum)[keyof typeof SignatureScalarFieldEnum]
 
 
+  export const AssessmentVersionScalarFieldEnum: {
+    id: 'id',
+    inspectionId: 'inspectionId',
+    version: 'version',
+    snapshot: 'snapshot',
+    contentHash: 'contentHash',
+    publishedAt: 'publishedAt',
+    publishedById: 'publishedById'
+  };
+
+  export type AssessmentVersionScalarFieldEnum = (typeof AssessmentVersionScalarFieldEnum)[keyof typeof AssessmentVersionScalarFieldEnum]
+
+
+  export const AccountDeletionRequestScalarFieldEnum: {
+    id: 'id',
+    stakeholderId: 'stakeholderId',
+    status: 'status',
+    requestedAt: 'requestedAt',
+    dueAt: 'dueAt',
+    completedAt: 'completedAt',
+    notificationSentAt: 'notificationSentAt',
+    processingPolicyVersion: 'processingPolicyVersion',
+    fulfilledUnderPolicy: 'fulfilledUnderPolicy',
+    email: 'email'
+  };
+
+  export type AccountDeletionRequestScalarFieldEnum = (typeof AccountDeletionRequestScalarFieldEnum)[keyof typeof AccountDeletionRequestScalarFieldEnum]
+
+
+  export const AccountDeletionStoragePurgeScalarFieldEnum: {
+    id: 'id',
+    requestId: 'requestId',
+    roomId: 'roomId',
+    readyAt: 'readyAt',
+    completedAt: 'completedAt'
+  };
+
+  export type AccountDeletionStoragePurgeScalarFieldEnum = (typeof AccountDeletionStoragePurgeScalarFieldEnum)[keyof typeof AccountDeletionStoragePurgeScalarFieldEnum]
+
+
+  export const StoragePurgeScalarFieldEnum: {
+    id: 'id',
+    path: 'path',
+    isPrefix: 'isPrefix',
+    readyAt: 'readyAt',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type StoragePurgeScalarFieldEnum = (typeof StoragePurgeScalarFieldEnum)[keyof typeof StoragePurgeScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -13264,6 +18231,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -13525,6 +18499,20 @@ export namespace Prisma {
    */
   export type ListEnumVerdictFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Verdict[]'>
     
+
+
+  /**
+   * Reference to a field of type 'DeletionRequestStatus'
+   */
+  export type EnumDeletionRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeletionRequestStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeletionRequestStatus[]'
+   */
+  export type ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeletionRequestStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -13548,6 +18536,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyListRelationFilter
     inspectionsRun?: InspectionListRelationFilter
     signatures?: SignatureListRelationFilter
+    deletionRequests?: AccountDeletionRequestListRelationFilter
   }
 
   export type StakeholderOrderByWithRelationInput = {
@@ -13565,6 +18554,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyOrderByRelationAggregateInput
     inspectionsRun?: InspectionOrderByRelationAggregateInput
     signatures?: SignatureOrderByRelationAggregateInput
+    deletionRequests?: AccountDeletionRequestOrderByRelationAggregateInput
   }
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
@@ -13585,6 +18575,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyListRelationFilter
     inspectionsRun?: InspectionListRelationFilter
     signatures?: SignatureListRelationFilter
+    deletionRequests?: AccountDeletionRequestListRelationFilter
   }, "id" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
@@ -13796,6 +18787,8 @@ export namespace Prisma {
     processingError?: StringNullableFilter<"Inspection"> | string | null
     shareToken?: StringNullableFilter<"Inspection"> | string | null
     sharedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
+    aiConsentAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
+    aiConsentById?: StringNullableFilter<"Inspection"> | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
@@ -13805,6 +18798,7 @@ export namespace Prisma {
     rooms?: RoomListRelationFilter
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
+    assessments?: AssessmentVersionListRelationFilter
   }
 
   export type InspectionOrderByWithRelationInput = {
@@ -13819,6 +18813,8 @@ export namespace Prisma {
     processingError?: SortOrderInput | SortOrder
     shareToken?: SortOrderInput | SortOrder
     sharedAt?: SortOrderInput | SortOrder
+    aiConsentAt?: SortOrderInput | SortOrder
+    aiConsentById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenancy?: TenancyOrderByWithRelationInput
@@ -13828,6 +18824,7 @@ export namespace Prisma {
     rooms?: RoomOrderByRelationAggregateInput
     findings?: FindingOrderByRelationAggregateInput
     signatures?: SignatureOrderByRelationAggregateInput
+    assessments?: AssessmentVersionOrderByRelationAggregateInput
   }
 
   export type InspectionWhereUniqueInput = Prisma.AtLeast<{
@@ -13845,6 +18842,8 @@ export namespace Prisma {
     summary?: StringNullableFilter<"Inspection"> | string | null
     processingError?: StringNullableFilter<"Inspection"> | string | null
     sharedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
+    aiConsentAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
+    aiConsentById?: StringNullableFilter<"Inspection"> | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
@@ -13854,6 +18853,7 @@ export namespace Prisma {
     rooms?: RoomListRelationFilter
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
+    assessments?: AssessmentVersionListRelationFilter
   }, "id" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
@@ -13868,6 +18868,8 @@ export namespace Prisma {
     processingError?: SortOrderInput | SortOrder
     shareToken?: SortOrderInput | SortOrder
     sharedAt?: SortOrderInput | SortOrder
+    aiConsentAt?: SortOrderInput | SortOrder
+    aiConsentById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: InspectionCountOrderByAggregateInput
@@ -13890,6 +18892,8 @@ export namespace Prisma {
     processingError?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     shareToken?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     sharedAt?: DateTimeNullableWithAggregatesFilter<"Inspection"> | Date | string | null
+    aiConsentAt?: DateTimeNullableWithAggregatesFilter<"Inspection"> | Date | string | null
+    aiConsentById?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Inspection"> | Date | string
   }
@@ -13899,6 +18903,7 @@ export namespace Prisma {
     OR?: CaptureWhereInput[]
     NOT?: CaptureWhereInput | CaptureWhereInput[]
     id?: StringFilter<"Capture"> | string
+    clientId?: StringNullableFilter<"Capture"> | string | null
     roomId?: StringFilter<"Capture"> | string
     kind?: EnumCaptureKindFilter<"Capture"> | $Enums.CaptureKind
     storagePath?: StringFilter<"Capture"> | string
@@ -13916,6 +18921,7 @@ export namespace Prisma {
 
   export type CaptureOrderByWithRelationInput = {
     id?: SortOrder
+    clientId?: SortOrderInput | SortOrder
     roomId?: SortOrder
     kind?: SortOrder
     storagePath?: SortOrder
@@ -13933,12 +18939,13 @@ export namespace Prisma {
 
   export type CaptureWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    clientId?: string
+    storagePath?: string
     AND?: CaptureWhereInput | CaptureWhereInput[]
     OR?: CaptureWhereInput[]
     NOT?: CaptureWhereInput | CaptureWhereInput[]
     roomId?: StringFilter<"Capture"> | string
     kind?: EnumCaptureKindFilter<"Capture"> | $Enums.CaptureKind
-    storagePath?: StringFilter<"Capture"> | string
     mimeType?: StringFilter<"Capture"> | string
     sizeBytes?: IntFilter<"Capture"> | number
     durationSec?: IntNullableFilter<"Capture"> | number | null
@@ -13949,10 +18956,11 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     items?: InspectionItemListRelationFilter
-  }, "id">
+  }, "id" | "clientId" | "storagePath">
 
   export type CaptureOrderByWithAggregationInput = {
     id?: SortOrder
+    clientId?: SortOrderInput | SortOrder
     roomId?: SortOrder
     kind?: SortOrder
     storagePath?: SortOrder
@@ -13976,6 +18984,7 @@ export namespace Prisma {
     OR?: CaptureScalarWhereWithAggregatesInput[]
     NOT?: CaptureScalarWhereWithAggregatesInput | CaptureScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Capture"> | string
+    clientId?: StringNullableWithAggregatesFilter<"Capture"> | string | null
     roomId?: StringWithAggregatesFilter<"Capture"> | string
     kind?: EnumCaptureKindWithAggregatesFilter<"Capture"> | $Enums.CaptureKind
     storagePath?: StringWithAggregatesFilter<"Capture"> | string
@@ -13999,6 +19008,8 @@ export namespace Prisma {
     order?: IntFilter<"Room"> | number
     status?: EnumRoomStatusFilter<"Room"> | $Enums.RoomStatus
     processingError?: StringNullableFilter<"Room"> | string | null
+    processingAttemptId?: StringNullableFilter<"Room"> | string | null
+    processingStartedAt?: DateTimeNullableFilter<"Room"> | Date | string | null
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
@@ -14013,6 +19024,8 @@ export namespace Prisma {
     order?: SortOrder
     status?: SortOrder
     processingError?: SortOrderInput | SortOrder
+    processingAttemptId?: SortOrderInput | SortOrder
+    processingStartedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inspection?: InspectionOrderByWithRelationInput
@@ -14030,6 +19043,8 @@ export namespace Prisma {
     order?: IntFilter<"Room"> | number
     status?: EnumRoomStatusFilter<"Room"> | $Enums.RoomStatus
     processingError?: StringNullableFilter<"Room"> | string | null
+    processingAttemptId?: StringNullableFilter<"Room"> | string | null
+    processingStartedAt?: DateTimeNullableFilter<"Room"> | Date | string | null
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
@@ -14044,6 +19059,8 @@ export namespace Prisma {
     order?: SortOrder
     status?: SortOrder
     processingError?: SortOrderInput | SortOrder
+    processingAttemptId?: SortOrderInput | SortOrder
+    processingStartedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: RoomCountOrderByAggregateInput
@@ -14063,6 +19080,8 @@ export namespace Prisma {
     order?: IntWithAggregatesFilter<"Room"> | number
     status?: EnumRoomStatusWithAggregatesFilter<"Room"> | $Enums.RoomStatus
     processingError?: StringNullableWithAggregatesFilter<"Room"> | string | null
+    processingAttemptId?: StringNullableWithAggregatesFilter<"Room"> | string | null
+    processingStartedAt?: DateTimeNullableWithAggregatesFilter<"Room"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
   }
@@ -14345,6 +19364,269 @@ export namespace Prisma {
     imageData?: StringWithAggregatesFilter<"Signature"> | string
   }
 
+  export type AssessmentVersionWhereInput = {
+    AND?: AssessmentVersionWhereInput | AssessmentVersionWhereInput[]
+    OR?: AssessmentVersionWhereInput[]
+    NOT?: AssessmentVersionWhereInput | AssessmentVersionWhereInput[]
+    id?: StringFilter<"AssessmentVersion"> | string
+    inspectionId?: StringFilter<"AssessmentVersion"> | string
+    version?: IntFilter<"AssessmentVersion"> | number
+    snapshot?: JsonFilter<"AssessmentVersion">
+    contentHash?: StringFilter<"AssessmentVersion"> | string
+    publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
+    publishedById?: StringFilter<"AssessmentVersion"> | string
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+  }
+
+  export type AssessmentVersionOrderByWithRelationInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    version?: SortOrder
+    snapshot?: SortOrder
+    contentHash?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    inspection?: InspectionOrderByWithRelationInput
+  }
+
+  export type AssessmentVersionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    inspectionId_version?: AssessmentVersionInspectionIdVersionCompoundUniqueInput
+    AND?: AssessmentVersionWhereInput | AssessmentVersionWhereInput[]
+    OR?: AssessmentVersionWhereInput[]
+    NOT?: AssessmentVersionWhereInput | AssessmentVersionWhereInput[]
+    inspectionId?: StringFilter<"AssessmentVersion"> | string
+    version?: IntFilter<"AssessmentVersion"> | number
+    snapshot?: JsonFilter<"AssessmentVersion">
+    contentHash?: StringFilter<"AssessmentVersion"> | string
+    publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
+    publishedById?: StringFilter<"AssessmentVersion"> | string
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+  }, "id" | "inspectionId_version">
+
+  export type AssessmentVersionOrderByWithAggregationInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    version?: SortOrder
+    snapshot?: SortOrder
+    contentHash?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    _count?: AssessmentVersionCountOrderByAggregateInput
+    _avg?: AssessmentVersionAvgOrderByAggregateInput
+    _max?: AssessmentVersionMaxOrderByAggregateInput
+    _min?: AssessmentVersionMinOrderByAggregateInput
+    _sum?: AssessmentVersionSumOrderByAggregateInput
+  }
+
+  export type AssessmentVersionScalarWhereWithAggregatesInput = {
+    AND?: AssessmentVersionScalarWhereWithAggregatesInput | AssessmentVersionScalarWhereWithAggregatesInput[]
+    OR?: AssessmentVersionScalarWhereWithAggregatesInput[]
+    NOT?: AssessmentVersionScalarWhereWithAggregatesInput | AssessmentVersionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssessmentVersion"> | string
+    inspectionId?: StringWithAggregatesFilter<"AssessmentVersion"> | string
+    version?: IntWithAggregatesFilter<"AssessmentVersion"> | number
+    snapshot?: JsonWithAggregatesFilter<"AssessmentVersion">
+    contentHash?: StringWithAggregatesFilter<"AssessmentVersion"> | string
+    publishedAt?: DateTimeWithAggregatesFilter<"AssessmentVersion"> | Date | string
+    publishedById?: StringWithAggregatesFilter<"AssessmentVersion"> | string
+  }
+
+  export type AccountDeletionRequestWhereInput = {
+    AND?: AccountDeletionRequestWhereInput | AccountDeletionRequestWhereInput[]
+    OR?: AccountDeletionRequestWhereInput[]
+    NOT?: AccountDeletionRequestWhereInput | AccountDeletionRequestWhereInput[]
+    id?: StringFilter<"AccountDeletionRequest"> | string
+    stakeholderId?: StringFilter<"AccountDeletionRequest"> | string
+    status?: EnumDeletionRequestStatusFilter<"AccountDeletionRequest"> | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFilter<"AccountDeletionRequest"> | Date | string
+    dueAt?: DateTimeFilter<"AccountDeletionRequest"> | Date | string
+    completedAt?: DateTimeNullableFilter<"AccountDeletionRequest"> | Date | string | null
+    notificationSentAt?: DateTimeNullableFilter<"AccountDeletionRequest"> | Date | string | null
+    processingPolicyVersion?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    fulfilledUnderPolicy?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    email?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    storagePurges?: AccountDeletionStoragePurgeListRelationFilter
+  }
+
+  export type AccountDeletionRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    stakeholderId?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    dueAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    notificationSentAt?: SortOrderInput | SortOrder
+    processingPolicyVersion?: SortOrderInput | SortOrder
+    fulfilledUnderPolicy?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+    storagePurges?: AccountDeletionStoragePurgeOrderByRelationAggregateInput
+  }
+
+  export type AccountDeletionRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    stakeholderId?: string
+    AND?: AccountDeletionRequestWhereInput | AccountDeletionRequestWhereInput[]
+    OR?: AccountDeletionRequestWhereInput[]
+    NOT?: AccountDeletionRequestWhereInput | AccountDeletionRequestWhereInput[]
+    status?: EnumDeletionRequestStatusFilter<"AccountDeletionRequest"> | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFilter<"AccountDeletionRequest"> | Date | string
+    dueAt?: DateTimeFilter<"AccountDeletionRequest"> | Date | string
+    completedAt?: DateTimeNullableFilter<"AccountDeletionRequest"> | Date | string | null
+    notificationSentAt?: DateTimeNullableFilter<"AccountDeletionRequest"> | Date | string | null
+    processingPolicyVersion?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    fulfilledUnderPolicy?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    email?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    storagePurges?: AccountDeletionStoragePurgeListRelationFilter
+  }, "id" | "stakeholderId">
+
+  export type AccountDeletionRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    stakeholderId?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    dueAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    notificationSentAt?: SortOrderInput | SortOrder
+    processingPolicyVersion?: SortOrderInput | SortOrder
+    fulfilledUnderPolicy?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    _count?: AccountDeletionRequestCountOrderByAggregateInput
+    _max?: AccountDeletionRequestMaxOrderByAggregateInput
+    _min?: AccountDeletionRequestMinOrderByAggregateInput
+  }
+
+  export type AccountDeletionRequestScalarWhereWithAggregatesInput = {
+    AND?: AccountDeletionRequestScalarWhereWithAggregatesInput | AccountDeletionRequestScalarWhereWithAggregatesInput[]
+    OR?: AccountDeletionRequestScalarWhereWithAggregatesInput[]
+    NOT?: AccountDeletionRequestScalarWhereWithAggregatesInput | AccountDeletionRequestScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AccountDeletionRequest"> | string
+    stakeholderId?: StringWithAggregatesFilter<"AccountDeletionRequest"> | string
+    status?: EnumDeletionRequestStatusWithAggregatesFilter<"AccountDeletionRequest"> | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeWithAggregatesFilter<"AccountDeletionRequest"> | Date | string
+    dueAt?: DateTimeWithAggregatesFilter<"AccountDeletionRequest"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"AccountDeletionRequest"> | Date | string | null
+    notificationSentAt?: DateTimeNullableWithAggregatesFilter<"AccountDeletionRequest"> | Date | string | null
+    processingPolicyVersion?: StringNullableWithAggregatesFilter<"AccountDeletionRequest"> | string | null
+    fulfilledUnderPolicy?: StringNullableWithAggregatesFilter<"AccountDeletionRequest"> | string | null
+    email?: StringNullableWithAggregatesFilter<"AccountDeletionRequest"> | string | null
+  }
+
+  export type AccountDeletionStoragePurgeWhereInput = {
+    AND?: AccountDeletionStoragePurgeWhereInput | AccountDeletionStoragePurgeWhereInput[]
+    OR?: AccountDeletionStoragePurgeWhereInput[]
+    NOT?: AccountDeletionStoragePurgeWhereInput | AccountDeletionStoragePurgeWhereInput[]
+    id?: StringFilter<"AccountDeletionStoragePurge"> | string
+    requestId?: StringFilter<"AccountDeletionStoragePurge"> | string
+    roomId?: StringFilter<"AccountDeletionStoragePurge"> | string
+    readyAt?: DateTimeFilter<"AccountDeletionStoragePurge"> | Date | string
+    completedAt?: DateTimeNullableFilter<"AccountDeletionStoragePurge"> | Date | string | null
+    request?: XOR<AccountDeletionRequestScalarRelationFilter, AccountDeletionRequestWhereInput>
+  }
+
+  export type AccountDeletionStoragePurgeOrderByWithRelationInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    roomId?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    request?: AccountDeletionRequestOrderByWithRelationInput
+  }
+
+  export type AccountDeletionStoragePurgeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    roomId?: string
+    AND?: AccountDeletionStoragePurgeWhereInput | AccountDeletionStoragePurgeWhereInput[]
+    OR?: AccountDeletionStoragePurgeWhereInput[]
+    NOT?: AccountDeletionStoragePurgeWhereInput | AccountDeletionStoragePurgeWhereInput[]
+    requestId?: StringFilter<"AccountDeletionStoragePurge"> | string
+    readyAt?: DateTimeFilter<"AccountDeletionStoragePurge"> | Date | string
+    completedAt?: DateTimeNullableFilter<"AccountDeletionStoragePurge"> | Date | string | null
+    request?: XOR<AccountDeletionRequestScalarRelationFilter, AccountDeletionRequestWhereInput>
+  }, "id" | "roomId">
+
+  export type AccountDeletionStoragePurgeOrderByWithAggregationInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    roomId?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    _count?: AccountDeletionStoragePurgeCountOrderByAggregateInput
+    _max?: AccountDeletionStoragePurgeMaxOrderByAggregateInput
+    _min?: AccountDeletionStoragePurgeMinOrderByAggregateInput
+  }
+
+  export type AccountDeletionStoragePurgeScalarWhereWithAggregatesInput = {
+    AND?: AccountDeletionStoragePurgeScalarWhereWithAggregatesInput | AccountDeletionStoragePurgeScalarWhereWithAggregatesInput[]
+    OR?: AccountDeletionStoragePurgeScalarWhereWithAggregatesInput[]
+    NOT?: AccountDeletionStoragePurgeScalarWhereWithAggregatesInput | AccountDeletionStoragePurgeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AccountDeletionStoragePurge"> | string
+    requestId?: StringWithAggregatesFilter<"AccountDeletionStoragePurge"> | string
+    roomId?: StringWithAggregatesFilter<"AccountDeletionStoragePurge"> | string
+    readyAt?: DateTimeWithAggregatesFilter<"AccountDeletionStoragePurge"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"AccountDeletionStoragePurge"> | Date | string | null
+  }
+
+  export type StoragePurgeWhereInput = {
+    AND?: StoragePurgeWhereInput | StoragePurgeWhereInput[]
+    OR?: StoragePurgeWhereInput[]
+    NOT?: StoragePurgeWhereInput | StoragePurgeWhereInput[]
+    id?: StringFilter<"StoragePurge"> | string
+    path?: StringFilter<"StoragePurge"> | string
+    isPrefix?: BoolFilter<"StoragePurge"> | boolean
+    readyAt?: DateTimeFilter<"StoragePurge"> | Date | string
+    completedAt?: DateTimeNullableFilter<"StoragePurge"> | Date | string | null
+    createdAt?: DateTimeFilter<"StoragePurge"> | Date | string
+  }
+
+  export type StoragePurgeOrderByWithRelationInput = {
+    id?: SortOrder
+    path?: SortOrder
+    isPrefix?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StoragePurgeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    path?: string
+    AND?: StoragePurgeWhereInput | StoragePurgeWhereInput[]
+    OR?: StoragePurgeWhereInput[]
+    NOT?: StoragePurgeWhereInput | StoragePurgeWhereInput[]
+    isPrefix?: BoolFilter<"StoragePurge"> | boolean
+    readyAt?: DateTimeFilter<"StoragePurge"> | Date | string
+    completedAt?: DateTimeNullableFilter<"StoragePurge"> | Date | string | null
+    createdAt?: DateTimeFilter<"StoragePurge"> | Date | string
+  }, "id" | "path">
+
+  export type StoragePurgeOrderByWithAggregationInput = {
+    id?: SortOrder
+    path?: SortOrder
+    isPrefix?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: StoragePurgeCountOrderByAggregateInput
+    _max?: StoragePurgeMaxOrderByAggregateInput
+    _min?: StoragePurgeMinOrderByAggregateInput
+  }
+
+  export type StoragePurgeScalarWhereWithAggregatesInput = {
+    AND?: StoragePurgeScalarWhereWithAggregatesInput | StoragePurgeScalarWhereWithAggregatesInput[]
+    OR?: StoragePurgeScalarWhereWithAggregatesInput[]
+    NOT?: StoragePurgeScalarWhereWithAggregatesInput | StoragePurgeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"StoragePurge"> | string
+    path?: StringWithAggregatesFilter<"StoragePurge"> | string
+    isPrefix?: BoolWithAggregatesFilter<"StoragePurge"> | boolean
+    readyAt?: DateTimeWithAggregatesFilter<"StoragePurge"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"StoragePurge"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"StoragePurge"> | Date | string
+  }
+
   export type StakeholderCreateInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -14360,6 +19642,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateInput = {
@@ -14377,6 +19660,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUpdateInput = {
@@ -14394,6 +19678,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateInput = {
@@ -14411,6 +19696,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateManyInput = {
@@ -14630,6 +19916,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -14639,6 +19927,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateInput = {
@@ -14653,12 +19942,15 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUpdateInput = {
@@ -14670,6 +19962,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -14679,6 +19973,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateInput = {
@@ -14693,12 +19988,15 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionCreateManyInput = {
@@ -14713,6 +20011,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14726,6 +20026,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14742,12 +20044,15 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaptureCreateInput = {
     id?: string
+    clientId?: string | null
     kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
@@ -14764,6 +20069,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedCreateInput = {
     id?: string
+    clientId?: string | null
     roomId: string
     kind?: $Enums.CaptureKind
     storagePath: string
@@ -14780,6 +20086,7 @@ export namespace Prisma {
 
   export type CaptureUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -14796,6 +20103,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     roomId?: StringFieldUpdateOperationsInput | string
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
@@ -14812,6 +20120,7 @@ export namespace Prisma {
 
   export type CaptureCreateManyInput = {
     id?: string
+    clientId?: string | null
     roomId: string
     kind?: $Enums.CaptureKind
     storagePath: string
@@ -14827,6 +20136,7 @@ export namespace Prisma {
 
   export type CaptureUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -14841,6 +20151,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     roomId?: StringFieldUpdateOperationsInput | string
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
@@ -14860,6 +20171,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
@@ -14874,6 +20187,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
@@ -14886,6 +20201,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
@@ -14900,6 +20217,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
@@ -14913,6 +20232,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14923,6 +20244,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14934,6 +20257,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15233,6 +20558,287 @@ export namespace Prisma {
     imageData?: StringFieldUpdateOperationsInput | string
   }
 
+  export type AssessmentVersionCreateInput = {
+    id?: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+    inspection: InspectionCreateNestedOneWithoutAssessmentsInput
+  }
+
+  export type AssessmentVersionUncheckedCreateInput = {
+    id?: string
+    inspectionId: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+  }
+
+  export type AssessmentVersionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+    inspection?: InspectionUpdateOneRequiredWithoutAssessmentsNestedInput
+  }
+
+  export type AssessmentVersionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AssessmentVersionCreateManyInput = {
+    id?: string
+    inspectionId: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+  }
+
+  export type AssessmentVersionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AssessmentVersionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AccountDeletionRequestCreateInput = {
+    id?: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+    stakeholder: StakeholderCreateNestedOneWithoutDeletionRequestsInput
+    storagePurges?: AccountDeletionStoragePurgeCreateNestedManyWithoutRequestInput
+  }
+
+  export type AccountDeletionRequestUncheckedCreateInput = {
+    id?: string
+    stakeholderId: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+    storagePurges?: AccountDeletionStoragePurgeUncheckedCreateNestedManyWithoutRequestInput
+  }
+
+  export type AccountDeletionRequestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholder?: StakeholderUpdateOneRequiredWithoutDeletionRequestsNestedInput
+    storagePurges?: AccountDeletionStoragePurgeUpdateManyWithoutRequestNestedInput
+  }
+
+  export type AccountDeletionRequestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    storagePurges?: AccountDeletionStoragePurgeUncheckedUpdateManyWithoutRequestNestedInput
+  }
+
+  export type AccountDeletionRequestCreateManyInput = {
+    id?: string
+    stakeholderId: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+  }
+
+  export type AccountDeletionRequestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AccountDeletionRequestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AccountDeletionStoragePurgeCreateInput = {
+    id?: string
+    roomId: string
+    readyAt: Date | string
+    completedAt?: Date | string | null
+    request: AccountDeletionRequestCreateNestedOneWithoutStoragePurgesInput
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedCreateInput = {
+    id?: string
+    requestId: string
+    roomId: string
+    readyAt: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    request?: AccountDeletionRequestUpdateOneRequiredWithoutStoragePurgesNestedInput
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeCreateManyInput = {
+    id?: string
+    requestId: string
+    roomId: string
+    readyAt: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type StoragePurgeCreateInput = {
+    id?: string
+    path: string
+    isPrefix: boolean
+    readyAt: Date | string
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type StoragePurgeUncheckedCreateInput = {
+    id?: string
+    path: string
+    isPrefix: boolean
+    readyAt: Date | string
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type StoragePurgeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    isPrefix?: BoolFieldUpdateOperationsInput | boolean
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StoragePurgeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    isPrefix?: BoolFieldUpdateOperationsInput | boolean
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StoragePurgeCreateManyInput = {
+    id?: string
+    path: string
+    isPrefix: boolean
+    readyAt: Date | string
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type StoragePurgeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    isPrefix?: BoolFieldUpdateOperationsInput | boolean
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StoragePurgeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    isPrefix?: BoolFieldUpdateOperationsInput | boolean
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -15299,6 +20905,12 @@ export namespace Prisma {
     none?: SignatureWhereInput
   }
 
+  export type AccountDeletionRequestListRelationFilter = {
+    every?: AccountDeletionRequestWhereInput
+    some?: AccountDeletionRequestWhereInput
+    none?: AccountDeletionRequestWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -15313,6 +20925,10 @@ export namespace Prisma {
   }
 
   export type SignatureOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AccountDeletionRequestOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -15600,11 +21216,21 @@ export namespace Prisma {
     none?: FindingWhereInput
   }
 
+  export type AssessmentVersionListRelationFilter = {
+    every?: AssessmentVersionWhereInput
+    some?: AssessmentVersionWhereInput
+    none?: AssessmentVersionWhereInput
+  }
+
   export type RoomOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type FindingOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssessmentVersionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -15620,6 +21246,8 @@ export namespace Prisma {
     processingError?: SortOrder
     shareToken?: SortOrder
     sharedAt?: SortOrder
+    aiConsentAt?: SortOrder
+    aiConsentById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15636,6 +21264,8 @@ export namespace Prisma {
     processingError?: SortOrder
     shareToken?: SortOrder
     sharedAt?: SortOrder
+    aiConsentAt?: SortOrder
+    aiConsentById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15652,6 +21282,8 @@ export namespace Prisma {
     processingError?: SortOrder
     shareToken?: SortOrder
     sharedAt?: SortOrder
+    aiConsentAt?: SortOrder
+    aiConsentById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15759,6 +21391,7 @@ export namespace Prisma {
 
   export type CaptureCountOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     roomId?: SortOrder
     kind?: SortOrder
     storagePath?: SortOrder
@@ -15779,6 +21412,7 @@ export namespace Prisma {
 
   export type CaptureMaxOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     roomId?: SortOrder
     kind?: SortOrder
     storagePath?: SortOrder
@@ -15793,6 +21427,7 @@ export namespace Prisma {
 
   export type CaptureMinOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     roomId?: SortOrder
     kind?: SortOrder
     storagePath?: SortOrder
@@ -15907,6 +21542,8 @@ export namespace Prisma {
     order?: SortOrder
     status?: SortOrder
     processingError?: SortOrder
+    processingAttemptId?: SortOrder
+    processingStartedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15922,6 +21559,8 @@ export namespace Prisma {
     order?: SortOrder
     status?: SortOrder
     processingError?: SortOrder
+    processingAttemptId?: SortOrder
+    processingStartedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15933,6 +21572,8 @@ export namespace Prisma {
     order?: SortOrder
     status?: SortOrder
     processingError?: SortOrder
+    processingAttemptId?: SortOrder
+    processingStartedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -16248,6 +21889,218 @@ export namespace Prisma {
     ipAddress?: SortOrder
     imageData?: SortOrder
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type AssessmentVersionInspectionIdVersionCompoundUniqueInput = {
+    inspectionId: string
+    version: number
+  }
+
+  export type AssessmentVersionCountOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    version?: SortOrder
+    snapshot?: SortOrder
+    contentHash?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+  }
+
+  export type AssessmentVersionAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type AssessmentVersionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    version?: SortOrder
+    contentHash?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+  }
+
+  export type AssessmentVersionMinOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    version?: SortOrder
+    contentHash?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+  }
+
+  export type AssessmentVersionSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EnumDeletionRequestStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeletionRequestStatusFilter<$PrismaModel> | $Enums.DeletionRequestStatus
+  }
+
+  export type AccountDeletionStoragePurgeListRelationFilter = {
+    every?: AccountDeletionStoragePurgeWhereInput
+    some?: AccountDeletionStoragePurgeWhereInput
+    none?: AccountDeletionStoragePurgeWhereInput
+  }
+
+  export type AccountDeletionStoragePurgeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AccountDeletionRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    stakeholderId?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    dueAt?: SortOrder
+    completedAt?: SortOrder
+    notificationSentAt?: SortOrder
+    processingPolicyVersion?: SortOrder
+    fulfilledUnderPolicy?: SortOrder
+    email?: SortOrder
+  }
+
+  export type AccountDeletionRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    stakeholderId?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    dueAt?: SortOrder
+    completedAt?: SortOrder
+    notificationSentAt?: SortOrder
+    processingPolicyVersion?: SortOrder
+    fulfilledUnderPolicy?: SortOrder
+    email?: SortOrder
+  }
+
+  export type AccountDeletionRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    stakeholderId?: SortOrder
+    status?: SortOrder
+    requestedAt?: SortOrder
+    dueAt?: SortOrder
+    completedAt?: SortOrder
+    notificationSentAt?: SortOrder
+    processingPolicyVersion?: SortOrder
+    fulfilledUnderPolicy?: SortOrder
+    email?: SortOrder
+  }
+
+  export type EnumDeletionRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeletionRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeletionRequestStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeletionRequestStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeletionRequestStatusFilter<$PrismaModel>
+  }
+
+  export type AccountDeletionRequestScalarRelationFilter = {
+    is?: AccountDeletionRequestWhereInput
+    isNot?: AccountDeletionRequestWhereInput
+  }
+
+  export type AccountDeletionStoragePurgeCountOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    roomId?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type AccountDeletionStoragePurgeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    roomId?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type AccountDeletionStoragePurgeMinOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    roomId?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type StoragePurgeCountOrderByAggregateInput = {
+    id?: SortOrder
+    path?: SortOrder
+    isPrefix?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StoragePurgeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    path?: SortOrder
+    isPrefix?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StoragePurgeMinOrderByAggregateInput = {
+    id?: SortOrder
+    path?: SortOrder
+    isPrefix?: SortOrder
+    readyAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+  }
 
   export type TenancyCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
@@ -16284,6 +22137,13 @@ export namespace Prisma {
     connect?: SignatureWhereUniqueInput | SignatureWhereUniqueInput[]
   }
 
+  export type AccountDeletionRequestCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AccountDeletionRequestCreateWithoutStakeholderInput, AccountDeletionRequestUncheckedCreateWithoutStakeholderInput> | AccountDeletionRequestCreateWithoutStakeholderInput[] | AccountDeletionRequestUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AccountDeletionRequestCreateOrConnectWithoutStakeholderInput | AccountDeletionRequestCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AccountDeletionRequestCreateManyStakeholderInputEnvelope
+    connect?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+  }
+
   export type TenancyUncheckedCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -16317,6 +22177,13 @@ export namespace Prisma {
     connectOrCreate?: SignatureCreateOrConnectWithoutStakeholderInput | SignatureCreateOrConnectWithoutStakeholderInput[]
     createMany?: SignatureCreateManyStakeholderInputEnvelope
     connect?: SignatureWhereUniqueInput | SignatureWhereUniqueInput[]
+  }
+
+  export type AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AccountDeletionRequestCreateWithoutStakeholderInput, AccountDeletionRequestUncheckedCreateWithoutStakeholderInput> | AccountDeletionRequestCreateWithoutStakeholderInput[] | AccountDeletionRequestUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AccountDeletionRequestCreateOrConnectWithoutStakeholderInput | AccountDeletionRequestCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AccountDeletionRequestCreateManyStakeholderInputEnvelope
+    connect?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -16405,6 +22272,20 @@ export namespace Prisma {
     deleteMany?: SignatureScalarWhereInput | SignatureScalarWhereInput[]
   }
 
+  export type AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AccountDeletionRequestCreateWithoutStakeholderInput, AccountDeletionRequestUncheckedCreateWithoutStakeholderInput> | AccountDeletionRequestCreateWithoutStakeholderInput[] | AccountDeletionRequestUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AccountDeletionRequestCreateOrConnectWithoutStakeholderInput | AccountDeletionRequestCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AccountDeletionRequestUpsertWithWhereUniqueWithoutStakeholderInput | AccountDeletionRequestUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AccountDeletionRequestCreateManyStakeholderInputEnvelope
+    set?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    disconnect?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    delete?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    connect?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    update?: AccountDeletionRequestUpdateWithWhereUniqueWithoutStakeholderInput | AccountDeletionRequestUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AccountDeletionRequestUpdateManyWithWhereWithoutStakeholderInput | AccountDeletionRequestUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AccountDeletionRequestScalarWhereInput | AccountDeletionRequestScalarWhereInput[]
+  }
+
   export type TenancyUncheckedUpdateManyWithoutLandlordNestedInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -16473,6 +22354,20 @@ export namespace Prisma {
     update?: SignatureUpdateWithWhereUniqueWithoutStakeholderInput | SignatureUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: SignatureUpdateManyWithWhereWithoutStakeholderInput | SignatureUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: SignatureScalarWhereInput | SignatureScalarWhereInput[]
+  }
+
+  export type AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AccountDeletionRequestCreateWithoutStakeholderInput, AccountDeletionRequestUncheckedCreateWithoutStakeholderInput> | AccountDeletionRequestCreateWithoutStakeholderInput[] | AccountDeletionRequestUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AccountDeletionRequestCreateOrConnectWithoutStakeholderInput | AccountDeletionRequestCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AccountDeletionRequestUpsertWithWhereUniqueWithoutStakeholderInput | AccountDeletionRequestUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AccountDeletionRequestCreateManyStakeholderInputEnvelope
+    set?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    disconnect?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    delete?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    connect?: AccountDeletionRequestWhereUniqueInput | AccountDeletionRequestWhereUniqueInput[]
+    update?: AccountDeletionRequestUpdateWithWhereUniqueWithoutStakeholderInput | AccountDeletionRequestUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AccountDeletionRequestUpdateManyWithWhereWithoutStakeholderInput | AccountDeletionRequestUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AccountDeletionRequestScalarWhereInput | AccountDeletionRequestScalarWhereInput[]
   }
 
   export type TenancyCreateNestedManyWithoutPropertyInput = {
@@ -16674,6 +22569,13 @@ export namespace Prisma {
     connect?: SignatureWhereUniqueInput | SignatureWhereUniqueInput[]
   }
 
+  export type AssessmentVersionCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<AssessmentVersionCreateWithoutInspectionInput, AssessmentVersionUncheckedCreateWithoutInspectionInput> | AssessmentVersionCreateWithoutInspectionInput[] | AssessmentVersionUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: AssessmentVersionCreateOrConnectWithoutInspectionInput | AssessmentVersionCreateOrConnectWithoutInspectionInput[]
+    createMany?: AssessmentVersionCreateManyInspectionInputEnvelope
+    connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+  }
+
   export type InspectionUncheckedCreateNestedOneWithoutBaselineInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -16699,6 +22601,13 @@ export namespace Prisma {
     connectOrCreate?: SignatureCreateOrConnectWithoutInspectionInput | SignatureCreateOrConnectWithoutInspectionInput[]
     createMany?: SignatureCreateManyInspectionInputEnvelope
     connect?: SignatureWhereUniqueInput | SignatureWhereUniqueInput[]
+  }
+
+  export type AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<AssessmentVersionCreateWithoutInspectionInput, AssessmentVersionUncheckedCreateWithoutInspectionInput> | AssessmentVersionCreateWithoutInspectionInput[] | AssessmentVersionUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: AssessmentVersionCreateOrConnectWithoutInspectionInput | AssessmentVersionCreateOrConnectWithoutInspectionInput[]
+    createMany?: AssessmentVersionCreateManyInspectionInputEnvelope
+    connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
   }
 
   export type EnumInspectionKindFieldUpdateOperationsInput = {
@@ -16793,6 +22702,20 @@ export namespace Prisma {
     deleteMany?: SignatureScalarWhereInput | SignatureScalarWhereInput[]
   }
 
+  export type AssessmentVersionUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<AssessmentVersionCreateWithoutInspectionInput, AssessmentVersionUncheckedCreateWithoutInspectionInput> | AssessmentVersionCreateWithoutInspectionInput[] | AssessmentVersionUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: AssessmentVersionCreateOrConnectWithoutInspectionInput | AssessmentVersionCreateOrConnectWithoutInspectionInput[]
+    upsert?: AssessmentVersionUpsertWithWhereUniqueWithoutInspectionInput | AssessmentVersionUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: AssessmentVersionCreateManyInspectionInputEnvelope
+    set?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    disconnect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    delete?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    update?: AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput | AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: AssessmentVersionUpdateManyWithWhereWithoutInspectionInput | AssessmentVersionUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
+  }
+
   export type InspectionUncheckedUpdateOneWithoutBaselineNestedInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -16843,6 +22766,20 @@ export namespace Prisma {
     update?: SignatureUpdateWithWhereUniqueWithoutInspectionInput | SignatureUpdateWithWhereUniqueWithoutInspectionInput[]
     updateMany?: SignatureUpdateManyWithWhereWithoutInspectionInput | SignatureUpdateManyWithWhereWithoutInspectionInput[]
     deleteMany?: SignatureScalarWhereInput | SignatureScalarWhereInput[]
+  }
+
+  export type AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<AssessmentVersionCreateWithoutInspectionInput, AssessmentVersionUncheckedCreateWithoutInspectionInput> | AssessmentVersionCreateWithoutInspectionInput[] | AssessmentVersionUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: AssessmentVersionCreateOrConnectWithoutInspectionInput | AssessmentVersionCreateOrConnectWithoutInspectionInput[]
+    upsert?: AssessmentVersionUpsertWithWhereUniqueWithoutInspectionInput | AssessmentVersionUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: AssessmentVersionCreateManyInspectionInputEnvelope
+    set?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    disconnect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    delete?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+    update?: AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput | AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: AssessmentVersionUpdateManyWithWhereWithoutInspectionInput | AssessmentVersionUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
   }
 
   export type RoomCreateNestedOneWithoutCapturesInput = {
@@ -17245,6 +23182,94 @@ export namespace Prisma {
     upsert?: StakeholderUpsertWithoutSignaturesInput
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutSignaturesInput, StakeholderUpdateWithoutSignaturesInput>, StakeholderUncheckedUpdateWithoutSignaturesInput>
+  }
+
+  export type InspectionCreateNestedOneWithoutAssessmentsInput = {
+    create?: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutAssessmentsInput
+    connect?: InspectionWhereUniqueInput
+  }
+
+  export type InspectionUpdateOneRequiredWithoutAssessmentsNestedInput = {
+    create?: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutAssessmentsInput
+    upsert?: InspectionUpsertWithoutAssessmentsInput
+    connect?: InspectionWhereUniqueInput
+    update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutAssessmentsInput, InspectionUpdateWithoutAssessmentsInput>, InspectionUncheckedUpdateWithoutAssessmentsInput>
+  }
+
+  export type StakeholderCreateNestedOneWithoutDeletionRequestsInput = {
+    create?: XOR<StakeholderCreateWithoutDeletionRequestsInput, StakeholderUncheckedCreateWithoutDeletionRequestsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutDeletionRequestsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type AccountDeletionStoragePurgeCreateNestedManyWithoutRequestInput = {
+    create?: XOR<AccountDeletionStoragePurgeCreateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput> | AccountDeletionStoragePurgeCreateWithoutRequestInput[] | AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput | AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput[]
+    createMany?: AccountDeletionStoragePurgeCreateManyRequestInputEnvelope
+    connect?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedCreateNestedManyWithoutRequestInput = {
+    create?: XOR<AccountDeletionStoragePurgeCreateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput> | AccountDeletionStoragePurgeCreateWithoutRequestInput[] | AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput | AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput[]
+    createMany?: AccountDeletionStoragePurgeCreateManyRequestInputEnvelope
+    connect?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+  }
+
+  export type EnumDeletionRequestStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DeletionRequestStatus
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutDeletionRequestsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutDeletionRequestsInput, StakeholderUncheckedCreateWithoutDeletionRequestsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutDeletionRequestsInput
+    upsert?: StakeholderUpsertWithoutDeletionRequestsInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutDeletionRequestsInput, StakeholderUpdateWithoutDeletionRequestsInput>, StakeholderUncheckedUpdateWithoutDeletionRequestsInput>
+  }
+
+  export type AccountDeletionStoragePurgeUpdateManyWithoutRequestNestedInput = {
+    create?: XOR<AccountDeletionStoragePurgeCreateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput> | AccountDeletionStoragePurgeCreateWithoutRequestInput[] | AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput | AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput[]
+    upsert?: AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput | AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput[]
+    createMany?: AccountDeletionStoragePurgeCreateManyRequestInputEnvelope
+    set?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    disconnect?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    delete?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    connect?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    update?: AccountDeletionStoragePurgeUpdateWithWhereUniqueWithoutRequestInput | AccountDeletionStoragePurgeUpdateWithWhereUniqueWithoutRequestInput[]
+    updateMany?: AccountDeletionStoragePurgeUpdateManyWithWhereWithoutRequestInput | AccountDeletionStoragePurgeUpdateManyWithWhereWithoutRequestInput[]
+    deleteMany?: AccountDeletionStoragePurgeScalarWhereInput | AccountDeletionStoragePurgeScalarWhereInput[]
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedUpdateManyWithoutRequestNestedInput = {
+    create?: XOR<AccountDeletionStoragePurgeCreateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput> | AccountDeletionStoragePurgeCreateWithoutRequestInput[] | AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput | AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput[]
+    upsert?: AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput | AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput[]
+    createMany?: AccountDeletionStoragePurgeCreateManyRequestInputEnvelope
+    set?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    disconnect?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    delete?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    connect?: AccountDeletionStoragePurgeWhereUniqueInput | AccountDeletionStoragePurgeWhereUniqueInput[]
+    update?: AccountDeletionStoragePurgeUpdateWithWhereUniqueWithoutRequestInput | AccountDeletionStoragePurgeUpdateWithWhereUniqueWithoutRequestInput[]
+    updateMany?: AccountDeletionStoragePurgeUpdateManyWithWhereWithoutRequestInput | AccountDeletionStoragePurgeUpdateManyWithWhereWithoutRequestInput[]
+    deleteMany?: AccountDeletionStoragePurgeScalarWhereInput | AccountDeletionStoragePurgeScalarWhereInput[]
+  }
+
+  export type AccountDeletionRequestCreateNestedOneWithoutStoragePurgesInput = {
+    create?: XOR<AccountDeletionRequestCreateWithoutStoragePurgesInput, AccountDeletionRequestUncheckedCreateWithoutStoragePurgesInput>
+    connectOrCreate?: AccountDeletionRequestCreateOrConnectWithoutStoragePurgesInput
+    connect?: AccountDeletionRequestWhereUniqueInput
+  }
+
+  export type AccountDeletionRequestUpdateOneRequiredWithoutStoragePurgesNestedInput = {
+    create?: XOR<AccountDeletionRequestCreateWithoutStoragePurgesInput, AccountDeletionRequestUncheckedCreateWithoutStoragePurgesInput>
+    connectOrCreate?: AccountDeletionRequestCreateOrConnectWithoutStoragePurgesInput
+    upsert?: AccountDeletionRequestUpsertWithoutStoragePurgesInput
+    connect?: AccountDeletionRequestWhereUniqueInput
+    update?: XOR<XOR<AccountDeletionRequestUpdateToOneWithWhereWithoutStoragePurgesInput, AccountDeletionRequestUpdateWithoutStoragePurgesInput>, AccountDeletionRequestUncheckedUpdateWithoutStoragePurgesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -17710,6 +23735,46 @@ export namespace Prisma {
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumDeletionRequestStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeletionRequestStatusFilter<$PrismaModel> | $Enums.DeletionRequestStatus
+  }
+
+  export type NestedEnumDeletionRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeletionRequestStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeletionRequestStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeletionRequestStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeletionRequestStatusFilter<$PrismaModel>
+  }
 
   export type TenancyCreateWithoutLandlordInput = {
     id?: string
@@ -17834,6 +23899,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -17842,6 +23909,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutConductedByInput = {
@@ -17855,12 +23923,15 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutConductedByInput = {
@@ -17896,6 +23967,42 @@ export namespace Prisma {
 
   export type SignatureCreateManyStakeholderInputEnvelope = {
     data: SignatureCreateManyStakeholderInput | SignatureCreateManyStakeholderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AccountDeletionRequestCreateWithoutStakeholderInput = {
+    id?: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+    storagePurges?: AccountDeletionStoragePurgeCreateNestedManyWithoutRequestInput
+  }
+
+  export type AccountDeletionRequestUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+    storagePurges?: AccountDeletionStoragePurgeUncheckedCreateNestedManyWithoutRequestInput
+  }
+
+  export type AccountDeletionRequestCreateOrConnectWithoutStakeholderInput = {
+    where: AccountDeletionRequestWhereUniqueInput
+    create: XOR<AccountDeletionRequestCreateWithoutStakeholderInput, AccountDeletionRequestUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AccountDeletionRequestCreateManyStakeholderInputEnvelope = {
+    data: AccountDeletionRequestCreateManyStakeholderInput | AccountDeletionRequestCreateManyStakeholderInput[]
     skipDuplicates?: boolean
   }
 
@@ -17995,6 +24102,8 @@ export namespace Prisma {
     processingError?: StringNullableFilter<"Inspection"> | string | null
     shareToken?: StringNullableFilter<"Inspection"> | string | null
     sharedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
+    aiConsentAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
+    aiConsentById?: StringNullableFilter<"Inspection"> | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
   }
@@ -18025,6 +24134,38 @@ export namespace Prisma {
     signedAt?: DateTimeFilter<"Signature"> | Date | string
     ipAddress?: StringNullableFilter<"Signature"> | string | null
     imageData?: StringFilter<"Signature"> | string
+  }
+
+  export type AccountDeletionRequestUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: AccountDeletionRequestWhereUniqueInput
+    update: XOR<AccountDeletionRequestUpdateWithoutStakeholderInput, AccountDeletionRequestUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AccountDeletionRequestCreateWithoutStakeholderInput, AccountDeletionRequestUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AccountDeletionRequestUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: AccountDeletionRequestWhereUniqueInput
+    data: XOR<AccountDeletionRequestUpdateWithoutStakeholderInput, AccountDeletionRequestUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AccountDeletionRequestUpdateManyWithWhereWithoutStakeholderInput = {
+    where: AccountDeletionRequestScalarWhereInput
+    data: XOR<AccountDeletionRequestUpdateManyMutationInput, AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type AccountDeletionRequestScalarWhereInput = {
+    AND?: AccountDeletionRequestScalarWhereInput | AccountDeletionRequestScalarWhereInput[]
+    OR?: AccountDeletionRequestScalarWhereInput[]
+    NOT?: AccountDeletionRequestScalarWhereInput | AccountDeletionRequestScalarWhereInput[]
+    id?: StringFilter<"AccountDeletionRequest"> | string
+    stakeholderId?: StringFilter<"AccountDeletionRequest"> | string
+    status?: EnumDeletionRequestStatusFilter<"AccountDeletionRequest"> | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFilter<"AccountDeletionRequest"> | Date | string
+    dueAt?: DateTimeFilter<"AccountDeletionRequest"> | Date | string
+    completedAt?: DateTimeNullableFilter<"AccountDeletionRequest"> | Date | string | null
+    notificationSentAt?: DateTimeNullableFilter<"AccountDeletionRequest"> | Date | string | null
+    processingPolicyVersion?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    fulfilledUnderPolicy?: StringNullableFilter<"AccountDeletionRequest"> | string | null
+    email?: StringNullableFilter<"AccountDeletionRequest"> | string | null
   }
 
   export type TenancyCreateWithoutPropertyInput = {
@@ -18120,6 +24261,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsLandlordInput = {
@@ -18136,6 +24278,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsLandlordInput = {
@@ -18157,6 +24300,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsTenantInput = {
@@ -18173,6 +24317,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsTenantInput = {
@@ -18194,6 +24339,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsAgentInput = {
@@ -18210,6 +24356,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsAgentInput = {
@@ -18226,6 +24373,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
@@ -18234,6 +24383,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutTenancyInput = {
@@ -18247,12 +24397,15 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutTenancyInput = {
@@ -18321,6 +24474,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsLandlordInput = {
@@ -18337,6 +24491,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsTenantInput = {
@@ -18364,6 +24519,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsTenantInput = {
@@ -18380,6 +24536,7 @@ export namespace Prisma {
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsAgentInput = {
@@ -18407,6 +24564,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput = {
@@ -18423,6 +24581,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionUpsertWithWhereUniqueWithoutTenancyInput = {
@@ -18488,6 +24647,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionsRunInput = {
@@ -18504,6 +24664,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionsRunInput = {
@@ -18520,6 +24681,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -18528,6 +24691,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutCheckOutInput = {
@@ -18542,11 +24706,14 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutCheckOutInput = {
@@ -18563,6 +24730,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -18571,6 +24740,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutBaselineInput = {
@@ -18584,12 +24754,15 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutBaselineInput = {
@@ -18603,6 +24776,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureCreateNestedManyWithoutRoomInput
@@ -18615,6 +24790,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
@@ -18695,6 +24872,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AssessmentVersionCreateWithoutInspectionInput = {
+    id?: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+  }
+
+  export type AssessmentVersionUncheckedCreateWithoutInspectionInput = {
+    id?: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+  }
+
+  export type AssessmentVersionCreateOrConnectWithoutInspectionInput = {
+    where: AssessmentVersionWhereUniqueInput
+    create: XOR<AssessmentVersionCreateWithoutInspectionInput, AssessmentVersionUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type AssessmentVersionCreateManyInspectionInputEnvelope = {
+    data: AssessmentVersionCreateManyInspectionInput | AssessmentVersionCreateManyInspectionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithoutInspectionsInput = {
     update: XOR<TenancyUpdateWithoutInspectionsInput, TenancyUncheckedUpdateWithoutInspectionsInput>
     create: XOR<TenancyCreateWithoutInspectionsInput, TenancyUncheckedCreateWithoutInspectionsInput>
@@ -18759,6 +24964,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionsRunInput = {
@@ -18775,6 +24981,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionUpsertWithoutCheckOutInput = {
@@ -18797,6 +25004,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -18805,6 +25014,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutCheckOutInput = {
@@ -18819,11 +25029,14 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUpsertWithoutBaselineInput = {
@@ -18846,6 +25059,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -18854,6 +25069,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutBaselineInput = {
@@ -18867,12 +25083,15 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type RoomUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -18901,6 +25120,8 @@ export namespace Prisma {
     order?: IntFilter<"Room"> | number
     status?: EnumRoomStatusFilter<"Room"> | $Enums.RoomStatus
     processingError?: StringNullableFilter<"Room"> | string | null
+    processingAttemptId?: StringNullableFilter<"Room"> | string | null
+    processingStartedAt?: DateTimeNullableFilter<"Room"> | Date | string | null
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
   }
@@ -18955,12 +25176,43 @@ export namespace Prisma {
     data: XOR<SignatureUpdateManyMutationInput, SignatureUncheckedUpdateManyWithoutInspectionInput>
   }
 
+  export type AssessmentVersionUpsertWithWhereUniqueWithoutInspectionInput = {
+    where: AssessmentVersionWhereUniqueInput
+    update: XOR<AssessmentVersionUpdateWithoutInspectionInput, AssessmentVersionUncheckedUpdateWithoutInspectionInput>
+    create: XOR<AssessmentVersionCreateWithoutInspectionInput, AssessmentVersionUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput = {
+    where: AssessmentVersionWhereUniqueInput
+    data: XOR<AssessmentVersionUpdateWithoutInspectionInput, AssessmentVersionUncheckedUpdateWithoutInspectionInput>
+  }
+
+  export type AssessmentVersionUpdateManyWithWhereWithoutInspectionInput = {
+    where: AssessmentVersionScalarWhereInput
+    data: XOR<AssessmentVersionUpdateManyMutationInput, AssessmentVersionUncheckedUpdateManyWithoutInspectionInput>
+  }
+
+  export type AssessmentVersionScalarWhereInput = {
+    AND?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
+    OR?: AssessmentVersionScalarWhereInput[]
+    NOT?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
+    id?: StringFilter<"AssessmentVersion"> | string
+    inspectionId?: StringFilter<"AssessmentVersion"> | string
+    version?: IntFilter<"AssessmentVersion"> | number
+    snapshot?: JsonFilter<"AssessmentVersion">
+    contentHash?: StringFilter<"AssessmentVersion"> | string
+    publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
+    publishedById?: StringFilter<"AssessmentVersion"> | string
+  }
+
   export type RoomCreateWithoutCapturesInput = {
     id?: string
     name: string
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
@@ -18974,6 +25226,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutRoomInput
@@ -19049,6 +25303,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
@@ -19062,6 +25318,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutRoomNestedInput
@@ -19113,6 +25371,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -19121,6 +25381,7 @@ export namespace Prisma {
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutRoomsInput = {
@@ -19135,11 +25396,14 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutRoomsInput = {
@@ -19149,6 +25413,7 @@ export namespace Prisma {
 
   export type CaptureCreateWithoutRoomInput = {
     id?: string
+    clientId?: string | null
     kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
@@ -19164,6 +25429,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedCreateWithoutRoomInput = {
     id?: string
+    clientId?: string | null
     kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
@@ -19255,6 +25521,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -19263,6 +25531,7 @@ export namespace Prisma {
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutRoomsInput = {
@@ -19277,11 +25546,14 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type CaptureUpsertWithWhereUniqueWithoutRoomInput = {
@@ -19305,6 +25577,7 @@ export namespace Prisma {
     OR?: CaptureScalarWhereInput[]
     NOT?: CaptureScalarWhereInput | CaptureScalarWhereInput[]
     id?: StringFilter<"Capture"> | string
+    clientId?: StringNullableFilter<"Capture"> | string | null
     roomId?: StringFilter<"Capture"> | string
     kind?: EnumCaptureKindFilter<"Capture"> | $Enums.CaptureKind
     storagePath?: StringFilter<"Capture"> | string
@@ -19340,6 +25613,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
@@ -19353,6 +25628,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
@@ -19365,6 +25642,7 @@ export namespace Prisma {
 
   export type CaptureCreateWithoutItemsInput = {
     id?: string
+    clientId?: string | null
     kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
@@ -19380,6 +25658,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedCreateWithoutItemsInput = {
     id?: string
+    clientId?: string | null
     roomId: string
     kind?: $Enums.CaptureKind
     storagePath: string
@@ -19491,6 +25770,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
@@ -19504,6 +25785,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
@@ -19522,6 +25805,7 @@ export namespace Prisma {
 
   export type CaptureUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -19537,6 +25821,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     roomId?: StringFieldUpdateOperationsInput | string
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
@@ -19591,6 +25876,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -19599,6 +25886,7 @@ export namespace Prisma {
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutFindingsInput = {
@@ -19613,11 +25901,14 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutFindingsInput = {
@@ -19731,6 +26022,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -19739,6 +26032,7 @@ export namespace Prisma {
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutFindingsInput = {
@@ -19753,11 +26047,14 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionItemUpsertWithoutFindingsAsSubjectInput = {
@@ -19867,6 +26164,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
@@ -19875,6 +26174,7 @@ export namespace Prisma {
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutSignaturesInput = {
@@ -19889,11 +26189,14 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutSignaturesInput = {
@@ -19915,6 +26218,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSignaturesInput = {
@@ -19931,6 +26235,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSignaturesInput = {
@@ -19958,6 +26263,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -19966,6 +26273,7 @@ export namespace Prisma {
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutSignaturesInput = {
@@ -19980,11 +26288,14 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutSignaturesInput = {
@@ -20012,6 +26323,7 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSignaturesInput = {
@@ -20028,6 +26340,314 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type InspectionCreateWithoutAssessmentsInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutAssessmentsInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    conductedById?: string | null
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutAssessmentsInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
+  }
+
+  export type InspectionUpsertWithoutAssessmentsInput = {
+    update: XOR<InspectionUpdateWithoutAssessmentsInput, InspectionUncheckedUpdateWithoutAssessmentsInput>
+    create: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
+    where?: InspectionWhereInput
+  }
+
+  export type InspectionUpdateToOneWithWhereWithoutAssessmentsInput = {
+    where?: InspectionWhereInput
+    data: XOR<InspectionUpdateWithoutAssessmentsInput, InspectionUncheckedUpdateWithoutAssessmentsInput>
+  }
+
+  export type InspectionUpdateWithoutAssessmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutAssessmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type StakeholderCreateWithoutDeletionRequestsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutDeletionRequestsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutDeletionRequestsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutDeletionRequestsInput, StakeholderUncheckedCreateWithoutDeletionRequestsInput>
+  }
+
+  export type AccountDeletionStoragePurgeCreateWithoutRequestInput = {
+    id?: string
+    roomId: string
+    readyAt: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput = {
+    id?: string
+    roomId: string
+    readyAt: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeCreateOrConnectWithoutRequestInput = {
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+    create: XOR<AccountDeletionStoragePurgeCreateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput>
+  }
+
+  export type AccountDeletionStoragePurgeCreateManyRequestInputEnvelope = {
+    data: AccountDeletionStoragePurgeCreateManyRequestInput | AccountDeletionStoragePurgeCreateManyRequestInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StakeholderUpsertWithoutDeletionRequestsInput = {
+    update: XOR<StakeholderUpdateWithoutDeletionRequestsInput, StakeholderUncheckedUpdateWithoutDeletionRequestsInput>
+    create: XOR<StakeholderCreateWithoutDeletionRequestsInput, StakeholderUncheckedCreateWithoutDeletionRequestsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutDeletionRequestsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutDeletionRequestsInput, StakeholderUncheckedUpdateWithoutDeletionRequestsInput>
+  }
+
+  export type StakeholderUpdateWithoutDeletionRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutDeletionRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput = {
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+    update: XOR<AccountDeletionStoragePurgeUpdateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedUpdateWithoutRequestInput>
+    create: XOR<AccountDeletionStoragePurgeCreateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedCreateWithoutRequestInput>
+  }
+
+  export type AccountDeletionStoragePurgeUpdateWithWhereUniqueWithoutRequestInput = {
+    where: AccountDeletionStoragePurgeWhereUniqueInput
+    data: XOR<AccountDeletionStoragePurgeUpdateWithoutRequestInput, AccountDeletionStoragePurgeUncheckedUpdateWithoutRequestInput>
+  }
+
+  export type AccountDeletionStoragePurgeUpdateManyWithWhereWithoutRequestInput = {
+    where: AccountDeletionStoragePurgeScalarWhereInput
+    data: XOR<AccountDeletionStoragePurgeUpdateManyMutationInput, AccountDeletionStoragePurgeUncheckedUpdateManyWithoutRequestInput>
+  }
+
+  export type AccountDeletionStoragePurgeScalarWhereInput = {
+    AND?: AccountDeletionStoragePurgeScalarWhereInput | AccountDeletionStoragePurgeScalarWhereInput[]
+    OR?: AccountDeletionStoragePurgeScalarWhereInput[]
+    NOT?: AccountDeletionStoragePurgeScalarWhereInput | AccountDeletionStoragePurgeScalarWhereInput[]
+    id?: StringFilter<"AccountDeletionStoragePurge"> | string
+    requestId?: StringFilter<"AccountDeletionStoragePurge"> | string
+    roomId?: StringFilter<"AccountDeletionStoragePurge"> | string
+    readyAt?: DateTimeFilter<"AccountDeletionStoragePurge"> | Date | string
+    completedAt?: DateTimeNullableFilter<"AccountDeletionStoragePurge"> | Date | string | null
+  }
+
+  export type AccountDeletionRequestCreateWithoutStoragePurgesInput = {
+    id?: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+    stakeholder: StakeholderCreateNestedOneWithoutDeletionRequestsInput
+  }
+
+  export type AccountDeletionRequestUncheckedCreateWithoutStoragePurgesInput = {
+    id?: string
+    stakeholderId: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
+  }
+
+  export type AccountDeletionRequestCreateOrConnectWithoutStoragePurgesInput = {
+    where: AccountDeletionRequestWhereUniqueInput
+    create: XOR<AccountDeletionRequestCreateWithoutStoragePurgesInput, AccountDeletionRequestUncheckedCreateWithoutStoragePurgesInput>
+  }
+
+  export type AccountDeletionRequestUpsertWithoutStoragePurgesInput = {
+    update: XOR<AccountDeletionRequestUpdateWithoutStoragePurgesInput, AccountDeletionRequestUncheckedUpdateWithoutStoragePurgesInput>
+    create: XOR<AccountDeletionRequestCreateWithoutStoragePurgesInput, AccountDeletionRequestUncheckedCreateWithoutStoragePurgesInput>
+    where?: AccountDeletionRequestWhereInput
+  }
+
+  export type AccountDeletionRequestUpdateToOneWithWhereWithoutStoragePurgesInput = {
+    where?: AccountDeletionRequestWhereInput
+    data: XOR<AccountDeletionRequestUpdateWithoutStoragePurgesInput, AccountDeletionRequestUncheckedUpdateWithoutStoragePurgesInput>
+  }
+
+  export type AccountDeletionRequestUpdateWithoutStoragePurgesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholder?: StakeholderUpdateOneRequiredWithoutDeletionRequestsNestedInput
+  }
+
+  export type AccountDeletionRequestUncheckedUpdateWithoutStoragePurgesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenancyCreateManyLandlordInput = {
@@ -20080,6 +26700,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20090,6 +26712,18 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+  }
+
+  export type AccountDeletionRequestCreateManyStakeholderInput = {
+    id?: string
+    status?: $Enums.DeletionRequestStatus
+    requestedAt?: Date | string
+    dueAt: Date | string
+    completedAt?: Date | string | null
+    notificationSentAt?: Date | string | null
+    processingPolicyVersion?: string | null
+    fulfilledUnderPolicy?: string | null
+    email?: string | null
   }
 
   export type TenancyUpdateWithoutLandlordInput = {
@@ -20224,6 +26858,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
@@ -20232,6 +26868,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutConductedByInput = {
@@ -20245,12 +26882,15 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutConductedByInput = {
@@ -20264,6 +26904,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20290,6 +26932,44 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AccountDeletionRequestUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    storagePurges?: AccountDeletionStoragePurgeUpdateManyWithoutRequestNestedInput
+  }
+
+  export type AccountDeletionRequestUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    storagePurges?: AccountDeletionStoragePurgeUncheckedUpdateManyWithoutRequestNestedInput
+  }
+
+  export type AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDeletionRequestStatusFieldUpdateOperationsInput | $Enums.DeletionRequestStatus
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dueAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenancyCreateManyPropertyInput = {
@@ -20357,6 +27037,8 @@ export namespace Prisma {
     processingError?: string | null
     shareToken?: string | null
     sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20370,6 +27052,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
@@ -20378,6 +27062,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutTenancyInput = {
@@ -20391,12 +27076,15 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutTenancyInput = {
@@ -20410,6 +27098,8 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     shareToken?: NullableStringFieldUpdateOperationsInput | string | null
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20420,6 +27110,8 @@ export namespace Prisma {
     order: number
     status?: $Enums.RoomStatus
     processingError?: string | null
+    processingAttemptId?: string | null
+    processingStartedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20446,12 +27138,23 @@ export namespace Prisma {
     imageData: string
   }
 
+  export type AssessmentVersionCreateManyInspectionInput = {
+    id?: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+  }
+
   export type RoomUpdateWithoutInspectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUpdateManyWithoutRoomNestedInput
@@ -20464,6 +27167,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
@@ -20476,6 +27181,8 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     status?: EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
+    processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20544,6 +27251,33 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AssessmentVersionUpdateWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AssessmentVersionUncheckedUpdateWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AssessmentVersionUncheckedUpdateManyWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
   }
 
   export type InspectionItemCreateManySourceCaptureInput = {
@@ -20620,6 +27354,7 @@ export namespace Prisma {
 
   export type CaptureCreateManyRoomInput = {
     id?: string
+    clientId?: string | null
     kind?: $Enums.CaptureKind
     storagePath: string
     mimeType: string
@@ -20651,6 +27386,7 @@ export namespace Prisma {
 
   export type CaptureUpdateWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -20666,6 +27402,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedUpdateWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -20681,6 +27418,7 @@ export namespace Prisma {
 
   export type CaptureUncheckedUpdateManyWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
     storagePath?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -20858,6 +27596,34 @@ export namespace Prisma {
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccountDeletionStoragePurgeCreateManyRequestInput = {
+    id?: string
+    roomId: string
+    readyAt: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUpdateWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedUpdateWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AccountDeletionStoragePurgeUncheckedUpdateManyWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 

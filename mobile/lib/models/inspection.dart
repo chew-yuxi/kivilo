@@ -1,5 +1,3 @@
-/// Mirrors GET /api/v1/inspections. Hand written rather than generated: the shape is
-/// small and it is the server's route handler, not a schema, that defines it.
 class InspectionSummary {
   const InspectionSummary({
     required this.id,
@@ -17,7 +15,8 @@ class InspectionSummary {
   final String tenant;
   final int rooms;
 
-  factory InspectionSummary.fromJson(Map<String, dynamic> json) => InspectionSummary(
+  factory InspectionSummary.fromJson(Map<String, dynamic> json) =>
+      InspectionSummary(
         id: json['id'] as String,
         kind: json['kind'] as String,
         status: json['status'] as String,
@@ -29,7 +28,6 @@ class InspectionSummary {
   String get kindLabel => kind == 'CHECK_IN' ? 'Check-in' : 'Check-out';
 }
 
-/// Mirrors GET /api/v1/inspections/[id].
 class InspectionDetail {
   const InspectionDetail({
     required this.id,
@@ -38,8 +36,19 @@ class InspectionDetail {
     required this.property,
     required this.landlord,
     required this.tenant,
+    required this.landlordId,
+    required this.tenantId,
     required this.summary,
     required this.rooms,
+    required this.signatures,
+    required this.findings,
+    required this.baselineId,
+    required this.checkOutId,
+    required this.shareToken,
+    required this.shareUrl,
+    required this.aiConsentAt,
+    required this.latestAssessment,
+    required this.assessmentDraftChanged,
   });
 
   final String id;
@@ -48,21 +57,61 @@ class InspectionDetail {
   final String property;
   final String landlord;
   final String tenant;
+  final String landlordId;
+  final String tenantId;
   final String? summary;
   final List<RoomSummary> rooms;
+  final List<InspectionSignature> signatures;
+  final List<Finding> findings;
+  final String? baselineId;
+  final String? checkOutId;
+  final String? shareToken;
+  final String? shareUrl;
+  final String? aiConsentAt;
+  final AssessmentVersion? latestAssessment;
+  final bool assessmentDraftChanged;
 
-  factory InspectionDetail.fromJson(Map<String, dynamic> json) => InspectionDetail(
+  factory InspectionDetail.fromJson(Map<String, dynamic> json) =>
+      InspectionDetail(
         id: json['id'] as String,
         kind: json['kind'] as String,
         status: json['status'] as String,
         property: json['property'] as String,
         landlord: json['landlord'] as String,
         tenant: json['tenant'] as String,
+        landlordId: json['landlordId'] as String,
+        tenantId: json['tenantId'] as String,
         summary: json['summary'] as String?,
-        rooms: (json['rooms'] as List)
+        rooms: (json['rooms'] as List<dynamic>)
             .map((room) => RoomSummary.fromJson(room as Map<String, dynamic>))
             .toList(),
+        signatures: (json['signatures'] as List<dynamic>)
+            .map(
+              (entry) =>
+                  InspectionSignature.fromJson(entry as Map<String, dynamic>),
+            )
+            .toList(),
+        findings: (json['findings'] as List<dynamic>)
+            .map((entry) => Finding.fromJson(entry as Map<String, dynamic>))
+            .toList(),
+        baselineId: json['baselineId'] as String?,
+        checkOutId: json['checkOutId'] as String?,
+        shareToken: json['shareToken'] as String?,
+        shareUrl: json['shareUrl'] as String?,
+        aiConsentAt: json['aiConsentAt'] as String?,
+        latestAssessment: json['latestAssessment'] == null
+            ? null
+            : AssessmentVersion.fromJson(
+                json['latestAssessment'] as Map<String, dynamic>,
+              ),
+        assessmentDraftChanged: json['assessmentDraftChanged'] as bool,
       );
+
+  bool get isOpen => !['AWAITING_SIGNATURE', 'COMPLETED'].contains(status);
+  bool get allRoomsReviewed =>
+      rooms.isNotEmpty && rooms.every((room) => room.status == 'REVIEWED');
+  bool signedBy(String stakeholderId) =>
+      signatures.any((signature) => signature.stakeholderId == stakeholderId);
 }
 
 class RoomSummary {
@@ -74,6 +123,7 @@ class RoomSummary {
     required this.photos,
     required this.videos,
     required this.newSinceDraft,
+    this.processingError,
   });
 
   final String id;
@@ -83,27 +133,27 @@ class RoomSummary {
   final int photos;
   final int videos;
   final int newSinceDraft;
+  final String? processingError;
 
   factory RoomSummary.fromJson(Map<String, dynamic> json) => RoomSummary(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        status: json['status'] as String,
-        items: json['items'] as int,
-        photos: json['photos'] as int,
-        videos: json['videos'] as int,
-        newSinceDraft: json['newSinceDraft'] as int,
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    status: json['status'] as String,
+    items: json['items'] as int,
+    photos: json['photos'] as int,
+    videos: json['videos'] as int,
+    newSinceDraft: json['newSinceDraft'] as int,
+    processingError: json['processingError'] as String?,
+  );
 
-  /// The same wording the web app uses, so an agent moving between the two reads one
-  /// vocabulary rather than two.
   String get statusLabel => switch (status) {
-        'PENDING' => 'Not started',
-        'CAPTURING' => 'Capturing',
-        'PROCESSING' => 'Drafting',
-        'REVIEW' => 'Needs review',
-        'REVIEWED' => 'Reviewed',
-        _ => 'Failed',
-      };
+    'PENDING' => 'Not started',
+    'CAPTURING' => 'Capturing',
+    'PROCESSING' => 'Drafting',
+    'REVIEW' => 'Needs review',
+    'REVIEWED' => 'Reviewed',
+    _ => 'Failed',
+  };
 
   String get countsLabel {
     final parts = <String>[
@@ -113,4 +163,170 @@ class RoomSummary {
     final base = parts.isEmpty ? 'Nothing captured yet' : parts.join(', ');
     return items > 0 ? '$base · $items items' : base;
   }
+}
+
+class RoomDetail {
+  const RoomDetail({
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.items,
+    required this.captures,
+    this.processingError,
+  });
+
+  final String id;
+  final String name;
+  final String status;
+  final String? processingError;
+  final List<InventoryItem> items;
+  final List<EvidenceCapture> captures;
+
+  factory RoomDetail.fromJson(Map<String, dynamic> json) {
+    final room = json['room'] as Map<String, dynamic>;
+    return RoomDetail(
+      id: room['id'] as String,
+      name: room['name'] as String,
+      status: room['status'] as String,
+      processingError: room['processingError'] as String?,
+      items: (json['items'] as List<dynamic>)
+          .map((item) => InventoryItem.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      captures: (json['captures'] as List<dynamic>)
+          .map(
+            (capture) =>
+                EvidenceCapture.fromJson(capture as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+  }
+}
+
+class InventoryItem {
+  const InventoryItem({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.condition,
+    required this.quantity,
+    this.notes,
+    this.identifier,
+    this.meterReading,
+    this.confidence,
+    required this.editedByHuman,
+  });
+
+  final String id;
+  final String name;
+  final String category;
+  final String condition;
+  final int quantity;
+  final String? notes;
+  final String? identifier;
+  final String? meterReading;
+  final double? confidence;
+  final bool editedByHuman;
+
+  factory InventoryItem.fromJson(Map<String, dynamic> json) => InventoryItem(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    category: json['category'] as String,
+    condition: json['condition'] as String,
+    quantity: json['quantity'] as int,
+    notes: json['notes'] as String?,
+    identifier: json['identifier'] as String?,
+    meterReading: json['meterReading'] as String?,
+    confidence: (json['confidence'] as num?)?.toDouble(),
+    editedByHuman: json['editedByHuman'] as bool,
+  );
+}
+
+class EvidenceCapture {
+  const EvidenceCapture({
+    required this.id,
+    required this.kind,
+    required this.url,
+    this.clientId,
+    this.note,
+    this.annotations,
+  });
+  final String id;
+  final String kind;
+  final String url;
+  final String? clientId;
+  final String? note;
+  final Map<String, dynamic>? annotations;
+
+  factory EvidenceCapture.fromJson(Map<String, dynamic> json) =>
+      EvidenceCapture(
+        id: json['id'] as String,
+        kind: json['kind'] as String,
+        url: json['url'] as String,
+        clientId: json['clientId'] as String?,
+        note: json['note'] as String?,
+        annotations: json['annotations'] as Map<String, dynamic>?,
+      );
+}
+
+class InspectionSignature {
+  const InspectionSignature({
+    required this.stakeholderId,
+    required this.signedAt,
+  });
+  final String stakeholderId;
+  final String signedAt;
+
+  factory InspectionSignature.fromJson(Map<String, dynamic> json) =>
+      InspectionSignature(
+        stakeholderId: json['stakeholderId'] as String,
+        signedAt: json['signedAt'] as String,
+      );
+}
+
+class Finding {
+  const Finding({
+    required this.id,
+    required this.changeType,
+    required this.verdict,
+    required this.rationale,
+    required this.estimatedCost,
+    required this.itemLabel,
+    required this.baselineLabel,
+    required this.editedByHuman,
+    this.confidence,
+  });
+
+  final String id;
+  final String changeType;
+  final String verdict;
+  final String rationale;
+  final String? estimatedCost;
+  final String? itemLabel;
+  final String? baselineLabel;
+  final bool editedByHuman;
+  final double? confidence;
+
+  factory Finding.fromJson(Map<String, dynamic> json) => Finding(
+    id: json['id'] as String,
+    changeType: json['changeType'] as String,
+    verdict: json['verdict'] as String,
+    rationale: json['rationale'] as String,
+    estimatedCost: json['estimatedCost'] as String?,
+    itemLabel: json['itemLabel'] as String?,
+    baselineLabel: json['baselineLabel'] as String?,
+    editedByHuman: json['editedByHuman'] as bool,
+    confidence: (json['confidence'] as num?)?.toDouble(),
+  );
+}
+
+class AssessmentVersion {
+  const AssessmentVersion({required this.version, required this.publishedAt});
+  final int version;
+  final String publishedAt;
+
+  factory AssessmentVersion.fromJson(Map<String, dynamic> json) =>
+      AssessmentVersion(
+        version: json['version'] as int,
+        publishedAt: json['publishedAt'] as String,
+      );
 }

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
 import 'screens/inspections_screen.dart';
 import 'services/secure_session_store.dart';
+import 'services/capture_sync.dart';
 import 'screens/sign_in_screen.dart';
 
 Future<void> main() async {
@@ -15,15 +18,18 @@ Future<void> main() async {
       publishableKey: Config.supabaseAnonKey,
       // Keychain and EncryptedSharedPreferences rather than the default plaintext store.
       // The refresh token here opens an account holding photographs of people's homes.
-      authOptions: const FlutterAuthClientOptions(localStorage: SecureSessionStore()),
+      authOptions: const FlutterAuthClientOptions(
+        localStorage: SecureSessionStore(),
+      ),
     );
     // Without this, a token refresh that fails while the phone has no signal is an
     // unhandled zone error and takes the app down. An inspector is offline by default,
     // so this is the ordinary case, not the exceptional one.
     Supabase.instance.client.auth.onAuthStateChange.listen(
-      (_) {},
+      (_) => _resumeCaptures(),
       onError: (Object error) => debugPrint('auth state error: $error'),
     );
+    _resumeCaptures();
   }
 
   runApp(const KiviloApp());
@@ -47,8 +53,43 @@ class KiviloApp extends StatelessWidget {
   }
 }
 
-class _Root extends StatelessWidget {
+void _resumeCaptures() {
+  if (Supabase.instance.client.auth.currentSession == null) return;
+  unawaited(
+    resumePendingCaptures()
+        .then((_) {})
+        .catchError(
+          (Object error) => debugPrint('capture resume error: $error'),
+        ),
+  );
+}
+
+class _Root extends StatefulWidget {
   const _Root();
+
+  @override
+  State<_Root> createState() => _RootState();
+}
+
+class _RootState extends State<_Root> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && Config.isComplete) {
+      _resumeCaptures();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +101,11 @@ class _Root extends StatelessWidget {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         final session =
-            snapshot.data?.session ?? Supabase.instance.client.auth.currentSession;
-        return session == null ? const SignInScreen() : const InspectionsScreen();
+            snapshot.data?.session ??
+            Supabase.instance.client.auth.currentSession;
+        return session == null
+            ? const SignInScreen()
+            : const InspectionsScreen();
       },
     );
   }

@@ -16,7 +16,9 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _email = TextEditingController();
   final _code = TextEditingController();
+  final _password = TextEditingController();
   bool _sent = false;
+  bool _passwordMode = false;
   bool _busy = false;
   String? _error;
 
@@ -24,6 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void dispose() {
     _email.dispose();
     _code.dispose();
+    _password.dispose();
     super.dispose();
   }
 
@@ -44,17 +47,26 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _sendCode() => _run(() async {
-        await Supabase.instance.client.auth.signInWithOtp(email: _email.text.trim());
-        if (mounted) setState(() => _sent = true);
-      });
+    await Supabase.instance.client.auth.signInWithOtp(
+      email: _email.text.trim(),
+    );
+    if (mounted) setState(() => _sent = true);
+  });
 
   Future<void> _verify() => _run(() async {
-        await Supabase.instance.client.auth.verifyOTP(
-          email: _email.text.trim(),
-          token: _code.text.trim(),
-          type: OtpType.email,
-        );
-      });
+    await Supabase.instance.client.auth.verifyOTP(
+      email: _email.text.trim(),
+      token: _code.text.trim(),
+      type: OtpType.email,
+    );
+  });
+
+  Future<void> _signInWithPassword() => _run(() async {
+    await Supabase.instance.client.auth.signInWithPassword(
+      email: _email.text.trim(),
+      password: _password.text,
+    );
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,23 +92,32 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text('Kivilo', style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Kivilo',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    _sent ? 'Enter the code' : 'Sign in',
+                    _passwordMode
+                        ? 'Sign in with password'
+                        : _sent
+                        ? 'Enter the code'
+                        : 'Sign in',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _sent
+                    _passwordMode
+                        ? 'For provisioned review accounts.'
+                        : _sent
                         ? 'We sent a six digit code to ${_email.text.trim()}.'
                         : 'We will email you a six digit code.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 20),
-                  if (!_sent)
+                  if (!_sent || _passwordMode)
                     TextField(
                       controller: _email,
                       autofocus: true,
@@ -106,7 +127,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         labelText: 'Email',
                         border: OutlineInputBorder(),
                       ),
-                      onSubmitted: (_) => _sendCode(),
+                      onSubmitted: (_) =>
+                          _passwordMode ? _signInWithPassword() : _sendCode(),
                     )
                   else
                     TextField(
@@ -121,13 +143,35 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       onSubmitted: (_) => _verify(),
                     ),
+                  if (_passwordMode) ...[
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _password,
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      onSubmitted: (_) => _signInWithPassword(),
+                    ),
+                  ],
                   if (_error != null) ...[
                     const SizedBox(height: 8),
-                    Text(_error!, style: const TextStyle(color: Color(0xFFB91C1C))),
+                    Text(
+                      _error!,
+                      style: const TextStyle(color: Color(0xFFB91C1C)),
+                    ),
                   ],
                   const SizedBox(height: 12),
                   FilledButton(
-                    onPressed: _busy ? null : (_sent ? _verify : _sendCode),
+                    onPressed: _busy
+                        ? null
+                        : (_passwordMode
+                              ? _signInWithPassword
+                              : _sent
+                              ? _verify
+                              : _sendCode),
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFFEC4899),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -135,16 +179,34 @@ class _SignInScreenState extends State<SignInScreen> {
                     child: Text(
                       _busy
                           ? 'Working'
+                          : _passwordMode
+                          ? 'Sign in'
                           : _sent
-                              ? 'Sign in'
-                              : 'Email me a code',
+                          ? 'Sign in'
+                          : 'Email me a code',
                     ),
                   ),
-                  if (_sent)
+                  if (_sent && !_passwordMode)
                     TextButton(
-                      onPressed: _busy ? null : () => setState(() => _sent = false),
+                      onPressed: _busy
+                          ? null
+                          : () => setState(() => _sent = false),
                       child: const Text('Use a different email'),
                     ),
+                  TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() {
+                            _passwordMode = !_passwordMode;
+                            _sent = false;
+                            _error = null;
+                          }),
+                    child: Text(
+                      _passwordMode
+                          ? 'Use an emailed code'
+                          : 'Sign in with password',
+                    ),
+                  ),
                 ],
               ),
             ),

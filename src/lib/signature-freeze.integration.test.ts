@@ -1,4 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { randomUUID } from 'node:crypto'
 
 /// A report that has gone out for signature is the artefact both parties are agreeing
 /// to, and `/reports/[token]` renders its rooms, items and photo captures. So every
@@ -11,6 +12,7 @@ vi.mock('next/server', () => ({ after: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/storage', () => ({
   createUploadUrl: vi.fn(async () => ({ signedUrl: 'https://x/y', token: 'tok' })),
+  captureExists: vi.fn(async () => false),
 }))
 vi.mock('@/lib/auth', async (importActual) => {
   // Only the session lookup is faked. The authorization boundary itself, which is what
@@ -21,6 +23,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
+import { captureExists } from '@/lib/storage'
 import {
   addRoom,
   renameRoom,
@@ -35,6 +38,9 @@ import {
   annotateCapture,
   deleteCapture,
   finishRoomCapture,
+  completeReview,
+  signInspection,
+  startCheckOut,
 } from '@/lib/actions'
 import type { InspectionStatus } from '@/generated/prisma'
 
@@ -72,6 +78,7 @@ async function deal(label: string, status: InspectionStatus) {
       storagePath: `${room.id}/a.jpg`,
       mimeType: 'image/jpeg',
       sizeBytes: 10,
+      processedAt: new Date(),
     },
   })
   const item = await db.inspectionItem.create({
@@ -96,7 +103,11 @@ afterAll(async () => {
   await db.$disconnect()
 })
 
-beforeEach(() => vi.mocked(requireAgent).mockReset())
+beforeEach(() => {
+  vi.mocked(requireAgent).mockReset()
+  vi.mocked(captureExists).mockReset()
+  vi.mocked(captureExists).mockResolvedValue(false)
+})
 
 describe.each(['AWAITING_SIGNATURE', 'COMPLETED'] as const)(
   'an inspection at %s',
@@ -140,6 +151,7 @@ describe('captures still in flight', () => {
   it('may still land while the report is awaiting signature', async () => {
     const d = await deal('H', 'AWAITING_SIGNATURE')
     await expect(requestUploadUrl(d.room.id, d.inspection.id, 'late.jpg')).resolves.toMatchObject({ token: 'tok' })
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
     await expect(
       registerCapture({
         roomId: d.room.id,
@@ -181,5 +193,123 @@ describe('an inspection still in progress', () => {
     await expect(updateItem(d.item.id, d.inspection.id, { name: 'Hob' })).resolves.toBeUndefined()
     await expect(updateCaptureNote(d.capture.id, d.inspection.id, 'plate')).resolves.toBeUndefined()
     await expect(requestUploadUrl(d.room.id, d.inspection.id, 'x.jpg')).resolves.toMatchObject({ token: 'tok' })
+  })
+})
+
+describe('native action boundaries', () => {
+  it('rejects a room or capture paired with another inspection', async () => {
+    const d = await deal('PAIR', 'REVIEW')
+    const other = await db.inspection.create({
+      data: { tenancyId: d.inspection.tenancyId, kind: 'CHECK_IN', status: 'REVIEW' },
+    })
+
+    await expect(renameRoom(d.room.id, other.id, 'Wrong')).rejects.toThrow('Room not found')
+    await expect(markRoomReviewed(d.room.id, other.id)).rejects.toThrow('Room not found')
+    await expect(addItem(d.room.id, other.id)).rejects.toThrow('Room not found')
+    await expect(updateCaptureNote(d.capture.id, other.id, 'Wrong')).rejects.toThrow('Capture not found')
+    await expect(deleteCapture(d.capture.id, other.id)).rejects.toThrow('Capture not found')
+    await expect(finishRoomCapture(d.room.id, other.id)).rejects.toThrow('Room not found')
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).name).toBe('Kitchen')
+  })
+
+  it('does not register the same native capture twice after a lost response', async () => {
+    const d = await deal('RETRY', 'REVIEW')
+    const clientId = randomUUID()
+    const input = {
+      inspectionId: d.inspection.id,
+      roomId: d.room.id,
+      clientId,
+      kind: 'PHOTO' as const,
+      storagePath: `${d.room.id}/${clientId}.jpg`,
+      mimeType: 'image/jpeg',
+      sizeBytes: 20,
+      durationSec: null,
+      note: null,
+    }
+
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    const first = await registerCapture(input)
+    expect(await registerCapture(input)).toBe(first)
+    expect(await db.capture.count({ where: { clientId } })).toBe(1)
+    await expect(registerCapture({ ...input, sizeBytes: 21 })).rejects.toThrow('different media')
+  })
+
+  it('recognizes an already uploaded native object without issuing an overwrite token', async () => {
+    const d = await deal('OBJECT', 'REVIEW')
+    const clientId = randomUUID()
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    await expect(requestUploadUrl(d.room.id, d.inspection.id, 'plate.jpg', clientId))
+      .resolves.toEqual({
+        storagePath: `${d.room.id}/${clientId}.jpg`,
+        signedUrl: null,
+        token: null,
+        alreadyUploaded: true,
+      })
+  })
+
+  it('requires reviewed rooms and freezes after sending', async () => {
+    const d = await deal('REVIEW', 'REVIEW')
+    await completeReview(d.inspection.id)
+    expect((await db.inspection.findUniqueOrThrow({ where: { id: d.inspection.id } })).status)
+      .toBe('AWAITING_SIGNATURE')
+    await expect(completeReview(d.inspection.id)).rejects.toThrow(SENT)
+  })
+
+  it('refuses a capture row until storage confirms its bytes', async () => {
+    const d = await deal('MISSING', 'REVIEW')
+    await expect(registerCapture({
+      inspectionId: d.inspection.id,
+      roomId: d.room.id,
+      kind: 'PHOTO',
+      storagePath: `${d.room.id}/missing.jpg`,
+      mimeType: 'image/jpeg',
+      sizeBytes: 20,
+      durationSec: null,
+      note: null,
+    })).rejects.toThrow('Capture has not reached storage')
+    expect(await db.capture.count({ where: { roomId: d.room.id } })).toBe(1)
+  })
+
+  it('requires another model pass and human review when media lands before Send', async () => {
+    const d = await deal('LATE', 'REVIEW')
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    await registerCapture({
+      inspectionId: d.inspection.id,
+      roomId: d.room.id,
+      kind: 'PHOTO',
+      storagePath: `${d.room.id}/late.jpg`,
+      mimeType: 'image/jpeg',
+      sizeBytes: 20,
+      durationSec: null,
+      note: null,
+    })
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEW')
+    await expect(markRoomReviewed(d.room.id, d.inspection.id)).rejects.toThrow('Process all new captures')
+    await expect(completeReview(d.inspection.id)).rejects.toThrow('rooms still need review')
+  })
+
+  it('only accepts tenancy parties and never overwrites a signature', async () => {
+    const d = await deal('SIGN', 'AWAITING_SIGNATURE')
+    const tenancy = await db.tenancy.findUniqueOrThrow({ where: { id: d.inspection.tenancyId } })
+    const image = 'data:image/png;base64,iVBORw0KGgo='
+    await expect(signInspection(d.inspection.id, d.agent.id, image)).rejects.toThrow('Signature party not found')
+    await signInspection(d.inspection.id, tenancy.landlordId, image)
+    await signInspection(d.inspection.id, tenancy.landlordId, 'data:image/png;base64,AAAA')
+    const landlordSignature = await db.signature.findUniqueOrThrow({
+      where: { inspectionId_stakeholderId: { inspectionId: d.inspection.id, stakeholderId: tenancy.landlordId } },
+    })
+    expect(landlordSignature.imageData).toBe(image)
+    await signInspection(d.inspection.id, tenancy.tenantId, image)
+    expect((await db.inspection.findUniqueOrThrow({ where: { id: d.inspection.id } })).status)
+      .toBe('COMPLETED')
+  })
+
+  it('only starts check-out from a completed check-in and returns an existing check-out', async () => {
+    const open = await deal('OPEN', 'REVIEW')
+    await expect(startCheckOut(open.inspection.id)).rejects.toThrow('Only a completed check-in')
+    const completed = await deal('BASELINE', 'COMPLETED')
+    const first = await startCheckOut(completed.inspection.id)
+    expect(await startCheckOut(completed.inspection.id)).toBe(first)
+    expect(await db.inspection.count({ where: { baselineId: completed.inspection.id } })).toBe(1)
   })
 })

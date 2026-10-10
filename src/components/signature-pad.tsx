@@ -2,6 +2,8 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { signInspection } from '@/lib/actions'
+import { useUploadQueue } from '@/components/upload-queue'
+import { listPending } from '@/lib/offline-queue'
 
 export function SignaturePad({
   inspectionId,
@@ -20,6 +22,26 @@ export function SignaturePad({
   const drawing = useRef(false)
   const [hasInk, setHasInk] = useState(false)
   const [pending, startTransition] = useTransition()
+  const [queueError, setQueueError] = useState<string | null>(null)
+  const { pending: captures, flush } = useUploadQueue()
+  const unsent = captures.filter((capture) => capture.inspectionId === inspectionId).length
+
+  async function sign() {
+    try {
+      // A queued photograph may have been taken before Send but still be on this
+      // phone. Countersigning now would make the server refuse those bytes forever.
+      if ((await listPending()).some((capture) => capture.inspectionId === inspectionId)) {
+        flush()
+        setQueueError('Upload saved captures before signing this report.')
+        return
+      }
+      setQueueError(null)
+      const imageData = canvasRef.current?.toDataURL('image/png')
+      if (imageData) startTransition(() => void signInspection(inspectionId, stakeholderId, imageData))
+    } catch (error) {
+      setQueueError(`Could not check saved captures: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
 
   function position(event: React.PointerEvent<HTMLCanvasElement>) {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -88,17 +110,18 @@ export function SignaturePad({
         </button>
         <button
           type="button"
-          disabled={!hasInk || pending}
-          onClick={() => {
-            const imageData = canvasRef.current?.toDataURL('image/png')
-            if (!imageData) return
-            startTransition(() => void signInspection(inspectionId, stakeholderId, imageData))
-          }}
+          disabled={!hasInk || pending || unsent > 0}
+          onClick={() => void sign()}
           className="rounded-md bg-brand-500 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-40"
         >
           Sign
         </button>
       </div>
+      {(unsent > 0 || queueError) && (
+        <p className="mt-2 text-xs text-amber-800">
+          {queueError ?? `${unsent} saved capture${unsent === 1 ? '' : 's'} must upload before signing.`}
+        </p>
+      )}
     </div>
   )
 }

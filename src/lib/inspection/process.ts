@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { db } from '@/lib/db'
 import { downloadCapture } from '@/lib/storage'
 import { extractRoom, type CaptureInput } from './extract'
@@ -6,7 +7,8 @@ import { propertyLabel } from '@/lib/format'
 
 /// Turns one room's captures into that room's draft items. Scoped deliberately: an
 /// inspector who re-shoots the kitchen must not lose the bedroom they already reviewed.
-export async function processRoom(roomId: string) {
+export async function processRoom(roomId: string, attemptId?: string) {
+  const jobId = attemptId ?? randomUUID()
   const room = await db.room.findUniqueOrThrow({
     where: { id: roomId },
     include: {
@@ -15,14 +17,28 @@ export async function processRoom(roomId: string) {
     },
   })
 
-  if (room.captures.length === 0) {
-    throw new Error(`Room ${roomId} has no captures to process`)
+  if (attemptId && (room.processingAttemptId !== jobId || room.status !== 'PROCESSING')) {
+    return
+  }
+  if (!attemptId) {
+    await db.room.update({
+      where: { id: roomId },
+      data: {
+        status: 'PROCESSING',
+        processingAttemptId: jobId,
+        processingStartedAt: new Date(),
+        processingError: null,
+      },
+    })
   }
 
-  await db.room.update({
-    where: { id: roomId },
-    data: { status: 'PROCESSING', processingError: null },
-  })
+  if (room.captures.length === 0) {
+    await db.room.updateMany({
+      where: { id: roomId, processingAttemptId: jobId, status: 'PROCESSING' },
+      data: { status: 'FAILED', processingError: 'No captures to process', processingAttemptId: null, processingStartedAt: null },
+    })
+    throw new Error(`Room ${roomId} has no captures to process`)
+  }
 
   try {
     const captures: CaptureInput[] = await Promise.all(
@@ -48,29 +64,40 @@ export async function processRoom(roomId: string) {
     // A row a person has edited is theirs, not the model's, and a re-read (a photo added
     // to a reviewed room, say) must not throw it away. Those rows stay; the model's own
     // rows are replaced, minus any that would duplicate a kept row by name.
-    const kept = await db.inspectionItem.findMany({
-      where: { roomId, editedByHuman: true },
-      select: { name: true },
-    })
-    const keptNames = new Set(kept.map((item) => item.name.trim().toLowerCase()))
-    const fresh = extraction.items.filter(
-      (item) => !keptNames.has(item.name.trim().toLowerCase()),
-    )
+    await db.$transaction(async (tx) => {
+      // Lock and claim the room first. A later re-shoot, a completed review, or a
+      // signature makes an old extraction's result ineligible to replace any row.
+      const claimed = await tx.room.updateMany({
+        where: {
+          id: roomId,
+          status: 'PROCESSING',
+          processingAttemptId: jobId,
+          inspection: { status: { notIn: ['AWAITING_SIGNATURE', 'COMPLETED'] } },
+        },
+        data: { status: 'REVIEW', processingAttemptId: null, processingStartedAt: null },
+      })
+      if (claimed.count === 0) return
 
-    await db.$transaction([
-      // Only this room's model-authored items are replaced.
-      db.inspectionItem.deleteMany({ where: { roomId, editedByHuman: false } }),
-      // Only what the model saw. A capture that lands while it is reading stays
-      // unstamped, so it shows as new against the draft instead of vanishing into it.
-      db.capture.updateMany({
+      const kept = await tx.inspectionItem.findMany({
+        where: { roomId, editedByHuman: true },
+        select: { name: true },
+      })
+      const keptNames = new Set(kept.map((item) => item.name.trim().toLowerCase()))
+      const fresh = extraction.items.filter(
+        (item) => !keptNames.has(item.name.trim().toLowerCase()),
+      )
+
+      // Only this room's model-authored rows are replaced.
+      await tx.inspectionItem.deleteMany({ where: { roomId, editedByHuman: false } })
+      await tx.capture.updateMany({
         where: { id: { in: [...captureIds] } },
         data: { processedAt: now },
-      }),
-      db.capture.update({
+      })
+      await tx.capture.update({
         where: { id: room.captures[0].id },
         data: { transcript: extraction.transcript },
-      }),
-      db.inspectionItem.createMany({
+      })
+      await tx.inspectionItem.createMany({
         data: fresh.map((item) => ({
           roomId,
           name: item.name,
@@ -80,19 +107,19 @@ export async function processRoom(roomId: string) {
           notes: item.notes || null,
           identifier: item.identifier,
           meterReading: item.meterReading,
-          // Drop a ref the model invented rather than failing the whole room.
           sourceCaptureId: captureIds.has(item.sourceCaptureRef) ? item.sourceCaptureRef : null,
           sourceTimestampSec: item.sourceTimestampSec,
           confidence: item.confidence,
         })),
-      }),
-      db.room.update({ where: { id: roomId }, data: { status: 'REVIEW' } }),
-    ])
+      })
+    })
   } catch (error) {
-    await db.room.update({
-      where: { id: roomId },
+    await db.room.updateMany({
+      where: { id: roomId, processingAttemptId: jobId, status: 'PROCESSING' },
       data: {
         status: 'FAILED',
+        processingAttemptId: null,
+        processingStartedAt: null,
         processingError: error instanceof Error ? error.message : String(error),
       },
     })
@@ -165,12 +192,20 @@ export async function generateFindings(inspectionId: string) {
   const knownItemIds = new Set(flatten(inspection.rooms).map((i) => i.ref))
   const knownBaselineIds = new Set(flatten(inspection.baseline.rooms).map((i) => i.ref))
 
-  await db.$transaction([
-    db.finding.deleteMany({ where: { inspectionId } }),
-    db.finding.createMany({
+  await db.$transaction(async (tx) => {
+    // An agent may already have corrected an earlier draft while a second request
+    // was in flight. Never regenerate by deleting their work. Serializable isolation
+    // makes concurrent first generations compete rather than silently overwrite.
+    const current = await tx.inspection.findUniqueOrThrow({
+      where: { id: inspectionId },
+      select: { summary: true, _count: { select: { findings: true } } },
+    })
+    if (current.summary !== null || current._count.findings > 0) {
+      throw new Error('Findings already exist; edit the draft instead of regenerating it')
+    }
+    await tx.finding.createMany({
       data: diff.findings.map((finding) => ({
         inspectionId,
-        // The model echoes refs back; drop any it invented rather than failing the FK.
         itemId: finding.itemRef && knownItemIds.has(finding.itemRef) ? finding.itemRef : null,
         baselineItemId:
           finding.baselineItemRef && knownBaselineIds.has(finding.baselineItemRef)
@@ -182,10 +217,10 @@ export async function generateFindings(inspectionId: string) {
         estimatedCost: finding.estimatedCost,
         confidence: finding.confidence,
       })),
-    }),
-    db.inspection.update({
+    })
+    await tx.inspection.update({
       where: { id: inspectionId },
       data: { summary: diff.summary },
-    }),
-  ])
+    })
+  }, { isolationLevel: 'Serializable' })
 }

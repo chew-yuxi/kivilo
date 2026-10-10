@@ -1,5 +1,6 @@
 import { currentAgent } from '@/lib/auth'
 import type { Stakeholder } from '@/generated/prisma'
+import { ZodError } from 'zod'
 
 /// Transport for the native client. These handlers are deliberately thin: they resolve
 /// the agent, call the same function the web app calls, and serialise the result. No
@@ -29,8 +30,30 @@ export function authed<P>(
       if (/not found/i.test(message)) {
         return Response.json({ error: 'not_found' }, { status: 404 })
       }
+      if (error instanceof ZodError || error instanceof SyntaxError ||
+          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path)/.test(message)) {
+        return Response.json({ error: 'invalid_request' }, { status: 400 })
+      }
       if (/no longer be changed/i.test(message)) {
         return Response.json({ error: 'report_frozen' }, { status: 409 })
+      }
+      if (/AI processing consent is required/i.test(message)) {
+        return Response.json({ error: 'consent_required' }, { status: 409 })
+      }
+      if (/Capture has not reached storage/i.test(message)) {
+        return Response.json({ error: 'capture_missing' }, { status: 409 })
+      }
+      if (/rooms? still need review|Add and review at least one room|Room must be processed before review|Process all new captures/i.test(message)) {
+        return Response.json({ error: 'review_incomplete' }, { status: 409 })
+      }
+      if (/Review every finding before publishing/i.test(message)) {
+        return Response.json({ error: 'assessment_review_incomplete' }, { status: 409 })
+      }
+      if (/Capture client id already registered|Capture is already registered with different media|Capture was deleted/i.test(message)) {
+        return Response.json({ error: 'capture_conflict' }, { status: 409 })
+      }
+      if (/not awaiting signature|already countersigned|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed/i.test(message)) {
+        return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       console.error('API route failed:', error)
       return Response.json({ error: 'server_error' }, { status: 500 })

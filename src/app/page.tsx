@@ -281,6 +281,10 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500">
           <Wordmark />
           <p>Singapore first. Built for the agents who close, the landlords who own, and the tenants who live there.</p>
+          <div className="flex gap-4">
+            <Link href="/support" className="hover:underline">Support</Link>
+            <Link href="/delete-account" className="hover:underline">Delete account</Link>
+          </div>
         </div>
       </footer>
     </div>

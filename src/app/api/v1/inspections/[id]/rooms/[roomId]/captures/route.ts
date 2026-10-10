@@ -1,11 +1,14 @@
 import { z } from 'zod'
+import { isDeepStrictEqual } from 'node:util'
 import { registerCapture } from '@/lib/actions'
-import { annotationInputSchema } from '@/lib/annotations'
+import { annotationInputSchema, toAnnotations } from '@/lib/annotations'
 import { authed } from '@/lib/api/route'
+import { db } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
 const body = z.object({
+  clientId: z.uuid().optional(),
   kind: z.enum(['PHOTO', 'VIDEO']),
   storagePath: z.string().min(1),
   mimeType: z.string().min(1),
@@ -20,18 +23,29 @@ const body = z.object({
 export const POST = authed(
   async (_agent, { id, roomId }: { id: string; roomId: string }, request) => {
     const input = body.parse(await request.json())
+    const captureId = await registerCapture({
+      roomId,
+      inspectionId: id,
+      clientId: input.clientId,
+      kind: input.kind,
+      storagePath: input.storagePath,
+      mimeType: input.mimeType,
+      sizeBytes: input.sizeBytes,
+      durationSec: input.durationSec,
+      note: input.note,
+      annotations: input.annotations ?? undefined,
+    })
+    const persisted = await db.capture.findUniqueOrThrow({
+      where: { id: captureId },
+      select: { annotations: true },
+    })
+    const stored = toAnnotations(persisted.annotations)
     return {
-      id: await registerCapture({
-        roomId,
-        inspectionId: id,
-        kind: input.kind,
-        storagePath: input.storagePath,
-        mimeType: input.mimeType,
-        sizeBytes: input.sizeBytes,
-        durationSec: input.durationSec,
-        note: input.note,
-        annotations: input.annotations ?? undefined,
-      }),
+      id: captureId,
+      annotationsApplied: !input.annotations || !!stored && isDeepStrictEqual(
+        { w: stored.w, h: stored.h, marks: stored.marks },
+        input.annotations,
+      ),
     }
   },
 )

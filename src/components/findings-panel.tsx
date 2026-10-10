@@ -4,6 +4,7 @@ import { useTransition } from 'react'
 import { sgd } from '@/lib/format'
 import { VERDICTS } from '@/lib/inspection/schema'
 import { runFindings, updateFinding } from '@/lib/actions'
+import { publishAssessment } from '@/lib/assessment-actions'
 import type { ChangeType, Verdict } from '@/generated/prisma'
 
 export type FindingRow = {
@@ -13,6 +14,7 @@ export type FindingRow = {
   rationale: string
   estimatedCost: string | null
   confidence: number | null
+  editedByHuman: boolean
   itemLabel: string | null
   baselineLabel: string | null
   baselineCondition: string | null
@@ -38,10 +40,12 @@ export function FindingsPanel({
   inspectionId,
   findings,
   depositAmount,
+  publishedVersion,
 }: {
   inspectionId: string
   findings: FindingRow[]
   depositAmount: string
+  publishedVersion: number | null
 }) {
   const [pending, startTransition] = useTransition()
 
@@ -108,6 +112,20 @@ export function FindingsPanel({
             <p className="mt-2 text-sm text-gray-600">{finding.rationale}</p>
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
+              {finding.editedByHuman ? (
+                <span className="text-xs text-emerald-700">Reviewed</span>
+              ) : (
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => startTransition(() =>
+                    void updateFinding(finding.id, inspectionId, { verdict: finding.verdict }),
+                  )}
+                  className="text-xs font-medium text-brand-600 underline disabled:opacity-50"
+                >
+                  Mark reviewed
+                </button>
+              )}
               <select
                 defaultValue={finding.verdict}
                 onChange={(e) =>
@@ -148,6 +166,26 @@ export function FindingsPanel({
           </li>
         ))}
       </ul>
+      <div className="rounded-lg border border-gray-200 bg-white p-4 text-sm">
+        <p className="text-gray-600">
+          Check every finding against the signed inventory and evidence. Publishing makes
+          a dated assessment available in the shared report; later edits require a new version.
+        </p>
+        {findings.some((finding) => !finding.editedByHuman) && (
+          <p className="mt-2 text-amber-800">Review each finding before publishing.</p>
+        )}
+        {publishedVersion && (
+          <p className="mt-2 text-xs text-gray-500">Published version {publishedVersion}</p>
+        )}
+        <button
+          type="button"
+          disabled={pending || findings.some((finding) => !finding.editedByHuman)}
+          onClick={() => startTransition(() => void publishAssessment(inspectionId))}
+          className="mt-3 rounded-md bg-brand-600 px-3 py-2 font-medium text-white disabled:opacity-50"
+        >
+          {pending ? 'Publishing…' : 'I reviewed these findings — publish assessment'}
+        </button>
+      </div>
     </div>
   )
 }

@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 /// One inspection with its rooms, in walk order. Authorized through the same helper the
 /// server actions use, so an id belonging to another agent is a 404 here exactly as it
 /// is everywhere else.
-export const GET = authed(async (agent, { id }: { id: string }) => {
+export const GET = authed(async (agent, { id }: { id: string }, request) => {
   await authorizeInspection(id, agent.id)
 
   const inspection = await db.inspection.findUniqueOrThrow({
@@ -22,6 +22,16 @@ export const GET = authed(async (agent, { id }: { id: string }) => {
           _count: { select: { items: true } },
         },
       },
+      signatures: { select: { stakeholderId: true, signedAt: true } },
+      checkOut: { select: { id: true } },
+      findings: {
+        orderBy: { createdAt: 'asc' },
+        include: {
+          item: { include: { room: { select: { name: true } } } },
+          baselineItem: { include: { room: { select: { name: true } } } },
+        },
+      },
+      assessments: { orderBy: { version: 'desc' }, take: 1, select: { version: true, publishedAt: true } },
     },
   })
 
@@ -31,8 +41,50 @@ export const GET = authed(async (agent, { id }: { id: string }) => {
     status: inspection.status,
     property: propertyLabel(inspection.tenancy.property),
     landlord: inspection.tenancy.landlord.name,
+    landlordId: inspection.tenancy.landlordId,
     tenant: inspection.tenancy.tenant.name,
+    tenantId: inspection.tenancy.tenantId,
+    deposit: inspection.tenancy.deposit.toString(),
     summary: inspection.summary,
+    baselineId: inspection.baselineId,
+    checkOutId: inspection.checkOut?.id ?? null,
+    aiConsentAt: inspection.aiConsentAt?.toISOString() ?? null,
+    shareToken: inspection.shareToken,
+    shareUrl: inspection.shareToken
+      ? new URL(`/reports/${inspection.shareToken}`, request.url).toString()
+      : null,
+    signatures: inspection.signatures.map((signature) => ({
+      stakeholderId: signature.stakeholderId,
+      signedAt: signature.signedAt.toISOString(),
+    })),
+    latestAssessment: inspection.assessments[0]
+      ? {
+          version: inspection.assessments[0].version,
+          publishedAt: inspection.assessments[0].publishedAt.toISOString(),
+        }
+      : null,
+    assessmentDraftChanged:
+      inspection.kind === 'CHECK_OUT' && inspection.summary !== null &&
+      (!inspection.assessments[0] || inspection.findings.some(
+        (finding) => finding.updatedAt > inspection.assessments[0].publishedAt,
+      )),
+    findings: inspection.findings.map((finding) => ({
+      id: finding.id,
+      changeType: finding.changeType,
+      verdict: finding.verdict,
+      rationale: finding.rationale,
+      estimatedCost: finding.estimatedCost?.toString() ?? null,
+      confidence: finding.confidence,
+      editedByHuman: finding.editedByHuman,
+      itemId: finding.itemId,
+      baselineItemId: finding.baselineItemId,
+      itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
+      baselineLabel: finding.baselineItem
+        ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
+        : null,
+      baselineCondition: finding.baselineItem?.condition ?? null,
+      currentCondition: finding.item?.condition ?? null,
+    })),
     rooms: inspection.rooms.map((room) => ({
       id: room.id,
       name: room.name,

@@ -23,6 +23,18 @@ export async function createUploadUrl(storagePath: string) {
   return data
 }
 
+/// A retry may have uploaded successfully before its response was lost. Check the
+/// deterministic native path without granting a token that could overwrite evidence.
+export async function captureExists(storagePath: string) {
+  const { data, error } = await serviceClient().storage.from(CAPTURE_BUCKET).exists(storagePath)
+  // storage-js deliberately represents a missing HEAD as data:false with either
+  // HTTP 400 or 404. The configured Supabase project returns 400 for a missing path
+  // (verified 2026-10-10); treating that as a failure prevents every first upload.
+  // Its exists() method throws for other statuses and network errors.
+  if (error && error.status !== 400 && error.status !== 404) throw error
+  return data
+}
+
 export async function createDownloadUrl(storagePath: string, expiresInSec = 3600) {
   const { data, error } = await serviceClient()
     .storage.from(CAPTURE_BUCKET)

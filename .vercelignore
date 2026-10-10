@@ -1,0 +1,8 @@
+mobile/
+.env*
+.next/
+node_modules/
+.git/
+test-results/
+playwright-report/
+supabase/.temp/

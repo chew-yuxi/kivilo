@@ -11,6 +11,7 @@ import { ProcessingPoller } from '@/components/processing-poller'
 import { CheckOutButton } from '@/components/check-out-button'
 import { CompleteReviewButton } from '@/components/complete-review-button'
 import { ShareReport } from '@/components/share-report'
+import { AiConsentButton } from '@/components/ai-consent-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +43,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           baselineItem: { include: { room: true } },
         },
       },
+      assessments: { orderBy: { version: 'desc' }, take: 1 },
     },
   })
 
@@ -77,6 +79,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     rationale: finding.rationale,
     estimatedCost: finding.estimatedCost?.toString() ?? null,
     confidence: finding.confidence,
+    editedByHuman: finding.editedByHuman,
     itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
     baselineLabel: finding.baselineItem
       ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
@@ -125,6 +128,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
       {isCapturePhase && (
         <>
+          {!inspection.aiConsentAt && <AiConsentButton inspectionId={id} />}
           <RoomCapture inspectionId={id} rooms={rooms} />
           {anyProcessing && <ProcessingPoller />}
           {allReviewed && <CompleteReviewButton inspectionId={id} roomCount={rooms.length} />}
@@ -178,13 +182,15 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
         <CheckOutButton baselineId={id} existingCheckOutId={inspection.checkOut?.id ?? null} />
       )}
 
-      {kind === 'CHECK_OUT' && (status === 'AWAITING_SIGNATURE' || status === 'COMPLETED') && (
+      {kind === 'CHECK_OUT' && status === 'COMPLETED' && (
         <section className="space-y-3">
           <h2 className="text-sm font-medium">Comparison against check-in</h2>
+          {!inspection.aiConsentAt && <AiConsentButton inspectionId={id} />}
           <FindingsPanel
             inspectionId={id}
             findings={findings}
             depositAmount={tenancy.deposit.toString()}
+            publishedVersion={inspection.assessments[0]?.version ?? null}
           />
         </section>
       )}

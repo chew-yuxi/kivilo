@@ -168,12 +168,15 @@ exports.Prisma.InspectionScalarFieldEnum = {
   processingError: 'processingError',
   shareToken: 'shareToken',
   sharedAt: 'sharedAt',
+  aiConsentAt: 'aiConsentAt',
+  aiConsentById: 'aiConsentById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.CaptureScalarFieldEnum = {
   id: 'id',
+  clientId: 'clientId',
   roomId: 'roomId',
   kind: 'kind',
   storagePath: 'storagePath',
@@ -194,6 +197,8 @@ exports.Prisma.RoomScalarFieldEnum = {
   order: 'order',
   status: 'status',
   processingError: 'processingError',
+  processingAttemptId: 'processingAttemptId',
+  processingStartedAt: 'processingStartedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -240,6 +245,46 @@ exports.Prisma.SignatureScalarFieldEnum = {
   imageData: 'imageData'
 };
 
+exports.Prisma.AssessmentVersionScalarFieldEnum = {
+  id: 'id',
+  inspectionId: 'inspectionId',
+  version: 'version',
+  snapshot: 'snapshot',
+  contentHash: 'contentHash',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById'
+};
+
+exports.Prisma.AccountDeletionRequestScalarFieldEnum = {
+  id: 'id',
+  stakeholderId: 'stakeholderId',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  dueAt: 'dueAt',
+  completedAt: 'completedAt',
+  notificationSentAt: 'notificationSentAt',
+  processingPolicyVersion: 'processingPolicyVersion',
+  fulfilledUnderPolicy: 'fulfilledUnderPolicy',
+  email: 'email'
+};
+
+exports.Prisma.AccountDeletionStoragePurgeScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  roomId: 'roomId',
+  readyAt: 'readyAt',
+  completedAt: 'completedAt'
+};
+
+exports.Prisma.StoragePurgeScalarFieldEnum = {
+  id: 'id',
+  path: 'path',
+  isPrefix: 'isPrefix',
+  readyAt: 'readyAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -247,6 +292,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -337,6 +386,12 @@ exports.Verdict = exports.$Enums.Verdict = {
   UNDECIDED: 'UNDECIDED'
 };
 
+exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {
+  REQUESTED: 'REQUESTED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED'
+};
+
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Property: 'Property',
@@ -346,7 +401,11 @@ exports.Prisma.ModelName = {
   Room: 'Room',
   InspectionItem: 'InspectionItem',
   Finding: 'Finding',
-  Signature: 'Signature'
+  Signature: 'Signature',
+  AssessmentVersion: 'AssessmentVersion',
+  AccountDeletionRequest: 'AccountDeletionRequest',
+  AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
+  StoragePurge: 'StoragePurge'
 };
 
 /**

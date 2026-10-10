@@ -36,20 +36,33 @@ The server half of this seam is covered from the repo root by `e2e/api.spec.ts`,
 signs in exactly as this app does, with no browser and no cookie, and asserts that another
 agent's inspection is indistinguishable from one that never existed.
 
-## What is here so far
+## Inspector workflow
 
-Sign in with the emailed six digit code, the inspection list, and one inspection's rooms,
-read only. The session is kept in the Keychain, not the default plaintext store, because
-the refresh token opens an account holding photographs of people's homes.
+The app supports emailed-code sign-in and a password option for provisioned review
+accounts. An agent can create a check-in, add and manage rooms, record narrated video and
+photos, caption and mark photos, draft one room's inventory with AI consent, review and
+edit items, send the inventory for signature, capture both parties' signatures, share or
+revoke the report, and open a check-out. The check-out comparison remains a private draft
+until the agent publishes a dated assessment version after countersignature. The signed
+inventory is frozen independently of assessment edits.
 
-`lib/services/capture_queue.dart` is the durable capture queue, ahead of the camera UI
-that will fill it, because it is the piece that carries the never-lose-a-capture
-invariant and it is the piece that can be tested without a phone. It mirrors
-`src/lib/offline-queue.ts` deliberately: same ordering, same hand-over rules, no maximum
-attempt count. Two things it has that the web client does not need: a `claimedAt` lease,
-because a background transfer runs in its own isolate with its own database handle and an
-in-memory guard would not be seen across that boundary, and a relative file path, because
-iOS moves the app container between launches.
+Camera media is copied into app support storage and a Drift queue before capture is
+acknowledged. Uploads use signed private-storage URLs, retry without an attempt limit,
+and resume when the app starts or returns to the foreground. Inspection and room metadata
+previously loaded for the same signed-in account are cached for offline navigation.
+The session is kept in the Keychain or encrypted Android preferences.
 
-Capture, review and signing are still the web app's job. The order of work,
-and what each milestone unblocks, is in `plans/flutter-migration.md`.
+The Settings screen records an account-deletion request and its due date. The public
+request entry point is `/delete-account` on the web origin. AI consent is recorded per
+inspection before room drafting or check-out comparison.
+
+`flutter analyze`, `flutter test`, and the server checks verify source and backend
+behavior. `test/native_flow_test.dart` runs the complete native API sequence against a
+stateful fake transport, including consent, review, signatures, sharing, check-out,
+assessment publication, and account deletion; it does not exercise the physical camera
+or the remote services. The Android debug APK and iOS simulator app build successfully
+from this workspace; iOS now targets 15.0 or newer. A physical iPhone and Android test
+with long videos, poor connectivity, backgrounding, and force-quit is still required
+before store submission. Store signing,
+account enrollment, listing assets, and review submission also require the company's
+developer accounts; none of those gates is implied by a passing local build.

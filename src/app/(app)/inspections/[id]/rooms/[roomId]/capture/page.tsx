@@ -5,6 +5,7 @@ import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
 import { RoomCaptureScreen, type ServerCapture } from '@/components/room-capture-screen'
+import { AiConsentButton } from '@/components/ai-consent-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,6 +38,10 @@ export default async function RoomCapturePage({
   if (index === -1) notFound()
   const room = rooms[index]
   const next = rooms[index + 1]
+  const inspection = await db.inspection.findUniqueOrThrow({
+    where: { id },
+    select: { aiConsentAt: true },
+  })
 
   const stored = await db.capture.findMany({
     where: { roomId },
@@ -55,12 +60,15 @@ export default async function RoomCapturePage({
   )
 
   return (
-    <RoomCaptureScreen
-      inspectionId={id}
-      room={room}
-      captures={captures}
-      position={{ index: index + 1, total: rooms.length }}
-      next={next ? { href: roomHref(id, next), name: next.name } : null}
-    />
+    <div className="space-y-5">
+      {!inspection.aiConsentAt && <AiConsentButton inspectionId={id} />}
+      <RoomCaptureScreen
+        inspectionId={id}
+        room={room}
+        captures={captures}
+        position={{ index: index + 1, total: rooms.length }}
+        next={next ? { href: roomHref(id, next), name: next.name } : null}
+      />
+    </div>
   )
 }

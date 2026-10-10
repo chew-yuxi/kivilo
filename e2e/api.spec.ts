@@ -152,6 +152,12 @@ test('a native client can create and capture a room end to end', async ({ reques
   })
   expect(body.captures[0].url).toContain('token=')
 
+  const consent = await request.post(`/api/v1/inspections/${inspectionId}/ai-consent`, {
+    headers,
+    data: { consent: true },
+  })
+  expect(consent.status()).toBe(200)
+
   const finished = await request.post(
     `/api/v1/inspections/${inspectionId}/rooms/${roomId}/finish`,
     { headers },

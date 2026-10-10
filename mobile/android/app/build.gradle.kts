@@ -4,6 +4,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val uploadKeyStore = System.getenv("KIVILO_UPLOAD_KEYSTORE")
+val uploadStorePassword = System.getenv("KIVILO_UPLOAD_STORE_PASSWORD")
+val uploadKeyAlias = System.getenv("KIVILO_UPLOAD_KEY_ALIAS")
+val uploadKeyPassword = System.getenv("KIVILO_UPLOAD_KEY_PASSWORD")
+val releaseRequested = gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true)
+}
+if (releaseRequested && listOf(uploadKeyStore, uploadStorePassword, uploadKeyAlias, uploadKeyPassword).any { it.isNullOrBlank() }) {
+    error("Android release signing requires KIVILO_UPLOAD_KEYSTORE, KIVILO_UPLOAD_STORE_PASSWORD, KIVILO_UPLOAD_KEY_ALIAS, and KIVILO_UPLOAD_KEY_PASSWORD")
+}
+
 android {
     namespace = "one.kivilo.kivilo"
     compileSdk = flutter.compileSdkVersion
@@ -15,21 +26,27 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "one.kivilo.kivilo"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    if (uploadKeyStore != null && uploadStorePassword != null && uploadKeyAlias != null && uploadKeyPassword != null) {
+        signingConfigs {
+            create("upload") {
+                storeFile = file(uploadKeyStore)
+                storePassword = uploadStorePassword
+                keyAlias = uploadKeyAlias
+                keyPassword = uploadKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("upload")
         }
     }
 }
