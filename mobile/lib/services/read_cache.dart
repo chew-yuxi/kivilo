@@ -31,9 +31,11 @@ class ReadCache {
     }
   }
 
-  Future<void> write(String key, Object? value) async {
+  /// Returns whether the value reached the app-support file. Callers that
+  /// promise an offline draft to the user must check this result.
+  Future<bool> write(String key, Object? value) async {
     final file = await _file(key);
-    if (file == null) return;
+    if (file == null) return false;
     try {
       await file.parent.create(recursive: true);
       final temp = File(
@@ -41,8 +43,15 @@ class ReadCache {
       );
       await temp.writeAsString(jsonEncode(value), flush: true);
       await temp.rename(file.path);
+      return true;
     } on FileSystemException catch (error) {
       debugPrint('Could not save inspection cache $key: $error');
+      return false;
     }
+  }
+
+  Future<void> remove(String key) async {
+    final file = await _file(key);
+    if (file != null && await file.exists()) await file.delete();
   }
 }

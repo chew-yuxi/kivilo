@@ -73,6 +73,19 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
 
   const published = inspection.assessments[0] ?? null
   const assessment = published ? assessmentSnapshotSchema.parse(published.snapshot) : null
+  const maintenanceEvidenceUrls = new Map<string, { id: string; purpose: string; mimeType: string; note: string | null; url: string }[]>()
+  if (assessment) {
+    await Promise.all(assessment.findings.map(async (finding) => {
+      const evidence = finding.maintenanceEvidence?.evidence ?? []
+      maintenanceEvidenceUrls.set(finding.id, await Promise.all(evidence.map(async (item) => ({
+        id: item.id,
+        purpose: item.purpose,
+        mimeType: item.mimeType,
+        note: item.note,
+        url: await createDownloadUrl(item.storagePath, 60 * 60 * 24),
+      }))))
+    }))
+  }
   const liable = assessment?.findings.filter((f) => f.verdict === 'TENANT_LIABLE') ?? []
   const claimTotal = liable.reduce((sum, f) => sum + Number(f.estimatedCost ?? 0), 0)
   const itemCount = inspection.rooms.reduce((n, room) => n + room.items.length, 0)
@@ -260,6 +273,34 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
                   </span>
                 </div>
                 <p className="mt-1 text-gray-600">{finding.rationale}</p>
+                {finding.maintenanceEvidence && (
+                  <div className="mt-3 border-t border-gray-100 pt-3">
+                    <p className="text-xs font-medium text-gray-700">
+                      Maintenance record: {finding.maintenanceEvidence.title}
+                    </p>
+                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {(maintenanceEvidenceUrls.get(finding.id) ?? []).map((item) => (
+                        item.mimeType.startsWith('image/') ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={item.id}
+                            src={item.url}
+                            alt={item.note ?? `${item.purpose.toLowerCase()} maintenance evidence`}
+                            className="h-32 w-full rounded border border-gray-200 object-contain"
+                          />
+                        ) : (
+                          <a
+                            key={item.id}
+                            href={item.url}
+                            className="rounded border border-gray-200 p-3 text-xs text-brand-700 underline"
+                          >
+                            {item.purpose.toLowerCase()} evidence
+                          </a>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

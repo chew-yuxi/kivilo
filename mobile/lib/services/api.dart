@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
 import '../models/inspection.dart';
+import '../models/maintenance.dart';
 import 'read_cache.dart';
 
 class ApiFailure implements Exception {
@@ -76,6 +77,10 @@ class Api {
           'This capture was already registered differently.',
         'capture_missing' =>
           'Upload has not reached storage. The saved file remains on this phone; retry upload.',
+        'evidence_missing' =>
+          'Evidence has not reached storage. The saved file remains on this phone; retry upload.',
+        'maintenance_conflict' =>
+          'This maintenance update was already recorded differently. Refresh and check the timeline.',
         'consent_required' =>
           'Allow AI processing before drafting this report.',
         _ =>
@@ -108,6 +113,156 @@ class Api {
         .map((json) => InspectionSummary.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+
+  Future<UserProfile> me() async {
+    final data = await _read('/api/v1/me', 'me');
+    return UserProfile.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<List<TenancySummary>> tenancies() async {
+    final data = await _read('/api/v1/tenancies', 'tenancies');
+    return (data as List<dynamic>)
+        .map((json) => TenancySummary.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<MaintenanceCaseSummary>> maintenanceCases(String tenancyId) async {
+    final data = await _read(
+      '/api/v1/tenancies/$tenancyId/maintenance',
+      'maintenance:$tenancyId',
+    );
+    return (data as List<dynamic>)
+        .map((json) => MaintenanceCaseSummary.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<MaintenanceCaseDetail> maintenanceCase(String caseId) async {
+    final data = await _read(
+      '/api/v1/maintenance/$caseId',
+      'maintenance-case:$caseId',
+    );
+    return MaintenanceCaseDetail.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<List<PropertyAssetSummary>> propertyAssets(String propertyId) async {
+    final data = await _read(
+      '/api/v1/properties/$propertyId/assets',
+      'property-assets:$propertyId',
+    );
+    return (data as List<dynamic>)
+        .map((json) => PropertyAssetSummary.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<String> createPropertyAsset(
+    String propertyId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/properties/$propertyId/assets',
+      data: body,
+    );
+    return response.data!['id'] as String;
+  });
+
+  Future<String> createMaintenanceCase(
+    String tenancyId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/maintenance',
+      data: body,
+    );
+    return response.data!['id'] as String;
+  });
+
+  Future<void> updateMaintenanceCase(
+    String caseId,
+    String status, {
+    String? resolutionReason,
+  }) => _call(() async {
+    await _dio.patch(
+      '/api/v1/maintenance/$caseId',
+      data: {'status': status, 'resolutionReason': resolutionReason},
+    );
+  });
+
+  Future<void> addMaintenanceComment(String caseId, String body) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/maintenance/$caseId/events',
+          data: {'body': body},
+        );
+      });
+
+  Future<String> addMaintenanceVisit(
+    String caseId, {
+    String? providerId,
+    DateTime? scheduledAt,
+    DateTime? completedAt,
+    String? notes,
+    String? cost,
+  }) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/maintenance/$caseId/visits',
+      data: {
+        'providerId': providerId,
+        'scheduledAt': scheduledAt?.toUtc().toIso8601String(),
+        'completedAt': completedAt?.toUtc().toIso8601String(),
+        'notes': notes,
+        'cost': cost,
+      },
+    );
+    return response.data!['id'] as String;
+  });
+
+  Future<void> verifyMaintenanceVisit(
+    String caseId,
+    String visitId,
+    String outcome, {
+    String? note,
+  }) => _call(() async {
+    await _dio.post(
+      '/api/v1/maintenance/$caseId/visits/$visitId/verification',
+      data: {'outcome': outcome, 'note': note},
+    );
+  });
+
+  Future<List<ServiceProviderModel>> serviceProviders({String? category}) async {
+    final response = await _call(() => _dio.get<Map<String, dynamic>>(
+      '/api/v1/service-providers',
+      queryParameters: category == null ? const {} : {'category': category},
+    ));
+    return (response.data!['providers'] as List<dynamic>)
+        .map((json) => ServiceProviderModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<NotificationModel>> notifications() async {
+    final data = await _read('/api/v1/notifications', 'notifications');
+    return (data as List<dynamic>)
+        .map((json) => NotificationModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> markNotificationRead(String id) => _call(() async {
+    await _dio.patch('/api/v1/notifications/$id');
+  });
+
+  Future<void> registerPushDevice(String token, String platform) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/notifications/device',
+          data: {'token': token, 'platform': platform},
+        );
+      });
+
+  Future<void> disablePushDevice(String token) => _call(() async {
+    await _dio.delete(
+      '/api/v1/notifications/device',
+      data: {'token': token},
+    );
+  });
 
   Future<InspectionDetail> inspection(String id) async {
     final data = await _read('/api/v1/inspections/$id', 'inspection:$id');

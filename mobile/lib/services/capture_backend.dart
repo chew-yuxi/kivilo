@@ -211,3 +211,147 @@ class HttpCaptureBackend implements CaptureBackend {
   Future<void> finishRoom(String inspectionId, String roomId) =>
       _dio.post<void>('/api/v1/inspections/$inspectionId/rooms/$roomId/finish');
 }
+
+/// Routes the shared durable evidence queue without teaching it about product domains.
+/// Maintenance rows use a namespaced owner id and otherwise keep the exact same lease,
+/// retry and hand-over rules as inspection captures.
+class RoutingEvidenceBackend implements CaptureBackend {
+  RoutingEvidenceBackend(Dio dio)
+    : _captures = HttpCaptureBackend(dio),
+      _maintenance = HttpMaintenanceEvidenceBackend(dio);
+
+  final HttpCaptureBackend _captures;
+  final HttpMaintenanceEvidenceBackend _maintenance;
+
+  bool _isMaintenance(String ownerId) => ownerId.startsWith('maintenance:');
+  CaptureBackend _for(String ownerId) =>
+      _isMaintenance(ownerId) ? _maintenance : _captures;
+
+  @override
+  Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
+      uploadUrl(String inspectionId, String roomId, String filename, String clientId) =>
+          _for(inspectionId).uploadUrl(inspectionId, roomId, filename, clientId);
+
+  @override
+  Future<void> putBytes(String signedUrl, File file, String mimeType, String clientId) =>
+      _captures.putBytes(signedUrl, file, mimeType, clientId);
+
+  @override
+  Future<({bool annotationsApplied, String id})> registerCapture({
+    required String inspectionId,
+    required String roomId,
+    required String kind,
+    required String storagePath,
+    required String clientId,
+    required String mimeType,
+    required int sizeBytes,
+    int? durationSec,
+    String? note,
+    Map<String, dynamic>? annotations,
+  }) => _for(inspectionId).registerCapture(
+    inspectionId: inspectionId,
+    roomId: roomId,
+    kind: kind,
+    storagePath: storagePath,
+    clientId: clientId,
+    mimeType: mimeType,
+    sizeBytes: sizeBytes,
+    durationSec: durationSec,
+    note: note,
+    annotations: annotations,
+  );
+
+  @override
+  Future<void> updateNote(String inspectionId, String captureId, String? note) =>
+      _for(inspectionId).updateNote(inspectionId, captureId, note);
+  @override
+  Future<void> annotate(String inspectionId, String captureId, Map<String, dynamic>? annotations) =>
+      _for(inspectionId).annotate(inspectionId, captureId, annotations);
+  @override
+  Future<void> deleteCapture(String inspectionId, String captureId) =>
+      _for(inspectionId).deleteCapture(inspectionId, captureId);
+  @override
+  Future<void> finishRoom(String inspectionId, String roomId) =>
+      _for(inspectionId).finishRoom(inspectionId, roomId);
+}
+
+class HttpMaintenanceEvidenceBackend implements CaptureBackend {
+  HttpMaintenanceEvidenceBackend(this._dio);
+  final Dio _dio;
+
+  String _caseId(String ownerId) => ownerId.substring('maintenance:'.length);
+  ({String purpose, String? visitId}) _target(String roomId) {
+    final parts = roomId.split('|');
+    return (purpose: parts.first, visitId: parts.length > 1 ? parts[1] : null);
+  }
+
+  @override
+  Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
+      uploadUrl(String inspectionId, String roomId, String filename, String clientId) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/maintenance/${_caseId(inspectionId)}/upload-url',
+      data: {
+        'clientId': clientId,
+        'purpose': _target(roomId).purpose,
+        'visitId': _target(roomId).visitId,
+        'mimeType': 'image/jpeg',
+      },
+    );
+    final data = response.data!;
+    if (data['alreadyRegistered'] == true) {
+      return (
+        storagePath: data['storagePath'] as String,
+        signedUrl: null,
+        alreadyUploaded: true,
+      );
+    }
+    return (
+      storagePath: data['storagePath'] as String,
+      signedUrl: data['signedUrl'] as String?,
+      alreadyUploaded: data['alreadyUploaded'] == true,
+    );
+  }
+
+  @override
+  Future<void> putBytes(String signedUrl, File file, String mimeType, String clientId) =>
+      HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
+
+  @override
+  Future<({bool annotationsApplied, String id})> registerCapture({
+    required String inspectionId,
+    required String roomId,
+    required String kind,
+    required String storagePath,
+    required String clientId,
+    required String mimeType,
+    required int sizeBytes,
+    int? durationSec,
+    String? note,
+    Map<String, dynamic>? annotations,
+  }) async {
+    final target = _target(roomId);
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/maintenance/${_caseId(inspectionId)}/evidence',
+      data: {
+        'clientId': clientId,
+        'purpose': target.purpose,
+        'visitId': target.visitId,
+        'storagePath': storagePath,
+        'mimeType': mimeType,
+        'sizeBytes': sizeBytes,
+        'note': note,
+      },
+    );
+    return (id: response.data!['id'] as String, annotationsApplied: true);
+  }
+
+  Never _immutable() => throw StateError('Maintenance evidence is immutable.');
+  @override
+  Future<void> updateNote(String inspectionId, String captureId, String? note) async => _immutable();
+  @override
+  Future<void> annotate(String inspectionId, String captureId, Map<String, dynamic>? annotations) async => _immutable();
+  @override
+  Future<void> deleteCapture(String inspectionId, String captureId) async => _immutable();
+  @override
+  Future<void> finishRoom(String inspectionId, String roomId) async {}
+}

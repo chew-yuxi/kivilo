@@ -7,6 +7,7 @@ import '../services/api.dart';
 import '../services/capture_queue.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
+import 'maintenance_case_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
   const InspectionScreen({super.key, required this.id});
@@ -283,11 +284,17 @@ class _InspectionScreenState extends State<InspectionScreen> {
     await _run(() => _api.runFindings(widget.id));
   }
 
-  Future<void> _editFinding(Finding finding) async {
+  Future<void> _editFinding(
+    Finding finding,
+    List<Map<String, dynamic>> maintenanceHistory,
+  ) async {
     final data = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
-      builder: (context) => FindingEditor(finding: finding),
+      builder: (context) => FindingEditor(
+        finding: finding,
+        maintenanceHistory: maintenanceHistory,
+      ),
     );
     if (data != null) {
       await _run(() => _api.updateFinding(widget.id, finding.id, data));
@@ -383,6 +390,30 @@ class _InspectionScreenState extends State<InspectionScreen> {
               if (_error != null) ...[
                 const SizedBox(height: 8),
                 Text(_error!, style: const TextStyle(color: Colors.red)),
+              ],
+              if (inspection.maintenanceHistory.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Text(
+                  'Linked maintenance history',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const Text(
+                  'Use this history as context. A person still decides whether it affects a finding.',
+                ),
+                for (final record in inspection.maintenanceHistory)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.home_repair_service_outlined),
+                    title: Text(record['title'] as String),
+                    subtitle: Text(
+                      '${(record['status'] as String).replaceAll('_', ' ').toLowerCase()} · '
+                      '${record['repairAttempts']} repairs · ${record['evidence']} evidence files',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (_) => MaintenanceCaseScreen(caseId: record['id'] as String),
+                    )),
+                  ),
               ],
               const SizedBox(height: 20),
               Row(
@@ -553,7 +584,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
             ),
             isThreeLine: true,
             trailing: const Icon(Icons.edit_outlined),
-            onTap: _busy ? null : () => _editFinding(finding),
+            onTap: _busy
+                ? null
+                : () => _editFinding(finding, inspection.maintenanceHistory),
           ),
         ),
       if (inspection.findings.any((finding) => !finding.editedByHuman))
@@ -576,8 +609,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
 }
 
 class FindingEditor extends StatefulWidget {
-  const FindingEditor({super.key, required this.finding});
+  const FindingEditor({
+    super.key,
+    required this.finding,
+    required this.maintenanceHistory,
+  });
   final Finding finding;
+  final List<Map<String, dynamic>> maintenanceHistory;
 
   @override
   State<FindingEditor> createState() => _FindingEditorState();
@@ -587,6 +625,7 @@ class _FindingEditorState extends State<FindingEditor> {
   late String _verdict = widget.finding.verdict;
   late final _rationale = TextEditingController(text: widget.finding.rationale);
   late final _cost = TextEditingController(text: widget.finding.estimatedCost);
+  late String? _maintenanceCaseId = widget.finding.maintenanceCaseId;
   String? _error;
 
   @override
@@ -609,6 +648,7 @@ class _FindingEditorState extends State<FindingEditor> {
       'verdict': _verdict,
       'rationale': _rationale.text.trim(),
       'estimatedCost': cost.isEmpty ? null : cost,
+      'maintenanceCaseId': _maintenanceCaseId,
     });
   }
 
@@ -651,6 +691,21 @@ class _FindingEditorState extends State<FindingEditor> {
             minLines: 3,
             maxLines: 6,
             decoration: const InputDecoration(labelText: 'Rationale'),
+          ),
+          DropdownButtonFormField<String>(
+            initialValue: _maintenanceCaseId,
+            decoration: const InputDecoration(labelText: 'Maintenance evidence'),
+            items: [
+              const DropdownMenuItem<String>(
+                value: null,
+                child: Text('No linked maintenance record'),
+              ),
+              ...widget.maintenanceHistory.map((item) => DropdownMenuItem<String>(
+                value: item['id'] as String,
+                child: Text(item['title'] as String),
+              )),
+            ],
+            onChanged: (value) => setState(() => _maintenanceCaseId = value),
           ),
           TextField(
             controller: _cost,

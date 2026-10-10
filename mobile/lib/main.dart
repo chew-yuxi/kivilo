@@ -1,16 +1,29 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
-import 'screens/inspections_screen.dart';
+import 'screens/home_screen.dart';
 import 'services/secure_session_store.dart';
 import 'services/capture_sync.dart';
+import 'services/push_notifications.dart';
 import 'screens/sign_in_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (Config.isPushComplete) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: Config.firebaseApiKey,
+        appId: Config.firebaseAppId,
+        messagingSenderId: Config.firebaseMessagingSenderId,
+        projectId: Config.firebaseProjectId,
+      ),
+    );
+  }
 
   if (Config.isComplete) {
     await Supabase.initialize(
@@ -26,10 +39,10 @@ Future<void> main() async {
     // unhandled zone error and takes the app down. An inspector is offline by default,
     // so this is the ordinary case, not the exceptional one.
     Supabase.instance.client.auth.onAuthStateChange.listen(
-      (_) => _resumeCaptures(),
+      (_) => _resumeUserServices(),
       onError: (Object error) => debugPrint('auth state error: $error'),
     );
-    _resumeCaptures();
+    _resumeUserServices();
   }
 
   runApp(const KiviloApp());
@@ -42,6 +55,7 @@ class KiviloApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Kivilo',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -61,6 +75,19 @@ void _resumeCaptures() {
         .catchError(
           (Object error) => debugPrint('capture resume error: $error'),
         ),
+  );
+}
+
+void _resumeUserServices() {
+  _resumeCaptures();
+  if (!Config.isPushComplete ||
+      Supabase.instance.client.auth.currentSession == null) {
+    return;
+  }
+  unawaited(
+    PushNotifications.instance
+        .initialize()
+        .catchError((Object error) => debugPrint('push setup error: $error')),
   );
 }
 
@@ -87,7 +114,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && Config.isComplete) {
-      _resumeCaptures();
+      _resumeUserServices();
     }
   }
 
@@ -105,7 +132,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
             Supabase.instance.client.auth.currentSession;
         return session == null
             ? const SignInScreen()
-            : const InspectionsScreen();
+            : const HomeScreen();
       },
     );
   }

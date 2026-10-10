@@ -37,6 +37,12 @@ model Stakeholder {
   inspectionsRun      Inspection[]
   signatures          Signature[]
   deletionRequests    AccountDeletionRequest[]
+  maintenanceCasesReported MaintenanceCase[] @relation("MaintenanceReporter")
+  maintenanceEvents MaintenanceEvent[]
+  maintenanceVerifications MaintenanceVerification[]
+  maintenanceEvidenceUploaded MaintenanceEvidence[]
+  notifications Notification[]
+  deviceInstallations DeviceInstallation[]
 
   @@index([name])
 }
@@ -59,6 +65,7 @@ model Property {
   updatedAt  DateTime     @updatedAt
 
   tenancies Tenancy[]
+  assets PropertyAsset[]
 
   @@index([postalCode])
 }
@@ -82,6 +89,7 @@ model Tenancy {
   agent    Stakeholder? @relation("AgentTenancies", fields: [agentId], references: [id])
 
   inspections Inspection[]
+  maintenanceCases MaintenanceCase[]
 
   @@index([propertyId])
 }
@@ -247,16 +255,290 @@ model InspectionItem {
   /// Model self-reported confidence, 0–1. Null once a human has taken ownership.
   confidence   Float?
   editedByHuman Boolean @default(false)
+  /// A durable property asset selected by a human. Identifier similarity may be
+  /// suggested in UI, but model output never links assets automatically.
+  propertyAssetId String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   sourceCapture Capture? @relation(fields: [sourceCaptureId], references: [id], onDelete: SetNull)
+  propertyAsset PropertyAsset? @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
 
   findingsAsSubject  Finding[] @relation("FindingItem")
   findingsAsBaseline Finding[] @relation("FindingBaselineItem")
 
   @@index([roomId])
+  @@index([propertyAssetId])
+}
+
+// ---------------------------------------------------------------------------
+// M5: longitudinal property maintenance
+// ---------------------------------------------------------------------------
+
+enum PropertyAssetCategory {
+  APPLIANCE
+  FIXTURE
+  FURNITURE
+  SURFACE
+  SYSTEM
+  OTHER
+}
+
+model PropertyAsset {
+  id         String                @id @default(cuid())
+  propertyId String
+  name       String
+  category   PropertyAssetCategory
+  roomLabel  String?
+  identifier String?
+  active     Boolean               @default(true)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  property        Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  inspectionItems InspectionItem[]
+  maintenanceCases MaintenanceCase[]
+
+  @@index([propertyId, active])
+  @@index([propertyId, identifier])
+}
+
+enum MaintenanceCategory {
+  APPLIANCE
+  PLUMBING
+  LOCKSMITH
+  ELECTRICAL
+  AIR_CONDITIONING
+  STRUCTURAL
+  PEST
+  OTHER
+}
+
+enum MaintenancePriority {
+  ROUTINE
+  URGENT
+  SAFETY_EMERGENCY
+}
+
+enum MaintenanceStatus {
+  REPORTED
+  ACKNOWLEDGED
+  SCHEDULED
+  AWAITING_CONFIRMATION
+  RESOLVED
+  CLOSED_NO_ACTION
+}
+
+model MaintenanceCase {
+  id               String              @id @default(cuid())
+  clientId         String?             @unique
+  tenancyId        String
+  propertyAssetId  String?
+  reportedById     String
+  category         MaintenanceCategory
+  priority         MaintenancePriority @default(ROUTINE)
+  title            String
+  description      String
+  status           MaintenanceStatus   @default(REPORTED)
+  resolutionReason String?
+  acknowledgedAt   DateTime?
+  resolvedAt       DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  tenancy       Tenancy        @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  propertyAsset PropertyAsset? @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
+  reportedBy    Stakeholder    @relation("MaintenanceReporter", fields: [reportedById], references: [id])
+  events        MaintenanceEvent[]
+  visits        MaintenanceVisit[]
+  evidence      MaintenanceEvidence[]
+  findings      Finding[]
+
+  @@index([tenancyId, status, createdAt])
+  @@index([propertyAssetId, createdAt])
+}
+
+enum MaintenanceEventKind {
+  REPORTED
+  COMMENT
+  STATUS_CHANGED
+  VISIT_RECORDED
+  VERIFICATION
+  REOPENED
+}
+
+model MaintenanceEvent {
+  id        String               @id @default(cuid())
+  caseId    String
+  actorId   String?
+  kind      MaintenanceEventKind
+  body      String?
+  metadata  Json?
+  createdAt DateTime             @default(now())
+
+  maintenanceCase MaintenanceCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  actor           Stakeholder?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([caseId, createdAt])
+}
+
+model MaintenanceVisit {
+  id          String    @id @default(cuid())
+  caseId      String
+  providerId  String?
+  scheduledAt DateTime?
+  completedAt DateTime?
+  notes       String?
+  cost        Decimal?  @db.Decimal(10, 2)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  maintenanceCase MaintenanceCase         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  provider        ServiceProvider?        @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  evidence        MaintenanceEvidence[]
+  verification    MaintenanceVerification?
+
+  @@index([caseId, completedAt])
+}
+
+enum MaintenanceEvidencePurpose {
+  BEFORE
+  AFTER
+  RECEIPT
+}
+
+model MaintenanceEvidence {
+  id          String                     @id @default(cuid())
+  clientId    String                     @unique
+  caseId      String
+  visitId     String?
+  uploadedById String
+  purpose     MaintenanceEvidencePurpose
+  storagePath String                     @unique
+  mimeType    String
+  sizeBytes   Int
+  note        String?
+  createdAt   DateTime                   @default(now())
+
+  maintenanceCase MaintenanceCase  @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  visit           MaintenanceVisit? @relation(fields: [visitId], references: [id], onDelete: SetNull)
+  uploadedBy      Stakeholder       @relation(fields: [uploadedById], references: [id])
+
+  @@index([caseId, createdAt])
+  @@index([visitId])
+}
+
+enum MaintenanceVerificationOutcome {
+  FIXED
+  NOT_FIXED
+}
+
+model MaintenanceVerification {
+  id           String                         @id @default(cuid())
+  visitId      String                         @unique
+  verifiedById String
+  outcome      MaintenanceVerificationOutcome
+  note         String?
+  createdAt    DateTime                       @default(now())
+
+  visit      MaintenanceVisit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  verifiedBy Stakeholder      @relation(fields: [verifiedById], references: [id])
+}
+
+enum ServiceProviderCategory {
+  PLUMBING
+  LOCKSMITH
+}
+
+model ServiceProvider {
+  id             String                  @id @default(cuid())
+  name           String
+  category       ServiceProviderCategory
+  phone          String
+  whatsapp       String?
+  serviceAreas   String[]
+  hours          String?
+  lastVerifiedAt DateTime
+  active         Boolean                 @default(true)
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  visits MaintenanceVisit[]
+
+  @@index([category, active])
+  @@unique([category, phone])
+}
+
+enum NotificationKind {
+  MAINTENANCE_REPORTED
+  MAINTENANCE_STATUS
+  MAINTENANCE_VISIT
+  MAINTENANCE_VERIFICATION
+  REPEAT_REPAIR
+}
+
+enum DevicePlatform {
+  ANDROID
+  IOS
+}
+
+model DeviceInstallation {
+  id            String         @id @default(cuid())
+  stakeholderId String
+  token         String         @unique
+  platform      DevicePlatform
+  lastSeenAt    DateTime       @default(now())
+  disabledAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  stakeholder Stakeholder                @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
+  deliveries  NotificationPushDelivery[]
+
+  @@index([stakeholderId, disabledAt, lastSeenAt])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String
+  kind        NotificationKind
+  title       String
+  body        String
+  href        String?
+  dedupeKey   String?          @unique
+  readAt      DateTime?
+  emailTo     String?
+  emailAttempts Int            @default(0)
+  emailSentAt DateTime?
+  emailError  String?
+  pushExpandedAt DateTime?
+  createdAt   DateTime         @default(now())
+
+  recipient Stakeholder @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  pushDeliveries NotificationPushDelivery[]
+
+  @@index([recipientId, readAt, createdAt])
+  @@index([emailSentAt, emailAttempts, createdAt])
+  @@index([pushExpandedAt, createdAt])
+}
+
+model NotificationPushDelivery {
+  id             String   @id @default(cuid())
+  notificationId String
+  installationId String
+  attempts       Int      @default(0)
+  claimedAt      DateTime?
+  sentAt         DateTime?
+  error          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  notification Notification     @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  installation DeviceInstallation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, installationId])
+  @@index([sentAt, attempts, createdAt])
 }
 
 enum ChangeType {
@@ -280,6 +562,8 @@ model Finding {
   inspectionId   String
   itemId         String?
   baselineItemId String?
+  /// Human-selected maintenance history to preserve with a published assessment.
+  maintenanceCaseId String?
   changeType     ChangeType
   verdict        Verdict    @default(UNDECIDED)
   rationale      String
@@ -292,8 +576,10 @@ model Finding {
   inspection   Inspection      @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
   item         InspectionItem? @relation("FindingItem", fields: [itemId], references: [id], onDelete: SetNull)
   baselineItem InspectionItem? @relation("FindingBaselineItem", fields: [baselineItemId], references: [id], onDelete: SetNull)
+  maintenanceCase MaintenanceCase? @relation(fields: [maintenanceCaseId], references: [id], onDelete: SetNull)
 
   @@index([inspectionId])
+  @@index([maintenanceCaseId])
 }
 
 model Signature {

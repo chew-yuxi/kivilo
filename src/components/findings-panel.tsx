@@ -19,6 +19,8 @@ export type FindingRow = {
   baselineLabel: string | null
   baselineCondition: string | null
   currentCondition: string | null
+  maintenanceCaseId: string | null
+  maintenanceCaseTitle: string | null
 }
 
 const CHANGE_TONE: Record<ChangeType, string> = {
@@ -41,11 +43,13 @@ export function FindingsPanel({
   findings,
   depositAmount,
   publishedVersion,
+  maintenanceCases,
 }: {
   inspectionId: string
   findings: FindingRow[]
   depositAmount: string
   publishedVersion: number | null
+  maintenanceCases: { id: string; title: string; status: string }[]
 }) {
   const [pending, startTransition] = useTransition()
 
@@ -158,6 +162,26 @@ export function FindingsPanel({
                 }
                 className="w-36 rounded border border-gray-200 px-2 py-1 text-xs tabular-nums focus:border-brand-500 focus:outline-none"
               />
+
+              <select
+                value={finding.maintenanceCaseId ?? ''}
+                onChange={(e) =>
+                  startTransition(() =>
+                    void updateFinding(finding.id, inspectionId, {
+                      maintenanceCaseId: e.target.value || null,
+                    }),
+                  )
+                }
+                className="max-w-64 rounded border border-gray-200 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none"
+                aria-label="Linked maintenance record"
+              >
+                <option value="">No maintenance evidence</option>
+                {maintenanceCases.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title} · {item.status.toLowerCase().replaceAll('_', ' ')}
+                  </option>
+                ))}
+              </select>
 
               {finding.confidence !== null && finding.confidence < 0.6 && (
                 <span className="text-xs text-amber-700">low confidence, check the video</span>

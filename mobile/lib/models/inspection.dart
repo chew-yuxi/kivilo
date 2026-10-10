@@ -49,6 +49,7 @@ class InspectionDetail {
     required this.aiConsentAt,
     required this.latestAssessment,
     required this.assessmentDraftChanged,
+    required this.maintenanceHistory,
   });
 
   final String id;
@@ -70,6 +71,7 @@ class InspectionDetail {
   final String? aiConsentAt;
   final AssessmentVersion? latestAssessment;
   final bool assessmentDraftChanged;
+  final List<Map<String, dynamic>> maintenanceHistory;
 
   factory InspectionDetail.fromJson(Map<String, dynamic> json) =>
       InspectionDetail(
@@ -105,6 +107,8 @@ class InspectionDetail {
                 json['latestAssessment'] as Map<String, dynamic>,
               ),
         assessmentDraftChanged: json['assessmentDraftChanged'] as bool,
+        maintenanceHistory: (json['maintenanceHistory'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>(),
       );
 
   bool get isOpen => !['AWAITING_SIGNATURE', 'COMPLETED'].contains(status);
@@ -293,6 +297,8 @@ class Finding {
     required this.itemLabel,
     required this.baselineLabel,
     required this.editedByHuman,
+    required this.maintenanceCaseId,
+    required this.maintenanceCaseTitle,
     this.confidence,
   });
 
@@ -305,6 +311,8 @@ class Finding {
   final String? baselineLabel;
   final bool editedByHuman;
   final double? confidence;
+  final String? maintenanceCaseId;
+  final String? maintenanceCaseTitle;
 
   factory Finding.fromJson(Map<String, dynamic> json) => Finding(
     id: json['id'] as String,
@@ -316,6 +324,8 @@ class Finding {
     baselineLabel: json['baselineLabel'] as String?,
     editedByHuman: json['editedByHuman'] as bool,
     confidence: (json['confidence'] as num?)?.toDouble(),
+    maintenanceCaseId: json['maintenanceCaseId'] as String?,
+    maintenanceCaseTitle: json['maintenanceCaseTitle'] as String?,
   );
 }
 

@@ -15,5 +15,17 @@ export const assessmentSnapshotSchema = z.object({
     estimatedCost: z.string().nullable(),
     confidence: z.number().nullable(),
     editedByHuman: z.boolean(),
+    maintenanceEvidence: z.object({
+      caseId: z.string(),
+      title: z.string(),
+      evidence: z.array(z.object({
+        id: z.string(),
+        purpose: z.enum(['BEFORE', 'AFTER', 'RECEIPT']),
+        storagePath: z.string(),
+        mimeType: z.string(),
+        note: z.string().nullable(),
+        createdAt: z.string(),
+      })),
+    }).nullable().optional(),
   })),
 })

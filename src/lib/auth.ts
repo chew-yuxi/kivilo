@@ -8,7 +8,7 @@ import { Prisma, type Stakeholder } from '@/generated/prisma'
 
 /// This module is the authorization boundary. The proxy does an optimistic redirect so
 /// signed-out visitors are not shown a loading shell, but it is not a security control:
-/// every read and write goes through `requireAgent` and a scope filter here.
+/// every read and write goes through `requireStakeholder` and a scope filter here.
 
 /// The signed-in agent, or null. Uses `getUser`, which verifies the JWT with the auth
 /// server, rather than `getSession`, which trusts whatever is in the cookie.
@@ -23,7 +23,7 @@ import { Prisma, type Stakeholder } from '@/generated/prisma'
 ///
 /// Memoized per request, because a page render resolves the agent in the layout and
 /// again in the page, and each resolution is a round trip to the auth server.
-export const currentAgent = cache(async (): Promise<Stakeholder | null> => {
+export const currentStakeholder = cache(async (): Promise<Stakeholder | null> => {
   const bearer = (await headers()).get('authorization')
   if (bearer) return agentFromBearer(bearer)
 
@@ -100,10 +100,46 @@ async function resolveAgent(user: { id: string; email?: string | null }): Promis
   }
 }
 
-export async function requireAgent(): Promise<Stakeholder> {
-  const agent = await currentAgent()
-  if (!agent) redirect('/login')
-  return agent
+export async function requireStakeholder(): Promise<Stakeholder> {
+  const stakeholder = await currentStakeholder()
+  if (!stakeholder) redirect('/login')
+  return stakeholder
+}
+
+// Compatibility names for the inspection module. New cross-role modules use the
+// stakeholder-neutral names above; removing these would turn M5 into an unrelated
+// rewrite of the proven check-in path.
+export const currentAgent = currentStakeholder
+export const requireAgent = requireStakeholder
+
+export type TenancyRole = 'LANDLORD' | 'TENANT' | 'AGENT'
+
+/// A landlord owns the durable property history, a tenant sees their own tenancy, and
+/// an agent may manage maintenance only while the tenancy is active. The inspection
+/// scope remains separate because completed reports have their own retention rules.
+export function tenancyScope(stakeholderId: string, now = new Date()): Prisma.TenancyWhereInput {
+  return {
+    OR: [
+      { landlordId: stakeholderId },
+      { tenantId: stakeholderId },
+      { agentId: stakeholderId, endDate: { gte: now } },
+    ],
+  }
+}
+
+export async function authorizeTenancy(tenancyId: string, stakeholderId: string) {
+  const tenancy = await db.tenancy.findFirst({
+    where: { AND: [{ id: tenancyId }, tenancyScope(stakeholderId)] },
+    include: { property: true, landlord: true, tenant: true, agent: true },
+  })
+  if (!tenancy) throw new Error('Tenancy not found')
+
+  const role: TenancyRole = tenancy.landlordId === stakeholderId
+    ? 'LANDLORD'
+    : tenancy.tenantId === stakeholderId
+      ? 'TENANT'
+      : 'AGENT'
+  return { tenancy, role }
 }
 
 /// The scope every inspection query is filtered by. An agent sees a deal they are the

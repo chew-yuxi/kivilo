@@ -217,6 +217,136 @@ exports.Prisma.InspectionItemScalarFieldEnum = {
   sourceTimestampSec: 'sourceTimestampSec',
   confidence: 'confidence',
   editedByHuman: 'editedByHuman',
+  propertyAssetId: 'propertyAssetId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PropertyAssetScalarFieldEnum = {
+  id: 'id',
+  propertyId: 'propertyId',
+  name: 'name',
+  category: 'category',
+  roomLabel: 'roomLabel',
+  identifier: 'identifier',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MaintenanceCaseScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  tenancyId: 'tenancyId',
+  propertyAssetId: 'propertyAssetId',
+  reportedById: 'reportedById',
+  category: 'category',
+  priority: 'priority',
+  title: 'title',
+  description: 'description',
+  status: 'status',
+  resolutionReason: 'resolutionReason',
+  acknowledgedAt: 'acknowledgedAt',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MaintenanceEventScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  actorId: 'actorId',
+  kind: 'kind',
+  body: 'body',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MaintenanceVisitScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  providerId: 'providerId',
+  scheduledAt: 'scheduledAt',
+  completedAt: 'completedAt',
+  notes: 'notes',
+  cost: 'cost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MaintenanceEvidenceScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  caseId: 'caseId',
+  visitId: 'visitId',
+  uploadedById: 'uploadedById',
+  purpose: 'purpose',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MaintenanceVerificationScalarFieldEnum = {
+  id: 'id',
+  visitId: 'visitId',
+  verifiedById: 'verifiedById',
+  outcome: 'outcome',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ServiceProviderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  category: 'category',
+  phone: 'phone',
+  whatsapp: 'whatsapp',
+  serviceAreas: 'serviceAreas',
+  hours: 'hours',
+  lastVerifiedAt: 'lastVerifiedAt',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DeviceInstallationScalarFieldEnum = {
+  id: 'id',
+  stakeholderId: 'stakeholderId',
+  token: 'token',
+  platform: 'platform',
+  lastSeenAt: 'lastSeenAt',
+  disabledAt: 'disabledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  recipientId: 'recipientId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  dedupeKey: 'dedupeKey',
+  readAt: 'readAt',
+  emailTo: 'emailTo',
+  emailAttempts: 'emailAttempts',
+  emailSentAt: 'emailSentAt',
+  emailError: 'emailError',
+  pushExpandedAt: 'pushExpandedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.NotificationPushDeliveryScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  installationId: 'installationId',
+  attempts: 'attempts',
+  claimedAt: 'claimedAt',
+  sentAt: 'sentAt',
+  error: 'error',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -226,6 +356,7 @@ exports.Prisma.FindingScalarFieldEnum = {
   inspectionId: 'inspectionId',
   itemId: 'itemId',
   baselineItemId: 'baselineItemId',
+  maintenanceCaseId: 'maintenanceCaseId',
   changeType: 'changeType',
   verdict: 'verdict',
   rationale: 'rationale',
@@ -371,6 +502,79 @@ exports.ItemCondition = exports.$Enums.ItemCondition = {
   DAMAGED: 'DAMAGED'
 };
 
+exports.PropertyAssetCategory = exports.$Enums.PropertyAssetCategory = {
+  APPLIANCE: 'APPLIANCE',
+  FIXTURE: 'FIXTURE',
+  FURNITURE: 'FURNITURE',
+  SURFACE: 'SURFACE',
+  SYSTEM: 'SYSTEM',
+  OTHER: 'OTHER'
+};
+
+exports.MaintenanceCategory = exports.$Enums.MaintenanceCategory = {
+  APPLIANCE: 'APPLIANCE',
+  PLUMBING: 'PLUMBING',
+  LOCKSMITH: 'LOCKSMITH',
+  ELECTRICAL: 'ELECTRICAL',
+  AIR_CONDITIONING: 'AIR_CONDITIONING',
+  STRUCTURAL: 'STRUCTURAL',
+  PEST: 'PEST',
+  OTHER: 'OTHER'
+};
+
+exports.MaintenancePriority = exports.$Enums.MaintenancePriority = {
+  ROUTINE: 'ROUTINE',
+  URGENT: 'URGENT',
+  SAFETY_EMERGENCY: 'SAFETY_EMERGENCY'
+};
+
+exports.MaintenanceStatus = exports.$Enums.MaintenanceStatus = {
+  REPORTED: 'REPORTED',
+  ACKNOWLEDGED: 'ACKNOWLEDGED',
+  SCHEDULED: 'SCHEDULED',
+  AWAITING_CONFIRMATION: 'AWAITING_CONFIRMATION',
+  RESOLVED: 'RESOLVED',
+  CLOSED_NO_ACTION: 'CLOSED_NO_ACTION'
+};
+
+exports.MaintenanceEventKind = exports.$Enums.MaintenanceEventKind = {
+  REPORTED: 'REPORTED',
+  COMMENT: 'COMMENT',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  VISIT_RECORDED: 'VISIT_RECORDED',
+  VERIFICATION: 'VERIFICATION',
+  REOPENED: 'REOPENED'
+};
+
+exports.MaintenanceEvidencePurpose = exports.$Enums.MaintenanceEvidencePurpose = {
+  BEFORE: 'BEFORE',
+  AFTER: 'AFTER',
+  RECEIPT: 'RECEIPT'
+};
+
+exports.MaintenanceVerificationOutcome = exports.$Enums.MaintenanceVerificationOutcome = {
+  FIXED: 'FIXED',
+  NOT_FIXED: 'NOT_FIXED'
+};
+
+exports.ServiceProviderCategory = exports.$Enums.ServiceProviderCategory = {
+  PLUMBING: 'PLUMBING',
+  LOCKSMITH: 'LOCKSMITH'
+};
+
+exports.DevicePlatform = exports.$Enums.DevicePlatform = {
+  ANDROID: 'ANDROID',
+  IOS: 'IOS'
+};
+
+exports.NotificationKind = exports.$Enums.NotificationKind = {
+  MAINTENANCE_REPORTED: 'MAINTENANCE_REPORTED',
+  MAINTENANCE_STATUS: 'MAINTENANCE_STATUS',
+  MAINTENANCE_VISIT: 'MAINTENANCE_VISIT',
+  MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
+  REPEAT_REPAIR: 'REPEAT_REPAIR'
+};
+
 exports.ChangeType = exports.$Enums.ChangeType = {
   UNCHANGED: 'UNCHANGED',
   WEAR: 'WEAR',
@@ -400,6 +604,16 @@ exports.Prisma.ModelName = {
   Capture: 'Capture',
   Room: 'Room',
   InspectionItem: 'InspectionItem',
+  PropertyAsset: 'PropertyAsset',
+  MaintenanceCase: 'MaintenanceCase',
+  MaintenanceEvent: 'MaintenanceEvent',
+  MaintenanceVisit: 'MaintenanceVisit',
+  MaintenanceEvidence: 'MaintenanceEvidence',
+  MaintenanceVerification: 'MaintenanceVerification',
+  ServiceProvider: 'ServiceProvider',
+  DeviceInstallation: 'DeviceInstallation',
+  Notification: 'Notification',
+  NotificationPushDelivery: 'NotificationPushDelivery',
   Finding: 'Finding',
   Signature: 'Signature',
   AssessmentVersion: 'AssessmentVersion',

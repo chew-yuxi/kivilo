@@ -35,7 +35,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     with WidgetsBindingObserver {
   final _api = Api();
   final _queue = CaptureQueue();
-  late final _backend = HttpCaptureBackend(_api.dio);
+  late final _backend = RoutingEvidenceBackend(_api.dio);
   late final String _ownerId = Supabase.instance.client.auth.currentUser!.id;
   Directory? _root;
   RoomDetail? _room;

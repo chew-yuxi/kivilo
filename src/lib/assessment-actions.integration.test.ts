@@ -67,6 +67,32 @@ describe('post-signature assessment publication', () => {
         editedByHuman: false,
       },
     })
+    const maintenanceCase = await db.maintenanceCase.create({
+      data: {
+        tenancyId: tenancy.id,
+        reportedById: tenant.id,
+        category: 'OTHER',
+        title: 'Worktop repair history',
+        description: 'Chip repaired during the tenancy.',
+        status: 'RESOLVED',
+      },
+    })
+    await db.maintenanceEvidence.create({
+      data: {
+        clientId: 'e6c1bb2d-7e6c-4e0d-b9aa-7cf4e9b74738',
+        caseId: maintenanceCase.id,
+        uploadedById: tenant.id,
+        purpose: 'AFTER',
+        storagePath: `maintenance/${maintenanceCase.id}/after.jpg`,
+        mimeType: 'image/jpeg',
+        sizeBytes: 100,
+        note: 'Repair completed',
+      },
+    })
+    await db.finding.update({
+      where: { id: finding.id },
+      data: { maintenanceCaseId: maintenanceCase.id },
+    })
 
     await expect(publishAssessment(inspection.id)).rejects.toThrow('Review every finding')
     await db.finding.update({
@@ -88,6 +114,11 @@ describe('post-signature assessment publication', () => {
     expect(versions).toHaveLength(2)
     expect(assessmentSnapshotSchema.parse(versions[0].snapshot).findings[0].rationale)
       .toBe('A deep chip in the edge')
+    expect(assessmentSnapshotSchema.parse(versions[0].snapshot).findings[0].maintenanceEvidence)
+      .toMatchObject({
+        title: 'Worktop repair history',
+        evidence: [{ purpose: 'AFTER', note: 'Repair completed' }],
+      })
     expect(assessmentSnapshotSchema.parse(versions[1].snapshot).findings[0].rationale)
       .toBe('A deeper chip verified against the photo')
   })

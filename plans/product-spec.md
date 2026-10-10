@@ -108,10 +108,26 @@ data is already in the deal record.
 - Attaches to the lease record; resurfaces automatically at check-out. Retention hook
   across the tenancy's dead time.
 
-### M5 — Portals + tenancy management
-Landlord / tenant / agent / PM views over the same record. Renewals, deposit status,
-defect requests. Last — only valuable once records exist. Every invited stakeholder is an
-acquisition channel; every view must work at zero learning curve.
+### M5 — Portals + maintenance history + tenancy intelligence
+Landlord / tenant / agent / PM views over the same record. The first slice is a
+longitudinal maintenance log: tenant reports, immutable before/after evidence, repair
+visits, fixed/not-fixed confirmation, and repeat-fault alerts against durable property
+assets. A washing machine repaired four times in a rolling year becomes a visible fact,
+not an automated replace-or-repair judgement. Urgent plumbing and locksmith contacts are
+a curated directory only; Kivilo does not dispatch, price, or guarantee a contractor.
+Maintenance changes reach each role through a durable in-app, email, and native-push
+outbox; FCM is delivery infrastructure only and does not replace Supabase identity.
+
+The next slice explains tenancy terms against a dated CEA reference pack: deposit months,
+minor-repair cap and problem-free period, insurance responsibilities, and fair wear and
+tear. It cites the agreement and official source, surfaces questions, and never presents
+negotiated convention as law or gives an unreviewed legal conclusion. Maintenance history
+then links into check-out review as evidence; a signed report snapshots selected records
+so the agreed artefact never changes underneath either party.
+
+This module is last in the original build order because it compounds once records exist.
+Every invited stakeholder is an acquisition channel; every view must work at zero
+learning curve.
 
 ---
 

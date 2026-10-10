@@ -16,7 +16,7 @@ Future<List<String>> resumePendingCaptures() async {
   final queue = CaptureQueue();
   try {
     final unresolved = await CaptureStore(queue: queue, root: root).reconcile(ownerId);
-    await Uploader(queue: queue, backend: HttpCaptureBackend(Api().dio),
+    await Uploader(queue: queue, backend: RoutingEvidenceBackend(Api().dio),
       root: root, ownerId: ownerId).drain();
     return unresolved;
   } finally {

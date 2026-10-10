@@ -43,6 +43,8 @@ dependencies:
   camera: ^0.12.1
   background_downloader: ^9.6.4
   url_launcher: ^6.3.2
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
 
 dev_dependencies:
   flutter_test:

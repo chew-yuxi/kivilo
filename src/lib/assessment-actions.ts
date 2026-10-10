@@ -23,6 +23,7 @@ export async function publishAssessment(inspectionId: string) {
           include: {
             item: { include: { room: true } },
             baselineItem: { include: { room: true } },
+            maintenanceCase: { include: { evidence: { orderBy: { createdAt: 'asc' } } } },
           },
         },
       },
@@ -51,6 +52,20 @@ export async function publishAssessment(inspectionId: string) {
         estimatedCost: finding.estimatedCost?.toString() ?? null,
         confidence: finding.confidence,
         editedByHuman: finding.editedByHuman,
+        maintenanceEvidence: finding.maintenanceCase
+          ? {
+              caseId: finding.maintenanceCase.id,
+              title: finding.maintenanceCase.title,
+              evidence: finding.maintenanceCase.evidence.map((item) => ({
+                id: item.id,
+                purpose: item.purpose,
+                storagePath: item.storagePath,
+                mimeType: item.mimeType,
+                note: item.note,
+                createdAt: item.createdAt.toISOString(),
+              })),
+            }
+          : null,
       })),
     }
     const contentHash = createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')

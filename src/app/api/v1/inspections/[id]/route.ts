@@ -29,9 +29,19 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         include: {
           item: { include: { room: { select: { name: true } } } },
           baselineItem: { include: { room: { select: { name: true } } } },
+          maintenanceCase: { select: { id: true, title: true } },
         },
       },
       assessments: { orderBy: { version: 'desc' }, take: 1, select: { version: true, publishedAt: true } },
+    },
+  })
+  const maintenanceHistory = await db.maintenanceCase.findMany({
+    where: { tenancyId: inspection.tenancyId },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      propertyAsset: { select: { name: true } },
+      visits: { where: { completedAt: { not: null } }, select: { id: true } },
+      _count: { select: { evidence: true } },
     },
   })
 
@@ -68,6 +78,15 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       (!inspection.assessments[0] || inspection.findings.some(
         (finding) => finding.updatedAt > inspection.assessments[0].publishedAt,
       )),
+    maintenanceHistory: maintenanceHistory.map((item) => ({
+      id: item.id,
+      title: item.title,
+      status: item.status,
+      asset: item.propertyAsset?.name ?? null,
+      repairAttempts: item.visits.length,
+      evidence: item._count.evidence,
+      createdAt: item.createdAt.toISOString(),
+    })),
     findings: inspection.findings.map((finding) => ({
       id: finding.id,
       changeType: finding.changeType,
@@ -84,6 +103,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         : null,
       baselineCondition: finding.baselineItem?.condition ?? null,
       currentCondition: finding.item?.condition ?? null,
+      maintenanceCaseId: finding.maintenanceCaseId,
+      maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
     })),
     rooms: inspection.rooms.map((room) => ({
       id: room.id,

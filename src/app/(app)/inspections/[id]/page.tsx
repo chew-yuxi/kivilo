@@ -41,6 +41,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
         include: {
           item: { include: { room: true } },
           baselineItem: { include: { room: true } },
+          maintenanceCase: { select: { id: true, title: true } },
         },
       },
       assessments: { orderBy: { version: 'desc' }, take: 1 },
@@ -86,7 +87,15 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       : null,
     baselineCondition: finding.baselineItem?.condition ?? null,
     currentCondition: finding.item?.condition ?? null,
+    maintenanceCaseId: finding.maintenanceCaseId,
+    maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
   }))
+
+  const maintenanceCases = await db.maintenanceCase.findMany({
+    where: { tenancyId: inspection.tenancyId },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, title: true, status: true },
+  })
 
   return (
     <div className="space-y-8">
@@ -191,6 +200,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             findings={findings}
             depositAmount={tenancy.deposit.toString()}
             publishedVersion={inspection.assessments[0]?.version ?? null}
+            maintenanceCases={maintenanceCases}
           />
         </section>
       )}

@@ -469,4 +469,57 @@ void main() {
       throwsA(isA<DioException>()),
     );
   });
+
+  test('maintenance evidence uses the shared queue backend with maintenance routes', () async {
+    final calls = <RequestOptions>[];
+    final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          calls.add(options);
+          if (options.path.endsWith('/upload-url')) {
+            handler.resolve(Response(
+              requestOptions: options,
+              statusCode: 200,
+              data: {
+                'storagePath': 'maintenance/case-1/client.jpg',
+                'signedUrl': 'https://storage.invalid/upload',
+                'alreadyUploaded': false,
+              },
+            ));
+          } else {
+            handler.resolve(Response(
+              requestOptions: options,
+              statusCode: 200,
+              data: {'id': 'evidence-1'},
+            ));
+          }
+        },
+      ),
+    );
+    final backend = RoutingEvidenceBackend(dio);
+    final credential = await backend.uploadUrl(
+      'maintenance:case-1',
+      'AFTER|visit-1',
+      'client.jpg',
+      '2fd725c5-4699-4b21-802d-b3f423274cb6',
+    );
+    final registered = await backend.registerCapture(
+      inspectionId: 'maintenance:case-1',
+      roomId: 'AFTER|visit-1',
+      kind: 'AFTER',
+      storagePath: credential.storagePath,
+      clientId: '2fd725c5-4699-4b21-802d-b3f423274cb6',
+      mimeType: 'image/jpeg',
+      sizeBytes: 123,
+    );
+
+    expect(registered.id, 'evidence-1');
+    expect(calls.map((call) => call.path), [
+      '/api/v1/maintenance/case-1/upload-url',
+      '/api/v1/maintenance/case-1/evidence',
+    ]);
+    expect((calls.first.data as Map)['visitId'], 'visit-1');
+    expect((calls.last.data as Map)['purpose'], 'AFTER');
+  });
 }

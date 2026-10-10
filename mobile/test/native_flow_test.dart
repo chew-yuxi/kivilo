@@ -10,8 +10,9 @@ class _MemoryCache extends ReadCache {
   Future<Object?> read(String key) async => data[key];
 
   @override
-  Future<void> write(String key, Object? value) async {
+  Future<bool> write(String key, Object? value) async {
     data[key] = value;
+    return true;
   }
 }
 

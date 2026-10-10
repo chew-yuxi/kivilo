@@ -78,3 +78,16 @@ export async function sendAccountDeletionComplete(to: string, requestId: string)
   }, { idempotencyKey: `account-deletion-${requestId}` })
   if (error) throw new Error(`Resend refused the account deletion email: ${error.message}`)
 }
+
+export async function sendMaintenanceNotification(
+  to: string,
+  notification: { id: string; title: string; body: string },
+) {
+  const { error } = await resend().emails.send({
+    from: sender(),
+    to,
+    subject: notification.title,
+    text: [notification.body, '', 'Open Kivilo to view the maintenance timeline and respond.'].join('\n'),
+  }, { idempotencyKey: `maintenance-notification-${notification.id}` })
+  if (error) throw new Error(`Resend refused the maintenance notification: ${error.message}`)
+}

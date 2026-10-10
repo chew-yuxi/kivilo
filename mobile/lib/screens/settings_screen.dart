@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';
 import '../services/api.dart';
+import '../services/push_notifications.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -61,6 +62,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) setState(() => _request = _api.deletionRequest());
     } catch (error) {
       if (mounted) setState(() => _error = '$error');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _signOut() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      if (Config.isPushComplete) {
+        try {
+          await PushNotifications.instance.disableBeforeSignOut().timeout(
+            const Duration(seconds: 5),
+          );
+        } catch (error) {
+          // Push registration needs a connection, but a disconnected phone
+          // must still be able to clear its local account session.
+          debugPrint('Could not disable push before sign-out: $error');
+        }
+      }
+      try {
+        await Supabase.instance.client.auth.signOut().timeout(
+          const Duration(seconds: 5),
+        );
+      } catch (error) {
+        // Supabase clears the local session before attempting server revocation.
+        // A failed remote request must not leave the person trapped in the app.
+        if (Supabase.instance.client.auth.currentSession != null) rethrow;
+        debugPrint('Remote sign-out could not be confirmed: $error');
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = 'Could not sign out: $error');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -131,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => _openPage('/support'),
             ),
             OutlinedButton.icon(
-              onPressed: () => Supabase.instance.client.auth.signOut(),
+              onPressed: _busy ? null : _signOut,
               icon: const Icon(Icons.logout),
               label: const Text('Sign out'),
             ),

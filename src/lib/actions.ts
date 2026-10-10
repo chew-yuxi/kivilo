@@ -729,15 +729,28 @@ export async function runFindings(inspectionId: string) {
 export async function updateFinding(
   findingId: string,
   inspectionId: string,
-  data: { verdict?: Verdict; rationale?: string; estimatedCost?: string | null },
+  data: {
+    verdict?: Verdict
+    rationale?: string
+    estimatedCost?: string | null
+    maintenanceCaseId?: string | null
+  },
 ) {
   const agent = await requireAgent()
   const finding = await db.finding.findUnique({
     where: { id: findingId },
-    select: { inspectionId: true },
+    select: { inspectionId: true, inspection: { select: { tenancyId: true } } },
   })
   if (!finding || finding.inspectionId !== inspectionId) throw new Error('Finding not found')
   await authorizeInspection(inspectionId, agent.id)
+
+  if (data.maintenanceCaseId) {
+    const maintenanceCase = await db.maintenanceCase.findFirst({
+      where: { id: data.maintenanceCaseId, tenancyId: finding.inspection.tenancyId },
+      select: { id: true },
+    })
+    if (!maintenanceCase) throw new Error('Maintenance case not found')
+  }
 
   await db.finding.update({
     where: { id: findingId },

@@ -33,7 +33,7 @@ async function main() {
       tenantId: tenant.id,
       agentId: agent.id,
       startDate: new Date('2024-09-01'),
-      endDate: new Date('2026-08-31'),
+      endDate: new Date('2027-08-31'),
       monthlyRent: '6800.00',
       deposit: '13600.00',
     },
@@ -41,6 +41,16 @@ async function main() {
 
   await db.inspection.create({
     data: { tenancyId: tenancy.id, kind: 'CHECK_IN', status: 'DRAFT', conductedById: agent.id },
+  })
+
+  await db.propertyAsset.create({
+    data: {
+      propertyId: property.id,
+      name: 'Washing machine',
+      category: 'APPLIANCE',
+      roomLabel: 'Kitchen',
+      identifier: 'Demo unit — confirm serial during check-in',
+    },
   })
 
   console.log(`Seeded tenancy ${tenancy.id} at ${property.unit} ${property.line1}`)

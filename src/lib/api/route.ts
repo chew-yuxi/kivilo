@@ -1,4 +1,4 @@
-import { currentAgent } from '@/lib/auth'
+import { currentStakeholder } from '@/lib/auth'
 import type { Stakeholder } from '@/generated/prisma'
 import { ZodError } from 'zod'
 
@@ -15,13 +15,13 @@ export function authed<P>(
   return async (request: Request, context: { params: Promise<P> }) => {
     // Resolves the same way the action inside will, and is memoized per request, so the
     // token is verified once however many times it is asked for.
-    const agent = await currentAgent()
-    if (!agent) {
+    const stakeholder = await currentStakeholder()
+    if (!stakeholder) {
       return Response.json({ error: 'unauthorized' }, { status: 401 })
     }
 
     try {
-      return Response.json(await handler(agent, await context.params, request))
+      return Response.json(await handler(stakeholder, await context.params, request))
     } catch (error) {
       // A refusal and a missing row are the same 404 with the same body, so the API
       // cannot be used to discover which ids are real. Nothing else is echoed back: the
@@ -43,6 +43,9 @@ export function authed<P>(
       if (/Capture has not reached storage/i.test(message)) {
         return Response.json({ error: 'capture_missing' }, { status: 409 })
       }
+      if (/Maintenance evidence has not reached storage/i.test(message)) {
+        return Response.json({ error: 'evidence_missing' }, { status: 409 })
+      }
       if (/rooms? still need review|Add and review at least one room|Room must be processed before review|Process all new captures/i.test(message)) {
         return Response.json({ error: 'review_incomplete' }, { status: 409 })
       }
@@ -51,6 +54,12 @@ export function authed<P>(
       }
       if (/Capture client id already registered|Capture is already registered with different media|Capture was deleted/i.test(message)) {
         return Response.json({ error: 'capture_conflict' }, { status: 409 })
+      }
+      if (/Maintenance .* conflict|already verified/i.test(message)) {
+        return Response.json({ error: 'maintenance_conflict' }, { status: 409 })
+      }
+      if (/Invalid maintenance status transition|Closing without action requires a reason|Only a completed visit can be verified|After evidence requires a completed visit|Only a human-reviewed inspection item can be linked/i.test(message)) {
+        return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       if (/not awaiting signature|already countersigned|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
