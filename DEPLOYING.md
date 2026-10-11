@@ -10,7 +10,9 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
   decision rather than a default.
 - A Vercel project (or any Node host) for the app. `vercel.json` pins functions to
   `sin1` so they sit next to the database; leave that in place.
-- A Google Generative AI key for extraction and an Anthropic key for the check-out diff.
+- A Google Generative AI key from a paid-tier project for extraction and the
+  Gemini 2.5 Pro check-out diff. Verify its billing tier in Google AI Studio before
+  sending real property data.
 
 ## First deploy
 
@@ -53,8 +55,7 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
   set to the Vercel origin, OTP length 6, and the Magic Link template rewritten to show
   `{{ .Token }}`. The database password was reset when the project was handed over, so
   `~/.kivilo-db-password` and `.env.deploy` hold the current one.
-- Production env: everything in `.env.example` except `ANTHROPIC_API_KEY`, which is not
-  set anywhere yet. Values live in the untracked `.env.deploy` locally; the database
+- Production env: values live in the untracked `.env.deploy` locally; the database
   password is in `~/.kivilo-db-password`.
 
 Still open, and each one bites before the first real inspection:
@@ -86,7 +87,10 @@ Still open, and each one bites before the first real inspection:
   route and set `RESEND_API_KEY` / `RESEND_FROM_EMAIL` **first**, and only then enable
   the hook.
 
-- **`ANTHROPIC_API_KEY`** is unset, so the check-out diff cannot run.
+- **Production Gemini key still needs matching verification.** A synthetic Gemini
+  2.5 Pro check-out comparison passed the schema and edge-case probe on 2026-10-11.
+  The company reports its newly obtained key's project is Tier 1 postpay; confirm
+  that same key is installed in Vercel Production before real use.
 - **Domain.** Settled as `kivilo.nottoosweetlabs.com` on 2026-08-23; the Supabase auth
   site URL and allow list already point at it. kivilo.io was still unregistered that day
   if a standalone name is ever wanted.
@@ -99,10 +103,10 @@ These are known gaps, not oversights. Decide each one deliberately.
   personal data under the PDPA and should have a stated retention period, most likely
   tied to the end of the tenancy plus a dispute window. This needs a policy decision and
   then a scheduled job.
-- **The check-out diff has never run against a funded Anthropic key.** The request shape
-  is verified and the prompt and persistence were exercised end to end using Gemini in
-  its place, but the Claude call itself has only ever returned a billing error here.
-  Run one real check-out before demoing that half.
+- **The check-out diff still needs a real app-path rehearsal.** Run the synthetic
+  `scripts/verify-checkout-diff.ts` probe after deployment, then review a complete
+  check-out in the app before inviting agents. Confirm Vercel Production uses the
+  company-reported Tier 1 postpay Gemini key first.
 - **Extraction failures are only visible in the app.** A room that fails parks as FAILED
   with the reason on the row, which an agent sees, but nothing pages anyone. Wire the
   `console.error` in `src/lib/actions.ts` to whatever you use for alerting.

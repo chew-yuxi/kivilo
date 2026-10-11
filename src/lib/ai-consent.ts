@@ -5,7 +5,7 @@ import { authorizeInspection, requireAgent } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 /// The inspector explicitly agrees before property images, video, or inspection
-/// inventory are sent to Gemini or Anthropic. Consent is scoped to one inspection.
+/// inventory are sent to Gemini. Consent is scoped to one inspection.
 export async function grantAiConsent(inspectionId: string) {
   const agent = await requireAgent()
   await authorizeInspection(inspectionId, agent.id)

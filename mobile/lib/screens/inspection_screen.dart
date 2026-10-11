@@ -252,7 +252,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
         content: const Text(
           'Kivilo sends this inspection’s room video, audio, photos and details to '
           'Google Gemini to draft inventory. For a check-out comparison, Kivilo '
-          'sends the two inventories to Anthropic Claude to draft findings. '
+          'also sends the reviewed check-in and check-out inventories and tenancy '
+          'length to Gemini '
+          'to draft findings. '
           'A person must review every draft before it is used. Do you agree to '
           'this processing for this inspection?',
         ),

@@ -9,11 +9,17 @@ On 2026-10-10 the configured Gemini account completed a real mixed video/photo
 extraction with synthetic media through `scripts/verify-gemini-extraction.ts` (one
 item returned). This verifies the provider request and schema, not the physical-phone
 capture or production storage path.
+On 2026-10-11 a synthetic Gemini 2.5 Pro check-out probe returned schema-valid
+findings for fair wear, a missing item and a changed serial, and omitted an unchanged
+item. Its initial rationale overstated evidence, so the prompt now forbids unsupported
+claims. This does not establish legal assessment quality. The company reported that
+its newly obtained Gemini key's project is Tier 1 postpay; verify the Vercel Production
+key was replaced with that key before any real check-out processing.
 The configured private Supabase bucket also accepted and confirmed the exact unnamed
 multipart signed PUT used by the native uploader; the synthetic probe object was
 removed immediately (`scripts/verify-signed-upload.ts`, run with Node 26). Android
-debug APK and iOS simulator builds pass. Distribution signing and device testing
-remain separate gates.
+debug APK and iOS simulator builds pass. Physical-device testing remains a separate
+gate.
 On 2026-10-10, all three additive migrations for native release, account-deletion
 cleanup, and general Storage tombstones were applied to the configured production
 Supabase database with `prisma migrate deploy`. The pre-migration check found zero
@@ -36,11 +42,11 @@ enrollment is still not recorded in the accessible Hopshift release files.
 1. Enrol the existing legal company as an organization in Apple Developer and Google
    Play Console. Both require matching legal identity and a D-U-N-S record. Record the
    company account holder and grant release access without sharing their password.
-2. In App Store Connect, register `one.kivilo.kivilo`; select the organization's team
-   for Runner signing in Xcode. Create the app record and enable TestFlight. Verify
-   the signed app has an application identifier and Keychain access group before
-   testing sign-in: an unsigned simulator build fails during Supabase initialization
-   with Keychain error `-34018`, before Flutter draws its first screen.
+2. App Store Connect app `6821514302` is registered as Kivilo with bundle ID
+   `one.kivilo.kivilo`. The App Store version is `1.0.0`. Verify a signed simulator
+   app has an application identifier and Keychain access group before testing sign-in:
+   an unsigned simulator build fails during Supabase initialization with Keychain
+   error `-34018`, before Flutter draws its first screen.
 3. In Play Console, create the app with the same application ID and enrol in Play App
    Signing. Generate and back up an upload keystore. Supply its path and credentials in
    `KIVILO_UPLOAD_KEYSTORE`, `KIVILO_UPLOAD_STORE_PASSWORD`, `KIVILO_UPLOAD_KEY_ALIAS`,
@@ -90,6 +96,20 @@ device and a distribution-signed iPhone, then check foreground, background, and 
 behavior. The existing scheduled notification outbox runs every 15 minutes, so allow
 for that delay when testing an app-generated notification.
 
+On 2026-10-11, an Apple Distribution archive and App Store IPA for version `1.0.0`
+(build `1`) were produced and verified for team `4N9TA3WSYM`, bundle ID
+`one.kivilo.kivilo`, `aps-environment=production`, and `get-task-allow=false`.
+The IPA at `build/ios/ipa/Kivilo-1.0.0+1.ipa` has SHA-256
+`ddfbc93b73be0c55eb2bb68f0f31e866356e8344aa4a396dbc005a479119ca25`.
+App Store Connect accepted the upload (delivery UUID
+`347e4598-001b-4204-bf27-cd90c2e7f672`); the build had not yet appeared in its
+Builds API immediately after upload. The App Store draft contains the prepared
+subtitle, description, keywords, promotional text, support URL, and Productivity
+category. Privacy disclosures, screenshots, device testing, and review submission
+remain outstanding. The archive used a dedicated temporary signing keychain to avoid
+repeated login-keychain authorization prompts; that temporary keychain was removed
+after export.
+
 Build from `mobile/`:
 
 ```bash
@@ -135,16 +155,17 @@ and production URLs before inviting testers. Increase the build number for each 
   published assessment. Never use a real unit's imagery in store metadata.
 - Complete Apple App Privacy and Google Data safety declarations for names, email,
   property address, photos, video, audio, signatures, and diagnostic IP address. Declare
-  external processing through Gemini and Anthropic, private storage, and email delivery.
+  external processing through Google Gemini, private storage, and email delivery.
   Use the public privacy policy, support contact, and `/delete-account` as the account
   deletion URL. Answer camera and microphone permission questions accurately.
-- Confirm the organization's approved retention policy, support email, funded provider
-  keys, and manual deletion-fulfillment operator before sending public review. The
-  accessible `.env.deploy` has an empty `ANTHROPIC_API_KEY` as of 2026-10-10, so the
-  funded Claude check-out gate has not passed. After provisioning the key, run
-  `DOTENV_CONFIG_PATH=.env.deploy pnpm exec tsx scripts/verify-claude-diff.ts` from
-  the repository root with the production environment, then run a real synthetic
-  check-out through the app.
+- Confirm the organization's approved retention policy, support email, matching
+  production Gemini key, and manual deletion-fulfillment operator before sending
+  public review. The company reported the new key's project as Tier 1 postpay, but
+  the earlier synthetic probe used the prior local key; a successful API request alone
+  does not prove the production key's billing tier. Run
+  `DOTENV_CONFIG_PATH=.env.deploy pnpm exec tsx scripts/verify-checkout-diff.ts` from
+  the repository root with synthetic data, then run a synthetic check-out through the
+  production app after the provider switch is deployed.
 - The deletion operator runs `scripts/fulfill-account-deletion.ts <request-id>` only
   after approving a retention policy and explicitly setting
   `KIVILO_RETENTION_POLICY_VERSION`, `KIVILO_RETAIN_SIGNED_RECORDS=1`,

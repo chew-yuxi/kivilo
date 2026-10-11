@@ -51,7 +51,7 @@ worth guarding whenever that function changes.
 - Postgres via local Supabase, Prisma 7 with the `@prisma/adapter-pg` driver adapter
 - Supabase Storage for captures: **private bucket, signed URLs only**
 - Gemini (`@ai-sdk/google`) reads each room's video, audio, and photos in one pass;
-  Claude (`@ai-sdk/anthropic`, `claude-opus-5`) does the check-out diff
+  Gemini 2.5 Pro drafts the check-out diff from reviewed inventories
 - PWA: `src/app/manifest.ts`, `public/sw.js` (network-first pages, cache-first build
   assets), IndexedDB upload queue read through `useSyncExternalStore`
 - Vitest for unit tests
@@ -66,7 +66,8 @@ pnpm db:seed
 pnpm dev
 ```
 
-`.env` needs `GOOGLE_GENERATIVE_AI_API_KEY` (extraction) and `ANTHROPIC_API_KEY` (diff).
+`.env` needs `GOOGLE_GENERATIVE_AI_API_KEY` for extraction and check-out comparison.
+Confirm its Google AI Studio project is on a paid tier before sending real property data.
 
 ## Verification, run before claiming done
 

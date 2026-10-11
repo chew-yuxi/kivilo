@@ -507,7 +507,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         title: const Text('Draft with AI?'),
         content: const Text(
           'Kivilo sends this room’s video, photos and property details to Google Gemini to draft an inventory. '
-          'For a check-out, it also sends the comparison to Anthropic Claude. '
+          'For a check-out, it also sends the reviewed check-in and check-out inventories and tenancy length to Gemini to draft findings. '
           'You review and correct every draft before anyone signs.',
         ),
         actions: [

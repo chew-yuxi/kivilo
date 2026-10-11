@@ -28,30 +28,38 @@ with check-in, manage maintenance, send account and service messages, and handle
 and deletion requests. We do not send inspection content to AI providers until an
 inspector grants permission for that inspection. Google Gemini then receives the room's
 photos, video, narration, notes and property label to draft its inventory. For a
-check-out, Anthropic Claude receives the reviewed check-in and check-out inventory and
-property label to draft a comparison. A person reviews AI drafts before a report is
-signed or an assessment is published.
+check-out, Gemini also receives the reviewed check-in and check-out inventories,
+property label and tenancy length to draft a comparison. A person reviews AI drafts
+before a report is signed or an assessment is published.
 
 Supabase provides authentication, database and private media storage. Vercel hosts the
 web service. Resend carries sign-in and service emails. Firebase Cloud Messaging and
-Apple Push Notification service route optional mobile notifications. Google and
-Anthropic process the inspection content described above only after that inspection's
+Apple Push Notification service route optional mobile notifications. Google processes
+the inspection content described above only after that inspection's
 AI permission is granted. These providers may process information outside Singapore
 [confirm provider regions, contracts and transfer safeguards]. We do not make the media
 bucket public. A shared report can be viewed by anyone who holds its private link;
 the inspector can revoke that link. Report photos are served through expiring signed
 URLs.
 
-**Retention.** We retain signed condition reports, their evidence, signatures,
-published assessments, and related tenancy records for **[approved period and start
-event]** because they document a record shared by the parties. We retain unsigned
-inspections involving another party for **[approved period and start event]** and
-maintenance history and evidence for **[approved period and start event]**. Working
-drafts that belong only to a requesting account are removed during account deletion;
-their stored media is removed after outstanding upload links have expired and absence
-has been verified. We retain deletion-request status records for **[approved period]**
-and service logs and backups according to **[approved schedules]**. Unsent captures
-and edits remain on the device until uploaded or removed from that device [approve
+**Retention.** We keep signed condition reports, their evidence, signatures,
+published assessments, and related tenancy records while needed to provide the
+parties with a reliable handover record, resolve tenancy claims or disputes, or meet
+another legal or business obligation. We keep unsigned inspections involving another
+party while needed to complete or review their shared handover or resolve a related
+claim. We keep maintenance history and evidence while needed to coordinate or verify
+work or resolve a related claim. We review whether these purposes still apply when a
+tenancy ends, when we handle a deletion request, and in regular record reviews; once
+none applies, we delete the data or remove its link to an identifiable person.
+
+Working drafts that belong only to a requesting account are removed during account
+deletion; their stored media is removed after outstanding upload links expire and
+absence is verified. We keep a limited record of the request and its completion
+while needed to demonstrate fulfillment or resolve a complaint, then remove or
+de-identify it. Service logs and backups may remain for their security and recovery
+purposes before they are removed under the relevant provider schedules [verify
+processor schedules and whether this statement is accurate]. Unsent captures and
+edits remain on the device until uploaded or removed from that device [approve
 precise local-data instructions].
 
 You can request account deletion in **Settings** or at
@@ -61,30 +69,35 @@ from your account address. We acknowledge the request and aim to complete it wit
 identity fields, device push registrations, and account-specific notification history.
 We remove unsigned inspections only when the requester conducted them and is every
 party on the tenancy. Signed reports and unsigned records involving another party may
-retain the requester's name and contributions for the periods above; we will explain
-what was retained when confirming completion [approve the exact retained-data notice].
+retain the requester's name and contributions while the purposes above still apply.
+The completion email notes that shared records may remain under this policy; contact
+us to ask which of your records remain.
 Contact us to ask for access, correction, or more information about your data.
 
 ## Company decisions before publication
 
-1. Approve the legal basis and exact retention period/trigger for signed inventories,
-   source media, signatures, and immutable published assessments. The code currently
-   has no automatic expiry for these records.
-2. Approve retaining **all shared unsigned work**, including an agent's draft where
-   landlord or tenant is someone else, and its identifiable party names and media;
-   set its expiry. The deletion script intentionally does not erase these records.
-3. Set maintenance-history/evidence and property/tenancy retention, including records
-   contributed by someone whose account is deleted.
-4. Set a purge period for completed `AccountDeletionRequest` audit rows and specify
-   backup, log and processor retention. The current operator leaves request metadata
-   indefinitely, and provider-side schedules have not been verified.
-5. Confirm processor agreements, international transfers, AI-provider data-use terms,
-   and which contact acts as the company's privacy point of contact. Confirm
+1. Approve the stated purposes for retaining signed reports, evidence, signatures,
+   assessments, shared unsigned work, and maintenance/tenancy records after account
+   deletion. The operator currently retains all signed and shared unsigned inspections;
+   the code has no automatic expiry for them.
+2. Appoint an operator to review completed tenancies and retained shared records at
+   least quarterly, document why each category is still needed, and delete or
+   de-identify records when no stated purpose remains. This is a proposed manual
+   operating commitment, not a process the code currently performs.
+3. Approve a similar manual review and disposal process for completed
+   `AccountDeletionRequest` rows. The current operator leaves request metadata
+   indefinitely. Verify Supabase, Vercel, Resend, Firebase, Google and Apple backup,
+   log and processor schedules before the public statement above is finalized.
+4. The company reports its newly obtained Gemini key's project is Tier 1 postpay.
+   Confirm Vercel Production uses that key before processing real inspection content;
+   the earlier synthetic API probe used a different local key. Confirm processor
+   agreements, international transfers, AI-provider data-use terms, and which contact
+   acts as the company's privacy point of contact. Confirm
    `hello@nottoosweetlabs.com` accepts Kivilo mail.
-6. Approve the precise on-device cleanup statement: the app currently isolates local
+5. Approve the precise on-device cleanup statement: the app currently isolates local
    captures by account and removes a capture after confirmed handover, but does not
    automatically erase pending local captures when an account is deleted or signs out.
-7. Assign an operator and monitor deletion due dates and the Storage purge worker.
+6. Assign an operator and monitor deletion due dates and the Storage purge worker.
    `vercel.json` schedules the notification outbox only. Without an operator, the
    public 30-day promise is not yet operationally verified.
 

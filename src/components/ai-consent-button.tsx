@@ -16,9 +16,10 @@ export function AiConsentButton({ inspectionId }: { inspectionId: string }) {
     <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
       <p className="font-medium">AI processing permission</p>
       <p className="mt-1 text-gray-700">
-        To draft this report, Kivilo sends room photos, video and narration to Google
-        Gemini. For check-out comparisons, it sends the reviewed inventory to Anthropic
-        Claude. Review every draft before signing or publishing it.
+        To draft this report, Kivilo sends room photos, video, narration and property
+        details to Google Gemini. For check-out comparisons, it also sends the reviewed
+        check-in and check-out inventories and tenancy length to Gemini. Review every
+        draft before signing or publishing it.
       </p>
       {error && <p className="mt-2 text-red-700">{error}</p>}
       <button

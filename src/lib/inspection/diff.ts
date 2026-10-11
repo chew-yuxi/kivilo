@@ -1,8 +1,8 @@
-import { anthropic } from '@ai-sdk/anthropic'
+import { google } from '@ai-sdk/google'
 import { generateObject } from 'ai'
 import { diffSchema, type Diff } from './schema'
 
-const MODEL = 'claude-opus-5'
+const MODEL = 'gemini-2.5-pro'
 
 const SYSTEM = `You are drafting the check-out comparison for a Singapore residential
 tenancy. You are given the check-in inventory (the agreed baseline, already countersigned
@@ -27,13 +27,20 @@ Rules:
   flagging even when the condition is fine. Fall back to what the item is and where it
   is only when an identifier is missing: a "Built-in wardrobe" in the master bedroom is
   the same item as "Wardrobe (built in)".
-- An item present at check-in and absent at check-out is MISSING. An item present only
-  at check-out is not the tenant's liability. Record it with a null baselineItemRef and
-  a verdict of UNDECIDED.
+- A check-in item with no check-out entry is MISSING, but inventory omission alone
+  does not prove physical absence or tenant liability. Say it is not listed in the
+  check-out inventory and use UNDECIDED until a person confirms the facts. An item
+  present only at check-out is not the tenant's liability. Record it with a null
+  baselineItemRef and a verdict of UNDECIDED.
 - Condition moving one step (GOOD → FAIR) over a full tenancy is usually WEAR. Two or
   more steps, or any move to DAMAGED, needs a specific reason in the rationale.
 - Set UNDECIDED when the evidence genuinely does not settle it, rather than guessing.
   A flagged uncertainty is useful to the agent; a confident wrong call is not.
+- Describe only what the supplied inventory says. Do not claim a photo, video,
+  permission, ownership, or physical removal exists unless an input field says so.
+  An absent check-out line is missing from the inventory, not proof of physical absence.
+  A changed serial flags a substitution, but without evidence of authorization or
+  loss, do not call it unauthorized or assume tenant liability; use UNDECIDED.
 - estimatedCost is a rough make-good figure in SGD, or null. Do not invent precision.`
 
 type ItemForDiff = {
@@ -55,7 +62,7 @@ export async function diffAgainstBaseline(input: {
   tenancyMonths: number
 }): Promise<Diff> {
   const { object } = await generateObject({
-    model: anthropic(MODEL),
+    model: google(MODEL),
     schema: diffSchema,
     system: SYSTEM,
     prompt: [
