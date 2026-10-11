@@ -223,9 +223,8 @@ Play accepted version code `4` and a fresh API read confirmed it on the **intern
 track with status `completed`. A signed APK for device QA is available at
 `build/app/outputs/flutter-apk/app-release.apk`, SHA-256
 `85821205d20e27eb459b062dcaea8d1e630523465e7c7667c59167210501c7f8`.
-It is installed on the physical Nothing A065 with the synthetic session preserved;
-physical interruption and long-capture verification is underway. Neither store has
-received a public review submission.
+It is installed on the physical Nothing A065 with the synthetic session preserved.
+Neither store has received a public review submission.
 
 On that physical phone, build `4` saved a controlled sequence of 30 covered-lens
 photos with no default network, in addition to ten photos retained from an earlier
@@ -236,17 +235,42 @@ Storage paths. All 40 private Storage objects existed and their sizes matched th
 database. The count remained 40 after another online force-stop/relaunch, and the
 UI showed the local queue cleared with the photos synced. This confirms that tested
 offline/restart sequence, not all interruption cases or the full signed workflow.
-Ten-minute video and physical iPhone testing remain open.
+The offline video also survived force-stop/relaunch and uploaded once. `ffprobe`
+confirmed 698.995556 seconds (11m39s), H.264 1280×720, an AAC 48 kHz stereo track,
+and 58,935,072 bytes. No spoken narration was recorded. Back during a second recording
+saved a 24-second video; Finish was disabled while recording. Photos worked with
+microphone permission explicitly denied, adding one photo. The final observation
+found 41 photos and two videos, 43 distinct client IDs and Storage paths, 43 objects,
+and no missing files or byte-size mismatches. Microphone permission and the original
+30-second screen timeout were restored. A fresh production FCM push reached the phone;
+tap routing remains untested because it locked. These checks used fully offline/reconnect
+conditions, not throttled throughput. Expired sessions, low storage, physical iPhone
+capture and the full signed check-in/check-out remain separate gates.
 
 The company confirmed rights to display its users' submitted media, and App Store
 Connect's content rights declaration was saved and read back as
-`USES_THIRD_PARTY_CONTENT`. App Privacy is a separate, still-unpublished form.
+`USES_THIRD_PARTY_CONTENT`. Apple App Privacy was published in Paseo on 2026-10-11
+and verified after a full reload: all 11 data types complete, 10 linked to identity,
+Other Diagnostic Data unlinked, and no tracking. The purposes match the answer sheet
+below. Build `4` is available to the internal TestFlight group, but its sole tester,
+`ixuyixuy@gmail.com`, is still `INVITED`; invitation acceptance is needed before
+installation can be verified.
 
 After build `4`, offline capture testing exposed raw Dio exception text in the upload
 queue. Uploads and pending edits now reuse the API's readable failure messages while
 preserving saved bytes, retry records, session-expiry errors and report-freeze errors.
 Flutter analysis reported no issues and all 49 tests passed, including three new
 regressions. This change is not yet included in either store's uploaded build `4`.
+Production-signed build `5` artifacts were produced from source `b24c496`, but are
+not uploaded yet. Android AAB `build/release-artifacts/android/build5/kivilo-v5.aab`
+has SHA-256 `91e58ac1e4c6c22e912d0cc6974f84a7b5a535354b2e1fedba074b2b3886286d`;
+the APK alongside it has SHA-256
+`294ef76410809320e78fe3a40575b1dce5719c8beeed15292902a89e138621c7`.
+Both match the Kivilo upload certificate and package; version code is `5`, target
+SDK 36. The iPhone-only IPA `build/ios/ipa/build5-final/kivilo.ipa` has SHA-256
+`ae14430a95e2baecb678bd872a7ad226bc7c09bb6a990f69cb2d73529c72cc64`;
+strict signing verification passed for team `4N9TA3WSYM`, production APNs, and
+`get-task-allow=false`. Build `4` artifacts remain preserved.
 
 Google Play's draft declarations now record Ads **No**, Government apps **No**,
 Advertising ID **No**, no listed financial or health features, an 18+ target
@@ -254,10 +278,11 @@ audience, Business category, the public privacy/deletion URLs, and a private
 reviewer login with optional partner-device sharing off. The IARC **All Other App
 Types** rating questionnaire was saved with an Everyone/3+ result. Its Data safety
 form separately discloses rent and deposit as **Other financial info**. It remains
-**unsaved at Step 3/5**: the data types have been selected, but browser
-control cannot reach the fixed footer reliably. The two unsupported selections for
-App interactions and Diagnostics need to be unchecked before proceeding; Step 4
-handling, Preview and Save still follow. The public deletion page now lists deleted
+**unsaved at Step 4/5**: all 11 types are selected and the unsupported App interactions
+and Diagnostics selections were removed. None of the handling subforms are saved:
+Paseo's snapshot truncates before the modal Save buttons and Google blocks its
+evaluation tool via Trusted Types. Handling, Preview and Save still follow.
+The public deletion page now lists deleted
 and retained categories, a 30-day commitment, and links to `/privacy#retention`;
 the updated custom-domain page returned HTTP 200 after production deployment.
 Kivilo's `Kivilo internal testers` list is saved and selected, contains only
