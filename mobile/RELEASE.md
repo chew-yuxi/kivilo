@@ -86,9 +86,10 @@ enabled. On 2026-10-11 Firebase showed the production APNs key ID
 `JK75WN48PB` with team `4N9TA3WSYM`. The Firebase Admin service-account JSON
 was installed as a sensitive Vercel production environment variable, a production
 redeploy completed, and the temporary local Admin key download was removed.
-The credential obtained a Google access token. A production push reached a physical
-Android phone running signed build `2`; iPhone delivery and build `3` push behavior
-still need verification. The development APNs slot is intentionally unconfigured.
+The credential obtained a Google access token. Production pushes reached a physical
+Android phone running signed builds `2` and `4`; physical iPhone delivery and
+notification tap routing still need verification. The development APNs slot is
+intentionally unconfigured.
 
 The checked-in iOS and Android client files match project `kivilo-b4e14` and the
 Kivilo bundle/package ID. The iOS plist is part of the Runner target, and the Android
@@ -252,17 +253,17 @@ Connect's content rights declaration was saved and read back as
 `USES_THIRD_PARTY_CONTENT`. Apple App Privacy was published in Paseo on 2026-10-11
 and verified after a full reload: all 11 data types complete, 10 linked to identity,
 Other Diagnostic Data unlinked, and no tracking. The purposes match the answer sheet
-below. Build `4` is available to the internal TestFlight group, but its sole tester,
-`ixuyixuy@gmail.com`, is still `INVITED`; invitation acceptance is needed before
-installation can be verified.
+below. The sole internal tester, `ixuyixuy@gmail.com`, reported accepting the
+TestFlight invitation on 2026-10-11. The subsequent API read still returned `INVITED`;
+physical installation and a fresh iOS push registration are not yet verified.
 
 After build `4`, offline capture testing exposed raw Dio exception text in the upload
 queue. Uploads and pending edits now reuse the API's readable failure messages while
 preserving saved bytes, retry records, session-expiry errors and report-freeze errors.
 Flutter analysis reported no issues and all 49 tests passed, including three new
-regressions. This change is not yet included in either store's uploaded build `4`.
-Production-signed build `5` artifacts were produced from source `b24c496`, but are
-not uploaded yet. Android AAB `build/release-artifacts/android/build5/kivilo-v5.aab`
+regressions. Production-signed build `5` artifacts were produced from source
+`b24c496` and uploaded to both stores for internal testing. Android AAB
+`build/release-artifacts/android/build5/kivilo-v5.aab`
 has SHA-256 `91e58ac1e4c6c22e912d0cc6974f84a7b5a535354b2e1fedba074b2b3886286d`;
 the APK alongside it has SHA-256
 `294ef76410809320e78fe3a40575b1dce5719c8beeed15292902a89e138621c7`.
@@ -270,27 +271,38 @@ Both match the Kivilo upload certificate and package; version code is `5`, targe
 SDK 36. The iPhone-only IPA `build/ios/ipa/build5-final/kivilo.ipa` has SHA-256
 `ae14430a95e2baecb678bd872a7ad226bc7c09bb6a990f69cb2d73529c72cc64`;
 strict signing verification passed for team `4N9TA3WSYM`, production APNs, and
-`get-task-allow=false`. Build `4` artifacts remain preserved.
+`get-task-allow=false`. Build `4` artifacts remain preserved. A fresh Play API read
+confirmed internal track `completed` with version code `5`; production has no release.
+App Store Connect build `81f5d150-0aef-46a4-9d93-f59987419258` is `VALID`,
+`IN_BETA_TESTING`, and attached to version `1.0.0` in `PREPARE_FOR_SUBMISSION`.
+Its approved non-exempt encryption answer is `false`, and it is available in the
+existing `Kivilo Internal` group with auto-notify enabled. No public review submission
+has been made.
 
 Google Play's draft declarations now record Ads **No**, Government apps **No**,
 Advertising ID **No**, no listed financial or health features, an 18+ target
 audience, Business category, the public privacy/deletion URLs, and a private
 reviewer login with optional partner-device sharing off. The IARC **All Other App
 Types** rating questionnaire was saved with an Everyone/3+ result. Its Data safety
-form separately discloses rent and deposit as **Other financial info**. It remains
-**unsaved at Step 4/5**: all 11 types are selected and the unsupported App interactions
-and Diagnostics selections were removed. None of the handling subforms are saved:
-Paseo's snapshot truncates before the modal Save buttons and Google blocks its
-evaluation tool via Trusted Types. Handling, Preview and Save still follow.
+form separately discloses rent and deposit as **Other financial info**. The complete
+11-type Data safety declaration was accepted through Google's documented
+`applications.dataSafety` API with HTTP 204 on 2026-10-11. A fresh Play Console
+dashboard showed Data safety complete and **10 of 11** setup tasks complete; only
+the store listing remained. The accepted declaration is preserved in
+[`store/play-data-safety.csv`](store/play-data-safety.csv), with its official sources
+and verification evidence in [`store/README.md`](store/README.md).
 The public deletion page now lists deleted
 and retained categories, a 30-day commitment, and links to `/privacy#retention`;
 the updated custom-domain page returned HTTP 200 after production deployment.
 Kivilo's `Kivilo internal testers` list is saved and selected, contains only
 `ixuyixuy@gmail.com`, and the internal track is Active. Its
 [tester opt-in link](https://play.google.com/apps/internaltest/4701690080657531220)
-is available; Play may show a temporary package name before app review. The app-only
-Store presence permission still needs the company owner's **Apply**, then **Save
-changes**, in the open Play Console dialog.
+is available; Play may show a temporary package name before app review. The authorized
+Kivilo-only **Manage store presence** permission was saved for the existing service
+account and verified after reopening its app permissions. Hopshift permissions and
+account-wide permissions were unchanged. Listing text and image uploads succeeded,
+but the first API commit attempts returned HTTP 403; listing completion is still
+being verified separately.
 
 The signed Android release app passed emulator password sign-in, photo and video
 capture, offline photo persistence across force-stop/relaunch, and upload after
@@ -480,4 +492,7 @@ does not save them.
 Do not select advertising, Analytics, App interactions or Diagnostics based on
 Firebase Messaging alone. Android's installed dependencies and disclosure guidance
 were audited separately from Apple's manifests; the two forms are not identical.
-The overall form remains unsaved at Step 4 until these modal answers are saved.
+These answers were accepted through the official API and the dashboard completion
+state was verified on 2026-10-11. The accepted CSV also declares encrypted transit,
+email/password/other authentication, the public deletion URL, and no separate
+data-only deletion flow without account deletion.
