@@ -5,6 +5,13 @@ Pte. Ltd. **No public review submission has been dispatched.** Complete the
 remaining release gates before committing a Play edit or submitting the Apple
 version. Apple now has an unsubmitted review draft; the current IDs are below.
 
+**Hold public Android submission:** build 12's physical reconnect burst triggered
+a native-upload notification ANR. The prepared production payload now targets
+build 13, whose foreground WorkManager fix is on internal testing. Its physical
+31-capture reconnect regression passed. The separate background-upload probe and
+new `dataSync` foreground-service declaration must finish first.
+The iOS build is unaffected by this Android service failure.
+
 ## Apple
 
 Live App Store Connect read-back on 2026-10-12: iOS version `1.0.0` is
@@ -14,8 +21,9 @@ review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9`, whose state is
 `READY_FOR_REVIEW` with no submitted date. Its item is
 `Y2ZiYmFmMTYtOGQ5MC00MzBiLWI0NjUtYmI4YzhlMWNjM2Q5fDZ8ODkyOTIyMTk0`.
 Build 12 includes the camera-permission, stalled-network, and foreground
-queue-retry fixes; its iPhone
-acceptance checks are in progress. The en-GB version localization has
+queue-retry fixes. Its physical iPhone 30-photo and ten-minute offline video,
+restart durability and automatic exactly-once handover checks passed; additional
+stress-test limits remain documented in `mobile/RELEASE.md`. The en-GB version localization has
 description, keywords, support URL, and promotional text; private review contact,
 test login, and notes are present. The iPhone-only IPA has `UIDeviceFamily=1`.
 Screenshot set `APP_IPHONE_61` contains the actual signed-in Home image
@@ -49,12 +57,14 @@ On 2026-10-12, Play Console saved the complete Kivilo default listing and showed
 **Ready to send for review**. The approved title, short/full description, one
 icon, one feature graphic, and two phone screenshots are saved. Only the icon
 and feature graphic are labelled as created or edited using AI. Internal testing
-serves signed versionCode `12` with release status `completed`; the production
-track is empty. Play Console has
+serves signed versionCode `13` with release status `completed`; the production
+track has only an empty, bundle-less Console draft and no public rollout. Play Console has
 Singapore alone saved under **Changes not yet submitted for review**; it is not
 published. The listing has no remaining required-image errors.
-The prepared production payload targets that same accepted versionCode `12`,
-containing the recording and upload-worker fixes. The private reviewer login
+The prepared production payload targets versionCode `13`, containing the
+Android foreground WorkManager upload fix. The reconnect regression passed;
+its background-upload probe and new foreground-service declaration remain pending.
+The private reviewer login
 was recently verified, and its Play Sign in details were saved with optional
 Google/partner credential sharing off.
 
@@ -96,7 +106,7 @@ listing values. Prefer the authorized human Console for the current submission.
    icon, feature graphic, and each approved 9:16 screenshot through the
    [documented images upload](https://developers.google.com/android-publisher/api-ref/rest/v3/edits.images/upload)
    endpoint, using image types `icon`, `featureGraphic`, and `phoneScreenshots`.
-3. Verify versionCode `12` in `play-production-track.json` is the final signed,
+3. Verify versionCode `13` in `play-production-track.json` is the final signed,
    accepted AAB, then `PUT /edits/{editId}/tracks/production` with that file. The
    [track API](https://developers.google.com/android-publisher/api-ref/rest/v3/edits.tracks)
    defines `completed` as serving all eligible users after publication.

@@ -7,13 +7,41 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `12` (source `333b099`) is on Play internal testing and internal TestFlight.
+Android build `13` (source `110a9dd`) passed its physical reconnect-burst regression.
+It uses foreground WorkManager uploads instead of the plugin's UIDT path, configures
+foreground mode before starting the downloader, and declares the `dataSync`
+foreground service. Flutter analysis and all 70 tests pass. The merged release
+manifest has both foreground-service permissions and no
+`RUN_USER_INITIATED_JOBS`; APK and AAB signing match the established upload key.
+Google's new foreground-service declaration and demonstration video remain pending.
+On the Nothing phone, 30 new offline photos and a three-minute video survived
+force-stop/relaunch while offline, then handed over without tapping Retry. The
+isolated room increased from 40 to 71 captures (65 photos, six videos), with 71
+unique client IDs and 71 matching private Storage objects. Fresh native logs
+showed `UploadTaskWorker` and the `dataSync` `SystemForegroundService`, no UIDT
+job start, and no recurrence of the missing-notification ANR. The video finished
+before the app was backgrounded; a separate background-upload probe is pending.
+This run does not establish a continuous transfer lasting more than nine minutes.
+
+Build `12` (source `333b099`) remains on internal TestFlight. Play internal
+testing now serves signed build `13` (`completed:13`); production has only an
+empty, bundle-less Console draft, with no public rollout.
 Apple's build `da103e08-bfc0-43f3-9e10-4f39579e5ef5` is VALID, selected on the
 unsubmitted version draft, and installed in-place on the physical iPhone.
 Apple review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version
 and is `READY_FOR_REVIEW`, with no submitted date. Google has saved the complete
 default listing as **Ready to send for review**. Neither public review has begun.
-Its evidence metadata
+Physical-device low-storage and expired-session recovery remain unverified;
+automated fault tests cover only part of those conditions. The user has been
+asked whether to accept these two gaps for Apple build 12. No acceptance has
+been received, so the original release gate still applies.
+**Android build 12 is withheld from public release:** its 31-capture reconnect
+burst triggered an Android 36 ANR, `required notification not provided`, when
+the native UIDT upload service missed its ten-second notification deadline.
+Notification permission and the channel were enabled. All captures still handed
+over exactly once, but that does not make the ANR acceptable. Android build 13
+replaces it with the verified WorkManager path; the iOS artifact is unchanged.
+Build 12's evidence metadata
 requests have a 20-second whole-call deadline and cancellation, so a stalled
 request releases its worker lease and leaves bytes available for retry. The
 foreground app rechecks the durable queue each minute without overlapping its
@@ -23,6 +51,12 @@ same capture and bytes remain after timeout; simulated recovery uploads and
 registers that identity once. The retry timer's overlap/lifecycle regression
 also passes. Flutter analysis and all 70 tests pass.
 
+If the operating system kills a worker mid-request, its existing claim can
+remain until the ten-minute lease expires. The foreground retry timer then
+recovers eligible work without clearing claims or deleting capture files.
+Ordinary request timeouts release their claim immediately; this longer delay
+applies to an abruptly terminated owner.
+
 Physical Android build `12` automatic foreground recovery passed. With Wi-Fi
 and mobile data off, a synthetic photo remained on the phone with a retry
 message. After navigating to Home and restoring the radios, without tapping
@@ -31,9 +65,57 @@ The room changed from eight to nine captures: five photos, four videos, nine
 distinct client IDs, nine private Storage objects and nine exact byte-size
 matches. Play internal read-back is `completed:12`; production remains empty.
 
-- Android AAB `build/release-artifacts/android/build12/kivilo-v12.aab`, SHA-256
+The subsequent Android long-capture test retained 30 new offline photos and a
+ten-minute video through backgrounding and a force-stop/relaunch while both
+radios were off. Restoring connectivity, without tapping Retry, increased the
+isolated room from nine to 40 captures (35 photos, five videos): 40 unique client
+IDs and 40 private objects with exact byte sizes. The new video's decoded
+duration is 634.976333 seconds, with H.264 video and AAC audio, and its object is
+56,581,298 bytes. The release APK does not allow direct private-file inspection;
+this durability evidence combines offline UI with post-reconnect server and
+Storage verification. The notification ANR above occurred during this handover.
+Evidence is in `build/physical-qa/build12-long-capture.json`.
+
+Read-only Auth metadata for the synthetic Android test account also showed a
+Dart client session refreshing about 59 minutes after sign-in, followed by
+successful build-12 activity. This supports automatic mobile session refresh;
+it does not prove recovery after an access token has already expired. No token
+contents were read or recorded for that check.
+
+Physical iPhone build `12` reopened the cached synthetic inspection, room, and
+live camera after force-quit/relaunch under verified 100% packet loss. A fresh
+30-photo run then passed: 30 shutter actions produced 30 new unique local rows
+and 30 matching durable files, totalling 2,348,635 bytes. Two older pending
+photos were tracked separately; all 32 local files matched their recorded sizes.
+The QA controller now waits for scrolling to settle before tapping controls.
+Earlier runs that tapped immediately after scrolling produced 29 saved photos from 30
+actions; those saved files were preserved. The corrected controller passed the
+30-of-30 check without changing the shipped app. The subsequent video saved a
+605-second duration and 30,768,588-byte file. After another force-quit/relaunch
+under verified 100% packet loss, all 33 pending rows (including the two older
+photos) and their exact file sizes were unchanged. The induced condition has
+been cleared and read back inactive. Production read-back at 19:56:27 UTC
+confirmed all 88 photos and the video from the accumulated QA runs: 89 unique
+client IDs, 89 private Storage objects and no byte-size mismatches. Independently
+decoding the downloaded video confirmed 605.723333 seconds, 30,768,588 bytes,
+720×1280 HEVC video and AAC audio. The interrupted worker's ten-minute claim
+expired and foreground retry completed handover without a manual Retry or claim
+change; the local pending journal is empty. Airplane Mode was restored Off and
+Wi-Fi remained available. Evidence is in `build/physical-qa/ios12-long-capture.json`.
+A separate bounded `VeryBadNetwork` device probe saved one new photo with a
+75,999-byte matching local file while the condition was active. After verified
+restoration, the photo handed over automatically: production reached 90 unique
+capture IDs and 90 matching private objects, and the local pending journal was
+empty. This does not establish a continuous ten-minute transfer under throttled
+bandwidth or independent iPhone automatic-lock behavior while XCTest is attached.
+
+- Android 13 AAB `build/release-artifacts/android/build13/kivilo-v13.aab`, SHA-256
+  `be05ea5b931e98f8b8cc2438ef5a8bd99835ed1a07a90ed2cc9177c9c7efd782`.
+- Android 13 APK `build/release-artifacts/android/build13/kivilo-v13.apk`, SHA-256
+  `c252554a17f376e9f1caf9b9557ddb364e95e0203e88326481a42c6b1d279361`.
+- Withheld Android 12 AAB `build/release-artifacts/android/build12/kivilo-v12.aab`, SHA-256
   `d414a9d0bca269a7906d067cf6ea5186d6ed600599422d9612bb4c2e289024d4`.
-- Android APK `build/release-artifacts/android/build12/kivilo-v12.apk`, SHA-256
+- Withheld Android 12 APK `build/release-artifacts/android/build12/kivilo-v12.apk`, SHA-256
   `9380087dc84e14243eebbbd2264213d98fb969c94b12b02ac7670d7607ab8289`.
 - iOS IPA `build/ios/ipa/build12-final/kivilo.ipa`, SHA-256
   `b95d6cb90aa9863868f47a57760be86ed10c6eb7081a9c4f666d45e1d2b4d8bf`.

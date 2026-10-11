@@ -1,0 +1,9 @@
+{
+  "permission": "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+  "task": "Network processing: Other (uploading or downloading)",
+  "functionality": "Kivilo uploads the property inspection photos and narrated videos that an inspector has just captured and saved. A foreground service continues the media transfer when the inspector leaves the app, with an upload progress notification. The original files stay in the local durable queue until storage and capture registration are confirmed.",
+  "deferralImpact": "Deferring the transfer delays review of the room inventory and delivery of the inspection report while the inspector is completing a property handover.",
+  "interruptionImpact": "Interrupting a large video upload requires another transfer attempt and delays the inspection workflow. The app retains the original capture and stable identity for retry; it does not discard evidence because a transfer fails.",
+  "demonstrationVideoUrl": null,
+  "status": "Prepared; physical build-13 demonstration and Console declaration pending. This file is an answer sheet, not an API request."
+}
