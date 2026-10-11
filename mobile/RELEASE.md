@@ -7,9 +7,9 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Android build `8` is available on Play internal testing; iOS build `6` is in the
+Android build `8` is available on Play internal testing; iOS build `8` is in the
 existing internal TestFlight group. Apple's build
-`452a3bfd-a517-4908-950a-fb24f6c2092b` is VALID,
+`35316973-25f8-44fb-b77b-73d4b51c1457` is VALID,
 IN_BETA_TESTING, and selected on the version draft. Play production has no release;
 Apple remains PREPARE_FOR_SUBMISSION. Neither store has a public submission.
 The artifacts retain the verified production configuration and signing:
@@ -18,8 +18,8 @@ The artifacts retain the verified production configuration and signing:
   `2a9b6076957dea222ca5d8b7ab667a345074c3ec3b38dd86e0910ee731499782`.
 - Android APK `build/release-artifacts/android/build8/kivilo-v8.apk`, SHA-256
   `c43b3780c6db0b6afafb731495cfbafeb353bbfcb12f7a089f6d921d6bc5ac86`.
-- iOS IPA `build/ios/ipa/build6-final/kivilo.ipa`, SHA-256
-  `8962e8383fe429e8ceea2987e14cd0a35309d961234beab0285f16c51bc01451`.
+- iOS IPA `build/ios/ipa/build8-final/kivilo.ipa`, SHA-256
+  `47727e1e16c5aa7bdd9abbced5e63181bcf9a5463964472f19dc544ea78c97c0`.
 
 Build `6` fixes the physical-test failure where a newly opened inspection disappeared
 from the cached list after an offline restart. Cache writes are also bound to the
@@ -34,6 +34,15 @@ make it available to capture after an offline restart. On a physical Android pho
 previously opened room reached Camera while offline; its photo survived a second offline
 force-quit/relaunch. After reconnect, production showed exactly one Capture row and one
 confirmed private Storage object for that synthetic room.
+For account isolation on the same phone, another synthetic photo was saved offline
+under account A. After A signed out, an isolated account B saw no A properties or
+inspections even after an offline force-quit/relaunch; production still had only the
+original room photo. After A signed back in, the queued photo uploaded once: that room
+had two Capture rows and two matching private Storage objects. B's temporary account
+was removed. This verifies one physical account switch; expired-session handling,
+low-storage behavior, and simultaneous upload workers remain unverified on devices.
+The Flutter uploader tests cover offline and authorization errors, but do not replace
+those physical checks.
 
 The Android build `5` synthetic check-in completed real capture, offline caption
 editing, force-quit/relaunch, upload, Gemini extraction, human inventory editing,
