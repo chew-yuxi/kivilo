@@ -135,6 +135,13 @@ records `usesNonExemptEncryption=false`. The build now reports `IN_BETA_TESTING`
 in the internal-only `Kivilo Internal` TestFlight group, which contains only the
 existing NotTooSweetLabs App Store Connect account holder. Their invitation is
 `INVITED`; TestFlight installation and physical iPhone testing are not yet verified.
+The draft listing's base territory is Singapore and its price is SGD 0.00. App
+availability explicitly enables Singapore alone (1 of 175 territories), excludes
+new territories, and has no pre-order. The version records copyright
+`2026 NotTooSweetLabs Pte. Ltd.` and `usesIdfa=false`; code and CocoaPods contain no
+IDFA or advertising SDK. The app remains `PREPARE_FOR_SUBMISSION`. The next iOS
+build will target iPhone only; build `2` still supports iPad and is for internal
+testing, not the public submission.
 
 On 2026-10-11, the production-configured, upload-signed Android App Bundle version
 `1.0.0` (build `2`) was accepted by Play and committed to the **internal testing
