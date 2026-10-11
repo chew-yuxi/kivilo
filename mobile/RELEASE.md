@@ -13,15 +13,27 @@ foreground mode before starting the downloader, and declares the `dataSync`
 foreground service. Flutter analysis and all 70 tests pass. The merged release
 manifest has both foreground-service permissions and no
 `RUN_USER_INITIATED_JOBS`; APK and AAB signing match the established upload key.
-Google's new foreground-service declaration and demonstration video remain pending.
+Google's new foreground-service declaration remains pending. A genuine synthetic
+capture/upload demonstration has been privacy-reviewed and prepared for
+`https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4`; the
+video has not yet been deployed to that URL.
 On the Nothing phone, 30 new offline photos and a three-minute video survived
 force-stop/relaunch while offline, then handed over without tapping Retry. The
 isolated room increased from 40 to 71 captures (65 photos, six videos), with 71
 unique client IDs and 71 matching private Storage objects. Fresh native logs
 showed `UploadTaskWorker` and the `dataSync` `SystemForegroundService`, no UIDT
-job start, and no recurrence of the missing-notification ANR. The video finished
-before the app was backgrounded; a separate background-upload probe is pending.
-This run does not establish a continuous transfer lasting more than nine minutes.
+job start, and no recurrence of the missing-notification ANR. A separate focused
+video was saved on the phone, then Kivilo was backgrounded while its upload was
+still in progress; the real `Uploading Kivilo evidence` foreground notification
+showed progress. Final production read-back found 72 captures (65 photos, seven
+videos), 72 distinct client IDs and 72 matching private Storage objects, with no
+missing objects or byte-size mismatches. Scoped native logs had no UIDT start,
+missing-notification error or Kivilo ANR during these build-13 tests. The
+privacy-reviewed 11-second demo shows the actual save/sync flow and a crop of the
+real notification card; unrelated personal notifications and audio were excluded.
+Evidence is in ignored `build/physical-qa/build13-foreground-qa.json`. The
+background probe confirms a short active transfer, not a continuous transfer
+lasting more than nine minutes.
 
 Build `12` (source `333b099`) remains on internal TestFlight. Play internal
 testing now serves signed build `13` (`completed:13`); production has only an
@@ -31,10 +43,12 @@ unsubmitted version draft, and installed in-place on the physical iPhone.
 Apple review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version
 and is `READY_FOR_REVIEW`, with no submitted date. Google has saved the complete
 default listing as **Ready to send for review**. Neither public review has begun.
-Physical-device low-storage and expired-session recovery remain unverified;
-automated fault tests cover only part of those conditions. The user has been
-asked whether to accept these two gaps for Apple build 12. No acceptance has
-been received, so the original release gate still applies.
+Physical-device low-storage and recovery after an already expired session remain
+unverified on both platforms; automated fault tests cover only part of those
+conditions. A read-only Android Auth check observed ordinary automatic refresh,
+which is not the same as expired-session recovery. The user has been asked
+whether to accept the two physical-test gaps for Apple build 12. No acceptance
+has been received, so the original release gate still applies.
 **Android build 12 is withheld from public release:** its 31-capture reconnect
 burst triggered an Android 36 ANR, `required notification not provided`, when
 the native UIDT upload service missed its ten-second notification deadline.

@@ -5,11 +5,19 @@ Pte. Ltd. **No public review submission has been dispatched.** Complete the
 remaining release gates before committing a Play edit or submitting the Apple
 version. Apple now has an unsubmitted review draft; the current IDs are below.
 
-**Hold public Android submission:** build 12's physical reconnect burst triggered
-a native-upload notification ANR. The prepared production payload now targets
-build 13, whose foreground WorkManager fix is on internal testing. Its physical
-31-capture reconnect regression passed. The separate background-upload probe and
-new `dataSync` foreground-service declaration must finish first.
+**Hold public Android submission:** build 13 replaces the native-upload
+notification path that caused an ANR in build 12. The foreground WorkManager fix
+is on internal testing, and its physical
+31-capture reconnect regression passed: the isolated synthetic room advanced
+from 40 to 71 captures, then to 72 after a focused background-upload probe.
+All 72 have distinct client IDs and matching private Storage objects and byte
+sizes. A real upload remained active after Kivilo was backgrounded, with the
+`Uploading Kivilo evidence` foreground notification visible. The short,
+privacy-reviewed demonstration is prepared for
+`https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4` but is
+not yet deployed; the `dataSync` foreground-service declaration remains pending.
+A continuous background transfer longer than nine minutes, physical low-storage
+recovery, and recovery after an already expired session remain unverified.
 The iOS build is unaffected by this Android service failure.
 
 ## Apple
@@ -63,7 +71,9 @@ Singapore alone saved under **Changes not yet submitted for review**; it is not
 published. The listing has no remaining required-image errors.
 The prepared production payload targets versionCode `13`, containing the
 Android foreground WorkManager upload fix. The reconnect regression passed;
-its background-upload probe and new foreground-service declaration remain pending.
+the short background-upload probe passed with 72/72 captures and private Storage
+objects. Its reviewed, genuine synthetic demonstration is prepared for the URL
+above, but still needs deployment and the Play foreground-service declaration.
 The private reviewer login
 was recently verified, and its Play Sign in details were saved with optional
 Google/partner credential sharing off.
