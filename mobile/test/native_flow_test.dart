@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -285,6 +286,57 @@ class _Backend {
 }
 
 void main() {
+  test(
+    'stalled HTTP reads open cached detail and fail uncached reads',
+    () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => server.close(force: true));
+      final requests = <HttpRequest>[];
+      final received = Completer<void>();
+      server.listen((request) {
+        requests.add(request);
+        if (requests.length == 3) received.complete();
+        // Accept the connection but never send response headers or bytes.
+      });
+      final dio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:${server.port}'));
+      addTearDown(() => dio.close(force: true));
+      final cache = _MemoryCache();
+      await cache.write('inspection:in', _Backend()._detail('in'));
+      final api = Api(dio: dio, cache: cache, attachAuth: false);
+      final elapsed = Stopwatch()..start();
+      final cached = api.inspection('in');
+      final uncached = expectLater(
+        api.deletionRequest(),
+        throwsA(
+          isA<ApiFailure>().having((e) => e.statusCode, 'status', isNull),
+        ),
+      );
+      final otherCache = _MemoryCache();
+      await otherCache.write('inspection:in', _Backend()._detail('in'));
+      final otherApi = Api(dio: dio, cache: otherCache, attachAuth: false);
+      final switched = expectLater(
+        otherApi.inspection('in'),
+        throwsA(isA<ApiFailure>().having((e) => e.statusCode, 'status', 401)),
+      );
+      await received.future.timeout(const Duration(seconds: 3));
+      otherCache.owner = 'account-b';
+      expect((await cached).tenant, 'Tariq Tenant');
+      await Future.wait([uncached, switched]);
+      expect(api.offlineCopy, isTrue);
+      expect(elapsed.elapsed, lessThan(const Duration(seconds: 12)));
+      expect(await otherCache.read('inspection:in'), isNull);
+      // A late response cannot replace the cached record after the deadline.
+      for (final request in requests) {
+        request.response.write('{"unexpected":"late response"}');
+        await request.response.close();
+      }
+      expect(
+        (await cache.read('inspection:in') as Map)['tenant'],
+        'Tariq Tenant',
+      );
+    },
+  );
+
   test('late inspection response never enters another account cache', () async {
     final cache = _MemoryCache();
     cache.owner = 'account-b';

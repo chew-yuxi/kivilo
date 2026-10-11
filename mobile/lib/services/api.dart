@@ -55,6 +55,31 @@ class Api {
     }
   }
 
+  Future<Response<T>> _get<T>(
+    String route, {
+    Map<String, dynamic>? queryParameters,
+  }) {
+    final cancel = CancelToken();
+    // A connected radio can silently drop every packet. Bound the whole read
+    // (including session refresh), then cancel it so cached capture screens can
+    // open. Mutations and long-running AI requests keep their own semantics.
+    return _call(
+      () => _dio
+          .get<T>(route, queryParameters: queryParameters, cancelToken: cancel)
+          .timeout(
+            const Duration(seconds: 8),
+            onTimeout: () {
+              cancel.cancel('Read deadline exceeded');
+              throw const ApiFailure(
+                'The server did not respond. Check your connection and retry. '
+                'Saved captures remain on this device.',
+                null,
+              );
+            },
+          ),
+    );
+  }
+
   void _checkOwner(String? owner) {
     if (_cache.ownerId != owner) {
       throw const ApiFailure('Account changed. Open this page again.', 401);
@@ -64,7 +89,7 @@ class Api {
   Future<Object> _read(String route, String cacheKey) async {
     final owner = _cache.ownerId;
     try {
-      final response = await _call(() => _dio.get<Object>(route));
+      final response = await _get<Object>(route);
       _checkOwner(owner);
       if (owner != null) {
         await _cache.writeForOwner(owner, cacheKey, response.data);
@@ -104,13 +129,18 @@ class Api {
         .toList();
   }
 
-  Future<List<MaintenanceCaseSummary>> maintenanceCases(String tenancyId) async {
+  Future<List<MaintenanceCaseSummary>> maintenanceCases(
+    String tenancyId,
+  ) async {
     final data = await _read(
       '/api/v1/tenancies/$tenancyId/maintenance',
       'maintenance:$tenancyId',
     );
     return (data as List<dynamic>)
-        .map((json) => MaintenanceCaseSummary.fromJson(json as Map<String, dynamic>))
+        .map(
+          (json) =>
+              MaintenanceCaseSummary.fromJson(json as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -128,7 +158,9 @@ class Api {
       'property-assets:$propertyId',
     );
     return (data as List<dynamic>)
-        .map((json) => PropertyAssetSummary.fromJson(json as Map<String, dynamic>))
+        .map(
+          (json) => PropertyAssetSummary.fromJson(json as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -206,13 +238,17 @@ class Api {
     );
   });
 
-  Future<List<ServiceProviderModel>> serviceProviders({String? category}) async {
-    final response = await _call(() => _dio.get<Map<String, dynamic>>(
+  Future<List<ServiceProviderModel>> serviceProviders({
+    String? category,
+  }) async {
+    final response = await _get<Map<String, dynamic>>(
       '/api/v1/service-providers',
       queryParameters: category == null ? const {} : {'category': category},
-    ));
+    );
     return (response.data!['providers'] as List<dynamic>)
-        .map((json) => ServiceProviderModel.fromJson(json as Map<String, dynamic>))
+        .map(
+          (json) => ServiceProviderModel.fromJson(json as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -236,10 +272,7 @@ class Api {
       });
 
   Future<void> disablePushDevice(String token) => _call(() async {
-    await _dio.delete(
-      '/api/v1/notifications/device',
-      data: {'token': token},
-    );
+    await _dio.delete('/api/v1/notifications/device', data: {'token': token});
   });
 
   Future<InspectionDetail> inspection(String id) async {
@@ -398,12 +431,12 @@ class Api {
     );
   });
 
-  Future<Map<String, dynamic>> deletionRequest() => _call(() async {
-    final response = await _dio.get<Map<String, dynamic>>(
+  Future<Map<String, dynamic>> deletionRequest() async {
+    final response = await _get<Map<String, dynamic>>(
       '/api/v1/account/deletion-request',
     );
     return response.data!;
-  });
+  }
 
   Future<void> requestDeletion() => _call(() async {
     await _dio.post('/api/v1/account/deletion-request');
