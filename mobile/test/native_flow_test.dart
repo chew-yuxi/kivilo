@@ -334,7 +334,7 @@ void main() {
   });
 
   test(
-    'newly opened inspection remains reachable from Home after offline restart',
+    'new inspection and opened room remain reachable for offline capture after restart',
     () async {
       final cache = _MemoryCache();
       await cache.write('inspections', [
@@ -390,6 +390,17 @@ void main() {
       ]);
       expect(homeInspections.first.rooms, 1);
       expect((await restarted.inspection(id)).rooms.single.id, 'room-in');
+      final captureRoom = await restarted.room(id, 'room-in');
+      expect(restarted.offlineCopy, isTrue);
+      expect(captureRoom.name, 'Kitchen');
+      expect(captureRoom.captures, hasLength(1));
+
+      cache.owner = 'account-b';
+      await expectLater(
+        restarted.room(id, 'room-in'),
+        throwsA(isA<ApiFailure>()),
+      );
+      expect(await cache.read('room:$id:room-in'), isNull);
     },
   );
 

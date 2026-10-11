@@ -7,8 +7,9 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `6` is available on Play internal testing and in the existing internal
-TestFlight group. Apple's build `452a3bfd-a517-4908-950a-fb24f6c2092b` is VALID,
+Android build `7` is available on Play internal testing; iOS build `6` is in the
+existing internal TestFlight group. Apple's build
+`452a3bfd-a517-4908-950a-fb24f6c2092b` is VALID,
 IN_BETA_TESTING, and selected on the version draft. Play production has no release;
 Apple remains PREPARE_FOR_SUBMISSION. Neither store has a public submission.
 The artifacts retain the verified production configuration and signing:
@@ -23,25 +24,30 @@ The artifacts retain the verified production configuration and signing:
 Build `6` fixes the physical-test failure where a newly opened inspection disappeared
 from the cached list after an offline restart. Cache writes are also bound to the
 account that started the request. The regressions and Flutter analysis passed.
-The next candidate, build `7`, fixes a second physical-test finding: vertical strokes
+Build `7` fixes a second physical-test finding: vertical strokes
 in the signature pad were swallowed by the surrounding page's scrolling gesture.
 The pad now owns its pointer gestures; the page still scrolls outside it, and a tap
 alone cannot be submitted as a signature. Flutter analysis and all 55 tests passed.
-Physical verification of these fixes is still required.
+Physical Android testing confirmed both vertical signatures and the offline inspection
+list. Build `8` addresses a remaining offline-camera gap: opening a room online must
+make it available to capture after an offline restart. Physical retesting of that path
+is pending.
 
 The Android build `5` synthetic check-in completed real capture, offline caption
 editing, force-quit/relaunch, upload, Gemini extraction, human inventory editing,
 room review, and both test signatures. The caption survived offline restart and
 registered on the same single capture. Its unauthenticated shared report rendered
 both signatures and the separate portrait-photo ring; screen and print alignment
-matched normalized coordinates within 0.000003. Check-out and revocation verification
-are in progress. These fictional QA signatures do not represent real parties.
+matched normalized coordinates within 0.000003. The synthetic check-out completed both
+signatures, generated a Gemini draft, and published assessment version 1 only after human
+review. A second revision remains a private, unpublished draft; the signed inventory
+and published version 1 stayed unchanged. Its share link was revoked, leaving no active
+link for that checkout. These fictional QA signatures do not represent real parties.
 
 Production push reached Android build `5` in the foreground and its Open action
-opened Notifications. The user confirmed a foreground notification on the physical
-TestFlight iPhone. The next iPhone test was sent to that exact installation once at
-2026-10-11 17:00:04 UTC while Kivilo was backgrounded; system-banner receipt and tap
-behavior still await user confirmation. Generic push payloads intentionally contain
+opened Notifications. The physical TestFlight iPhone also received a native background
+system banner; tapping it opened the app's Notifications list. App Store Connect's Home
+screenshot is complete. Generic push payloads intentionally contain
 no private record IDs or routes: the app opens the authenticated Notifications list,
 and opening a row marks that notification read.
 

@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -84,61 +83,30 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   Future<void> _loadRoom() async {
-    final root = _root;
-    if (root == null) return;
-    final cache = File(
-      '${root.path}/room-cache/$_ownerId/${widget.inspectionId}/${widget.roomId}.json',
-    );
     try {
-      final response = await _api.dio.get<Map<String, dynamic>>(
-        '/api/v1/inspections/${widget.inspectionId}/rooms/${widget.roomId}',
-      );
-      final data = response.data!;
-      final detail = RoomDetail.fromJson(data);
-      await cache.parent.create(recursive: true);
-      await cache.writeAsString(jsonEncode(data), flush: true);
+      if (Supabase.instance.client.auth.currentUser?.id != _ownerId) {
+        throw const ApiFailure('Account changed. Open this room again.', 401);
+      }
+      final detail = await _api.room(widget.inspectionId, widget.roomId);
+      if (Supabase.instance.client.auth.currentUser?.id != _ownerId) {
+        throw const ApiFailure('Account changed. Open this room again.', 401);
+      }
       if (mounted) {
         setState(() {
           _room = detail;
-          _offline = false;
+          _offline = _api.offlineCopy;
           _error = null;
         });
       }
-    } on DioException catch (error) {
-      final transportFailure =
-          error.response == null &&
-          (error.type == DioExceptionType.connectionError ||
-              error.type == DioExceptionType.connectionTimeout ||
-              error.type == DioExceptionType.sendTimeout ||
-              error.type == DioExceptionType.receiveTimeout ||
-              error.error is SocketException);
-      if (!transportFailure) {
-        if (mounted) {
-          setState(() {
-            _room = null;
-            _offline = false;
-            _error = error.response?.statusCode == 401
-                ? 'Session expired. Sign in again before capturing this room.'
-                : 'This room is unavailable (${error.response?.statusCode ?? 'request failed'}). Refresh access before capturing.';
-          });
-        }
-        return;
-      }
-      if (await cache.exists()) {
-        final detail = RoomDetail.fromJson(
-          jsonDecode(await cache.readAsString()) as Map<String, dynamic>,
-        );
-        if (mounted) {
-          setState(() {
-            _room = detail;
-            _offline = true;
-          });
-        }
-      } else if (mounted) {
-        setState(
-          () => _error =
-              'Room has not been loaded on this phone. Connect once to open it.',
-        );
+    } on ApiFailure catch (error) {
+      if (mounted) {
+        setState(() {
+          _room = null;
+          _offline = false;
+          _error = error.statusCode == null
+              ? 'Room has not been loaded on this phone. Connect once to open it.'
+              : error.message;
+        });
       }
     } catch (error) {
       if (mounted) setState(() => _error = 'Could not load room: $error');
