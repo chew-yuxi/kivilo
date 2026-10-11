@@ -12,7 +12,9 @@ capture or production storage path.
 On 2026-10-11 a synthetic Gemini 2.5 Pro check-out probe returned schema-valid
 findings for fair wear, a missing item and a changed serial, and omitted an unchanged
 item. Its initial rationale overstated evidence, so the prompt now forbids unsupported
-claims. This does not establish legal assessment quality. The company reported that
+claims. That probe used an older project; Google no longer permits Gemini 2.5 Pro
+on new projects, so the release uses Gemini 3.1 Pro Preview. This does not establish
+legal assessment quality. The company reported that
 its new Gemini key's project is Tier 1 postpay and confirmed the matching key was
 saved in Vercel Production before the Gemini check-out deployment. The deployed
 findings route still needs a synthetic end-to-end check.

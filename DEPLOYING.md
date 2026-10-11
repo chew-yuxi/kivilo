@@ -11,7 +11,7 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
 - A Vercel project (or any Node host) for the app. `vercel.json` pins functions to
   `sin1` so they sit next to the database; leave that in place.
 - A Google Generative AI key from a paid-tier project for extraction and the
-  Gemini 2.5 Pro check-out diff. Verify its billing tier in Google AI Studio before
+  Gemini 3.1 Pro Preview check-out diff. Verify its billing tier in Google AI Studio before
   sending real property data.
 
 ## First deploy
@@ -88,7 +88,9 @@ Still open, and each one bites before the first real inspection:
   the hook.
 
 - **Production Gemini key.** A synthetic Gemini 2.5 Pro check-out comparison passed
-  the schema and edge-case probe on 2026-10-11. The company reports its new key's
+  the schema and edge-case probe on 2026-10-11 under an older project. Google no
+  longer permits that model on new projects; Kivilo now uses Gemini 3.1 Pro Preview.
+  The company reports its new key's
   project is Tier 1 postpay; the key was saved in Vercel Production before the
   Gemini check-out deployment. Exercise the deployed findings route with isolated
   synthetic data before real use.

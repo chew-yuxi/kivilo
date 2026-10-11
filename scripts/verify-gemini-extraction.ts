@@ -22,7 +22,7 @@ async function main() {
       { ref: 'synthetic-photo', kind: 'PHOTO', bytes: await readFile(photoPath), mimeType: 'image/png', note: null },
     ],
   })
-  console.log(JSON.stringify({ model: 'gemini-2.5-pro', items: result.items.length }))
+  console.log(JSON.stringify({ model: 'gemini-3.1-pro-preview', items: result.items.length }))
 }
 
 main().catch((error) => {

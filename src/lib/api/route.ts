@@ -27,6 +27,9 @@ export function authed<P>(
       // cannot be used to discover which ids are real. Nothing else is echoed back: the
       // thrown message can carry a Prisma model name or a driver error.
       const message = error instanceof Error ? error.message : ''
+      if (/\bmodel\b.*\b(no longer available|not available|does not exist|not found|unsupported)\b/i.test(message)) {
+        return Response.json({ error: 'ai_unavailable' }, { status: 503 })
+      }
       if (/not found/i.test(message)) {
         return Response.json({ error: 'not_found' }, { status: 404 })
       }

@@ -4,7 +4,7 @@ import { roomExtractionSchema, type RoomExtraction } from './schema'
 
 /// Gemini reads the video and its audio in one pass, so the narration and what the
 /// camera is pointing at stay tied together.
-const MODEL = 'gemini-2.5-pro'
+const MODEL = 'gemini-3.1-pro-preview'
 
 const SYSTEM = `You are a property inventory clerk in Singapore producing the draft
 condition report for one room of a residential check-in or check-out.

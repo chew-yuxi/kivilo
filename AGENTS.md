@@ -51,7 +51,7 @@ worth guarding whenever that function changes.
 - Postgres via local Supabase, Prisma 7 with the `@prisma/adapter-pg` driver adapter
 - Supabase Storage for captures: **private bucket, signed URLs only**
 - Gemini (`@ai-sdk/google`) reads each room's video, audio, and photos in one pass;
-  Gemini 2.5 Pro drafts the check-out diff from reviewed inventories
+  Gemini 3.1 Pro Preview drafts the check-out diff from reviewed inventories
 - PWA: `src/app/manifest.ts`, `public/sw.js` (network-first pages, cache-first build
   assets), IndexedDB upload queue read through `useSyncExternalStore`
 - Vitest for unit tests

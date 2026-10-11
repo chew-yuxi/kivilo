@@ -2,7 +2,7 @@ import { google } from '@ai-sdk/google'
 import { generateObject } from 'ai'
 import { diffSchema, type Diff } from './schema'
 
-const MODEL = 'gemini-2.5-pro'
+const MODEL = 'gemini-3.1-pro-preview'
 
 const SYSTEM = `You are drafting the check-out comparison for a Singapore residential
 tenancy. You are given the check-in inventory (the agreed baseline, already countersigned

@@ -70,7 +70,7 @@ async function main() {
     'The draft must not claim evidence or authorization absent from the input')
 
   console.log(JSON.stringify({
-    model: 'gemini-2.5-pro',
+    model: 'gemini-3.1-pro-preview',
     findings: result.findings.map((finding) => ({
       baselineItemRef: finding.baselineItemRef,
       itemRef: finding.itemRef,
