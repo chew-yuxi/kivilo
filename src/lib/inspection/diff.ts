@@ -24,9 +24,11 @@ Rules:
 - Match on the identifier first when both sides have one. A matching make/model/serial
   proves it is the same physical object; a differing one proves it is not, and an
   appliance swapped for a different unit of the same model is a substitution worth
-  flagging even when the condition is fine. Fall back to what the item is and where it
-  is only when an identifier is missing: a "Built-in wardrobe" in the master bedroom is
-  the same item as "Wardrobe (built in)".
+  flagging even when the condition is fine. Every changed serial must have a finding
+  with changeType DAMAGE and verdict UNDECIDED; never call it UNCHANGED or infer who
+  made the substitution. Fall back to what the item is and where it is only when an
+  identifier is missing: a "Built-in wardrobe" in the master bedroom is the same item
+  as "Wardrobe (built in)".
 - A check-in item with no check-out entry is MISSING, but inventory omission alone
   does not prove physical absence or tenant liability. Say it is not listed in the
   check-out inventory and use UNDECIDED until a person confirms the facts. An item
@@ -41,6 +43,7 @@ Rules:
   An absent check-out line is missing from the inventory, not proof of physical absence.
   A changed serial flags a substitution, but without evidence of authorization or
   loss, do not call it unauthorized or assume tenant liability; use UNDECIDED.
+- Completely unchanged items belong in neither the findings nor the summary.
 - estimatedCost is a rough make-good figure in SGD, or null. Do not invent precision.`
 
 type ItemForDiff = {
@@ -53,6 +56,66 @@ type ItemForDiff = {
   notes: string | null
   identifier: string | null
   meterReading: string | null
+}
+
+/// Fail closed when the model skips an objective change in reviewed inventory data.
+/// Exact one-to-one room/name matches are safe to validate without guessing which
+/// similarly named item a person intended. Everything remains a private draft.
+export function validateDiff(input: {
+  baseline: ItemForDiff[]
+  current: ItemForDiff[]
+}, draft: Diff): Diff {
+  const label = (item: ItemForDiff) =>
+    `${item.room.trim().toLowerCase()}\0${item.name.trim().toLowerCase()}\0${item.category}`
+  const currentByLabel = new Map<string, ItemForDiff[]>()
+  const baselineCounts = new Map<string, number>()
+  for (const item of input.current) {
+    const key = label(item)
+    currentByLabel.set(key, [...(currentByLabel.get(key) ?? []), item])
+  }
+  for (const item of input.baseline) {
+    const key = label(item)
+    baselineCounts.set(key, (baselineCounts.get(key) ?? 0) + 1)
+  }
+
+  for (const before of input.baseline) {
+    const key = label(before)
+    if (baselineCounts.get(key) !== 1) continue
+    const matches = currentByLabel.get(key) ?? []
+    const findings = draft.findings.filter((finding) => finding.baselineItemRef === before.ref)
+    if (matches.length === 0) {
+      // A renamed object with the same identifier can still be unchanged. Otherwise
+      // the draft must flag an omitted baseline line for a person to resolve.
+      if (before.identifier && input.current.some((item) => item.identifier === before.identifier)) {
+        continue
+      }
+      if (findings.length !== 1 || findings[0].itemRef !== null ||
+          findings[0].changeType !== 'MISSING' || findings[0].verdict !== 'UNDECIDED') {
+        throw new Error('AI draft failed validation; retry the comparison')
+      }
+      continue
+    }
+    if (matches.length !== 1) continue
+    const after = matches[0]
+    const identifierChanged = before.identifier !== null && after.identifier !== null &&
+      before.identifier !== after.identifier
+    const meterChanged = before.meterReading !== null && after.meterReading !== null &&
+      before.meterReading !== after.meterReading
+    if (!identifierChanged && !meterChanged && before.condition === after.condition &&
+        before.quantity === after.quantity) continue
+    const matched = findings.filter((finding) => finding.itemRef === after.ref)
+    if (matched.length !== 1 || matched[0].changeType === 'UNCHANGED' ||
+        (identifierChanged && (matched[0].changeType !== 'DAMAGE' ||
+                               matched[0].verdict !== 'UNDECIDED'))) {
+      throw new Error('AI draft failed validation; retry the comparison')
+    }
+  }
+
+  return {
+    ...draft,
+    // This schema also serves existing records, but a new draft only reports changes.
+    findings: draft.findings.filter((finding) => finding.changeType !== 'UNCHANGED'),
+  }
 }
 
 export async function diffAgainstBaseline(input: {
@@ -80,5 +143,5 @@ export async function diffAgainstBaseline(input: {
     ].join('\n'),
   })
 
-  return object
+  return validateDiff(input, object)
 }

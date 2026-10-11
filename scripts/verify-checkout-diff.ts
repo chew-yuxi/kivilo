@@ -54,6 +54,15 @@ async function main() {
   })
 
   const byBaseline = new Map(result.findings.map((finding) => [finding.baselineItemRef, finding]))
+  if (result.findings.length !== 3) {
+    console.error(JSON.stringify(result.findings.map((finding) => ({
+      baselineItemRef: finding.baselineItemRef,
+      itemRef: finding.itemRef,
+      changeType: finding.changeType,
+      verdict: finding.verdict,
+      rationale: finding.rationale,
+    }))))
+  }
   assert.equal(result.findings.length, 3, 'Expected exactly the three changed items')
   assert.equal(byBaseline.get('b-paint')?.itemRef, 'c-paint')
   assert.equal(byBaseline.get('b-paint')?.changeType, 'WEAR')
