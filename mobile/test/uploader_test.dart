@@ -180,7 +180,7 @@ void main() {
     );
   }
 
-  Uploader uploader(FakeBackend backend, {String owner = 'owner-a'}) =>
+  Uploader uploader(CaptureBackend backend, {String owner = 'owner-a'}) =>
       Uploader(queue: queue, backend: backend, root: root, ownerId: owner);
 
   test('stores, registers, hands over, then removes the local file', () async {
@@ -358,6 +358,80 @@ void main() {
     expect(row.claimedAt, isNull);
     expect(await file.exists(), isTrue);
   });
+
+  test('offline upload keeps evidence with a readable retry message', () async {
+    final id = await queued();
+    final file = File('${root.path}/${(await queue.byId(id))!.relativePath}');
+    final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+    addTearDown(dio.close);
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) => handler.reject(
+          DioException(
+            requestOptions: options,
+            type: DioExceptionType.connectionError,
+            error: const SocketException('Failed host lookup'),
+          ),
+        ),
+      ),
+    );
+
+    expect(await uploader(HttpCaptureBackend(dio)).drain(), isFalse);
+
+    final pending = (await queue.byId(id))!;
+    expect(
+      pending.lastError,
+      'Check your connection and retry. Saved captures remain on this device.',
+    );
+    expect(pending.attempts, 1);
+    expect(pending.claimedAt, isNull);
+    expect(await file.exists(), isTrue);
+  });
+
+  for (final failure in [
+    (
+      code: 'unauthorized',
+      status: 401,
+      message: 'Your session has expired. Please sign in again.',
+    ),
+    (
+      code: 'report_frozen',
+      status: 409,
+      message: 'This report has been sent for signature and cannot be changed.',
+    ),
+  ]) {
+    test(
+      'remote edit preserves the ${failure.code} reason and draft',
+      () async {
+        await queue.queueRemoteNote('owner-a', 'insp-1', 'cap-1', 'Saved note');
+        final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+        addTearDown(dio.close);
+        dio.interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) => handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.badResponse,
+                response: Response(
+                  requestOptions: options,
+                  statusCode: failure.status,
+                  data: {'error': failure.code},
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(await uploader(HttpCaptureBackend(dio)).drain(), isFalse);
+
+        final pending = (await queue.remoteEdit('cap-1'))!;
+        expect(pending.lastError, failure.message);
+        expect(pending.note, 'Saved note');
+        expect(pending.attempts, 1);
+        expect(pending.leaseId, isNull);
+      },
+    );
+  }
 
   test('missing local bytes stay visible for recovery', () async {
     final id = await queued(withFile: false);

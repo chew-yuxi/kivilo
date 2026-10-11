@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
+import 'api_failure.dart';
 import 'capture_backend.dart';
 import 'capture_queue.dart';
 
@@ -89,7 +92,12 @@ class Uploader {
         if (await queue.finishRemoteEdit(current)) return true;
       }
     } catch (error) {
-      await queue.failRemoteEdit(edit, error.toString());
+      await queue.failRemoteEdit(
+        edit,
+        error is DioException
+            ? ApiFailure.fromDio(error).message
+            : error.toString(),
+      );
       return false;
     } finally {
       heartbeat.cancel();
@@ -202,7 +210,13 @@ class Uploader {
         return true;
       }
     } catch (error) {
-      await queue.recordFailure(capture.id, error.toString(), leaseId: leaseId);
+      await queue.recordFailure(
+        capture.id,
+        error is DioException
+            ? ApiFailure.fromDio(error).message
+            : error.toString(),
+        leaseId: leaseId,
+      );
       return false;
     } finally {
       heartbeat.cancel();

@@ -5,17 +5,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
+import 'api_failure.dart';
 import 'read_cache.dart';
 
-class ApiFailure implements Exception {
-  const ApiFailure(this.message, this.statusCode);
-
-  final String message;
-  final int? statusCode;
-
-  @override
-  String toString() => message;
-}
+export 'api_failure.dart';
 
 /// Every mutation delegates to the web app's authorized action through /api/v1.
 class Api {
@@ -58,37 +51,7 @@ class Api {
     try {
       return await request();
     } on DioException catch (error) {
-      final status = error.response?.statusCode;
-      final code = error.response?.data is Map
-          ? (error.response!.data as Map)['error']
-          : null;
-      final message = switch (code) {
-        'unauthorized' => 'Your session has expired. Please sign in again.',
-        'not_found' => 'This record was not found or you cannot access it.',
-        'report_frozen' =>
-          'This report has been sent for signature and cannot be changed.',
-        'invalid_request' => 'Please check the details and try again.',
-        'review_incomplete' => 'Finish reviewing every room before sending.',
-        'assessment_review_incomplete' =>
-          'Open and confirm every finding before publishing the assessment.',
-        'invalid_state' =>
-          'This action is not available at the current report stage.',
-        'capture_conflict' =>
-          'This capture was already registered differently.',
-        'capture_missing' =>
-          'Upload has not reached storage. The saved file remains on this phone; retry upload.',
-        'evidence_missing' =>
-          'Evidence has not reached storage. The saved file remains on this phone; retry upload.',
-        'maintenance_conflict' =>
-          'This maintenance update was already recorded differently. Refresh and check the timeline.',
-        'consent_required' =>
-          'Allow AI processing before drafting this report.',
-        _ =>
-          status == null
-              ? 'Could not connect. Your saved captures remain on this device.'
-              : 'The server could not complete this request ($status).',
-      };
-      throw ApiFailure(message, status);
+      throw ApiFailure.fromDio(error);
     }
   }
 

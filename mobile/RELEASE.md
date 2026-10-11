@@ -223,8 +223,19 @@ Play accepted version code `4` and a fresh API read confirmed it on the **intern
 track with status `completed`. A signed APK for device QA is available at
 `build/app/outputs/flutter-apk/app-release.apk`, SHA-256
 `85821205d20e27eb459b062dcaea8d1e630523465e7c7667c59167210501c7f8`.
-It has not been installed on the physical phone yet. Neither store has received a
-public review submission.
+It is installed on the physical Nothing A065 with the synthetic session preserved;
+physical interruption and long-capture verification is underway. Neither store has
+received a public review submission.
+
+The company confirmed rights to display its users' submitted media, and App Store
+Connect's content rights declaration was saved and read back as
+`USES_THIRD_PARTY_CONTENT`. App Privacy is a separate, still-unpublished form.
+
+After build `4`, offline capture testing exposed raw Dio exception text in the upload
+queue. Uploads and pending edits now reuse the API's readable failure messages while
+preserving saved bytes, retry records, session-expiry errors and report-freeze errors.
+Flutter analysis reported no issues and all 49 tests passed, including three new
+regressions. This change is not yet included in either store's uploaded build `4`.
 
 Google Play's draft declarations now record Ads **No**, Government apps **No**,
 Advertising ID **No**, no listed financial or health features, an 18+ target
@@ -238,8 +249,12 @@ App interactions and Diagnostics need to be unchecked before proceeding; Step 4
 handling, Preview and Save still follow. The public deletion page now lists deleted
 and retained categories, a 30-day commitment, and links to `/privacy#retention`;
 the updated custom-domain page returned HTTP 200 after production deployment.
-Kivilo's Play tester-list selection and the app-only Store presence permission
-still need the company owner's manual Play Console clicks.
+Kivilo's `Kivilo internal testers` list is saved and selected, contains only
+`ixuyixuy@gmail.com`, and the internal track is Active. Its
+[tester opt-in link](https://play.google.com/apps/internaltest/4701690080657531220)
+is available; Play may show a temporary package name before app review. The app-only
+Store presence permission still needs the company owner's **Apply**, then **Save
+changes**, in the open Play Console dialog.
 
 The signed Android release app passed emulator password sign-in, photo and video
 capture, offline photo persistence across force-stop/relaunch, and upload after
