@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -61,6 +62,9 @@ class KiviloApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFEC4899)),
         scaffoldBackgroundColor: const Color(0xFFF9FAFB),
+        appBarTheme: const AppBarThemeData(
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+        ),
       ),
       home: const _Root(),
     );
