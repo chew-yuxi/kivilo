@@ -278,6 +278,10 @@ App Store Connect build `81f5d150-0aef-46a4-9d93-f59987419258` is `VALID`,
 Its approved non-exempt encryption answer is `false`, and it is available in the
 existing `Kivilo Internal` group with auto-notify enabled. No public review submission
 has been made.
+The matching build `5` APK was installed over build `4` on the connected Nothing
+A065 with `adb install -r`; package read-back confirmed version code `5`, version
+`1.0.0`. This preserves app data, but does not establish a new signed-in smoke test
+or notification tap test. The completed physical capture checks above used build `4`.
 
 Google Play's draft declarations now record Ads **No**, Government apps **No**,
 Advertising ID **No**, no listed financial or health features, an 18+ target
@@ -301,8 +305,13 @@ is available; Play may show a temporary package name before app review. The auth
 Kivilo-only **Manage store presence** permission was saved for the existing service
 account and verified after reopening its app permissions. Hopshift permissions and
 account-wide permissions were unchanged. Listing text and image uploads succeeded,
-but the first API commit attempts returned HTTP 403; listing completion is still
-being verified separately.
+but the first API commit attempts returned HTTP 403. A later attempt with explicit
+draft-only flags returned HTTP 400: Google says these changes are automatically sent
+for review and `changesNotSentForReview` must not be set. That staged edit was
+discarded (HTTP 204), so it did not commit a listing or submit review. The Console has
+a **Save as draft** action, but its asset controls were not operable through the
+available browser tool; the listing remains incomplete. Approved copy and assets
+remain ready locally.
 
 The signed Android release app passed emulator password sign-in, photo and video
 capture, offline photo persistence across force-stop/relaunch, and upload after
