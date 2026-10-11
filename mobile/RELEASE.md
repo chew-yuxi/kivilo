@@ -7,17 +7,17 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Android build `7` is available on Play internal testing; iOS build `6` is in the
+Android build `8` is available on Play internal testing; iOS build `6` is in the
 existing internal TestFlight group. Apple's build
 `452a3bfd-a517-4908-950a-fb24f6c2092b` is VALID,
 IN_BETA_TESTING, and selected on the version draft. Play production has no release;
 Apple remains PREPARE_FOR_SUBMISSION. Neither store has a public submission.
 The artifacts retain the verified production configuration and signing:
 
-- Android AAB `build/release-artifacts/android/build6/kivilo-v6.aab`, SHA-256
-  `94b883a0330cbeb8dc79ca5ab1becc3e5d02d2d5109b06d054f8308aee958255`.
-- Android APK `build/release-artifacts/android/build6/kivilo-v6.apk`, SHA-256
-  `97ac9fd459aa1676153b3dc7c1742042cbc3374d2ee9bb04840abe0605101ce6`.
+- Android AAB `build/release-artifacts/android/build8/kivilo-v8.aab`, SHA-256
+  `2a9b6076957dea222ca5d8b7ab667a345074c3ec3b38dd86e0910ee731499782`.
+- Android APK `build/release-artifacts/android/build8/kivilo-v8.apk`, SHA-256
+  `c43b3780c6db0b6afafb731495cfbafeb353bbfcb12f7a089f6d921d6bc5ac86`.
 - iOS IPA `build/ios/ipa/build6-final/kivilo.ipa`, SHA-256
   `8962e8383fe429e8ceea2987e14cd0a35309d961234beab0285f16c51bc01451`.
 
@@ -30,8 +30,10 @@ The pad now owns its pointer gestures; the page still scrolls outside it, and a 
 alone cannot be submitted as a signature. Flutter analysis and all 55 tests passed.
 Physical Android testing confirmed both vertical signatures and the offline inspection
 list. Build `8` addresses a remaining offline-camera gap: opening a room online must
-make it available to capture after an offline restart. Physical retesting of that path
-is pending.
+make it available to capture after an offline restart. On a physical Android phone, the
+previously opened room reached Camera while offline; its photo survived a second offline
+force-quit/relaunch. After reconnect, production showed exactly one Capture row and one
+confirmed private Storage object for that synthetic room.
 
 The Android build `5` synthetic check-in completed real capture, offline caption
 editing, force-quit/relaunch, upload, Gemini extraction, human inventory editing,
