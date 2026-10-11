@@ -418,7 +418,7 @@ relaunch, and confirm every capture appears once. Check portrait mark placement 
 desktop shared report. Run the repository's server checks and local Supabase integration
 and end-to-end suites. Keep the testing builds open while resolving store review notes.
 
-### Apple App Privacy answer sheet for build 4
+### Apple App Privacy answer sheet for builds 4 and 5
 
 The iOS app **collects data**. Apple defines collection as transmitting data off the
 device where we or a provider can access it beyond servicing the immediate request.
@@ -442,8 +442,8 @@ Crashlytics or Analytics SDKs in this build; the Firebase diagnostics and unlink
 user agent above are collected by the installed messaging dependencies for SDK
 operations. Do not claim the FCM device ID is unlinked just because Firebase's own
 privacy manifest says so: Kivilo stores its token under a signed-in stakeholder.
-This table is a code-derived preparation sheet, not a published declaration; check
-the final App Store Connect answers against the actual form before publishing.
+This code-derived table was checked against the form and published on 2026-10-11.
+Recheck the final App Store Connect answers whenever collection practices change.
 The app currently asks for names and email addresses, but does not ask for phone or
 national ID numbers in its native forms. Generic free-text fields do not by
 themselves require declaring every possible type someone may enter. Apple also says
@@ -453,3 +453,31 @@ data handled by Kivilo's web service and PWA.
 Sources: [Apple's data-type, linkage and tracking definitions](https://developer.apple.com/app-store/app-privacy-details/),
 [Apple's App Privacy workflow](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy),
 and [Firebase's iOS SDK disclosure guidance](https://firebase.google.com/docs/ios/app-store-data-collection/).
+
+### Google Play Data safety handling answers
+
+The selected Android data types are below. For every row choose **Collected**,
+leave **Shared** unchecked, choose **not processed ephemerally**, and include
+**App functionality**. Service-provider processing and expected user-initiated report
+sharing fall within Google's sharing exceptions. Complete and **Save each row's
+modal**, then review the preview and save the overall form; merely selecting answers
+does not save them.
+
+| Selected type | Required or optional | Additional purpose |
+| --- | --- | --- |
+| Name | Required | Account management |
+| Email address | Required | Account management |
+| User IDs | Required | Account management |
+| Address | Required | None |
+| Other personal info | Required | None |
+| Other financial info | Optional | None |
+| Photos | Optional | None |
+| Videos | Optional | None |
+| Voice or sound recordings | Optional | None |
+| Other user-generated content | Optional | None |
+| Device or other IDs | Required | None |
+
+Do not select advertising, Analytics, App interactions or Diagnostics based on
+Firebase Messaging alone. Android's installed dependencies and disclosure guidance
+were audited separately from Apple's manifests; the two forms are not identical.
+The overall form remains unsaved at Step 4 until these modal answers are saved.
