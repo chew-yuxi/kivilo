@@ -27,9 +27,9 @@ artifacts or physical-device verification.
 ## Accounts and signing
 
 Hopshift's existing company records identify **NotTooSweetLabs Pte. Ltd.** in
-**Singapore**. Its Apple release project uses team `4N9TA3WSYM`, and its public
-support address is `support@hopshift.app`. These are a starting point for the same
-company's Kivilo listing; confirm that the address receives Kivilo support mail.
+**Singapore**. Its Apple release project uses team `4N9TA3WSYM`. The company
+selected `hello@nottoosweetlabs.com` for Kivilo support; confirm incoming mail
+and deletion-request monitoring before submitting.
 The company confirmed D-U-N-S **659161629** on 2026-10-10. Google Play organization
 enrollment is still not recorded in the accessible Hopshift release files.
 
@@ -66,16 +66,20 @@ Registered project: `kivilo-b4e14` (sender ID `328187705191`). Android App ID:
 `1:328187705191:android:3ede4d52349cf9065ba1c2`. iOS App ID:
 `1:328187705191:ios:b6a777cebec68dfb5ba1c2`. Both apps use
 `one.kivilo.kivilo`; the Apple app has team ID `4N9TA3WSYM`. FCM HTTP v1 is
-enabled. APNs and server credentials remain to be added.
+enabled. On 2026-10-11 Firebase showed the production APNs key ID
+`JK75WN48PB` with team `4N9TA3WSYM`. The Firebase Admin service-account JSON
+was installed as a sensitive Vercel production environment variable, a production
+redeploy completed, and the temporary local Admin key download was removed.
+The credential obtained a Google access token, but no physical-device delivery
+test has passed. The development APNs slot is intentionally unconfigured.
 
 The checked-in iOS and Android client files match project `kivilo-b4e14` and the
 Kivilo bundle/package ID. The iOS plist is part of the Runner target, and the Android
 Google Services plugin processes its JSON at build time. Keep `env.json` matched to
 those files; see the [FlutterFire setup](https://firebase.google.com/docs/flutter/setup).
 Enable Push Notifications and Background Modes for the iOS App ID and Runner target.
-Upload the Apple APNs `.p8` authentication key, its key ID, and team
-`4N9TA3WSYM` in Firebase's Cloud Messaging settings. Verify the distribution-signed
-app has `aps-environment=production`; a development entitlement is not a release test.
+Verify the distribution-signed app has `aps-environment=production`; a development
+entitlement is not a release test.
 See the [FCM Flutter setup](https://firebase.google.com/docs/cloud-messaging/flutter/get-started)
 and [Apple entitlement reference](https://developer.apple.com/documentation/BundleResources/Entitlements/aps-environment).
 

@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { authorizeTenancy, tenancyScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
+import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import type { Prisma } from '@/generated/prisma'
 
 const category = z.enum([
@@ -135,6 +136,18 @@ function notificationRows(
     recipientId,
     dedupeKey: input.dedupeKey ? `${input.dedupeKey}:${recipientId}` : null,
   }))
+}
+
+async function createNotificationRows(
+  client: Pick<Prisma.TransactionClient, 'accountDeletionRequest' | 'notification'>,
+  rows: ReturnType<typeof notificationRows>,
+) {
+  const recipients = new Set(await activeNotificationRecipients(
+    client,
+    rows.map((row) => row.recipientId),
+  ))
+  const active = rows.filter((row) => recipients.has(row.recipientId))
+  if (active.length) await client.notification.createMany({ data: active, skipDuplicates: true })
 }
 
 export async function listTenancies(stakeholderId: string) {
@@ -285,7 +298,7 @@ export async function createMaintenanceCase(tenancyId: string, stakeholderId: st
       body: `${tenancy.property.line1}: a maintenance issue was reported.`,
       href: `/maintenance/${item.id}`,
     })
-    if (rows.length) await tx.notification.createMany({ data: rows })
+    await createNotificationRows(tx, rows)
     return item
   })
   return { id: created.id }
@@ -320,7 +333,7 @@ export async function updateMaintenanceCase(caseId: string, stakeholderId: strin
       body: `Maintenance status changed to ${input.status.toLowerCase().replaceAll('_', ' ')}.`,
       href: `/maintenance/${caseId}`,
     })
-    if (rows.length) await tx.notification.createMany({ data: rows })
+    await createNotificationRows(tx, rows)
   })
 }
 
@@ -368,7 +381,7 @@ export async function addMaintenanceVisit(caseId: string, stakeholderId: string,
       body: input.completedAt ? 'Was the repair successful? Please confirm.' : 'A repair visit was scheduled.',
       href: `/maintenance/${caseId}`,
     })
-    if (rows.length) await tx.notification.createMany({ data: rows })
+    await createNotificationRows(tx, rows)
     return created
   })
   if (input.completedAt && maintenanceCase.propertyAssetId) {
@@ -386,17 +399,14 @@ async function createRepeatRepairAlerts(assetId: string, tenancyId: string, case
   const tenancy = await db.tenancy.findUniqueOrThrow({ where: { id: tenancyId } })
   const recipients = [tenancy.landlordId]
   if (tenancy.agentId && tenancy.endDate >= new Date()) recipients.push(tenancy.agentId)
-  await db.notification.createMany({
-    data: [...new Set(recipients)].map((recipientId) => ({
-      recipientId,
-      kind: 'REPEAT_REPAIR' as const,
-      title: 'Repeated repair history',
-      body: `This asset has had ${count} completed repair visits in the last 365 days.`,
-      href: `/maintenance/${caseId}`,
-      dedupeKey: `repeat-repair:${assetId}:${recipientId}`,
-    })),
-    skipDuplicates: true,
-  })
+  await createNotificationRows(db, [...new Set(recipients)].map((recipientId) => ({
+    recipientId,
+    kind: 'REPEAT_REPAIR' as const,
+    title: 'Repeated repair history',
+    body: `This asset has had ${count} completed repair visits in the last 365 days.`,
+    href: `/maintenance/${caseId}`,
+    dedupeKey: `repeat-repair:${assetId}:${recipientId}`,
+  })))
 }
 
 export async function verifyMaintenanceVisit(caseId: string, visitId: string, stakeholderId: string, raw: unknown) {
@@ -437,7 +447,7 @@ export async function verifyMaintenanceVisit(caseId: string, visitId: string, st
       body: input.outcome === 'FIXED' ? 'The tenant confirmed the repair is fixed.' : 'The tenant reported that the issue is not fixed.',
       href: `/maintenance/${caseId}`,
     })
-    if (rows.length) await tx.notification.createMany({ data: rows })
+    await createNotificationRows(tx, rows)
     return { id: verification.id }
   })
 }

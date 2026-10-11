@@ -37,8 +37,8 @@ export default async function DeleteAccountPage() {
           <p className="mt-2 text-gray-600">
             Sign in with your Kivilo account, then submit the request on this page. If
             you cannot sign in, email{' '}
-            <a className="text-brand-600 underline" href="mailto:support@hopshift.app?subject=Kivilo%20account%20deletion">
-              support@hopshift.app
+            <a className="text-brand-600 underline" href="mailto:hello@nottoosweetlabs.com?subject=Kivilo%20account%20deletion">
+              hello@nottoosweetlabs.com
             </a>{' '}
             from your account address so we can help verify the request.
           </p>

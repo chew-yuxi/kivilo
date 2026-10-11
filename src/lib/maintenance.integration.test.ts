@@ -42,6 +42,31 @@ afterAll(async () => {
 })
 
 describe('maintenance history', () => {
+  it('does not recreate notifications for a deleted account retained on a shared tenancy', async () => {
+    const record = await fixture('deleted-recipient')
+    await db.accountDeletionRequest.create({
+      data: {
+        stakeholderId: record.landlord.id,
+        status: 'COMPLETED',
+        dueAt: new Date('2099-01-01'),
+      },
+    })
+    try {
+      await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+        category: 'PLUMBING',
+        title: 'Dripping tap',
+        description: 'The bathroom tap drips.',
+      })
+      const recipients = await db.notification.findMany({
+        where: { recipientId: { in: [record.landlord.id, record.agent.id] } },
+        select: { recipientId: true },
+      })
+      expect(recipients.map((row) => row.recipientId)).toEqual([record.agent.id])
+    } finally {
+      await db.accountDeletionRequest.delete({ where: { stakeholderId: record.landlord.id } })
+    }
+  })
+
   it('keeps refusals indistinguishable from missing cases', async () => {
     const mine = await fixture('auth-a')
     const theirs = await fixture('auth-b')

@@ -10,8 +10,8 @@ export default function SupportPage() {
       <p className="mt-4 leading-relaxed">
         Kivilo is provided by NotTooSweetLabs Pte. Ltd. in Singapore. For help with
         sign-in, captures, a condition report, or a deletion request, email{' '}
-        <a className="text-brand-600 underline" href="mailto:support@hopshift.app">
-          support@hopshift.app
+        <a className="text-brand-600 underline" href="mailto:hello@nottoosweetlabs.com">
+          hello@nottoosweetlabs.com
         </a>.
       </p>
       <p className="mt-4 leading-relaxed">

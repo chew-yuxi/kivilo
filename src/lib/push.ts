@@ -70,7 +70,10 @@ export async function deliverPushOutbox(limit = 50) {
   if (!messaging) return { configured: false, attempted: 0, sent: 0, failed: [] as string[] }
 
   const unexpanded = await db.notification.findMany({
-    where: { pushExpandedAt: null },
+    where: {
+      pushExpandedAt: null,
+      recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
+    },
     select: { id: true, recipientId: true },
     orderBy: { createdAt: 'asc' },
     take: limit,
@@ -107,6 +110,9 @@ export async function deliverPushOutbox(limit = 50) {
       sentAt: null,
       attempts: { lt: 8 },
       installation: { disabledAt: null },
+      notification: {
+        recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
+      },
       OR: [{ claimedAt: null }, { claimedAt: { lt: leaseCutoff } }],
     },
     include: { notification: true, installation: true },
@@ -135,6 +141,9 @@ export async function deliverPushOutbox(limit = 50) {
         installation: {
           stakeholderId: delivery.notification.recipientId,
           disabledAt: null,
+        },
+        notification: {
+          recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
         },
         OR: [{ claimedAt: null }, { claimedAt: { lt: leaseCutoff } }],
       },

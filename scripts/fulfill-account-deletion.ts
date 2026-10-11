@@ -116,6 +116,13 @@ async function main() {
     const person = request.stakeholder
     if (person.authUserId) await removeAuthUser(person.authUserId)
 
+    // Stop account-specific deliveries immediately, even when media cleanup keeps
+    // the request PROCESSING for several hours. Reruns may safely repeat this.
+    await db.$transaction([
+      db.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } }),
+      db.notification.deleteMany({ where: { recipientId: person.id } }),
+    ])
+
     // An inspection can be this agent's work while also being a landlord's or
     // tenant's record. Keep that shared work under the explicit retention choice.
     // Only a draft whose conductor and every tenancy party are this account can
@@ -219,6 +226,11 @@ async function main() {
         where: { agentId: person.id, inspections: { none: {} } },
         data: { agentId: null },
       })
+
+      // These belong only to the account, not to other parties' tenancy history.
+      // The notification cascade also removes queued push deliveries and emailTo.
+      await tx.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } })
+      await tx.notification.deleteMany({ where: { recipientId: person.id } })
 
       await tx.stakeholder.update({
         where: { id: person.id },
