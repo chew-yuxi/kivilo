@@ -226,6 +226,21 @@ track with status `completed`. A signed APK for device QA is available at
 It has not been installed on the physical phone yet. Neither store has received a
 public review submission.
 
+Google Play's draft declarations now record Ads **No**, Government apps **No**,
+Advertising ID **No**, no listed financial or health features, an 18+ target
+audience, Business category, the public privacy/deletion URLs, and a private
+reviewer login with optional partner-device sharing off. The IARC **All Other App
+Types** rating questionnaire was saved with an Everyone/3+ result. Its Data safety
+form separately discloses rent and deposit as **Other financial info**. It remains
+**unsaved at Step 3/5**: the data types have been selected, but browser
+control cannot reach the fixed footer reliably. The two unsupported selections for
+App interactions and Diagnostics need to be unchecked before proceeding; Step 4
+handling, Preview and Save still follow. The public deletion page now lists deleted
+and retained categories, a 30-day commitment, and links to `/privacy#retention`;
+the updated custom-domain page returned HTTP 200 after production deployment.
+Kivilo's Play tester-list selection and the app-only Store presence permission
+still need the company owner's manual Play Console clicks.
+
 The signed Android release app passed emulator password sign-in, photo and video
 capture, offline photo persistence across force-stop/relaunch, and upload after
 reconnection. The production database showed the offline photo registered once.
