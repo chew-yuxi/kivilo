@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui' as ui;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,11 +29,16 @@ class SignatureScreen extends StatefulWidget {
 class _SignatureScreenState extends State<SignatureScreen> {
   final _api = Api();
   final List<List<Offset>> _strokes = [];
+  int? _activePointer;
   bool _busy = false;
   String? _error;
 
   Future<void> _sign() async {
-    if (_strokes.isEmpty) {
+    if (!_strokes.any(
+      (stroke) => stroke.skip(1).any(
+        (point) => (point - stroke.first).distanceSquared > 25,
+      ),
+    )) {
       setState(() => _error = 'Draw a signature first.');
       return;
     }
@@ -102,21 +108,46 @@ class _SignatureScreenState extends State<SignatureScreen> {
               color: Colors.white,
               border: Border.all(color: Colors.grey),
             ),
-            child: GestureDetector(
+            child: RawGestureDetector(
               behavior: HitTestBehavior.opaque,
-              onPanStart: (details) =>
-                  setState(() => _strokes.add([details.localPosition])),
-              onPanUpdate: (details) =>
-                  setState(() => _strokes.last.add(details.localPosition)),
-              child: CustomPaint(
-                painter: _SignaturePainter(_strokes),
-                size: const Size(320, 180),
+              gestures: {
+                EagerGestureRecognizer:
+                    GestureRecognizerFactoryWithHandlers<
+                      EagerGestureRecognizer
+                    >(() => EagerGestureRecognizer(), (_) {}),
+              },
+              child: Listener(
+                behavior: HitTestBehavior.opaque,
+                onPointerDown: (event) {
+                  if (_activePointer != null) return;
+                  _activePointer = event.pointer;
+                  setState(() => _strokes.add([event.localPosition]));
+                },
+                onPointerMove: (event) {
+                  if (_activePointer != event.pointer) return;
+                  setState(() => _strokes.last.add(event.localPosition));
+                },
+                onPointerUp: (event) {
+                  if (_activePointer == event.pointer) _activePointer = null;
+                },
+                onPointerCancel: (event) {
+                  if (_activePointer == event.pointer) _activePointer = null;
+                },
+                child: CustomPaint(
+                  painter: _SignaturePainter(_strokes),
+                  size: const Size(320, 180),
+                ),
               ),
             ),
           ),
         ),
         TextButton(
-          onPressed: _busy ? null : () => setState(_strokes.clear),
+          onPressed: _busy
+              ? null
+              : () => setState(() {
+                  _activePointer = null;
+                  _strokes.clear();
+                }),
           child: const Text('Clear signature'),
         ),
         if (_error != null)

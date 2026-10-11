@@ -5,6 +5,46 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Current candidate — 2026-10-12 Singapore time
+
+Build `6` is available on Play internal testing and in the existing internal
+TestFlight group. Apple's build `452a3bfd-a517-4908-950a-fb24f6c2092b` is VALID,
+IN_BETA_TESTING, and selected on the version draft. Play production has no release;
+Apple remains PREPARE_FOR_SUBMISSION. Neither store has a public submission.
+The artifacts retain the verified production configuration and signing:
+
+- Android AAB `build/release-artifacts/android/build6/kivilo-v6.aab`, SHA-256
+  `94b883a0330cbeb8dc79ca5ab1becc3e5d02d2d5109b06d054f8308aee958255`.
+- Android APK `build/release-artifacts/android/build6/kivilo-v6.apk`, SHA-256
+  `97ac9fd459aa1676153b3dc7c1742042cbc3374d2ee9bb04840abe0605101ce6`.
+- iOS IPA `build/ios/ipa/build6-final/kivilo.ipa`, SHA-256
+  `8962e8383fe429e8ceea2987e14cd0a35309d961234beab0285f16c51bc01451`.
+
+Build `6` fixes the physical-test failure where a newly opened inspection disappeared
+from the cached list after an offline restart. Cache writes are also bound to the
+account that started the request. The regressions and Flutter analysis passed.
+The next candidate, build `7`, fixes a second physical-test finding: vertical strokes
+in the signature pad were swallowed by the surrounding page's scrolling gesture.
+The pad now owns its pointer gestures; the page still scrolls outside it, and a tap
+alone cannot be submitted as a signature. Flutter analysis and all 55 tests passed.
+Physical verification of these fixes is still required.
+
+The Android build `5` synthetic check-in completed real capture, offline caption
+editing, force-quit/relaunch, upload, Gemini extraction, human inventory editing,
+room review, and both test signatures. The caption survived offline restart and
+registered on the same single capture. Its unauthenticated shared report rendered
+both signatures and the separate portrait-photo ring; screen and print alignment
+matched normalized coordinates within 0.000003. Check-out and revocation verification
+are in progress. These fictional QA signatures do not represent real parties.
+
+Production push reached Android build `5` in the foreground and its Open action
+opened Notifications. The user confirmed a foreground notification on the physical
+TestFlight iPhone. The next iPhone test was sent to that exact installation once at
+2026-10-11 17:00:04 UTC while Kivilo was backgrounded; system-banner receipt and tap
+behavior still await user confirmation. Generic push payloads intentionally contain
+no private record IDs or routes: the app opens the authenticated Notifications list,
+and opening a row marks that notification read.
+
 On 2026-10-10 the configured Gemini account completed a real mixed video/photo
 extraction with synthetic media through `scripts/verify-gemini-extraction.ts` (one
 item returned). This verifies the provider request and schema, not the physical-phone
