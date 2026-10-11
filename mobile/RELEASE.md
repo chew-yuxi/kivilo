@@ -255,7 +255,16 @@ and verified after a full reload: all 11 data types complete, 10 linked to ident
 Other Diagnostic Data unlinked, and no tracking. The purposes match the answer sheet
 below. The sole internal tester, `ixuyixuy@gmail.com`, reported accepting the
 TestFlight invitation on 2026-10-11. The subsequent API read still returned `INVITED`;
-physical installation and a fresh iOS push registration are not yet verified.
+on 2026-10-12 Singapore time, App Store Connect reported `INSTALLED`. The connected
+iPhone 13 mini is available over USB, but Developer Mode is off, so local device
+automation is unavailable; TestFlight itself does not require Developer Mode.
+Build `5`'s embedded Firebase plist matches its build configuration and bundle ID,
+and the signed IPA has the production APNs entitlement. No iOS installation record
+was created or refreshed across any account after the phone-ready report (checked
+from 2026-10-11 16:00 UTC); production push delivery remains unverified. The physical
+phone's signed-in Kivilo email and notification permission need confirmation before
+sending a test. The iPhone 17 Pro simulator still shows an empty sign-in screen, so
+signed-in store screenshots also remain outstanding.
 
 After build `4`, offline capture testing exposed raw Dio exception text in the upload
 queue. Uploads and pending edits now reuse the API's readable failure messages while
