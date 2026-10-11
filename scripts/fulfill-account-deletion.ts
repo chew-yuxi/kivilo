@@ -1,4 +1,6 @@
 import 'dotenv/config'
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
 import { sendAccountDeletionComplete } from '@/lib/email'
 import { CAPTURE_BUCKET, serviceClient } from '@/lib/storage'
@@ -7,25 +9,10 @@ import type { InspectionStatus } from '@/generated/prisma'
 // This is an operator command, not an automatic cascade. Each retention choice must
 // come from the company's approved policy. The request remains PROCESSING until every
 // deleted room's Storage prefix is empty after outstanding signed URLs have expired.
-const requestId = process.argv[2]
-const policyVersion = process.env.KIVILO_RETENTION_POLICY_VERSION
-if (!requestId || !policyVersion ||
-    process.env.KIVILO_RETAIN_SIGNED_RECORDS !== '1' ||
-    process.env.KIVILO_DELETE_SOLE_UNSIGNED_RECORDS !== '1' ||
-    process.env.KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS !== '1') {
-  throw new Error(
-    'Usage: Set KIVILO_RETENTION_POLICY_VERSION=<approved version>, ' +
-    'KIVILO_RETAIN_SIGNED_RECORDS=1, KIVILO_DELETE_SOLE_UNSIGNED_RECORDS=1, ' +
-    'KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS=1, then run ' +
-    'pnpm exec tsx scripts/fulfill-account-deletion.ts <request id>',
-  )
-}
-
 const draftStatuses: InspectionStatus[] = ['DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW', 'FAILED']
 // Supabase signed upload URLs last two hours. A further hour covers a request that
 // started before the database row was deleted but reached Storage later.
 const uploadWindow = 3 * 60 * 60 * 1000
-const storage = serviceClient().storage.from(CAPTURE_BUCKET)
 
 async function removeAuthUser(authUserId: string) {
   const admin = serviceClient().auth.admin
@@ -37,7 +24,7 @@ async function removeAuthUser(authUserId: string) {
   }
 }
 
-async function deleteOwnedDraft(inspectionId: string, stakeholderId: string) {
+async function deleteOwnedDraft(inspectionId: string, stakeholderId: string, requestId: string) {
   await db.$transaction(async (tx) => {
     // Send for signature takes this same row lock. If Send won, nothing is purged;
     // if deletion won, Send finds no inspection. Lock the tenancy too so a party
@@ -73,6 +60,7 @@ async function deleteOwnedDraft(inspectionId: string, stakeholderId: string) {
 }
 
 async function sweepRoom(roomId: string) {
+  const storage = serviceClient().storage.from(CAPTURE_BUCKET)
   // All Kivilo upload paths are direct children of a room ID. Listing at offset zero
   // after each removal avoids skipped objects as the prefix shrinks.
   for (let pass = 0; pass < 100; pass++) {
@@ -92,7 +80,18 @@ async function sweepRoom(roomId: string) {
   throw new Error(`Room ${roomId} still has Storage objects after 100 cleanup passes`)
 }
 
-async function main() {
+export async function fulfillAccountDeletion(requestId: string | undefined, policyVersion: string | undefined) {
+  if (!requestId || !policyVersion ||
+      process.env.KIVILO_RETAIN_SIGNED_RECORDS !== '1' ||
+      process.env.KIVILO_DELETE_SOLE_UNSIGNED_RECORDS !== '1' ||
+      process.env.KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS !== '1') {
+    throw new Error(
+      'Usage: Set KIVILO_RETENTION_POLICY_VERSION=<approved version>, ' +
+      'KIVILO_RETAIN_SIGNED_RECORDS=1, KIVILO_DELETE_SOLE_UNSIGNED_RECORDS=1, ' +
+      'KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS=1, then run ' +
+      'pnpm exec tsx scripts/fulfill-account-deletion.ts <request id>',
+    )
+  }
   const request = await db.accountDeletionRequest.findUniqueOrThrow({
     where: { id: requestId },
     include: { stakeholder: true },
@@ -140,7 +139,7 @@ async function main() {
       select: { id: true },
     })
     for (const inspection of soleDrafts) {
-      await deleteOwnedDraft(inspection.id, person.id)
+      await deleteOwnedDraft(inspection.id, person.id, requestId)
     }
 
     const pendingPurges = await db.accountDeletionStoragePurge.findMany({
@@ -263,9 +262,11 @@ async function main() {
   }
 }
 
-main()
-  .catch((error) => {
-    console.error(error)
-    process.exitCode = 1
-  })
-  .finally(async () => db.$disconnect())
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  fulfillAccountDeletion(process.argv[2], process.env.KIVILO_RETENTION_POLICY_VERSION)
+    .catch((error) => {
+      console.error(error)
+      process.exitCode = 1
+    })
+    .finally(async () => db.$disconnect())
+}

@@ -479,6 +479,13 @@ the build number for each subsequent upload.
   resumable using the same request ID and policy.
   Do not report fulfillment while the request is still `PROCESSING` or completion mail
   remains unsent.
+  On 2026-10-12, `src/lib/account-deletion.integration.test.ts` passed against the
+  isolated local Supabase Auth, Postgres, and private Storage stack. It verified Auth
+  removal, sole unsigned draft/media purge, shared and signed record retention,
+  installation/notification cleanup, a late-arriving media object, and idempotent
+  completion-email retry. The test advanced `readyAt` to simulate the three-hour wait;
+  it intercepted email locally and did not delete a production account or prove
+  production email delivery.
 - Run `node --import tsx scripts/purge-storage.ts` with production credentials daily
   and monitor nonzero exits. Deleting a capture or room writes a durable
   `StoragePurge` tombstone in the same transaction as the DB deletion. The worker
