@@ -13,8 +13,9 @@ On 2026-10-11 a synthetic Gemini 2.5 Pro check-out probe returned schema-valid
 findings for fair wear, a missing item and a changed serial, and omitted an unchanged
 item. Its initial rationale overstated evidence, so the prompt now forbids unsupported
 claims. This does not establish legal assessment quality. The company reported that
-its newly obtained Gemini key's project is Tier 1 postpay; verify the Vercel Production
-key was replaced with that key before any real check-out processing.
+its new Gemini key's project is Tier 1 postpay and confirmed the matching key was
+saved in Vercel Production before the Gemini check-out deployment. The deployed
+findings route still needs a synthetic end-to-end check.
 The configured private Supabase bucket also accepted and confirmed the exact unnamed
 multipart signed PUT used by the native uploader; the synthetic probe object was
 removed immediately (`scripts/verify-signed-upload.ts`, run with Node 26). Android
@@ -34,8 +35,8 @@ artifacts or physical-device verification.
 
 Hopshift's existing company records identify **NotTooSweetLabs Pte. Ltd.** in
 **Singapore**. Its Apple release project uses team `4N9TA3WSYM`. The company
-selected `hello@nottoosweetlabs.com` for Kivilo support; confirm incoming mail
-and deletion-request monitoring before submitting.
+confirmed that `hello@nottoosweetlabs.com` is monitored for Kivilo support and
+deletion requests.
 The company confirmed D-U-N-S **659161629** on 2026-10-10. Google Play organization
 enrollment is still not recorded in the accessible Hopshift release files.
 
@@ -125,8 +126,10 @@ and production URLs before inviting testers. Increase the build number for each 
 
 ## Review material
 
-- Use [the prepared listing copy](STORE_LISTING.md) after confirming the company
-  support mailbox. Publish the privacy page only after approving the retention policy.
+- Use [the prepared listing copy](STORE_LISTING.md). The company approved the
+  purpose-based privacy notice on 2026-10-11 and confirmed the support mailbox is
+  monitored. Publish `/privacy` with the app links, then verify its public URL before
+  entering it in both store listings.
 - Provision separate Apple and Google reviewer logins with
   `pnpm exec tsx scripts/provision-store-reviewer.ts` from the repository root. Supply
   `KIVILO_REVIEWER_PROVISION=1`, `KIVILO_REVIEWER_TRACK=apple` or `google`, and a
@@ -158,17 +161,17 @@ and production URLs before inviting testers. Increase the build number for each 
   external processing through Google Gemini, private storage, and email delivery.
   Use the public privacy policy, support contact, and `/delete-account` as the account
   deletion URL. Answer camera and microphone permission questions accurately.
-- Confirm the organization's approved retention policy, support email, matching
-  production Gemini key, and manual deletion-fulfillment operator before sending
-  public review. The company reported the new key's project as Tier 1 postpay, but
-  the earlier synthetic probe used the prior local key; a successful API request alone
-  does not prove the production key's billing tier. Run
-  `DOTENV_CONFIG_PATH=.env.deploy pnpm exec tsx scripts/verify-checkout-diff.ts` from
-  the repository root with synthetic data, then run a synthetic check-out through the
-  production app after the provider switch is deployed.
-- The deletion operator runs `scripts/fulfill-account-deletion.ts <request-id>` only
-  after approving a retention policy and explicitly setting
-  `KIVILO_RETENTION_POLICY_VERSION`, `KIVILO_RETAIN_SIGNED_RECORDS=1`,
+- The company reports the new production Gemini key's project as Tier 1 postpay.
+  The key was updated in Vercel Production before the Gemini check-out deployment.
+  Verify the deployed check-out route with isolated synthetic inventory; a local
+  `.env.deploy` probe still uses the older key and is not evidence for Production.
+- The company owner operates the deletion queue and Storage purge daily, completes
+  requests within 30 days, and reviews retained shared records and deletion logs
+  quarterly. `hello@nottoosweetlabs.com` is monitored. Record these reviews and any
+  disposal; there is no automatic expiry for retained signed reports.
+- The deletion operator runs `scripts/fulfill-account-deletion.ts <request-id>`
+  under the approved 2026-10-11 policy, explicitly setting
+  `KIVILO_RETENTION_POLICY_VERSION=2026-10-11`, `KIVILO_RETAIN_SIGNED_RECORDS=1`,
   `KIVILO_DELETE_SOLE_UNSIGNED_RECORDS=1`, and
   `KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS=1`. Review the request's inspections and
   tenancies first: the command deletes only unsigned inspections conducted by this
@@ -186,8 +189,8 @@ and production URLs before inviting testers. Increase the build number for each 
   resumable using the same request ID and policy.
   Do not report fulfillment while the request is still `PROCESSING` or completion mail
   remains unsent.
-- Schedule `pnpm exec tsx scripts/purge-storage.ts` with production credentials after
-  launch and monitor nonzero exits. Deleting a capture or room writes a durable
+- Run `pnpm exec tsx scripts/purge-storage.ts` with production credentials daily
+  and monitor nonzero exits. Deleting a capture or room writes a durable
   `StoragePurge` tombstone in the same transaction as the DB deletion. The worker
   waits at least three hours for signed upload URLs to expire, retries failed
   removals on the next run, and marks a tombstone complete only after confirming

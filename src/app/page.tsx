@@ -282,6 +282,7 @@ export default function LandingPage() {
           <Wordmark />
           <p>Singapore first. Built for the agents who close, the landlords who own, and the tenants who live there.</p>
           <div className="flex gap-4">
+            <Link href="/privacy" className="hover:underline">Privacy</Link>
             <Link href="/support" className="hover:underline">Support</Link>
             <Link href="/delete-account" className="hover:underline">Delete account</Link>
           </div>

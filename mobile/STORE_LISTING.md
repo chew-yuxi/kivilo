@@ -12,9 +12,9 @@ review account; do not substitute mockups or real tenants' media.
 - Category: Productivity (Apple) / Business (Google)
 - Support URL: `https://kivilo.nottoosweetlabs.com/support`
 - Account deletion URL: `https://kivilo.nottoosweetlabs.com/delete-account`
-- Support contact: `hello@nottoosweetlabs.com` (company-selected for Kivilo;
-  confirm incoming mail and deletion-request monitoring before submitting)
-- Privacy policy URL: **pending company-approved retention policy and public page**
+- Support contact: `hello@nottoosweetlabs.com` (company confirmed monitoring)
+- Privacy policy URL: `https://kivilo.nottoosweetlabs.com/privacy` (verify HTTP 200
+  after the approved policy page is deployed)
 
 ## Apple
 

@@ -161,6 +161,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Text(_error!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 24),
             ListTile(
+              title: const Text('Privacy policy'),
+              subtitle: const Text('How Kivilo handles your data'),
+              trailing: const Icon(Icons.open_in_new),
+              onTap: () => _openPage('/privacy'),
+            ),
+            ListTile(
               title: const Text('Support'),
               subtitle: const Text('Help with your inspection or account'),
               trailing: const Icon(Icons.open_in_new),

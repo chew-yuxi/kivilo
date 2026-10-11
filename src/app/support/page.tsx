@@ -22,6 +22,8 @@ export default function SupportPage() {
       <p className="mt-6 text-sm">
         You can also <Link href="/delete-account" className="text-brand-600 underline">
           request account deletion online
+        </Link> or read our <Link href="/privacy" className="text-brand-600 underline">
+          privacy policy
         </Link>.
       </p>
     </main>

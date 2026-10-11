@@ -1,17 +1,16 @@
-# Kivilo privacy notice — company review draft
+# Kivilo privacy notice — approved text and operating commitments
 
-**Do not publish this draft.** The choices under “Company decisions” must be approved,
-the deletion operator and Storage purge must be operational, and the final notice must
-match the released app and configured processors. The proposed public URL is
+The company approved this purpose-based notice and the disclosures about processor
+retention, overseas processing, Firebase installation IDs and local app storage on
+11 October 2026. The public URL is
 `https://kivilo.nottoosweetlabs.com/privacy`.
 
-## Proposed public text
+## Public text
 
-**Effective date: [approve date]**
+**Effective date: 11 October 2026**
 
 Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. Contact us about
-privacy, your account, or a deletion request at **hello@nottoosweetlabs.com**
-[confirm this mailbox is monitored for Kivilo].
+privacy, your account, or a deletion request at **hello@nottoosweetlabs.com**.
 
 We collect the information needed to produce property condition reports and manage
 maintenance: account name and email; names and contact details of tenancy parties;
@@ -32,15 +31,21 @@ check-out, Gemini also receives the reviewed check-in and check-out inventories,
 property label and tenancy length to draft a comparison. A person reviews AI drafts
 before a report is signed or an assessment is published.
 
-Supabase provides authentication, database and private media storage. Vercel hosts the
-web service. Resend carries sign-in and service emails. Firebase Cloud Messaging and
-Apple Push Notification service route optional mobile notifications. Google processes
-the inspection content described above only after that inspection's
-AI permission is granted. These providers may process information outside Singapore
-[confirm provider regions, contracts and transfer safeguards]. We do not make the media
-bucket public. A shared report can be viewed by anyone who holds its private link;
-the inspector can revoke that link. Report photos are served through expiring signed
-URLs.
+Supabase provides authentication, database and private media storage. Its primary
+database, authentication and media for our project are hosted in Singapore. Database
+backups, where available on our plan, follow the selected project region. Support
+access, service logs and media delivery can occur elsewhere.
+Vercel hosts the web service in a Singapore function region, while its platform
+operations and backups may process data in other countries. Resend carries sign-in
+and service emails and stores their content and delivery logs in the United States.
+Firebase Cloud Messaging and Apple Push Notification service route optional mobile
+notifications; Firebase may process data globally. Google's paid Gemini service may
+process or cache inspection content globally. Under its paid terms, Google does not
+use that content to improve its products, but retains prompts and responses for 55
+days for abuse monitoring.
+We do not make the media bucket public. A shared report can be viewed by anyone who
+holds its private link; the inspector can revoke that link. Report photos are served
+through expiring signed URLs.
 
 **Retention.** We keep signed condition reports, their evidence, signatures,
 published assessments, and related tenancy records while needed to provide the
@@ -56,11 +61,18 @@ Working drafts that belong only to a requesting account are removed during accou
 deletion; their stored media is removed after outstanding upload links expire and
 absence is verified. We keep a limited record of the request and its completion
 while needed to demonstrate fulfillment or resolve a complaint, then remove or
-de-identify it. Service logs and backups may remain for their security and recovery
-purposes before they are removed under the relevant provider schedules [verify
-processor schedules and whether this statement is accurate]. Unsent captures and
-edits remain on the device until uploaded or removed from that device [approve
-precise local-data instructions].
+de-identify it. Some processor copies can outlast deletion from Kivilo's active
+records: Gemini's 55-day safety logs, Resend's email and delivery logs (30 days on
+its standard plans, with seven-day backups), Supabase's plan-dependent database
+backups, and platform security logs. Firebase can retain a device installation ID
+until its separate deletion API is called, with removal from live and backup systems
+within 180 days after that call; Kivilo does not currently make that call on account
+deletion.
+On the phone, we remove saved capture files only after their upload and registration
+are confirmed. Previously viewed inspection data, unsent captures and pending edits
+remain in app storage after sign-out or an account-deletion request, isolated by
+account. To remove them from that phone, clear Kivilo's app storage or uninstall it;
+doing so permanently discards any unsent evidence.
 
 You can request account deletion in **Settings** or at
 `https://kivilo.nottoosweetlabs.com/delete-account`; if you cannot sign in, email us
@@ -74,32 +86,27 @@ The completion email notes that shared records may remain under this policy; con
 us to ask which of your records remain.
 Contact us to ask for access, correction, or more information about your data.
 
-## Company decisions before publication
+## Approved operating commitments
 
-1. Approve the stated purposes for retaining signed reports, evidence, signatures,
-   assessments, shared unsigned work, and maintenance/tenancy records after account
-   deletion. The operator currently retains all signed and shared unsigned inspections;
-   the code has no automatic expiry for them.
-2. Appoint an operator to review completed tenancies and retained shared records at
-   least quarterly, document why each category is still needed, and delete or
-   de-identify records when no stated purpose remains. This is a proposed manual
-   operating commitment, not a process the code currently performs.
-3. Approve a similar manual review and disposal process for completed
-   `AccountDeletionRequest` rows. The current operator leaves request metadata
-   indefinitely. Verify Supabase, Vercel, Resend, Firebase, Google and Apple backup,
-   log and processor schedules before the public statement above is finalized.
-4. The company reports its newly obtained Gemini key's project is Tier 1 postpay.
-   Confirm Vercel Production uses that key before processing real inspection content;
-   the earlier synthetic API probe used a different local key. Confirm processor
-   agreements, international transfers, AI-provider data-use terms, and which contact
-   acts as the company's privacy point of contact. Confirm
-   `hello@nottoosweetlabs.com` accepts Kivilo mail.
-5. Approve the precise on-device cleanup statement: the app currently isolates local
-   captures by account and removes a capture after confirmed handover, but does not
-   automatically erase pending local captures when an account is deleted or signs out.
-6. Assign an operator and monitor deletion due dates and the Storage purge worker.
-   `vercel.json` schedules the notification outbox only. Without an operator, the
-   public 30-day promise is not yet operationally verified.
+1. The company approved retaining signed reports, evidence, signatures, assessments,
+   shared unsigned work and maintenance/tenancy records only while a stated purpose
+   applies. The code has no automatic expiry for these records. The owner will review
+   completed tenancies, retained shared records and completed deletion-request logs at
+   least quarterly, document the ongoing purpose, then delete or de-identify records
+   when no purpose remains.
+2. The company owner will check the deletion queue and run the Storage purge worker
+   daily, and fulfill deletion requests within 30 days. A request can remain PROCESSING
+   while signed upload URLs expire and deleted-room Storage prefixes are verified empty.
+   `vercel.json` schedules only the notification outbox; these reviews and purges are
+   manual operational duties. `hello@nottoosweetlabs.com` is monitored for Kivilo.
+3. The company accepted the explicit notice that sign-out and deletion requests do
+   not erase account-isolated unsent captures, pending edits or read caches on a phone,
+   and that Kivilo does not currently request Firebase installation-ID deletion. The
+   operator removes Kivilo's push registration during server-side fulfillment.
+4. The company reports its Gemini project is Tier 1 postpay and the corresponding key
+   was saved in Vercel Production. The owner remains responsible for confirming
+   processor agreements and cross-border safeguards, plus the exact production
+   Supabase backup and Resend plans; this notice makes no unsupported plan claim.
 
 ## Code evidence
 
@@ -107,5 +114,15 @@ This draft is based on `prisma/schema.prisma`, `src/lib/inspection/extract.ts`,
 `src/lib/inspection/diff.ts`, `src/lib/ai-consent.ts`, `src/lib/storage.ts`,
 `src/app/reports/[token]/page.tsx`, `scripts/fulfill-account-deletion.ts`,
 `scripts/purge-storage.ts`, `mobile/lib/services/capture_store.dart`, and
-`mobile/lib/screens/settings_screen.dart`. It does not assert unverified processor
-retention, training, encryption, or regional promises.
+`mobile/lib/screens/settings_screen.dart`. Processor locations and retention above
+are based on current official notices:
+
+- Supabase: https://supabase.com/legal/privacy-resources/data-residency-and-transfers-faq
+- Vercel: https://vercel.com/legal/dpa
+- Resend: https://resend.com/security/gdpr
+- Firebase: https://firebase.google.com/support/privacy/
+- Gemini: https://ai.google.dev/gemini-api/terms and
+  https://ai.google.dev/gemini-api/docs/usage-policies
+
+This draft does not assert an unverified exact Supabase backup plan, Apple Push
+Notification retention, or region-limited processing by any provider.

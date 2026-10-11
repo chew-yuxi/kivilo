@@ -1,6 +1,6 @@
 # Deploying Kivilo
 
-M4 (check-in / check-out) only. There is no billing, no team accounts, and no admin
+Check-in, check-out, and maintenance. There is no billing, no team accounts, and no admin
 surface yet; anyone who can sign in becomes an agent and sees the deals they are on.
 
 ## What you need
@@ -87,10 +87,11 @@ Still open, and each one bites before the first real inspection:
   route and set `RESEND_API_KEY` / `RESEND_FROM_EMAIL` **first**, and only then enable
   the hook.
 
-- **Production Gemini key still needs matching verification.** A synthetic Gemini
-  2.5 Pro check-out comparison passed the schema and edge-case probe on 2026-10-11.
-  The company reports its newly obtained key's project is Tier 1 postpay; confirm
-  that same key is installed in Vercel Production before real use.
+- **Production Gemini key.** A synthetic Gemini 2.5 Pro check-out comparison passed
+  the schema and edge-case probe on 2026-10-11. The company reports its new key's
+  project is Tier 1 postpay; the key was saved in Vercel Production before the
+  Gemini check-out deployment. Exercise the deployed findings route with isolated
+  synthetic data before real use.
 - **Domain.** Settled as `kivilo.nottoosweetlabs.com` on 2026-08-23; the Supabase auth
   site URL and allow list already point at it. kivilo.io was still unregistered that day
   if a standalone name is ever wanted.
@@ -99,14 +100,17 @@ Still open, and each one bites before the first real inspection:
 
 These are known gaps, not oversights. Decide each one deliberately.
 
-- **Retention.** Nothing deletes captures. A walkthrough video of an occupied home is
-  personal data under the PDPA and should have a stated retention period, most likely
-  tied to the end of the tenancy plus a dispute window. This needs a policy decision and
-  then a scheduled job.
-- **The check-out diff still needs a real app-path rehearsal.** Run the synthetic
-  `scripts/verify-checkout-diff.ts` probe after deployment, then review a complete
-  check-out in the app before inviting agents. Confirm Vercel Production uses the
-  company-reported Tier 1 postpay Gemini key first.
+- **Retention and deletion.** The company approved the purpose-based `/privacy`
+  notice on 2026-10-11. The owner checks deletion requests and runs
+  `scripts/purge-storage.ts` daily, fulfills requests within 30 days, and reviews
+  retained records and deletion logs quarterly. Capture/room deletion writes durable
+  purge tombstones that the worker handles after upload URLs expire. Signed and shared
+  records have no automatic expiry; the owner records why each is still needed and
+  deletes or de-identifies it when no stated purpose remains. The mailbox
+  `hello@nottoosweetlabs.com` is monitored for Kivilo.
+- **The check-out diff still needs a real app-path rehearsal.** Run an isolated
+  synthetic check-out through the deployed findings route, then review a complete
+  check-out in the app before inviting agents.
 - **Extraction failures are only visible in the app.** A room that fails parks as FAILED
   with the reason on the row, which an agent sees, but nothing pages anyone. Wire the
   `console.error` in `src/lib/actions.ts` to whatever you use for alerting.
