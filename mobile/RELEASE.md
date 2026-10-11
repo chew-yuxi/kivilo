@@ -367,7 +367,7 @@ relaunch, and confirm every capture appears once. Check portrait mark placement 
 desktop shared report. Run the repository's server checks and local Supabase integration
 and end-to-end suites. Keep the testing builds open while resolving store review notes.
 
-### Apple App Privacy answer sheet for build 3
+### Apple App Privacy answer sheet for build 4
 
 The iOS app **collects data**. Apple defines collection as transmitting data off the
 device where we or a provider can access it beyond servicing the immediate request.
