@@ -78,7 +78,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mt-8 space-y-3 leading-relaxed">
-        <h2 className="text-xl font-semibold">Retention</h2>
+        <h2 id="retention" className="text-xl font-semibold">Retention</h2>
         <p>
           We keep signed condition reports, their evidence, signatures, published
           assessments and related tenancy records while needed to provide the parties

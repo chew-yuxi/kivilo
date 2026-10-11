@@ -27,10 +27,36 @@ export default async function DeleteAccountPage() {
       <h1 className="mt-8 text-2xl font-semibold">Delete your account</h1>
       <p className="mt-3 text-sm leading-relaxed text-gray-600">
         You can request deletion of your account and personal data here. We will confirm
-        the request, complete it within 30 days, and tell you when it is done. Records
-        that must be retained for another party or a legal obligation will be explained
-        during fulfillment.
+        the request, complete it within 30 days, and tell you when it is done.
       </p>
+      <section className="mt-6 space-y-3 text-sm leading-relaxed text-gray-600">
+        <h2 className="font-semibold text-gray-900">What we delete and retain</h2>
+        <p>
+          We remove your Kivilo sign-in account, account contact and identity fields,
+          push-device registration, and account-specific notification history. We also
+          remove unsigned inspections that belong only to you and their stored photos,
+          video and audio after outstanding upload links expire and removal is verified.
+        </p>
+        <p>
+          Signed reports, their evidence and signatures, published assessments,
+          tenancy records, maintenance history, and unsigned work involving another
+          party may retain your name and contributions while needed for a shared
+          handover, a claim or dispute, or another legal or business obligation. We
+          review these purposes and delete or de-identify records when none applies.
+          A limited deletion-request record remains while needed to demonstrate
+          fulfillment or resolve a complaint. We explain retained shared records in
+          the completion email.
+        </p>
+        <p>
+          Some provider copies can last beyond deletion from Kivilo&apos;s active
+          records. See the periods and exceptions in our{' '}
+          <Link href="/privacy#retention" className="text-brand-600 underline">
+            privacy notice&apos;s Retention section
+          </Link>. Unsent captures and cached inspection data on your phone remain
+          until you clear Kivilo&apos;s app storage or uninstall it; doing so discards
+          any evidence that has not uploaded.
+        </p>
+      </section>
       {!agent ? (
         <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 text-sm">
           <p className="font-medium">How to request deletion</p>
