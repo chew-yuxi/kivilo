@@ -8,9 +8,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Keeps previously viewed inspection metadata available on the same account's phone.
 /// Captured media uses the separate durable capture journal.
 class ReadCache {
-  Future<File?> _file(String key) async {
-    final owner = Supabase.instance.client.auth.currentUser?.id;
-    if (owner == null) return null;
+  String? get ownerId => Supabase.instance.client.auth.currentUser?.id;
+
+  Future<File> _file(String owner, String key) async {
     final root = await getApplicationSupportDirectory();
     final account = base64Url.encode(utf8.encode(owner));
     final name = base64Url.encode(utf8.encode(key));
@@ -18,8 +18,13 @@ class ReadCache {
   }
 
   Future<Object?> read(String key) async {
-    final file = await _file(key);
-    if (file == null || !await file.exists()) return null;
+    final owner = ownerId;
+    return owner == null ? null : readForOwner(owner, key);
+  }
+
+  Future<Object?> readForOwner(String owner, String key) async {
+    final file = await _file(owner, key);
+    if (!await file.exists()) return null;
     try {
       return jsonDecode(await file.readAsString());
     } on FormatException catch (error) {
@@ -34,8 +39,12 @@ class ReadCache {
   /// Returns whether the value reached the app-support file. Callers that
   /// promise an offline draft to the user must check this result.
   Future<bool> write(String key, Object? value) async {
-    final file = await _file(key);
-    if (file == null) return false;
+    final owner = ownerId;
+    return owner == null ? false : writeForOwner(owner, key, value);
+  }
+
+  Future<bool> writeForOwner(String owner, String key, Object? value) async {
+    final file = await _file(owner, key);
     try {
       await file.parent.create(recursive: true);
       final temp = File(
@@ -51,7 +60,9 @@ class ReadCache {
   }
 
   Future<void> remove(String key) async {
-    final file = await _file(key);
-    if (file != null && await file.exists()) await file.delete();
+    final owner = ownerId;
+    if (owner == null) return;
+    final file = await _file(owner, key);
+    if (await file.exists()) await file.delete();
   }
 }

@@ -1,17 +1,24 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 
 class _MemoryCache extends ReadCache {
-  final data = <String, Object?>{};
+  String owner = 'account-a';
+  final data = <String, Map<String, Object?>>{};
 
   @override
-  Future<Object?> read(String key) async => data[key];
+  String? get ownerId => owner;
 
   @override
-  Future<bool> write(String key, Object? value) async {
-    data[key] = value;
+  Future<Object?> readForOwner(String owner, String key) async =>
+      data[owner]?[key];
+
+  @override
+  Future<bool> writeForOwner(String owner, String key, Object? value) async {
+    data.putIfAbsent(owner, () => <String, Object?>{})[key] = value;
     return true;
   }
 }
@@ -278,6 +285,114 @@ class _Backend {
 }
 
 void main() {
+  test('late inspection response never enters another account cache', () async {
+    final cache = _MemoryCache();
+    cache.owner = 'account-b';
+    await cache.write('inspections', [
+      {
+        'id': 'b-inspection',
+        'kind': 'CHECK_IN',
+        'status': 'DRAFT',
+        'property': 'B home',
+        'tenant': 'B tenant',
+        'rooms': 0,
+      },
+    ]);
+    cache.owner = 'account-a';
+    final started = Completer<void>();
+    final response = Completer<void>();
+    final backend = _Backend()..shared = true;
+    final dio = Dio(BaseOptions(baseUrl: 'https://kivilo.test'));
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) async {
+          started.complete();
+          await response.future;
+          handler.resolve(
+            Response(
+              requestOptions: request,
+              statusCode: 200,
+              data: backend.respond(request),
+            ),
+          );
+        },
+      ),
+    );
+    final api = Api(dio: dio, cache: cache, attachAuth: false);
+    final pending = api.inspection('in');
+    await started.future;
+    cache.owner = 'account-b';
+    response.complete();
+
+    await expectLater(pending, throwsA(isA<Exception>()));
+    expect(
+      (await cache.read('inspections') as List).single['id'],
+      'b-inspection',
+    );
+    expect(await cache.read('inspection:in'), isNull);
+    expect(await cache.readForOwner('account-a', 'inspection:in'), isNull);
+  });
+
+  test(
+    'newly opened inspection remains reachable from Home after offline restart',
+    () async {
+      final cache = _MemoryCache();
+      await cache.write('inspections', [
+        {
+          'id': 'earlier',
+          'kind': 'CHECK_IN',
+          'status': 'DRAFT',
+          'property': '1 Earlier Lane',
+          'tenant': 'Previous Tenant',
+          'rooms': 1,
+        },
+      ]);
+      final backend = _Backend();
+      final online = Dio(BaseOptions(baseUrl: 'https://kivilo.test'));
+      online.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (request, handler) => handler.resolve(
+            Response(
+              requestOptions: request,
+              statusCode: 200,
+              data: backend.respond(request),
+            ),
+          ),
+        ),
+      );
+      final api = Api(dio: online, cache: cache, attachAuth: false);
+      final id = await api.createInspection({
+        'line1': '2 Marina Boulevard',
+        'propertyType': 'PRIVATE_NON_LANDED',
+      });
+      await api.addRoom(id, 'Kitchen');
+      expect((await api.inspection(id)).rooms, hasLength(1));
+      await api.room(id, 'room-in');
+
+      final offline = Dio(BaseOptions(baseUrl: 'https://kivilo.test'));
+      offline.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (request, handler) => handler.reject(
+            DioException(
+              requestOptions: request,
+              type: DioExceptionType.connectionError,
+              message: 'No connection after relaunch',
+            ),
+          ),
+        ),
+      );
+      final restarted = Api(dio: offline, cache: cache, attachAuth: false);
+      final homeInspections = await restarted.inspections();
+      expect(restarted.offlineCopy, isTrue);
+      expect(homeInspections.map((inspection) => inspection.id), [
+        id,
+        'earlier',
+      ]);
+      expect(homeInspections.first.rooms, 1);
+      expect((await restarted.inspection(id)).rooms.single.id, 'room-in');
+    },
+  );
+
   test(
     'native API completes check-in, check-out and account workflow',
     () async {

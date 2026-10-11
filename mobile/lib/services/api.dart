@@ -55,15 +55,30 @@ class Api {
     }
   }
 
+  void _checkOwner(String? owner) {
+    if (_cache.ownerId != owner) {
+      throw const ApiFailure('Account changed. Open this page again.', 401);
+    }
+  }
+
   Future<Object> _read(String route, String cacheKey) async {
+    final owner = _cache.ownerId;
     try {
       final response = await _call(() => _dio.get<Object>(route));
+      _checkOwner(owner);
+      if (owner != null) {
+        await _cache.writeForOwner(owner, cacheKey, response.data);
+      }
+      _checkOwner(owner);
       offlineCopy = false;
-      await _cache.write(cacheKey, response.data);
       return response.data!;
     } on ApiFailure catch (error) {
       if (error.statusCode != null) rethrow;
-      final cached = await _cache.read(cacheKey);
+      _checkOwner(owner);
+      final cached = owner == null
+          ? null
+          : await _cache.readForOwner(owner, cacheKey);
+      _checkOwner(owner);
       if (cached == null) rethrow;
       offlineCopy = true;
       return cached;
@@ -228,8 +243,35 @@ class Api {
   });
 
   Future<InspectionDetail> inspection(String id) async {
+    final owner = _cache.ownerId;
     final data = await _read('/api/v1/inspections/$id', 'inspection:$id');
-    return InspectionDetail.fromJson(data as Map<String, dynamic>);
+    final detail = InspectionDetail.fromJson(data as Map<String, dynamic>);
+    _checkOwner(owner);
+    if (owner == null) return detail;
+    final cached = await _cache.readForOwner(owner, 'inspections');
+    _checkOwner(owner);
+    final summaries = cached == null
+        ? <dynamic>[]
+        : List<dynamic>.from(cached as List<dynamic>);
+    final summary = {
+      'id': detail.id,
+      'kind': detail.kind,
+      'status': detail.status,
+      'property': detail.property,
+      'tenant': detail.tenant,
+      'rooms': detail.rooms.length,
+    };
+    final previous = summaries.indexWhere(
+      (entry) => entry is Map && entry['id'] == detail.id,
+    );
+    if (previous == -1) {
+      summaries.insert(0, summary);
+    } else {
+      summaries[previous] = summary;
+    }
+    await _cache.writeForOwner(owner, 'inspections', summaries);
+    _checkOwner(owner);
+    return detail;
   }
 
   Future<RoomDetail> room(String inspectionId, String roomId) async {
