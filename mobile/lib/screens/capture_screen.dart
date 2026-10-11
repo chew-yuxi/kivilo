@@ -13,6 +13,7 @@ import '../services/api.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
+import '../services/recording_screen_awake.dart';
 import '../services/uploader.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
@@ -36,6 +37,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     with WidgetsBindingObserver {
   final _api = Api();
   final _queue = CaptureQueue();
+  final _screenAwake = RecordingScreenAwake();
   late final _backend = RoutingEvidenceBackend(_api.dio);
   late final String _ownerId = Supabase.instance.client.auth.currentUser!.id;
   Directory? _root;
@@ -245,7 +247,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       if (_videoToSave != null || _recording) {
         await _stopAndSaveVideo();
       } else {
-        await camera!.startVideoRecording();
+        await _screenAwake.start(camera!.startVideoRecording);
         _startedAt = DateTime.now();
         if (mounted) setState(() => _recording = true);
       }
@@ -257,42 +259,71 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   Future<void> _stopAndSaveVideo() async {
-    if (_videoToSave == null) {
-      final captureId = newCaptureId();
-      final video = await _camera!.stopVideoRecording();
-      _videoToSave = File(video.path);
-      _videoToSaveClientId = captureId;
-      _videoToSaveDurationSec = math.max(
-        1,
-        DateTime.now().difference(_startedAt!).inSeconds,
+    try {
+      if (_videoToSave == null) {
+        final captureId = newCaptureId();
+        final video = await _camera!.stopVideoRecording();
+        _videoToSave = File(video.path);
+        _videoToSaveClientId = captureId;
+        _videoToSaveDurationSec = math.max(
+          1,
+          DateTime.now().difference(_startedAt!).inSeconds,
+        );
+        _startedAt = null;
+        if (mounted) setState(() => _recording = false);
+      }
+      final video = _videoToSave!;
+      final extension = video.path.toLowerCase().endsWith('.mov')
+          ? 'mov'
+          : 'mp4';
+      final handedOver = await _queue.serverIdForClient(
+        _ownerId,
+        widget.inspectionId,
+        _videoToSaveClientId!,
       );
-      _startedAt = null;
-      if (mounted) setState(() => _recording = false);
+      if (handedOver == null) {
+        await CaptureStore(queue: _queue, root: _root!).save(
+          source: video,
+          ownerId: _ownerId,
+          inspectionId: widget.inspectionId,
+          roomId: widget.roomId,
+          kind: 'VIDEO',
+          extension: extension,
+          mimeType: extension == 'mov' ? 'video/quicktime' : 'video/mp4',
+          durationSec: _videoToSaveDurationSec,
+          clientId: _videoToSaveClientId,
+        );
+      }
+      _videoToSave = null;
+      _videoToSaveClientId = null;
+      _videoToSaveDurationSec = null;
+      unawaited(_drain());
+    } finally {
+      // Stop failure means the camera may still be recording. Once it stops,
+      // release the display even if copying its temporary file needs a retry.
+      if (!_recording) await _releaseScreenAwake();
     }
-    final video = _videoToSave!;
-    final extension = video.path.toLowerCase().endsWith('.mov') ? 'mov' : 'mp4';
-    final handedOver = await _queue.serverIdForClient(
-      _ownerId,
-      widget.inspectionId,
-      _videoToSaveClientId!,
-    );
-    if (handedOver == null) {
-      await CaptureStore(queue: _queue, root: _root!).save(
-        source: video,
-        ownerId: _ownerId,
-        inspectionId: widget.inspectionId,
-        roomId: widget.roomId,
-        kind: 'VIDEO',
-        extension: extension,
-        mimeType: extension == 'mov' ? 'video/quicktime' : 'video/mp4',
-        durationSec: _videoToSaveDurationSec,
-        clientId: _videoToSaveClientId,
+  }
+
+  Future<void> _releaseScreenAwake({bool closing = false}) async {
+    try {
+      if (closing) {
+        await _screenAwake.close();
+      } else {
+        await _screenAwake.release();
+      }
+    } catch (error, stack) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stack,
+          context: ErrorDescription('releasing the walkthrough screen lock'),
+        ),
       );
+      if (!closing && mounted) {
+        setState(() => _error = 'Could not reset screen awake: $error');
+      }
     }
-    _videoToSave = null;
-    _videoToSaveClientId = null;
-    _videoToSaveDurationSec = null;
-    unawaited(_drain());
   }
 
   Future<void> _leaveAfterSaving() async {
@@ -659,6 +690,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(_releaseScreenAwake(closing: true));
     unawaited(_camera?.dispose());
     final upload = _uploading;
     if (upload == null) {
