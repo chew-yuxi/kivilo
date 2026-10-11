@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'capture_screen.dart';
@@ -154,29 +156,68 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 
   Future<void> _deleteRoom() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete this room?'),
-        content: const Text('Its captures and inventory will be removed.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
+    if (_busy) return;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
+      final ownerId = Supabase.instance.client.auth.currentUser?.id;
+      if (ownerId == null) {
+        throw StateError('Sign in again before deleting this room.');
+      }
+      final room = await _api.room(widget.inspectionId, widget.roomId);
+      final queue = CaptureQueue();
+      late final ({int captures, int edits}) pending;
+      try {
+        pending = await queue.pendingForRoom(
+          widget.inspectionId,
+          widget.roomId,
+          ownerId,
+          room.captures.map((capture) => capture.id),
+        );
+      } finally {
+        await queue.close();
+      }
+      if (!mounted) return;
+      if (pending.captures > 0 || pending.edits > 0) {
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Evidence is still syncing'),
+            content: Text(
+              'This room has ${pending.captures} saved capture(s) and '
+              '${pending.edits} note, mark or deletion edit(s) waiting to sync. '
+              'Open camera & evidence and retry uploads before deleting the room.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete this room?'),
+          content: const Text('Its captures and inventory will be removed.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
       await _api.deleteRoom(widget.inspectionId, widget.roomId);
       if (mounted) Navigator.pop(context);
     } catch (error) {
@@ -278,6 +319,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   ),
                   if (widget.editable)
                     PopupMenuButton<String>(
+                      enabled: !_busy,
                       onSelected: (value) =>
                           value == 'rename' ? _rename(room) : _deleteRoom(),
                       itemBuilder: (_) => const [

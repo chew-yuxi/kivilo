@@ -46,9 +46,16 @@ class _CaptureScreenState extends State<CaptureScreen>
   bool _videoMode = false;
   bool _busy = false;
   bool _recording = false;
+  bool _leaving = false;
+  bool _finishing = false;
   bool _offline = false;
   bool _isForeground = true;
   DateTime? _startedAt;
+  File? _photoToSave;
+  String? _photoToSaveClientId;
+  File? _videoToSave;
+  String? _videoToSaveClientId;
+  int? _videoToSaveDurationSec;
   String? _error;
   List<PendingRemoteEdit> _remoteEdits = const [];
   List<String> _unresolved = const [];
@@ -181,7 +188,15 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   Future<void> _switchMode(bool video) async {
-    if (_busy || _recording || video == _videoMode) return;
+    if (_busy ||
+        _leaving ||
+        _finishing ||
+        _recording ||
+        _photoToSave != null ||
+        _videoToSave != null ||
+        video == _videoMode) {
+      return;
+    }
     setState(() {
       _videoMode = video;
       _error = null;
@@ -195,23 +210,25 @@ class _CaptureScreenState extends State<CaptureScreen>
   Future<void> _takePhoto() async {
     final camera = _camera;
     final root = _root;
-    if (_busy || camera == null || root == null) return;
+    if (_busy ||
+        _leaving ||
+        _finishing ||
+        root == null ||
+        (camera == null && _photoToSave == null)) {
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final photo = await camera.takePicture();
-      await CaptureStore(queue: _queue, root: root).save(
-        source: File(photo.path),
-        ownerId: _ownerId,
-        inspectionId: widget.inspectionId,
-        roomId: widget.roomId,
-        kind: 'PHOTO',
-        extension: 'jpg',
-        mimeType: 'image/jpeg',
-      );
-      unawaited(_drain());
+      if (_photoToSave == null) {
+        final captureId = newCaptureId();
+        final photo = await camera!.takePicture();
+        _photoToSave = File(photo.path);
+        _photoToSaveClientId = captureId;
+      }
+      await _savePendingPhoto();
     } catch (error) {
       if (mounted) setState(() => _error = 'Photo could not be saved: $error');
     } finally {
@@ -219,45 +236,134 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
+  Future<void> _savePendingPhoto() async {
+    final handedOver = await _queue.serverIdForClient(
+      _ownerId,
+      widget.inspectionId,
+      _photoToSaveClientId!,
+    );
+    if (handedOver == null) {
+      await CaptureStore(queue: _queue, root: _root!).save(
+        source: _photoToSave!,
+        ownerId: _ownerId,
+        inspectionId: widget.inspectionId,
+        roomId: widget.roomId,
+        kind: 'PHOTO',
+        extension: 'jpg',
+        mimeType: 'image/jpeg',
+        clientId: _photoToSaveClientId,
+      );
+    }
+    _photoToSave = null;
+    _photoToSaveClientId = null;
+    unawaited(_drain());
+  }
+
   Future<void> _toggleVideo() async {
     final camera = _camera;
     final root = _root;
-    if (_busy || camera == null || root == null) return;
+    if (_busy ||
+        _leaving ||
+        _finishing ||
+        root == null ||
+        (camera == null && _videoToSave == null)) {
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      if (!_recording) {
-        await camera.startVideoRecording();
+      if (_videoToSave != null || _recording) {
+        await _stopAndSaveVideo();
+      } else {
+        await camera!.startVideoRecording();
         _startedAt = DateTime.now();
         if (mounted) setState(() => _recording = true);
-      } else {
-        final video = await camera.stopVideoRecording();
-        final duration = math.max(
-          1,
-          DateTime.now().difference(_startedAt!).inSeconds,
-        );
-        final extension = video.path.toLowerCase().endsWith('.mov')
-            ? 'mov'
-            : 'mp4';
-        await CaptureStore(queue: _queue, root: root).save(
-          source: File(video.path),
-          ownerId: _ownerId,
-          inspectionId: widget.inspectionId,
-          roomId: widget.roomId,
-          kind: 'VIDEO',
-          extension: extension,
-          mimeType: extension == 'mov' ? 'video/quicktime' : 'video/mp4',
-          durationSec: duration,
-        );
-        if (mounted) setState(() => _recording = false);
-        unawaited(_drain());
       }
     } catch (error) {
       if (mounted) setState(() => _error = 'Video could not be saved: $error');
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _stopAndSaveVideo() async {
+    if (_videoToSave == null) {
+      final captureId = newCaptureId();
+      final video = await _camera!.stopVideoRecording();
+      _videoToSave = File(video.path);
+      _videoToSaveClientId = captureId;
+      _videoToSaveDurationSec = math.max(
+        1,
+        DateTime.now().difference(_startedAt!).inSeconds,
+      );
+      _startedAt = null;
+      if (mounted) setState(() => _recording = false);
+    }
+    final video = _videoToSave!;
+    final extension = video.path.toLowerCase().endsWith('.mov') ? 'mov' : 'mp4';
+    final handedOver = await _queue.serverIdForClient(
+      _ownerId,
+      widget.inspectionId,
+      _videoToSaveClientId!,
+    );
+    if (handedOver == null) {
+      await CaptureStore(queue: _queue, root: _root!).save(
+        source: video,
+        ownerId: _ownerId,
+        inspectionId: widget.inspectionId,
+        roomId: widget.roomId,
+        kind: 'VIDEO',
+        extension: extension,
+        mimeType: extension == 'mov' ? 'video/quicktime' : 'video/mp4',
+        durationSec: _videoToSaveDurationSec,
+        clientId: _videoToSaveClientId,
+      );
+    }
+    _videoToSave = null;
+    _videoToSaveClientId = null;
+    _videoToSaveDurationSec = null;
+    unawaited(_drain());
+  }
+
+  Future<void> _leaveAfterSaving() async {
+    if (_leaving || _finishing) return;
+    setState(() => _leaving = true);
+    try {
+      while (_busy) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+      }
+      if (!mounted) return;
+      if (_photoToSave != null) {
+        setState(() => _busy = true);
+        try {
+          await _savePendingPhoto();
+        } catch (error) {
+          if (mounted) {
+            setState(() => _error = 'Photo could not be saved: $error');
+          }
+          return;
+        } finally {
+          if (mounted) setState(() => _busy = false);
+        }
+      }
+      if (_recording || _videoToSave != null) {
+        setState(() => _busy = true);
+        try {
+          await _stopAndSaveVideo();
+        } catch (error) {
+          if (mounted) {
+            setState(() => _error = 'Video could not be saved: $error');
+          }
+          return;
+        } finally {
+          if (mounted) setState(() => _busy = false);
+        }
+      }
+      if (mounted) Navigator.pop(context);
+    } finally {
+      if (mounted) setState(() => _leaving = false);
     }
   }
 
@@ -480,57 +586,69 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   Future<void> _finishRoom() async {
+    if (_finishing) return;
     if (_recording) {
       setState(
         () => _error = 'Stop and save the video before finishing this room.',
       );
       return;
     }
-    await _drain();
-    if (!mounted) return;
-    final pending = await _queue.forRoom(widget.roomId, _ownerId);
-    final pendingEdits = await _queue.remoteEditsFor(
-      _ownerId,
-      widget.inspectionId,
-    );
-    if (!mounted) return;
-    if (pending.isNotEmpty ||
-        pendingEdits.isNotEmpty ||
-        _unresolved.isNotEmpty) {
-      setState(
-        () => _error =
-            'Evidence or edits are still waiting to sync. Retry when connected.',
-      );
+    if (_busy || _leaving || _photoToSave != null || _videoToSave != null) {
+      setState(() => _error = 'Wait for the capture to finish saving.');
       return;
     }
-    final consent = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Draft with AI?'),
-        content: const Text(
-          'Kivilo sends this room’s video, photos and property details to Google Gemini to draft an inventory. '
-          'For a check-out, it also sends the reviewed check-in and check-out inventories and tenancy length to Gemini to draft findings. '
-          'You review and correct every draft before anyone signs.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Not now'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Allow and draft'),
-          ),
-        ],
-      ),
-    );
-    if (consent != true) return;
+    setState(() => _finishing = true);
     try {
-      await _api.consentToAiProcessing(widget.inspectionId);
-      await _api.processRoom(widget.inspectionId, widget.roomId);
-      if (mounted) Navigator.pop(context);
-    } catch (error) {
-      if (mounted) setState(() => _error = 'Could not start drafting: $error');
+      await _drain();
+      if (!mounted) return;
+      final pending = await _queue.forRoom(widget.roomId, _ownerId);
+      final pendingEdits = await _queue.remoteEditsFor(
+        _ownerId,
+        widget.inspectionId,
+      );
+      if (!mounted) return;
+      if (pending.isNotEmpty ||
+          pendingEdits.isNotEmpty ||
+          _unresolved.isNotEmpty) {
+        setState(
+          () => _error =
+              'Evidence or edits are still waiting to sync. Retry when connected.',
+        );
+        return;
+      }
+      final consent = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Draft with AI?'),
+          content: const Text(
+            'Kivilo sends this room’s video, photos and property details to Google Gemini to draft an inventory. '
+            'For a check-out, it also sends the reviewed check-in and check-out inventories and tenancy length to Gemini to draft findings. '
+            'You review and correct every draft before anyone signs.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Not now'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Allow and draft'),
+            ),
+          ],
+        ),
+      );
+      if (consent != true) return;
+      try {
+        await _api.consentToAiProcessing(widget.inspectionId);
+        await _api.processRoom(widget.inspectionId, widget.roomId);
+        if (mounted) Navigator.pop(context);
+      } catch (error) {
+        if (mounted) {
+          setState(() => _error = 'Could not start drafting: $error');
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _finishing = false);
     }
   }
 
@@ -553,9 +671,13 @@ class _CaptureScreenState extends State<CaptureScreen>
     while (_busy) {
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
-    if (_recording) {
+    if (_photoToSave != null) {
+      await _takePhoto();
+      if (_photoToSave != null) return;
+    }
+    if (_recording || _videoToSave != null) {
       await _toggleVideo();
-      if (_recording) {
+      if (_recording || _videoToSave != null) {
         return; // Keep the controller if finalizing the video failed.
       }
     }
@@ -582,9 +704,10 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   Widget build(BuildContext context) {
     final camera = _camera;
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(_room?.name ?? 'Capture room'),
+        leading: BackButton(onPressed: () => unawaited(_leaveAfterSaving())),
         actions: [
           IconButton(
             onPressed: () {
@@ -678,27 +801,6 @@ class _CaptureScreenState extends State<CaptureScreen>
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Center(
-              child: SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(
-                    value: false,
-                    label: Text('Photos'),
-                    icon: Icon(Icons.photo_camera),
-                  ),
-                  ButtonSegment(
-                    value: true,
-                    label: Text('Video'),
-                    icon: Icon(Icons.videocam),
-                  ),
-                ],
-                selected: {_videoMode},
-                onSelectionChanged: (selected) {
-                  unawaited(_switchMode(selected.first));
-                },
-              ),
-            ),
             const SizedBox(height: 22),
             Center(
               child: Column(
@@ -706,12 +808,17 @@ class _CaptureScreenState extends State<CaptureScreen>
                   Semantics(
                     button: true,
                     label: _videoMode
-                        ? (_recording
+                        ? (_videoToSave != null
+                              ? 'Retry saving video'
+                              : _recording
                               ? 'Stop and save video'
                               : 'Record walkthrough')
-                        : 'Take photo',
+                        : (_photoToSave != null
+                              ? 'Retry saving photo'
+                              : 'Take photo'),
                     child: IconButton.filled(
-                      onPressed: _busy || _room == null
+                      onPressed:
+                          _busy || _leaving || _finishing || _room == null
                           ? null
                           : _videoMode
                           ? _toggleVideo
@@ -726,7 +833,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                       ),
                       icon: Icon(
                         _videoMode
-                            ? (_recording
+                            ? (_recording || _videoToSave != null
                                   ? Icons.stop
                                   : Icons.fiber_manual_record)
                             : Icons.camera_alt_outlined,
@@ -736,10 +843,14 @@ class _CaptureScreenState extends State<CaptureScreen>
                   const SizedBox(height: 8),
                   Text(
                     _videoMode
-                        ? (_recording
+                        ? (_videoToSave != null
+                              ? 'Retry saving video'
+                              : _recording
                               ? 'Stop & save video'
                               : 'Record walkthrough')
-                        : 'Take photo',
+                        : (_photoToSave != null
+                              ? 'Retry saving photo'
+                              : 'Take photo'),
                     style: const TextStyle(
                       color: KiviloColors.ink,
                       fontWeight: FontWeight.w600,
@@ -775,6 +886,37 @@ class _CaptureScreenState extends State<CaptureScreen>
               ),
             ),
           ],
+          const SizedBox(height: 20),
+          Center(
+            child: SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(
+                  value: false,
+                  label: Text('Photos'),
+                  icon: Icon(Icons.photo_camera),
+                ),
+                ButtonSegment(
+                  value: true,
+                  label: Text('Video'),
+                  icon: Icon(Icons.videocam),
+                ),
+              ],
+              selected: {_videoMode},
+              onSelectionChanged: camera == null && _error == null
+                  ? null
+                  : (selected) => unawaited(_switchMode(selected.first)),
+            ),
+          ),
+          if (_photoToSave != null && camera == null)
+            TextButton(
+              onPressed: _busy || _leaving || _finishing ? null : _takePhoto,
+              child: const Text('Retry saving photo'),
+            ),
+          if (_videoToSave != null && camera == null)
+            TextButton(
+              onPressed: _busy || _leaving || _finishing ? null : _toggleVideo,
+              child: const Text('Retry saving video'),
+            ),
           const SizedBox(height: 30),
           const KiviloSectionHeading(
             title: 'Evidence',
@@ -941,12 +1083,34 @@ class _CaptureScreenState extends State<CaptureScreen>
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
           child: FilledButton.icon(
-            onPressed: _room == null ? null : _finishRoom,
+            onPressed:
+                _room == null ||
+                    _busy ||
+                    _leaving ||
+                    _finishing ||
+                    _recording ||
+                    _photoToSave != null ||
+                    _videoToSave != null
+                ? null
+                : _finishRoom,
             icon: const Icon(Icons.auto_awesome_outlined),
             label: const Text('Finish room & draft inventory'),
           ),
         ),
       ),
+    );
+    return PopScope(
+      canPop:
+          !_recording &&
+          _photoToSave == null &&
+          _videoToSave == null &&
+          !_busy &&
+          !_leaving &&
+          !_finishing,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) unawaited(_leaveAfterSaving());
+      },
+      child: scaffold,
     );
   }
 

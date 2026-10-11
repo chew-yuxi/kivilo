@@ -92,6 +92,45 @@ void main() {
     },
   );
 
+  test(
+    'retry keeps the same video after a queue failure following rename',
+    () async {
+      await queue.close();
+      queue = _FailOnceCaptureQueue();
+      final store = CaptureStore(queue: queue, root: root);
+      const clientId = 'd6fbfbdf-ef43-4d66-965a-793d8147d624';
+      final source = File('${root.path}/camera-temp.mp4')
+        ..writeAsBytesSync(List.filled(64, 5));
+
+      Future<int> save() => store.save(
+        source: source,
+        ownerId: 'owner-a',
+        inspectionId: 'inspection-a',
+        roomId: 'room-a',
+        kind: 'VIDEO',
+        extension: 'mp4',
+        mimeType: 'video/mp4',
+        durationSec: 12,
+        clientId: clientId,
+      );
+
+      await expectLater(save(), throwsStateError);
+      expect(source.existsSync(), isFalse);
+      expect(
+        File('${root.path}/captures/owner-a/$clientId.mp4').existsSync(),
+        isTrue,
+      );
+      expect(await queue.byClientId(clientId), isNull);
+
+      final id = await save();
+      final row = (await queue.byId(id))!;
+      expect(row.clientId, clientId);
+      expect(row.sizeBytes, 64);
+      expect(await queue.forRoom('room-a', 'owner-a'), hasLength(1));
+      expect(Directory('${root.path}/capture-intake').listSync(), isEmpty);
+    },
+  );
+
   test('journals from another account are not imported', () async {
     const clientId = 'other-account';
     final journal = File('${root.path}/capture-intake/$clientId.json')
@@ -190,4 +229,19 @@ void main() {
     expect(journal.existsSync(), isTrue);
     expect((await queue.byId(first))!.ownerId, 'owner-a');
   });
+}
+
+class _FailOnceCaptureQueue extends CaptureQueue {
+  _FailOnceCaptureQueue() : super(NativeDatabase.memory());
+
+  bool _shouldFail = true;
+
+  @override
+  Future<int> enqueue(PendingCapturesCompanion capture) {
+    if (_shouldFail) {
+      _shouldFail = false;
+      throw StateError('simulated queue failure');
+    }
+    return super.enqueue(capture);
+  }
 }

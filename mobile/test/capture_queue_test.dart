@@ -217,4 +217,56 @@ void main() {
       edits: 0,
     ));
   });
+
+  test('room deletion guard isolates queued captures and edits', () async {
+    await add(room: 'kitchen', owner: 'owner-a');
+    await add(room: 'bedroom', owner: 'owner-a');
+    await add(room: 'kitchen', owner: 'owner-b');
+    await queue.queueRemoteNote(
+      'owner-a',
+      'insp-1',
+      'kitchen-photo',
+      'Waiting to sync',
+    );
+    await queue.queueRemoteNote(
+      'owner-a',
+      'insp-1',
+      'bedroom-photo',
+      'Waiting to sync',
+    );
+
+    expect(
+      await queue.pendingForRoom('insp-1', 'kitchen', 'owner-a', [
+        'kitchen-photo',
+      ]),
+      (captures: 1, edits: 1),
+    );
+    expect(await queue.pendingForRoom('insp-1', 'kitchen', 'owner-b', []), (
+      captures: 1,
+      edits: 0,
+    ));
+    expect(await queue.pendingForRoom('insp-1', 'living', 'owner-a', []), (
+      captures: 0,
+      edits: 0,
+    ));
+  });
+
+  test(
+    'room deletion guard includes edits to a capture still handing over',
+    () async {
+      final id = await add(room: 'kitchen', owner: 'owner-a');
+      await queue.markUploaded(id, 'new-kitchen-photo');
+      await queue.queueRemoteAnnotations(
+        'owner-a',
+        'insp-1',
+        'new-kitchen-photo',
+        '{"w":1,"h":1,"marks":[]}',
+      );
+
+      expect(await queue.pendingForRoom('insp-1', 'kitchen', 'owner-a', []), (
+        captures: 1,
+        edits: 1,
+      ));
+    },
+  );
 }

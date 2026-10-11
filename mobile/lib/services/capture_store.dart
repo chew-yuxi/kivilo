@@ -23,26 +23,38 @@ class CaptureStore {
     required String extension,
     required String mimeType,
     int? durationSec,
+    String? clientId,
   }) async {
-    final clientId = newCaptureId();
-    final relativePath = 'captures/$ownerId/$clientId.$extension';
-    final journal = _journal(clientId);
+    final captureId = clientId ?? newCaptureId();
+    final relativePath = 'captures/$ownerId/$captureId.$extension';
+    final journal = _journal(captureId);
     final metadata = <String, dynamic>{
-      'clientId': clientId,
+      'clientId': captureId,
       'ownerId': ownerId,
       'inspectionId': inspectionId,
       'roomId': roomId,
       'kind': kind,
       'relativePath': relativePath,
       'sourcePath': source.path,
-      'filename': '$clientId.$extension',
+      'filename': '$captureId.$extension',
       'mimeType': mimeType,
       'durationSec': durationSec,
       'createdAt': DateTime.now().toUtc().toIso8601String(),
     };
     await journal.parent.create(recursive: true);
     await journal.writeAsString(jsonEncode(metadata), flush: true);
-    await _persistIntoSupport(source, File('${root.path}/$relativePath'));
+    final destination = File('${root.path}/$relativePath');
+    if (await source.exists() || !await destination.exists()) {
+      await _persistIntoSupport(source, destination);
+    } else {
+      // A previous attempt moved the camera file, then failed before its queue row.
+      final recovered = await destination.open(mode: FileMode.append);
+      try {
+        await recovered.flush();
+      } finally {
+        await recovered.close();
+      }
+    }
     return _importJournal(journal, metadata);
   }
 

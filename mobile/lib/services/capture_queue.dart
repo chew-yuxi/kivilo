@@ -200,6 +200,25 @@ class CaptureQueue extends _$CaptureQueue {
     return (captures: captures.length, edits: edits.length);
   }
 
+  Future<({int captures, int edits})> pendingForRoom(
+    String inspectionId,
+    String roomId,
+    String ownerId,
+    Iterable<String> serverCaptureIds,
+  ) async {
+    final captures = await forRoom(roomId, ownerId);
+    final captureIds = {
+      ...serverCaptureIds,
+      for (final capture in captures)
+        if (capture.uploadedId != null) capture.uploadedId!,
+    };
+    final edits = await remoteEditsFor(ownerId, inspectionId);
+    return (
+      captures: captures.length,
+      edits: edits.where((edit) => captureIds.contains(edit.captureId)).length,
+    );
+  }
+
   Future<PendingCapture?> byClientId(String clientId) => (select(
     pendingCaptures,
   )..where((row) => row.clientId.equals(clientId))).getSingleOrNull();
