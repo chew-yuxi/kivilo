@@ -227,6 +227,17 @@ It is installed on the physical Nothing A065 with the synthetic session preserve
 physical interruption and long-capture verification is underway. Neither store has
 received a public review submission.
 
+On that physical phone, build `4` saved a controlled sequence of 30 covered-lens
+photos with no default network, in addition to ten photos retained from an earlier
+interrupted batch. The synthetic account, cached inspection/room, and local photos
+survived force-stop and relaunch while offline; production still had zero captures.
+After Wi-Fi reconnection all 40 photos registered with 40 distinct client IDs and
+Storage paths. All 40 private Storage objects existed and their sizes matched the
+database. The count remained 40 after another online force-stop/relaunch, and the
+UI showed the local queue cleared with the photos synced. This confirms that tested
+offline/restart sequence, not all interruption cases or the full signed workflow.
+Ten-minute video and physical iPhone testing remain open.
+
 The company confirmed rights to display its users' submitted media, and App Store
 Connect's content rights declaration was saved and read back as
 `USES_THIRD_PARTY_CONTENT`. App Privacy is a separate, still-unpublished form.
