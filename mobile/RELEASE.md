@@ -9,15 +9,19 @@ On 2026-10-10 the configured Gemini account completed a real mixed video/photo
 extraction with synthetic media through `scripts/verify-gemini-extraction.ts` (one
 item returned). This verifies the provider request and schema, not the physical-phone
 capture or production storage path.
-On 2026-10-11 a synthetic Gemini 2.5 Pro check-out probe returned schema-valid
-findings for fair wear, a missing item and a changed serial, and omitted an unchanged
-item. Its initial rationale overstated evidence, so the prompt now forbids unsupported
-claims. That probe used an older project; Google no longer permits Gemini 2.5 Pro
-on new projects, so the release uses Gemini 3.1 Pro Preview. This does not establish
-legal assessment quality. The company reported that
+On 2026-10-11 a synthetic Gemini 3.1 Pro Preview direct check-out probe returned
+schema-valid findings for fair wear, a missing item and a changed serial, and omitted
+an unchanged item. The prompt forbids unsupported evidence and liability claims;
+the server rejects drafts that omit or misclassify objective changes before saving
+them. This does not establish legal assessment quality. The company reported that
 its new Gemini key's project is Tier 1 postpay and confirmed the matching key was
-saved in Vercel Production before the Gemini check-out deployment. The deployed
-findings route still needs a synthetic end-to-end check.
+saved in Vercel Production before the deployment. On exact backend commit `1f200b6`,
+the deployed `/findings/run` route returned HTTP 200 and a WEAR/FAIR_WEAR draft for
+isolated synthetic inventory. The deployed `/rooms/[roomId]/finish` route returned
+HTTP 200 for synthetic video and photo captures; the room reached REVIEW with one
+AI-authored item carrying confidence. Both probes removed their temporary Auth users,
+database rows, and Storage media. They verify the actual production provider and
+backend paths, not a physical phone or the full signed-report workflow.
 The configured private Supabase bucket also accepted and confirmed the exact unnamed
 multipart signed PUT used by the native uploader; the synthetic probe object was
 removed immediately (`scripts/verify-signed-upload.ts`, run with Node 26). Android
@@ -39,19 +43,22 @@ Hopshift's existing company records identify **NotTooSweetLabs Pte. Ltd.** in
 **Singapore**. Its Apple release project uses team `4N9TA3WSYM`. The company
 confirmed that `hello@nottoosweetlabs.com` is monitored for Kivilo support and
 deletion requests.
-The company confirmed D-U-N-S **659161629** on 2026-10-10. Google Play organization
-enrollment is still not recorded in the accessible Hopshift release files.
+The company confirmed D-U-N-S **659161629** on 2026-10-10. The existing
+NotTooSweetLabs organization Play account (developer ID `8982183772541615481`)
+has Kivilo registered with package `one.kivilo.kivilo` (app ID
+`4975629300074157006`). Do not use the separate AGI Labs Play account.
 
-1. Enrol the existing legal company as an organization in Apple Developer and Google
-   Play Console. Both require matching legal identity and a D-U-N-S record. Record the
-   company account holder and grant release access without sharing their password.
+1. Use the existing legal company's Apple Developer and Google Play organization
+   accounts. Both listings must use the same legal identity and D-U-N-S record.
 2. App Store Connect app `6821514302` is registered as Kivilo with bundle ID
    `one.kivilo.kivilo`. The App Store version is `1.0.0`. Verify a signed simulator
    app has an application identifier and Keychain access group before testing sign-in:
    an unsigned simulator build fails during Supabase initialization with Keychain
    error `-34018`, before Flutter draws its first screen.
-3. In Play Console, create the app with the same application ID and enrol in Play App
-   Signing. Generate and back up an upload keystore. Supply its path and credentials in
+3. The Play app is created with the same application ID. Its upload keystore is
+   backed up outside this repository at `~/.android/kivilo-upload.jks`; its password
+   and alias are in this Mac's login Keychain under service
+   `one.kivilo.kivilo.upload-signing`. Supply its path and credentials in
    `KIVILO_UPLOAD_KEYSTORE`, `KIVILO_UPLOAD_STORE_PASSWORD`, `KIVILO_UPLOAD_KEY_ALIAS`,
    and `KIVILO_UPLOAD_KEY_PASSWORD` when building. The Gradle release task refuses to
    run without these values.
@@ -104,14 +111,49 @@ On 2026-10-11, an Apple Distribution archive and App Store IPA for version `1.0.
 `one.kivilo.kivilo`, `aps-environment=production`, and `get-task-allow=false`.
 The IPA at `build/ios/ipa/Kivilo-1.0.0+1.ipa` has SHA-256
 `ddfbc93b73be0c55eb2bb68f0f31e866356e8344aa4a396dbc005a479119ca25`.
-App Store Connect accepted the upload (delivery UUID
-`347e4598-001b-4204-bf27-cd90c2e7f672`); the build had not yet appeared in its
-Builds API immediately after upload. The App Store draft contains the prepared
-subtitle, description, keywords, promotional text, support URL, and Productivity
-category. Privacy disclosures, screenshots, device testing, and review submission
-remain outstanding. The archive used a dedicated temporary signing keychain to avoid
-repeated login-keychain authorization prompts; that temporary keychain was removed
-after export.
+App Store Connect accepted the upload (build ID
+`347e4598-001b-4204-bf27-cd90c2e7f672`); the build later reached `VALID`.
+The archive used a dedicated temporary signing keychain to avoid repeated
+login-keychain authorization prompts; that temporary keychain was removed after export.
+
+The final candidate for this version, build `2`, includes the approved privacy link,
+Gemini consent wording, and status-bar contrast fix. Its Apple Distribution archive
+and exported IPA at `build/ios/ipa/Kivilo-1.0.0+2.ipa` passed strict `codesign`
+verification with bundle ID `one.kivilo.kivilo`, team `4N9TA3WSYM`,
+`aps-environment=production`, and `get-task-allow=false`. The IPA SHA-256 is
+`56a1c024010d49eb2f3bfa16d0f56e6741171833b1b9b5436066f99abec2b43f`.
+App Store Connect accepted the upload and reports build ID
+`41894afe-cbe5-46fb-a5ac-11ed2bd6a1f5` as `VALID`; it is attached to the
+App Store version `1.0.0`. The draft contains the approved subtitle, description,
+keywords, promotional text, support URL, privacy policy URL, Productivity category,
+and private synthetic reviewer contact and credentials. App Privacy declarations,
+age rating, signed-in screenshots, physical-device testing, and public review
+submission remain outstanding. No TestFlight beta group or tester was configured
+at the time of this update.
+
+On 2026-10-11, the production-configured, upload-signed Android App Bundle version
+`1.0.0` (build `2`) was accepted by Play and committed to the **internal testing
+track as a draft**. It is not tester-visible. The AAB is
+`build/app/outputs/bundle/release/app-release.aab`, SHA-256
+`f98d0a145a4f44fa656a3c2bf024670df9e14dd5ae4bb69e2a18c86d48d92bef`.
+`jarsigner -verify` passed; its certificate identifies NotTooSweetLabs Pte. Ltd.
+and its package is `one.kivilo.kivilo` with target SDK 36. Build `2` includes the
+approved privacy link, Gemini consent wording, and Android status-bar contrast fix.
+The default Play listing's text, icon, feature graphic, and five synthetic-device
+screenshots were uploaded to a Publishing API edit, but that edit could not be
+committed: the existing service account lacks **Manage store presence** permission
+(HTTP 403). The corresponding Play Console listing and policy declarations still
+need completion. The images remain locally under ignored `build/store-assets/android/`
+and `build/store-screenshots/android/`.
+
+The signed Android release app passed emulator password sign-in, photo and video
+capture, offline photo persistence across force-stop/relaunch, and upload after
+reconnection. The production database showed the offline photo registered once.
+This does not replace the required physical-device long-capture, low-connectivity,
+and push checks. `flutter analyze` had no issues and all 43 Flutter tests passed on
+the updated app tree. Complete a production check-in/check-out with signatures and
+assessment review before activating the internal release; the isolated AI-path probes
+above do not exercise the full workflow.
 
 Build from `mobile/`:
 
@@ -122,16 +164,17 @@ flutter build appbundle --release --dart-define-from-file=env.json
 flutter build ipa --release --dart-define-from-file=env.json
 ```
 
-Upload the AAB to Play internal testing and the IPA to App Store Connect/TestFlight.
-Check the signed artifact's application ID, version/build number, target API, permissions,
-and production URLs before inviting testers. Increase the build number for each upload.
+The AAB build `2` is already uploaded as a Play internal draft. The IPA build `2` is
+uploaded and attached to App Store version `1.0.0`. Check each signed artifact's application ID,
+version/build number, target API or iOS entitlements, permissions, and production URLs
+before inviting testers. Increase the build number for each subsequent upload.
 
 ## Review material
 
 - Use [the prepared listing copy](STORE_LISTING.md). The company approved the
   purpose-based privacy notice on 2026-10-11 and confirmed the support mailbox is
-  monitored. Publish `/privacy` with the app links, then verify its public URL before
-  entering it in both store listings.
+  monitored. `/privacy` is published and linked from the app; verify its public URL
+  before entering it in both store listings.
 - Provision separate Apple and Google reviewer logins with
   `pnpm exec tsx scripts/provision-store-reviewer.ts` from the repository root. Supply
   `KIVILO_REVIEWER_PROVISION=1`, `KIVILO_REVIEWER_TRACK=apple` or `google`, and a
@@ -164,13 +207,29 @@ and production URLs before inviting testers. Increase the build number for each 
   Use the public privacy policy, support contact, and `/delete-account` as the account
   deletion URL. Answer camera and microphone permission questions accurately.
 - The company reports the new production Gemini key's project as Tier 1 postpay.
-  The key was updated in Vercel Production before the Gemini check-out deployment.
-  Verify the deployed check-out route with isolated synthetic inventory; a local
-  `.env.deploy` probe still uses the older key and is not evidence for Production.
+  The key was updated in Vercel Production before the Gemini 3.1 deployment. The
+  production check-out and extraction paths passed isolated synthetic probes on
+  backend commit `1f200b6`; a local `.env.deploy` probe uses an older key and does
+  not establish Production behavior.
 - The company owner operates the deletion queue and Storage purge daily, completes
   requests within 30 days, and reviews retained shared records and deletion logs
   quarterly. `hello@nottoosweetlabs.com` is monitored. Record these reviews and any
   disposal; there is no automatic expiry for retained signed reports.
+- Each day, query the production Supabase SQL Editor for open requests or unsent
+  completion notices, record the check date and result, and escalate anything
+  approaching `dueAt`:
+
+  ```sql
+  SELECT id, status, "requestedAt", "dueAt", "notificationSentAt"
+  FROM "AccountDeletionRequest"
+  WHERE status <> 'COMPLETED'
+     OR ("email" IS NOT NULL AND "notificationSentAt" IS NULL)
+  ORDER BY "dueAt" ASC;
+  ```
+
+  Run the Storage purge worker with production credentials using Node 22 or newer;
+  this Mac's `node` is 26, while `pnpm exec` currently selects Node 20:
+  `DOTENV_CONFIG_PATH=.env.deploy node --import tsx scripts/purge-storage.ts`.
 - The deletion operator runs `scripts/fulfill-account-deletion.ts <request-id>`
   under the approved 2026-10-11 policy, explicitly setting
   `KIVILO_RETENTION_POLICY_VERSION=2026-10-11`, `KIVILO_RETAIN_SIGNED_RECORDS=1`,
@@ -191,7 +250,7 @@ and production URLs before inviting testers. Increase the build number for each 
   resumable using the same request ID and policy.
   Do not report fulfillment while the request is still `PROCESSING` or completion mail
   remains unsent.
-- Run `pnpm exec tsx scripts/purge-storage.ts` with production credentials daily
+- Run `node --import tsx scripts/purge-storage.ts` with production credentials daily
   and monitor nonzero exits. Deleting a capture or room writes a durable
   `StoragePurge` tombstone in the same transaction as the DB deletion. The worker
   waits at least three hours for signed upload URLs to expire, retries failed

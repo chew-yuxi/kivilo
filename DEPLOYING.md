@@ -90,10 +90,13 @@ Still open, and each one bites before the first real inspection:
 - **Production Gemini key.** A synthetic Gemini 2.5 Pro check-out comparison passed
   the schema and edge-case probe on 2026-10-11 under an older project. Google no
   longer permits that model on new projects; Kivilo now uses Gemini 3.1 Pro Preview.
-  The company reports its new key's
-  project is Tier 1 postpay; the key was saved in Vercel Production before the
-  Gemini check-out deployment. Exercise the deployed findings route with isolated
-  synthetic data before real use.
+  The company reports its new key's project is Tier 1 postpay; the key was saved in
+  Vercel Production before deployment. On backend commit `1f200b6`, isolated
+  synthetic inventory passed the deployed findings route (HTTP 200, one fair-wear
+  draft), and synthetic video/photo captures passed deployed room extraction
+  (HTTP 200, room REVIEW, one AI-authored item). All temporary Auth, database and
+  Storage fixtures were removed. A full signed check-in/check-out through the app
+  remains to be tested.
 - **Domain.** Settled as `kivilo.nottoosweetlabs.com` on 2026-08-23; the Supabase auth
   site URL and allow list already point at it. kivilo.io was still unregistered that day
   if a standalone name is ever wanted.
@@ -110,9 +113,9 @@ These are known gaps, not oversights. Decide each one deliberately.
   records have no automatic expiry; the owner records why each is still needed and
   deletes or de-identifies it when no stated purpose remains. The mailbox
   `hello@nottoosweetlabs.com` is monitored for Kivilo.
-- **The check-out diff still needs a real app-path rehearsal.** Run an isolated
-  synthetic check-out through the deployed findings route, then review a complete
-  check-out in the app before inviting agents.
+- **The full app workflow still needs a real rehearsal.** Production AI routes passed
+  isolated synthetic probes; review a complete check-in/check-out, both signatures,
+  and assessment publication in the app before inviting agents.
 - **Extraction failures are only visible in the app.** A room that fails parks as FAILED
   with the reason on the row, which an agent sees, but nothing pages anyone. Wire the
   `console.error` in `src/lib/actions.ts` to whatever you use for alerting.
