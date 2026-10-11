@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -427,6 +428,54 @@ void main() {
     expect(pending.claimedAt, isNull);
     expect(await file.exists(), isTrue);
   });
+
+  test(
+    'stalled metadata releases the lease and retries the same capture',
+    () async {
+      final id = await queued();
+      final original = (await queue.byId(id))!;
+      final file = File('${root.path}/${original.relativePath}');
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => server.close(force: true));
+      final seenClientIds = <String>[];
+      var uploadUrlRequests = 0;
+      server.listen((request) async {
+        final body = jsonDecode(await utf8.decoder.bind(request).join()) as Map;
+        seenClientIds.add(body['clientId'] as String);
+        if (request.uri.path.endsWith('/upload-url')) {
+          uploadUrlRequests++;
+          return; // Connected, but no response.
+        } else {
+          throw StateError('Unexpected evidence request ${request.uri.path}');
+        }
+      });
+
+      final dio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:${server.port}'));
+      addTearDown(dio.close);
+      final backend = HttpCaptureBackend(
+        dio,
+        metadataDeadline: const Duration(milliseconds: 150),
+      );
+
+      expect(await uploader(backend).drain(), isFalse);
+      final afterTimeout = (await queue.byId(id))!;
+      expect(afterTimeout.clientId, original.clientId);
+      expect(afterTimeout.lastError, contains('server did not respond'));
+      expect(afterTimeout.claimedAt, isNull);
+      expect(afterTimeout.leaseId, isNull);
+      expect(await file.exists(), isTrue);
+      expect(uploadUrlRequests, 1);
+      expect(seenClientIds, [original.clientId]);
+
+      final restored = FakeBackend();
+      expect(await uploader(restored).drain(), isTrue);
+      expect(await queue.byId(id), isNull);
+      expect(await file.exists(), isFalse);
+      expect(restored.uploads, 1);
+      expect(restored.registrations, 1);
+      expect(restored.ids.keys, [original.clientId]);
+    },
+  );
 
   for (final failure in [
     (

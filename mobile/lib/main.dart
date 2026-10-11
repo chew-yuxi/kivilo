@@ -8,6 +8,7 @@ import 'config.dart';
 import 'screens/home_screen.dart';
 import 'services/secure_session_store.dart';
 import 'services/capture_sync.dart';
+import 'services/foreground_capture_retry.dart';
 import 'services/push_notifications.dart';
 import 'screens/sign_in_screen.dart';
 import 'ui/kivilo_theme.dart';
@@ -64,19 +65,17 @@ class KiviloApp extends StatelessWidget {
   }
 }
 
-void _resumeCaptures() {
+Future<void> _resumeCaptures() async {
   if (Supabase.instance.client.auth.currentSession == null) return;
-  unawaited(
-    resumePendingCaptures()
-        .then((_) {})
-        .catchError(
-          (Object error) => debugPrint('capture resume error: $error'),
-        ),
-  );
+  try {
+    await resumePendingCaptures();
+  } catch (error) {
+    debugPrint('capture resume error: $error');
+  }
 }
 
 void _resumeUserServices() {
-  _resumeCaptures();
+  unawaited(_resumeCaptures());
   if (!Config.isPushComplete ||
       Supabase.instance.client.auth.currentSession == null) {
     return;
@@ -96,14 +95,18 @@ class _Root extends StatefulWidget {
 }
 
 class _RootState extends State<_Root> with WidgetsBindingObserver {
+  late final _captureRetry = ForegroundCaptureRetry(drain: _resumeCaptures);
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (Config.isComplete) _captureRetry.start();
   }
 
   @override
   void dispose() {
+    _captureRetry.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -111,7 +114,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && Config.isComplete) {
+      _captureRetry.start();
       _resumeUserServices();
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _captureRetry.stop();
     }
   }
 

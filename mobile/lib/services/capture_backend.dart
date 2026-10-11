@@ -3,6 +3,28 @@ import 'dart:io';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:dio/dio.dart';
 
+import 'api_failure.dart';
+
+const _metadataDeadline = Duration(seconds: 20);
+
+Future<Response<T>> _metadata<T>(
+  Future<Response<T>> Function(CancelToken) request,
+  Duration deadline,
+) {
+  final cancel = CancelToken();
+  return request(cancel).timeout(
+    deadline,
+    onTimeout: () {
+      cancel.cancel('Evidence metadata request deadline exceeded');
+      throw const ApiFailure(
+        'The server did not respond. Check your connection and retry. '
+        'Saved captures remain on this device.',
+        null,
+      );
+    },
+  );
+}
+
 /// Everything the uploader needs from the outside world, behind one interface so the
 /// hand-over rules can be tested without a network or a phone. Those rules are where the
 /// bugs live: what happens when the bytes land but the response does not, or when the
@@ -53,9 +75,11 @@ abstract class CaptureBackend {
 }
 
 class HttpCaptureBackend implements CaptureBackend {
-  HttpCaptureBackend(this._dio);
+  HttpCaptureBackend(this._dio, {Duration metadataDeadline = _metadataDeadline})
+    : _deadline = metadataDeadline;
 
   final Dio _dio;
+  final Duration _deadline;
   static Future<void>? _downloaderReady;
 
   @override
@@ -66,9 +90,13 @@ class HttpCaptureBackend implements CaptureBackend {
     String filename,
     String clientId,
   ) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/inspections/$inspectionId/rooms/$roomId/upload-url',
-      data: {'filename': filename, 'clientId': clientId},
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '/api/v1/inspections/$inspectionId/rooms/$roomId/upload-url',
+        data: {'filename': filename, 'clientId': clientId},
+        cancelToken: cancel,
+      ),
+      _deadline,
     );
     return (
       storagePath: response.data!['storagePath'] as String,
@@ -164,18 +192,22 @@ class HttpCaptureBackend implements CaptureBackend {
     String? note,
     Map<String, dynamic>? annotations,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/inspections/$inspectionId/rooms/$roomId/captures',
-      data: {
-        'kind': kind,
-        'storagePath': storagePath,
-        'clientId': clientId,
-        'mimeType': mimeType,
-        'sizeBytes': sizeBytes,
-        'durationSec': durationSec,
-        'note': note,
-        'annotations': annotations,
-      },
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '/api/v1/inspections/$inspectionId/rooms/$roomId/captures',
+        data: {
+          'kind': kind,
+          'storagePath': storagePath,
+          'clientId': clientId,
+          'mimeType': mimeType,
+          'sizeBytes': sizeBytes,
+          'durationSec': durationSec,
+          'note': note,
+          'annotations': annotations,
+        },
+        cancelToken: cancel,
+      ),
+      _deadline,
     );
     return (
       id: response.data!['id'] as String,
@@ -188,9 +220,13 @@ class HttpCaptureBackend implements CaptureBackend {
     String inspectionId,
     String captureId,
     String? note,
-  ) => _dio.patch<void>(
-    '/api/v1/inspections/$inspectionId/captures/$captureId',
-    data: {'note': note},
+  ) async => _metadata(
+    (cancel) => _dio.patch<void>(
+      '/api/v1/inspections/$inspectionId/captures/$captureId',
+      data: {'note': note},
+      cancelToken: cancel,
+    ),
+    _deadline,
   );
 
   @override
@@ -198,14 +234,24 @@ class HttpCaptureBackend implements CaptureBackend {
     String inspectionId,
     String captureId,
     Map<String, dynamic>? annotations,
-  ) => _dio.put<void>(
-    '/api/v1/inspections/$inspectionId/captures/$captureId/annotations',
-    data: {'annotations': annotations},
+  ) async => _metadata(
+    (cancel) => _dio.put<void>(
+      '/api/v1/inspections/$inspectionId/captures/$captureId/annotations',
+      data: {'annotations': annotations},
+      cancelToken: cancel,
+    ),
+    _deadline,
   );
 
   @override
-  Future<void> deleteCapture(String inspectionId, String captureId) => _dio
-      .delete<void>('/api/v1/inspections/$inspectionId/captures/$captureId');
+  Future<void> deleteCapture(String inspectionId, String captureId) async =>
+      _metadata(
+        (cancel) => _dio.delete<void>(
+          '/api/v1/inspections/$inspectionId/captures/$captureId',
+          cancelToken: cancel,
+        ),
+        _deadline,
+      );
 
   @override
   Future<void> finishRoom(String inspectionId, String roomId) =>
@@ -229,12 +275,20 @@ class RoutingEvidenceBackend implements CaptureBackend {
 
   @override
   Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
-      uploadUrl(String inspectionId, String roomId, String filename, String clientId) =>
-          _for(inspectionId).uploadUrl(inspectionId, roomId, filename, clientId);
+  uploadUrl(
+    String inspectionId,
+    String roomId,
+    String filename,
+    String clientId,
+  ) => _for(inspectionId).uploadUrl(inspectionId, roomId, filename, clientId);
 
   @override
-  Future<void> putBytes(String signedUrl, File file, String mimeType, String clientId) =>
-      _captures.putBytes(signedUrl, file, mimeType, clientId);
+  Future<void> putBytes(
+    String signedUrl,
+    File file,
+    String mimeType,
+    String clientId,
+  ) => _captures.putBytes(signedUrl, file, mimeType, clientId);
 
   @override
   Future<({bool annotationsApplied, String id})> registerCapture({
@@ -262,11 +316,17 @@ class RoutingEvidenceBackend implements CaptureBackend {
   );
 
   @override
-  Future<void> updateNote(String inspectionId, String captureId, String? note) =>
-      _for(inspectionId).updateNote(inspectionId, captureId, note);
+  Future<void> updateNote(
+    String inspectionId,
+    String captureId,
+    String? note,
+  ) => _for(inspectionId).updateNote(inspectionId, captureId, note);
   @override
-  Future<void> annotate(String inspectionId, String captureId, Map<String, dynamic>? annotations) =>
-      _for(inspectionId).annotate(inspectionId, captureId, annotations);
+  Future<void> annotate(
+    String inspectionId,
+    String captureId,
+    Map<String, dynamic>? annotations,
+  ) => _for(inspectionId).annotate(inspectionId, captureId, annotations);
   @override
   Future<void> deleteCapture(String inspectionId, String captureId) =>
       _for(inspectionId).deleteCapture(inspectionId, captureId);
@@ -287,15 +347,24 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
 
   @override
   Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
-      uploadUrl(String inspectionId, String roomId, String filename, String clientId) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/maintenance/${_caseId(inspectionId)}/upload-url',
-      data: {
-        'clientId': clientId,
-        'purpose': _target(roomId).purpose,
-        'visitId': _target(roomId).visitId,
-        'mimeType': 'image/jpeg',
-      },
+  uploadUrl(
+    String inspectionId,
+    String roomId,
+    String filename,
+    String clientId,
+  ) async {
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '/api/v1/maintenance/${_caseId(inspectionId)}/upload-url',
+        data: {
+          'clientId': clientId,
+          'purpose': _target(roomId).purpose,
+          'visitId': _target(roomId).visitId,
+          'mimeType': 'image/jpeg',
+        },
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
     );
     final data = response.data!;
     if (data['alreadyRegistered'] == true) {
@@ -313,8 +382,12 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
   }
 
   @override
-  Future<void> putBytes(String signedUrl, File file, String mimeType, String clientId) =>
-      HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
+  Future<void> putBytes(
+    String signedUrl,
+    File file,
+    String mimeType,
+    String clientId,
+  ) => HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
 
   @override
   Future<({bool annotationsApplied, String id})> registerCapture({
@@ -330,28 +403,41 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
     Map<String, dynamic>? annotations,
   }) async {
     final target = _target(roomId);
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/api/v1/maintenance/${_caseId(inspectionId)}/evidence',
-      data: {
-        'clientId': clientId,
-        'purpose': target.purpose,
-        'visitId': target.visitId,
-        'storagePath': storagePath,
-        'mimeType': mimeType,
-        'sizeBytes': sizeBytes,
-        'note': note,
-      },
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '/api/v1/maintenance/${_caseId(inspectionId)}/evidence',
+        data: {
+          'clientId': clientId,
+          'purpose': target.purpose,
+          'visitId': target.visitId,
+          'storagePath': storagePath,
+          'mimeType': mimeType,
+          'sizeBytes': sizeBytes,
+          'note': note,
+        },
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
     );
     return (id: response.data!['id'] as String, annotationsApplied: true);
   }
 
   Never _immutable() => throw StateError('Maintenance evidence is immutable.');
   @override
-  Future<void> updateNote(String inspectionId, String captureId, String? note) async => _immutable();
+  Future<void> updateNote(
+    String inspectionId,
+    String captureId,
+    String? note,
+  ) async => _immutable();
   @override
-  Future<void> annotate(String inspectionId, String captureId, Map<String, dynamic>? annotations) async => _immutable();
+  Future<void> annotate(
+    String inspectionId,
+    String captureId,
+    Map<String, dynamic>? annotations,
+  ) async => _immutable();
   @override
-  Future<void> deleteCapture(String inspectionId, String captureId) async => _immutable();
+  Future<void> deleteCapture(String inspectionId, String captureId) async =>
+      _immutable();
   @override
   Future<void> finishRoom(String inspectionId, String roomId) async {}
 }
