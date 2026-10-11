@@ -44,6 +44,18 @@ low-storage behavior, and simultaneous upload workers remain unverified on devic
 The Flutter uploader tests cover offline and authorization errors, but do not replace
 those physical checks.
 
+A follow-up queue fix is verified in source but is not part of build `8`. Running
+two independent SQLite connections concurrently reproduced `database is locked`
+while claiming work. Queue instances now share Drift's executor within a Flutter
+engine, and independent connections wait briefly for the current transaction.
+Three file-backed concurrency tests verify exclusive claims, heartbeat renewal,
+stale-worker rejection, and an edit made during an in-flight handover. An actual
+SQLite page-limit failure also preserves capture bytes and the recovery journal;
+removing that test limit imports the capture once. An expired-credential simulation
+verifies a fresh upload URL with the same capture identity. Flutter analysis and
+all 60 tests passed. These automated fault checks do not establish physical-device
+low-storage or expired-session behavior.
+
 The Android build `5` synthetic check-in completed real capture, offline caption
 editing, force-quit/relaunch, upload, Gemini extraction, human inventory editing,
 room review, and both test signatures. The caption survived offline restart and
@@ -144,8 +156,9 @@ enabled. On 2026-10-11 Firebase showed the production APNs key ID
 was installed as a sensitive Vercel production environment variable, a production
 redeploy completed, and the temporary local Admin key download was removed.
 The credential obtained a Google access token. Production pushes reached a physical
-Android phone running signed builds `2` and `4`; physical iPhone delivery and
-notification tap routing still need verification. The development APNs slot is
+Android phone running signed builds `2`, `4`, and `5`. On 2026-10-12 Singapore time,
+the user confirmed a native background notification on the physical TestFlight iPhone;
+tapping it opened Kivilo's Notifications screen. The development APNs slot is
 intentionally unconfigured.
 
 The checked-in iOS and Android client files match project `kivilo-b4e14` and the

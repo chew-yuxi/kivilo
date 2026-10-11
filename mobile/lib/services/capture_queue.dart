@@ -117,13 +117,23 @@ class CaptureHandoffs extends Table {
 @DriftDatabase(tables: [PendingCaptures, PendingRemoteEdits, CaptureHandoffs])
 class CaptureQueue extends _$CaptureQueue {
   CaptureQueue([QueryExecutor? executor])
-    : super(executor ?? driftDatabase(name: 'kivilo_captures'));
+    : super(
+        executor ??
+            driftDatabase(
+              name: 'kivilo_captures',
+              native: const DriftNativeOptions(shareAcrossIsolates: true),
+            ),
+      );
 
   @override
   int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    // Independent Flutter engines cannot share the Drift executor. Their short
+    // write transactions must wait for the current owner instead of failing at
+    // BEGIN IMMEDIATE before an upload can even acquire its lease.
+    beforeOpen: (_) => customStatement('PRAGMA busy_timeout = 5000'),
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
       if (from < 2) {

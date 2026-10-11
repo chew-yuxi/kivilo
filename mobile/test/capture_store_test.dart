@@ -153,6 +153,68 @@ void main() {
   });
 
   test(
+    'a full SQLite queue retains bytes and recovers after space is available',
+    () async {
+      final pages = (await queue.customSelect('PRAGMA page_count').getSingle())
+          .read<int>('page_count');
+      await queue.customStatement('PRAGMA max_page_count = $pages');
+      final store = CaptureStore(queue: queue, root: root);
+      String? failedClientId;
+      var acknowledged = 0;
+      for (var index = 0; index < 64; index++) {
+        final clientId = 'full-queue-$index';
+        final source = File('${root.path}/camera-$index.jpg')
+          ..writeAsBytesSync(List.filled(64, index));
+        try {
+          await store.save(
+            source: source,
+            ownerId: 'owner-a',
+            inspectionId: 'inspection-a',
+            roomId: 'room-a',
+            kind: 'PHOTO',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            clientId: clientId,
+          );
+          acknowledged++;
+        } catch (error) {
+          expect(error.toString(), contains('database or disk is full'));
+          failedClientId = clientId;
+          break;
+        }
+      }
+      expect(
+        failedClientId,
+        isNotNull,
+        reason: 'the test must exhaust its private SQLite page budget',
+      );
+      expect(await queue.forRoom('room-a', 'owner-a'), hasLength(acknowledged));
+      expect(await queue.byClientId(failedClientId!), isNull);
+      final durableFile = File(
+        '${root.path}/captures/owner-a/$failedClientId.jpg',
+      );
+      final journal = File('${root.path}/capture-intake/$failedClientId.json');
+      expect(durableFile.lengthSync(), 64);
+      expect(journal.existsSync(), isTrue);
+
+      await queue.customStatement('PRAGMA max_page_count = 1000');
+      expect(await store.reconcile('owner-a'), isEmpty);
+      expect(
+        await queue.forRoom('room-a', 'owner-a'),
+        hasLength(acknowledged + 1),
+      );
+      expect((await queue.byClientId(failedClientId))!.sizeBytes, 64);
+      expect(durableFile.existsSync(), isTrue);
+      expect(journal.existsSync(), isFalse);
+      expect(await store.reconcile('owner-a'), isEmpty);
+      expect(
+        await queue.forRoom('room-a', 'owner-a'),
+        hasLength(acknowledged + 1),
+      );
+    },
+  );
+
+  test(
     'a stale intake journal does not resurrect handed-over evidence',
     () async {
       final source = File('${root.path}/camera-temp.jpg')

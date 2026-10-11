@@ -17,6 +17,7 @@ class FakeBackend implements CaptureBackend {
     this.rejectEdits = false,
     this.rejectDeletes = false,
     this.acceptInitialAnnotations = true,
+    this.expireFirstCredential = false,
   });
 
   final bool failPut;
@@ -26,6 +27,7 @@ class FakeBackend implements CaptureBackend {
   final bool rejectEdits;
   final bool rejectDeletes;
   final bool acceptInitialAnnotations;
+  final bool expireFirstCredential;
   final calls = <String>[];
   final notes = <String?>[];
   final registeredNotes = <String?>[];
@@ -35,6 +37,8 @@ class FakeBackend implements CaptureBackend {
   bool stored = false;
   int uploads = 0;
   int registrations = 0;
+  int credentials = 0;
+  final usedCredentials = <String>[];
 
   @override
   Future<({String storagePath, String? signedUrl, bool alreadyUploaded})>
@@ -48,9 +52,10 @@ class FakeBackend implements CaptureBackend {
       throw StateError('countersigned: no new upload URLs');
     }
     calls.add('uploadUrl');
+    credentials++;
     return (
       storagePath: '$roomId/$clientId.jpg',
-      signedUrl: stored ? null : 'https://storage.test/upload',
+      signedUrl: stored ? null : 'https://storage.test/upload/$credentials',
       alreadyUploaded: stored,
     );
   }
@@ -64,6 +69,15 @@ class FakeBackend implements CaptureBackend {
   ) async {
     calls.add('putBytes');
     uploads++;
+    usedCredentials.add(signedUrl);
+    if (expireFirstCredential && uploads == 1) {
+      final request = RequestOptions(path: signedUrl);
+      throw DioException(
+        requestOptions: request,
+        response: Response(requestOptions: request, statusCode: 403),
+        type: DioExceptionType.badResponse,
+      );
+    }
     if (duringUpload != null) await duringUpload!();
     if (failPut) throw StateError('putBytes failed');
     stored = true;
@@ -359,6 +373,32 @@ void main() {
     expect(await file.exists(), isTrue);
   });
 
+  test(
+    'an expired upload credential is replaced without changing capture identity',
+    () async {
+      final id = await queued();
+      final original = (await queue.byId(id))!;
+      final file = File('${root.path}/${original.relativePath}');
+      final backend = FakeBackend(expireFirstCredential: true);
+      expect(await uploader(backend).drain(), isFalse);
+      final pending = (await queue.byId(id))!;
+      expect(pending.attempts, 1);
+      expect(pending.registrationPrepared, isFalse);
+      expect(pending.clientId, original.clientId);
+      expect(await file.exists(), isTrue);
+      expect(backend.registrations, 0);
+
+      // A new worker after restart asks for a fresh credential for the same path.
+      expect(await uploader(backend).drain(), isTrue);
+      expect(backend.credentials, 2);
+      expect(backend.usedCredentials.toSet(), hasLength(2));
+      expect(backend.ids.keys.single, original.clientId);
+      expect(backend.registrations, 1);
+      expect(await queue.byId(id), isNull);
+      expect(await file.exists(), isFalse);
+    },
+  );
+
   test('offline upload keeps evidence with a readable retry message', () async {
     final id = await queued();
     final file = File('${root.path}/${(await queue.byId(id))!.relativePath}');
@@ -544,56 +584,63 @@ void main() {
     );
   });
 
-  test('maintenance evidence uses the shared queue backend with maintenance routes', () async {
-    final calls = <RequestOptions>[];
-    final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          calls.add(options);
-          if (options.path.endsWith('/upload-url')) {
-            handler.resolve(Response(
-              requestOptions: options,
-              statusCode: 200,
-              data: {
-                'storagePath': 'maintenance/case-1/client.jpg',
-                'signedUrl': 'https://storage.invalid/upload',
-                'alreadyUploaded': false,
-              },
-            ));
-          } else {
-            handler.resolve(Response(
-              requestOptions: options,
-              statusCode: 200,
-              data: {'id': 'evidence-1'},
-            ));
-          }
-        },
-      ),
-    );
-    final backend = RoutingEvidenceBackend(dio);
-    final credential = await backend.uploadUrl(
-      'maintenance:case-1',
-      'AFTER|visit-1',
-      'client.jpg',
-      '2fd725c5-4699-4b21-802d-b3f423274cb6',
-    );
-    final registered = await backend.registerCapture(
-      inspectionId: 'maintenance:case-1',
-      roomId: 'AFTER|visit-1',
-      kind: 'AFTER',
-      storagePath: credential.storagePath,
-      clientId: '2fd725c5-4699-4b21-802d-b3f423274cb6',
-      mimeType: 'image/jpeg',
-      sizeBytes: 123,
-    );
+  test(
+    'maintenance evidence uses the shared queue backend with maintenance routes',
+    () async {
+      final calls = <RequestOptions>[];
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            calls.add(options);
+            if (options.path.endsWith('/upload-url')) {
+              handler.resolve(
+                Response(
+                  requestOptions: options,
+                  statusCode: 200,
+                  data: {
+                    'storagePath': 'maintenance/case-1/client.jpg',
+                    'signedUrl': 'https://storage.invalid/upload',
+                    'alreadyUploaded': false,
+                  },
+                ),
+              );
+            } else {
+              handler.resolve(
+                Response(
+                  requestOptions: options,
+                  statusCode: 200,
+                  data: {'id': 'evidence-1'},
+                ),
+              );
+            }
+          },
+        ),
+      );
+      final backend = RoutingEvidenceBackend(dio);
+      final credential = await backend.uploadUrl(
+        'maintenance:case-1',
+        'AFTER|visit-1',
+        'client.jpg',
+        '2fd725c5-4699-4b21-802d-b3f423274cb6',
+      );
+      final registered = await backend.registerCapture(
+        inspectionId: 'maintenance:case-1',
+        roomId: 'AFTER|visit-1',
+        kind: 'AFTER',
+        storagePath: credential.storagePath,
+        clientId: '2fd725c5-4699-4b21-802d-b3f423274cb6',
+        mimeType: 'image/jpeg',
+        sizeBytes: 123,
+      );
 
-    expect(registered.id, 'evidence-1');
-    expect(calls.map((call) => call.path), [
-      '/api/v1/maintenance/case-1/upload-url',
-      '/api/v1/maintenance/case-1/evidence',
-    ]);
-    expect((calls.first.data as Map)['visitId'], 'visit-1');
-    expect((calls.last.data as Map)['purpose'], 'AFTER');
-  });
+      expect(registered.id, 'evidence-1');
+      expect(calls.map((call) => call.path), [
+        '/api/v1/maintenance/case-1/upload-url',
+        '/api/v1/maintenance/case-1/evidence',
+      ]);
+      expect((calls.first.data as Map)['visitId'], 'visit-1');
+      expect((calls.last.data as Map)['purpose'], 'AFTER');
+    },
+  );
 }
