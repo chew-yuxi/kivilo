@@ -13,9 +13,10 @@ from 40 to 71 captures, then to 72 after a focused background-upload probe.
 All 72 have distinct client IDs and matching private Storage objects and byte
 sizes. A real upload remained active after Kivilo was backgrounded, with the
 `Uploading Kivilo evidence` foreground notification visible. The short,
-privacy-reviewed demonstration is prepared for
-`https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4` but is
-not yet deployed; the `dataSync` foreground-service declaration remains pending.
+privacy-reviewed demonstration is deployed at
+`https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4`. Its public
+bytes match the reviewed SHA-256 and byte-range playback returns HTTP 206. The
+`dataSync` foreground-service declaration remains pending.
 A continuous background transfer longer than nine minutes, physical low-storage
 recovery, and recovery after an already expired session remain unverified.
 The iOS build is unaffected by this Android service failure.
@@ -72,8 +73,11 @@ published. The listing has no remaining required-image errors.
 The prepared production payload targets versionCode `13`, containing the
 Android foreground WorkManager upload fix. The reconnect regression passed;
 the short background-upload probe passed with 72/72 captures and private Storage
-objects. Its reviewed, genuine synthetic demonstration is prepared for the URL
-above, but still needs deployment and the Play foreground-service declaration.
+objects. Its reviewed, genuine synthetic demonstration is live at the URL
+above; the Play foreground-service declaration remains pending. Build 13 alone
+is selected in the open production library picker, but its footer Add to release
+button is outside the browser tool's accessible snapshot. The user has been asked
+to click it; no bundle has yet been added or production release saved.
 The private reviewer login
 was recently verified, and its Play Sign in details were saved with optional
 Google/partner credential sharing off.

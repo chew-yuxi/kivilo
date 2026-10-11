@@ -14,9 +14,12 @@ foreground service. Flutter analysis and all 70 tests pass. The merged release
 manifest has both foreground-service permissions and no
 `RUN_USER_INITIATED_JOBS`; APK and AAB signing match the established upload key.
 Google's new foreground-service declaration remains pending. A genuine synthetic
-capture/upload demonstration has been privacy-reviewed and prepared for
-`https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4`; the
-video has not yet been deployed to that URL.
+capture/upload demonstration has been privacy-reviewed and deployed at
+`https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4`. The public
+URL returns HTTP 200 with the exact reviewed SHA-256 and supports HTTP 206 byte
+ranges. Production deployment `dpl_5C1XnP5tCqo91iyaRgp2dP9eLeqD` built successfully;
+privacy, support and deletion pages return 200, and unauthenticated `/api/v1/me`
+returns 401.
 On the Nothing phone, 30 new offline photos and a three-minute video survived
 force-stop/relaunch while offline, then handed over without tapping Retry. The
 isolated room increased from 40 to 71 captures (65 photos, six videos), with 71
@@ -37,7 +40,9 @@ lasting more than nine minutes.
 
 Build `12` (source `333b099`) remains on internal TestFlight. Play internal
 testing now serves signed build `13` (`completed:13`); production has only an
-empty, bundle-less Console draft, with no public rollout.
+empty, bundle-less Console draft, with no public rollout. In the open Console
+library picker, build 13 alone is selected; the browser tool cannot reach its
+footer Add to release button, so adding it to the draft awaits that manual click.
 Apple's build `da103e08-bfc0-43f3-9e10-4f39579e5ef5` is VALID, selected on the
 unsubmitted version draft, and installed in-place on the physical iPhone.
 Apple review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version
