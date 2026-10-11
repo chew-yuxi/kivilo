@@ -86,8 +86,9 @@ enabled. On 2026-10-11 Firebase showed the production APNs key ID
 `JK75WN48PB` with team `4N9TA3WSYM`. The Firebase Admin service-account JSON
 was installed as a sensitive Vercel production environment variable, a production
 redeploy completed, and the temporary local Admin key download was removed.
-The credential obtained a Google access token, but no physical-device delivery
-test has passed. The development APNs slot is intentionally unconfigured.
+The credential obtained a Google access token. A production push reached a physical
+Android phone running signed build `2`; iPhone delivery and build `3` push behavior
+still need verification. The development APNs slot is intentionally unconfigured.
 
 The checked-in iOS and Android client files match project `kivilo-b4e14` and the
 Kivilo bundle/package ID. The iOS plist is part of the Runner target, and the Android
@@ -116,7 +117,7 @@ App Store Connect accepted the upload (build ID
 The archive used a dedicated temporary signing keychain to avoid repeated
 login-keychain authorization prompts; that temporary keychain was removed after export.
 
-The final candidate for this version, build `2`, includes the approved privacy link,
+The preceding candidate for this version, build `2`, includes the approved privacy link,
 Gemini consent wording, and status-bar contrast fix. Its Apple Distribution archive
 and exported IPA at `build/ios/ipa/Kivilo-1.0.0+2.ipa` passed strict `codesign`
 verification with bundle ID `one.kivilo.kivilo`, team `4N9TA3WSYM`,
@@ -158,6 +159,49 @@ committed: the existing service account lacks **Manage store presence** permissi
 need completion. The images remain locally under ignored `build/store-assets/android/`
 and `build/store-screenshots/android/`.
 
+The iPhone-only build `3` (`1.0.0+3`) includes the redesigned Flutter UI and branded
+launch screen. Its production-signed IPA passed strict `codesign` verification with
+bundle ID `one.kivilo.kivilo`, team `4N9TA3WSYM`,
+`aps-environment=production`, `get-task-allow=false`, and iPhone-only device family.
+The verified local IPA SHA-256 is
+`ea3a3e3f8260fb499c843da70e250e60439f17d4aee6708955cc652888feaa60`.
+App Store Connect accepted build ID `255ecac2-a8e3-46e4-9363-65fd51de4274` as
+`VALID`; it is attached to version `1.0.0` and is `IN_BETA_TESTING` in the
+`Kivilo Internal` TestFlight group. Its encryption declaration is `false` as
+approved for this OS HTTPS/Keychain-only build. No public review submission has
+been made. The booted iPhone 17 Pro Max simulator is too large for Apple's mandatory
+medium Dynamic Island screenshot slot; an iPhone 17 Pro simulator is available,
+but signed-in build `3` screenshots still need to be captured there.
+
+On 2026-10-11, the redesigned Flutter experience was pushed to `main` at `c6fa1bf`
+and the branded iOS launch screen at `2d2f173`. Home, sign-in, inspections, capture,
+room review, signing, sharing, and assessment screens received a consistent Kivilo
+theme. A release-signed Android build `3` (`1.0.0+3`) was uploaded and committed to
+Kivilo's **internal** Play track; a post-commit API read reports `completed:3`.
+Its AAB SHA-256 is
+`a90189c11aeab5408cf1e28fa34cdf438c028d4d41b3aef5f135eee808c732f0`;
+the upload signature and package match build `2`. Build `3` includes a branded
+monochrome FCM notification icon. It is not public and tester access still needs
+the Kivilo internal tester list selected. The redesign's sign-in and password
+screens were inspected on a 411×914 dp Android emulator without clipping, including
+with the keyboard open. The emulator's DNS stopped resolving hostnames, so signed-in
+visual QA remains open; sign-in now reports a clear connection error. Flutter
+analysis and all 43 tests passed after the redesign. Server typecheck, lint, build,
+58 unit tests, 35 local integration tests, and 3 Playwright end-to-end tests passed
+on the same tree. Playwright must be invoked with Node 22+ directly here because
+the `pnpm` shim selects Node 20 for test workers.
+
+On a physical Nothing A065 running signed build `2`, synthetic password login,
+inspection navigation, FCM registration, and an actual production push notification
+passed. The phone remained locked after that test, so 30-photo, ten-minute video,
+offline, and restart checks have not yet run. A production-configured, upload-signed
+build `3` APK was installed over build `2` on that phone without losing the synthetic
+session; Home rendered the redesigned UI. The APK SHA-256 is
+`6a4ffd014c58f7ffbfb436d9c9d931f69b6601dd9f18bca2e6c6eba9db03e4df`.
+The phone owner began using it, so further device input stopped. Build `3` capture
+and push have not been retested yet. The physical iPhone requires TestFlight
+installation/sign-in for camera and production APNs verification.
+
 The signed Android release app passed emulator password sign-in, photo and video
 capture, offline photo persistence across force-stop/relaunch, and upload after
 reconnection. The production database showed the offline photo registered once.
@@ -176,10 +220,10 @@ flutter build appbundle --release --dart-define-from-file=env.json
 flutter build ipa --release --dart-define-from-file=env.json
 ```
 
-The AAB build `2` is already uploaded as a Play internal draft. The IPA build `2` is
-uploaded, attached to App Store version `1.0.0`, and available to its sole internal
-TestFlight invitee. Verify the installed builds on physical devices before any public
-submission. Increase the build number for each subsequent upload.
+Build `3` is on Play internal testing and internal TestFlight, and is attached to
+App Store version `1.0.0`. Neither build has been submitted for public review.
+Verify the installed builds on physical devices before public submission. Increase
+the build number for each subsequent upload.
 
 ## Review material
 
@@ -212,7 +256,11 @@ submission. Increase the build number for each subsequent upload.
   to real inspectors.
 - Capture screenshots from the actual release build using synthetic parties and a
   synthetic property. Show capture, review, the signed inventory, and the separate
-  published assessment. Never use a real unit's imagery in store metadata.
+  published assessment. Never use a real unit's imagery in store metadata. For the
+  current iPhone-only build, Apple requires at least one Dynamic Island medium-display
+  image at `1179×2556` or `1206×2622`; its current
+  [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications)
+  do not require iPad images when iPad is unsupported.
 - Complete Apple App Privacy and Google Data safety declarations for names, email,
   property address, photos, video, audio, signatures, and diagnostic IP address. Declare
   external processing through Google Gemini, private storage, and email delivery.
@@ -280,7 +328,7 @@ relaunch, and confirm every capture appears once. Check portrait mark placement 
 desktop shared report. Run the repository's server checks and local Supabase integration
 and end-to-end suites. Keep the testing builds open while resolving store review notes.
 
-### Apple App Privacy answer sheet for build 2
+### Apple App Privacy answer sheet for build 3
 
 The iOS app **collects data**. Apple defines collection as transmitting data off the
 device where we or a provider can access it beyond servicing the immediate request.
