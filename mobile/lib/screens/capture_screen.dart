@@ -13,6 +13,7 @@ import '../services/api.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
+import '../services/camera_startup.dart';
 import '../services/recording_screen_awake.dart';
 import '../services/uploader.dart';
 import '../ui/kivilo_components.dart';
@@ -37,6 +38,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     with WidgetsBindingObserver {
   final _api = Api();
   final _queue = CaptureQueue();
+  final _cameraStartup = CameraStartup();
   final _screenAwake = RecordingScreenAwake();
   late final _backend = RoutingEvidenceBackend(_api.dio);
   late final String _ownerId = Supabase.instance.client.auth.currentUser!.id;
@@ -115,8 +117,14 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
-  Future<void> _initCamera() async {
-    if (!mounted || !_isForeground || _room == null || _camera != null) return;
+  Future<void> _initCamera({bool retry = false}) =>
+      _cameraStartup.open(_openCamera, explicitRetry: retry);
+
+  Future<bool> _openCamera() async {
+    if (!mounted || !_isForeground || _room == null) return false;
+    if (_camera != null) return true;
+    CameraController? controller;
+    final videoMode = _videoMode;
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
@@ -126,21 +134,32 @@ class _CaptureScreenState extends State<CaptureScreen>
         (camera) => camera.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
-      final controller = CameraController(
+      controller = CameraController(
         description,
         ResolutionPreset.high,
-        enableAudio: _videoMode,
+        enableAudio: videoMode,
       );
       await controller.initialize();
-      if (!mounted || !_isForeground) {
-        await controller.dispose();
-        return;
+      if (!mounted ||
+          !_isForeground ||
+          _camera != null ||
+          _videoMode != videoMode) {
+        return false;
       }
+      final ready = controller;
       setState(() {
-        _camera = controller;
+        _camera = ready;
         _error = null;
       });
+      controller = null; // The screen now owns the initialized controller.
+      return true;
     } on CameraException catch (error) {
+      if (error.code == 'CameraAccessDenied' ||
+          error.code == 'CameraAccessDeniedWithoutPrompt' ||
+          error.code == 'AudioAccessDenied' ||
+          error.code == 'AudioAccessDeniedWithoutPrompt') {
+        _cameraStartup.markPermissionDenied();
+      }
       if (mounted) {
         setState(
           () => _error = switch (error.code) {
@@ -152,8 +171,23 @@ class _CaptureScreenState extends State<CaptureScreen>
           },
         );
       }
+      return false;
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());
+      return false;
+    } finally {
+      if (controller != null) {
+        try {
+          await controller.dispose();
+        } catch (error) {
+          // Keep the original permission/startup error visible while recording
+          // a cleanup failure that may indicate the native camera is still held.
+          debugPrint('Could not release camera after startup: $error');
+          if (mounted && _error == null) {
+            setState(() => _error = 'Camera could not be released: $error');
+          }
+        }
+      }
     }
   }
 
@@ -174,7 +208,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     final old = _camera;
     setState(() => _camera = null);
     await old?.dispose();
-    await _initCamera();
+    await _initCamera(retry: true);
   }
 
   Future<void> _takePhoto() async {
@@ -878,7 +912,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: _initCamera,
+                    onPressed: () => unawaited(_initCamera(retry: true)),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Open camera'),
                   ),
