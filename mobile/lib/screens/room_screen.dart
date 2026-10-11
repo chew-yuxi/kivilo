@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../ui/kivilo_components.dart';
+import '../ui/kivilo_theme.dart';
 import 'capture_screen.dart';
 
 class RoomScreen extends StatefulWidget {
@@ -206,25 +208,72 @@ class _RoomScreenState extends State<RoomScreen> {
             );
           }
           final room = snapshot.data!;
+          final photos = room.captures
+              .where((capture) => capture.kind == 'PHOTO')
+              .length;
+          final videos = room.captures.length - photos;
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
             children: [
-              if (_api.offlineCopy)
-                const Card(
-                  child: ListTile(
-                    leading: Icon(Icons.cloud_off_outlined),
-                    title: Text('Offline copy'),
-                    subtitle: Text(
-                      'Capture can continue; review edits need a connection.',
+              if (_api.offlineCopy) ...[
+                Card(
+                  color: KiviloColors.amberSoft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.cloud_off_outlined,
+                          color: KiviloColors.amber,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Offline copy. Keep capturing; review edits need a connection.',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const SizedBox(height: 18),
+              ],
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: KiviloColors.pinkSoft,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.meeting_room_outlined,
+                      color: KiviloColors.pinkDark,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
                   Expanded(
-                    child: Text(
-                      room.name,
-                      style: Theme.of(context).textTheme.headlineSmall,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'ROOM RECORD',
+                          style: TextStyle(
+                            color: KiviloColors.pinkDark,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          room.name,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ],
                     ),
                   ),
                   if (widget.editable)
@@ -244,165 +293,403 @@ class _RoomScreenState extends State<RoomScreen> {
                     ),
                 ],
               ),
-              Text(room.status == 'REVIEWED' ? 'Reviewed' : room.status),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  KiviloStatusPill(status: room.status),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} · $photos photos · $videos videos',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Card(
+                color: KiviloColors.canvas,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        room.status == 'REVIEWED'
+                            ? Icons.check_circle_outline
+                            : Icons.info_outline,
+                        size: 20,
+                        color: room.status == 'REVIEWED'
+                            ? KiviloColors.green
+                            : KiviloColors.muted,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          !widget.editable
+                              ? 'This inventory is fixed for signing. Evidence remains available below.'
+                              : switch (room.status) {
+                                  'PENDING' =>
+                                    'Start with a narrated walkthrough, then photograph labels and details.',
+                                  'CAPTURING' =>
+                                    'Keep capturing. When ready, draft the room inventory from your evidence.',
+                                  'PROCESSING' =>
+                                    'Kivilo is drafting the room inventory. This page will update when it is ready.',
+                                  'REVIEW' =>
+                                    'Check every drafted item against the evidence before marking this room reviewed.',
+                                  'REVIEWED' =>
+                                    'This room has been reviewed. You can still add evidence while the report is open.',
+                                  _ =>
+                                    'Drafting needs attention. Review captures and retry from the capture screen.',
+                                },
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               if (room.processingError != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  room.processingError!,
-                  style: const TextStyle(color: Colors.red),
+                const SizedBox(height: 12),
+                Card(
+                  color: KiviloColors.redSoft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Text(
+                      room.processingError!,
+                      style: const TextStyle(color: KiviloColors.red),
+                    ),
+                  ),
                 ),
               ],
               if (_error != null) ...[
-                const SizedBox(height: 8),
-                Text(_error!, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 12),
+                Card(
+                  color: KiviloColors.redSoft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: KiviloColors.red),
+                    ),
+                  ),
+                ),
               ],
               if (widget.editable) ...[
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: _busy ? null : _capture,
                   icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text('Capture video or photos'),
+                  label: const Text('Open camera & evidence'),
                 ),
-                if (room.status == 'FAILED')
+                if (room.status == 'FAILED') ...[
+                  const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: _busy ? null : _capture,
                     icon: const Icon(Icons.refresh),
                     label: const Text('Review captures and retry drafting'),
                   ),
-              ],
-              const SizedBox(height: 24),
-              Text('Evidence', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              if (room.captures.isEmpty)
-                const Text('No captures have reached the server yet.'),
-              if (room.captures.isNotEmpty)
-                SizedBox(
-                  height: 112,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: room.captures.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 8),
-                    itemBuilder: (_, index) {
-                      final capture = room.captures[index];
-                      return Semantics(
-                        label: capture.kind == 'PHOTO'
-                            ? 'Photo evidence'
-                            : 'Video evidence',
-                        child: SizedBox(
-                          width: 110,
-                          child: capture.kind == 'PHOTO'
-                              ? Image.network(
-                                  capture.url,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, _, _) =>
-                                      const Icon(Icons.broken_image_outlined),
-                                )
-                              : const Card(
-                                  child: Center(
-                                    child: Icon(Icons.videocam_outlined),
-                                  ),
-                                ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Inventory',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  if (widget.editable)
-                    TextButton.icon(
-                      onPressed: _busy
-                          ? null
-                          : () => _run(
-                              () => _api.addItem(
-                                widget.inspectionId,
-                                widget.roomId,
-                              ),
-                            ),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add item'),
-                    ),
                 ],
+              ],
+              const SizedBox(height: 30),
+              KiviloSectionHeading(
+                title: 'Evidence',
+                subtitle: room.captures.isEmpty
+                    ? 'The source record for this room'
+                    : '${room.captures.length} synced ${room.captures.length == 1 ? 'capture' : 'captures'}',
               ),
-              if (room.items.isEmpty)
-                const Text(
-                  'No items drafted yet. Add an item or process your captures.',
-                ),
-              for (final item in room.items)
+              const SizedBox(height: 12),
+              if (room.captures.isEmpty)
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 28,
+                    ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            if (widget.editable)
-                              IconButton(
-                                tooltip: 'Edit item',
-                                icon: const Icon(Icons.edit_outlined),
-                                onPressed: _busy ? null : () => _editItem(item),
-                              ),
-                            if (widget.editable)
-                              IconButton(
-                                tooltip: 'Delete item',
-                                icon: const Icon(Icons.delete_outline),
-                                onPressed: _busy
-                                    ? null
-                                    : () => _deleteItem(item),
-                              ),
-                          ],
+                        const Icon(
+                          Icons.photo_camera_back_outlined,
+                          size: 32,
+                          color: KiviloColors.subtle,
                         ),
+                        const SizedBox(height: 10),
                         Text(
-                          '${item.category} · ${item.condition} · Qty ${item.quantity}',
+                          'No synced captures yet',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        if (item.identifier != null)
-                          Text('Identifier: ${item.identifier}'),
-                        if (item.meterReading != null)
-                          Text('Reading: ${item.meterReading}'),
-                        if (item.notes != null) Text(item.notes!),
-                        if (!item.editedByHuman && item.confidence != null)
-                          Text(
-                            'AI draft · ${(item.confidence! * 100).round()}% confidence',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Captures saved on this phone appear here after upload.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ],
                     ),
                   ),
                 ),
-              if (widget.editable && room.status == 'REVIEW') ...[
-                const SizedBox(height: 20),
-                FilledButton(
-                  onPressed: _busy
-                      ? null
-                      : () => _run(
-                          () => _api.markRoomReviewed(
-                            widget.inspectionId,
-                            widget.roomId,
-                          ),
+              if (room.captures.isNotEmpty)
+                SizedBox(
+                  height: 132,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: room.captures.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    itemBuilder: (_, index) {
+                      final capture = room.captures[index];
+                      return _evidenceCard(capture, index + 1);
+                    },
+                  ),
+                ),
+              const SizedBox(height: 30),
+              KiviloSectionHeading(
+                title: 'Inventory',
+                subtitle:
+                    '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
+                action: widget.editable
+                    ? TextButton.icon(
+                        onPressed: _busy
+                            ? null
+                            : () => _run(
+                                () => _api.addItem(
+                                  widget.inspectionId,
+                                  widget.roomId,
+                                ),
+                              ),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              if (room.items.isEmpty)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 28,
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.inventory_2_outlined,
+                          size: 32,
+                          color: KiviloColors.subtle,
                         ),
-                  child: const Text('I reviewed this room'),
+                        const SizedBox(height: 10),
+                        Text(
+                          'No inventory items yet',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Add an item or draft from your room captures.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              for (final item in room.items) ...[
+                _inventoryCard(item),
+                const SizedBox(height: 10),
+              ],
+              if (widget.editable && room.status == 'REVIEW') ...[
+                const SizedBox(height: 10),
+                Card(
+                  color: KiviloColors.pinkSoft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Finish this room',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Confirm every item against the photos and video. Your review makes this draft ready for the report.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 14),
+                        FilledButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : () => _run(
+                                  () => _api.markRoomReviewed(
+                                    widget.inspectionId,
+                                    widget.roomId,
+                                  ),
+                                ),
+                          icon: const Icon(Icons.check_rounded),
+                          label: const Text('I reviewed this room'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
               if (_busy) const Center(child: CircularProgressIndicator()),
             ],
           );
         },
+      ),
+    ),
+  );
+
+  Widget _evidenceCard(EvidenceCapture capture, int number) => Semantics(
+    label: capture.kind == 'PHOTO' ? 'Photo evidence' : 'Video evidence',
+    child: SizedBox(
+      width: 120,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            Expanded(
+              child: SizedBox.expand(
+                child: ColoredBox(
+                  color: KiviloColors.canvas,
+                  child: capture.kind == 'PHOTO'
+                      ? Image.network(
+                          capture.url,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, _, _) => const Icon(
+                            Icons.broken_image_outlined,
+                            color: KiviloColors.subtle,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.videocam_outlined,
+                          size: 30,
+                          color: KiviloColors.pinkDark,
+                        ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              child: Row(
+                children: [
+                  Icon(
+                    capture.kind == 'PHOTO'
+                        ? Icons.photo_outlined
+                        : Icons.videocam_outlined,
+                    size: 14,
+                    color: KiviloColors.muted,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  Widget _inventoryCard(InventoryItem item) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  item.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              if (widget.editable) ...[
+                IconButton(
+                  tooltip: 'Edit item',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  onPressed: _busy ? null : () => _editItem(item),
+                ),
+                IconButton(
+                  tooltip: 'Delete item',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.delete_outline, size: 20),
+                  onPressed: _busy ? null : () => _deleteItem(item),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 5),
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: [
+              _itemTag(item.category.replaceAll('_', ' ')),
+              _itemTag(item.condition.replaceAll('_', ' ')),
+              _itemTag('Qty ${item.quantity}'),
+            ],
+          ),
+          if (item.identifier != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Identifier  ${item.identifier}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+          if (item.meterReading != null) ...[
+            const SizedBox(height: 5),
+            Text(
+              'Reading  ${item.meterReading}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+          if (item.notes != null) ...[
+            const SizedBox(height: 9),
+            Text(item.notes!, style: Theme.of(context).textTheme.bodyMedium),
+          ],
+          if (!item.editedByHuman && item.confidence != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(
+                  Icons.auto_awesome_outlined,
+                  size: 15,
+                  color: KiviloColors.pinkDark,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'AI draft · ${(item.confidence! * 100).round()}% confidence',
+                  style: const TextStyle(
+                    color: KiviloColors.pinkDark,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
+
+  Widget _itemTag(String label) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+    decoration: BoxDecoration(
+      color: KiviloColors.canvas,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Text(
+      label,
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: KiviloColors.muted,
       ),
     ),
   );
@@ -468,25 +755,42 @@ class _ItemEditorState extends State<ItemEditor> {
   @override
   Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.fromLTRB(
-      16,
-      16,
-      16,
-      MediaQuery.viewInsetsOf(context).bottom + 16,
+      20,
+      12,
+      20,
+      MediaQuery.viewInsetsOf(context).bottom + 24,
     ),
     child: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Center(
+            child: Container(
+              width: 34,
+              height: 4,
+              decoration: BoxDecoration(
+                color: KiviloColors.border,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
             'Edit inventory item',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
+          Text(
+            'Confirm the details against room evidence.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 20),
           TextField(
             controller: _name,
             decoration: const InputDecoration(labelText: 'Name'),
           ),
+          const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _category,
             decoration: const InputDecoration(labelText: 'Category'),
@@ -497,6 +801,7 @@ class _ItemEditorState extends State<ItemEditor> {
                 .toList(),
             onChanged: (value) => setState(() => _category = value!),
           ),
+          const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _condition,
             decoration: const InputDecoration(labelText: 'Condition'),
@@ -507,30 +812,36 @@ class _ItemEditorState extends State<ItemEditor> {
                 .toList(),
             onChanged: (value) => setState(() => _condition = value!),
           ),
+          const SizedBox(height: 12),
           TextField(
             controller: _quantity,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(labelText: 'Quantity'),
           ),
+          const SizedBox(height: 12),
           TextField(
             controller: _identifier,
             decoration: const InputDecoration(
               labelText: 'Make, model or serial',
             ),
           ),
+          const SizedBox(height: 12),
           TextField(
             controller: _meterReading,
             decoration: const InputDecoration(labelText: 'Meter reading'),
           ),
+          const SizedBox(height: 12),
           TextField(
             controller: _notes,
             minLines: 2,
             maxLines: 4,
             decoration: const InputDecoration(labelText: 'Notes'),
           ),
-          if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red)),
-          const SizedBox(height: 16),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+          ],
+          const SizedBox(height: 20),
           FilledButton(onPressed: _save, child: const Text('Save changes')),
         ],
       ),

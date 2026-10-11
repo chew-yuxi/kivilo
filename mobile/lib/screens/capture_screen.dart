@@ -15,6 +15,8 @@ import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../services/uploader.dart';
+import '../ui/kivilo_components.dart';
+import '../ui/kivilo_theme.dart';
 import 'photo_mark_screen.dart';
 
 class CaptureScreen extends StatefulWidget {
@@ -594,51 +596,89 @@ class _CaptureScreenState extends State<CaptureScreen>
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
+          Text(
+            'Capture this room',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Narrate a walkthrough, then photograph labels and details.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 20),
           if (_offline)
-            const MaterialBanner(
-              content: Text(
-                'Offline. New captures stay on this phone until they sync.',
-              ),
-              actions: [],
+            _notice(
+              Icons.cloud_off_outlined,
+              'Offline. Captures are saved on this phone until they sync.',
+              KiviloColors.amberSoft,
+              KiviloColors.amber,
             ),
           if (_error != null)
-            MaterialBanner(
-              content: Text(_error!),
-              actions: [
-                TextButton(
-                  onPressed: () => setState(() => _error = null),
-                  child: const Text('Dismiss'),
-                ),
-              ],
+            _notice(
+              Icons.error_outline,
+              _error!,
+              KiviloColors.redSoft,
+              KiviloColors.red,
+              onTap: () => setState(() => _error = null),
             ),
           if (_unresolved.isNotEmpty)
-            MaterialBanner(
-              content: Text(
-                '${_unresolved.length} interrupted capture(s) need recovery. Keep the app data on this phone.',
-              ),
-              actions: const [],
+            _notice(
+              Icons.warning_amber_outlined,
+              '${_unresolved.length} interrupted capture(s) need recovery. Keep the app data on this phone.',
+              KiviloColors.amberSoft,
+              KiviloColors.amber,
             ),
           if (_remoteEdits.isNotEmpty)
-            MaterialBanner(
-              content: Text(
-                '${_remoteEdits.length} note, mark or deletion change(s) are waiting to sync.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    unawaited(_drain());
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
+            _notice(
+              Icons.sync,
+              '${_remoteEdits.length} edit(s) are waiting to sync. Tap to retry.',
+              KiviloColors.amberSoft,
+              KiviloColors.amber,
+              onTap: () => unawaited(_drain()),
             ),
           if (camera != null && camera.value.isInitialized) ...[
-            AspectRatio(
-              aspectRatio: camera.value.aspectRatio,
-              child: CameraPreview(camera),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: AspectRatio(
+                aspectRatio: 1 / camera.value.aspectRatio,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CameraPreview(camera),
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
+                          ),
+                          child: Text(
+                            _recording ? '● RECORDING' : 'LIVE CAMERA',
+                            style: TextStyle(
+                              color: _recording
+                                  ? const Color(0xFFFDA4AF)
+                                  : Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Center(
               child: SegmentedButton<bool>(
                 segments: const [
@@ -659,39 +699,88 @@ class _CaptureScreenState extends State<CaptureScreen>
                 },
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 22),
             Center(
-              child: FilledButton.icon(
-                onPressed: _busy || _room == null
-                    ? null
-                    : _videoMode
-                    ? _toggleVideo
-                    : _takePhoto,
-                icon: Icon(
-                  _videoMode
-                      ? (_recording ? Icons.stop : Icons.fiber_manual_record)
-                      : Icons.camera_alt,
-                ),
-                label: Text(
-                  _videoMode
-                      ? (_recording
-                            ? 'Stop and save video'
-                            : 'Record walkthrough')
-                      : 'Take photo',
-                ),
+              child: Column(
+                children: [
+                  Semantics(
+                    button: true,
+                    label: _videoMode
+                        ? (_recording
+                              ? 'Stop and save video'
+                              : 'Record walkthrough')
+                        : 'Take photo',
+                    child: IconButton.filled(
+                      onPressed: _busy || _room == null
+                          ? null
+                          : _videoMode
+                          ? _toggleVideo
+                          : _takePhoto,
+                      iconSize: 34,
+                      padding: const EdgeInsets.all(18),
+                      style: IconButton.styleFrom(
+                        backgroundColor: _recording
+                            ? KiviloColors.red
+                            : KiviloColors.pink,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: Icon(
+                        _videoMode
+                            ? (_recording
+                                  ? Icons.stop
+                                  : Icons.fiber_manual_record)
+                            : Icons.camera_alt_outlined,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _videoMode
+                        ? (_recording
+                              ? 'Stop & save video'
+                              : 'Record walkthrough')
+                        : 'Take photo',
+                    style: const TextStyle(
+                      color: KiviloColors.ink,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ] else ...[
-            const SizedBox(height: 16),
-            Center(
-              child: TextButton.icon(
-                onPressed: _initCamera,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Open camera'),
+            Container(
+              height: 300,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: KiviloColors.canvas,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: KiviloColors.border),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.photo_camera_outlined,
+                    size: 42,
+                    color: KiviloColors.muted,
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _initCamera,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Open camera'),
+                  ),
+                ],
               ),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 30),
+          const KiviloSectionHeading(
+            title: 'Evidence',
+            subtitle: 'Saved on your phone first, then added to the report',
+          ),
+          const SizedBox(height: 12),
           StreamBuilder<List<PendingCapture>>(
             stream: _queue.watch(widget.roomId, ownerId: _ownerId),
             builder: (context, snapshot) {
@@ -699,58 +788,82 @@ class _CaptureScreenState extends State<CaptureScreen>
               return Column(
                 children: [
                   for (final capture in pending)
-                    ListTile(
-                      leading: capture.kind == 'PHOTO' && _root != null
-                          ? Image.file(
-                              File('${_root!.path}/${capture.relativePath}'),
-                              width: 56,
-                              height: 56,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) =>
-                                  const Icon(Icons.broken_image),
-                            )
-                          : const Icon(Icons.videocam),
-                      title: Text(
-                        capture.note?.isNotEmpty == true
-                            ? capture.note!
-                            : (capture.kind == 'PHOTO'
-                                  ? 'Photo on this phone'
-                                  : 'Video on this phone'),
-                      ),
-                      subtitle: Text(
-                        capture.uploadedId != null &&
-                                !capture.registrationAnnotationsApplied &&
-                                capture.annotations != null
-                            ? 'Photo uploaded, but marks were not accepted. '
-                                  'Retry sync; if the report was sent, open Mark photo '
-                                  'and undo the marks to proceed.'
-                            : capture.lastError == null
-                            ? 'Saved · waiting to sync'
-                            : 'Retry ${capture.attempts}: ${capture.lastError}',
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (action) {
-                          if (action == 'note') unawaited(_noteQueued(capture));
-                          if (action == 'mark') unawaited(_markQueued(capture));
-                          if (action == 'delete') {
-                            unawaited(_deleteQueued(capture));
-                          }
-                        },
-                        itemBuilder: (_) => [
-                          const PopupMenuItem(
-                            value: 'note',
-                            child: Text('Edit note'),
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+                        leading: capture.kind == 'PHOTO' && _root != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(
+                                    '${_root!.path}/${capture.relativePath}',
+                                  ),
+                                  width: 56,
+                                  height: 56,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) =>
+                                      const Icon(Icons.broken_image),
+                                ),
+                              )
+                            : const SizedBox(
+                                width: 56,
+                                child: Icon(
+                                  Icons.videocam_outlined,
+                                  color: KiviloColors.muted,
+                                ),
+                              ),
+                        title: Text(
+                          capture.note?.isNotEmpty == true
+                              ? capture.note!
+                              : (capture.kind == 'PHOTO'
+                                    ? 'Photo on this phone'
+                                    : 'Video on this phone'),
+                        ),
+                        subtitle: Text(
+                          capture.uploadedId != null &&
+                                  !capture.registrationAnnotationsApplied &&
+                                  capture.annotations != null
+                              ? 'Photo uploaded, but marks were not accepted. '
+                                    'Retry sync; if the report was sent, open Mark photo '
+                                    'and undo the marks to proceed.'
+                              : capture.lastError == null
+                              ? 'Saved on phone · syncing'
+                              : 'Retry ${capture.attempts}: ${capture.lastError}',
+                          style: TextStyle(
+                            color: capture.lastError == null
+                                ? KiviloColors.amber
+                                : KiviloColors.red,
                           ),
-                          if (capture.kind == 'PHOTO')
+                        ),
+                        trailing: PopupMenuButton<String>(
+                          onSelected: (action) {
+                            if (action == 'note') {
+                              unawaited(_noteQueued(capture));
+                            }
+                            if (action == 'mark') {
+                              unawaited(_markQueued(capture));
+                            }
+                            if (action == 'delete') {
+                              unawaited(_deleteQueued(capture));
+                            }
+                          },
+                          itemBuilder: (_) => [
                             const PopupMenuItem(
-                              value: 'mark',
-                              child: Text('Mark photo'),
+                              value: 'note',
+                              child: Text('Edit note'),
                             ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete'),
-                          ),
-                        ],
+                            if (capture.kind == 'PHOTO')
+                              const PopupMenuItem(
+                                value: 'mark',
+                                child: Text('Mark photo'),
+                              ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                 ],
@@ -758,61 +871,116 @@ class _CaptureScreenState extends State<CaptureScreen>
             },
           ),
           for (final capture in _room?.captures ?? const <EvidenceCapture>[])
-            ListTile(
-              leading: capture.kind == 'PHOTO'
-                  ? Image.network(
-                      capture.url,
-                      width: 56,
-                      height: 56,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => const Icon(Icons.image),
-                    )
-                  : const Icon(Icons.videocam),
-              title: Text(
-                capture.note?.isNotEmpty == true
-                    ? capture.note!
-                    : (capture.kind == 'PHOTO'
-                          ? 'Photo synced'
-                          : 'Video synced'),
-              ),
-              subtitle: const Text('On the report'),
-              trailing: PopupMenuButton<String>(
-                onSelected: (action) {
-                  if (action == 'note') unawaited(_noteServer(capture));
-                  if (action == 'mark') unawaited(_markServer(capture));
-                  if (action == 'delete') {
-                    unawaited(
-                      _queue
-                          .queueRemoteDelete(
-                            _ownerId,
-                            widget.inspectionId,
-                            capture.id,
-                          )
-                          .then((_) => _drain()),
-                    );
-                  }
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'note', child: Text('Edit note')),
-                  if (capture.kind == 'PHOTO')
+            Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+                leading: capture.kind == 'PHOTO'
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          capture.url,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const Icon(Icons.image),
+                        ),
+                      )
+                    : const SizedBox(
+                        width: 56,
+                        child: Icon(
+                          Icons.videocam_outlined,
+                          color: KiviloColors.muted,
+                        ),
+                      ),
+                title: Text(
+                  capture.note?.isNotEmpty == true
+                      ? capture.note!
+                      : (capture.kind == 'PHOTO'
+                            ? 'Photo synced'
+                            : 'Video synced'),
+                ),
+                subtitle: const Text(
+                  'Synced to report',
+                  style: TextStyle(color: KiviloColors.green),
+                ),
+                trailing: PopupMenuButton<String>(
+                  onSelected: (action) {
+                    if (action == 'note') unawaited(_noteServer(capture));
+                    if (action == 'mark') unawaited(_markServer(capture));
+                    if (action == 'delete') {
+                      unawaited(
+                        _queue
+                            .queueRemoteDelete(
+                              _ownerId,
+                              widget.inspectionId,
+                              capture.id,
+                            )
+                            .then((_) => _drain()),
+                      );
+                    }
+                  },
+                  itemBuilder: (_) => [
                     const PopupMenuItem(
-                      value: 'mark',
-                      child: Text('Mark photo'),
+                      value: 'note',
+                      child: Text('Edit note'),
                     ),
-                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
-                ],
+                    if (capture.kind == 'PHOTO')
+                      const PopupMenuItem(
+                        value: 'mark',
+                        child: Text('Mark photo'),
+                      ),
+                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                  ],
+                ),
               ),
             ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: FilledButton(
-              onPressed: _room == null ? null : _finishRoom,
-              child: const Text('Finish room and draft inventory'),
-            ),
-          ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+          child: FilledButton.icon(
+            onPressed: _room == null ? null : _finishRoom,
+            icon: const Icon(Icons.auto_awesome_outlined),
+            label: const Text('Finish room & draft inventory'),
+          ),
+        ),
       ),
     );
   }
+
+  Widget _notice(
+    IconData icon,
+    String message,
+    Color background,
+    Color foreground, {
+    VoidCallback? onTap,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Material(
+      color: background,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: foreground),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(color: foreground, fontSize: 13),
+                ),
+              ),
+              if (onTap != null) Icon(Icons.close, size: 18, color: foreground),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

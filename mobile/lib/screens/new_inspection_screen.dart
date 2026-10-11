@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../services/api.dart';
+import '../ui/kivilo_components.dart';
+import '../ui/kivilo_theme.dart';
 
 class NewInspectionScreen extends StatefulWidget {
   const NewInspectionScreen({super.key});
@@ -112,10 +114,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     TextInputType? keyboardType,
   }) => TextFormField(
     controller: _fields[key],
-    decoration: InputDecoration(
-      labelText: label,
-      border: const OutlineInputBorder(),
-    ),
+    decoration: InputDecoration(labelText: label),
     keyboardType: keyboardType,
     validator: (value) {
       final text = value?.trim() ?? '';
@@ -140,13 +139,23 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     body: Form(
       key: _form,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
         children: [
-          const Text(
-            'Property',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          Text(
+            'Start with the essentials',
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
+          Text(
+            'Set up the property and tenancy. You can add rooms after this.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 32),
+          const KiviloSectionHeading(
+            title: 'Property',
+            subtitle: 'Where the handover takes place',
+          ),
+          const SizedBox(height: 16),
           _textField('line1', 'Address', required: true),
           const SizedBox(height: 12),
           _textField('unit', 'Unit'),
@@ -160,10 +169,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _propertyType,
-            decoration: const InputDecoration(
-              labelText: 'Property type',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Property type'),
             items: const [
               DropdownMenuItem(
                 value: 'PRIVATE_NON_LANDED',
@@ -175,12 +181,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             ],
             onChanged: (value) => setState(() => _propertyType = value!),
           ),
+          const SizedBox(height: 32),
+          const Divider(),
           const SizedBox(height: 24),
-          const Text(
-            'Parties',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          const KiviloSectionHeading(
+            title: 'People',
+            subtitle: 'The landlord and tenant on the report',
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _textField('landlordName', 'Landlord name', required: true),
           const SizedBox(height: 12),
           _textField(
@@ -196,23 +204,26 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             'Tenant email',
             keyboardType: TextInputType.emailAddress,
           ),
+          const SizedBox(height: 32),
+          const Divider(),
           const SizedBox(height: 24),
-          const Text(
-            'Tenancy',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          const KiviloSectionHeading(
+            title: 'Tenancy',
+            subtitle: 'Dates and agreed amounts',
           ),
-          ListTile(
-            title: const Text('Starts'),
-            subtitle: Text(_iso(_startDate)),
-            trailing: const Icon(Icons.calendar_today),
-            onTap: () => _pickDate(true),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _dateCard('Starts', _startDate, () => _pickDate(true)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _dateCard('Ends', _endDate, () => _pickDate(false)),
+              ),
+            ],
           ),
-          ListTile(
-            title: const Text('Ends'),
-            subtitle: Text(_iso(_endDate)),
-            trailing: const Icon(Icons.calendar_today),
-            onTap: () => _pickDate(false),
-          ),
+          const SizedBox(height: 16),
           _textField(
             'monthlyRent',
             'Monthly rent (SGD)',
@@ -224,14 +235,65 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             'Deposit (SGD)',
             keyboardType: TextInputType.number,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red)),
-          FilledButton(
-            onPressed: _busy ? null : _create,
-            child: Text(_busy ? 'Creating…' : 'Create check-in'),
-          ),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: KiviloColors.redSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                _error!,
+                style: const TextStyle(color: KiviloColors.red),
+              ),
+            ),
         ],
+      ),
+    ),
+    bottomNavigationBar: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        child: FilledButton(
+          onPressed: _busy ? null : _create,
+          child: Text(_busy ? 'Creating…' : 'Create check-in'),
+        ),
+      ),
+    ),
+  );
+
+  Widget _dateCard(String label, DateTime date, VoidCallback onTap) => Card(
+    child: InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _iso(date),
+                    style: const TextStyle(
+                      color: KiviloColors.ink,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 17,
+                  color: KiviloColors.muted,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     ),
   );

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -11,6 +10,7 @@ import 'services/secure_session_store.dart';
 import 'services/capture_sync.dart';
 import 'services/push_notifications.dart';
 import 'screens/sign_in_screen.dart';
+import 'ui/kivilo_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,14 +58,7 @@ class KiviloApp extends StatelessWidget {
       title: 'Kivilo',
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFEC4899)),
-        scaffoldBackgroundColor: const Color(0xFFF9FAFB),
-        appBarTheme: const AppBarThemeData(
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-        ),
-      ),
+      theme: buildKiviloTheme(),
       home: const _Root(),
     );
   }
@@ -89,9 +82,9 @@ void _resumeUserServices() {
     return;
   }
   unawaited(
-    PushNotifications.instance
-        .initialize()
-        .catchError((Object error) => debugPrint('push setup error: $error')),
+    PushNotifications.instance.initialize().catchError(
+      (Object error) => debugPrint('push setup error: $error'),
+    ),
   );
 }
 
@@ -134,9 +127,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         final session =
             snapshot.data?.session ??
             Supabase.instance.client.auth.currentSession;
-        return session == null
-            ? const SignInScreen()
-            : const HomeScreen();
+        return session == null ? const SignInScreen() : const HomeScreen();
       },
     );
   }

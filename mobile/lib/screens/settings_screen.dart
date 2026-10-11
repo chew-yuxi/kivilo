@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../services/api.dart';
 import '../services/push_notifications.dart';
+import '../ui/kivilo_components.dart';
+import '../ui/kivilo_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -104,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Settings')),
+    appBar: AppBar(title: const Text('Account')),
     body: FutureBuilder<Map<String, dynamic>>(
       future: _request,
       builder: (context, snapshot) {
@@ -113,65 +115,156 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
         final deletion = snapshot.data?['request'] as Map<String, dynamic>?;
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 36),
           children: [
             Text(
-              Supabase.instance.client.auth.currentUser?.email ?? '',
-              style: Theme.of(context).textTheme.titleMedium,
+              'Your account',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Account deletion',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'You can request deletion here or at the website below.',
-            ),
-            const SizedBox(height: 8),
-            SelectableText(
-              Uri.parse(Config.apiBase).resolve('/delete-account').toString(),
-            ),
-            TextButton.icon(
-              onPressed: () => _openPage('/delete-account'),
-              icon: const Icon(Icons.open_in_new),
-              label: const Text('Open deletion page'),
-            ),
-            const SizedBox(height: 12),
-            if (snapshot.hasError)
-              Text('Could not load request status: ${snapshot.error}'),
-            if (deletion != null)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Status: ${deletion['status']}\n'
-                    'Requested: ${deletion['requestedAt']}\n'
-                    'Due: ${deletion['dueAt']}'
-                    '${deletion['completedAt'] == null ? '' : '\nCompleted: ${deletion['completedAt']}'}',
-                  ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        color: KiviloColors.pinkSoft,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person_outline,
+                        color: KiviloColors.pinkDark,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Signed in to Kivilo',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            Supabase.instance.client.auth.currentUser?.email ??
+                                '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              )
-            else
-              FilledButton(
-                onPressed: _busy ? null : _requestDeletion,
-                child: Text(_busy ? 'Sending…' : 'Request account deletion'),
               ),
-            if (_error != null)
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 24),
-            ListTile(
-              title: const Text('Privacy policy'),
-              subtitle: const Text('How Kivilo handles your data'),
-              trailing: const Icon(Icons.open_in_new),
+            ),
+            const SizedBox(height: 28),
+            const KiviloSectionHeading(title: 'Privacy & support'),
+            const SizedBox(height: 12),
+            _linkCard(
+              icon: Icons.privacy_tip_outlined,
+              title: 'Privacy policy',
+              subtitle: 'How Kivilo handles your data',
               onTap: () => _openPage('/privacy'),
             ),
-            ListTile(
-              title: const Text('Support'),
-              subtitle: const Text('Help with your inspection or account'),
-              trailing: const Icon(Icons.open_in_new),
+            const SizedBox(height: 10),
+            _linkCard(
+              icon: Icons.help_outline,
+              title: 'Help & support',
+              subtitle: 'Get help with an inspection or your account',
               onTap: () => _openPage('/support'),
             ),
+            const SizedBox(height: 28),
+            const KiviloSectionHeading(
+              title: 'Your data',
+              subtitle: 'Manage your account and deletion request.',
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.delete_outline,
+                          color: KiviloColors.body,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Account deletion',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Request deletion in the app or through our website. We aim to complete eligible deletion within 30 days.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    if (deletion != null) ...[
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: KiviloColors.canvas,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Request ${_statusLabel(deletion['status'])}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Requested ${_shortDate(deletion['requestedAt'])} · Due ${_shortDate(deletion['dueAt'])}'
+                              '${deletion['completedAt'] == null ? '' : ' · Completed ${_shortDate(deletion['completedAt'])}'}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: _busy ? null : _requestDeletion,
+                        child: Text(
+                          _busy ? 'Sending…' : 'Request account deletion',
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () => _openPage('/delete-account'),
+                        icon: const Icon(Icons.open_in_new, size: 18),
+                        label: const Text('Use the website instead'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (snapshot.hasError)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text('Could not load request status: ${snapshot.error}'),
+              ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+            ],
+            const SizedBox(height: 28),
             OutlinedButton.icon(
               onPressed: _busy ? null : _signOut,
               icon: const Icon(Icons.logout),
@@ -182,4 +275,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     ),
   );
+
+  Widget _linkCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) => Card(
+    child: InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon, color: KiviloColors.pinkDark),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 3),
+                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  String _shortDate(Object? value) {
+    final date = DateTime.tryParse(value?.toString() ?? '');
+    if (date == null) return 'unknown';
+    final local = date.toLocal();
+    return '${local.day}/${local.month}/${local.year}';
+  }
+
+  String _statusLabel(Object? value) => switch (value) {
+    'COMPLETED' => 'completed',
+    'PROCESSING' => 'in progress',
+    _ => 'received',
+  };
 }
