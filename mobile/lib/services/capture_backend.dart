@@ -82,6 +82,24 @@ class HttpCaptureBackend implements CaptureBackend {
   final Duration _deadline;
   static Future<void>? _downloaderReady;
 
+  static Future<void> _prepareDownloader() async {
+    final downloader = FileDownloader();
+    if (Platform.isAndroid) {
+      final configured = await downloader.configure(
+        androidConfig: (Config.runInForeground, Config.always),
+      );
+      if (configured.any((item) => item.$2.isNotEmpty)) {
+        throw StateError(
+          'Could not enable foreground evidence uploads: $configured',
+        );
+      }
+    }
+    await downloader.start(
+      autoCleanDatabase: false,
+      markDownloadedComplete: false,
+    );
+  }
+
   @override
   Future<({String storagePath, String? signedUrl, bool alreadyUploaded})>
   uploadUrl(
@@ -115,22 +133,13 @@ class HttpCaptureBackend implements CaptureBackend {
     // Native URLSession / WorkManager owns the transfer after enqueue. Its persistent
     // task record lets the next launch recognize a completed upload even if Dart never
     // received the response. A new credential is requested only after a failed task.
-    await (_downloaderReady ??= FileDownloader().start(
-      autoCleanDatabase: false,
-      markDownloadedComplete: false,
-    ));
+    await (_downloaderReady ??= _prepareDownloader());
     final downloader = FileDownloader();
-    var canNotify = true;
     if (Platform.isAndroid) {
-      var permission = await downloader.permissions.status(
-        PermissionType.notifications,
-      );
-      if (permission != PermissionStatus.granted) {
-        permission = await downloader.permissions.request(
-          PermissionType.notifications,
-        );
+      if (await downloader.permissions.status(PermissionType.notifications) !=
+          PermissionStatus.granted) {
+        await downloader.permissions.request(PermissionType.notifications);
       }
-      canNotify = permission == PermissionStatus.granted;
     }
     final previous = await downloader.database.recordForId(clientId);
     // The authorized upload-url endpoint has just checked that the object is absent.
@@ -158,7 +167,10 @@ class HttpCaptureBackend implements CaptureBackend {
       fields: {'cacheControl': '3600'},
       headers: {'x-upsert': 'false'},
       transferHints: {
-        if (canNotify) TransferHint.userInitiated,
+        // Android's plugin UIDT path can miss JobService's 10-second mandatory
+        // notification deadline during a queued burst. Foreground WorkManager
+        // keeps long uploads alive without that UIDT startup deadline.
+        if (!Platform.isAndroid) TransferHint.userInitiated,
         TransferHint.largeFile,
       },
       notificationConfig: TaskNotificationConfig(
