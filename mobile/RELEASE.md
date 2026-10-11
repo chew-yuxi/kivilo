@@ -140,9 +140,9 @@ The draft listing's base territory is Singapore and its price is SGD 0.00. App
 availability explicitly enables Singapore alone (1 of 175 territories), excludes
 new territories, and has no pre-order. The version records copyright
 `2026 NotTooSweetLabs Pte. Ltd.` and `usesIdfa=false`; code and CocoaPods contain no
-IDFA or advertising SDK. The app remains `PREPARE_FOR_SUBMISSION`. The next iOS
-build will target iPhone only; build `2` still supports iPad and is for internal
-testing, not the public submission.
+IDFA or advertising SDK. The app remains `PREPARE_FOR_SUBMISSION`. Builds `3` and
+`4` target iPhone only; build `2` still supports iPad and is for internal testing,
+not the public submission.
 
 On 2026-10-11, the production-configured, upload-signed Android App Bundle version
 `1.0.0` (build `2`) was accepted by Play and committed to the **internal testing
@@ -202,6 +202,30 @@ The phone owner began using it, so further device input stopped. Build `3` captu
 and push have not been retested yet. The physical iPhone requires TestFlight
 installation/sign-in for camera and production APNs verification.
 
+Build `4` (`1.0.0+4`, source `7718314`) fixes capture paths found in the release
+audit: Back saves an active video before leaving; a microphone denial leaves Photos
+available; Finish cannot race a photo/video save or start drafting twice; failed
+handover retries use a stable capture ID even after the camera file has moved; and
+room deletion refuses while that account has unsent evidence or edits for the room.
+Flutter analysis reported no issues and all 46 tests passed; focused tests cover
+retry after a file rename and room/account queue isolation. Physical interruption
+and long-capture testing is still required.
+
+The production-signed iPhone-only build `4` IPA passed strict `codesign` for bundle
+`one.kivilo.kivilo`, team `4N9TA3WSYM`, `aps-environment=production`, and
+`get-task-allow=false`. Its local SHA-256 is
+`0c651b3c1bc00d2701721464b450362aa83bf71ca945ebe71d631f9ee945b97b`.
+App Store Connect accepted build ID `d3a9e0a1-1f1c-46c9-843f-0a634756e96b` as
+`VALID`, attached it to version `1.0.0`, and placed it in `Kivilo Internal`
+TestFlight with auto-notify. The Android build `4` AAB SHA-256 is
+`4384e6b1d65aadb45606d2b6df1b7aa4c198d942b463cff1ad19bb9618693127`;
+Play accepted version code `4` and a fresh API read confirmed it on the **internal**
+track with status `completed`. A signed APK for device QA is available at
+`build/app/outputs/flutter-apk/app-release.apk`, SHA-256
+`85821205d20e27eb459b062dcaea8d1e630523465e7c7667c59167210501c7f8`.
+It has not been installed on the physical phone yet. Neither store has received a
+public review submission.
+
 The signed Android release app passed emulator password sign-in, photo and video
 capture, offline photo persistence across force-stop/relaunch, and upload after
 reconnection. The production database showed the offline photo registered once.
@@ -220,7 +244,7 @@ flutter build appbundle --release --dart-define-from-file=env.json
 flutter build ipa --release --dart-define-from-file=env.json
 ```
 
-Build `3` is on Play internal testing and internal TestFlight, and is attached to
+Build `4` is on Play internal testing and internal TestFlight, and is attached to
 App Store version `1.0.0`. Neither build has been submitted for public review.
 Verify the installed builds on physical devices before public submission. Increase
 the build number for each subsequent upload.
