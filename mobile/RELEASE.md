@@ -127,9 +127,14 @@ App Store Connect accepted the upload and reports build ID
 App Store version `1.0.0`. The draft contains the approved subtitle, description,
 keywords, promotional text, support URL, privacy policy URL, Productivity category,
 and private synthetic reviewer contact and credentials. App Privacy declarations,
-age rating, signed-in screenshots, physical-device testing, and public review
-submission remain outstanding. No TestFlight beta group or tester was configured
-at the time of this update.
+signed-in screenshots, physical-device testing, and public review submission remain
+outstanding. The user-confirmed Apple age-rating questionnaire was saved with all
+mature-content frequencies `NONE` and the applicable feature answers `false`.
+The user also confirmed build `2` uses no non-exempt encryption; App Store Connect
+records `usesNonExemptEncryption=false`. The build now reports `IN_BETA_TESTING`
+in the internal-only `Kivilo Internal` TestFlight group, which contains only the
+existing NotTooSweetLabs App Store Connect account holder. Their invitation is
+`INVITED`; TestFlight installation and physical iPhone testing are not yet verified.
 
 On 2026-10-11, the production-configured, upload-signed Android App Bundle version
 `1.0.0` (build `2`) was accepted by Play and committed to the **internal testing
@@ -165,9 +170,9 @@ flutter build ipa --release --dart-define-from-file=env.json
 ```
 
 The AAB build `2` is already uploaded as a Play internal draft. The IPA build `2` is
-uploaded and attached to App Store version `1.0.0`. Check each signed artifact's application ID,
-version/build number, target API or iOS entitlements, permissions, and production URLs
-before inviting testers. Increase the build number for each subsequent upload.
+uploaded, attached to App Store version `1.0.0`, and available to its sole internal
+TestFlight invitee. Verify the installed builds on physical devices before any public
+submission. Increase the build number for each subsequent upload.
 
 ## Review material
 
@@ -206,6 +211,7 @@ before inviting testers. Increase the build number for each subsequent upload.
   external processing through Google Gemini, private storage, and email delivery.
   Use the public privacy policy, support contact, and `/delete-account` as the account
   deletion URL. Answer camera and microphone permission questions accurately.
+
 - The company reports the new production Gemini key's project as Tier 1 postpay.
   The key was updated in Vercel Production before the Gemini 3.1 deployment. The
   production check-out and extraction paths passed isolated synthetic probes on
@@ -266,3 +272,39 @@ connection, take 30 photos and a ten-minute video; background and force-close th
 relaunch, and confirm every capture appears once. Check portrait mark placement in a
 desktop shared report. Run the repository's server checks and local Supabase integration
 and end-to-end suites. Keep the testing builds open while resolving store review notes.
+
+### Apple App Privacy answer sheet for build 2
+
+The iOS app **collects data**. Apple defines collection as transmitting data off the
+device where we or a provider can access it beyond servicing the immediate request.
+Use these answers when filling App Store Connect's App Privacy form:
+
+| Apple data type | Why it applies | Linked to identity | Purpose |
+| --- | --- | --- | --- |
+| Name, Email Address | Inspector sign-in and landlord/tenant records | Yes | App Functionality |
+| Physical Address | Property address and unit in an inspection | Yes | App Functionality |
+| Other Financial Info | Monthly rent, deposit and maintenance cost | Yes | App Functionality |
+| Photos or Videos | Room evidence and maintenance evidence | Yes | App Functionality |
+| Audio Data | Narrated walkthrough recordings | Yes | App Functionality |
+| Other User Content | Notes, captions, inventory edits, marks, signatures, findings and maintenance comments | Yes | App Functionality |
+| User ID | Supabase account and stakeholder IDs | Yes | App Functionality |
+| Device ID | FCM registration token saved against the signed-in stakeholder | Yes | App Functionality |
+| Other Data Types | Signing IP address and Firebase's app/device user agent | Yes for the category (signing IP); Firebase's user agent is unlinked | App Functionality, Analytics |
+| Other Diagnostic Data | Firebase Messaging, Installations and GoogleDataTransport SDK diagnostics | No | App Functionality, Analytics |
+
+Select **No** for "used for tracking" for every type. There are no ad, tracking,
+Crashlytics or Analytics SDKs in this build; the Firebase diagnostics and unlinked
+user agent above are collected by the installed messaging dependencies for SDK
+operations. Do not claim the FCM device ID is unlinked just because Firebase's own
+privacy manifest says so: Kivilo stores its token under a signed-in stakeholder.
+This table is a code-derived preparation sheet, not a published declaration; check
+the final App Store Connect answers against the actual form before publishing.
+The app currently asks for names and email addresses, but does not ask for phone or
+national ID numbers in its native forms. Generic free-text fields do not by
+themselves require declaring every possible type someone may enter. Apple also says
+data kept only on the device is not collected. The public policy covers additional
+data handled by Kivilo's web service and PWA.
+
+Sources: [Apple's data-type, linkage and tracking definitions](https://developer.apple.com/app-store/app-privacy-details/),
+[Apple's App Privacy workflow](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy),
+and [Firebase's iOS SDK disclosure guidance](https://firebase.google.com/docs/ios/app-store-data-collection/).
