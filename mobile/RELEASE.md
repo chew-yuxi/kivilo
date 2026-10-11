@@ -7,19 +7,99 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Android build `8` is available on Play internal testing; iOS build `8` is in the
-existing internal TestFlight group. Apple's build
-`35316973-25f8-44fb-b77b-73d4b51c1457` is VALID,
-IN_BETA_TESTING, and selected on the version draft. Play production has no release;
-Apple remains PREPARE_FOR_SUBMISSION. Neither store has a public submission.
+Build `12` (source `333b099`) is on Play internal testing and internal TestFlight.
+Apple's build `da103e08-bfc0-43f3-9e10-4f39579e5ef5` is VALID, selected on the
+unsubmitted version draft, and installed in-place on the physical iPhone.
+Apple review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version
+and is `READY_FOR_REVIEW`, with no submitted date. Google has saved the complete
+default listing as **Ready to send for review**. Neither public review has begun.
+Its evidence metadata
+requests have a 20-second whole-call deadline and cancellation, so a stalled
+request releases its worker lease and leaves bytes available for retry. The
+foreground app rechecks the durable queue each minute without overlapping its
+own drain; backgrounding and disposal stop that timer. Native media transfers
+and long-running AI calls are unchanged. A real stalled-HTTP test verifies the
+same capture and bytes remain after timeout; simulated recovery uploads and
+registers that identity once. The retry timer's overlap/lifecycle regression
+also passes. Flutter analysis and all 70 tests pass.
+
+Physical Android build `12` automatic foreground recovery passed. With Wi-Fi
+and mobile data off, a synthetic photo remained on the phone with a retry
+message. After navigating to Home and restoring the radios, without tapping
+Retry or resuming the app, the capture reached production within 44 seconds.
+The room changed from eight to nine captures: five photos, four videos, nine
+distinct client IDs, nine private Storage objects and nine exact byte-size
+matches. Play internal read-back is `completed:12`; production remains empty.
+
+- Android AAB `build/release-artifacts/android/build12/kivilo-v12.aab`, SHA-256
+  `d414a9d0bca269a7906d067cf6ea5186d6ed600599422d9612bb4c2e289024d4`.
+- Android APK `build/release-artifacts/android/build12/kivilo-v12.apk`, SHA-256
+  `9380087dc84e14243eebbbd2264213d98fb969c94b12b02ac7670d7607ab8289`.
+- iOS IPA `build/ios/ipa/build12-final/kivilo.ipa`, SHA-256
+  `b95d6cb90aa9863868f47a57760be86ed10c6eb7081a9c4f666d45e1d2b4d8bf`.
+
+The preceding build's distribution and physical evidence are recorded below.
+
+Android build `11` was previously distributed on Play internal testing
+(`completed:11`); iOS build `11` was VALID, in the internal TestFlight group,
+and selected on the then-current version draft. Apple's build ID is
+`98c90f23-3944-4cac-9d91-1d9e81ba8150`. At that point Play production had no
+release and Apple was PREPARE_FOR_SUBMISSION. Neither store had a public submission. Source
+commit is `b86e411`.
+
+Build `11` bounds each API GET to eight seconds and cancels stalled requests,
+allowing the existing account-scoped cache fallback to run. Mutations, uploads
+and long-running AI requests are unchanged. This fixes the physical iPhone
+build `10` failure where the cached inspection list opened under 100% packet
+loss but its detail stayed loading. A real local HTTP server that accepts
+requests without returning headers verifies cached detail recovery, actionable
+uncached-read failure, and rejection after an account switch; late responses
+cannot replace the cache. Flutter analysis and all 68 tests pass.
+
+The physical Android build `11` cold-restart smoke passed with Wi-Fi and mobile
+data off: cached Home, inspection, room and live camera opened. No media was
+added; the eight existing captures and exact private Storage objects remained
+unchanged. Networks, permissions and the user's screen-awake preferences were
+preserved. This fast disconnected-network path does not reproduce active-radio
+100% packet loss. The physical iPhone build `11` network-stall rerun passed: after force-quit
+and relaunch under verified DVT 100% packet loss, it reached the exact cached
+synthetic inspection, tenant, room and live camera in 40.8 seconds. The
+condition was restored and verified inactive. A 30-tap automated sequence produced 29 pending photo records; do not count
+unacknowledged taps as saved captures. Entering Video opened the first-use iOS
+microphone permission dialog before the test controller expected it, so no video
+started. After a second force-quit/relaunch under packet loss, all 29 distinct
+photo records and their 29 durable files survived (2,300,172 bytes total).
+No intake journals remained. Connectivity was restored and verified inactive.
+Production read-back at 2026-10-11 19:13:52 UTC confirmed all 29 unique capture
+identities and 29 private Storage objects, with no missing files or byte-size
+mismatches. A fresh 30-photo sequence and long video are being checked on the
+final build. This is not yet a passing 30-photo/ten-minute run.
+
+The physical build `9` camera-denial probe found repeated permission requests
+and an activity exit, so it was withheld from public release. Build `10` added
+a camera startup gate that prevents overlapping initializations, waits for
+abandoned attempts, and requires an explicit retry after permission denial.
+Unadopted controllers are disposed. Physical Android build `10` denial/recovery
+passed: CAMERA denial remained actionable through background/resume and explicit
+retry; restoring permission reopened the camera. Microphone denial allowed
+switching back to Photos with a live preview. Permission grants and flags were
+restored. A short recording held the screen awake only while recording. An
+offline photo survived force-stop/relaunch and uploaded once after reconnect;
+that room has eight distinct capture identities, eight private objects and
+eight exact byte-size matches (four photos, four videos). Ignored evidence is in
+`build/physical-qa/build10-camera-offline.json` and
+`build/physical-qa/build11-offline-smoke.json`.
+
+A current production check returned HTTP 200 for `/privacy`, `/support`, and
+`/delete-account`, and HTTP 401 for `/api/v1/me` without a session.
 The artifacts retain the verified production configuration and signing:
 
-- Android AAB `build/release-artifacts/android/build8/kivilo-v8.aab`, SHA-256
-  `2a9b6076957dea222ca5d8b7ab667a345074c3ec3b38dd86e0910ee731499782`.
-- Android APK `build/release-artifacts/android/build8/kivilo-v8.apk`, SHA-256
-  `c43b3780c6db0b6afafb731495cfbafeb353bbfcb12f7a089f6d921d6bc5ac86`.
-- iOS IPA `build/ios/ipa/build8-final/kivilo.ipa`, SHA-256
-  `47727e1e16c5aa7bdd9abbced5e63181bcf9a5463964472f19dc544ea78c97c0`.
+- Android AAB `build/release-artifacts/android/build11/kivilo-v11.aab`, SHA-256
+  `3191c7c37caf00149aa36aa16665067c5717415808ee0cc321216cd1653adab4`.
+- Android APK `build/release-artifacts/android/build11/kivilo-v11.apk`, SHA-256
+  `0a90b584007d8a3f88364667d35901efe829a2833baea1607070936c991b1afc`.
+- iOS IPA `build/ios/ipa/build11-final/kivilo.ipa`, SHA-256
+  `b98e15e6fa89343934683172dc4a5c6b741da7663d1a9a7a5378974654c14ceb`.
 
 Build `6` fixes the physical-test failure where a newly opened inspection disappeared
 from the cached list after an offline restart. Cache writes are also bound to the
@@ -44,7 +124,7 @@ low-storage behavior, and simultaneous upload workers remain unverified on devic
 The Flutter uploader tests cover offline and authorization errors, but do not replace
 those physical checks.
 
-A follow-up queue fix is verified in source but is not part of build `8`. Running
+Build `9` includes the queue coordination and recording display fixes. Running
 two independent SQLite connections concurrently reproduced `database is locked`
 while claiming work. Queue instances now share Drift's executor within a Flutter
 engine, and independent connections wait briefly for the current transaction.
@@ -52,9 +132,26 @@ Three file-backed concurrency tests verify exclusive claims, heartbeat renewal,
 stale-worker rejection, and an edit made during an in-flight handover. An actual
 SQLite page-limit failure also preserves capture bytes and the recovery journal;
 removing that test limit imports the capture once. An expired-credential simulation
-verifies a fresh upload URL with the same capture identity. Flutter analysis and
-all 60 tests passed. These automated fault checks do not establish physical-device
-low-storage or expired-session behavior.
+verifies a fresh upload URL with the same capture identity. Recording now holds the
+screen awake until the video is stopped/saved, backgrounded, or its camera closes.
+The native toggle is serialized so a late enable cannot outlive its camera; tests
+cover start failure, disposal during enable, and retry after a failed release.
+Flutter analysis and all 64 tests passed. These automated fault checks do not
+establish physical-device low-storage or expired-session behavior.
+
+On the physical Android running build `9`, `KEEP_SCREEN_ON` was present during
+recording and absent after stop/save, background, resumed idle, and exit to Home.
+Two short synthetic recordings synced. With Wi-Fi and mobile data disabled, the
+cached inspection/room/camera reopened after force-stop; a new photo survived a
+second offline force-stop/relaunch. After reconnection it registered once. The
+room has six distinct capture identities (three photos and three videos), six
+private Storage objects, and six exact byte-size matches. The earlier build `4`
+long-capture run verified 30 consecutive offline photos and a 698.996-second
+video through restart and upload; the short build `9` probes do not repeat that
+entire long run. Ignored evidence is in
+`build/physical-qa/build9-awake-offline.json`. The physical iPhone long offline
+capture/restart check is still pending; an interrupted test-controller connection
+has not established a capture failure or a passing result.
 
 The Android build `5` synthetic check-in completed real capture, offline caption
 editing, force-quit/relaunch, upload, Gemini extraction, human inventory editing,

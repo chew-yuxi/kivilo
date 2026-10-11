@@ -1,0 +1,18 @@
+{
+  "track": "production",
+  "releases": [
+    {
+      "name": "Kivilo 1.0.0",
+      "versionCodes": [
+        "12"
+      ],
+      "status": "completed",
+      "releaseNotes": [
+        {
+          "language": "en-US",
+          "text": "Initial release: room-by-room check-in and check-out, durable evidence capture, reviewed inventories, signatures, private report sharing and separate assessments."
+        }
+      ]
+    }
+  ]
+}
