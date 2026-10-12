@@ -7,6 +7,47 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
+Build `20` removes AI drafting from the app. After capturing a room the inspector taps
+`Done capturing`, then writes that room's inventory by hand; a room cannot be marked
+reviewed until it has at least one item. Check-out findings are added, edited and
+removed by hand, and the `Draft comparison` action is gone. The Gemini consent drawer no
+longer appears. The production backend at `kivilo.nottoosweetlabs.com` already serves
+this flow and keeps compatibility fields so builds `19` and earlier still load, but
+those builds still show the consent drawer and a `Draft comparison` button that no
+longer works.
+
+Build `20` source is `da10c7f` on `main`, which contains the mobile changes from
+`7eebff8`; only the build number changed for this release. Flutter analysis is clean
+and all 68 mobile tests pass. The AAB and APK were built with
+`--dart-define-from-file=env.json` against the production configuration and signed
+with the established upload key (`CN=Kivilo Upload`, NotTooSweetLabs Pte. Ltd.,
+certificate SHA-256 `6d2be9b2745ce98abdace4162a20722a57305b3cd95df4e73958ea1692e836e7`,
+identical to build `19`); `jarsigner -verify` and `apksigner verify` pass, and the APK
+declares `one.kivilo.kivilo` version code `20`, target SDK 36. The IPA passed strict
+`codesign` verification: bundle `one.kivilo.kivilo`, version `1.0.0` build `20`, Apple
+Distribution for team `4N9TA3WSYM`, `aps-environment=production`,
+`get-task-allow=false`. This build was not installed on a physical device before
+release.
+
+Play internal testing serves `completed:20`, with release notes describing the manual
+inventory and findings flow; the same edit confirmed the production track unchanged.
+The signed iOS build `20` uploaded under delivery
+`f7bb16b1-05bc-483a-b7e0-37347105195f`, which is also its App Store Connect build
+ID. It is `VALID`, declares
+`usesNonExemptEncryption: false`, and is attached only to the existing `Kivilo
+Internal` TestFlight group.
+
+Play production remains build `13` and Apple's public build `12` submission remains
+`WAITING_FOR_REVIEW`. Both still contain the old AI consent and drafting flow; the
+backend keeps them working through its compatibility fields.
+
+- Android 20 AAB `build/release-artifacts/android/build20/kivilo-v20.aab`, SHA-256
+  `8add617f1c58999033de29bca5a4407c3553bd5a18358568ab55086fd32f37a8`.
+- Android 20 APK `build/release-artifacts/android/build20/kivilo-v20.apk`, SHA-256
+  `5c3d2426f7087594d014dc086d60cdbc80937899f7fb1be06a789b7eb10af6cc`.
+- iOS 20 IPA `build/ios/ipa/build20-final/kivilo.ipa`, SHA-256
+  `7a0a42440b8d66e35859178365012c48f0315061a4132a09673e4a6f393be4c8`.
+
 Build `19` balances the property-card actions. Resume and Maintenance now occupy equal
 widths and use the same 50px control height; Resume is the pink primary action and
 Maintenance is the outlined secondary action. Evidence actions align to the drawer
