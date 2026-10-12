@@ -12,15 +12,16 @@ import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
-  const InspectionScreen({super.key, required this.id});
+  const InspectionScreen({super.key, required this.id, this.api});
   final String id;
+  final Api? api;
 
   @override
   State<InspectionScreen> createState() => _InspectionScreenState();
 }
 
 class _InspectionScreenState extends State<InspectionScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late Future<InspectionDetail> _future = _api.inspection(widget.id);
   bool _busy = false;
   String? _error;
@@ -730,20 +731,27 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       'Context for review. A person decides whether it affects a finding.',
                 ),
                 const SizedBox(height: 12),
+                if (inspection.kind == 'CHECK_OUT')
+                  ?_unsettledCosts(inspection.maintenanceHistory),
                 for (final record in inspection.maintenanceHistory) ...[
                   Card(
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
+                        vertical: 4,
                       ),
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.home_repair_service_outlined,
-                        color: KiviloColors.pinkDark,
+                        color: _costOpen(record)
+                            ? KiviloColors.amber
+                            : KiviloColors.pinkDark,
                       ),
                       title: Text(record['title'] as String),
                       subtitle: Text(
-                        '${(record['status'] as String).replaceAll('_', ' ').toLowerCase()} · '
-                        '${record['repairAttempts']} repairs · ${record['evidence']} evidence files',
+                        '${maintenanceStatusLabels[record['status']]} · '
+                        '${record['repairAttempts']} ${record['repairAttempts'] == 1 ? 'repair' : 'repairs'} · '
+                        '${record['evidence']} evidence ${record['evidence'] == 1 ? 'file' : 'files'}'
+                        '${_costLine(record)}',
                       ),
                       trailing: const Icon(
                         Icons.chevron_right,
@@ -768,6 +776,63 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ),
     ),
   );
+
+  bool _costOpen(Map<String, dynamic> record) => const [
+    'PENDING',
+    'DISPUTED',
+    'NOT_PROPOSED',
+  ].contains(record['costStanding']);
+
+  String _costLine(Map<String, dynamic> record) =>
+      switch (record['costStanding']) {
+        'AGREED' => '\nCost agreed: ${record['costAgreement']}',
+        'PENDING' => '\nCost proposal waiting for an answer',
+        'DISPUTED' => '\nCost disputed',
+        'NOT_PROPOSED' => '\nNobody has proposed who pays',
+        _ => '',
+      };
+
+  /// At check-out the deposit is decided, so a repair whose cost nobody agreed is
+  /// the argument about to happen. Shown, never resolved, here.
+  Widget? _unsettledCosts(List<Map<String, dynamic>> history) {
+    final open = history.where(_costOpen).length;
+    if (open == 0) return null;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: KiviloColors.amberSoft,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.handshake_outlined, color: KiviloColors.amber),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  open == 1
+                      ? '1 repair has no agreed cost'
+                      : '$open repairs have no agreed cost',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Settle who pays on each one before the deposit is decided, '
+                  'or link it to a finding so the decision is made there.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _personRow(IconData icon, String role, String name) => Row(
     children: [

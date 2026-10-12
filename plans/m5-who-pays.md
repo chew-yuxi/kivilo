@@ -82,9 +82,14 @@ Buttons: *Accept*, *Suggest different* (rejects and opens a counter-proposal pre
 
 ## Check-out
 
-A case closed with responsibility still disputed or never agreed is flagged on the
-check-out review as an open cost question, next to the room it concerns. This is the
-dispute moment the product is built for, and the record is why we win it.
+Every maintenance case on the tenancy carries a cost standing, from `costStanding` in
+`src/lib/maintenance.ts`: `AGREED` once any proposal is accepted, otherwise the latest
+proposal's state (`PENDING`, `DISPUTED`) or `NOT_PROPOSED`, and none for a case closed
+without action. A check-out lists the standing on each case and warns, in both clients,
+when any repair has no agreed cost. Cases carry no room, so the warning sits with the
+maintenance history rather than beside a room. It informs the reviewer and changes no
+finding; linking a case to a finding remains the way a repair enters the deposit
+decision. This is the dispute moment the product is built for.
 
 ## Later: reading the contract
 

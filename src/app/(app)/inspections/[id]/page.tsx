@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
+import { costStanding } from '@/lib/maintenance'
 import { StatusBadge } from '@/components/status-badge'
 import { RoomCapture, type RoomRow } from '@/components/room-capture'
 import { SignaturePad } from '@/components/signature-pad'
@@ -99,7 +100,14 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   const maintenanceCases = await db.maintenanceCase.findMany({
     where: { tenancyId: inspection.tenancyId },
     orderBy: { createdAt: 'desc' },
-    select: { id: true, title: true, status: true },
+    select: {
+      id: true, title: true, status: true,
+      responsibilityProposals: { orderBy: { createdAt: 'asc' }, select: { status: true } },
+    },
+  })
+  const unsettledCosts = maintenanceCases.flatMap((item) => {
+    const standing = costStanding(item.status, item.responsibilityProposals)
+    return standing && standing !== 'AGREED' ? [{ ...item, standing }] : []
   })
 
   return (
@@ -197,6 +205,27 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       {kind === 'CHECK_OUT' && status === 'COMPLETED' && (
         <section className="space-y-3">
           <h2 className="text-sm font-medium">Comparison against check-in</h2>
+          {unsettledCosts.length > 0 && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
+              <p className="font-medium text-amber-900">
+                {unsettledCosts.length === 1
+                  ? '1 repair during this tenancy has no agreed cost'
+                  : `${unsettledCosts.length} repairs during this tenancy have no agreed cost`}
+              </p>
+              <p className="mt-1 text-amber-800">
+                Settle who pays in the Kivilo app before the deposit is decided, or link
+                the repair to a finding below so the decision is made there.
+              </p>
+              <ul className="mt-3 space-y-1">
+                {unsettledCosts.map((item) => (
+                  <li key={item.id} className="flex justify-between gap-4">
+                    <span className="text-gray-900">{item.title}</span>
+                    <span className="shrink-0 text-amber-800">{standingLabel[item.standing]}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <FindingsPanel
             inspectionId={id}
             findings={findings}
@@ -210,6 +239,12 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       )}
     </div>
   )
+}
+
+const standingLabel = {
+  PENDING: 'Waiting for an answer',
+  DISPUTED: 'Disputed',
+  NOT_PROPOSED: 'Nobody has proposed',
 }
 
 async function AgreedRoom({ roomId, name }: { roomId: string; name: string }) {

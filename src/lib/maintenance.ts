@@ -164,6 +164,21 @@ export function describeProposal(proposal: {
   return `${pays} ${partyName[proposal.arrangedBy]} arranges the repair.`
 }
 
+/// Where the cost question on a case stands, for check-out review. A case closed
+/// without action has no cost to settle. Anything else is settled only by an
+/// accepted proposal; otherwise the latest proposal says how far it got.
+export function costStanding(
+  status: string,
+  proposals: { status: string }[],
+): 'AGREED' | 'PENDING' | 'DISPUTED' | 'NOT_PROPOSED' | null {
+  if (status === 'CLOSED_NO_ACTION') return null
+  if (proposals.some((proposal) => proposal.status === 'ACCEPTED')) return 'AGREED'
+  const latest = proposals.at(-1)?.status
+  if (latest === 'PENDING') return 'PENDING'
+  if (latest === 'REJECTED') return 'DISPUTED'
+  return 'NOT_PROPOSED'
+}
+
 /// Kivilo records the split; it never moves the money.
 export function costShares(
   proposal: { payer: z.infer<typeof payer>; tenantCap: { toString(): string } | null },

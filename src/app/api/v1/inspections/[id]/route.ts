@@ -3,6 +3,7 @@ import { authorizeInspection } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { authed } from '@/lib/api/route'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
+import { costStanding, describeProposal } from '@/lib/maintenance'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +48,10 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       propertyAsset: { select: { name: true } },
       visits: { where: { completedAt: { not: null } }, select: { id: true } },
       _count: { select: { evidence: true } },
+      responsibilityProposals: {
+        orderBy: { createdAt: 'asc' },
+        select: { status: true, arrangedBy: true, payer: true, tenantCap: true },
+      },
     },
   })
 
@@ -100,15 +105,20 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         }
       : null,
     assessmentDraftChanged: inspection.kind === 'CHECK_OUT' && draftChanged,
-    maintenanceHistory: maintenanceHistory.map((item) => ({
-      id: item.id,
-      title: item.title,
-      status: item.status,
-      asset: item.propertyAsset?.name ?? null,
-      repairAttempts: item.visits.length,
-      evidence: item._count.evidence,
-      createdAt: item.createdAt.toISOString(),
-    })),
+    maintenanceHistory: maintenanceHistory.map((item) => {
+      const agreed = item.responsibilityProposals.find((proposal) => proposal.status === 'ACCEPTED')
+      return {
+        id: item.id,
+        title: item.title,
+        status: item.status,
+        asset: item.propertyAsset?.name ?? null,
+        repairAttempts: item.visits.length,
+        evidence: item._count.evidence,
+        createdAt: item.createdAt.toISOString(),
+        costStanding: costStanding(item.status, item.responsibilityProposals),
+        costAgreement: agreed ? describeProposal(agreed) : null,
+      }
+    }),
     findings: inspection.findings.map((finding) => ({
       id: finding.id,
       changeType: finding.changeType,

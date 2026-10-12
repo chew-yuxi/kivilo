@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   assertMaintenanceTransition,
   costShares,
+  costStanding,
   createCaseInput,
   describeProposal,
   evidenceInput,
@@ -77,5 +78,14 @@ describe('maintenance rules', () => {
       .toMatchObject({ tenantCap: '150', clauseRef: null })
     expect(() => proposalAnswerInput.parse({ decision: 'REJECT' })).toThrow()
     expect(proposalAnswerInput.parse({ decision: 'ACCEPT' })).toEqual({ decision: 'ACCEPT', note: null })
+  })
+
+  it('flags every repair cost that check-out still has to settle', () => {
+    expect(costStanding('CLOSED_NO_ACTION', [])).toBeNull()
+    expect(costStanding('RESOLVED', [])).toBe('NOT_PROPOSED')
+    expect(costStanding('RESOLVED', [{ status: 'WITHDRAWN' }])).toBe('NOT_PROPOSED')
+    expect(costStanding('ACKNOWLEDGED', [{ status: 'REJECTED' }, { status: 'PENDING' }])).toBe('PENDING')
+    expect(costStanding('RESOLVED', [{ status: 'PENDING' }, { status: 'REJECTED' }])).toBe('DISPUTED')
+    expect(costStanding('RESOLVED', [{ status: 'ACCEPTED' }, { status: 'REJECTED' }])).toBe('AGREED')
   })
 })
