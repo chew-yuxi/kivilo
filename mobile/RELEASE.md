@@ -24,6 +24,21 @@ camera video handoff waits for the provider file before copying it into durable 
 storage. Gemini quota failures use a concise recovery message instead of displaying the
 provider's raw response; captured evidence remains available for review and retry.
 
+Build `19` source `d84fa59` is on `main`. Migration
+`20261012123000_item_evidence` is applied to production, and deployment
+`dpl_CaJVhbHCWxU4rLvggqvocyn7XmP5` is `READY` in `sin1` and aliased to
+`kivilo.nottoosweetlabs.com`. The signed APK was installed on the physical Nothing
+phone against production; the synthetic room loaded 73 captures and tapping a photo
+opened Preview, Edit note, Mark photo, and Delete evidence actions. Play internal
+testing serves completed build `19`; Play production remains build `13`. The signed
+iOS build `19` uploaded successfully under delivery
+`058f2dec-3803-439f-8d69-f81a7662363c` and is awaiting App Store Connect processing.
+Flutter analysis and all 68 mobile tests pass, along with backend typecheck, lint,
+production build, all 60 unit tests, all 38 integration tests, and all three Playwright
+workflows. The Android AAB SHA-256 is
+`0c0ee11ef4b119bcde0e3fe60de396b194a5d22ae21f8705577d1bc7fb5d5aa5`; the APK
+SHA-256 is `75473dd420baf1f8c08189132d5b45d75155bf29c158d3082d6bcb7446446029`.
+
 Build `18` (source `f44df49`) fixes property navigation. Inspection list responses now
 carry their actual tenancy ID, and the app uses that relationship to show the active
 handover on each property card. Tapping a property with an active inspection, or its
