@@ -61,6 +61,7 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
         durationSec: capture.durationSec,
         createdAt: capture.createdAt.toISOString(),
         url: await createDownloadUrl(capture.storagePath),
+        posterUrl: capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
         annotations: toAnnotations(capture.annotations),
       })),
     ),

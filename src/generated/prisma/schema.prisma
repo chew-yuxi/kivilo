@@ -168,27 +168,33 @@ enum CaptureKind {
 /// Captures belong to a room, not to the inspection, so an inspector can re-shoot
 /// one room without disturbing rooms already reviewed.
 model Capture {
-  id          String      @id @default(cuid())
+  id             String      @id @default(cuid())
   /// Stable native-client id. A lost registration response must not create another row.
-  clientId    String?     @unique
-  roomId      String
-  kind        CaptureKind @default(VIDEO)
-  storagePath String      @unique
-  mimeType    String
-  sizeBytes   Int
-  durationSec Int?
+  clientId       String?     @unique
+  roomId         String
+  kind           CaptureKind @default(VIDEO)
+  storagePath    String      @unique
+  mimeType       String
+  sizeBytes      Int
+  durationSec    Int?
   /// What the inspector said while recording, or typed against a photo.
-  transcript  String?
+  transcript     String?
   /// Inspector's own note attached at capture time, before any model sees it.
-  note        String?
+  note           String?
   /// Rings and arrows the inspector drew over this photo, with the intrinsic size of
   /// the upright image they were drawn against. Data over an unmodified original: the
   /// object at storagePath is never rewritten. Shape and parser live in
   /// src/lib/annotations.ts. Human-authored by construction, so it carries its own
   /// author and time and never a confidence.
-  annotations Json?
-  processedAt DateTime?
-  createdAt   DateTime    @default(now())
+  annotations    Json?
+  processedAt    DateTime?
+  /// A still from a video, stored next to it, so a list can show what a video is without
+  /// loading any of it. Made by the poster cron (src/lib/poster.ts); null until then.
+  posterPath     String?     @unique
+  /// Failed poster runs. The cron stops after a few, so one unreadable file cannot
+  /// occupy every run.
+  posterAttempts Int         @default(0)
+  createdAt      DateTime    @default(now())
 
   room         Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)
   items        InspectionItem[]

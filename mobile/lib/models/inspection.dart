@@ -258,6 +258,7 @@ class EvidenceCapture {
     required this.id,
     required this.kind,
     required this.url,
+    this.posterUrl,
     this.clientId,
     this.note,
     this.annotations,
@@ -265,6 +266,10 @@ class EvidenceCapture {
   final String id;
   final String kind;
   final String url;
+
+  /// A still from a video, made by the server a minute or so after upload. Null for
+  /// photos and for a video whose poster is not ready.
+  final String? posterUrl;
   final String? clientId;
   final String? note;
   final Map<String, dynamic>? annotations;
@@ -274,6 +279,7 @@ class EvidenceCapture {
         id: json['id'] as String,
         kind: json['kind'] as String,
         url: json['url'] as String,
+        posterUrl: json['posterUrl'] as String?,
         clientId: json['clientId'] as String?,
         note: json['note'] as String?,
         annotations: json['annotations'] as Map<String, dynamic>?,

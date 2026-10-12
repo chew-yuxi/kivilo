@@ -7,6 +7,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'maintenance_evidence_screen.dart';
 import 'responsibility_card.dart';
+import 'video_screen.dart';
 
 class MaintenanceCaseScreen extends StatefulWidget {
   const MaintenanceCaseScreen({super.key, required this.caseId, this.api});
@@ -656,10 +657,34 @@ class _EvidenceCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => launchUrl(
-          Uri.parse(evidence.url),
-          mode: LaunchMode.externalApplication,
-        ),
+        // Photos and video stay inside the app: the signed URL is a bearer link to
+        // someone's home. Only a document the app cannot render leaves it.
+        onTap: () => evidence.isImage || evidence.isVideo
+            ? Navigator.push<void>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => evidence.isVideo
+                      ? VideoScreen.network(url: evidence.url)
+                      : Scaffold(
+                          appBar: AppBar(title: Text(label)),
+                          backgroundColor: Colors.black,
+                          body: Center(
+                            child: InteractiveViewer(
+                              minScale: 0.8,
+                              maxScale: 5,
+                              child: Image.network(
+                                evidence.url,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+              )
+            : launchUrl(
+                Uri.parse(evidence.url),
+                mode: LaunchMode.externalApplication,
+              ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

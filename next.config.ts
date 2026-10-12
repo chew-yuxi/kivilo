@@ -9,6 +9,13 @@ const buildId =
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: buildId },
 
+  // The poster cron runs the ffmpeg binary, which nothing require()s, so file tracing
+  // would leave it out. Only that one function carries it.
+  serverExternalPackages: ['ffmpeg-static'],
+  outputFileTracingIncludes: {
+    '/api/internal/posters': ['./node_modules/ffmpeg-static/ffmpeg'],
+  },
+
   async headers() {
     return [
       {

@@ -189,6 +189,8 @@ exports.Prisma.CaptureScalarFieldEnum = {
   note: 'note',
   annotations: 'annotations',
   processedAt: 'processedAt',
+  posterPath: 'posterPath',
+  posterAttempts: 'posterAttempts',
   createdAt: 'createdAt'
 };
 

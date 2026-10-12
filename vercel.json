@@ -1,6 +1,7 @@
 {
   "regions": ["sin1"],
   "crons": [
-    { "path": "/api/internal/notifications", "schedule": "*/15 * * * *" }
+    { "path": "/api/internal/notifications", "schedule": "*/15 * * * *" },
+    { "path": "/api/internal/posters", "schedule": "* * * * *" }
   ]
 }

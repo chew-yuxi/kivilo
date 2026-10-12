@@ -16,6 +16,7 @@ import '../services/uploader.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'photo_mark_screen.dart';
+import 'video_screen.dart';
 
 class CaptureScreen extends StatefulWidget {
   const CaptureScreen({
@@ -290,6 +291,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
         title: const Text('Evidence actions'),
         content: Column(
           children: [
+            if (!photo)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.play_circle_outline),
+                title: const Text('Play video'),
+                onTap: () => Navigator.pop(context, 'play'),
+              ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
@@ -336,6 +344,17 @@ class _CaptureScreenState extends State<CaptureScreen> {
         photo: capture.kind == 'PHOTO',
       );
       if (!mounted || action == null) return;
+      if (action == 'play') {
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VideoScreen.file(
+              file: File('${_root!.path}/${capture.relativePath}'),
+            ),
+          ),
+        );
+        return;
+      }
       if (action == 'note') {
         if (await _noteQueued(capture)) continue;
         return;
@@ -352,6 +371,15 @@ class _CaptureScreenState extends State<CaptureScreen> {
         photo: capture.kind == 'PHOTO',
       );
       if (!mounted || action == null) return;
+      if (action == 'play') {
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VideoScreen.network(url: capture.url),
+          ),
+        );
+        return;
+      }
       if (action == 'note') {
         if (await _noteServer(capture)) continue;
         return;
@@ -823,11 +851,15 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           errorBuilder: (_, _, _) => const Icon(Icons.image),
                         ),
                       )
-                    : const SizedBox(
-                        width: 56,
-                        child: Icon(
-                          Icons.videocam_outlined,
-                          color: KiviloColors.muted,
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: VideoPoster(
+                            posterUrl: capture.posterUrl,
+                            iconSize: 24,
+                          ),
                         ),
                       ),
                 title: Text(

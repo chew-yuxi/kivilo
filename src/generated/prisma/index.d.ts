@@ -9481,11 +9481,13 @@ export namespace Prisma {
   export type CaptureAvgAggregateOutputType = {
     sizeBytes: number | null
     durationSec: number | null
+    posterAttempts: number | null
   }
 
   export type CaptureSumAggregateOutputType = {
     sizeBytes: number | null
     durationSec: number | null
+    posterAttempts: number | null
   }
 
   export type CaptureMinAggregateOutputType = {
@@ -9500,6 +9502,8 @@ export namespace Prisma {
     transcript: string | null
     note: string | null
     processedAt: Date | null
+    posterPath: string | null
+    posterAttempts: number | null
     createdAt: Date | null
   }
 
@@ -9515,6 +9519,8 @@ export namespace Prisma {
     transcript: string | null
     note: string | null
     processedAt: Date | null
+    posterPath: string | null
+    posterAttempts: number | null
     createdAt: Date | null
   }
 
@@ -9531,6 +9537,8 @@ export namespace Prisma {
     note: number
     annotations: number
     processedAt: number
+    posterPath: number
+    posterAttempts: number
     createdAt: number
     _all: number
   }
@@ -9539,11 +9547,13 @@ export namespace Prisma {
   export type CaptureAvgAggregateInputType = {
     sizeBytes?: true
     durationSec?: true
+    posterAttempts?: true
   }
 
   export type CaptureSumAggregateInputType = {
     sizeBytes?: true
     durationSec?: true
+    posterAttempts?: true
   }
 
   export type CaptureMinAggregateInputType = {
@@ -9558,6 +9568,8 @@ export namespace Prisma {
     transcript?: true
     note?: true
     processedAt?: true
+    posterPath?: true
+    posterAttempts?: true
     createdAt?: true
   }
 
@@ -9573,6 +9585,8 @@ export namespace Prisma {
     transcript?: true
     note?: true
     processedAt?: true
+    posterPath?: true
+    posterAttempts?: true
     createdAt?: true
   }
 
@@ -9589,6 +9603,8 @@ export namespace Prisma {
     note?: true
     annotations?: true
     processedAt?: true
+    posterPath?: true
+    posterAttempts?: true
     createdAt?: true
     _all?: true
   }
@@ -9692,6 +9708,8 @@ export namespace Prisma {
     note: string | null
     annotations: JsonValue | null
     processedAt: Date | null
+    posterPath: string | null
+    posterAttempts: number
     createdAt: Date
     _count: CaptureCountAggregateOutputType | null
     _avg: CaptureAvgAggregateOutputType | null
@@ -9727,6 +9745,8 @@ export namespace Prisma {
     note?: boolean
     annotations?: boolean
     processedAt?: boolean
+    posterPath?: boolean
+    posterAttempts?: boolean
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
     items?: boolean | Capture$itemsArgs<ExtArgs>
@@ -9747,6 +9767,8 @@ export namespace Prisma {
     note?: boolean
     annotations?: boolean
     processedAt?: boolean
+    posterPath?: boolean
+    posterAttempts?: boolean
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["capture"]>
@@ -9764,6 +9786,8 @@ export namespace Prisma {
     note?: boolean
     annotations?: boolean
     processedAt?: boolean
+    posterPath?: boolean
+    posterAttempts?: boolean
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["capture"]>
@@ -9781,10 +9805,12 @@ export namespace Prisma {
     note?: boolean
     annotations?: boolean
     processedAt?: boolean
+    posterPath?: boolean
+    posterAttempts?: boolean
     createdAt?: boolean
   }
 
-  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "annotations" | "processedAt" | "createdAt", ExtArgs["result"]["capture"]>
+  export type CaptureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "roomId" | "kind" | "storagePath" | "mimeType" | "sizeBytes" | "durationSec" | "transcript" | "note" | "annotations" | "processedAt" | "posterPath" | "posterAttempts" | "createdAt", ExtArgs["result"]["capture"]>
   export type CaptureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     items?: boolean | Capture$itemsArgs<ExtArgs>
@@ -9834,6 +9860,16 @@ export namespace Prisma {
        */
       annotations: Prisma.JsonValue | null
       processedAt: Date | null
+      /**
+       * A still from a video, stored next to it, so a list can show what a video is without
+       * loading any of it. Made by the poster cron (src/lib/poster.ts); null until then.
+       */
+      posterPath: string | null
+      /**
+       * Failed poster runs. The cron stops after a few, so one unreadable file cannot
+       * occupy every run.
+       */
+      posterAttempts: number
       createdAt: Date
     }, ExtArgs["result"]["capture"]>
     composites: {}
@@ -10273,6 +10309,8 @@ export namespace Prisma {
     readonly note: FieldRef<"Capture", 'String'>
     readonly annotations: FieldRef<"Capture", 'Json'>
     readonly processedAt: FieldRef<"Capture", 'DateTime'>
+    readonly posterPath: FieldRef<"Capture", 'String'>
+    readonly posterAttempts: FieldRef<"Capture", 'Int'>
     readonly createdAt: FieldRef<"Capture", 'DateTime'>
   }
     
@@ -34354,6 +34392,8 @@ export namespace Prisma {
     note: 'note',
     annotations: 'annotations',
     processedAt: 'processedAt',
+    posterPath: 'posterPath',
+    posterAttempts: 'posterAttempts',
     createdAt: 'createdAt'
   };
 
@@ -35602,6 +35642,8 @@ export namespace Prisma {
     note?: StringNullableFilter<"Capture"> | string | null
     annotations?: JsonNullableFilter<"Capture">
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
+    posterPath?: StringNullableFilter<"Capture"> | string | null
+    posterAttempts?: IntFilter<"Capture"> | number
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     items?: InspectionItemListRelationFilter
@@ -35621,6 +35663,8 @@ export namespace Prisma {
     note?: SortOrderInput | SortOrder
     annotations?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
+    posterPath?: SortOrderInput | SortOrder
+    posterAttempts?: SortOrder
     createdAt?: SortOrder
     room?: RoomOrderByWithRelationInput
     items?: InspectionItemOrderByRelationAggregateInput
@@ -35631,6 +35675,7 @@ export namespace Prisma {
     id?: string
     clientId?: string
     storagePath?: string
+    posterPath?: string
     AND?: CaptureWhereInput | CaptureWhereInput[]
     OR?: CaptureWhereInput[]
     NOT?: CaptureWhereInput | CaptureWhereInput[]
@@ -35643,11 +35688,12 @@ export namespace Prisma {
     note?: StringNullableFilter<"Capture"> | string | null
     annotations?: JsonNullableFilter<"Capture">
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
+    posterAttempts?: IntFilter<"Capture"> | number
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     items?: InspectionItemListRelationFilter
     itemEvidence?: ItemEvidenceListRelationFilter
-  }, "id" | "clientId" | "storagePath">
+  }, "id" | "clientId" | "storagePath" | "posterPath">
 
   export type CaptureOrderByWithAggregationInput = {
     id?: SortOrder
@@ -35662,6 +35708,8 @@ export namespace Prisma {
     note?: SortOrderInput | SortOrder
     annotations?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
+    posterPath?: SortOrderInput | SortOrder
+    posterAttempts?: SortOrder
     createdAt?: SortOrder
     _count?: CaptureCountOrderByAggregateInput
     _avg?: CaptureAvgOrderByAggregateInput
@@ -35686,6 +35734,8 @@ export namespace Prisma {
     note?: StringNullableWithAggregatesFilter<"Capture"> | string | null
     annotations?: JsonNullableWithAggregatesFilter<"Capture">
     processedAt?: DateTimeNullableWithAggregatesFilter<"Capture"> | Date | string | null
+    posterPath?: StringNullableWithAggregatesFilter<"Capture"> | string | null
+    posterAttempts?: IntWithAggregatesFilter<"Capture"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Capture"> | Date | string
   }
 
@@ -37845,6 +37895,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
     items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
@@ -37864,6 +37916,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
     itemEvidence?: ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput
@@ -37881,6 +37935,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
     items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
@@ -37900,6 +37956,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
     itemEvidence?: ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput
@@ -37918,6 +37976,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
   }
 
@@ -37933,6 +37993,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -37949,6 +38011,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -40433,12 +40497,15 @@ export namespace Prisma {
     note?: SortOrder
     annotations?: SortOrder
     processedAt?: SortOrder
+    posterPath?: SortOrder
+    posterAttempts?: SortOrder
     createdAt?: SortOrder
   }
 
   export type CaptureAvgOrderByAggregateInput = {
     sizeBytes?: SortOrder
     durationSec?: SortOrder
+    posterAttempts?: SortOrder
   }
 
   export type CaptureMaxOrderByAggregateInput = {
@@ -40453,6 +40520,8 @@ export namespace Prisma {
     transcript?: SortOrder
     note?: SortOrder
     processedAt?: SortOrder
+    posterPath?: SortOrder
+    posterAttempts?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -40468,12 +40537,15 @@ export namespace Prisma {
     transcript?: SortOrder
     note?: SortOrder
     processedAt?: SortOrder
+    posterPath?: SortOrder
+    posterAttempts?: SortOrder
     createdAt?: SortOrder
   }
 
   export type CaptureSumOrderByAggregateInput = {
     sizeBytes?: SortOrder
     durationSec?: SortOrder
+    posterAttempts?: SortOrder
   }
 
   export type EnumCaptureKindWithAggregatesFilter<$PrismaModel = never> = {
@@ -47808,6 +47880,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
     itemEvidence?: ItemEvidenceCreateNestedManyWithoutCaptureInput
@@ -47825,6 +47899,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
     itemEvidence?: ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput
@@ -47979,6 +48055,8 @@ export namespace Prisma {
     note?: StringNullableFilter<"Capture"> | string | null
     annotations?: JsonNullableFilter<"Capture">
     processedAt?: DateTimeNullableFilter<"Capture"> | Date | string | null
+    posterPath?: StringNullableFilter<"Capture"> | string | null
+    posterAttempts?: IntFilter<"Capture"> | number
     createdAt?: DateTimeFilter<"Capture"> | Date | string
   }
 
@@ -48043,6 +48121,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
     itemEvidence?: ItemEvidenceCreateNestedManyWithoutCaptureInput
@@ -48061,6 +48141,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     itemEvidence?: ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput
   }
@@ -48263,6 +48345,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
     itemEvidence?: ItemEvidenceUpdateManyWithoutCaptureNestedInput
@@ -48281,6 +48365,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itemEvidence?: ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput
   }
@@ -48429,6 +48515,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
     items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
@@ -48447,6 +48535,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
   }
@@ -48532,6 +48622,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
     items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
@@ -48550,6 +48642,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
   }
@@ -53451,6 +53545,8 @@ export namespace Prisma {
     note?: string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
+    posterPath?: string | null
+    posterAttempts?: number
     createdAt?: Date | string
   }
 
@@ -53484,6 +53580,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
     itemEvidence?: ItemEvidenceUpdateManyWithoutCaptureNestedInput
@@ -53501,6 +53599,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
     itemEvidence?: ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput
@@ -53518,6 +53618,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    posterAttempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

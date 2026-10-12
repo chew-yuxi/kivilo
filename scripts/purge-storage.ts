@@ -75,17 +75,16 @@ async function main() {
             throw new Error(`Room ${purge.path} reappeared during prefix purge`)
           }
         } else {
-          if (await db.capture.findUnique({
-            where: { storagePath: purge.path },
+          // The path may be a video's poster rather than the capture itself.
+          const inUse = () => db.capture.findFirst({
+            where: { OR: [{ storagePath: purge.path }, { posterPath: purge.path }] },
             select: { id: true },
-          })) {
+          })
+          if (await inUse()) {
             throw new Error(`Capture ${purge.path} still exists; refusing object purge`)
           }
           await purgeObject(purge.path)
-          if (await db.capture.findUnique({
-            where: { storagePath: purge.path },
-            select: { id: true },
-          })) {
+          if (await inUse()) {
             throw new Error(`Capture ${purge.path} reappeared during object purge`)
           }
         }

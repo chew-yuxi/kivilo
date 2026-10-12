@@ -512,12 +512,15 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
   await editOpenInspection(inspectionId, async (tx) => {
     const current = await tx.capture.findUnique({
       where: { id: captureId },
-      select: { roomId: true, storagePath: true },
+      select: { roomId: true, storagePath: true, posterPath: true },
     })
     if (!current || current.roomId !== capture.roomId) throw new Error('Capture not found')
-    // The object can outlive the DB row, so record the exact path transactionally.
-    await tx.storagePurge.create({
-      data: { path: current.storagePath, isPrefix: false, readyAt: new Date(Date.now() + 3 * 60 * 60 * 1000) },
+    // The objects can outlive the DB row, so record their exact paths transactionally.
+    const readyAt = new Date(Date.now() + 3 * 60 * 60 * 1000)
+    await tx.storagePurge.createMany({
+      data: [current.storagePath, current.posterPath]
+        .filter((path) => path !== null)
+        .map((path) => ({ path, isPrefix: false, readyAt })),
     })
     await tx.capture.delete({ where: { id: captureId } })
   })

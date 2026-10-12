@@ -188,6 +188,12 @@ model Capture {
   /// author and time and never a confidence.
   annotations Json?
   processedAt DateTime?
+  /// A still from a video, stored next to it, so a list can show what a video is without
+  /// loading any of it. Made by the poster cron (src/lib/poster.ts); null until then.
+  posterPath     String?  @unique
+  /// Failed poster runs. The cron stops after a few, so one unreadable file cannot
+  /// occupy every run.
+  posterAttempts Int      @default(0)
   createdAt   DateTime    @default(now())
 
   room  Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)

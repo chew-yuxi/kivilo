@@ -192,6 +192,7 @@ class MaintenanceEvidenceModel {
   final String? note;
 
   bool get isImage => mimeType.startsWith('image/');
+  bool get isVideo => mimeType.startsWith('video/');
 
   factory MaintenanceEvidenceModel.fromJson(Map<String, dynamic> json) =>
       MaintenanceEvidenceModel(

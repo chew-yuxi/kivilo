@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
@@ -12,6 +11,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'capture_screen.dart';
 import 'photo_mark_screen.dart';
+import 'video_screen.dart';
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({
@@ -32,7 +32,21 @@ class RoomScreen extends StatefulWidget {
 class _RoomScreenState extends State<RoomScreen> {
   final _api = Api();
   late final _evidenceBackend = RoutingEvidenceBackend(_api.dio);
-  final Map<String, String> _captureUrls = {};
+
+  /// Signed URLs kept across refreshes so thumbnails do not flash, but renewed before
+  /// their hour runs out, or every image and video on a long-open screen would break.
+  final Map<String, ({String url, DateTime at})> _captureUrls = {};
+
+  String _stable(String key, String fresh) {
+    final kept = _captureUrls[key];
+    if (kept != null &&
+        DateTime.now().difference(kept.at) < const Duration(minutes: 45)) {
+      return kept.url;
+    }
+    _captureUrls[key] = (url: fresh, at: DateTime.now());
+    return fresh;
+  }
+
   late Future<RoomDetail> _future = _load();
   bool _busy = false;
   String? _error;
@@ -44,7 +58,10 @@ class _RoomScreenState extends State<RoomScreen> {
         EvidenceCapture(
           id: capture.id,
           kind: capture.kind,
-          url: _captureUrls.putIfAbsent(capture.id, () => capture.url),
+          url: _stable(capture.id, capture.url),
+          posterUrl: capture.posterUrl == null
+              ? null
+              : _stable('poster:${capture.id}', capture.posterUrl!),
           clientId: capture.clientId,
           note: capture.note,
           annotations: capture.annotations,
@@ -181,12 +198,12 @@ class _RoomScreenState extends State<RoomScreen> {
   ) async {
     if (action == 'preview') {
       if (capture.kind == 'VIDEO') {
-        if (!await launchUrl(
-          Uri.parse(capture.url),
-          mode: LaunchMode.externalApplication,
-        )) {
-          setState(() => _error = 'Could not open this video.');
-        }
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VideoScreen.network(url: capture.url),
+          ),
+        );
       } else {
         await Navigator.push<void>(
           context,
@@ -788,11 +805,7 @@ class _RoomScreenState extends State<RoomScreen> {
                               color: KiviloColors.subtle,
                             ),
                           )
-                        : const Icon(
-                            Icons.videocam_outlined,
-                            size: 30,
-                            color: KiviloColors.pinkDark,
-                          ),
+                        : VideoPoster(posterUrl: capture.posterUrl),
                   ),
                 ),
               ),
@@ -1203,9 +1216,9 @@ class _ItemEditorState extends State<ItemEditor> {
                                           Icons.broken_image_outlined,
                                         ),
                                       )
-                                    : const Icon(
-                                        Icons.videocam_outlined,
-                                        color: KiviloColors.pinkDark,
+                                    : VideoPoster(
+                                        posterUrl: capture.posterUrl,
+                                        iconSize: 24,
                                       ),
                               ),
                             ),

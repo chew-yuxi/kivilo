@@ -97,6 +97,17 @@ void main() {
     });
 
     expect(room.items.single.condition, 'FAIR');
+    expect(room.captures.single.posterUrl, isNull);
     expect(room.captures.single.annotations!['v'], 1);
+  });
+
+  test('a video capture carries its server-made poster when there is one', () {
+    final video = EvidenceCapture.fromJson({
+      'id': 'capture-2',
+      'kind': 'VIDEO',
+      'url': 'https://example.test/video',
+      'posterUrl': 'https://example.test/poster',
+    });
+    expect(video.posterUrl, 'https://example.test/poster');
   });
 }
