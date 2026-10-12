@@ -152,6 +152,8 @@ exports.Prisma.TenancyScalarFieldEnum = {
   endDate: 'endDate',
   monthlyRent: 'monthlyRent',
   deposit: 'deposit',
+  minorRepairCap: 'minorRepairCap',
+  agentMayAgreeCosts: 'agentMayAgreeCosts',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -300,6 +302,23 @@ exports.Prisma.MaintenanceVerificationScalarFieldEnum = {
   verifiedById: 'verifiedById',
   outcome: 'outcome',
   note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ResponsibilityProposalScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  proposedById: 'proposedById',
+  arrangedBy: 'arrangedBy',
+  payer: 'payer',
+  tenantCap: 'tenantCap',
+  basis: 'basis',
+  reason: 'reason',
+  clauseRef: 'clauseRef',
+  status: 'status',
+  respondedById: 'respondedById',
+  respondedAt: 'respondedAt',
+  responseNote: 'responseNote',
   createdAt: 'createdAt'
 };
 
@@ -549,7 +568,11 @@ exports.MaintenanceEventKind = exports.$Enums.MaintenanceEventKind = {
   STATUS_CHANGED: 'STATUS_CHANGED',
   VISIT_RECORDED: 'VISIT_RECORDED',
   VERIFICATION: 'VERIFICATION',
-  REOPENED: 'REOPENED'
+  REOPENED: 'REOPENED',
+  RESPONSIBILITY_PROPOSED: 'RESPONSIBILITY_PROPOSED',
+  RESPONSIBILITY_ACCEPTED: 'RESPONSIBILITY_ACCEPTED',
+  RESPONSIBILITY_REJECTED: 'RESPONSIBILITY_REJECTED',
+  RESPONSIBILITY_WITHDRAWN: 'RESPONSIBILITY_WITHDRAWN'
 };
 
 exports.MaintenanceEvidencePurpose = exports.$Enums.MaintenanceEvidencePurpose = {
@@ -561,6 +584,33 @@ exports.MaintenanceEvidencePurpose = exports.$Enums.MaintenanceEvidencePurpose =
 exports.MaintenanceVerificationOutcome = exports.$Enums.MaintenanceVerificationOutcome = {
   FIXED: 'FIXED',
   NOT_FIXED: 'NOT_FIXED'
+};
+
+exports.RepairParty = exports.$Enums.RepairParty = {
+  LANDLORD: 'LANDLORD',
+  TENANT: 'TENANT'
+};
+
+exports.CostPayer = exports.$Enums.CostPayer = {
+  LANDLORD: 'LANDLORD',
+  TENANT: 'TENANT',
+  SHARED: 'SHARED'
+};
+
+exports.ResponsibilityBasis = exports.$Enums.ResponsibilityBasis = {
+  MINOR_REPAIR_CLAUSE: 'MINOR_REPAIR_CLAUSE',
+  TENANT_CAUSED: 'TENANT_CAUSED',
+  FAIR_WEAR: 'FAIR_WEAR',
+  LANDLORD_OBLIGATION: 'LANDLORD_OBLIGATION',
+  OTHER: 'OTHER'
+};
+
+exports.ProposalStatus = exports.$Enums.ProposalStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN',
+  SUPERSEDED: 'SUPERSEDED'
 };
 
 exports.ServiceProviderCategory = exports.$Enums.ServiceProviderCategory = {
@@ -578,6 +628,7 @@ exports.NotificationKind = exports.$Enums.NotificationKind = {
   MAINTENANCE_STATUS: 'MAINTENANCE_STATUS',
   MAINTENANCE_VISIT: 'MAINTENANCE_VISIT',
   MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
+  MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
   REPEAT_REPAIR: 'REPEAT_REPAIR'
 };
 
@@ -617,6 +668,7 @@ exports.Prisma.ModelName = {
   MaintenanceVisit: 'MaintenanceVisit',
   MaintenanceEvidence: 'MaintenanceEvidence',
   MaintenanceVerification: 'MaintenanceVerification',
+  ResponsibilityProposal: 'ResponsibilityProposal',
   ServiceProvider: 'ServiceProvider',
   DeviceInstallation: 'DeviceInstallation',
   Notification: 'Notification',

@@ -88,6 +88,14 @@ export type MaintenanceEvidence = $Result.DefaultSelection<Prisma.$MaintenanceEv
  */
 export type MaintenanceVerification = $Result.DefaultSelection<Prisma.$MaintenanceVerificationPayload>
 /**
+ * Model ResponsibilityProposal
+ * Who arranges a repair and who pays for it, as one side proposes and the other
+ * answers. Append-only: changing an agreement is a new proposal, never an edit.
+ * At most one PENDING and one ACCEPTED per case, enforced by partial unique indexes
+ * in the migration because Prisma cannot express them.
+ */
+export type ResponsibilityProposal = $Result.DefaultSelection<Prisma.$ResponsibilityProposalPayload>
+/**
  * Model ServiceProvider
  * 
  */
@@ -280,7 +288,11 @@ export const MaintenanceEventKind: {
   STATUS_CHANGED: 'STATUS_CHANGED',
   VISIT_RECORDED: 'VISIT_RECORDED',
   VERIFICATION: 'VERIFICATION',
-  REOPENED: 'REOPENED'
+  REOPENED: 'REOPENED',
+  RESPONSIBILITY_PROPOSED: 'RESPONSIBILITY_PROPOSED',
+  RESPONSIBILITY_ACCEPTED: 'RESPONSIBILITY_ACCEPTED',
+  RESPONSIBILITY_REJECTED: 'RESPONSIBILITY_REJECTED',
+  RESPONSIBILITY_WITHDRAWN: 'RESPONSIBILITY_WITHDRAWN'
 };
 
 export type MaintenanceEventKind = (typeof MaintenanceEventKind)[keyof typeof MaintenanceEventKind]
@@ -303,6 +315,45 @@ export const MaintenanceVerificationOutcome: {
 export type MaintenanceVerificationOutcome = (typeof MaintenanceVerificationOutcome)[keyof typeof MaintenanceVerificationOutcome]
 
 
+export const RepairParty: {
+  LANDLORD: 'LANDLORD',
+  TENANT: 'TENANT'
+};
+
+export type RepairParty = (typeof RepairParty)[keyof typeof RepairParty]
+
+
+export const CostPayer: {
+  LANDLORD: 'LANDLORD',
+  TENANT: 'TENANT',
+  SHARED: 'SHARED'
+};
+
+export type CostPayer = (typeof CostPayer)[keyof typeof CostPayer]
+
+
+export const ResponsibilityBasis: {
+  MINOR_REPAIR_CLAUSE: 'MINOR_REPAIR_CLAUSE',
+  TENANT_CAUSED: 'TENANT_CAUSED',
+  FAIR_WEAR: 'FAIR_WEAR',
+  LANDLORD_OBLIGATION: 'LANDLORD_OBLIGATION',
+  OTHER: 'OTHER'
+};
+
+export type ResponsibilityBasis = (typeof ResponsibilityBasis)[keyof typeof ResponsibilityBasis]
+
+
+export const ProposalStatus: {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN',
+  SUPERSEDED: 'SUPERSEDED'
+};
+
+export type ProposalStatus = (typeof ProposalStatus)[keyof typeof ProposalStatus]
+
+
 export const ServiceProviderCategory: {
   PLUMBING: 'PLUMBING',
   LOCKSMITH: 'LOCKSMITH'
@@ -316,6 +367,7 @@ export const NotificationKind: {
   MAINTENANCE_STATUS: 'MAINTENANCE_STATUS',
   MAINTENANCE_VISIT: 'MAINTENANCE_VISIT',
   MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
+  MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
   REPEAT_REPAIR: 'REPEAT_REPAIR'
 };
 
@@ -420,6 +472,22 @@ export const MaintenanceEvidencePurpose: typeof $Enums.MaintenanceEvidencePurpos
 export type MaintenanceVerificationOutcome = $Enums.MaintenanceVerificationOutcome
 
 export const MaintenanceVerificationOutcome: typeof $Enums.MaintenanceVerificationOutcome
+
+export type RepairParty = $Enums.RepairParty
+
+export const RepairParty: typeof $Enums.RepairParty
+
+export type CostPayer = $Enums.CostPayer
+
+export const CostPayer: typeof $Enums.CostPayer
+
+export type ResponsibilityBasis = $Enums.ResponsibilityBasis
+
+export const ResponsibilityBasis: typeof $Enums.ResponsibilityBasis
+
+export type ProposalStatus = $Enums.ProposalStatus
+
+export const ProposalStatus: typeof $Enums.ProposalStatus
 
 export type ServiceProviderCategory = $Enums.ServiceProviderCategory
 
@@ -705,6 +773,16 @@ export class PrismaClient<
     * ```
     */
   get maintenanceVerification(): Prisma.MaintenanceVerificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.responsibilityProposal`: Exposes CRUD operations for the **ResponsibilityProposal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ResponsibilityProposals
+    * const responsibilityProposals = await prisma.responsibilityProposal.findMany()
+    * ```
+    */
+  get responsibilityProposal(): Prisma.ResponsibilityProposalDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.serviceProvider`: Exposes CRUD operations for the **ServiceProvider** model.
@@ -1266,6 +1344,7 @@ export namespace Prisma {
     MaintenanceVisit: 'MaintenanceVisit',
     MaintenanceEvidence: 'MaintenanceEvidence',
     MaintenanceVerification: 'MaintenanceVerification',
+    ResponsibilityProposal: 'ResponsibilityProposal',
     ServiceProvider: 'ServiceProvider',
     DeviceInstallation: 'DeviceInstallation',
     Notification: 'Notification',
@@ -1291,7 +1370,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
+      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2331,6 +2410,80 @@ export namespace Prisma {
           }
         }
       }
+      ResponsibilityProposal: {
+        payload: Prisma.$ResponsibilityProposalPayload<ExtArgs>
+        fields: Prisma.ResponsibilityProposalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ResponsibilityProposalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ResponsibilityProposalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>
+          }
+          findFirst: {
+            args: Prisma.ResponsibilityProposalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ResponsibilityProposalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>
+          }
+          findMany: {
+            args: Prisma.ResponsibilityProposalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>[]
+          }
+          create: {
+            args: Prisma.ResponsibilityProposalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>
+          }
+          createMany: {
+            args: Prisma.ResponsibilityProposalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ResponsibilityProposalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>[]
+          }
+          delete: {
+            args: Prisma.ResponsibilityProposalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>
+          }
+          update: {
+            args: Prisma.ResponsibilityProposalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>
+          }
+          deleteMany: {
+            args: Prisma.ResponsibilityProposalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ResponsibilityProposalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ResponsibilityProposalUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>[]
+          }
+          upsert: {
+            args: Prisma.ResponsibilityProposalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ResponsibilityProposalPayload>
+          }
+          aggregate: {
+            args: Prisma.ResponsibilityProposalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateResponsibilityProposal>
+          }
+          groupBy: {
+            args: Prisma.ResponsibilityProposalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ResponsibilityProposalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ResponsibilityProposalCountArgs<ExtArgs>
+            result: $Utils.Optional<ResponsibilityProposalCountAggregateOutputType> | number
+          }
+        }
+      }
       ServiceProvider: {
         payload: Prisma.$ServiceProviderPayload<ExtArgs>
         fields: Prisma.ServiceProviderFieldRefs
@@ -3208,6 +3361,7 @@ export namespace Prisma {
     maintenanceVisit?: MaintenanceVisitOmit
     maintenanceEvidence?: MaintenanceEvidenceOmit
     maintenanceVerification?: MaintenanceVerificationOmit
+    responsibilityProposal?: ResponsibilityProposalOmit
     serviceProvider?: ServiceProviderOmit
     deviceInstallation?: DeviceInstallationOmit
     notification?: NotificationOmit
@@ -3308,6 +3462,8 @@ export namespace Prisma {
     maintenanceEvents: number
     maintenanceVerifications: number
     maintenanceEvidenceUploaded: number
+    responsibilityProposed: number
+    responsibilityResponded: number
     notifications: number
     deviceInstallations: number
   }
@@ -3323,6 +3479,8 @@ export namespace Prisma {
     maintenanceEvents?: boolean | StakeholderCountOutputTypeCountMaintenanceEventsArgs
     maintenanceVerifications?: boolean | StakeholderCountOutputTypeCountMaintenanceVerificationsArgs
     maintenanceEvidenceUploaded?: boolean | StakeholderCountOutputTypeCountMaintenanceEvidenceUploadedArgs
+    responsibilityProposed?: boolean | StakeholderCountOutputTypeCountResponsibilityProposedArgs
+    responsibilityResponded?: boolean | StakeholderCountOutputTypeCountResponsibilityRespondedArgs
     notifications?: boolean | StakeholderCountOutputTypeCountNotificationsArgs
     deviceInstallations?: boolean | StakeholderCountOutputTypeCountDeviceInstallationsArgs
   }
@@ -3406,6 +3564,20 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountMaintenanceEvidenceUploadedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MaintenanceEvidenceWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountResponsibilityProposedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ResponsibilityProposalWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountResponsibilityRespondedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ResponsibilityProposalWhereInput
   }
 
   /**
@@ -3739,6 +3911,7 @@ export namespace Prisma {
     visits: number
     evidence: number
     findings: number
+    responsibilityProposals: number
   }
 
   export type MaintenanceCaseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3746,6 +3919,7 @@ export namespace Prisma {
     visits?: boolean | MaintenanceCaseCountOutputTypeCountVisitsArgs
     evidence?: boolean | MaintenanceCaseCountOutputTypeCountEvidenceArgs
     findings?: boolean | MaintenanceCaseCountOutputTypeCountFindingsArgs
+    responsibilityProposals?: boolean | MaintenanceCaseCountOutputTypeCountResponsibilityProposalsArgs
   }
 
   // Custom InputTypes
@@ -3785,6 +3959,13 @@ export namespace Prisma {
    */
   export type MaintenanceCaseCountOutputTypeCountFindingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FindingWhereInput
+  }
+
+  /**
+   * MaintenanceCaseCountOutputType without action
+   */
+  export type MaintenanceCaseCountOutputTypeCountResponsibilityProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ResponsibilityProposalWhereInput
   }
 
 
@@ -4153,6 +4334,8 @@ export namespace Prisma {
     maintenanceEvents?: boolean | Stakeholder$maintenanceEventsArgs<ExtArgs>
     maintenanceVerifications?: boolean | Stakeholder$maintenanceVerificationsArgs<ExtArgs>
     maintenanceEvidenceUploaded?: boolean | Stakeholder$maintenanceEvidenceUploadedArgs<ExtArgs>
+    responsibilityProposed?: boolean | Stakeholder$responsibilityProposedArgs<ExtArgs>
+    responsibilityResponded?: boolean | Stakeholder$responsibilityRespondedArgs<ExtArgs>
     notifications?: boolean | Stakeholder$notificationsArgs<ExtArgs>
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -4206,6 +4389,8 @@ export namespace Prisma {
     maintenanceEvents?: boolean | Stakeholder$maintenanceEventsArgs<ExtArgs>
     maintenanceVerifications?: boolean | Stakeholder$maintenanceVerificationsArgs<ExtArgs>
     maintenanceEvidenceUploaded?: boolean | Stakeholder$maintenanceEvidenceUploadedArgs<ExtArgs>
+    responsibilityProposed?: boolean | Stakeholder$responsibilityProposedArgs<ExtArgs>
+    responsibilityResponded?: boolean | Stakeholder$responsibilityRespondedArgs<ExtArgs>
     notifications?: boolean | Stakeholder$notificationsArgs<ExtArgs>
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -4226,6 +4411,8 @@ export namespace Prisma {
       maintenanceEvents: Prisma.$MaintenanceEventPayload<ExtArgs>[]
       maintenanceVerifications: Prisma.$MaintenanceVerificationPayload<ExtArgs>[]
       maintenanceEvidenceUploaded: Prisma.$MaintenanceEvidencePayload<ExtArgs>[]
+      responsibilityProposed: Prisma.$ResponsibilityProposalPayload<ExtArgs>[]
+      responsibilityResponded: Prisma.$ResponsibilityProposalPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       deviceInstallations: Prisma.$DeviceInstallationPayload<ExtArgs>[]
     }
@@ -4648,6 +4835,8 @@ export namespace Prisma {
     maintenanceEvents<T extends Stakeholder$maintenanceEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$maintenanceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     maintenanceVerifications<T extends Stakeholder$maintenanceVerificationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$maintenanceVerificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceVerificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     maintenanceEvidenceUploaded<T extends Stakeholder$maintenanceEvidenceUploadedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$maintenanceEvidenceUploadedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    responsibilityProposed<T extends Stakeholder$responsibilityProposedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$responsibilityProposedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    responsibilityResponded<T extends Stakeholder$responsibilityRespondedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$responsibilityRespondedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Stakeholder$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deviceInstallations<T extends Stakeholder$deviceInstallationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deviceInstallationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceInstallationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -5318,6 +5507,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MaintenanceEvidenceScalarFieldEnum | MaintenanceEvidenceScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.responsibilityProposed
+   */
+  export type Stakeholder$responsibilityProposedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    where?: ResponsibilityProposalWhereInput
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.responsibilityResponded
+   */
+  export type Stakeholder$responsibilityRespondedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    where?: ResponsibilityProposalWhereInput
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
   }
 
   /**
@@ -6531,11 +6768,13 @@ export namespace Prisma {
   export type TenancyAvgAggregateOutputType = {
     monthlyRent: Decimal | null
     deposit: Decimal | null
+    minorRepairCap: Decimal | null
   }
 
   export type TenancySumAggregateOutputType = {
     monthlyRent: Decimal | null
     deposit: Decimal | null
+    minorRepairCap: Decimal | null
   }
 
   export type TenancyMinAggregateOutputType = {
@@ -6548,6 +6787,8 @@ export namespace Prisma {
     endDate: Date | null
     monthlyRent: Decimal | null
     deposit: Decimal | null
+    minorRepairCap: Decimal | null
+    agentMayAgreeCosts: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6562,6 +6803,8 @@ export namespace Prisma {
     endDate: Date | null
     monthlyRent: Decimal | null
     deposit: Decimal | null
+    minorRepairCap: Decimal | null
+    agentMayAgreeCosts: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6576,6 +6819,8 @@ export namespace Prisma {
     endDate: number
     monthlyRent: number
     deposit: number
+    minorRepairCap: number
+    agentMayAgreeCosts: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6585,11 +6830,13 @@ export namespace Prisma {
   export type TenancyAvgAggregateInputType = {
     monthlyRent?: true
     deposit?: true
+    minorRepairCap?: true
   }
 
   export type TenancySumAggregateInputType = {
     monthlyRent?: true
     deposit?: true
+    minorRepairCap?: true
   }
 
   export type TenancyMinAggregateInputType = {
@@ -6602,6 +6849,8 @@ export namespace Prisma {
     endDate?: true
     monthlyRent?: true
     deposit?: true
+    minorRepairCap?: true
+    agentMayAgreeCosts?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6616,6 +6865,8 @@ export namespace Prisma {
     endDate?: true
     monthlyRent?: true
     deposit?: true
+    minorRepairCap?: true
+    agentMayAgreeCosts?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6630,6 +6881,8 @@ export namespace Prisma {
     endDate?: true
     monthlyRent?: true
     deposit?: true
+    minorRepairCap?: true
+    agentMayAgreeCosts?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6731,6 +6984,8 @@ export namespace Prisma {
     endDate: Date
     monthlyRent: Decimal
     deposit: Decimal
+    minorRepairCap: Decimal | null
+    agentMayAgreeCosts: boolean
     createdAt: Date
     updatedAt: Date
     _count: TenancyCountAggregateOutputType | null
@@ -6764,6 +7019,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    minorRepairCap?: boolean
+    agentMayAgreeCosts?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
@@ -6785,6 +7042,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    minorRepairCap?: boolean
+    agentMayAgreeCosts?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
@@ -6803,6 +7062,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    minorRepairCap?: boolean
+    agentMayAgreeCosts?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
@@ -6821,11 +7082,13 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    minorRepairCap?: boolean
+    agentMayAgreeCosts?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
+  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
   export type TenancyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -6868,6 +7131,16 @@ export namespace Prisma {
       endDate: Date
       monthlyRent: Prisma.Decimal
       deposit: Prisma.Decimal
+      /**
+       * Tenant pays up to this per repair, landlord the rest. Only prefills a cost
+       * proposal; the tenant still accepts or rejects every one.
+       */
+      minorRepairCap: Prisma.Decimal | null
+      /**
+       * Whether the agent may accept or reject a tenant's cost proposal for the landlord.
+       * Only the landlord can change it.
+       */
+      agentMayAgreeCosts: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["tenancy"]>
@@ -7308,6 +7581,8 @@ export namespace Prisma {
     readonly endDate: FieldRef<"Tenancy", 'DateTime'>
     readonly monthlyRent: FieldRef<"Tenancy", 'Decimal'>
     readonly deposit: FieldRef<"Tenancy", 'Decimal'>
+    readonly minorRepairCap: FieldRef<"Tenancy", 'Decimal'>
+    readonly agentMayAgreeCosts: FieldRef<"Tenancy", 'Boolean'>
     readonly createdAt: FieldRef<"Tenancy", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenancy", 'DateTime'>
   }
@@ -15564,6 +15839,7 @@ export namespace Prisma {
     visits?: boolean | MaintenanceCase$visitsArgs<ExtArgs>
     evidence?: boolean | MaintenanceCase$evidenceArgs<ExtArgs>
     findings?: boolean | MaintenanceCase$findingsArgs<ExtArgs>
+    responsibilityProposals?: boolean | MaintenanceCase$responsibilityProposalsArgs<ExtArgs>
     _count?: boolean | MaintenanceCaseCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceCase"]>
 
@@ -15636,6 +15912,7 @@ export namespace Prisma {
     visits?: boolean | MaintenanceCase$visitsArgs<ExtArgs>
     evidence?: boolean | MaintenanceCase$evidenceArgs<ExtArgs>
     findings?: boolean | MaintenanceCase$findingsArgs<ExtArgs>
+    responsibilityProposals?: boolean | MaintenanceCase$responsibilityProposalsArgs<ExtArgs>
     _count?: boolean | MaintenanceCaseCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MaintenanceCaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15659,6 +15936,7 @@ export namespace Prisma {
       visits: Prisma.$MaintenanceVisitPayload<ExtArgs>[]
       evidence: Prisma.$MaintenanceEvidencePayload<ExtArgs>[]
       findings: Prisma.$FindingPayload<ExtArgs>[]
+      responsibilityProposals: Prisma.$ResponsibilityProposalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -16077,6 +16355,7 @@ export namespace Prisma {
     visits<T extends MaintenanceCase$visitsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     evidence<T extends MaintenanceCase$evidenceArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$evidenceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findings<T extends MaintenanceCase$findingsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    responsibilityProposals<T extends MaintenanceCase$responsibilityProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$responsibilityProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16634,6 +16913,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FindingScalarFieldEnum | FindingScalarFieldEnum[]
+  }
+
+  /**
+   * MaintenanceCase.responsibilityProposals
+   */
+  export type MaintenanceCase$responsibilityProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    where?: ResponsibilityProposalWhereInput
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
   }
 
   /**
@@ -21287,6 +21590,1261 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: MaintenanceVerificationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ResponsibilityProposal
+   */
+
+  export type AggregateResponsibilityProposal = {
+    _count: ResponsibilityProposalCountAggregateOutputType | null
+    _avg: ResponsibilityProposalAvgAggregateOutputType | null
+    _sum: ResponsibilityProposalSumAggregateOutputType | null
+    _min: ResponsibilityProposalMinAggregateOutputType | null
+    _max: ResponsibilityProposalMaxAggregateOutputType | null
+  }
+
+  export type ResponsibilityProposalAvgAggregateOutputType = {
+    tenantCap: Decimal | null
+  }
+
+  export type ResponsibilityProposalSumAggregateOutputType = {
+    tenantCap: Decimal | null
+  }
+
+  export type ResponsibilityProposalMinAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    proposedById: string | null
+    arrangedBy: $Enums.RepairParty | null
+    payer: $Enums.CostPayer | null
+    tenantCap: Decimal | null
+    basis: $Enums.ResponsibilityBasis | null
+    reason: string | null
+    clauseRef: string | null
+    status: $Enums.ProposalStatus | null
+    respondedById: string | null
+    respondedAt: Date | null
+    responseNote: string | null
+    createdAt: Date | null
+  }
+
+  export type ResponsibilityProposalMaxAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    proposedById: string | null
+    arrangedBy: $Enums.RepairParty | null
+    payer: $Enums.CostPayer | null
+    tenantCap: Decimal | null
+    basis: $Enums.ResponsibilityBasis | null
+    reason: string | null
+    clauseRef: string | null
+    status: $Enums.ProposalStatus | null
+    respondedById: string | null
+    respondedAt: Date | null
+    responseNote: string | null
+    createdAt: Date | null
+  }
+
+  export type ResponsibilityProposalCountAggregateOutputType = {
+    id: number
+    caseId: number
+    proposedById: number
+    arrangedBy: number
+    payer: number
+    tenantCap: number
+    basis: number
+    reason: number
+    clauseRef: number
+    status: number
+    respondedById: number
+    respondedAt: number
+    responseNote: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ResponsibilityProposalAvgAggregateInputType = {
+    tenantCap?: true
+  }
+
+  export type ResponsibilityProposalSumAggregateInputType = {
+    tenantCap?: true
+  }
+
+  export type ResponsibilityProposalMinAggregateInputType = {
+    id?: true
+    caseId?: true
+    proposedById?: true
+    arrangedBy?: true
+    payer?: true
+    tenantCap?: true
+    basis?: true
+    reason?: true
+    clauseRef?: true
+    status?: true
+    respondedById?: true
+    respondedAt?: true
+    responseNote?: true
+    createdAt?: true
+  }
+
+  export type ResponsibilityProposalMaxAggregateInputType = {
+    id?: true
+    caseId?: true
+    proposedById?: true
+    arrangedBy?: true
+    payer?: true
+    tenantCap?: true
+    basis?: true
+    reason?: true
+    clauseRef?: true
+    status?: true
+    respondedById?: true
+    respondedAt?: true
+    responseNote?: true
+    createdAt?: true
+  }
+
+  export type ResponsibilityProposalCountAggregateInputType = {
+    id?: true
+    caseId?: true
+    proposedById?: true
+    arrangedBy?: true
+    payer?: true
+    tenantCap?: true
+    basis?: true
+    reason?: true
+    clauseRef?: true
+    status?: true
+    respondedById?: true
+    respondedAt?: true
+    responseNote?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ResponsibilityProposalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ResponsibilityProposal to aggregate.
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResponsibilityProposals to fetch.
+     */
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResponsibilityProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResponsibilityProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ResponsibilityProposals
+    **/
+    _count?: true | ResponsibilityProposalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ResponsibilityProposalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ResponsibilityProposalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ResponsibilityProposalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ResponsibilityProposalMaxAggregateInputType
+  }
+
+  export type GetResponsibilityProposalAggregateType<T extends ResponsibilityProposalAggregateArgs> = {
+        [P in keyof T & keyof AggregateResponsibilityProposal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateResponsibilityProposal[P]>
+      : GetScalarType<T[P], AggregateResponsibilityProposal[P]>
+  }
+
+
+
+
+  export type ResponsibilityProposalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ResponsibilityProposalWhereInput
+    orderBy?: ResponsibilityProposalOrderByWithAggregationInput | ResponsibilityProposalOrderByWithAggregationInput[]
+    by: ResponsibilityProposalScalarFieldEnum[] | ResponsibilityProposalScalarFieldEnum
+    having?: ResponsibilityProposalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ResponsibilityProposalCountAggregateInputType | true
+    _avg?: ResponsibilityProposalAvgAggregateInputType
+    _sum?: ResponsibilityProposalSumAggregateInputType
+    _min?: ResponsibilityProposalMinAggregateInputType
+    _max?: ResponsibilityProposalMaxAggregateInputType
+  }
+
+  export type ResponsibilityProposalGroupByOutputType = {
+    id: string
+    caseId: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap: Decimal | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef: string | null
+    status: $Enums.ProposalStatus
+    respondedById: string | null
+    respondedAt: Date | null
+    responseNote: string | null
+    createdAt: Date
+    _count: ResponsibilityProposalCountAggregateOutputType | null
+    _avg: ResponsibilityProposalAvgAggregateOutputType | null
+    _sum: ResponsibilityProposalSumAggregateOutputType | null
+    _min: ResponsibilityProposalMinAggregateOutputType | null
+    _max: ResponsibilityProposalMaxAggregateOutputType | null
+  }
+
+  type GetResponsibilityProposalGroupByPayload<T extends ResponsibilityProposalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ResponsibilityProposalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ResponsibilityProposalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ResponsibilityProposalGroupByOutputType[P]>
+            : GetScalarType<T[P], ResponsibilityProposalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ResponsibilityProposalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    proposedById?: boolean
+    arrangedBy?: boolean
+    payer?: boolean
+    tenantCap?: boolean
+    basis?: boolean
+    reason?: boolean
+    clauseRef?: boolean
+    status?: boolean
+    respondedById?: boolean
+    respondedAt?: boolean
+    responseNote?: boolean
+    createdAt?: boolean
+    maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
+    proposedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    respondedBy?: boolean | ResponsibilityProposal$respondedByArgs<ExtArgs>
+  }, ExtArgs["result"]["responsibilityProposal"]>
+
+  export type ResponsibilityProposalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    proposedById?: boolean
+    arrangedBy?: boolean
+    payer?: boolean
+    tenantCap?: boolean
+    basis?: boolean
+    reason?: boolean
+    clauseRef?: boolean
+    status?: boolean
+    respondedById?: boolean
+    respondedAt?: boolean
+    responseNote?: boolean
+    createdAt?: boolean
+    maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
+    proposedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    respondedBy?: boolean | ResponsibilityProposal$respondedByArgs<ExtArgs>
+  }, ExtArgs["result"]["responsibilityProposal"]>
+
+  export type ResponsibilityProposalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    proposedById?: boolean
+    arrangedBy?: boolean
+    payer?: boolean
+    tenantCap?: boolean
+    basis?: boolean
+    reason?: boolean
+    clauseRef?: boolean
+    status?: boolean
+    respondedById?: boolean
+    respondedAt?: boolean
+    responseNote?: boolean
+    createdAt?: boolean
+    maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
+    proposedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    respondedBy?: boolean | ResponsibilityProposal$respondedByArgs<ExtArgs>
+  }, ExtArgs["result"]["responsibilityProposal"]>
+
+  export type ResponsibilityProposalSelectScalar = {
+    id?: boolean
+    caseId?: boolean
+    proposedById?: boolean
+    arrangedBy?: boolean
+    payer?: boolean
+    tenantCap?: boolean
+    basis?: boolean
+    reason?: boolean
+    clauseRef?: boolean
+    status?: boolean
+    respondedById?: boolean
+    respondedAt?: boolean
+    responseNote?: boolean
+    createdAt?: boolean
+  }
+
+  export type ResponsibilityProposalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "proposedById" | "arrangedBy" | "payer" | "tenantCap" | "basis" | "reason" | "clauseRef" | "status" | "respondedById" | "respondedAt" | "responseNote" | "createdAt", ExtArgs["result"]["responsibilityProposal"]>
+  export type ResponsibilityProposalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
+    proposedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    respondedBy?: boolean | ResponsibilityProposal$respondedByArgs<ExtArgs>
+  }
+  export type ResponsibilityProposalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
+    proposedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    respondedBy?: boolean | ResponsibilityProposal$respondedByArgs<ExtArgs>
+  }
+  export type ResponsibilityProposalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
+    proposedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    respondedBy?: boolean | ResponsibilityProposal$respondedByArgs<ExtArgs>
+  }
+
+  export type $ResponsibilityProposalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ResponsibilityProposal"
+    objects: {
+      maintenanceCase: Prisma.$MaintenanceCasePayload<ExtArgs>
+      proposedBy: Prisma.$StakeholderPayload<ExtArgs>
+      respondedBy: Prisma.$StakeholderPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      caseId: string
+      proposedById: string
+      arrangedBy: $Enums.RepairParty
+      payer: $Enums.CostPayer
+      /**
+       * Required when payer is SHARED: the tenant pays up to this, the landlord the rest.
+       */
+      tenantCap: Prisma.Decimal | null
+      basis: $Enums.ResponsibilityBasis
+      reason: string
+      /**
+       * Free text such as "Clause 5(c)" until tenancy agreements are extracted.
+       */
+      clauseRef: string | null
+      status: $Enums.ProposalStatus
+      respondedById: string | null
+      respondedAt: Date | null
+      responseNote: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["responsibilityProposal"]>
+    composites: {}
+  }
+
+  type ResponsibilityProposalGetPayload<S extends boolean | null | undefined | ResponsibilityProposalDefaultArgs> = $Result.GetResult<Prisma.$ResponsibilityProposalPayload, S>
+
+  type ResponsibilityProposalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ResponsibilityProposalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ResponsibilityProposalCountAggregateInputType | true
+    }
+
+  export interface ResponsibilityProposalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ResponsibilityProposal'], meta: { name: 'ResponsibilityProposal' } }
+    /**
+     * Find zero or one ResponsibilityProposal that matches the filter.
+     * @param {ResponsibilityProposalFindUniqueArgs} args - Arguments to find a ResponsibilityProposal
+     * @example
+     * // Get one ResponsibilityProposal
+     * const responsibilityProposal = await prisma.responsibilityProposal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ResponsibilityProposalFindUniqueArgs>(args: SelectSubset<T, ResponsibilityProposalFindUniqueArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ResponsibilityProposal that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ResponsibilityProposalFindUniqueOrThrowArgs} args - Arguments to find a ResponsibilityProposal
+     * @example
+     * // Get one ResponsibilityProposal
+     * const responsibilityProposal = await prisma.responsibilityProposal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ResponsibilityProposalFindUniqueOrThrowArgs>(args: SelectSubset<T, ResponsibilityProposalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ResponsibilityProposal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalFindFirstArgs} args - Arguments to find a ResponsibilityProposal
+     * @example
+     * // Get one ResponsibilityProposal
+     * const responsibilityProposal = await prisma.responsibilityProposal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ResponsibilityProposalFindFirstArgs>(args?: SelectSubset<T, ResponsibilityProposalFindFirstArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ResponsibilityProposal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalFindFirstOrThrowArgs} args - Arguments to find a ResponsibilityProposal
+     * @example
+     * // Get one ResponsibilityProposal
+     * const responsibilityProposal = await prisma.responsibilityProposal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ResponsibilityProposalFindFirstOrThrowArgs>(args?: SelectSubset<T, ResponsibilityProposalFindFirstOrThrowArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ResponsibilityProposals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ResponsibilityProposals
+     * const responsibilityProposals = await prisma.responsibilityProposal.findMany()
+     * 
+     * // Get first 10 ResponsibilityProposals
+     * const responsibilityProposals = await prisma.responsibilityProposal.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const responsibilityProposalWithIdOnly = await prisma.responsibilityProposal.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ResponsibilityProposalFindManyArgs>(args?: SelectSubset<T, ResponsibilityProposalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ResponsibilityProposal.
+     * @param {ResponsibilityProposalCreateArgs} args - Arguments to create a ResponsibilityProposal.
+     * @example
+     * // Create one ResponsibilityProposal
+     * const ResponsibilityProposal = await prisma.responsibilityProposal.create({
+     *   data: {
+     *     // ... data to create a ResponsibilityProposal
+     *   }
+     * })
+     * 
+     */
+    create<T extends ResponsibilityProposalCreateArgs>(args: SelectSubset<T, ResponsibilityProposalCreateArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ResponsibilityProposals.
+     * @param {ResponsibilityProposalCreateManyArgs} args - Arguments to create many ResponsibilityProposals.
+     * @example
+     * // Create many ResponsibilityProposals
+     * const responsibilityProposal = await prisma.responsibilityProposal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ResponsibilityProposalCreateManyArgs>(args?: SelectSubset<T, ResponsibilityProposalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ResponsibilityProposals and returns the data saved in the database.
+     * @param {ResponsibilityProposalCreateManyAndReturnArgs} args - Arguments to create many ResponsibilityProposals.
+     * @example
+     * // Create many ResponsibilityProposals
+     * const responsibilityProposal = await prisma.responsibilityProposal.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ResponsibilityProposals and only return the `id`
+     * const responsibilityProposalWithIdOnly = await prisma.responsibilityProposal.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ResponsibilityProposalCreateManyAndReturnArgs>(args?: SelectSubset<T, ResponsibilityProposalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ResponsibilityProposal.
+     * @param {ResponsibilityProposalDeleteArgs} args - Arguments to delete one ResponsibilityProposal.
+     * @example
+     * // Delete one ResponsibilityProposal
+     * const ResponsibilityProposal = await prisma.responsibilityProposal.delete({
+     *   where: {
+     *     // ... filter to delete one ResponsibilityProposal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ResponsibilityProposalDeleteArgs>(args: SelectSubset<T, ResponsibilityProposalDeleteArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ResponsibilityProposal.
+     * @param {ResponsibilityProposalUpdateArgs} args - Arguments to update one ResponsibilityProposal.
+     * @example
+     * // Update one ResponsibilityProposal
+     * const responsibilityProposal = await prisma.responsibilityProposal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ResponsibilityProposalUpdateArgs>(args: SelectSubset<T, ResponsibilityProposalUpdateArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ResponsibilityProposals.
+     * @param {ResponsibilityProposalDeleteManyArgs} args - Arguments to filter ResponsibilityProposals to delete.
+     * @example
+     * // Delete a few ResponsibilityProposals
+     * const { count } = await prisma.responsibilityProposal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ResponsibilityProposalDeleteManyArgs>(args?: SelectSubset<T, ResponsibilityProposalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ResponsibilityProposals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ResponsibilityProposals
+     * const responsibilityProposal = await prisma.responsibilityProposal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ResponsibilityProposalUpdateManyArgs>(args: SelectSubset<T, ResponsibilityProposalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ResponsibilityProposals and returns the data updated in the database.
+     * @param {ResponsibilityProposalUpdateManyAndReturnArgs} args - Arguments to update many ResponsibilityProposals.
+     * @example
+     * // Update many ResponsibilityProposals
+     * const responsibilityProposal = await prisma.responsibilityProposal.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ResponsibilityProposals and only return the `id`
+     * const responsibilityProposalWithIdOnly = await prisma.responsibilityProposal.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ResponsibilityProposalUpdateManyAndReturnArgs>(args: SelectSubset<T, ResponsibilityProposalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ResponsibilityProposal.
+     * @param {ResponsibilityProposalUpsertArgs} args - Arguments to update or create a ResponsibilityProposal.
+     * @example
+     * // Update or create a ResponsibilityProposal
+     * const responsibilityProposal = await prisma.responsibilityProposal.upsert({
+     *   create: {
+     *     // ... data to create a ResponsibilityProposal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ResponsibilityProposal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ResponsibilityProposalUpsertArgs>(args: SelectSubset<T, ResponsibilityProposalUpsertArgs<ExtArgs>>): Prisma__ResponsibilityProposalClient<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ResponsibilityProposals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalCountArgs} args - Arguments to filter ResponsibilityProposals to count.
+     * @example
+     * // Count the number of ResponsibilityProposals
+     * const count = await prisma.responsibilityProposal.count({
+     *   where: {
+     *     // ... the filter for the ResponsibilityProposals we want to count
+     *   }
+     * })
+    **/
+    count<T extends ResponsibilityProposalCountArgs>(
+      args?: Subset<T, ResponsibilityProposalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ResponsibilityProposalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ResponsibilityProposal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ResponsibilityProposalAggregateArgs>(args: Subset<T, ResponsibilityProposalAggregateArgs>): Prisma.PrismaPromise<GetResponsibilityProposalAggregateType<T>>
+
+    /**
+     * Group by ResponsibilityProposal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ResponsibilityProposalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ResponsibilityProposalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ResponsibilityProposalGroupByArgs['orderBy'] }
+        : { orderBy?: ResponsibilityProposalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ResponsibilityProposalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetResponsibilityProposalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ResponsibilityProposal model
+   */
+  readonly fields: ResponsibilityProposalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ResponsibilityProposal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ResponsibilityProposalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    maintenanceCase<T extends MaintenanceCaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCaseDefaultArgs<ExtArgs>>): Prisma__MaintenanceCaseClient<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    proposedBy<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    respondedBy<T extends ResponsibilityProposal$respondedByArgs<ExtArgs> = {}>(args?: Subset<T, ResponsibilityProposal$respondedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ResponsibilityProposal model
+   */
+  interface ResponsibilityProposalFieldRefs {
+    readonly id: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly caseId: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly proposedById: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly arrangedBy: FieldRef<"ResponsibilityProposal", 'RepairParty'>
+    readonly payer: FieldRef<"ResponsibilityProposal", 'CostPayer'>
+    readonly tenantCap: FieldRef<"ResponsibilityProposal", 'Decimal'>
+    readonly basis: FieldRef<"ResponsibilityProposal", 'ResponsibilityBasis'>
+    readonly reason: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly clauseRef: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly status: FieldRef<"ResponsibilityProposal", 'ProposalStatus'>
+    readonly respondedById: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly respondedAt: FieldRef<"ResponsibilityProposal", 'DateTime'>
+    readonly responseNote: FieldRef<"ResponsibilityProposal", 'String'>
+    readonly createdAt: FieldRef<"ResponsibilityProposal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ResponsibilityProposal findUnique
+   */
+  export type ResponsibilityProposalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which ResponsibilityProposal to fetch.
+     */
+    where: ResponsibilityProposalWhereUniqueInput
+  }
+
+  /**
+   * ResponsibilityProposal findUniqueOrThrow
+   */
+  export type ResponsibilityProposalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which ResponsibilityProposal to fetch.
+     */
+    where: ResponsibilityProposalWhereUniqueInput
+  }
+
+  /**
+   * ResponsibilityProposal findFirst
+   */
+  export type ResponsibilityProposalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which ResponsibilityProposal to fetch.
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResponsibilityProposals to fetch.
+     */
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ResponsibilityProposals.
+     */
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResponsibilityProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResponsibilityProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ResponsibilityProposals.
+     */
+    distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
+  }
+
+  /**
+   * ResponsibilityProposal findFirstOrThrow
+   */
+  export type ResponsibilityProposalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which ResponsibilityProposal to fetch.
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResponsibilityProposals to fetch.
+     */
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ResponsibilityProposals.
+     */
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResponsibilityProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResponsibilityProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ResponsibilityProposals.
+     */
+    distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
+  }
+
+  /**
+   * ResponsibilityProposal findMany
+   */
+  export type ResponsibilityProposalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which ResponsibilityProposals to fetch.
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ResponsibilityProposals to fetch.
+     */
+    orderBy?: ResponsibilityProposalOrderByWithRelationInput | ResponsibilityProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ResponsibilityProposals.
+     */
+    cursor?: ResponsibilityProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ResponsibilityProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ResponsibilityProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ResponsibilityProposals.
+     */
+    distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
+  }
+
+  /**
+   * ResponsibilityProposal create
+   */
+  export type ResponsibilityProposalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ResponsibilityProposal.
+     */
+    data: XOR<ResponsibilityProposalCreateInput, ResponsibilityProposalUncheckedCreateInput>
+  }
+
+  /**
+   * ResponsibilityProposal createMany
+   */
+  export type ResponsibilityProposalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ResponsibilityProposals.
+     */
+    data: ResponsibilityProposalCreateManyInput | ResponsibilityProposalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ResponsibilityProposal createManyAndReturn
+   */
+  export type ResponsibilityProposalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * The data used to create many ResponsibilityProposals.
+     */
+    data: ResponsibilityProposalCreateManyInput | ResponsibilityProposalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ResponsibilityProposal update
+   */
+  export type ResponsibilityProposalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ResponsibilityProposal.
+     */
+    data: XOR<ResponsibilityProposalUpdateInput, ResponsibilityProposalUncheckedUpdateInput>
+    /**
+     * Choose, which ResponsibilityProposal to update.
+     */
+    where: ResponsibilityProposalWhereUniqueInput
+  }
+
+  /**
+   * ResponsibilityProposal updateMany
+   */
+  export type ResponsibilityProposalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ResponsibilityProposals.
+     */
+    data: XOR<ResponsibilityProposalUpdateManyMutationInput, ResponsibilityProposalUncheckedUpdateManyInput>
+    /**
+     * Filter which ResponsibilityProposals to update
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * Limit how many ResponsibilityProposals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ResponsibilityProposal updateManyAndReturn
+   */
+  export type ResponsibilityProposalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * The data used to update ResponsibilityProposals.
+     */
+    data: XOR<ResponsibilityProposalUpdateManyMutationInput, ResponsibilityProposalUncheckedUpdateManyInput>
+    /**
+     * Filter which ResponsibilityProposals to update
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * Limit how many ResponsibilityProposals to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ResponsibilityProposal upsert
+   */
+  export type ResponsibilityProposalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ResponsibilityProposal to update in case it exists.
+     */
+    where: ResponsibilityProposalWhereUniqueInput
+    /**
+     * In case the ResponsibilityProposal found by the `where` argument doesn't exist, create a new ResponsibilityProposal with this data.
+     */
+    create: XOR<ResponsibilityProposalCreateInput, ResponsibilityProposalUncheckedCreateInput>
+    /**
+     * In case the ResponsibilityProposal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ResponsibilityProposalUpdateInput, ResponsibilityProposalUncheckedUpdateInput>
+  }
+
+  /**
+   * ResponsibilityProposal delete
+   */
+  export type ResponsibilityProposalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
+    /**
+     * Filter which ResponsibilityProposal to delete.
+     */
+    where: ResponsibilityProposalWhereUniqueInput
+  }
+
+  /**
+   * ResponsibilityProposal deleteMany
+   */
+  export type ResponsibilityProposalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ResponsibilityProposals to delete
+     */
+    where?: ResponsibilityProposalWhereInput
+    /**
+     * Limit how many ResponsibilityProposals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ResponsibilityProposal.respondedBy
+   */
+  export type ResponsibilityProposal$respondedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
+  }
+
+  /**
+   * ResponsibilityProposal without action
+   */
+  export type ResponsibilityProposalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ResponsibilityProposal
+     */
+    select?: ResponsibilityProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ResponsibilityProposal
+     */
+    omit?: ResponsibilityProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ResponsibilityProposalInclude<ExtArgs> | null
   }
 
 
@@ -32753,6 +34311,8 @@ export namespace Prisma {
     endDate: 'endDate',
     monthlyRent: 'monthlyRent',
     deposit: 'deposit',
+    minorRepairCap: 'minorRepairCap',
+    agentMayAgreeCosts: 'agentMayAgreeCosts',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -32938,6 +34498,26 @@ export namespace Prisma {
   };
 
   export type MaintenanceVerificationScalarFieldEnum = (typeof MaintenanceVerificationScalarFieldEnum)[keyof typeof MaintenanceVerificationScalarFieldEnum]
+
+
+  export const ResponsibilityProposalScalarFieldEnum: {
+    id: 'id',
+    caseId: 'caseId',
+    proposedById: 'proposedById',
+    arrangedBy: 'arrangedBy',
+    payer: 'payer',
+    tenantCap: 'tenantCap',
+    basis: 'basis',
+    reason: 'reason',
+    clauseRef: 'clauseRef',
+    status: 'status',
+    respondedById: 'respondedById',
+    respondedAt: 'respondedAt',
+    responseNote: 'responseNote',
+    createdAt: 'createdAt'
+  };
+
+  export type ResponsibilityProposalScalarFieldEnum = (typeof ResponsibilityProposalScalarFieldEnum)[keyof typeof ResponsibilityProposalScalarFieldEnum]
 
 
   export const ServiceProviderScalarFieldEnum: {
@@ -33213,6 +34793,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'InspectionKind'
    */
   export type EnumInspectionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionKind'>
@@ -33339,13 +34926,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'PropertyAssetCategory'
    */
   export type EnumPropertyAssetCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PropertyAssetCategory'>
@@ -33440,6 +35020,62 @@ export namespace Prisma {
    * Reference to a field of type 'MaintenanceVerificationOutcome[]'
    */
   export type ListEnumMaintenanceVerificationOutcomeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MaintenanceVerificationOutcome[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RepairParty'
+   */
+  export type EnumRepairPartyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RepairParty'>
+    
+
+
+  /**
+   * Reference to a field of type 'RepairParty[]'
+   */
+  export type ListEnumRepairPartyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RepairParty[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CostPayer'
+   */
+  export type EnumCostPayerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CostPayer'>
+    
+
+
+  /**
+   * Reference to a field of type 'CostPayer[]'
+   */
+  export type ListEnumCostPayerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CostPayer[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResponsibilityBasis'
+   */
+  export type EnumResponsibilityBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResponsibilityBasis'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResponsibilityBasis[]'
+   */
+  export type ListEnumResponsibilityBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResponsibilityBasis[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProposalStatus'
+   */
+  export type EnumProposalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProposalStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProposalStatus[]'
+   */
+  export type ListEnumProposalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProposalStatus[]'>
     
 
 
@@ -33553,6 +35189,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventListRelationFilter
     maintenanceVerifications?: MaintenanceVerificationListRelationFilter
     maintenanceEvidenceUploaded?: MaintenanceEvidenceListRelationFilter
+    responsibilityProposed?: ResponsibilityProposalListRelationFilter
+    responsibilityResponded?: ResponsibilityProposalListRelationFilter
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
   }
@@ -33577,6 +35215,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventOrderByRelationAggregateInput
     maintenanceVerifications?: MaintenanceVerificationOrderByRelationAggregateInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceOrderByRelationAggregateInput
+    responsibilityProposed?: ResponsibilityProposalOrderByRelationAggregateInput
+    responsibilityResponded?: ResponsibilityProposalOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     deviceInstallations?: DeviceInstallationOrderByRelationAggregateInput
   }
@@ -33604,6 +35244,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventListRelationFilter
     maintenanceVerifications?: MaintenanceVerificationListRelationFilter
     maintenanceEvidenceUploaded?: MaintenanceEvidenceListRelationFilter
+    responsibilityProposed?: ResponsibilityProposalListRelationFilter
+    responsibilityResponded?: ResponsibilityProposalListRelationFilter
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
   }, "id" | "authUserId">
@@ -33719,6 +35361,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeFilter<"Tenancy"> | Date | string
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
@@ -33739,6 +35383,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrderInput | SortOrder
+    agentMayAgreeCosts?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     property?: PropertyOrderByWithRelationInput
@@ -33762,6 +35408,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeFilter<"Tenancy"> | Date | string
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
@@ -33782,6 +35430,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrderInput | SortOrder
+    agentMayAgreeCosts?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TenancyCountOrderByAggregateInput
@@ -33804,6 +35454,8 @@ export namespace Prisma {
     endDate?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: DecimalNullableWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolWithAggregatesFilter<"Tenancy"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
   }
@@ -34408,6 +36060,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitListRelationFilter
     evidence?: MaintenanceEvidenceListRelationFilter
     findings?: FindingListRelationFilter
+    responsibilityProposals?: ResponsibilityProposalListRelationFilter
   }
 
   export type MaintenanceCaseOrderByWithRelationInput = {
@@ -34433,6 +36086,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitOrderByRelationAggregateInput
     evidence?: MaintenanceEvidenceOrderByRelationAggregateInput
     findings?: FindingOrderByRelationAggregateInput
+    responsibilityProposals?: ResponsibilityProposalOrderByRelationAggregateInput
   }
 
   export type MaintenanceCaseWhereUniqueInput = Prisma.AtLeast<{
@@ -34461,6 +36115,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitListRelationFilter
     evidence?: MaintenanceEvidenceListRelationFilter
     findings?: FindingListRelationFilter
+    responsibilityProposals?: ResponsibilityProposalListRelationFilter
   }, "id" | "clientId">
 
   export type MaintenanceCaseOrderByWithAggregationInput = {
@@ -34813,6 +36468,114 @@ export namespace Prisma {
     outcome?: EnumMaintenanceVerificationOutcomeWithAggregatesFilter<"MaintenanceVerification"> | $Enums.MaintenanceVerificationOutcome
     note?: StringNullableWithAggregatesFilter<"MaintenanceVerification"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"MaintenanceVerification"> | Date | string
+  }
+
+  export type ResponsibilityProposalWhereInput = {
+    AND?: ResponsibilityProposalWhereInput | ResponsibilityProposalWhereInput[]
+    OR?: ResponsibilityProposalWhereInput[]
+    NOT?: ResponsibilityProposalWhereInput | ResponsibilityProposalWhereInput[]
+    id?: StringFilter<"ResponsibilityProposal"> | string
+    caseId?: StringFilter<"ResponsibilityProposal"> | string
+    proposedById?: StringFilter<"ResponsibilityProposal"> | string
+    arrangedBy?: EnumRepairPartyFilter<"ResponsibilityProposal"> | $Enums.RepairParty
+    payer?: EnumCostPayerFilter<"ResponsibilityProposal"> | $Enums.CostPayer
+    tenantCap?: DecimalNullableFilter<"ResponsibilityProposal"> | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFilter<"ResponsibilityProposal"> | $Enums.ResponsibilityBasis
+    reason?: StringFilter<"ResponsibilityProposal"> | string
+    clauseRef?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    status?: EnumProposalStatusFilter<"ResponsibilityProposal"> | $Enums.ProposalStatus
+    respondedById?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    respondedAt?: DateTimeNullableFilter<"ResponsibilityProposal"> | Date | string | null
+    responseNote?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    createdAt?: DateTimeFilter<"ResponsibilityProposal"> | Date | string
+    maintenanceCase?: XOR<MaintenanceCaseScalarRelationFilter, MaintenanceCaseWhereInput>
+    proposedBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    respondedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+  }
+
+  export type ResponsibilityProposalOrderByWithRelationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    proposedById?: SortOrder
+    arrangedBy?: SortOrder
+    payer?: SortOrder
+    tenantCap?: SortOrderInput | SortOrder
+    basis?: SortOrder
+    reason?: SortOrder
+    clauseRef?: SortOrderInput | SortOrder
+    status?: SortOrder
+    respondedById?: SortOrderInput | SortOrder
+    respondedAt?: SortOrderInput | SortOrder
+    responseNote?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    maintenanceCase?: MaintenanceCaseOrderByWithRelationInput
+    proposedBy?: StakeholderOrderByWithRelationInput
+    respondedBy?: StakeholderOrderByWithRelationInput
+  }
+
+  export type ResponsibilityProposalWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ResponsibilityProposalWhereInput | ResponsibilityProposalWhereInput[]
+    OR?: ResponsibilityProposalWhereInput[]
+    NOT?: ResponsibilityProposalWhereInput | ResponsibilityProposalWhereInput[]
+    caseId?: StringFilter<"ResponsibilityProposal"> | string
+    proposedById?: StringFilter<"ResponsibilityProposal"> | string
+    arrangedBy?: EnumRepairPartyFilter<"ResponsibilityProposal"> | $Enums.RepairParty
+    payer?: EnumCostPayerFilter<"ResponsibilityProposal"> | $Enums.CostPayer
+    tenantCap?: DecimalNullableFilter<"ResponsibilityProposal"> | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFilter<"ResponsibilityProposal"> | $Enums.ResponsibilityBasis
+    reason?: StringFilter<"ResponsibilityProposal"> | string
+    clauseRef?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    status?: EnumProposalStatusFilter<"ResponsibilityProposal"> | $Enums.ProposalStatus
+    respondedById?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    respondedAt?: DateTimeNullableFilter<"ResponsibilityProposal"> | Date | string | null
+    responseNote?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    createdAt?: DateTimeFilter<"ResponsibilityProposal"> | Date | string
+    maintenanceCase?: XOR<MaintenanceCaseScalarRelationFilter, MaintenanceCaseWhereInput>
+    proposedBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    respondedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+  }, "id">
+
+  export type ResponsibilityProposalOrderByWithAggregationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    proposedById?: SortOrder
+    arrangedBy?: SortOrder
+    payer?: SortOrder
+    tenantCap?: SortOrderInput | SortOrder
+    basis?: SortOrder
+    reason?: SortOrder
+    clauseRef?: SortOrderInput | SortOrder
+    status?: SortOrder
+    respondedById?: SortOrderInput | SortOrder
+    respondedAt?: SortOrderInput | SortOrder
+    responseNote?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ResponsibilityProposalCountOrderByAggregateInput
+    _avg?: ResponsibilityProposalAvgOrderByAggregateInput
+    _max?: ResponsibilityProposalMaxOrderByAggregateInput
+    _min?: ResponsibilityProposalMinOrderByAggregateInput
+    _sum?: ResponsibilityProposalSumOrderByAggregateInput
+  }
+
+  export type ResponsibilityProposalScalarWhereWithAggregatesInput = {
+    AND?: ResponsibilityProposalScalarWhereWithAggregatesInput | ResponsibilityProposalScalarWhereWithAggregatesInput[]
+    OR?: ResponsibilityProposalScalarWhereWithAggregatesInput[]
+    NOT?: ResponsibilityProposalScalarWhereWithAggregatesInput | ResponsibilityProposalScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ResponsibilityProposal"> | string
+    caseId?: StringWithAggregatesFilter<"ResponsibilityProposal"> | string
+    proposedById?: StringWithAggregatesFilter<"ResponsibilityProposal"> | string
+    arrangedBy?: EnumRepairPartyWithAggregatesFilter<"ResponsibilityProposal"> | $Enums.RepairParty
+    payer?: EnumCostPayerWithAggregatesFilter<"ResponsibilityProposal"> | $Enums.CostPayer
+    tenantCap?: DecimalNullableWithAggregatesFilter<"ResponsibilityProposal"> | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisWithAggregatesFilter<"ResponsibilityProposal"> | $Enums.ResponsibilityBasis
+    reason?: StringWithAggregatesFilter<"ResponsibilityProposal"> | string
+    clauseRef?: StringNullableWithAggregatesFilter<"ResponsibilityProposal"> | string | null
+    status?: EnumProposalStatusWithAggregatesFilter<"ResponsibilityProposal"> | $Enums.ProposalStatus
+    respondedById?: StringNullableWithAggregatesFilter<"ResponsibilityProposal"> | string | null
+    respondedAt?: DateTimeNullableWithAggregatesFilter<"ResponsibilityProposal"> | Date | string | null
+    responseNote?: StringNullableWithAggregatesFilter<"ResponsibilityProposal"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ResponsibilityProposal"> | Date | string
   }
 
   export type ServiceProviderWhereInput = {
@@ -35613,6 +37376,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -35637,6 +37402,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -35661,6 +37428,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -35685,6 +37454,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -35809,6 +37580,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -35829,6 +37602,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
@@ -35841,6 +37616,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -35861,6 +37638,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
@@ -35877,6 +37656,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -35887,6 +37668,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35901,6 +37684,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36558,6 +38343,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateInput = {
@@ -36580,6 +38366,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUpdateInput = {
@@ -36602,6 +38389,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateInput = {
@@ -36624,6 +38412,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseCreateManyInput = {
@@ -36988,6 +38777,122 @@ export namespace Prisma {
     verifiedById?: StringFieldUpdateOperationsInput | string
     outcome?: EnumMaintenanceVerificationOutcomeFieldUpdateOperationsInput | $Enums.MaintenanceVerificationOutcome
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalCreateInput = {
+    id?: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+    maintenanceCase: MaintenanceCaseCreateNestedOneWithoutResponsibilityProposalsInput
+    proposedBy: StakeholderCreateNestedOneWithoutResponsibilityProposedInput
+    respondedBy?: StakeholderCreateNestedOneWithoutResponsibilityRespondedInput
+  }
+
+  export type ResponsibilityProposalUncheckedCreateInput = {
+    id?: string
+    caseId: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedById?: string | null
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ResponsibilityProposalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutResponsibilityProposalsNestedInput
+    proposedBy?: StakeholderUpdateOneRequiredWithoutResponsibilityProposedNestedInput
+    respondedBy?: StakeholderUpdateOneWithoutResponsibilityRespondedNestedInput
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    proposedById?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedById?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalCreateManyInput = {
+    id?: string
+    caseId: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedById?: string | null
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ResponsibilityProposalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    proposedById?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedById?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -37923,6 +39828,12 @@ export namespace Prisma {
     none?: MaintenanceEvidenceWhereInput
   }
 
+  export type ResponsibilityProposalListRelationFilter = {
+    every?: ResponsibilityProposalWhereInput
+    some?: ResponsibilityProposalWhereInput
+    none?: ResponsibilityProposalWhereInput
+  }
+
   export type NotificationListRelationFilter = {
     every?: NotificationWhereInput
     some?: NotificationWhereInput
@@ -37969,6 +39880,10 @@ export namespace Prisma {
   }
 
   export type MaintenanceEvidenceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ResponsibilityProposalOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -38144,6 +40059,22 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type PropertyScalarRelationFilter = {
     is?: PropertyWhereInput
     isNot?: PropertyWhereInput
@@ -38169,6 +40100,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrder
+    agentMayAgreeCosts?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38176,6 +40109,7 @@ export namespace Prisma {
   export type TenancyAvgOrderByAggregateInput = {
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrder
   }
 
   export type TenancyMaxOrderByAggregateInput = {
@@ -38188,6 +40122,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrder
+    agentMayAgreeCosts?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38202,6 +40138,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrder
+    agentMayAgreeCosts?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38209,6 +40147,7 @@ export namespace Prisma {
   export type TenancySumOrderByAggregateInput = {
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    minorRepairCap?: SortOrder
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -38225,6 +40164,30 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumInspectionKindFilter<$PrismaModel = never> = {
@@ -38685,11 +40648,6 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type CaptureNullableScalarRelationFilter = {
     is?: CaptureWhereInput | null
     isNot?: CaptureWhereInput | null
@@ -38803,14 +40761,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type InspectionItemScalarRelationFilter = {
@@ -39064,17 +41014,6 @@ export namespace Prisma {
     _max?: NestedEnumMaintenanceEventKindFilter<$PrismaModel>
   }
 
-  export type DecimalNullableFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-  }
-
   export type ServiceProviderNullableScalarRelationFilter = {
     is?: ServiceProviderWhereInput | null
     isNot?: ServiceProviderWhereInput | null
@@ -39127,22 +41066,6 @@ export namespace Prisma {
 
   export type MaintenanceVisitSumOrderByAggregateInput = {
     cost?: SortOrder
-  }
-
-  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedDecimalNullableFilter<$PrismaModel>
-    _sum?: NestedDecimalNullableFilter<$PrismaModel>
-    _min?: NestedDecimalNullableFilter<$PrismaModel>
-    _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
   export type EnumMaintenanceEvidencePurposeFilter<$PrismaModel = never> = {
@@ -39264,6 +41187,133 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMaintenanceVerificationOutcomeFilter<$PrismaModel>
     _max?: NestedEnumMaintenanceVerificationOutcomeFilter<$PrismaModel>
+  }
+
+  export type EnumRepairPartyFilter<$PrismaModel = never> = {
+    equals?: $Enums.RepairParty | EnumRepairPartyFieldRefInput<$PrismaModel>
+    in?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRepairPartyFilter<$PrismaModel> | $Enums.RepairParty
+  }
+
+  export type EnumCostPayerFilter<$PrismaModel = never> = {
+    equals?: $Enums.CostPayer | EnumCostPayerFieldRefInput<$PrismaModel>
+    in?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    not?: NestedEnumCostPayerFilter<$PrismaModel> | $Enums.CostPayer
+  }
+
+  export type EnumResponsibilityBasisFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResponsibilityBasis | EnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    in?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    not?: NestedEnumResponsibilityBasisFilter<$PrismaModel> | $Enums.ResponsibilityBasis
+  }
+
+  export type EnumProposalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProposalStatus | EnumProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProposalStatusFilter<$PrismaModel> | $Enums.ProposalStatus
+  }
+
+  export type ResponsibilityProposalCountOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    proposedById?: SortOrder
+    arrangedBy?: SortOrder
+    payer?: SortOrder
+    tenantCap?: SortOrder
+    basis?: SortOrder
+    reason?: SortOrder
+    clauseRef?: SortOrder
+    status?: SortOrder
+    respondedById?: SortOrder
+    respondedAt?: SortOrder
+    responseNote?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ResponsibilityProposalAvgOrderByAggregateInput = {
+    tenantCap?: SortOrder
+  }
+
+  export type ResponsibilityProposalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    proposedById?: SortOrder
+    arrangedBy?: SortOrder
+    payer?: SortOrder
+    tenantCap?: SortOrder
+    basis?: SortOrder
+    reason?: SortOrder
+    clauseRef?: SortOrder
+    status?: SortOrder
+    respondedById?: SortOrder
+    respondedAt?: SortOrder
+    responseNote?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ResponsibilityProposalMinOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    proposedById?: SortOrder
+    arrangedBy?: SortOrder
+    payer?: SortOrder
+    tenantCap?: SortOrder
+    basis?: SortOrder
+    reason?: SortOrder
+    clauseRef?: SortOrder
+    status?: SortOrder
+    respondedById?: SortOrder
+    respondedAt?: SortOrder
+    responseNote?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ResponsibilityProposalSumOrderByAggregateInput = {
+    tenantCap?: SortOrder
+  }
+
+  export type EnumRepairPartyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RepairParty | EnumRepairPartyFieldRefInput<$PrismaModel>
+    in?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRepairPartyWithAggregatesFilter<$PrismaModel> | $Enums.RepairParty
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRepairPartyFilter<$PrismaModel>
+    _max?: NestedEnumRepairPartyFilter<$PrismaModel>
+  }
+
+  export type EnumCostPayerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CostPayer | EnumCostPayerFieldRefInput<$PrismaModel>
+    in?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    not?: NestedEnumCostPayerWithAggregatesFilter<$PrismaModel> | $Enums.CostPayer
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCostPayerFilter<$PrismaModel>
+    _max?: NestedEnumCostPayerFilter<$PrismaModel>
+  }
+
+  export type EnumResponsibilityBasisWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResponsibilityBasis | EnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    in?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    not?: NestedEnumResponsibilityBasisWithAggregatesFilter<$PrismaModel> | $Enums.ResponsibilityBasis
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResponsibilityBasisFilter<$PrismaModel>
+    _max?: NestedEnumResponsibilityBasisFilter<$PrismaModel>
+  }
+
+  export type EnumProposalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProposalStatus | EnumProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProposalStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProposalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProposalStatusFilter<$PrismaModel>
+    _max?: NestedEnumProposalStatusFilter<$PrismaModel>
   }
 
   export type EnumServiceProviderCategoryFilter<$PrismaModel = never> = {
@@ -39947,6 +41997,20 @@ export namespace Prisma {
     connect?: MaintenanceEvidenceWhereUniqueInput | MaintenanceEvidenceWhereUniqueInput[]
   }
 
+  export type ResponsibilityProposalCreateNestedManyWithoutProposedByInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutProposedByInput, ResponsibilityProposalUncheckedCreateWithoutProposedByInput> | ResponsibilityProposalCreateWithoutProposedByInput[] | ResponsibilityProposalUncheckedCreateWithoutProposedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutProposedByInput | ResponsibilityProposalCreateOrConnectWithoutProposedByInput[]
+    createMany?: ResponsibilityProposalCreateManyProposedByInputEnvelope
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+  }
+
+  export type ResponsibilityProposalCreateNestedManyWithoutRespondedByInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutRespondedByInput, ResponsibilityProposalUncheckedCreateWithoutRespondedByInput> | ResponsibilityProposalCreateWithoutRespondedByInput[] | ResponsibilityProposalUncheckedCreateWithoutRespondedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutRespondedByInput | ResponsibilityProposalCreateOrConnectWithoutRespondedByInput[]
+    createMany?: ResponsibilityProposalCreateManyRespondedByInputEnvelope
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+  }
+
   export type NotificationCreateNestedManyWithoutRecipientInput = {
     create?: XOR<NotificationCreateWithoutRecipientInput, NotificationUncheckedCreateWithoutRecipientInput> | NotificationCreateWithoutRecipientInput[] | NotificationUncheckedCreateWithoutRecipientInput[]
     connectOrCreate?: NotificationCreateOrConnectWithoutRecipientInput | NotificationCreateOrConnectWithoutRecipientInput[]
@@ -40029,6 +42093,20 @@ export namespace Prisma {
     connectOrCreate?: MaintenanceEvidenceCreateOrConnectWithoutUploadedByInput | MaintenanceEvidenceCreateOrConnectWithoutUploadedByInput[]
     createMany?: MaintenanceEvidenceCreateManyUploadedByInputEnvelope
     connect?: MaintenanceEvidenceWhereUniqueInput | MaintenanceEvidenceWhereUniqueInput[]
+  }
+
+  export type ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutProposedByInput, ResponsibilityProposalUncheckedCreateWithoutProposedByInput> | ResponsibilityProposalCreateWithoutProposedByInput[] | ResponsibilityProposalUncheckedCreateWithoutProposedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutProposedByInput | ResponsibilityProposalCreateOrConnectWithoutProposedByInput[]
+    createMany?: ResponsibilityProposalCreateManyProposedByInputEnvelope
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+  }
+
+  export type ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutRespondedByInput, ResponsibilityProposalUncheckedCreateWithoutRespondedByInput> | ResponsibilityProposalCreateWithoutRespondedByInput[] | ResponsibilityProposalUncheckedCreateWithoutRespondedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutRespondedByInput | ResponsibilityProposalCreateOrConnectWithoutRespondedByInput[]
+    createMany?: ResponsibilityProposalCreateManyRespondedByInputEnvelope
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
   }
 
   export type NotificationUncheckedCreateNestedManyWithoutRecipientInput = {
@@ -40201,6 +42279,34 @@ export namespace Prisma {
     deleteMany?: MaintenanceEvidenceScalarWhereInput | MaintenanceEvidenceScalarWhereInput[]
   }
 
+  export type ResponsibilityProposalUpdateManyWithoutProposedByNestedInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutProposedByInput, ResponsibilityProposalUncheckedCreateWithoutProposedByInput> | ResponsibilityProposalCreateWithoutProposedByInput[] | ResponsibilityProposalUncheckedCreateWithoutProposedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutProposedByInput | ResponsibilityProposalCreateOrConnectWithoutProposedByInput[]
+    upsert?: ResponsibilityProposalUpsertWithWhereUniqueWithoutProposedByInput | ResponsibilityProposalUpsertWithWhereUniqueWithoutProposedByInput[]
+    createMany?: ResponsibilityProposalCreateManyProposedByInputEnvelope
+    set?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    disconnect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    delete?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutProposedByInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutProposedByInput[]
+    updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutProposedByInput | ResponsibilityProposalUpdateManyWithWhereWithoutProposedByInput[]
+    deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+  }
+
+  export type ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutRespondedByInput, ResponsibilityProposalUncheckedCreateWithoutRespondedByInput> | ResponsibilityProposalCreateWithoutRespondedByInput[] | ResponsibilityProposalUncheckedCreateWithoutRespondedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutRespondedByInput | ResponsibilityProposalCreateOrConnectWithoutRespondedByInput[]
+    upsert?: ResponsibilityProposalUpsertWithWhereUniqueWithoutRespondedByInput | ResponsibilityProposalUpsertWithWhereUniqueWithoutRespondedByInput[]
+    createMany?: ResponsibilityProposalCreateManyRespondedByInputEnvelope
+    set?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    disconnect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    delete?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutRespondedByInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutRespondedByInput[]
+    updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutRespondedByInput | ResponsibilityProposalUpdateManyWithWhereWithoutRespondedByInput[]
+    deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+  }
+
   export type NotificationUpdateManyWithoutRecipientNestedInput = {
     create?: XOR<NotificationCreateWithoutRecipientInput, NotificationUncheckedCreateWithoutRecipientInput> | NotificationCreateWithoutRecipientInput[] | NotificationUncheckedCreateWithoutRecipientInput[]
     connectOrCreate?: NotificationCreateOrConnectWithoutRecipientInput | NotificationCreateOrConnectWithoutRecipientInput[]
@@ -40367,6 +42473,34 @@ export namespace Prisma {
     update?: MaintenanceEvidenceUpdateWithWhereUniqueWithoutUploadedByInput | MaintenanceEvidenceUpdateWithWhereUniqueWithoutUploadedByInput[]
     updateMany?: MaintenanceEvidenceUpdateManyWithWhereWithoutUploadedByInput | MaintenanceEvidenceUpdateManyWithWhereWithoutUploadedByInput[]
     deleteMany?: MaintenanceEvidenceScalarWhereInput | MaintenanceEvidenceScalarWhereInput[]
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutProposedByInput, ResponsibilityProposalUncheckedCreateWithoutProposedByInput> | ResponsibilityProposalCreateWithoutProposedByInput[] | ResponsibilityProposalUncheckedCreateWithoutProposedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutProposedByInput | ResponsibilityProposalCreateOrConnectWithoutProposedByInput[]
+    upsert?: ResponsibilityProposalUpsertWithWhereUniqueWithoutProposedByInput | ResponsibilityProposalUpsertWithWhereUniqueWithoutProposedByInput[]
+    createMany?: ResponsibilityProposalCreateManyProposedByInputEnvelope
+    set?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    disconnect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    delete?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutProposedByInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutProposedByInput[]
+    updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutProposedByInput | ResponsibilityProposalUpdateManyWithWhereWithoutProposedByInput[]
+    deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutRespondedByInput, ResponsibilityProposalUncheckedCreateWithoutRespondedByInput> | ResponsibilityProposalCreateWithoutRespondedByInput[] | ResponsibilityProposalUncheckedCreateWithoutRespondedByInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutRespondedByInput | ResponsibilityProposalCreateOrConnectWithoutRespondedByInput[]
+    upsert?: ResponsibilityProposalUpsertWithWhereUniqueWithoutRespondedByInput | ResponsibilityProposalUpsertWithWhereUniqueWithoutRespondedByInput[]
+    createMany?: ResponsibilityProposalCreateManyRespondedByInputEnvelope
+    set?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    disconnect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    delete?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutRespondedByInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutRespondedByInput[]
+    updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutRespondedByInput | ResponsibilityProposalUpdateManyWithWhereWithoutRespondedByInput[]
+    deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
   }
 
   export type NotificationUncheckedUpdateManyWithoutRecipientNestedInput = {
@@ -40543,6 +42677,18 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type PropertyUpdateOneRequiredWithoutTenanciesNestedInput = {
@@ -41189,10 +43335,6 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
   export type RoomUpdateOneRequiredWithoutItemsNestedInput = {
     create?: XOR<RoomCreateWithoutItemsInput, RoomUncheckedCreateWithoutItemsInput>
     connectOrCreate?: RoomCreateOrConnectWithoutItemsInput
@@ -41481,6 +43623,13 @@ export namespace Prisma {
     connect?: FindingWhereUniqueInput | FindingWhereUniqueInput[]
   }
 
+  export type ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput> | ResponsibilityProposalCreateWithoutMaintenanceCaseInput[] | ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput | ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput[]
+    createMany?: ResponsibilityProposalCreateManyMaintenanceCaseInputEnvelope
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+  }
+
   export type MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput = {
     create?: XOR<MaintenanceEventCreateWithoutMaintenanceCaseInput, MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput> | MaintenanceEventCreateWithoutMaintenanceCaseInput[] | MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput[]
     connectOrCreate?: MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput | MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput[]
@@ -41507,6 +43656,13 @@ export namespace Prisma {
     connectOrCreate?: FindingCreateOrConnectWithoutMaintenanceCaseInput | FindingCreateOrConnectWithoutMaintenanceCaseInput[]
     createMany?: FindingCreateManyMaintenanceCaseInputEnvelope
     connect?: FindingWhereUniqueInput | FindingWhereUniqueInput[]
+  }
+
+  export type ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput> | ResponsibilityProposalCreateWithoutMaintenanceCaseInput[] | ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput | ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput[]
+    createMany?: ResponsibilityProposalCreateManyMaintenanceCaseInputEnvelope
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
   }
 
   export type EnumMaintenanceCategoryFieldUpdateOperationsInput = {
@@ -41603,6 +43759,20 @@ export namespace Prisma {
     deleteMany?: FindingScalarWhereInput | FindingScalarWhereInput[]
   }
 
+  export type ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput> | ResponsibilityProposalCreateWithoutMaintenanceCaseInput[] | ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput | ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput[]
+    upsert?: ResponsibilityProposalUpsertWithWhereUniqueWithoutMaintenanceCaseInput | ResponsibilityProposalUpsertWithWhereUniqueWithoutMaintenanceCaseInput[]
+    createMany?: ResponsibilityProposalCreateManyMaintenanceCaseInputEnvelope
+    set?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    disconnect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    delete?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
+    updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput | ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput[]
+    deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+  }
+
   export type MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput = {
     create?: XOR<MaintenanceEventCreateWithoutMaintenanceCaseInput, MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput> | MaintenanceEventCreateWithoutMaintenanceCaseInput[] | MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput[]
     connectOrCreate?: MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput | MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput[]
@@ -41657,6 +43827,20 @@ export namespace Prisma {
     update?: FindingUpdateWithWhereUniqueWithoutMaintenanceCaseInput | FindingUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
     updateMany?: FindingUpdateManyWithWhereWithoutMaintenanceCaseInput | FindingUpdateManyWithWhereWithoutMaintenanceCaseInput[]
     deleteMany?: FindingScalarWhereInput | FindingScalarWhereInput[]
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput = {
+    create?: XOR<ResponsibilityProposalCreateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput> | ResponsibilityProposalCreateWithoutMaintenanceCaseInput[] | ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput | ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput[]
+    upsert?: ResponsibilityProposalUpsertWithWhereUniqueWithoutMaintenanceCaseInput | ResponsibilityProposalUpsertWithWhereUniqueWithoutMaintenanceCaseInput[]
+    createMany?: ResponsibilityProposalCreateManyMaintenanceCaseInputEnvelope
+    set?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    disconnect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    delete?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+    update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
+    updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput | ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput[]
+    deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
   }
 
   export type MaintenanceCaseCreateNestedOneWithoutEventsInput = {
@@ -41729,14 +43913,6 @@ export namespace Prisma {
     create?: XOR<MaintenanceVerificationCreateWithoutVisitInput, MaintenanceVerificationUncheckedCreateWithoutVisitInput>
     connectOrCreate?: MaintenanceVerificationCreateOrConnectWithoutVisitInput
     connect?: MaintenanceVerificationWhereUniqueInput
-  }
-
-  export type NullableDecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string | null
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
   }
 
   export type MaintenanceCaseUpdateOneRequiredWithoutVisitsNestedInput = {
@@ -41883,6 +44059,66 @@ export namespace Prisma {
     upsert?: StakeholderUpsertWithoutMaintenanceVerificationsInput
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutMaintenanceVerificationsInput, StakeholderUpdateWithoutMaintenanceVerificationsInput>, StakeholderUncheckedUpdateWithoutMaintenanceVerificationsInput>
+  }
+
+  export type MaintenanceCaseCreateNestedOneWithoutResponsibilityProposalsInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutResponsibilityProposalsInput, MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput>
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutResponsibilityProposalsInput
+    connect?: MaintenanceCaseWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutResponsibilityProposedInput = {
+    create?: XOR<StakeholderCreateWithoutResponsibilityProposedInput, StakeholderUncheckedCreateWithoutResponsibilityProposedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutResponsibilityProposedInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutResponsibilityRespondedInput = {
+    create?: XOR<StakeholderCreateWithoutResponsibilityRespondedInput, StakeholderUncheckedCreateWithoutResponsibilityRespondedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutResponsibilityRespondedInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type EnumRepairPartyFieldUpdateOperationsInput = {
+    set?: $Enums.RepairParty
+  }
+
+  export type EnumCostPayerFieldUpdateOperationsInput = {
+    set?: $Enums.CostPayer
+  }
+
+  export type EnumResponsibilityBasisFieldUpdateOperationsInput = {
+    set?: $Enums.ResponsibilityBasis
+  }
+
+  export type EnumProposalStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ProposalStatus
+  }
+
+  export type MaintenanceCaseUpdateOneRequiredWithoutResponsibilityProposalsNestedInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutResponsibilityProposalsInput, MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput>
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutResponsibilityProposalsInput
+    upsert?: MaintenanceCaseUpsertWithoutResponsibilityProposalsInput
+    connect?: MaintenanceCaseWhereUniqueInput
+    update?: XOR<XOR<MaintenanceCaseUpdateToOneWithWhereWithoutResponsibilityProposalsInput, MaintenanceCaseUpdateWithoutResponsibilityProposalsInput>, MaintenanceCaseUncheckedUpdateWithoutResponsibilityProposalsInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutResponsibilityProposedNestedInput = {
+    create?: XOR<StakeholderCreateWithoutResponsibilityProposedInput, StakeholderUncheckedCreateWithoutResponsibilityProposedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutResponsibilityProposedInput
+    upsert?: StakeholderUpsertWithoutResponsibilityProposedInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutResponsibilityProposedInput, StakeholderUpdateWithoutResponsibilityProposedInput>, StakeholderUncheckedUpdateWithoutResponsibilityProposedInput>
+  }
+
+  export type StakeholderUpdateOneWithoutResponsibilityRespondedNestedInput = {
+    create?: XOR<StakeholderCreateWithoutResponsibilityRespondedInput, StakeholderUncheckedCreateWithoutResponsibilityRespondedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutResponsibilityRespondedInput
+    upsert?: StakeholderUpsertWithoutResponsibilityRespondedInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutResponsibilityRespondedInput, StakeholderUpdateWithoutResponsibilityRespondedInput>, StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput>
   }
 
   export type ServiceProviderCreateserviceAreasInput = {
@@ -42428,6 +44664,22 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -42442,6 +44694,30 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumInspectionKindFilter<$PrismaModel = never> = {
@@ -42628,11 +44904,6 @@ export namespace Prisma {
     not?: NestedEnumItemConditionFilter<$PrismaModel> | $Enums.ItemCondition
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedEnumItemCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.ItemCategory | EnumItemCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel>
@@ -42667,14 +44938,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumPropertyAssetCategoryFilter<$PrismaModel = never> = {
@@ -42762,33 +45025,6 @@ export namespace Prisma {
     _max?: NestedEnumMaintenanceEventKindFilter<$PrismaModel>
   }
 
-  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-  }
-
-  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedDecimalNullableFilter<$PrismaModel>
-    _sum?: NestedDecimalNullableFilter<$PrismaModel>
-    _min?: NestedDecimalNullableFilter<$PrismaModel>
-    _max?: NestedDecimalNullableFilter<$PrismaModel>
-  }
-
   export type NestedEnumMaintenanceEvidencePurposeFilter<$PrismaModel = never> = {
     equals?: $Enums.MaintenanceEvidencePurpose | EnumMaintenanceEvidencePurposeFieldRefInput<$PrismaModel>
     in?: $Enums.MaintenanceEvidencePurpose[] | ListEnumMaintenanceEvidencePurposeFieldRefInput<$PrismaModel>
@@ -42821,6 +45057,74 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMaintenanceVerificationOutcomeFilter<$PrismaModel>
     _max?: NestedEnumMaintenanceVerificationOutcomeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRepairPartyFilter<$PrismaModel = never> = {
+    equals?: $Enums.RepairParty | EnumRepairPartyFieldRefInput<$PrismaModel>
+    in?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRepairPartyFilter<$PrismaModel> | $Enums.RepairParty
+  }
+
+  export type NestedEnumCostPayerFilter<$PrismaModel = never> = {
+    equals?: $Enums.CostPayer | EnumCostPayerFieldRefInput<$PrismaModel>
+    in?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    not?: NestedEnumCostPayerFilter<$PrismaModel> | $Enums.CostPayer
+  }
+
+  export type NestedEnumResponsibilityBasisFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResponsibilityBasis | EnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    in?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    not?: NestedEnumResponsibilityBasisFilter<$PrismaModel> | $Enums.ResponsibilityBasis
+  }
+
+  export type NestedEnumProposalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProposalStatus | EnumProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProposalStatusFilter<$PrismaModel> | $Enums.ProposalStatus
+  }
+
+  export type NestedEnumRepairPartyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RepairParty | EnumRepairPartyFieldRefInput<$PrismaModel>
+    in?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RepairParty[] | ListEnumRepairPartyFieldRefInput<$PrismaModel>
+    not?: NestedEnumRepairPartyWithAggregatesFilter<$PrismaModel> | $Enums.RepairParty
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRepairPartyFilter<$PrismaModel>
+    _max?: NestedEnumRepairPartyFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCostPayerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CostPayer | EnumCostPayerFieldRefInput<$PrismaModel>
+    in?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CostPayer[] | ListEnumCostPayerFieldRefInput<$PrismaModel>
+    not?: NestedEnumCostPayerWithAggregatesFilter<$PrismaModel> | $Enums.CostPayer
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCostPayerFilter<$PrismaModel>
+    _max?: NestedEnumCostPayerFilter<$PrismaModel>
+  }
+
+  export type NestedEnumResponsibilityBasisWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResponsibilityBasis | EnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    in?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResponsibilityBasis[] | ListEnumResponsibilityBasisFieldRefInput<$PrismaModel>
+    not?: NestedEnumResponsibilityBasisWithAggregatesFilter<$PrismaModel> | $Enums.ResponsibilityBasis
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResponsibilityBasisFilter<$PrismaModel>
+    _max?: NestedEnumResponsibilityBasisFilter<$PrismaModel>
+  }
+
+  export type NestedEnumProposalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProposalStatus | EnumProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProposalStatus[] | ListEnumProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProposalStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProposalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProposalStatusFilter<$PrismaModel>
+    _max?: NestedEnumProposalStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumServiceProviderCategoryFilter<$PrismaModel = never> = {
@@ -42954,6 +45258,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -42972,6 +45278,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
@@ -42994,6 +45302,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -43012,6 +45322,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
@@ -43034,6 +45346,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -43052,6 +45366,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
@@ -43203,6 +45519,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutReportedByInput = {
@@ -43224,6 +45541,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutReportedByInput = {
@@ -43323,6 +45641,90 @@ export namespace Prisma {
 
   export type MaintenanceEvidenceCreateManyUploadedByInputEnvelope = {
     data: MaintenanceEvidenceCreateManyUploadedByInput | MaintenanceEvidenceCreateManyUploadedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ResponsibilityProposalCreateWithoutProposedByInput = {
+    id?: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+    maintenanceCase: MaintenanceCaseCreateNestedOneWithoutResponsibilityProposalsInput
+    respondedBy?: StakeholderCreateNestedOneWithoutResponsibilityRespondedInput
+  }
+
+  export type ResponsibilityProposalUncheckedCreateWithoutProposedByInput = {
+    id?: string
+    caseId: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedById?: string | null
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ResponsibilityProposalCreateOrConnectWithoutProposedByInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    create: XOR<ResponsibilityProposalCreateWithoutProposedByInput, ResponsibilityProposalUncheckedCreateWithoutProposedByInput>
+  }
+
+  export type ResponsibilityProposalCreateManyProposedByInputEnvelope = {
+    data: ResponsibilityProposalCreateManyProposedByInput | ResponsibilityProposalCreateManyProposedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ResponsibilityProposalCreateWithoutRespondedByInput = {
+    id?: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+    maintenanceCase: MaintenanceCaseCreateNestedOneWithoutResponsibilityProposalsInput
+    proposedBy: StakeholderCreateNestedOneWithoutResponsibilityProposedInput
+  }
+
+  export type ResponsibilityProposalUncheckedCreateWithoutRespondedByInput = {
+    id?: string
+    caseId: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ResponsibilityProposalCreateOrConnectWithoutRespondedByInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    create: XOR<ResponsibilityProposalCreateWithoutRespondedByInput, ResponsibilityProposalUncheckedCreateWithoutRespondedByInput>
+  }
+
+  export type ResponsibilityProposalCreateManyRespondedByInputEnvelope = {
+    data: ResponsibilityProposalCreateManyRespondedByInput | ResponsibilityProposalCreateManyRespondedByInput[]
     skipDuplicates?: boolean
   }
 
@@ -43431,6 +45833,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeFilter<"Tenancy"> | Date | string
   }
@@ -43691,6 +46095,58 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
   }
 
+  export type ResponsibilityProposalUpsertWithWhereUniqueWithoutProposedByInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    update: XOR<ResponsibilityProposalUpdateWithoutProposedByInput, ResponsibilityProposalUncheckedUpdateWithoutProposedByInput>
+    create: XOR<ResponsibilityProposalCreateWithoutProposedByInput, ResponsibilityProposalUncheckedCreateWithoutProposedByInput>
+  }
+
+  export type ResponsibilityProposalUpdateWithWhereUniqueWithoutProposedByInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    data: XOR<ResponsibilityProposalUpdateWithoutProposedByInput, ResponsibilityProposalUncheckedUpdateWithoutProposedByInput>
+  }
+
+  export type ResponsibilityProposalUpdateManyWithWhereWithoutProposedByInput = {
+    where: ResponsibilityProposalScalarWhereInput
+    data: XOR<ResponsibilityProposalUpdateManyMutationInput, ResponsibilityProposalUncheckedUpdateManyWithoutProposedByInput>
+  }
+
+  export type ResponsibilityProposalScalarWhereInput = {
+    AND?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+    OR?: ResponsibilityProposalScalarWhereInput[]
+    NOT?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+    id?: StringFilter<"ResponsibilityProposal"> | string
+    caseId?: StringFilter<"ResponsibilityProposal"> | string
+    proposedById?: StringFilter<"ResponsibilityProposal"> | string
+    arrangedBy?: EnumRepairPartyFilter<"ResponsibilityProposal"> | $Enums.RepairParty
+    payer?: EnumCostPayerFilter<"ResponsibilityProposal"> | $Enums.CostPayer
+    tenantCap?: DecimalNullableFilter<"ResponsibilityProposal"> | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFilter<"ResponsibilityProposal"> | $Enums.ResponsibilityBasis
+    reason?: StringFilter<"ResponsibilityProposal"> | string
+    clauseRef?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    status?: EnumProposalStatusFilter<"ResponsibilityProposal"> | $Enums.ProposalStatus
+    respondedById?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    respondedAt?: DateTimeNullableFilter<"ResponsibilityProposal"> | Date | string | null
+    responseNote?: StringNullableFilter<"ResponsibilityProposal"> | string | null
+    createdAt?: DateTimeFilter<"ResponsibilityProposal"> | Date | string
+  }
+
+  export type ResponsibilityProposalUpsertWithWhereUniqueWithoutRespondedByInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    update: XOR<ResponsibilityProposalUpdateWithoutRespondedByInput, ResponsibilityProposalUncheckedUpdateWithoutRespondedByInput>
+    create: XOR<ResponsibilityProposalCreateWithoutRespondedByInput, ResponsibilityProposalUncheckedCreateWithoutRespondedByInput>
+  }
+
+  export type ResponsibilityProposalUpdateWithWhereUniqueWithoutRespondedByInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    data: XOR<ResponsibilityProposalUpdateWithoutRespondedByInput, ResponsibilityProposalUncheckedUpdateWithoutRespondedByInput>
+  }
+
+  export type ResponsibilityProposalUpdateManyWithWhereWithoutRespondedByInput = {
+    where: ResponsibilityProposalScalarWhereInput
+    data: XOR<ResponsibilityProposalUpdateManyMutationInput, ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByInput>
+  }
+
   export type NotificationUpsertWithWhereUniqueWithoutRecipientInput = {
     where: NotificationWhereUniqueInput
     update: XOR<NotificationUpdateWithoutRecipientInput, NotificationUncheckedUpdateWithoutRecipientInput>
@@ -43763,6 +46219,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
@@ -43781,6 +46239,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
@@ -43926,6 +46386,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -43949,6 +46411,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -43977,6 +46441,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -44000,6 +46466,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -44028,6 +46496,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -44051,6 +46521,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -44133,6 +46605,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutTenancyInput = {
@@ -44154,6 +46627,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutTenancyInput = {
@@ -44229,6 +46703,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -44252,6 +46728,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -44286,6 +46764,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -44309,6 +46789,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -44343,6 +46825,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -44366,6 +46850,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -44408,6 +46894,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -44427,6 +46915,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
@@ -44456,6 +46946,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -44479,6 +46971,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -44735,6 +47229,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -44754,6 +47250,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
@@ -44789,6 +47287,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -44812,6 +47312,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -46150,6 +48652,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutPropertyAssetInput = {
@@ -46171,6 +48674,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutPropertyAssetInput = {
@@ -46254,6 +48758,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -46273,6 +48779,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
@@ -46333,6 +48841,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -46356,6 +48866,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -46505,6 +49017,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ResponsibilityProposalCreateWithoutMaintenanceCaseInput = {
+    id?: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+    proposedBy: StakeholderCreateNestedOneWithoutResponsibilityProposedInput
+    respondedBy?: StakeholderCreateNestedOneWithoutResponsibilityRespondedInput
+  }
+
+  export type ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput = {
+    id?: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedById?: string | null
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    create: XOR<ResponsibilityProposalCreateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput>
+  }
+
+  export type ResponsibilityProposalCreateManyMaintenanceCaseInputEnvelope = {
+    data: ResponsibilityProposalCreateManyMaintenanceCaseInput | ResponsibilityProposalCreateManyMaintenanceCaseInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithoutMaintenanceCasesInput = {
     update: XOR<TenancyUpdateWithoutMaintenanceCasesInput, TenancyUncheckedUpdateWithoutMaintenanceCasesInput>
     create: XOR<TenancyCreateWithoutMaintenanceCasesInput, TenancyUncheckedCreateWithoutMaintenanceCasesInput>
@@ -46522,6 +49076,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -46541,6 +49097,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
@@ -46613,6 +49171,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -46636,6 +49196,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -46719,6 +49281,22 @@ export namespace Prisma {
     data: XOR<FindingUpdateManyMutationInput, FindingUncheckedUpdateManyWithoutMaintenanceCaseInput>
   }
 
+  export type ResponsibilityProposalUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    update: XOR<ResponsibilityProposalUpdateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedUpdateWithoutMaintenanceCaseInput>
+    create: XOR<ResponsibilityProposalCreateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedCreateWithoutMaintenanceCaseInput>
+  }
+
+  export type ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput = {
+    where: ResponsibilityProposalWhereUniqueInput
+    data: XOR<ResponsibilityProposalUpdateWithoutMaintenanceCaseInput, ResponsibilityProposalUncheckedUpdateWithoutMaintenanceCaseInput>
+  }
+
+  export type ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput = {
+    where: ResponsibilityProposalScalarWhereInput
+    data: XOR<ResponsibilityProposalUpdateManyMutationInput, ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseInput>
+  }
+
   export type MaintenanceCaseCreateWithoutEventsInput = {
     id?: string
     clientId?: string | null
@@ -46738,6 +49316,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutEventsInput = {
@@ -46759,6 +49338,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutEventsInput = {
@@ -46785,6 +49365,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -46808,6 +49390,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -46847,6 +49431,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutEventsInput = {
@@ -46868,6 +49453,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type StakeholderUpsertWithoutMaintenanceEventsInput = {
@@ -46900,6 +49486,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -46923,6 +49511,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -46946,6 +49536,7 @@ export namespace Prisma {
     events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutVisitsInput = {
@@ -46967,6 +49558,7 @@ export namespace Prisma {
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutVisitsInput = {
@@ -47094,6 +49686,7 @@ export namespace Prisma {
     events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutVisitsInput = {
@@ -47115,6 +49708,7 @@ export namespace Prisma {
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type ServiceProviderUpsertWithoutVisitsInput = {
@@ -47218,6 +49812,7 @@ export namespace Prisma {
     events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutEvidenceInput = {
@@ -47239,6 +49834,7 @@ export namespace Prisma {
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutEvidenceInput = {
@@ -47296,6 +49892,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -47319,6 +49917,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -47358,6 +49958,7 @@ export namespace Prisma {
     events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutEvidenceInput = {
@@ -47379,6 +49980,7 @@ export namespace Prisma {
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceVisitUpsertWithoutEvidenceInput = {
@@ -47448,6 +50050,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -47471,6 +50075,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -47525,6 +50131,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -47548,6 +50156,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -47624,6 +50234,8 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -47647,6 +50259,344 @@ export namespace Prisma {
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
+    id?: string
+    clientId?: string | null
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutMaintenanceCasesInput
+    reportedBy: StakeholderCreateNestedOneWithoutMaintenanceCasesReportedInput
+    events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput = {
+    id?: string
+    clientId?: string | null
+    tenancyId: string
+    propertyAssetId?: string | null
+    reportedById: string
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseCreateOrConnectWithoutResponsibilityProposalsInput = {
+    where: MaintenanceCaseWhereUniqueInput
+    create: XOR<MaintenanceCaseCreateWithoutResponsibilityProposalsInput, MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput>
+  }
+
+  export type StakeholderCreateWithoutResponsibilityProposedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutResponsibilityProposedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutResponsibilityProposedInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutResponsibilityProposedInput, StakeholderUncheckedCreateWithoutResponsibilityProposedInput>
+  }
+
+  export type StakeholderCreateWithoutResponsibilityRespondedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutResponsibilityRespondedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutResponsibilityRespondedInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutResponsibilityRespondedInput, StakeholderUncheckedCreateWithoutResponsibilityRespondedInput>
+  }
+
+  export type MaintenanceCaseUpsertWithoutResponsibilityProposalsInput = {
+    update: XOR<MaintenanceCaseUpdateWithoutResponsibilityProposalsInput, MaintenanceCaseUncheckedUpdateWithoutResponsibilityProposalsInput>
+    create: XOR<MaintenanceCaseCreateWithoutResponsibilityProposalsInput, MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput>
+    where?: MaintenanceCaseWhereInput
+  }
+
+  export type MaintenanceCaseUpdateToOneWithWhereWithoutResponsibilityProposalsInput = {
+    where?: MaintenanceCaseWhereInput
+    data: XOR<MaintenanceCaseUpdateWithoutResponsibilityProposalsInput, MaintenanceCaseUncheckedUpdateWithoutResponsibilityProposalsInput>
+  }
+
+  export type MaintenanceCaseUpdateWithoutResponsibilityProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutMaintenanceCasesNestedInput
+    reportedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceCasesReportedNestedInput
+    events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+  }
+
+  export type MaintenanceCaseUncheckedUpdateWithoutResponsibilityProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedById?: StringFieldUpdateOperationsInput | string
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+  }
+
+  export type StakeholderUpsertWithoutResponsibilityProposedInput = {
+    update: XOR<StakeholderUpdateWithoutResponsibilityProposedInput, StakeholderUncheckedUpdateWithoutResponsibilityProposedInput>
+    create: XOR<StakeholderCreateWithoutResponsibilityProposedInput, StakeholderUncheckedCreateWithoutResponsibilityProposedInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutResponsibilityProposedInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutResponsibilityProposedInput, StakeholderUncheckedUpdateWithoutResponsibilityProposedInput>
+  }
+
+  export type StakeholderUpdateWithoutResponsibilityProposedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutResponsibilityProposedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUpsertWithoutResponsibilityRespondedInput = {
+    update: XOR<StakeholderUpdateWithoutResponsibilityRespondedInput, StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput>
+    create: XOR<StakeholderCreateWithoutResponsibilityRespondedInput, StakeholderUncheckedCreateWithoutResponsibilityRespondedInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutResponsibilityRespondedInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutResponsibilityRespondedInput, StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput>
+  }
+
+  export type StakeholderUpdateWithoutResponsibilityRespondedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -47723,6 +50673,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
   }
 
@@ -47746,6 +50698,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
   }
 
@@ -47817,6 +50771,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
   }
 
@@ -47840,6 +50796,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   }
 
@@ -47894,6 +50852,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
 
@@ -47917,6 +50877,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
@@ -47988,6 +50950,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
 
@@ -48011,6 +50975,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
@@ -48336,6 +51302,7 @@ export namespace Prisma {
     events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutFindingsInput = {
@@ -48357,6 +51324,7 @@ export namespace Prisma {
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutFindingsInput = {
@@ -48555,6 +51523,7 @@ export namespace Prisma {
     events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutFindingsInput = {
@@ -48576,6 +51545,7 @@ export namespace Prisma {
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type InspectionCreateWithoutSignaturesInput = {
@@ -48646,6 +51616,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -48669,6 +51641,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -48763,6 +51737,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -48786,6 +51762,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -48913,6 +51891,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
   }
@@ -48936,6 +51916,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
   }
@@ -48999,6 +51981,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
   }
@@ -49022,6 +52006,8 @@ export namespace Prisma {
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
     maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
     maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
   }
@@ -49130,6 +52116,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49143,6 +52131,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49156,6 +52146,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49244,6 +52236,38 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ResponsibilityProposalCreateManyProposedByInput = {
+    id?: string
+    caseId: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedById?: string | null
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ResponsibilityProposalCreateManyRespondedByInput = {
+    id?: string
+    caseId: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
+  }
+
   export type NotificationCreateManyRecipientInput = {
     id?: string
     kind: $Enums.NotificationKind
@@ -49276,6 +52300,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -49294,6 +52320,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
@@ -49309,6 +52337,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49319,6 +52349,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -49337,6 +52369,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
@@ -49352,6 +52386,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49362,6 +52398,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -49380,6 +52418,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
@@ -49395,6 +52435,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49541,6 +52583,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutReportedByInput = {
@@ -49562,6 +52605,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutReportedByInput = {
@@ -49671,6 +52715,102 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ResponsibilityProposalUpdateWithoutProposedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutResponsibilityProposalsNestedInput
+    respondedBy?: StakeholderUpdateOneWithoutResponsibilityRespondedNestedInput
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateWithoutProposedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedById?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyWithoutProposedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedById?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalUpdateWithoutRespondedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutResponsibilityProposalsNestedInput
+    proposedBy?: StakeholderUpdateOneRequiredWithoutResponsibilityProposedNestedInput
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateWithoutRespondedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    proposedById?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    proposedById?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type NotificationUpdateWithoutRecipientInput = {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
@@ -49762,6 +52902,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49783,6 +52925,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
@@ -49801,6 +52945,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
@@ -49816,6 +52962,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49971,6 +53119,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutTenancyInput = {
@@ -49992,6 +53141,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutTenancyInput = {
@@ -50685,6 +53835,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutPropertyAssetInput = {
@@ -50706,6 +53857,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetInput = {
@@ -50771,6 +53923,22 @@ export namespace Prisma {
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ResponsibilityProposalCreateManyMaintenanceCaseInput = {
+    id?: string
+    proposedById: string
+    arrangedBy: $Enums.RepairParty
+    payer: $Enums.CostPayer
+    tenantCap?: Decimal | DecimalJsLike | number | string | null
+    basis: $Enums.ResponsibilityBasis
+    reason: string
+    clauseRef?: string | null
+    status?: $Enums.ProposalStatus
+    respondedById?: string | null
+    respondedAt?: Date | string | null
+    responseNote?: string | null
+    createdAt?: Date | string
   }
 
   export type MaintenanceEventUpdateWithoutMaintenanceCaseInput = {
@@ -50919,6 +54087,54 @@ export namespace Prisma {
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalUpdateWithoutMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    proposedBy?: StakeholderUpdateOneRequiredWithoutResponsibilityProposedNestedInput
+    respondedBy?: StakeholderUpdateOneWithoutResponsibilityRespondedNestedInput
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateWithoutMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposedById?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedById?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposedById?: StringFieldUpdateOperationsInput | string
+    arrangedBy?: EnumRepairPartyFieldUpdateOperationsInput | $Enums.RepairParty
+    payer?: EnumCostPayerFieldUpdateOperationsInput | $Enums.CostPayer
+    tenantCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    basis?: EnumResponsibilityBasisFieldUpdateOperationsInput | $Enums.ResponsibilityBasis
+    reason?: StringFieldUpdateOperationsInput | string
+    clauseRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumProposalStatusFieldUpdateOperationsInput | $Enums.ProposalStatus
+    respondedById?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    responseNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MaintenanceEvidenceCreateManyVisitInput = {

@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { authorizeTenancy, tenancyScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
-import type { Prisma } from '@/generated/prisma'
+import { Prisma } from '@/generated/prisma'
 
 const category = z.enum([
   'APPLIANCE', 'PLUMBING', 'LOCKSMITH', 'ELECTRICAL',
@@ -17,6 +17,12 @@ const status = z.enum([
 const evidencePurpose = z.enum(['BEFORE', 'AFTER', 'RECEIPT'])
 const verificationOutcome = z.enum(['FIXED', 'NOT_FIXED'])
 const clientId = z.string().uuid()
+const money = z.string().regex(/^\d+(?:\.\d{1,2})?$/)
+const party = z.enum(['LANDLORD', 'TENANT'])
+const payer = z.enum(['LANDLORD', 'TENANT', 'SHARED'])
+const basis = z.enum([
+  'MINOR_REPAIR_CLAUSE', 'TENANT_CAUSED', 'FAIR_WEAR', 'LANDLORD_OBLIGATION', 'OTHER',
+])
 
 export const createCaseInput = z.object({
   clientId: clientId.optional(),
@@ -39,7 +45,7 @@ export const visitInput = z.object({
   scheduledAt: z.iso.datetime().nullable().default(null),
   completedAt: z.iso.datetime().nullable().default(null),
   notes: z.string().trim().max(4000).nullable().default(null),
-  cost: z.string().regex(/^\d+(?:\.\d{1,2})?$/).nullable().default(null),
+  cost: money.nullable().default(null),
 })
 
 export const evidenceUploadInput = z.object({
@@ -58,6 +64,29 @@ export const evidenceInput = evidenceUploadInput.extend({
 export const verificationInput = z.object({
   outcome: verificationOutcome,
   note: z.string().trim().max(2000).nullable().default(null),
+})
+
+export const proposalInput = z.object({
+  arrangedBy: party,
+  payer,
+  tenantCap: money.nullable().default(null),
+  basis,
+  reason: z.string().trim().min(1).max(1000),
+  clauseRef: z.string().trim().min(1).max(120).nullable().default(null),
+}).refine((input) => (input.payer === 'SHARED') === (input.tenantCap !== null), {
+  message: 'A shared split needs the amount the tenant pays, and only a shared split has one',
+  path: ['tenantCap'],
+})
+
+export const proposalAnswerInput = z.discriminatedUnion('decision', [
+  z.object({ decision: z.literal('ACCEPT'), note: z.string().trim().max(1000).nullable().default(null) }),
+  z.object({ decision: z.literal('REJECT'), note: z.string().trim().min(1).max(1000) }),
+  z.object({ decision: z.literal('WITHDRAW') }),
+])
+
+export const tenancyTermsInput = z.object({
+  minorRepairCap: money.nullable().optional(),
+  agentMayAgreeCosts: z.boolean().optional(),
 })
 
 const allowedTransitions: Record<string, readonly string[]> = {
@@ -93,6 +122,61 @@ function canManage(role: TenancyRole) {
   return role === 'LANDLORD' || role === 'AGENT'
 }
 
+type Side = z.infer<typeof party>
+
+/// The agent acts for the landlord, so the two are one side of every cost question.
+function sideOf(role: TenancyRole): Side {
+  return role === 'TENANT' ? 'TENANT' : 'LANDLORD'
+}
+
+function proposalSide(proposedById: string, tenancy: { tenantId: string }): Side {
+  return proposedById === tenancy.tenantId ? 'TENANT' : 'LANDLORD'
+}
+
+/// Accepting or rejecting binds a side. The landlord can switch the agent's authority off.
+function mayAnswerFor(role: TenancyRole, tenancy: { agentMayAgreeCosts: boolean }) {
+  return role !== 'AGENT' || tenancy.agentMayAgreeCosts
+}
+
+/// Until both sides agree otherwise, the landlord arranges the repair, as before this
+/// feature existed. The side that arranged it is never the side that confirms it.
+function repairRoles(
+  role: TenancyRole,
+  proposals: { status: string; arrangedBy: Side }[],
+) {
+  const arrangedBy = proposals.find((proposal) => proposal.status === 'ACCEPTED')?.arrangedBy ?? 'LANDLORD'
+  const arranges = sideOf(role) === arrangedBy
+  return { arrangedBy, canLogVisit: arranges, canVerify: !arranges }
+}
+
+const partyName = { LANDLORD: 'Landlord', TENANT: 'Tenant' } as const
+
+/// The one sentence both sides read, in the app and in the notification. Third person,
+/// because the same words go to the proposer and the person answering.
+export function describeProposal(proposal: {
+  arrangedBy: Side
+  payer: z.infer<typeof payer>
+  tenantCap: { toString(): string } | null
+}) {
+  const pays = proposal.payer === 'SHARED'
+    ? `Tenant pays the first S$${proposal.tenantCap}, landlord pays the rest.`
+    : `${partyName[proposal.payer]} pays.`
+  return `${pays} ${partyName[proposal.arrangedBy]} arranges the repair.`
+}
+
+/// Kivilo records the split; it never moves the money.
+export function costShares(
+  proposal: { payer: z.infer<typeof payer>; tenantCap: { toString(): string } | null },
+  total: Prisma.Decimal,
+) {
+  const tenant = proposal.payer === 'LANDLORD'
+    ? new Prisma.Decimal(0)
+    : proposal.payer === 'TENANT'
+      ? total
+      : Prisma.Decimal.min(total, new Prisma.Decimal(proposal.tenantCap!.toString()))
+  return { total: total.toFixed(2), tenant: tenant.toFixed(2), landlord: total.minus(tenant).toFixed(2) }
+}
+
 function caseInclude() {
   return {
     propertyAsset: true,
@@ -107,6 +191,13 @@ function caseInclude() {
       include: { provider: true, verification: true },
     },
     evidence: { orderBy: { createdAt: 'asc' as const } },
+    responsibilityProposals: {
+      orderBy: { createdAt: 'asc' as const },
+      include: {
+        proposedBy: { select: { id: true, name: true } },
+        respondedBy: { select: { id: true, name: true } },
+      },
+    },
   }
 }
 
@@ -127,7 +218,7 @@ export async function authorizeMaintenanceCase(caseId: string, stakeholderId: st
 function notificationRows(
   tenancy: { landlordId: string; tenantId: string; agentId: string | null; endDate: Date },
   excludeId: string,
-  input: { kind: 'MAINTENANCE_REPORTED' | 'MAINTENANCE_STATUS' | 'MAINTENANCE_VISIT' | 'MAINTENANCE_VERIFICATION' | 'REPEAT_REPAIR'; title: string; body: string; href: string; dedupeKey?: string },
+  input: { kind: 'MAINTENANCE_REPORTED' | 'MAINTENANCE_STATUS' | 'MAINTENANCE_VISIT' | 'MAINTENANCE_VERIFICATION' | 'MAINTENANCE_RESPONSIBILITY' | 'REPEAT_REPAIR'; title: string; body: string; href: string; dedupeKey?: string },
 ) {
   const ids = [tenancy.landlordId, tenancy.tenantId]
   if (tenancy.agentId && tenancy.endDate >= new Date()) ids.push(tenancy.agentId)
@@ -191,7 +282,15 @@ export async function tenancyDetail(tenancyId: string, stakeholderId: string) {
     agent: tenancy.agent?.name ?? null,
     startDate: tenancy.startDate.toISOString(),
     endDate: tenancy.endDate.toISOString(),
-    capabilities: { report: true, manage: canManage(role), verify: role === 'TENANT' },
+    minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
+    agentMayAgreeCosts: tenancy.agentMayAgreeCosts,
+    capabilities: {
+      report: true,
+      manage: canManage(role),
+      verify: role === 'TENANT',
+      editMinorRepairCap: canManage(role),
+      editAgentAuthority: role === 'LANDLORD',
+    },
   }
 }
 
@@ -230,12 +329,49 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     createdAt: item.createdAt.toISOString(),
     url: await createDownloadUrl(item.storagePath),
   })))
+  const { tenancy } = maintenanceCase
+  const proposals = maintenanceCase.responsibilityProposals.map((proposal) => ({
+    id: proposal.id,
+    side: proposalSide(proposal.proposedById, tenancy),
+    proposedBy: proposal.proposedBy,
+    arrangedBy: proposal.arrangedBy,
+    payer: proposal.payer,
+    tenantCap: proposal.tenantCap?.toString() ?? null,
+    basis: proposal.basis,
+    reason: proposal.reason,
+    clauseRef: proposal.clauseRef,
+    summary: describeProposal(proposal),
+    status: proposal.status,
+    respondedBy: proposal.respondedBy,
+    respondedAt: proposal.respondedAt?.toISOString() ?? null,
+    responseNote: proposal.responseNote,
+    createdAt: proposal.createdAt.toISOString(),
+  }))
+  const pending = proposals.find((proposal) => proposal.status === 'PENDING') ?? null
+  const agreement = proposals.find((proposal) => proposal.status === 'ACCEPTED') ?? null
+  const totalCost = maintenanceCase.visits.reduce(
+    (sum, visit) => (visit.cost ? sum.plus(visit.cost) : sum),
+    new Prisma.Decimal(0),
+  )
+  const repair = repairRoles(role, maintenanceCase.responsibilityProposals)
   return {
     id: maintenanceCase.id,
     tenancyId: maintenanceCase.tenancyId,
     role,
     canManage: canManage(role),
-    canVerify: role === 'TENANT',
+    canLogVisit: repair.canLogVisit,
+    canVerify: repair.canVerify,
+    responsibility: {
+      arrangedBy: repair.arrangedBy,
+      minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
+      agreement,
+      pending,
+      history: proposals,
+      shares: agreement ? costShares(agreement, totalCost) : null,
+      canPropose: maintenanceCase.status !== 'CLOSED_NO_ACTION',
+      canAnswer: Boolean(pending && pending.side !== sideOf(role) && mayAnswerFor(role, tenancy)),
+      canWithdraw: Boolean(pending && pending.side === sideOf(role)),
+    },
     property: [maintenanceCase.tenancy.property.line1, maintenanceCase.tenancy.property.unit].filter(Boolean).join(' '),
     propertyAsset: maintenanceCase.propertyAsset,
     category: maintenanceCase.category,
@@ -349,7 +485,9 @@ export async function addMaintenanceComment(caseId: string, stakeholderId: strin
 export async function addMaintenanceVisit(caseId: string, stakeholderId: string, raw: unknown) {
   const input = visitInput.parse(raw)
   const { maintenanceCase, role } = await authorizeMaintenanceCase(caseId, stakeholderId)
-  if (!canManage(role)) throw new Error('Maintenance case not found')
+  if (!repairRoles(role, maintenanceCase.responsibilityProposals).canLogVisit) {
+    throw new Error('Maintenance case not found')
+  }
   if (!['ACKNOWLEDGED', 'SCHEDULED'].includes(maintenanceCase.status)) {
     throw new Error('Invalid maintenance status transition')
   }
@@ -412,7 +550,9 @@ async function createRepeatRepairAlerts(assetId: string, tenancyId: string, case
 export async function verifyMaintenanceVisit(caseId: string, visitId: string, stakeholderId: string, raw: unknown) {
   const input = verificationInput.parse(raw)
   const { maintenanceCase, role } = await authorizeMaintenanceCase(caseId, stakeholderId)
-  if (role !== 'TENANT') throw new Error('Maintenance case not found')
+  if (!repairRoles(role, maintenanceCase.responsibilityProposals).canVerify) {
+    throw new Error('Maintenance case not found')
+  }
   const visit = maintenanceCase.visits.find((candidate) => candidate.id === visitId)
   if (!visit) throw new Error('Maintenance visit not found')
   if (!visit.completedAt) throw new Error('Only a completed visit can be verified')
@@ -444,12 +584,145 @@ export async function verifyMaintenanceVisit(caseId: string, visitId: string, st
     })
     const rows = notificationRows(maintenanceCase.tenancy, stakeholderId, {
       kind: 'MAINTENANCE_VERIFICATION', title: maintenanceCase.title,
-      body: input.outcome === 'FIXED' ? 'The tenant confirmed the repair is fixed.' : 'The tenant reported that the issue is not fixed.',
+      body: input.outcome === 'FIXED'
+        ? `The ${sideOf(role).toLowerCase()} confirmed the repair is fixed.`
+        : `The ${sideOf(role).toLowerCase()} reported that the issue is not fixed.`,
       href: `/maintenance/${caseId}`,
     })
     await createNotificationRows(tx, rows)
     return { id: verification.id }
   })
+}
+
+/// One side proposes who arranges a repair and who pays; the other answers. Proposing
+/// while your own side's proposal is open replaces it. Proposing while the other side's
+/// is open is a counter-offer, which rejects theirs and so needs the authority to answer.
+export async function proposeResponsibility(caseId: string, stakeholderId: string, raw: unknown) {
+  const input = proposalInput.parse(raw)
+  const { maintenanceCase, role } = await authorizeMaintenanceCase(caseId, stakeholderId)
+  if (maintenanceCase.status === 'CLOSED_NO_ACTION') {
+    throw new Error('Invalid maintenance status transition')
+  }
+  const { tenancy } = maintenanceCase
+  const pending = maintenanceCase.responsibilityProposals.find((proposal) => proposal.status === 'PENDING')
+  const counters = pending && proposalSide(pending.proposedById, tenancy) !== sideOf(role)
+  if (counters && !mayAnswerFor(role, tenancy)) throw new Error('Maintenance case not found')
+  return db.$transaction(async (tx) => {
+    if (pending) {
+      const closed = await tx.responsibilityProposal.updateMany({
+        where: { id: pending.id, status: 'PENDING' },
+        data: counters
+          ? { status: 'REJECTED', respondedById: stakeholderId, respondedAt: new Date() }
+          : { status: 'SUPERSEDED' },
+      })
+      if (closed.count !== 1) throw new Error('Maintenance responsibility conflict')
+    }
+    const proposal = await tx.responsibilityProposal.create({
+      data: { ...input, caseId, proposedById: stakeholderId },
+    }).catch((error: unknown) => {
+      // The partial unique index: someone else opened a proposal since we read the case.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new Error('Maintenance responsibility conflict')
+      }
+      throw error
+    })
+    const summary = describeProposal(input)
+    await tx.maintenanceEvent.create({
+      data: {
+        caseId, actorId: stakeholderId, kind: 'RESPONSIBILITY_PROPOSED', body: input.reason,
+        metadata: { proposalId: proposal.id, summary, replaces: pending?.id ?? null, counter: Boolean(counters) },
+      },
+    })
+    await createNotificationRows(tx, notificationRows(tenancy, stakeholderId, {
+      kind: 'MAINTENANCE_RESPONSIBILITY', title: maintenanceCase.title,
+      body: `${partyName[sideOf(role)]} proposes: ${summary}`,
+      href: `/maintenance/${caseId}`,
+    }))
+    return { id: proposal.id }
+  })
+}
+
+/// Accept or reject is for the other side; withdraw is for the side that proposed.
+/// Accepting replaces any earlier agreement, and a case nobody had acknowledged is
+/// acknowledged by both sides agreeing on it.
+export async function answerResponsibility(
+  caseId: string,
+  proposalId: string,
+  stakeholderId: string,
+  raw: unknown,
+) {
+  const input = proposalAnswerInput.parse(raw)
+  const { maintenanceCase, role } = await authorizeMaintenanceCase(caseId, stakeholderId)
+  const { tenancy } = maintenanceCase
+  const proposal = maintenanceCase.responsibilityProposals.find((candidate) => candidate.id === proposalId)
+  if (!proposal) throw new Error('Responsibility proposal not found')
+  const ownSide = proposalSide(proposal.proposedById, tenancy) === sideOf(role)
+  const permitted = input.decision === 'WITHDRAW' ? ownSide : !ownSide && mayAnswerFor(role, tenancy)
+  if (!permitted) throw new Error('Responsibility proposal not found')
+  if (proposal.status !== 'PENDING') throw new Error('Maintenance responsibility conflict')
+
+  const now = new Date()
+  const note = input.decision === 'WITHDRAW' ? null : input.note
+  const acknowledges = input.decision === 'ACCEPT' && maintenanceCase.status === 'REPORTED'
+  await db.$transaction(async (tx) => {
+    if (input.decision === 'ACCEPT') {
+      await tx.responsibilityProposal.updateMany({
+        where: { caseId, status: 'ACCEPTED' },
+        data: { status: 'SUPERSEDED' },
+      })
+    }
+    const answered = await tx.responsibilityProposal.updateMany({
+      where: { id: proposalId, status: 'PENDING' },
+      data: input.decision === 'WITHDRAW'
+        ? { status: 'WITHDRAWN' }
+        : {
+            status: input.decision === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED',
+            respondedById: stakeholderId, respondedAt: now, responseNote: note,
+          },
+    })
+    if (answered.count !== 1) throw new Error('Maintenance responsibility conflict')
+    await tx.maintenanceEvent.create({
+      data: {
+        caseId, actorId: stakeholderId,
+        kind: input.decision === 'ACCEPT'
+          ? 'RESPONSIBILITY_ACCEPTED'
+          : input.decision === 'REJECT' ? 'RESPONSIBILITY_REJECTED' : 'RESPONSIBILITY_WITHDRAWN',
+        body: note,
+        metadata: { proposalId, summary: describeProposal(proposal) },
+      },
+    })
+    if (acknowledges) {
+      const advanced = await tx.maintenanceCase.updateMany({
+        where: { id: caseId, status: 'REPORTED' },
+        data: { status: 'ACKNOWLEDGED', acknowledgedAt: now },
+      })
+      if (advanced.count !== 1) throw new Error('Maintenance responsibility conflict')
+      await tx.maintenanceEvent.create({
+        data: {
+          caseId, actorId: stakeholderId, kind: 'STATUS_CHANGED',
+          metadata: { from: 'REPORTED', to: 'ACKNOWLEDGED' },
+        },
+      })
+    }
+    const verb = { ACCEPT: 'accepted', REJECT: 'rejected', WITHDRAW: 'withdrew' }[input.decision]
+    await createNotificationRows(tx, notificationRows(tenancy, stakeholderId, {
+      kind: 'MAINTENANCE_RESPONSIBILITY', title: maintenanceCase.title,
+      body: input.decision === 'WITHDRAW'
+        ? `${partyName[sideOf(role)]} withdrew the cost proposal.`
+        : `${partyName[sideOf(role)]} ${verb}: ${describeProposal(proposal)}`,
+      href: `/maintenance/${caseId}`,
+    }))
+  })
+}
+
+/// The minor repair cap only prefills proposals, so either landlord-side party may set
+/// it. The agent's authority to agree costs belongs to the landlord alone.
+export async function updateTenancyTerms(tenancyId: string, stakeholderId: string, raw: unknown) {
+  const input = tenancyTermsInput.parse(raw)
+  const { role } = await authorizeTenancy(tenancyId, stakeholderId)
+  if (input.minorRepairCap !== undefined && !canManage(role)) throw new Error('Tenancy not found')
+  if (input.agentMayAgreeCosts !== undefined && role !== 'LANDLORD') throw new Error('Tenancy not found')
+  await db.tenancy.update({ where: { id: tenancyId }, data: input })
 }
 
 function evidenceExtension(mimeType: string) {

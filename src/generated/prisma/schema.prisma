@@ -41,6 +41,8 @@ model Stakeholder {
   maintenanceEvents           MaintenanceEvent[]
   maintenanceVerifications    MaintenanceVerification[]
   maintenanceEvidenceUploaded MaintenanceEvidence[]
+  responsibilityProposed      ResponsibilityProposal[]  @relation("ResponsibilityProposer")
+  responsibilityResponded     ResponsibilityProposal[]  @relation("ResponsibilityResponder")
   notifications               Notification[]
   deviceInstallations         DeviceInstallation[]
 
@@ -71,17 +73,23 @@ model Property {
 }
 
 model Tenancy {
-  id          String   @id @default(cuid())
-  propertyId  String
-  landlordId  String
-  tenantId    String
-  agentId     String?
-  startDate   DateTime
-  endDate     DateTime
-  monthlyRent Decimal  @db.Decimal(10, 2)
-  deposit     Decimal  @db.Decimal(10, 2)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  propertyId         String
+  landlordId         String
+  tenantId           String
+  agentId            String?
+  startDate          DateTime
+  endDate            DateTime
+  monthlyRent        Decimal  @db.Decimal(10, 2)
+  deposit            Decimal  @db.Decimal(10, 2)
+  /// Tenant pays up to this per repair, landlord the rest. Only prefills a cost
+  /// proposal; the tenant still accepts or rejects every one.
+  minorRepairCap     Decimal? @db.Decimal(10, 2)
+  /// Whether the agent may accept or reject a tenant's cost proposal for the landlord.
+  /// Only the landlord can change it.
+  agentMayAgreeCosts Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   property Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   landlord Stakeholder  @relation("LandlordTenancies", fields: [landlordId], references: [id])
@@ -364,13 +372,14 @@ model MaintenanceCase {
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
-  tenancy       Tenancy               @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
-  propertyAsset PropertyAsset?        @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
-  reportedBy    Stakeholder           @relation("MaintenanceReporter", fields: [reportedById], references: [id])
-  events        MaintenanceEvent[]
-  visits        MaintenanceVisit[]
-  evidence      MaintenanceEvidence[]
-  findings      Finding[]
+  tenancy                 Tenancy                  @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  propertyAsset           PropertyAsset?           @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
+  reportedBy              Stakeholder              @relation("MaintenanceReporter", fields: [reportedById], references: [id])
+  events                  MaintenanceEvent[]
+  visits                  MaintenanceVisit[]
+  evidence                MaintenanceEvidence[]
+  findings                Finding[]
+  responsibilityProposals ResponsibilityProposal[]
 
   @@index([tenancyId, status, createdAt])
   @@index([propertyAssetId, createdAt])
@@ -383,6 +392,10 @@ enum MaintenanceEventKind {
   VISIT_RECORDED
   VERIFICATION
   REOPENED
+  RESPONSIBILITY_PROPOSED
+  RESPONSIBILITY_ACCEPTED
+  RESPONSIBILITY_REJECTED
+  RESPONSIBILITY_WITHDRAWN
 }
 
 model MaintenanceEvent {
@@ -463,6 +476,62 @@ model MaintenanceVerification {
   verifiedBy Stakeholder      @relation(fields: [verifiedById], references: [id])
 }
 
+enum RepairParty {
+  LANDLORD
+  TENANT
+}
+
+enum CostPayer {
+  LANDLORD
+  TENANT
+  SHARED
+}
+
+enum ResponsibilityBasis {
+  MINOR_REPAIR_CLAUSE
+  TENANT_CAUSED
+  FAIR_WEAR
+  LANDLORD_OBLIGATION
+  OTHER
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  SUPERSEDED
+}
+
+/// Who arranges a repair and who pays for it, as one side proposes and the other
+/// answers. Append-only: changing an agreement is a new proposal, never an edit.
+/// At most one PENDING and one ACCEPTED per case, enforced by partial unique indexes
+/// in the migration because Prisma cannot express them.
+model ResponsibilityProposal {
+  id            String              @id @default(cuid())
+  caseId        String
+  proposedById  String
+  arrangedBy    RepairParty
+  payer         CostPayer
+  /// Required when payer is SHARED: the tenant pays up to this, the landlord the rest.
+  tenantCap     Decimal?            @db.Decimal(10, 2)
+  basis         ResponsibilityBasis
+  reason        String
+  /// Free text such as "Clause 5(c)" until tenancy agreements are extracted.
+  clauseRef     String?
+  status        ProposalStatus      @default(PENDING)
+  respondedById String?
+  respondedAt   DateTime?
+  responseNote  String?
+  createdAt     DateTime            @default(now())
+
+  maintenanceCase MaintenanceCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  proposedBy      Stakeholder     @relation("ResponsibilityProposer", fields: [proposedById], references: [id])
+  respondedBy     Stakeholder?    @relation("ResponsibilityResponder", fields: [respondedById], references: [id])
+
+  @@index([caseId, createdAt])
+}
+
 enum ServiceProviderCategory {
   PLUMBING
   LOCKSMITH
@@ -492,6 +561,7 @@ enum NotificationKind {
   MAINTENANCE_STATUS
   MAINTENANCE_VISIT
   MAINTENANCE_VERIFICATION
+  MAINTENANCE_RESPONSIBILITY
   REPEAT_REPAIR
 }
 

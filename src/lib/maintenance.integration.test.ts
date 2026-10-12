@@ -2,11 +2,15 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { db } from '@/lib/db'
 import {
   addMaintenanceVisit,
+  answerResponsibility,
   authorizeMaintenanceCase,
   createMaintenanceCase,
   createPropertyAsset,
   listPropertyAssets,
+  maintenanceCaseDetail,
+  proposeResponsibility,
   updateMaintenanceCase,
+  updateTenancyTerms,
   verifyMaintenanceVisit,
 } from '@/lib/maintenance'
 
@@ -209,5 +213,135 @@ describe('maintenance history', () => {
     await expect(createPropertyAsset(record.property.id, record.agent.id, {
       ...assetInput, inspectionItemId: ownItem.id,
     })).rejects.toThrow('no longer be changed')
+  })
+})
+
+describe('who arranges and who pays', () => {
+  const shared = {
+    arrangedBy: 'LANDLORD', payer: 'SHARED', tenantCap: '150',
+    basis: 'MINOR_REPAIR_CLAUSE', reason: 'Minor repair clause', clauseRef: 'Clause 5(c)',
+  } as const
+  const tenantPays = {
+    arrangedBy: 'TENANT', payer: 'TENANT', basis: 'TENANT_CAUSED', reason: 'Dropped a pan in the sink',
+  } as const
+
+  async function reported(label: string) {
+    const record = await fixture(label)
+    const created = await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      category: 'PLUMBING', title: 'Cracked basin', description: 'The kitchen basin is cracked.',
+    })
+    return { ...record, caseId: created.id }
+  }
+
+  it('records an agreement both sides reached and splits the recorded cost', async () => {
+    const record = await reported('agree')
+    const proposal = await proposeResponsibility(record.caseId, record.agent.id, shared)
+    await expect(answerResponsibility(record.caseId, proposal.id, record.landlord.id, { decision: 'ACCEPT' }))
+      .rejects.toThrow('Responsibility proposal not found')
+
+    const notice = await db.notification.findFirstOrThrow({
+      where: { recipientId: record.tenant.id, kind: 'MAINTENANCE_RESPONSIBILITY' },
+    })
+    expect(notice.body).toBe(
+      'Landlord proposes: Tenant pays the first S$150, landlord pays the rest. Landlord arranges the repair.',
+    )
+
+    await answerResponsibility(record.caseId, proposal.id, record.tenant.id, { decision: 'ACCEPT' })
+    const visit = await addMaintenanceVisit(record.caseId, record.agent.id, {
+      completedAt: new Date().toISOString(), cost: '420',
+    })
+    const detail = await maintenanceCaseDetail(record.caseId, record.tenant.id)
+    expect(detail.status).toBe('AWAITING_CONFIRMATION')
+    expect(detail.responsibility).toMatchObject({
+      agreement: { id: proposal.id, status: 'ACCEPTED', side: 'LANDLORD', clauseRef: 'Clause 5(c)' },
+      pending: null,
+      shares: { total: '420.00', tenant: '150.00', landlord: '270.00' },
+    })
+    expect(detail.events.map((event) => event.kind)).toEqual([
+      'REPORTED', 'RESPONSIBILITY_PROPOSED', 'RESPONSIBILITY_ACCEPTED', 'STATUS_CHANGED', 'VISIT_RECORDED',
+    ])
+    await verifyMaintenanceVisit(record.caseId, visit.id, record.tenant.id, { outcome: 'FIXED' })
+  })
+
+  it('treats a proposal against an open one as a counter-offer and keeps one open at a time', async () => {
+    const record = await reported('counter')
+    const first = await proposeResponsibility(record.caseId, record.tenant.id, { ...shared, arrangedBy: 'LANDLORD', payer: 'LANDLORD', tenantCap: null, basis: 'FAIR_WEAR', reason: 'Old basin' })
+    const replaced = await proposeResponsibility(record.caseId, record.tenant.id, { ...shared, basis: 'FAIR_WEAR', reason: 'I will pay the minor part' })
+    const counter = await proposeResponsibility(record.caseId, record.agent.id, tenantPays)
+
+    const rows = await db.responsibilityProposal.findMany({ where: { caseId: record.caseId }, orderBy: { createdAt: 'asc' } })
+    expect(rows.map((row) => [row.id, row.status])).toEqual([
+      [first.id, 'SUPERSEDED'], [replaced.id, 'REJECTED'], [counter.id, 'PENDING'],
+    ])
+    expect(rows[1].respondedById).toBe(record.agent.id)
+    await expect(db.responsibilityProposal.create({
+      data: { ...tenantPays, caseId: record.caseId, proposedById: record.tenant.id },
+    })).rejects.toThrow()
+
+    await answerResponsibility(record.caseId, counter.id, record.tenant.id, { decision: 'REJECT', note: 'Crack was there at check-in' })
+    await expect(answerResponsibility(record.caseId, counter.id, record.tenant.id, { decision: 'ACCEPT' }))
+      .rejects.toThrow('Maintenance responsibility conflict')
+    const detail = await maintenanceCaseDetail(record.caseId, record.agent.id)
+    expect(detail.responsibility).toMatchObject({ agreement: null, pending: null, canPropose: true })
+    expect(detail.status).toBe('REPORTED')
+  })
+
+  it('lets only the landlord switch off the agent authority to agree costs', async () => {
+    const record = await reported('authority')
+    await expect(updateTenancyTerms(record.tenancy.id, record.agent.id, { agentMayAgreeCosts: false }))
+      .rejects.toThrow('Tenancy not found')
+    await expect(updateTenancyTerms(record.tenancy.id, record.tenant.id, { minorRepairCap: '999' }))
+      .rejects.toThrow('Tenancy not found')
+    await updateTenancyTerms(record.tenancy.id, record.agent.id, { minorRepairCap: '200' })
+    await updateTenancyTerms(record.tenancy.id, record.landlord.id, { agentMayAgreeCosts: false })
+
+    const proposal = await proposeResponsibility(record.caseId, record.tenant.id, tenantPays)
+    const agentView = await maintenanceCaseDetail(record.caseId, record.agent.id)
+    expect(agentView.responsibility).toMatchObject({ canAnswer: false, minorRepairCap: '200' })
+    await expect(answerResponsibility(record.caseId, proposal.id, record.agent.id, { decision: 'ACCEPT' }))
+      .rejects.toThrow('Responsibility proposal not found')
+    await expect(proposeResponsibility(record.caseId, record.agent.id, shared))
+      .rejects.toThrow('Maintenance case not found')
+    await expect(answerResponsibility(record.caseId, proposal.id, record.agent.id, { decision: 'WITHDRAW' }))
+      .rejects.toThrow('Responsibility proposal not found')
+    await answerResponsibility(record.caseId, proposal.id, record.landlord.id, { decision: 'ACCEPT' })
+  })
+
+  it('hands the repair to the tenant and the confirmation to the landlord when so agreed', async () => {
+    const record = await reported('tenant-arranges')
+    const proposal = await proposeResponsibility(record.caseId, record.landlord.id, tenantPays)
+    await answerResponsibility(record.caseId, proposal.id, record.tenant.id, { decision: 'ACCEPT' })
+
+    await expect(addMaintenanceVisit(record.caseId, record.agent.id, { completedAt: new Date().toISOString() }))
+      .rejects.toThrow('Maintenance case not found')
+    const visit = await addMaintenanceVisit(record.caseId, record.tenant.id, {
+      completedAt: new Date().toISOString(), cost: '95', notes: 'Replaced the basin myself',
+    })
+    await expect(verifyMaintenanceVisit(record.caseId, visit.id, record.tenant.id, { outcome: 'FIXED' }))
+      .rejects.toThrow('Maintenance case not found')
+    await verifyMaintenanceVisit(record.caseId, visit.id, record.agent.id, { outcome: 'FIXED' })
+    const detail = await maintenanceCaseDetail(record.caseId, record.tenant.id)
+    expect(detail).toMatchObject({
+      status: 'RESOLVED', canLogVisit: true, canVerify: false,
+      responsibility: { arrangedBy: 'TENANT', shares: { tenant: '95.00', landlord: '0.00' } },
+    })
+  })
+
+  it('refuses outsiders as if the proposal did not exist, and closed cases take no proposals', async () => {
+    const record = await reported('outsider')
+    const stranger = await fixture('outsider-other')
+    const proposal = await proposeResponsibility(record.caseId, record.tenant.id, tenantPays)
+    const refused = await answerResponsibility(record.caseId, proposal.id, stranger.landlord.id, { decision: 'ACCEPT' })
+      .catch((error: Error) => error.message)
+    const missing = await answerResponsibility('not-a-case', proposal.id, stranger.landlord.id, { decision: 'ACCEPT' })
+      .catch((error: Error) => error.message)
+    expect(refused).toBe(missing)
+
+    await answerResponsibility(record.caseId, proposal.id, record.tenant.id, { decision: 'WITHDRAW' })
+    await updateMaintenanceCase(record.caseId, record.landlord.id, {
+      status: 'CLOSED_NO_ACTION', resolutionReason: 'Reported twice',
+    })
+    await expect(proposeResponsibility(record.caseId, record.tenant.id, tenantPays))
+      .rejects.toThrow('Invalid maintenance status transition')
   })
 })
