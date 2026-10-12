@@ -31,6 +31,19 @@ describe('annotationInputSchema', () => {
     )
   })
 
+  it('keeps a separate note on each mark and bounds its length', () => {
+    const notedRing = { ...ring, note: 'Hairline crack above socket' }
+    const parsed = annotationInputSchema.parse({ w: 1536, h: 2048, marks: [notedRing] })
+    expect(parsed.marks[0].note).toBe(notedRing.note)
+    expect(
+      annotationInputSchema.safeParse({
+        w: 1536,
+        h: 2048,
+        marks: [{ ...ring, note: 'x'.repeat(501) }],
+      }).success,
+    ).toBe(false)
+  })
+
   it('rejects coordinates outside the frame', () => {
     for (const cx of [-0.01, 1.01]) {
       expect(annotationInputSchema.safeParse({ w: 10, h: 10, marks: [{ ...ring, cx }] }).success).toBe(

@@ -167,19 +167,37 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _propertyType,
-            decoration: const InputDecoration(labelText: 'Property type'),
-            items: const [
-              DropdownMenuItem(
+          KiviloSelectField<String>(
+            label: 'Property type',
+            sheetTitle: 'Choose a property type',
+            value: _propertyType,
+            options: const [
+              KiviloSelectOption(
                 value: 'PRIVATE_NON_LANDED',
-                child: Text('Private, non-landed'),
+                label: 'Private, non-landed',
+                description: 'Condominium or private apartment',
+                icon: Icons.apartment_rounded,
               ),
-              DropdownMenuItem(value: 'HDB', child: Text('HDB')),
-              DropdownMenuItem(value: 'LANDED', child: Text('Landed')),
-              DropdownMenuItem(value: 'COMMERCIAL', child: Text('Commercial')),
+              KiviloSelectOption(
+                value: 'HDB',
+                label: 'HDB',
+                description: 'Public housing flat',
+                icon: Icons.location_city_rounded,
+              ),
+              KiviloSelectOption(
+                value: 'LANDED',
+                label: 'Landed',
+                description: 'Terrace, semi-detached or detached home',
+                icon: Icons.home_rounded,
+              ),
+              KiviloSelectOption(
+                value: 'COMMERCIAL',
+                label: 'Commercial',
+                description: 'Office, retail or other business premises',
+                icon: Icons.store_rounded,
+              ),
             ],
-            onChanged: (value) => setState(() => _propertyType = value!),
+            onChanged: (value) => setState(() => _propertyType = value),
           ),
           const SizedBox(height: 32),
           const Divider(),

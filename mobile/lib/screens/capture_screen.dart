@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -40,6 +41,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   final _queue = CaptureQueue();
   final _cameraStartup = CameraStartup();
   final _screenAwake = RecordingScreenAwake();
+  final _picker = ImagePicker();
   late final _backend = RoutingEvidenceBackend(_api.dio);
   late final String _ownerId = Supabase.instance.client.auth.currentUser!.id;
   Directory? _root;
@@ -47,6 +49,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   CameraController? _camera;
   Future<void>? _uploading;
   bool _videoMode = false;
+  bool _rapidCamera = false;
   bool _busy = false;
   bool _recording = false;
   bool _leaving = false;
@@ -79,7 +82,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         root: root,
       ).reconcile(_ownerId);
       await _loadRoom();
-      await _initCamera();
+      await _recoverLostPickerData();
       unawaited(_drain());
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());
@@ -205,10 +208,138 @@ class _CaptureScreenState extends State<CaptureScreen>
       _videoMode = video;
       _error = null;
     });
-    final old = _camera;
-    setState(() => _camera = null);
-    await old?.dispose();
+    if (_rapidCamera) {
+      final old = _camera;
+      setState(() => _camera = null);
+      await old?.dispose();
+      await _initCamera(retry: true);
+    }
+  }
+
+  Future<void> _openSystemCamera() async {
+    if (_busy || _leaving || _finishing || _root == null || _room == null) {
+      return;
+    }
+    if (_rapidCamera) await _closeRapidCamera();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final picked = _videoMode
+          ? await _picker.pickVideo(source: ImageSource.camera)
+          : await _picker.pickImage(
+              source: ImageSource.camera,
+              imageQuality: 95,
+              requestFullMetadata: false,
+            );
+      if (picked != null) await _savePickedFile(picked, video: _videoMode);
+    } catch (error) {
+      if (mounted) {
+        setState(() => _error = 'Could not capture evidence: $error');
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _chooseFromLibrary() async {
+    if (_busy || _leaving || _finishing || _root == null || _room == null) {
+      return;
+    }
+    if (_rapidCamera) await _closeRapidCamera();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      if (_videoMode) {
+        final picked = await _picker.pickVideo(source: ImageSource.gallery);
+        if (picked != null) await _savePickedFile(picked, video: true);
+      } else {
+        final picked = await _picker.pickMultiImage(
+          imageQuality: 95,
+          requestFullMetadata: false,
+        );
+        for (final file in picked) {
+          await _savePickedFile(file, video: false);
+        }
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = 'Could not add evidence: $error');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _recoverLostPickerData() async {
+    if (!Platform.isAndroid) return;
+    final response = await _picker.retrieveLostData();
+    if (response.isEmpty) return;
+    if (response.exception != null) {
+      throw StateError(
+        'Could not recover the interrupted selection: ${response.exception}',
+      );
+    }
+    final video = response.type == RetrieveType.video;
+    for (final file in response.files ?? const <XFile>[]) {
+      await _savePickedFile(file, video: video);
+    }
+  }
+
+  Future<void> _savePickedFile(XFile picked, {required bool video}) async {
+    final path = picked.path.toLowerCase();
+    final extension = _extensionFor(path, video: video);
+    await CaptureStore(queue: _queue, root: _root!).save(
+      source: File(picked.path),
+      ownerId: _ownerId,
+      inspectionId: widget.inspectionId,
+      roomId: widget.roomId,
+      kind: video ? 'VIDEO' : 'PHOTO',
+      extension: extension,
+      mimeType: picked.mimeType ?? _mimeTypeFor(extension, video: video),
+      clientId: newCaptureId(),
+    );
+    unawaited(_drain());
+  }
+
+  String _extensionFor(String path, {required bool video}) {
+    const imageExtensions = ['jpeg', 'jpg', 'png', 'webp', 'heic', 'heif'];
+    const videoExtensions = ['mov', 'mp4', 'm4v'];
+    final extensions = video ? videoExtensions : imageExtensions;
+    for (final extension in extensions) {
+      if (path.endsWith('.$extension')) return extension;
+    }
+    return video ? 'mp4' : 'jpg';
+  }
+
+  String _mimeTypeFor(String extension, {required bool video}) {
+    if (video) {
+      return extension == 'mov' ? 'video/quicktime' : 'video/mp4';
+    }
+    return switch (extension) {
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      'heic' => 'image/heic',
+      'heif' => 'image/heif',
+      _ => 'image/jpeg',
+    };
+  }
+
+  Future<void> _openRapidCamera() async {
+    if (_rapidCamera) return;
+    setState(() => _rapidCamera = true);
     await _initCamera(retry: true);
+  }
+
+  Future<void> _closeRapidCamera() async {
+    if (_recording || _busy) return;
+    final camera = _camera;
+    setState(() {
+      _rapidCamera = false;
+      _camera = null;
+    });
+    await camera?.dispose();
   }
 
   Future<void> _takePhoto() async {
@@ -426,33 +557,10 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   Future<String?> _askNote(String? initial) async {
-    final controller = TextEditingController(text: initial);
-    final result = await showDialog<String>(
+    return showKiviloDrawer<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Photo note'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: 'What should the agent notice?',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+      builder: (_) => _PhotoNoteDrawer(initial: initial),
     );
-    controller.dispose();
-    return result;
   }
 
   Future<void> _noteQueued(PendingCapture capture) async {
@@ -649,9 +757,9 @@ class _CaptureScreenState extends State<CaptureScreen>
         );
         return;
       }
-      final consent = await showDialog<bool>(
+      final consent = await showKiviloDrawer<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => KiviloDrawer(
           title: const Text('Draft with AI?'),
           content: const Text(
             'Kivilo sends this room’s video, photos and property details to Google Gemini to draft an inventory. '
@@ -692,7 +800,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       unawaited(_pauseCamera());
     } else if (state == AppLifecycleState.resumed) {
       _isForeground = true;
-      unawaited(_initCamera());
+      if (_rapidCamera) unawaited(_initCamera());
       unawaited(_drain());
     }
   }
@@ -718,7 +826,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (camera == null) return;
     if (mounted) setState(() => _camera = null);
     await camera.dispose();
-    if (_isForeground) await _initCamera();
+    if (_isForeground && _rapidCamera) await _initCamera();
   }
 
   @override
@@ -795,132 +903,6 @@ class _CaptureScreenState extends State<CaptureScreen>
               KiviloColors.amber,
               onTap: () => unawaited(_drain()),
             ),
-          if (camera != null && camera.value.isInitialized) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: AspectRatio(
-                aspectRatio: 1 / camera.value.aspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    CameraPreview(camera),
-                    Positioned(
-                      top: 16,
-                      left: 16,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 7,
-                          ),
-                          child: Text(
-                            _recording ? '● RECORDING' : 'LIVE CAMERA',
-                            style: TextStyle(
-                              color: _recording
-                                  ? const Color(0xFFFDA4AF)
-                                  : Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 22),
-            Center(
-              child: Column(
-                children: [
-                  Semantics(
-                    button: true,
-                    label: _videoMode
-                        ? (_videoToSave != null
-                              ? 'Retry saving video'
-                              : _recording
-                              ? 'Stop and save video'
-                              : 'Record walkthrough')
-                        : (_photoToSave != null
-                              ? 'Retry saving photo'
-                              : 'Take photo'),
-                    child: IconButton.filled(
-                      onPressed:
-                          _busy || _leaving || _finishing || _room == null
-                          ? null
-                          : _videoMode
-                          ? _toggleVideo
-                          : _takePhoto,
-                      iconSize: 34,
-                      padding: const EdgeInsets.all(18),
-                      style: IconButton.styleFrom(
-                        backgroundColor: _recording
-                            ? KiviloColors.red
-                            : KiviloColors.pink,
-                        foregroundColor: Colors.white,
-                      ),
-                      icon: Icon(
-                        _videoMode
-                            ? (_recording || _videoToSave != null
-                                  ? Icons.stop
-                                  : Icons.fiber_manual_record)
-                            : Icons.camera_alt_outlined,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _videoMode
-                        ? (_videoToSave != null
-                              ? 'Retry saving video'
-                              : _recording
-                              ? 'Stop & save video'
-                              : 'Record walkthrough')
-                        : (_photoToSave != null
-                              ? 'Retry saving photo'
-                              : 'Take photo'),
-                    style: const TextStyle(
-                      color: KiviloColors.ink,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ] else ...[
-            Container(
-              height: 300,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: KiviloColors.canvas,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: KiviloColors.border),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.photo_camera_outlined,
-                    size: 42,
-                    color: KiviloColors.muted,
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => unawaited(_initCamera(retry: true)),
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Open camera'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          const SizedBox(height: 20),
           Center(
             child: SegmentedButton<bool>(
               segments: const [
@@ -936,11 +918,171 @@ class _CaptureScreenState extends State<CaptureScreen>
                 ),
               ],
               selected: {_videoMode},
-              onSelectionChanged: camera == null && _error == null
+              onSelectionChanged: _recording
                   ? null
                   : (selected) => unawaited(_switchMode(selected.first)),
             ),
           ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: _busy || _leaving || _finishing || _room == null
+                ? null
+                : _openSystemCamera,
+            icon: Icon(_videoMode ? Icons.videocam : Icons.photo_camera),
+            label: Text(_videoMode ? 'Record video' : 'Take photo'),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _busy || _leaving || _finishing || _room == null
+                ? null
+                : _chooseFromLibrary,
+            icon: const Icon(Icons.add_photo_alternate_outlined),
+            label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
+          ),
+          const SizedBox(height: 6),
+          if (!_rapidCamera)
+            TextButton.icon(
+              onPressed: _busy || _leaving || _finishing || _room == null
+                  ? null
+                  : _openRapidCamera,
+              icon: const Icon(Icons.burst_mode_outlined),
+              label: const Text('Use rapid in-app camera'),
+            ),
+          if (_rapidCamera) ...[
+            const SizedBox(height: 14),
+            if (camera != null && camera.value.isInitialized) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SizedBox(
+                  height: 240,
+                  width: double.infinity,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ColoredBox(
+                        color: Colors.black,
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: camera.value.aspectRatio,
+                            child: CameraPreview(camera),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
+                            child: Text(
+                              _recording ? '● RECORDING' : 'LIVE CAMERA',
+                              style: TextStyle(
+                                color: _recording
+                                    ? const Color(0xFFFDA4AF)
+                                    : Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (!_recording)
+                        Positioned(
+                          top: 6,
+                          right: 6,
+                          child: IconButton.filledTonal(
+                            onPressed: _closeRapidCamera,
+                            icon: const Icon(Icons.close),
+                            tooltip: 'Close rapid camera',
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Center(
+                child: Column(
+                  children: [
+                    Semantics(
+                      button: true,
+                      label: _videoMode
+                          ? (_videoToSave != null
+                                ? 'Retry saving video'
+                                : _recording
+                                ? 'Stop and save video'
+                                : 'Record walkthrough')
+                          : (_photoToSave != null
+                                ? 'Retry saving photo'
+                                : 'Take photo'),
+                      child: IconButton.filled(
+                        onPressed:
+                            _busy || _leaving || _finishing || _room == null
+                            ? null
+                            : _videoMode
+                            ? _toggleVideo
+                            : _takePhoto,
+                        iconSize: 34,
+                        padding: const EdgeInsets.all(18),
+                        style: IconButton.styleFrom(
+                          backgroundColor: _recording
+                              ? KiviloColors.red
+                              : KiviloColors.pink,
+                          foregroundColor: Colors.white,
+                        ),
+                        icon: Icon(
+                          _videoMode
+                              ? (_recording || _videoToSave != null
+                                    ? Icons.stop
+                                    : Icons.fiber_manual_record)
+                              : Icons.camera_alt_outlined,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _videoMode
+                          ? (_videoToSave != null
+                                ? 'Retry saving video'
+                                : _recording
+                                ? 'Stop & save video'
+                                : 'Record walkthrough')
+                          : (_photoToSave != null
+                                ? 'Retry saving photo'
+                                : 'Take photo'),
+                      style: const TextStyle(
+                        color: KiviloColors.ink,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else
+              Container(
+                height: 160,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: KiviloColors.canvas,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: KiviloColors.border),
+                ),
+                child: OutlinedButton.icon(
+                  onPressed: () => unawaited(_initCamera(retry: true)),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry rapid camera'),
+                ),
+              ),
+          ],
           if (_photoToSave != null && camera == null)
             TextButton(
               onPressed: _busy || _leaving || _finishing ? null : _takePhoto,
@@ -951,7 +1093,7 @@ class _CaptureScreenState extends State<CaptureScreen>
               onPressed: _busy || _leaving || _finishing ? null : _toggleVideo,
               child: const Text('Retry saving video'),
             ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 24),
           const KiviloSectionHeading(
             title: 'Evidence',
             subtitle: 'Saved on your phone first, then added to the report',
@@ -1181,4 +1323,54 @@ class _CaptureScreenState extends State<CaptureScreen>
       ),
     ),
   );
+}
+
+class _PhotoNoteDrawer extends StatefulWidget {
+  const _PhotoNoteDrawer({this.initial});
+
+  final String? initial;
+
+  @override
+  State<_PhotoNoteDrawer> createState() => _PhotoNoteDrawerState();
+}
+
+class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KiviloDrawer(
+      title: const Text('Photo note'),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Describe what the viewer should notice in this photo.'),
+          const SizedBox(height: 18),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            minLines: 3,
+            maxLines: 6,
+            decoration: const InputDecoration(
+              hintText: 'For example: chip beside the sink',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: const Text('Save note'),
+        ),
+      ],
+    );
+  }
 }

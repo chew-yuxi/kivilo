@@ -7,12 +7,13 @@ import { z } from 'zod'
 /// on the review screen and in the landlord's report.
 
 const unit = z.number().min(0).max(1)
+const markNote = z.string().trim().min(1).max(500).optional()
 
 export const markSchema = z.discriminatedUnion('shape', [
-  z.object({ shape: z.literal('ring'), cx: unit, cy: unit, rx: unit, ry: unit }),
+  z.object({ shape: z.literal('ring'), cx: unit, cy: unit, rx: unit, ry: unit, note: markNote }),
   /// Head is the end that touches the defect; tail is where the inspector's finger
   /// ended up, out in open space where the arrow can be seen.
-  z.object({ shape: z.literal('arrow'), tx: unit, ty: unit, hx: unit, hy: unit }),
+  z.object({ shape: z.literal('arrow'), tx: unit, ty: unit, hx: unit, hy: unit, note: markNote }),
 ])
 
 /// What the phone sends. `w` and `h` are the upright intrinsic pixels of the image the

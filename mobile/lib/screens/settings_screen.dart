@@ -33,9 +33,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _requestDeletion() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showKiviloDrawer<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: const Text('Request account deletion?'),
         content: const Text(
           'We will confirm your request and complete eligible deletion within '

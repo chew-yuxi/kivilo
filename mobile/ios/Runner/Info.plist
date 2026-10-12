@@ -12,6 +12,8 @@
 	<string>Record room walkthroughs and photograph property conditions.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Record narration alongside room walkthrough videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose existing property photos and videos as inspection evidence.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

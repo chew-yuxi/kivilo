@@ -7,6 +7,20 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
+Android build `14` is now on the internal-testing track (`completed:14`) for the
+capture and form UX review. It makes the system camera and photo/video library the
+primary evidence actions, retains a compact optional rapid camera, and recovers an
+Android picker result if the operating system recreates the activity. Picker results
+are copied into Kivilo's app-support store and durable queue before upload. Freehand
+circles snap to clean geometry; every circle or arrow is numbered, can carry its own
+note, and can be tapped to edit, redraw, or delete. Annotation notes render beside the
+numbered marks in shared reports. Form selectors and all former alert dialogs now use
+full-width bottom drawers. Flutter analysis and all 73 tests pass; backend lint,
+typecheck, all 59 unit tests, and the production build pass. The signed AAB and APK
+are archived under ignored `mobile/build/release-artifacts/android/build14/`.
+The Play production track remains build `13` and remains in review; build `14` was
+committed to internal testing only.
+
 Android build `13` (source `110a9dd`) passed its physical reconnect-burst regression.
 It uses foreground WorkManager uploads instead of the plugin's UIDT path, configures
 foreground mode before starting the downloader, and declares the `dataSync`
@@ -47,8 +61,8 @@ Apple's build `da103e08-bfc0-43f3-9e10-4f39579e5ef5` is VALID, selected on the
 submitted version, and installed in-place on the physical iPhone. Apple review
 submission `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version and was
 submitted at `2026-10-12T02:23:05.354Z`; both submission and version read back as
-`WAITING_FOR_REVIEW`. Google has saved the complete default listing as ready to
-send for review, but its public review has not begun.
+`WAITING_FOR_REVIEW`. Google Play shows the build `13` production submission as
+in review.
 Physical-device low-storage and recovery after an already expired session remain
 unverified on both platforms; automated fault tests cover only part of those
 conditions. A read-only Android Auth check observed ordinary automatic refresh,

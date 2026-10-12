@@ -4,10 +4,16 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../ui/kivilo_components.dart';
+
 class PhotoMarksResult {
   const PhotoMarksResult(this.annotations);
   final Map<String, dynamic>? annotations;
 }
+
+enum _MarkEditAction { done, redraw, delete }
+
+typedef _MarkEditResult = ({_MarkEditAction action, String note});
 
 /// Marks are normalized beside the original photo. They are never painted into its
 /// bytes; the same geometry renders in the shared report.
@@ -30,8 +36,9 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   ];
   String _shape = 'ring';
   bool _dirty = false;
-  Offset? _start;
-  Offset? _end;
+  int? _selectedIndex;
+  int? _redrawIndex;
+  final List<Offset> _gesture = [];
 
   @override
   void didChangeDependencies() {
@@ -60,33 +67,175 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   double _unit(double value, double extent) =>
       (value / extent).clamp(0.0, 1.0).toDouble();
 
-  void _finish(Size size) {
-    final start = _start;
-    final end = _end;
-    if (start == null || end == null || _marks.length >= 12) return;
-    final a = Offset(_unit(start.dx, size.width), _unit(start.dy, size.height));
-    final b = Offset(_unit(end.dx, size.width), _unit(end.dy, size.height));
-    final mark = _shape == 'ring'
-        ? <String, dynamic>{
-            'shape': 'ring',
-            'cx': (a.dx + b.dx) / 2,
-            'cy': (a.dy + b.dy) / 2,
-            'rx': math.max((a.dx - b.dx).abs() / 2, 0.01),
-            'ry': math.max((a.dy - b.dy).abs() / 2, 0.01),
-          }
-        : <String, dynamic>{
-            'shape': 'arrow',
-            'tx': a.dx,
-            'ty': a.dy,
-            'hx': b.dx,
-            'hy': b.dy,
-          };
+  void _startGesture(Offset point) {
+    if (_marks.length >= 12 && _redrawIndex == null) return;
     setState(() {
-      _marks.add(mark);
-      _dirty = true;
-      _start = null;
-      _end = null;
+      _selectedIndex = null;
+      _gesture
+        ..clear()
+        ..add(point);
     });
+  }
+
+  void _updateGesture(Offset point) {
+    if (_gesture.isEmpty) return;
+    setState(() => _gesture.add(point));
+  }
+
+  Future<void> _finishGesture(Size size) async {
+    final bounds = _gesture.isEmpty
+        ? Rect.zero
+        : _gesture
+              .skip(1)
+              .fold(
+                Rect.fromCircle(center: _gesture.first, radius: 0),
+                (rect, point) => rect.expandToInclude(
+                  Rect.fromCircle(center: point, radius: 0),
+                ),
+              );
+    final tooSmall = _shape == 'ring'
+        ? math.max(bounds.width, bounds.height) < 10
+        : _gesture.length < 2 || (_gesture.last - _gesture.first).distance < 10;
+    if (_gesture.length < 2 || tooSmall) {
+      setState(() => _gesture.clear());
+      return;
+    }
+
+    final existingNote = _redrawIndex == null
+        ? null
+        : _marks[_redrawIndex!]['note'] as String?;
+    final mark = _shape == 'ring'
+        ? _ringFromGesture(size, note: existingNote)
+        : _arrowFromGesture(size, note: existingNote);
+    final index = _redrawIndex ?? _marks.length;
+    setState(() {
+      if (_redrawIndex == null) {
+        _marks.add(mark);
+      } else {
+        _marks[_redrawIndex!] = mark;
+      }
+      _gesture.clear();
+      _redrawIndex = null;
+      _selectedIndex = index;
+      _dirty = true;
+    });
+    await _editMark(index, newMark: existingNote == null);
+  }
+
+  Map<String, dynamic> _ringFromGesture(Size size, {String? note}) {
+    var left = _gesture.first.dx;
+    var right = left;
+    var top = _gesture.first.dy;
+    var bottom = top;
+    for (final point in _gesture.skip(1)) {
+      left = math.min(left, point.dx);
+      right = math.max(right, point.dx);
+      top = math.min(top, point.dy);
+      bottom = math.max(bottom, point.dy);
+    }
+    final width = math.max(right - left, 18.0);
+    final height = math.max(bottom - top, 18.0);
+    return <String, dynamic>{
+      'shape': 'ring',
+      'cx': _unit((left + right) / 2, size.width),
+      'cy': _unit((top + bottom) / 2, size.height),
+      'rx': _unit(width / 2, size.width),
+      'ry': _unit(height / 2, size.height),
+      if (note != null && note.isNotEmpty) 'note': note,
+    };
+  }
+
+  Map<String, dynamic> _arrowFromGesture(Size size, {String? note}) =>
+      <String, dynamic>{
+        'shape': 'arrow',
+        'tx': _unit(_gesture.first.dx, size.width),
+        'ty': _unit(_gesture.first.dy, size.height),
+        'hx': _unit(_gesture.last.dx, size.width),
+        'hy': _unit(_gesture.last.dy, size.height),
+        if (note != null && note.isNotEmpty) 'note': note,
+      };
+
+  void _selectMark(Offset point, Size size) {
+    final index = _hitTest(point, size);
+    setState(() => _selectedIndex = index);
+    if (index != null) unawaited(_editMark(index));
+  }
+
+  int? _hitTest(Offset point, Size size) {
+    for (var index = _marks.length - 1; index >= 0; index--) {
+      final mark = _marks[index];
+      double n(String key) => (mark[key] as num).toDouble();
+      if (mark['shape'] == 'ring') {
+        final center = Offset(n('cx') * size.width, n('cy') * size.height);
+        final rx = math.max(n('rx') * size.width, 1);
+        final ry = math.max(n('ry') * size.height, 1);
+        final normalized = math.sqrt(
+          math.pow((point.dx - center.dx) / rx, 2) +
+              math.pow((point.dy - center.dy) / ry, 2),
+        );
+        final tolerance = 24 / math.max(rx, ry);
+        if ((normalized - 1).abs() <= tolerance || normalized < 1) {
+          return index;
+        }
+      } else {
+        final tail = Offset(n('tx') * size.width, n('ty') * size.height);
+        final head = Offset(n('hx') * size.width, n('hy') * size.height);
+        if (_distanceToSegment(point, tail, head) <= 28) return index;
+      }
+    }
+    return null;
+  }
+
+  double _distanceToSegment(Offset point, Offset a, Offset b) {
+    final segment = b - a;
+    final lengthSquared = segment.dx * segment.dx + segment.dy * segment.dy;
+    if (lengthSquared == 0) return (point - a).distance;
+    final t =
+        (((point - a).dx * segment.dx + (point - a).dy * segment.dy) /
+                lengthSquared)
+            .clamp(0.0, 1.0);
+    return (point - (a + segment * t)).distance;
+  }
+
+  Future<void> _editMark(int index, {bool newMark = false}) async {
+    if (!mounted || index >= _marks.length) return;
+    final result = await showKiviloDrawer<_MarkEditResult>(
+      context: context,
+      builder: (context) => _MarkEditorDrawer(
+        index: index,
+        newMark: newMark,
+        initialNote: _marks[index]['note'] as String? ?? '',
+      ),
+    );
+    if (!mounted || index >= _marks.length) return;
+    if (result?.action == _MarkEditAction.delete) {
+      setState(() {
+        _marks.removeAt(index);
+        _selectedIndex = null;
+        _dirty = true;
+      });
+      return;
+    }
+    if (result?.action == _MarkEditAction.redraw) {
+      setState(() {
+        _shape = _marks[index]['shape'] as String;
+        _selectedIndex = index;
+        _redrawIndex = index;
+      });
+      return;
+    }
+    if (result?.action == _MarkEditAction.done) {
+      final note = result!.note.trim();
+      setState(() {
+        if (note.isEmpty) {
+          _marks[index].remove('note');
+        } else {
+          _marks[index]['note'] = note;
+        }
+        _selectedIndex = index;
+        _dirty = true;
+      });
+    }
   }
 
   @override
@@ -139,11 +288,13 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
                 child: Text(
-                  _shape == 'ring'
-                      ? 'Drag around a defect to circle it.'
-                      : 'Drag from open space toward a defect to point at it.',
+                  _redrawIndex != null
+                      ? 'Redraw mark ${_redrawIndex! + 1}.'
+                      : _shape == 'ring'
+                      ? 'Draw around an issue with your finger. Kivilo will smooth it into a clean circle.'
+                      : 'Draw from open space toward the issue. Tap any existing mark to edit it.',
                 ),
               ),
               Expanded(
@@ -161,13 +312,14 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                         width: width,
                         height: height,
                         child: GestureDetector(
-                          onPanStart: (details) => setState(() {
-                            _start = details.localPosition;
-                            _end = details.localPosition;
-                          }),
+                          behavior: HitTestBehavior.opaque,
+                          onTapUp: (details) =>
+                              _selectMark(details.localPosition, size),
+                          onPanStart: (details) =>
+                              _startGesture(details.localPosition),
                           onPanUpdate: (details) =>
-                              setState(() => _end = details.localPosition),
-                          onPanEnd: (_) => _finish(size),
+                              _updateGesture(details.localPosition),
+                          onPanEnd: (_) => unawaited(_finishGesture(size)),
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
@@ -175,13 +327,9 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                               CustomPaint(
                                 painter: _MarkPainter(
                                   _marks,
-                                  preview: _start == null || _end == null
-                                      ? null
-                                      : (
-                                          shape: _shape,
-                                          start: _start!,
-                                          end: _end!,
-                                        ),
+                                  selectedIndex: _selectedIndex,
+                                  previewShape: _shape,
+                                  previewPoints: _gesture,
                                 ),
                               ),
                             ],
@@ -192,47 +340,89 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(
-                          value: 'ring',
-                          icon: Icon(Icons.circle_outlined),
-                          label: Text('Circle'),
-                        ),
-                        ButtonSegment(
-                          value: 'arrow',
-                          icon: Icon(Icons.arrow_outward),
-                          label: Text('Arrow'),
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SegmentedButton<String>(
+                              segments: const [
+                                ButtonSegment(
+                                  value: 'ring',
+                                  icon: Icon(Icons.circle_outlined),
+                                  label: Text('Circle'),
+                                ),
+                                ButtonSegment(
+                                  value: 'arrow',
+                                  icon: Icon(Icons.arrow_outward),
+                                  label: Text('Arrow'),
+                                ),
+                              ],
+                              selected: {_shape},
+                              onSelectionChanged: _redrawIndex == null
+                                  ? (value) =>
+                                        setState(() => _shape = value.first)
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: _marks.isEmpty
+                                ? null
+                                : () => setState(() {
+                                    _marks.removeLast();
+                                    _selectedIndex = null;
+                                    _redrawIndex = null;
+                                    _dirty = true;
+                                  }),
+                            icon: const Icon(Icons.undo),
+                            tooltip: 'Undo last mark',
+                          ),
+                        ],
+                      ),
+                      if (_marks.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 42,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _marks.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(width: 8),
+                            itemBuilder: (context, index) {
+                              final note = _marks[index]['note'] as String?;
+                              return ChoiceChip(
+                                selected: _selectedIndex == index,
+                                avatar: Icon(
+                                  _marks[index]['shape'] == 'ring'
+                                      ? Icons.circle_outlined
+                                      : Icons.arrow_outward,
+                                  size: 18,
+                                ),
+                                label: Text(
+                                  note == null || note.isEmpty
+                                      ? 'Mark ${index + 1}'
+                                      : '${index + 1}. $note',
+                                ),
+                                onSelected: (_) => unawaited(_editMark(index)),
+                              );
+                            },
+                          ),
                         ),
                       ],
-                      selected: {_shape},
-                      onSelectionChanged: (value) {
-                        setState(() => _shape = value.first);
-                      },
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: _marks.isEmpty
-                          ? null
-                          : () => setState(() {
-                              _marks.removeLast();
-                              _dirty = true;
-                            }),
-                      icon: const Icon(Icons.undo),
-                      tooltip: 'Undo last mark',
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        '${_marks.length} of 12 marks',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Text(
-                '${_marks.length} of 12 marks',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 12),
             ],
           );
         },
@@ -241,49 +431,185 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   }
 }
 
+class _MarkEditorDrawer extends StatefulWidget {
+  const _MarkEditorDrawer({
+    required this.index,
+    required this.newMark,
+    required this.initialNote,
+  });
+
+  final int index;
+  final bool newMark;
+  final String initialNote;
+
+  @override
+  State<_MarkEditorDrawer> createState() => _MarkEditorDrawerState();
+}
+
+class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initialNote,
+  );
+
+  void _close(_MarkEditAction action) {
+    Navigator.pop(context, (action: action, note: _controller.text));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KiviloDrawer(
+      title: Text(
+        widget.newMark
+            ? 'Add a note to mark ${widget.index + 1}'
+            : 'Edit mark ${widget.index + 1}',
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.newMark
+                ? 'Say what this circle or arrow identifies.'
+                : 'Update its note, redraw its position, or remove it.',
+          ),
+          const SizedBox(height: 18),
+          TextField(
+            controller: _controller,
+            autofocus: widget.newMark,
+            minLines: 3,
+            maxLines: 6,
+            maxLength: 500,
+            decoration: const InputDecoration(
+              labelText: 'Note',
+              hintText: 'For example: hairline crack above socket',
+              alignLabelWithHint: true,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: () => _close(_MarkEditAction.done),
+            child: const Text('Save mark'),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _close(_MarkEditAction.redraw),
+                  icon: const Icon(Icons.gesture),
+                  label: const Text('Redraw'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextButton.icon(
+                  onPressed: () => _close(_MarkEditAction.delete),
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Delete'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MarkPainter extends CustomPainter {
-  const _MarkPainter(this.marks, {this.preview});
+  const _MarkPainter(
+    this.marks, {
+    this.selectedIndex,
+    required this.previewShape,
+    required this.previewPoints,
+  });
+
   final List<Map<String, dynamic>> marks;
-  final ({String shape, Offset start, Offset end})? preview;
+  final int? selectedIndex;
+  final String previewShape;
+  final List<Offset> previewPoints;
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (final mark in marks) {
-      _paintMark(canvas, size, mark);
+    for (var index = 0; index < marks.length; index++) {
+      _paintMark(
+        canvas,
+        size,
+        marks[index],
+        number: index + 1,
+        selected: selectedIndex == index,
+      );
     }
-    if (preview != null) {
-      final a = preview!.start;
-      final b = preview!.end;
-      if (preview!.shape == 'ring') {
-        _paintRim(canvas, Path()..addOval(Rect.fromPoints(a, b)), size);
+    if (previewPoints.length > 1) {
+      final path = Path()
+        ..moveTo(previewPoints.first.dx, previewPoints.first.dy);
+      if (previewShape == 'ring') {
+        for (final point in previewPoints.skip(1)) {
+          path.lineTo(point.dx, point.dy);
+        }
       } else {
-        _paintRim(canvas, _arrow(a, b, size), size);
+        path.addPath(
+          _arrow(previewPoints.first, previewPoints.last, size),
+          Offset.zero,
+        );
       }
+      _paintRim(canvas, path, size, selected: false);
     }
   }
 
-  void _paintMark(Canvas canvas, Size size, Map<String, dynamic> mark) {
+  void _paintMark(
+    Canvas canvas,
+    Size size,
+    Map<String, dynamic> mark, {
+    required int number,
+    required bool selected,
+  }) {
     double n(String key) => (mark[key] as num).toDouble();
+    late final Path path;
+    late final Offset selectionDot;
     if (mark['shape'] == 'ring') {
       final center = Offset(n('cx') * size.width, n('cy') * size.height);
       final radiusX = n('rx') * size.width;
       final radiusY = n('ry') * size.height;
-      _paintRim(
-        canvas,
-        Path()..addOval(
+      path = Path()
+        ..addOval(
           Rect.fromCenter(
             center: center,
             width: radiusX * 2,
             height: radiusY * 2,
           ),
-        ),
-        size,
-      );
-    } else if (mark['shape'] == 'arrow') {
+        );
+      selectionDot = Offset(center.dx - radiusX, center.dy - radiusY);
+    } else {
       final tail = Offset(n('tx') * size.width, n('ty') * size.height);
       final head = Offset(n('hx') * size.width, n('hy') * size.height);
-      _paintRim(canvas, _arrow(tail, head, size), size);
+      path = _arrow(tail, head, size);
+      selectionDot = tail;
     }
+    _paintRim(canvas, path, size, selected: selected);
+    final badgeColor = selected ? const Color(0xFF2563EB) : Colors.red;
+    canvas.drawCircle(selectionDot, 11, Paint()..color = Colors.white);
+    canvas.drawCircle(selectionDot, 9, Paint()..color = badgeColor);
+    final label = TextPainter(
+      text: TextSpan(
+        text: '$number',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    label.paint(
+      canvas,
+      selectionDot - Offset(label.width / 2, label.height / 2),
+    );
   }
 
   Path _arrow(Offset tail, Offset head, Size size) {
@@ -303,7 +629,12 @@ class _MarkPainter extends CustomPainter {
       );
   }
 
-  void _paintRim(Canvas canvas, Path path, Size size) {
+  void _paintRim(
+    Canvas canvas,
+    Path path,
+    Size size, {
+    required bool selected,
+  }) {
     final width = math.max(2.0, math.min(size.width, size.height) / 100);
     canvas.drawPath(
       path,
@@ -311,15 +642,17 @@ class _MarkPainter extends CustomPainter {
         ..color = Colors.white
         ..style = PaintingStyle.stroke
         ..strokeWidth = width * 2.2
-        ..strokeJoin = StrokeJoin.round,
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round,
     );
     canvas.drawPath(
       path,
       Paint()
-        ..color = Colors.red
+        ..color = selected ? const Color(0xFF2563EB) : Colors.red
         ..style = PaintingStyle.stroke
         ..strokeWidth = width
-        ..strokeJoin = StrokeJoin.round,
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round,
     );
   }
 

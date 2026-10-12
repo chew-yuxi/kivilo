@@ -101,9 +101,9 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 
   Future<void> _deleteItem(InventoryItem item) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showKiviloDrawer<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: Text('Delete ${item.name}?'),
         content: const Text('This removes the inventory line from the draft.'),
         actions: [
@@ -125,9 +125,9 @@ class _RoomScreenState extends State<RoomScreen> {
 
   Future<void> _rename(RoomDetail room) async {
     final controller = TextEditingController(text: room.name);
-    final name = await showDialog<String>(
+    final name = await showKiviloDrawer<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: const Text('Rename room'),
         content: TextField(
           controller: controller,
@@ -181,9 +181,9 @@ class _RoomScreenState extends State<RoomScreen> {
       }
       if (!mounted) return;
       if (pending.captures > 0 || pending.edits > 0) {
-        await showDialog<void>(
+        await showKiviloDrawer<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => KiviloDrawer(
             title: const Text('Evidence is still syncing'),
             content: Text(
               'This room has ${pending.captures} saved capture(s) and '
@@ -200,9 +200,9 @@ class _RoomScreenState extends State<RoomScreen> {
         );
         return;
       }
-      final confirmed = await showDialog<bool>(
+      final confirmed = await showKiviloDrawer<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => KiviloDrawer(
           title: const Text('Delete this room?'),
           content: const Text('Its captures and inventory will be removed.'),
           actions: [
@@ -833,26 +833,30 @@ class _ItemEditorState extends State<ItemEditor> {
             decoration: const InputDecoration(labelText: 'Name'),
           ),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _category,
-            decoration: const InputDecoration(labelText: 'Category'),
-            items: ['FIXTURE', 'APPLIANCE', 'FURNITURE', 'SURFACE', 'METER']
-                .map(
-                  (value) => DropdownMenuItem(value: value, child: Text(value)),
-                )
-                .toList(),
-            onChanged: (value) => setState(() => _category = value!),
+          KiviloSelectField<String>(
+            label: 'Category',
+            value: _category,
+            options: const [
+              KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
+              KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
+              KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
+              KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
+              KiviloSelectOption(value: 'METER', label: 'Meter'),
+            ],
+            onChanged: (value) => setState(() => _category = value),
           ),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _condition,
-            decoration: const InputDecoration(labelText: 'Condition'),
-            items: ['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED']
-                .map(
-                  (value) => DropdownMenuItem(value: value, child: Text(value)),
-                )
-                .toList(),
-            onChanged: (value) => setState(() => _condition = value!),
+          KiviloSelectField<String>(
+            label: 'Condition',
+            value: _condition,
+            options: const [
+              KiviloSelectOption(value: 'NEW', label: 'New'),
+              KiviloSelectOption(value: 'GOOD', label: 'Good'),
+              KiviloSelectOption(value: 'FAIR', label: 'Fair'),
+              KiviloSelectOption(value: 'POOR', label: 'Poor'),
+              KiviloSelectOption(value: 'DAMAGED', label: 'Damaged'),
+            ],
+            onChanged: (value) => setState(() => _condition = value),
           ),
           const SizedBox(height: 12),
           TextField(

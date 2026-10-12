@@ -42,6 +42,7 @@ export function MarkOverlay({
 export function MarkPaths({ marks, w, h }: { marks: Mark[]; w: number; h: number }) {
   const stroke = strokeWidth(w, h)
   const paths = marks.map((mark) => markPath(mark, w, h))
+  const badgeRadius = stroke * 2.2
 
   return (
     <>
@@ -67,6 +68,26 @@ export function MarkPaths({ marks, w, h }: { marks: Mark[]; w: number; h: number
           <path key={index} d={d} />
         ))}
       </g>
+      {marks.map((mark, index) => {
+        const anchor =
+          mark.shape === 'ring'
+            ? { x: (mark.cx - mark.rx) * w, y: (mark.cy - mark.ry) * h }
+            : { x: mark.tx * w, y: mark.ty * h }
+        return (
+          <g key={`badge-${index}`} transform={`translate(${anchor.x} ${anchor.y})`}>
+            <circle r={badgeRadius} fill="#dc2626" stroke="#ffffff" strokeWidth={stroke / 2} />
+            <text
+              y={badgeRadius * 0.38}
+              fill="#ffffff"
+              fontSize={badgeRadius * 1.15}
+              fontWeight="700"
+              textAnchor="middle"
+            >
+              {index + 1}
+            </text>
+          </g>
+        )
+      })}
     </>
   )
 }

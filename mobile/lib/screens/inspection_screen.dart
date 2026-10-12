@@ -48,9 +48,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
 
   Future<void> _addRoom() async {
     final controller = TextEditingController();
-    final name = await showDialog<String>(
+    final name = await showKiviloDrawer<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: const Text('Add a room'),
         content: TextField(
           controller: controller,
@@ -109,9 +109,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
       }
       if (!mounted) return;
       if (pending.captures > 0 || pending.edits > 0) {
-        await showDialog<void>(
+        await showKiviloDrawer<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => KiviloDrawer(
             title: const Text('Evidence is still syncing'),
             content: Text(
               '${pending.captures} capture(s) and ${pending.edits} '
@@ -128,9 +128,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
         );
         return;
       }
-      final agreed = await showDialog<bool>(
+      final agreed = await showKiviloDrawer<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => KiviloDrawer(
           title: const Text('Send for signature?'),
           content: Text(
             'All ${inspection.rooms.length} rooms have been reviewed. '
@@ -197,9 +197,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
   }
 
   Future<void> _revoke() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showKiviloDrawer<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: const Text('Revoke report link?'),
         content: const Text('The current link will stop working immediately.'),
         actions: [
@@ -247,9 +247,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
 
   Future<bool> _ensureAiConsent(InspectionDetail inspection) async {
     if (inspection.aiConsentAt != null) return true;
-    final consent = await showDialog<bool>(
+    final consent = await showKiviloDrawer<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: const Text('Allow AI drafting?'),
         content: const Text(
           'Kivilo sends this inspection’s room video, audio, photos and details to '
@@ -306,9 +306,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
   }
 
   Future<void> _publishFindings() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showKiviloDrawer<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: const Text('Publish assessment?'),
         content: const Text(
           'The reviewed findings will be visible as a dated '
@@ -1186,19 +1186,19 @@ class _FindingEditorState extends State<FindingEditor> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
-          DropdownButtonFormField<String>(
-            initialValue: _verdict,
-            decoration: const InputDecoration(labelText: 'Verdict'),
-            items: const [
-              DropdownMenuItem(value: 'UNDECIDED', child: Text('Undecided')),
-              DropdownMenuItem(
+          KiviloSelectField<String>(
+            label: 'Verdict',
+            value: _verdict,
+            options: const [
+              KiviloSelectOption(value: 'UNDECIDED', label: 'Undecided'),
+              KiviloSelectOption(
                 value: 'TENANT_LIABLE',
-                child: Text('Tenant liable'),
+                label: 'Tenant liable',
               ),
-              DropdownMenuItem(value: 'FAIR_WEAR', child: Text('Fair wear')),
-              DropdownMenuItem(value: 'DISPUTED', child: Text('Disputed')),
+              KiviloSelectOption(value: 'FAIR_WEAR', label: 'Fair wear'),
+              KiviloSelectOption(value: 'DISPUTED', label: 'Disputed'),
             ],
-            onChanged: (value) => setState(() => _verdict = value!),
+            onChanged: (value) => setState(() => _verdict = value),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -1208,20 +1208,18 @@ class _FindingEditorState extends State<FindingEditor> {
             decoration: const InputDecoration(labelText: 'Rationale'),
           ),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _maintenanceCaseId,
-            decoration: const InputDecoration(
-              labelText: 'Maintenance evidence',
-            ),
-            items: [
-              const DropdownMenuItem<String>(
+          KiviloSelectField<String?>(
+            label: 'Maintenance evidence',
+            value: _maintenanceCaseId,
+            options: [
+              const KiviloSelectOption<String?>(
                 value: null,
-                child: Text('No linked maintenance record'),
+                label: 'No linked maintenance record',
               ),
               ...widget.maintenanceHistory.map(
-                (item) => DropdownMenuItem<String>(
+                (item) => KiviloSelectOption<String?>(
                   value: item['id'] as String,
-                  child: Text(item['title'] as String),
+                  label: item['title'] as String,
                 ),
               ),
             ],

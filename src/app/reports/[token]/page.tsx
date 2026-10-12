@@ -328,6 +328,9 @@ function ReportPhoto({
   roomName: string
 }) {
   const marks = photo.annotations?.marks.length ?? 0
+  const markNotes = photo.annotations?.marks.flatMap((mark, index) =>
+    mark.note ? [`${index + 1}. ${mark.note}`] : [],
+  ) ?? []
   // Also the fallback when the signed URL has expired and the picture will not load:
   // the reader gets the sentence rather than marks floating over a broken image.
   const caption = [photo.note, marks > 0 && `${marks} area${marks === 1 ? '' : 's'} marked`]
@@ -345,7 +348,14 @@ function ReportPhoto({
         />
         <MarkOverlay annotations={photo.annotations} />
       </div>
-      {caption && <figcaption className="mt-1 text-xs text-gray-500">{caption}</figcaption>}
+      {(caption || markNotes.length > 0) && (
+        <figcaption className="mt-1 text-xs text-gray-500">
+          {caption && <div>{caption}</div>}
+          {markNotes.map((note) => (
+            <div key={note}>{note}</div>
+          ))}
+        </figcaption>
+      )}
     </figure>
   )
 }

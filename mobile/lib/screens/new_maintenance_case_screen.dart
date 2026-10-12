@@ -6,6 +6,7 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/read_cache.dart';
+import '../ui/kivilo_components.dart';
 
 class NewMaintenanceCaseScreen extends StatefulWidget {
   const NewMaintenanceCaseScreen({
@@ -139,56 +140,49 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        DropdownButtonFormField<String>(
-          initialValue: _assetId,
-          decoration: const InputDecoration(
-            labelText: 'Property item (optional)',
-          ),
-          items: [
-            const DropdownMenuItem(
+        KiviloSelectField<String?>(
+          label: 'Property item (optional)',
+          value: _assetId,
+          enabled: !_saving,
+          options: [
+            const KiviloSelectOption<String?>(
               value: null,
-              child: Text('No specific item'),
+              label: 'No specific item',
             ),
             ...widget.assets.map(
-              (asset) =>
-                  DropdownMenuItem(value: asset.id, child: Text(asset.name)),
+              (asset) => KiviloSelectOption<String?>(
+                value: asset.id,
+                label: asset.name,
+              ),
             ),
           ],
-          onChanged: _saving
-              ? null
-              : (value) {
-                  setState(() => _assetId = value);
-                  unawaited(_saveDraft());
-                },
+          onChanged: (value) {
+            setState(() => _assetId = value);
+            unawaited(_saveDraft());
+          },
         ),
         const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _category,
-          decoration: const InputDecoration(labelText: 'Category'),
-          items:
-              const [
-                    'APPLIANCE',
-                    'PLUMBING',
-                    'LOCKSMITH',
-                    'ELECTRICAL',
-                    'AIR_CONDITIONING',
-                    'STRUCTURAL',
-                    'PEST',
-                    'OTHER',
-                  ]
-                  .map(
-                    (value) => DropdownMenuItem(
-                      value: value,
-                      child: Text(value.replaceAll('_', ' ').toLowerCase()),
-                    ),
-                  )
-                  .toList(),
-          onChanged: _saving
-              ? null
-              : (value) {
-                  setState(() => _category = value!);
-                  unawaited(_saveDraft());
-                },
+        KiviloSelectField<String>(
+          label: 'Category',
+          value: _category,
+          enabled: !_saving,
+          options: const [
+            KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
+            KiviloSelectOption(value: 'PLUMBING', label: 'Plumbing'),
+            KiviloSelectOption(value: 'LOCKSMITH', label: 'Locksmith'),
+            KiviloSelectOption(value: 'ELECTRICAL', label: 'Electrical'),
+            KiviloSelectOption(
+              value: 'AIR_CONDITIONING',
+              label: 'Air conditioning',
+            ),
+            KiviloSelectOption(value: 'STRUCTURAL', label: 'Structural'),
+            KiviloSelectOption(value: 'PEST', label: 'Pest'),
+            KiviloSelectOption(value: 'OTHER', label: 'Other'),
+          ],
+          onChanged: (value) {
+            setState(() => _category = value);
+            unawaited(_saveDraft());
+          },
         ),
         const SizedBox(height: 12),
         SegmentedButton<String>(

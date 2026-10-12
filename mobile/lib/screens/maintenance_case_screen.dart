@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/maintenance.dart';
 import '../services/api.dart';
+import '../ui/kivilo_components.dart';
 import 'maintenance_evidence_screen.dart';
 
 class MaintenanceCaseScreen extends StatefulWidget {
@@ -44,9 +45,9 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
 
   Future<String?> _ask(String title, {String? hint}) async {
     final controller = TextEditingController();
-    final result = await showDialog<String>(
+    final result = await showKiviloDrawer<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => KiviloDrawer(
         title: Text(title),
         content: TextField(
           controller: controller,

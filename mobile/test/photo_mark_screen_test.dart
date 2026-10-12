@@ -83,4 +83,76 @@ void main() {
       expect(saved?.annotations, same(original));
     },
   );
+
+  testWidgets(
+    'freehand circle snaps to a mark, prompts for a note, and can be tapped to edit',
+    (tester) async {
+      final image = _DelayedImage();
+      PhotoMarksResult? saved;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async {
+                  saved = await Navigator.push<PhotoMarksResult>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PhotoMarkScreen(image: image),
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pump();
+
+      final recorder = ui.PictureRecorder();
+      ui.Canvas(recorder);
+      final photo = await recorder.endRecording().toImage(400, 400);
+      image.complete(photo);
+      await tester.pumpAndSettle();
+
+      final canvas = find.byWidgetPredicate(
+        (widget) => widget is GestureDetector && widget.onPanStart != null,
+      );
+      final rect = tester.getRect(canvas);
+      final center = rect.center;
+      final gesture = await tester.startGesture(center + const Offset(-70, 0));
+      await gesture.moveTo(center + const Offset(-45, -55));
+      await gesture.moveTo(center + const Offset(35, -60));
+      await gesture.moveTo(center + const Offset(70, 0));
+      await gesture.moveTo(center + const Offset(35, 60));
+      await gesture.moveTo(center + const Offset(-45, 55));
+      await gesture.moveTo(center + const Offset(-70, 0));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add a note to mark 1'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'Crack above socket');
+      await tester.tap(find.text('Save mark'));
+      await tester.pumpAndSettle();
+      expect(find.text('1. Crack above socket'), findsOneWidget);
+
+      await tester.tapAt(center);
+      await tester.pumpAndSettle();
+      expect(find.text('Edit mark 1'), findsOneWidget);
+      await tester.enterText(
+        find.byType(TextField),
+        'Hairline crack above socket',
+      );
+      await tester.tap(find.text('Save mark'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.pumpAndSettle();
+      final mark = (saved!.annotations!['marks'] as List).single as Map;
+      expect(mark['shape'], 'ring');
+      expect(mark['note'], 'Hairline crack above socket');
+    },
+  );
 }
