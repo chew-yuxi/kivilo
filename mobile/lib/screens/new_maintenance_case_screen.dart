@@ -185,17 +185,17 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
           },
         ),
         const SizedBox(height: 12),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(value: 'ROUTINE', label: Text('Routine')),
-            ButtonSegment(value: 'URGENT', label: Text('Urgent')),
-            ButtonSegment(value: 'SAFETY_EMERGENCY', label: Text('Danger')),
+        KiviloSegmentedControl<String>(
+          options: const [
+            KiviloSegmentOption(value: 'ROUTINE', label: 'Routine'),
+            KiviloSegmentOption(value: 'URGENT', label: 'Urgent'),
+            KiviloSegmentOption(value: 'SAFETY_EMERGENCY', label: 'Danger'),
           ],
-          selected: {_priority},
-          onSelectionChanged: _saving
+          value: _priority,
+          onChanged: _saving
               ? null
               : (value) {
-                  setState(() => _priority = value.single);
+                  setState(() => _priority = value!);
                   unawaited(_saveDraft());
                 },
         ),

@@ -2,6 +2,151 @@ import 'package:flutter/material.dart';
 
 import 'kivilo_theme.dart';
 
+class KiviloSegmentOption<T> {
+  const KiviloSegmentOption({
+    required this.value,
+    required this.label,
+    this.icon,
+  });
+
+  final T value;
+  final String label;
+  final IconData? icon;
+}
+
+class KiviloSegmentedControl<T> extends StatelessWidget {
+  const KiviloSegmentedControl({
+    super.key,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.allowEmptySelection = false,
+  });
+
+  final T? value;
+  final List<KiviloSegmentOption<T>> options;
+  final ValueChanged<T?>? onChanged;
+  final bool allowEmptySelection;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: KiviloColors.canvas,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: KiviloColors.border),
+    ),
+    child: Row(
+      children: [
+        for (final option in options)
+          Expanded(
+            child: _KiviloSegment<T>(
+              option: option,
+              selected: option.value == value,
+              enabled: onChanged != null,
+              onTap: () {
+                if (onChanged == null) return;
+                if (allowEmptySelection && option.value == value) {
+                  onChanged!(null);
+                } else {
+                  onChanged!(option.value);
+                }
+              },
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+class _KiviloSegment<T> extends StatelessWidget {
+  const _KiviloSegment({
+    required this.option,
+    required this.selected,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final KiviloSegmentOption<T> option;
+  final bool selected;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = !enabled
+        ? KiviloColors.subtle
+        : selected
+        ? KiviloColors.pinkDark
+        : KiviloColors.muted;
+    return Semantics(
+      button: true,
+      selected: selected,
+      enabled: enabled,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOut,
+        margin: const EdgeInsets.all(1),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(11),
+          border: Border.all(
+            color: selected ? const Color(0xFFFBCFE8) : Colors.transparent,
+          ),
+          boxShadow: selected
+              ? const [
+                  BoxShadow(
+                    color: Color(0x12000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ]
+              : const [],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: enabled ? onTap : null,
+            borderRadius: BorderRadius.circular(11),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (option.icon != null) ...[
+                      Icon(option.icon, size: 19, color: foreground),
+                      const SizedBox(width: 7),
+                    ],
+                    Flexible(
+                      child: Text(
+                        option.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: foreground,
+                          fontSize: 14,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 Future<T?> showKiviloDrawer<T>({
   required BuildContext context,
   required WidgetBuilder builder,

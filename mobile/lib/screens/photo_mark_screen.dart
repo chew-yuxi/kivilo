@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_theme.dart';
 
 class PhotoMarksResult {
   const PhotoMarksResult(this.annotations);
@@ -395,28 +396,27 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: SegmentedButton<String>(
-                              segments: const [
-                                ButtonSegment(
+                            child: KiviloSegmentedControl<String>(
+                              options: const [
+                                KiviloSegmentOption(
                                   value: 'ring',
-                                  icon: Icon(Icons.circle_outlined),
-                                  label: Text('Circle'),
+                                  icon: Icons.circle_outlined,
+                                  label: 'Circle',
                                 ),
-                                ButtonSegment(
+                                KiviloSegmentOption(
                                   value: 'arrow',
-                                  icon: Icon(Icons.arrow_outward),
-                                  label: Text('Arrow'),
+                                  icon: Icons.arrow_outward,
+                                  label: 'Arrow',
                                 ),
-                                ButtonSegment(
+                                KiviloSegmentOption(
                                   value: 'freehand',
-                                  icon: Icon(Icons.gesture),
-                                  label: Text('Freehand'),
+                                  icon: Icons.gesture,
+                                  label: 'Freehand',
                                 ),
                               ],
-                              selected: {_shape},
-                              onSelectionChanged: _redrawIndex == null
-                                  ? (value) =>
-                                        setState(() => _shape = value.first)
+                              value: _shape,
+                              onChanged: _redrawIndex == null
+                                  ? (value) => setState(() => _shape = value!)
                                   : null,
                             ),
                           ),
@@ -448,6 +448,22 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                               final note = _marks[index]['note'] as String?;
                               return ChoiceChip(
                                 selected: _selectedIndex == index,
+                                selectedColor: KiviloColors.pinkSoft,
+                                backgroundColor: Colors.white,
+                                side: BorderSide(
+                                  color: _selectedIndex == index
+                                      ? KiviloColors.pink
+                                      : KiviloColors.border,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                labelStyle: TextStyle(
+                                  color: _selectedIndex == index
+                                      ? KiviloColors.pinkDark
+                                      : KiviloColors.body,
+                                  fontWeight: FontWeight.w600,
+                                ),
                                 avatar: Icon(switch (_marks[index]['shape']) {
                                   'ring' => Icons.circle_outlined,
                                   'arrow' => Icons.arrow_outward,

@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/maintenance.dart';
 import '../services/api.dart';
+import '../ui/kivilo_components.dart';
 
 class ServiceDirectoryScreen extends StatefulWidget {
   const ServiceDirectoryScreen({super.key});
@@ -31,33 +32,35 @@ class _ServiceDirectoryScreenState extends State<ServiceDirectoryScreen> {
       children: [
         Card(
           color: Theme.of(context).colorScheme.errorContainer,
-          child: Column(children: [
-            ListTile(
-              leading: const Icon(Icons.local_police_outlined),
-              title: const Text('Police emergency'),
-              subtitle: const Text('999'),
-              onTap: () => launchUrl(Uri.parse('tel:999')),
-            ),
-            ListTile(
-              leading: const Icon(Icons.fire_truck_outlined),
-              title: const Text('Fire or ambulance'),
-              subtitle: const Text('995'),
-              onTap: () => launchUrl(Uri.parse('tel:995')),
-            ),
-          ]),
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.local_police_outlined),
+                title: const Text('Police emergency'),
+                subtitle: const Text('999'),
+                onTap: () => launchUrl(Uri.parse('tel:999')),
+              ),
+              ListTile(
+                leading: const Icon(Icons.fire_truck_outlined),
+                title: const Text('Fire or ambulance'),
+                subtitle: const Text('995'),
+                onTap: () => launchUrl(Uri.parse('tel:995')),
+              ),
+            ],
+          ),
         ),
         const Text(
           'Kivilo lists contacts only and does not guarantee availability, pricing, or workmanship.',
         ),
         const SizedBox(height: 12),
-        SegmentedButton<String>(
-          emptySelectionAllowed: true,
-          segments: const [
-            ButtonSegment(value: 'PLUMBING', label: Text('Plumbing')),
-            ButtonSegment(value: 'LOCKSMITH', label: Text('Locksmith')),
+        KiviloSegmentedControl<String>(
+          allowEmptySelection: true,
+          options: const [
+            KiviloSegmentOption(value: 'PLUMBING', label: 'Plumbing'),
+            KiviloSegmentOption(value: 'LOCKSMITH', label: 'Locksmith'),
           ],
-          selected: _category == null ? <String>{} : {_category!},
-          onSelectionChanged: (value) => _filter(value.isEmpty ? null : value.first),
+          value: _category,
+          onChanged: _filter,
         ),
         const SizedBox(height: 16),
         FutureBuilder<List<ServiceProviderModel>>(
@@ -71,24 +74,31 @@ class _ServiceDirectoryScreenState extends State<ServiceDirectoryScreen> {
             if (providers.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 32),
-                child: Text('No currently verified providers match this category.'),
+                child: Text(
+                  'No currently verified providers match this category.',
+                ),
               );
             }
-            return Column(children: [
-              for (final provider in providers)
-                Card(
-                  child: ListTile(
-                    title: Text(provider.name),
-                    subtitle: Text([
-                      provider.category.toLowerCase(),
-                      if (provider.hours != null) provider.hours!,
-                      'checked ${provider.lastVerifiedAt.substring(0, 10)}',
-                    ].join(' · ')),
-                    trailing: const Icon(Icons.call_outlined),
-                    onTap: () => launchUrl(Uri.parse('tel:${provider.phone}')),
+            return Column(
+              children: [
+                for (final provider in providers)
+                  Card(
+                    child: ListTile(
+                      title: Text(provider.name),
+                      subtitle: Text(
+                        [
+                          provider.category.toLowerCase(),
+                          if (provider.hours != null) provider.hours!,
+                          'checked ${provider.lastVerifiedAt.substring(0, 10)}',
+                        ].join(' · '),
+                      ),
+                      trailing: const Icon(Icons.call_outlined),
+                      onTap: () =>
+                          launchUrl(Uri.parse('tel:${provider.phone}')),
+                    ),
                   ),
-                ),
-            ]);
+              ],
+            );
           },
         ),
       ],

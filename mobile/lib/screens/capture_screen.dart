@@ -622,24 +622,21 @@ class _CaptureScreenState extends State<CaptureScreen> {
               KiviloColors.amber,
               onTap: () => unawaited(_drain()),
             ),
-          Center(
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(
-                  value: false,
-                  label: Text('Photos'),
-                  icon: Icon(Icons.photo_camera),
-                ),
-                ButtonSegment(
-                  value: true,
-                  label: Text('Video'),
-                  icon: Icon(Icons.videocam),
-                ),
-              ],
-              selected: {_videoMode},
-              onSelectionChanged: (selected) =>
-                  unawaited(_switchMode(selected.first)),
-            ),
+          KiviloSegmentedControl<bool>(
+            options: const [
+              KiviloSegmentOption(
+                value: false,
+                label: 'Photos',
+                icon: Icons.photo_camera,
+              ),
+              KiviloSegmentOption(
+                value: true,
+                label: 'Video',
+                icon: Icons.videocam,
+              ),
+            ],
+            value: _videoMode,
+            onChanged: (selected) => unawaited(_switchMode(selected!)),
           ),
           const SizedBox(height: 16),
           FilledButton.icon(

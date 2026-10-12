@@ -7,6 +7,13 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
+Build `17` replaces the remaining stock Material segmented buttons with one Kivilo
+control: a quiet canvas rail, 16px corners, a white selected surface, pink emphasis,
+subtle depth, and 48px touch targets. The photo/video mode, markup tool, maintenance
+priority, and service filters now share the same treatment. Existing photo-mark chips
+use the same borders, selection colour, corner radius, and type weight. Flutter
+analysis and all 67 mobile tests pass.
+
 Build `16` (source `d2d971a`) adds a proper Android adaptive icon, so the pink
 background fills the launcher mask instead of Android shrinking the legacy square
 inside it. It also adds the Android 13 monochrome layer. Evidence and room three-dot
