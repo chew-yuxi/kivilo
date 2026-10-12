@@ -7,6 +7,15 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
+Build `18` fixes property navigation. Inspection list responses now carry their actual
+tenancy ID, and the app uses that relationship to show the active handover on each
+property card. Tapping a property with an active inspection, or its explicit `Resume
+check-in` / `Resume check-out` action, opens that inspection. Maintenance is a separate,
+labelled action. The maintenance page now identifies itself as Property care, links its
+emergency panel to the urgent-service directory, uses proper empty-state cards, and
+replaces the ambiguous house-plus icon with a labelled Add asset action. Older cached
+inspection responses remain readable during an offline app upgrade.
+
 Build `17` (source `dfd666e`) replaces the remaining stock Material segmented buttons
 with one Kivilo control: a quiet canvas rail, 16px corners, a white selected surface,
 pink emphasis, subtle depth, and 48px touch targets. The photo/video mode, markup tool,

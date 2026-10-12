@@ -52,6 +52,7 @@ class _Backend {
 
   Map<String, dynamic> _detail(String id) => {
     'id': id,
+    'tenancyRecordId': 'tenancy-in',
     'kind': id == 'in' ? 'CHECK_IN' : 'CHECK_OUT',
     'status': statuses[id],
     'property': '2 Marina Boulevard',
@@ -151,6 +152,7 @@ class _Backend {
       return [
         {
           'id': 'in',
+          'tenancyId': 'tenancy-in',
           'kind': 'CHECK_IN',
           'status': statuses['in'],
           'property': '2 Marina Boulevard',
@@ -343,6 +345,7 @@ void main() {
     await cache.write('inspections', [
       {
         'id': 'b-inspection',
+        'tenancyId': 'tenancy-b',
         'kind': 'CHECK_IN',
         'status': 'DRAFT',
         'property': 'B home',
@@ -392,6 +395,7 @@ void main() {
       await cache.write('inspections', [
         {
           'id': 'earlier',
+          'tenancyId': 'tenancy-earlier',
           'kind': 'CHECK_IN',
           'status': 'DRAFT',
           'property': '1 Earlier Lane',

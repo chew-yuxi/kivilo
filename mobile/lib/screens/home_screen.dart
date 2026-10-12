@@ -211,7 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   _emptyProperties()
                 else
                   for (final tenancy in tenancies) ...[
-                    _propertyCard(tenancy),
+                    _propertyCard(
+                      tenancy,
+                      inspections
+                          .where(
+                            (inspection) => inspection.tenancyId == tenancy.id,
+                          )
+                          .toList(),
+                    ),
                     const SizedBox(height: 10),
                   ],
               ],
@@ -304,55 +311,108 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 
-  Widget _propertyCard(TenancySummary tenancy) => Card(
-    child: InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => TenancyScreen(tenancy: tenancy),
-          ),
-        );
-        if (mounted) await _refresh();
-      },
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: KiviloColors.canvas,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.home_outlined, color: KiviloColors.body),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _propertyCard(
+    TenancySummary tenancy,
+    List<InspectionSummary> inspections,
+  ) {
+    final active = inspections
+        .where((inspection) => inspection.status != 'COMPLETED')
+        .firstOrNull;
+    final target = active ?? inspections.firstOrNull;
+    final actionLabel = active == null
+        ? 'View latest report'
+        : 'Resume ${active.kindLabel.toLowerCase()}';
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: target == null
+            ? () => _openTenancy(tenancy)
+            : () => _openInspection(target.id),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    tenancy.property,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: active == null
+                          ? KiviloColors.canvas
+                          : KiviloColors.pinkSoft,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      active == null
+                          ? Icons.home_outlined
+                          : Icons.fact_check_outlined,
+                      color: active == null
+                          ? KiviloColors.body
+                          : KiviloColors.pinkDark,
+                    ),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '${_roleLabel(tenancy.role)} · ${tenancy.inspections} ${tenancy.inspections == 1 ? 'inspection' : 'inspections'}',
-                    style: Theme.of(context).textTheme.bodySmall,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tenancy.property,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          active == null
+                              ? '${_roleLabel(tenancy.role)} · ${tenancy.inspections} ${tenancy.inspections == 1 ? 'inspection' : 'inspections'}'
+                              : '${active.kindLabel} in progress · ${active.rooms} ${active.rooms == 1 ? 'room' : 'rooms'}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  if (target != null)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openInspection(target.id),
+                        icon: Icon(
+                          active == null
+                              ? Icons.description_outlined
+                              : Icons.play_arrow_rounded,
+                        ),
+                        label: Text(actionLabel),
+                      ),
+                    ),
+                  if (target != null) const SizedBox(width: 8),
+                  TextButton.icon(
+                    onPressed: () => _openTenancy(tenancy),
+                    icon: const Icon(Icons.build_outlined),
+                    label: const Text('Maintenance'),
                   ),
                 ],
               ),
-            ),
-            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Future<void> _openTenancy(TenancySummary tenancy) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => TenancyScreen(tenancy: tenancy)),
+    );
+    if (mounted) await _refresh();
+  }
 
   Widget _emptyProperties() => Card(
     child: Padding(

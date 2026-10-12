@@ -34,11 +34,20 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
 
   const list = await request.get('/api/v1/inspections', { headers: owner })
   expect(list.status()).toBe(200)
-  expect(await list.json()).toMatchObject([{ id, property: expect.stringContaining('Battery') }])
+  expect(await list.json()).toMatchObject([{
+    id,
+    tenancyId: expect.any(String),
+    property: expect.stringContaining('Battery'),
+  }])
 
   const detail = await request.get(`/api/v1/inspections/${id}`, { headers: owner })
   expect(detail.status()).toBe(200)
-  expect(await detail.json()).toMatchObject({ id, tenant: 'Aisha Rahman', rooms: [] })
+  expect(await detail.json()).toMatchObject({
+    id,
+    tenancyRecordId: expect.any(String),
+    tenant: 'Aisha Rahman',
+    rooms: [],
+  })
 
   // No credential, a forged one, and a token without the Bearer scheme.
   const badCredentials: Record<string, string>[] = [

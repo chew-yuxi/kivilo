@@ -5,6 +5,7 @@ void main() {
   test('detail carries native lifecycle, consent and publication state', () {
     final detail = InspectionDetail.fromJson({
       'id': 'inspection-1',
+      'tenancyRecordId': 'tenancy-1',
       'kind': 'CHECK_OUT',
       'status': 'AWAITING_SIGNATURE',
       'property': '2 Marina Boulevard',

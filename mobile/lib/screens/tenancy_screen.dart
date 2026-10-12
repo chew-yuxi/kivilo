@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_theme.dart';
 import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
+import 'service_directory_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
   const TenancyScreen({super.key, required this.tenancy});
@@ -127,17 +129,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(widget.tenancy.property),
-      actions: [
-        if (widget.tenancy.role != 'TENANT')
-          IconButton(
-            tooltip: 'Add property asset',
-            icon: const Icon(Icons.add_home_work_outlined),
-            onPressed: _addAsset,
-          ),
-      ],
-    ),
+    appBar: AppBar(title: Text(widget.tenancy.property)),
     body: FutureBuilder<(List<MaintenanceCaseSummary>, List<PropertyAssetSummary>)>(
       future: _future,
       builder: (context, snapshot) {
@@ -153,42 +145,57 @@ class _TenancyScreenState extends State<TenancyScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              Text(
+                'Property care',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Report and track maintenance for this tenancy.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
               Card(
                 color: Theme.of(context).colorScheme.errorContainer,
-                child: const ListTile(
-                  leading: Icon(Icons.emergency_outlined),
-                  title: Text('Immediate danger?'),
-                  subtitle: Text('Police 999 · Fire or ambulance 995'),
+                child: ListTile(
+                  leading: const Icon(Icons.emergency_outlined),
+                  title: const Text('Immediate danger?'),
+                  subtitle: const Text('Police 999 · Fire or ambulance 995'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ServiceDirectoryScreen(),
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(height: 10),
               FilledButton.icon(
                 onPressed: () => _report(assets),
                 icon: const Icon(Icons.add),
                 label: const Text('Report a problem'),
               ),
               const SizedBox(height: 24),
-              Text(
-                'Maintenance',
-                style: Theme.of(context).textTheme.titleMedium,
+              KiviloSectionHeading(
+                title: 'Maintenance',
+                subtitle: cases.isEmpty
+                    ? 'Requests for this property will appear here'
+                    : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
               ),
-              if (cases.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Text(
-                    'No maintenance has been reported for this tenancy.',
-                  ),
-                ),
-              for (final item in cases)
+              const SizedBox(height: 12),
+              if (cases.isEmpty) _emptyMaintenance(),
+              for (var index = 0; index < cases.length; index++) ...[
+                if (index > 0) const SizedBox(height: 10),
                 Card(
                   child: ListTile(
-                    title: Text(item.title),
+                    title: Text(cases[index].title),
                     subtitle: Text(
-                      '${item.status.replaceAll('_', ' ').toLowerCase()}'
-                      '${item.asset == null ? '' : ' · ${item.asset}'}'
-                      '${item.repairAttempts == 0 ? '' : ' · ${item.repairAttempts} repair attempts'}',
+                      '${cases[index].status.replaceAll('_', ' ').toLowerCase()}'
+                      '${cases[index].asset == null ? '' : ' · ${cases[index].asset}'}'
+                      '${cases[index].repairAttempts == 0 ? '' : ' · ${cases[index].repairAttempts} repair attempts'}',
                     ),
                     leading: Icon(
-                      item.priority == 'SAFETY_EMERGENCY'
+                      cases[index].priority == 'SAFETY_EMERGENCY'
                           ? Icons.warning_amber
                           : Icons.build_outlined,
                     ),
@@ -197,37 +204,95 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       await Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) =>
-                              MaintenanceCaseScreen(caseId: item.id),
+                              MaintenanceCaseScreen(caseId: cases[index].id),
                         ),
                       );
                       if (mounted) await _refresh();
                     },
                   ),
                 ),
-              if (assets.isNotEmpty) ...[
+              ],
+              if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
                 const SizedBox(height: 24),
-                Text(
-                  'Property assets',
-                  style: Theme.of(context).textTheme.titleMedium,
+                KiviloSectionHeading(
+                  title: 'Property assets',
+                  subtitle: 'Appliances and fixtures linked to maintenance',
+                  action: widget.tenancy.role == 'TENANT'
+                      ? null
+                      : TextButton.icon(
+                          onPressed: _addAsset,
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Add asset'),
+                        ),
                 ),
-                for (final asset in assets)
+                const SizedBox(height: 12),
+                if (assets.isEmpty) _emptyAssets(),
+                for (var index = 0; index < assets.length; index++) ...[
+                  if (index > 0) const Divider(height: 1),
                   ListTile(
-                    title: Text(asset.name),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    title: Text(assets[index].name),
                     subtitle: Text(
                       [
-                        if (asset.roomLabel != null) asset.roomLabel!,
-                        '${asset.repairVisitsLast365Days} repairs in 365 days',
+                        if (assets[index].roomLabel != null)
+                          assets[index].roomLabel!,
+                        '${assets[index].repairVisitsLast365Days} repairs in 365 days',
                       ].join(' · '),
                     ),
-                    trailing: asset.repairVisitsLast365Days >= 4
+                    trailing: assets[index].repairVisitsLast365Days >= 4
                         ? const Chip(label: Text('Repeat fault'))
                         : null,
                   ),
+                ],
               ],
             ],
           ),
         );
       },
+    ),
+  );
+
+  Widget _emptyMaintenance() => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const Icon(Icons.task_alt, color: KiviloColors.green, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            'No open requests',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'This tenancy has no reported maintenance problems.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    ),
+  );
+
+  Widget _emptyAssets() => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.inventory_2_outlined,
+            color: KiviloColors.subtle,
+            size: 28,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              'No assets have been added to this property yet.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

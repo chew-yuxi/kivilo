@@ -47,6 +47,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
 
   return {
     id: inspection.id,
+    tenancyRecordId: inspection.tenancyId,
     kind: inspection.kind,
     status: inspection.status,
     property: propertyLabel(inspection.tenancy.property),

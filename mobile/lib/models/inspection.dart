@@ -1,6 +1,7 @@
 class InspectionSummary {
   const InspectionSummary({
     required this.id,
+    this.tenancyId,
     required this.kind,
     required this.status,
     required this.property,
@@ -9,6 +10,7 @@ class InspectionSummary {
   });
 
   final String id;
+  final String? tenancyId;
   final String kind;
   final String status;
   final String property;
@@ -18,6 +20,7 @@ class InspectionSummary {
   factory InspectionSummary.fromJson(Map<String, dynamic> json) =>
       InspectionSummary(
         id: json['id'] as String,
+        tenancyId: json['tenancyId'] as String?,
         kind: json['kind'] as String,
         status: json['status'] as String,
         property: json['property'] as String,
@@ -31,6 +34,7 @@ class InspectionSummary {
 class InspectionDetail {
   const InspectionDetail({
     required this.id,
+    this.tenancyRecordId,
     required this.kind,
     required this.status,
     required this.property,
@@ -53,6 +57,7 @@ class InspectionDetail {
   });
 
   final String id;
+  final String? tenancyRecordId;
   final String kind;
   final String status;
   final String property;
@@ -76,6 +81,7 @@ class InspectionDetail {
   factory InspectionDetail.fromJson(Map<String, dynamic> json) =>
       InspectionDetail(
         id: json['id'] as String,
+        tenancyRecordId: json['tenancyRecordId'] as String?,
         kind: json['kind'] as String,
         status: json['status'] as String,
         property: json['property'] as String,
@@ -107,8 +113,9 @@ class InspectionDetail {
                 json['latestAssessment'] as Map<String, dynamic>,
               ),
         assessmentDraftChanged: json['assessmentDraftChanged'] as bool,
-        maintenanceHistory: (json['maintenanceHistory'] as List<dynamic>? ?? const [])
-            .cast<Map<String, dynamic>>(),
+        maintenanceHistory:
+            (json['maintenanceHistory'] as List<dynamic>? ?? const [])
+                .cast<Map<String, dynamic>>(),
       );
 
   bool get isOpen => !['AWAITING_SIGNATURE', 'COMPLETED'].contains(status);

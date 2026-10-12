@@ -288,6 +288,7 @@ class Api {
         : List<dynamic>.from(cached as List<dynamic>);
     final summary = {
       'id': detail.id,
+      'tenancyId': detail.tenancyRecordId,
       'kind': detail.kind,
       'status': detail.status,
       'property': detail.property,

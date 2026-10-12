@@ -20,6 +20,7 @@ export const GET = authed(async (agent) => {
 
   return inspections.map((inspection) => ({
     id: inspection.id,
+    tenancyId: inspection.tenancyId,
     kind: inspection.kind,
     status: inspection.status,
     property: propertyLabel(inspection.tenancy.property),
