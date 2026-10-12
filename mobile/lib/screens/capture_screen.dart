@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,8 +12,6 @@ import '../services/api.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
-import '../services/camera_startup.dart';
-import '../services/recording_screen_awake.dart';
 import '../services/uploader.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
@@ -35,33 +31,20 @@ class CaptureScreen extends StatefulWidget {
   State<CaptureScreen> createState() => _CaptureScreenState();
 }
 
-class _CaptureScreenState extends State<CaptureScreen>
-    with WidgetsBindingObserver {
+class _CaptureScreenState extends State<CaptureScreen> {
   final _api = Api();
   final _queue = CaptureQueue();
-  final _cameraStartup = CameraStartup();
-  final _screenAwake = RecordingScreenAwake();
   final _picker = ImagePicker();
   late final _backend = RoutingEvidenceBackend(_api.dio);
   late final String _ownerId = Supabase.instance.client.auth.currentUser!.id;
   Directory? _root;
   RoomDetail? _room;
-  CameraController? _camera;
   Future<void>? _uploading;
   bool _videoMode = false;
-  bool _rapidCamera = false;
   bool _busy = false;
-  bool _recording = false;
   bool _leaving = false;
   bool _finishing = false;
   bool _offline = false;
-  bool _isForeground = true;
-  DateTime? _startedAt;
-  File? _photoToSave;
-  String? _photoToSaveClientId;
-  File? _videoToSave;
-  String? _videoToSaveClientId;
-  int? _videoToSaveDurationSec;
   String? _error;
   List<PendingRemoteEdit> _remoteEdits = const [];
   List<String> _unresolved = const [];
@@ -69,7 +52,6 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     unawaited(_initialize());
   }
 
@@ -120,107 +102,20 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
-  Future<void> _initCamera({bool retry = false}) =>
-      _cameraStartup.open(_openCamera, explicitRetry: retry);
-
-  Future<bool> _openCamera() async {
-    if (!mounted || !_isForeground || _room == null) return false;
-    if (_camera != null) return true;
-    CameraController? controller;
-    final videoMode = _videoMode;
-    try {
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) {
-        throw StateError('No camera is available on this device.');
-      }
-      final description = cameras.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.back,
-        orElse: () => cameras.first,
-      );
-      controller = CameraController(
-        description,
-        ResolutionPreset.high,
-        enableAudio: videoMode,
-      );
-      await controller.initialize();
-      if (!mounted ||
-          !_isForeground ||
-          _camera != null ||
-          _videoMode != videoMode) {
-        return false;
-      }
-      final ready = controller;
-      setState(() {
-        _camera = ready;
-        _error = null;
-      });
-      controller = null; // The screen now owns the initialized controller.
-      return true;
-    } on CameraException catch (error) {
-      if (error.code == 'CameraAccessDenied' ||
-          error.code == 'CameraAccessDeniedWithoutPrompt' ||
-          error.code == 'AudioAccessDenied' ||
-          error.code == 'AudioAccessDeniedWithoutPrompt') {
-        _cameraStartup.markPermissionDenied();
-      }
-      if (mounted) {
-        setState(
-          () => _error = switch (error.code) {
-            'CameraAccessDenied' || 'CameraAccessDeniedWithoutPrompt' =>
-              'Camera access is off. Enable it in your phone Settings to capture this room.',
-            'AudioAccessDenied' || 'AudioAccessDeniedWithoutPrompt' =>
-              'Microphone access is off. Enable it in Settings to narrate a video, or switch to photos.',
-            _ => 'Camera unavailable: ${error.description ?? error.code}',
-          },
-        );
-      }
-      return false;
-    } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
-      return false;
-    } finally {
-      if (controller != null) {
-        try {
-          await controller.dispose();
-        } catch (error) {
-          // Keep the original permission/startup error visible while recording
-          // a cleanup failure that may indicate the native camera is still held.
-          debugPrint('Could not release camera after startup: $error');
-          if (mounted && _error == null) {
-            setState(() => _error = 'Camera could not be released: $error');
-          }
-        }
-      }
-    }
-  }
-
   Future<void> _switchMode(bool video) async {
-    if (_busy ||
-        _leaving ||
-        _finishing ||
-        _recording ||
-        _photoToSave != null ||
-        _videoToSave != null ||
-        video == _videoMode) {
+    if (_busy || _leaving || _finishing || video == _videoMode) {
       return;
     }
     setState(() {
       _videoMode = video;
       _error = null;
     });
-    if (_rapidCamera) {
-      final old = _camera;
-      setState(() => _camera = null);
-      await old?.dispose();
-      await _initCamera(retry: true);
-    }
   }
 
   Future<void> _openSystemCamera() async {
     if (_busy || _leaving || _finishing || _root == null || _room == null) {
       return;
     }
-    if (_rapidCamera) await _closeRapidCamera();
     setState(() {
       _busy = true;
       _error = null;
@@ -247,7 +142,6 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (_busy || _leaving || _finishing || _root == null || _room == null) {
       return;
     }
-    if (_rapidCamera) await _closeRapidCamera();
     setState(() {
       _busy = true;
       _error = null;
@@ -326,204 +220,12 @@ class _CaptureScreenState extends State<CaptureScreen>
     };
   }
 
-  Future<void> _openRapidCamera() async {
-    if (_rapidCamera) return;
-    setState(() => _rapidCamera = true);
-    await _initCamera(retry: true);
-  }
-
-  Future<void> _closeRapidCamera() async {
-    if (_recording || _busy) return;
-    final camera = _camera;
-    setState(() {
-      _rapidCamera = false;
-      _camera = null;
-    });
-    await camera?.dispose();
-  }
-
-  Future<void> _takePhoto() async {
-    final camera = _camera;
-    final root = _root;
-    if (_busy ||
-        _leaving ||
-        _finishing ||
-        root == null ||
-        (camera == null && _photoToSave == null)) {
-      return;
-    }
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      if (_photoToSave == null) {
-        final captureId = newCaptureId();
-        final photo = await camera!.takePicture();
-        _photoToSave = File(photo.path);
-        _photoToSaveClientId = captureId;
-      }
-      await _savePendingPhoto();
-    } catch (error) {
-      if (mounted) setState(() => _error = 'Photo could not be saved: $error');
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _savePendingPhoto() async {
-    final handedOver = await _queue.serverIdForClient(
-      _ownerId,
-      widget.inspectionId,
-      _photoToSaveClientId!,
-    );
-    if (handedOver == null) {
-      await CaptureStore(queue: _queue, root: _root!).save(
-        source: _photoToSave!,
-        ownerId: _ownerId,
-        inspectionId: widget.inspectionId,
-        roomId: widget.roomId,
-        kind: 'PHOTO',
-        extension: 'jpg',
-        mimeType: 'image/jpeg',
-        clientId: _photoToSaveClientId,
-      );
-    }
-    _photoToSave = null;
-    _photoToSaveClientId = null;
-    unawaited(_drain());
-  }
-
-  Future<void> _toggleVideo() async {
-    final camera = _camera;
-    final root = _root;
-    if (_busy ||
-        _leaving ||
-        _finishing ||
-        root == null ||
-        (camera == null && _videoToSave == null)) {
-      return;
-    }
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      if (_videoToSave != null || _recording) {
-        await _stopAndSaveVideo();
-      } else {
-        await _screenAwake.start(camera!.startVideoRecording);
-        _startedAt = DateTime.now();
-        if (mounted) setState(() => _recording = true);
-      }
-    } catch (error) {
-      if (mounted) setState(() => _error = 'Video could not be saved: $error');
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _stopAndSaveVideo() async {
-    try {
-      if (_videoToSave == null) {
-        final captureId = newCaptureId();
-        final video = await _camera!.stopVideoRecording();
-        _videoToSave = File(video.path);
-        _videoToSaveClientId = captureId;
-        _videoToSaveDurationSec = math.max(
-          1,
-          DateTime.now().difference(_startedAt!).inSeconds,
-        );
-        _startedAt = null;
-        if (mounted) setState(() => _recording = false);
-      }
-      final video = _videoToSave!;
-      final extension = video.path.toLowerCase().endsWith('.mov')
-          ? 'mov'
-          : 'mp4';
-      final handedOver = await _queue.serverIdForClient(
-        _ownerId,
-        widget.inspectionId,
-        _videoToSaveClientId!,
-      );
-      if (handedOver == null) {
-        await CaptureStore(queue: _queue, root: _root!).save(
-          source: video,
-          ownerId: _ownerId,
-          inspectionId: widget.inspectionId,
-          roomId: widget.roomId,
-          kind: 'VIDEO',
-          extension: extension,
-          mimeType: extension == 'mov' ? 'video/quicktime' : 'video/mp4',
-          durationSec: _videoToSaveDurationSec,
-          clientId: _videoToSaveClientId,
-        );
-      }
-      _videoToSave = null;
-      _videoToSaveClientId = null;
-      _videoToSaveDurationSec = null;
-      unawaited(_drain());
-    } finally {
-      // Stop failure means the camera may still be recording. Once it stops,
-      // release the display even if copying its temporary file needs a retry.
-      if (!_recording) await _releaseScreenAwake();
-    }
-  }
-
-  Future<void> _releaseScreenAwake({bool closing = false}) async {
-    try {
-      if (closing) {
-        await _screenAwake.close();
-      } else {
-        await _screenAwake.release();
-      }
-    } catch (error, stack) {
-      FlutterError.reportError(
-        FlutterErrorDetails(
-          exception: error,
-          stack: stack,
-          context: ErrorDescription('releasing the walkthrough screen lock'),
-        ),
-      );
-      if (!closing && mounted) {
-        setState(() => _error = 'Could not reset screen awake: $error');
-      }
-    }
-  }
-
   Future<void> _leaveAfterSaving() async {
     if (_leaving || _finishing) return;
     setState(() => _leaving = true);
     try {
       while (_busy) {
         await Future<void>.delayed(const Duration(milliseconds: 50));
-      }
-      if (!mounted) return;
-      if (_photoToSave != null) {
-        setState(() => _busy = true);
-        try {
-          await _savePendingPhoto();
-        } catch (error) {
-          if (mounted) {
-            setState(() => _error = 'Photo could not be saved: $error');
-          }
-          return;
-        } finally {
-          if (mounted) setState(() => _busy = false);
-        }
-      }
-      if (_recording || _videoToSave != null) {
-        setState(() => _busy = true);
-        try {
-          await _stopAndSaveVideo();
-        } catch (error) {
-          if (mounted) {
-            setState(() => _error = 'Video could not be saved: $error');
-          }
-          return;
-        } finally {
-          if (mounted) setState(() => _busy = false);
-        }
       }
       if (mounted) Navigator.pop(context);
     } finally {
@@ -728,13 +430,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   Future<void> _finishRoom() async {
     if (_finishing) return;
-    if (_recording) {
-      setState(
-        () => _error = 'Stop and save the video before finishing this room.',
-      );
-      return;
-    }
-    if (_busy || _leaving || _photoToSave != null || _videoToSave != null) {
+    if (_busy || _leaving) {
       setState(() => _error = 'Wait for the capture to finish saving.');
       return;
     }
@@ -794,46 +490,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive) {
-      _isForeground = false;
-      unawaited(_pauseCamera());
-    } else if (state == AppLifecycleState.resumed) {
-      _isForeground = true;
-      if (_rapidCamera) unawaited(_initCamera());
-      unawaited(_drain());
-    }
-  }
-
-  Future<void> _pauseCamera() async {
-    // A camera call may have returned a temporary file that is still being copied
-    // into app support. Disposing its controller in that gap can make the temporary
-    // source disappear before the journal and durable file exist.
-    while (_busy) {
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-    }
-    if (_photoToSave != null) {
-      await _takePhoto();
-      if (_photoToSave != null) return;
-    }
-    if (_recording || _videoToSave != null) {
-      await _toggleVideo();
-      if (_recording || _videoToSave != null) {
-        return; // Keep the controller if finalizing the video failed.
-      }
-    }
-    final camera = _camera;
-    if (camera == null) return;
-    if (mounted) setState(() => _camera = null);
-    await camera.dispose();
-    if (_isForeground && _rapidCamera) await _initCamera();
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    unawaited(_releaseScreenAwake(closing: true));
-    unawaited(_camera?.dispose());
     final upload = _uploading;
     if (upload == null) {
       unawaited(_queue.close());
@@ -845,7 +502,6 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   @override
   Widget build(BuildContext context) {
-    final camera = _camera;
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(_room?.name ?? 'Capture room'),
@@ -918,9 +574,8 @@ class _CaptureScreenState extends State<CaptureScreen>
                 ),
               ],
               selected: {_videoMode},
-              onSelectionChanged: _recording
-                  ? null
-                  : (selected) => unawaited(_switchMode(selected.first)),
+              onSelectionChanged: (selected) =>
+                  unawaited(_switchMode(selected.first)),
             ),
           ),
           const SizedBox(height: 16),
@@ -939,160 +594,6 @@ class _CaptureScreenState extends State<CaptureScreen>
             icon: const Icon(Icons.add_photo_alternate_outlined),
             label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
           ),
-          const SizedBox(height: 6),
-          if (!_rapidCamera)
-            TextButton.icon(
-              onPressed: _busy || _leaving || _finishing || _room == null
-                  ? null
-                  : _openRapidCamera,
-              icon: const Icon(Icons.burst_mode_outlined),
-              label: const Text('Use rapid in-app camera'),
-            ),
-          if (_rapidCamera) ...[
-            const SizedBox(height: 14),
-            if (camera != null && camera.value.isInitialized) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: SizedBox(
-                  height: 240,
-                  width: double.infinity,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ColoredBox(
-                        color: Colors.black,
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: camera.value.aspectRatio,
-                            child: CameraPreview(camera),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 7,
-                            ),
-                            child: Text(
-                              _recording ? '● RECORDING' : 'LIVE CAMERA',
-                              style: TextStyle(
-                                color: _recording
-                                    ? const Color(0xFFFDA4AF)
-                                    : Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (!_recording)
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: IconButton.filledTonal(
-                            onPressed: _closeRapidCamera,
-                            icon: const Icon(Icons.close),
-                            tooltip: 'Close rapid camera',
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Center(
-                child: Column(
-                  children: [
-                    Semantics(
-                      button: true,
-                      label: _videoMode
-                          ? (_videoToSave != null
-                                ? 'Retry saving video'
-                                : _recording
-                                ? 'Stop and save video'
-                                : 'Record walkthrough')
-                          : (_photoToSave != null
-                                ? 'Retry saving photo'
-                                : 'Take photo'),
-                      child: IconButton.filled(
-                        onPressed:
-                            _busy || _leaving || _finishing || _room == null
-                            ? null
-                            : _videoMode
-                            ? _toggleVideo
-                            : _takePhoto,
-                        iconSize: 34,
-                        padding: const EdgeInsets.all(18),
-                        style: IconButton.styleFrom(
-                          backgroundColor: _recording
-                              ? KiviloColors.red
-                              : KiviloColors.pink,
-                          foregroundColor: Colors.white,
-                        ),
-                        icon: Icon(
-                          _videoMode
-                              ? (_recording || _videoToSave != null
-                                    ? Icons.stop
-                                    : Icons.fiber_manual_record)
-                              : Icons.camera_alt_outlined,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _videoMode
-                          ? (_videoToSave != null
-                                ? 'Retry saving video'
-                                : _recording
-                                ? 'Stop & save video'
-                                : 'Record walkthrough')
-                          : (_photoToSave != null
-                                ? 'Retry saving photo'
-                                : 'Take photo'),
-                      style: const TextStyle(
-                        color: KiviloColors.ink,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ] else
-              Container(
-                height: 160,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: KiviloColors.canvas,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: KiviloColors.border),
-                ),
-                child: OutlinedButton.icon(
-                  onPressed: () => unawaited(_initCamera(retry: true)),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry rapid camera'),
-                ),
-              ),
-          ],
-          if (_photoToSave != null && camera == null)
-            TextButton(
-              onPressed: _busy || _leaving || _finishing ? null : _takePhoto,
-              child: const Text('Retry saving photo'),
-            ),
-          if (_videoToSave != null && camera == null)
-            TextButton(
-              onPressed: _busy || _leaving || _finishing ? null : _toggleVideo,
-              child: const Text('Retry saving video'),
-            ),
           const SizedBox(height: 24),
           const KiviloSectionHeading(
             title: 'Evidence',
@@ -1259,14 +760,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
           child: FilledButton.icon(
-            onPressed:
-                _room == null ||
-                    _busy ||
-                    _leaving ||
-                    _finishing ||
-                    _recording ||
-                    _photoToSave != null ||
-                    _videoToSave != null
+            onPressed: _room == null || _busy || _leaving || _finishing
                 ? null
                 : _finishRoom,
             icon: const Icon(Icons.auto_awesome_outlined),
@@ -1276,13 +770,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       ),
     );
     return PopScope(
-      canPop:
-          !_recording &&
-          _photoToSave == null &&
-          _videoToSave == null &&
-          !_busy &&
-          !_leaving &&
-          !_finishing,
+      canPop: !_busy && !_leaving && !_finishing,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_leaveAfterSaving());
       },

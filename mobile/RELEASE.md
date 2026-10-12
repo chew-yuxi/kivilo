@@ -7,11 +7,18 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `14` (source `34eb6f1`) is now on Play internal testing (`completed:14`)
+Build `15` removes every embedded camera preview from room capture and maintenance
+evidence. Photo and video capture now always opens the phone's native camera, with
+the system photo/video library available beside it. The Flutter camera and screen-lock
+plugins and their now-unused lifecycle code have been removed. Picker results are
+copied into Kivilo's app-support store and durable queue before upload, and Android
+recovers a result if the operating system recreates the activity.
+
+Build `14` (source `34eb6f1`) is on Play internal testing (`completed:14`)
 and in Apple's `Kivilo Internal` TestFlight group for the capture and form UX
 review. The iOS build is `VALID`, declares `usesNonExemptEncryption: false`, and
 has App Store Connect build ID `d580d2b0-edde-45e5-bb7a-f403b1cdd206`. It makes the system camera and photo/video library the
-primary evidence actions, retains a compact optional rapid camera, and recovers an
+primary evidence actions and recovers an
 Android picker result if the operating system recreates the activity. Picker results
 are copied into Kivilo's app-support store and durable queue before upload. Freehand
 circles snap to clean geometry; every circle or arrow is numbered, can carry its own
