@@ -5,7 +5,47 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
-## Current candidate — 2026-10-12 Singapore time
+## Current candidate: 2026-10-13 Singapore time
+
+Build `21` plays video evidence inside the app with `video_player` instead of opening
+the signed storage link in the phone's browser, and a video still in the upload queue
+plays from the file on the phone. Every video tile shows a poster frame with a play
+badge. The server makes the poster (cron `/api/internal/posters`, ffmpeg) about a
+minute after upload, and the tile falls back to the camcorder icon until it exists; all
+14 existing production videos already have one. Maintenance photos and videos also open
+inside the app. Room screens renew signed URLs older than 45 minutes, so images no
+longer break after an hour.
+
+Build `21` source is `b442f98` on `main`, which contains the mobile changes from
+`b95d1ca`; only the build number changed for this release. The backend for it is
+deployed from `b442f98`, with migration `20261013090000_capture_poster` applied to
+production. Flutter analysis is clean and all 82 mobile tests pass. The AAB and APK were
+built with `--dart-define-from-file=env.json` against the production configuration and
+signed with the established upload key (`CN=Kivilo Upload`, certificate SHA-256
+`6d2be9b2745ce98abdace4162a20722a57305b3cd95df4e73958ea1692e836e7`, identical to build
+`20`); `jarsigner -verify` passes on the AAB, `apksigner verify` passes on the APK (v2
+scheme), and the APK declares `one.kivilo.kivilo` version code `21`, target SDK 36. The
+IPA passed strict `codesign` verification: bundle `one.kivilo.kivilo`, version `1.0.0`
+build `21`, Apple Distribution for team `4N9TA3WSYM`, `aps-environment=production`,
+`get-task-allow=false`. This build was not installed on a physical device before
+release.
+
+Play internal testing serves `completed:21`, with release notes describing in-app video
+playback, poster frames and the renewed image links; the same edit confirmed the
+production track unchanged. The signed iOS build `21` uploaded under delivery
+`6290ebd0-98c4-492e-bba2-9c6777015847`, which is also its App Store Connect build ID.
+It is `VALID`, declares `usesNonExemptEncryption: false`, and is attached only to the
+existing `Kivilo Internal` TestFlight group.
+
+Play production remains build `13` and Apple's public build `12` submission remains
+`WAITING_FOR_REVIEW`.
+
+- Android 21 AAB `build/release-artifacts/android/build21/kivilo-v21.aab`, SHA-256
+  `4b8974161f1a0117defe780edd20051a3c007fec521b2769e9d9dcf346bea98c`.
+- Android 21 APK `build/release-artifacts/android/build21/kivilo-v21.apk`, SHA-256
+  `1c3b74d842cb9a7071d28ed8c11d084ad1723689173253cf84672234468ca84f`.
+- iOS 21 IPA `build/ios/ipa/build21/kivilo.ipa`, SHA-256
+  `8e9bb57993a215cfccb3cba4a97c82dc492361c44e80a88ba44e58d7e6f17711`.
 
 Build `20` removes AI drafting from the app. After capturing a room the inspector taps
 `Done capturing`, then writes that room's inventory by hand; a room cannot be marked
@@ -73,7 +113,8 @@ phone against production; the synthetic room loaded 73 captures and tapping a ph
 opened Preview, Edit note, Mark photo, and Delete evidence actions. Play internal
 testing serves completed build `19`; Play production remains build `13`. The signed
 iOS build `19` uploaded successfully under delivery
-`058f2dec-3803-439f-8d69-f81a7662363c` and is awaiting App Store Connect processing.
+`058f2dec-3803-439f-8d69-f81a7662363c`; it is `VALID` and attached to the `Kivilo
+Internal` TestFlight group.
 Flutter analysis and all 68 mobile tests pass, along with backend typecheck, lint,
 production build, all 60 unit tests, all 38 integration tests, and all three Playwright
 workflows. The Android AAB SHA-256 is
