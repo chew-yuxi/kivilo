@@ -5,6 +5,7 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import 'maintenance_evidence_screen.dart';
+import 'responsibility_card.dart';
 
 class MaintenanceCaseScreen extends StatefulWidget {
   const MaintenanceCaseScreen({super.key, required this.caseId});
@@ -72,6 +73,89 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     return result;
   }
 
+  Future<void> _recordRepair(String caseId) async {
+    final notes = TextEditingController();
+    final cost = TextEditingController();
+    final saved = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDrawerState) {
+          final amount = cost.text.trim();
+          final valid =
+              amount.isEmpty || RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(amount);
+          return KiviloDrawer(
+            title: const Text('Record completed repair'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: notes,
+                  autofocus: true,
+                  minLines: 2,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    labelText: 'What was repaired?',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: cost,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Cost (optional)',
+                    prefixText: 'S\$ ',
+                    helperText: 'Used to split the cost as agreed',
+                    errorText: valid
+                        ? null
+                        : 'Enter an amount like 150 or 150.50',
+                  ),
+                  onChanged: (_) => setDrawerState(() {}),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: valid ? () => Navigator.pop(context, true) : null,
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (saved == true) {
+      final note = notes.text.trim();
+      final amount = cost.text.trim();
+      await _run(() async {
+        await _api.addMaintenanceVisit(
+          caseId,
+          completedAt: DateTime.now(),
+          notes: note.isEmpty ? null : note,
+          cost: amount.isEmpty ? null : amount,
+        );
+      });
+    }
+    notes.dispose();
+    cost.dispose();
+  }
+
+  String _eventTitle(Map<String, dynamic> event) {
+    final summary = (event['metadata'] as Map<String, dynamic>?)?['summary'];
+    return switch (event['kind'] as String) {
+      'RESPONSIBILITY_PROPOSED' => 'Cost proposal: $summary',
+      'RESPONSIBILITY_ACCEPTED' => 'Cost agreed: $summary',
+      'RESPONSIBILITY_REJECTED' => 'Cost proposal rejected',
+      'RESPONSIBILITY_WITHDRAWN' => 'Cost proposal withdrawn',
+      final kind => kind.replaceAll('_', ' ').toLowerCase(),
+    };
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Maintenance')),
@@ -132,6 +216,22 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                     subtitle: Text('Police 999 · Fire or ambulance 995'),
                   ),
                 ),
+              const SizedBox(height: 16),
+              ResponsibilityCard(
+                responsibility: item.responsibility,
+                role: item.role,
+                busy: _busy,
+                onPropose: (body) =>
+                    _run(() => _api.proposeResponsibility(item.id, body)),
+                onAnswer: (proposalId, decision, note) => _run(
+                  () => _api.answerResponsibility(
+                    item.id,
+                    proposalId,
+                    decision,
+                    note: note,
+                  ),
+                ),
+              ),
               if (_error != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
@@ -197,35 +297,24 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                     ),
                   ),
               ],
-              if (item.canManage && !_busy) ...[
+              if (!_busy) ...[
                 const SizedBox(height: 16),
-                if (item.status == 'REPORTED')
+                if (item.canManage && item.status == 'REPORTED')
                   FilledButton(
                     onPressed: () => _run(
                       () => _api.updateMaintenanceCase(item.id, 'ACKNOWLEDGED'),
                     ),
                     child: const Text('Acknowledge report'),
                   ),
-                if (['ACKNOWLEDGED', 'SCHEDULED'].contains(item.status))
+                if (item.canLogVisit &&
+                    ['ACKNOWLEDGED', 'SCHEDULED'].contains(item.status))
                   FilledButton.icon(
                     icon: const Icon(Icons.build_outlined),
-                    onPressed: () async {
-                      final note = await _ask(
-                        'Record completed repair',
-                        hint: 'What was repaired?',
-                      );
-                      if (note == null) return;
-                      await _run(() async {
-                        await _api.addMaintenanceVisit(
-                          item.id,
-                          completedAt: DateTime.now(),
-                          notes: note.isEmpty ? null : note,
-                        );
-                      });
-                    },
+                    onPressed: () => _recordRepair(item.id),
                     label: const Text('Record completed repair'),
                   ),
-                if (!['RESOLVED', 'CLOSED_NO_ACTION'].contains(item.status))
+                if (item.canManage &&
+                    !['RESOLVED', 'CLOSED_NO_ACTION'].contains(item.status))
                   TextButton(
                     onPressed: () async {
                       final reason = await _ask(
@@ -328,11 +417,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.history),
-                  title: Text(
-                    (event['kind'] as String)
-                        .replaceAll('_', ' ')
-                        .toLowerCase(),
-                  ),
+                  title: Text(_eventTitle(event)),
                   subtitle: event['body'] == null
                       ? null
                       : Text(event['body'] as String),

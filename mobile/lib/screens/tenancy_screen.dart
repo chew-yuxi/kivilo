@@ -18,13 +18,12 @@ class TenancyScreen extends StatefulWidget {
 
 class _TenancyScreenState extends State<TenancyScreen> {
   final _api = Api();
-  late Future<(List<MaintenanceCaseSummary>, List<PropertyAssetSummary>)>
-  _future = _load();
+  late Future<_TenancyData> _future = _load();
 
-  Future<(List<MaintenanceCaseSummary>, List<PropertyAssetSummary>)>
-  _load() async => (
+  Future<_TenancyData> _load() async => (
     await _api.maintenanceCases(widget.tenancy.id),
     await _api.propertyAssets(widget.tenancy.propertyId),
+    await _api.tenancy(widget.tenancy.id),
   );
 
   Future<void> _refresh() async {
@@ -127,10 +126,77 @@ class _TenancyScreenState extends State<TenancyScreen> {
     identifier.dispose();
   }
 
+  Future<void> _editCap(String? current) async {
+    final cap = TextEditingController(text: current ?? '');
+    final saved = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDrawerState) {
+          final amount = cap.text.trim();
+          final valid =
+              amount.isEmpty || RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(amount);
+          return KiviloDrawer(
+            title: const Text('Minor repair cap'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'The amount the tenant pays towards each minor repair under '
+                  'the tenancy agreement. It prefills a split when someone '
+                  'proposes who pays; the tenant still accepts every proposal.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: cap,
+                  autofocus: true,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Tenant pays up to',
+                    prefixText: 'S\$ ',
+                    helperText: 'Leave empty if the agreement has no cap',
+                    errorText: valid ? null : 'Enter an amount like 150',
+                  ),
+                  onChanged: (_) => setDrawerState(() {}),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: valid ? () => Navigator.pop(context, true) : null,
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    final amount = cap.text.trim();
+    cap.dispose();
+    if (saved != true) return;
+    await _api.updateTenancyTerms(widget.tenancy.id, {
+      'minorRepairCap': amount.isEmpty ? null : amount,
+    });
+    if (mounted) await _refresh();
+  }
+
+  Future<void> _setAgentAuthority(bool value) async {
+    await _api.updateTenancyTerms(widget.tenancy.id, {
+      'agentMayAgreeCosts': value,
+    });
+    if (mounted) await _refresh();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(widget.tenancy.property)),
-    body: FutureBuilder<(List<MaintenanceCaseSummary>, List<PropertyAssetSummary>)>(
+    body: FutureBuilder<_TenancyData>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -139,7 +205,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
         if (snapshot.hasError) {
           return Center(child: Text('${snapshot.error}'));
         }
-        final (cases, assets) = snapshot.data!;
+        final (cases, assets, terms) = snapshot.data!;
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
@@ -212,6 +278,15 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                 ),
               ],
+              if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
+                const SizedBox(height: 24),
+                const KiviloSectionHeading(
+                  title: 'Repair costs',
+                  subtitle: 'Terms that shape who pays for a repair',
+                ),
+                const SizedBox(height: 12),
+                _repairTerms(terms),
+              ],
               if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
                 const SizedBox(height: 24),
                 KiviloSectionHeading(
@@ -249,6 +324,42 @@ class _TenancyScreenState extends State<TenancyScreen> {
           ),
         );
       },
+    ),
+  );
+
+  Widget _repairTerms(TenancyDetail terms) => Card(
+    child: Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
+          title: const Text('Minor repair cap'),
+          subtitle: Text(
+            terms.minorRepairCap == null
+                ? 'Not set'
+                : 'Tenant pays up to S\$${terms.minorRepairCap} per repair',
+          ),
+          trailing: terms.canEditMinorRepairCap
+              ? TextButton(
+                  onPressed: () => _editCap(terms.minorRepairCap),
+                  child: Text(terms.minorRepairCap == null ? 'Set' : 'Edit'),
+                )
+              : null,
+        ),
+        if (terms.role != 'TENANT') ...[
+          const Divider(height: 1),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
+            title: const Text('Agent can agree costs'),
+            subtitle: Text(
+              terms.canEditAgentAuthority
+                  ? 'Lets the agent accept or reject cost proposals for you'
+                  : 'Only the landlord can change this',
+            ),
+            value: terms.agentMayAgreeCosts,
+            onChanged: terms.canEditAgentAuthority ? _setAgentAuthority : null,
+          ),
+        ],
+      ],
     ),
   );
 
@@ -296,3 +407,9 @@ class _TenancyScreenState extends State<TenancyScreen> {
     ),
   );
 }
+
+typedef _TenancyData = (
+  List<MaintenanceCaseSummary>,
+  List<PropertyAssetSummary>,
+  TenancyDetail,
+);

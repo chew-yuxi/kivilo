@@ -129,6 +129,21 @@ class Api {
         .toList();
   }
 
+  Future<TenancyDetail> tenancy(String tenancyId) async {
+    final data = await _read(
+      '/api/v1/tenancies/$tenancyId',
+      'tenancy:$tenancyId',
+    );
+    return TenancyDetail.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<void> updateTenancyTerms(
+    String tenancyId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    await _dio.patch('/api/v1/tenancies/$tenancyId', data: body);
+  });
+
   Future<List<MaintenanceCaseSummary>> maintenanceCases(
     String tenancyId,
   ) async {
@@ -235,6 +250,26 @@ class Api {
     await _dio.post(
       '/api/v1/maintenance/$caseId/visits/$visitId/verification',
       data: {'outcome': outcome, 'note': note},
+    );
+  });
+
+  Future<void> proposeResponsibility(
+    String caseId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    await _dio.post('/api/v1/maintenance/$caseId/responsibility', data: body);
+  });
+
+  /// [decision] is ACCEPT, REJECT (note required) or WITHDRAW.
+  Future<void> answerResponsibility(
+    String caseId,
+    String proposalId,
+    String decision, {
+    String? note,
+  }) => _call(() async {
+    await _dio.post(
+      '/api/v1/maintenance/$caseId/responsibility/$proposalId',
+      data: {'decision': decision, 'note': ?note},
     );
   });
 

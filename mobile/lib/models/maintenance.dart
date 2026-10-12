@@ -50,6 +50,35 @@ class TenancySummary {
   );
 }
 
+class TenancyDetail {
+  const TenancyDetail({
+    required this.id,
+    required this.role,
+    required this.agentMayAgreeCosts,
+    required this.canEditMinorRepairCap,
+    required this.canEditAgentAuthority,
+    this.minorRepairCap,
+  });
+  final String id;
+  final String role;
+  final String? minorRepairCap;
+  final bool agentMayAgreeCosts;
+  final bool canEditMinorRepairCap;
+  final bool canEditAgentAuthority;
+
+  factory TenancyDetail.fromJson(Map<String, dynamic> json) {
+    final capabilities = json['capabilities'] as Map<String, dynamic>;
+    return TenancyDetail(
+      id: json['id'] as String,
+      role: json['role'] as String,
+      minorRepairCap: json['minorRepairCap'] as String?,
+      agentMayAgreeCosts: json['agentMayAgreeCosts'] as bool,
+      canEditMinorRepairCap: capabilities['editMinorRepairCap'] as bool,
+      canEditAgentAuthority: capabilities['editAgentAuthority'] as bool,
+    );
+  }
+}
+
 class MaintenanceCaseSummary {
   const MaintenanceCaseSummary({
     required this.id,
@@ -169,6 +198,153 @@ class MaintenanceEvidenceModel {
       );
 }
 
+const partyLabels = {'LANDLORD': 'Landlord', 'TENANT': 'Tenant'};
+
+const basisLabels = {
+  'MINOR_REPAIR_CLAUSE': 'Minor repair clause',
+  'TENANT_CAUSED': 'Caused by the tenant',
+  'FAIR_WEAR': 'Fair wear and tear',
+  'LANDLORD_OBLIGATION': "Landlord's obligation",
+  'OTHER': 'Other',
+};
+
+/// Mirrors `describeProposal` in src/lib/maintenance.ts, so the preview a proposer
+/// sees is the sentence the other side will receive.
+String describeProposal({
+  required String arrangedBy,
+  required String payer,
+  String? tenantCap,
+}) {
+  final pays = payer == 'SHARED'
+      ? 'Tenant pays the first S\$$tenantCap, landlord pays the rest.'
+      : '${partyLabels[payer]} pays.';
+  return '$pays ${partyLabels[arrangedBy]} arranges the repair.';
+}
+
+class ResponsibilityProposal {
+  const ResponsibilityProposal({
+    required this.id,
+    required this.side,
+    required this.proposedBy,
+    required this.arrangedBy,
+    required this.payer,
+    required this.basis,
+    required this.reason,
+    required this.summary,
+    required this.status,
+    required this.createdAt,
+    this.tenantCap,
+    this.clauseRef,
+    this.respondedBy,
+    this.respondedAt,
+    this.responseNote,
+  });
+  final String id;
+  final String side;
+  final String proposedBy;
+  final String arrangedBy;
+  final String payer;
+  final String? tenantCap;
+  final String basis;
+  final String reason;
+  final String? clauseRef;
+  final String summary;
+  final String status;
+  final String? respondedBy;
+  final String? respondedAt;
+  final String? responseNote;
+  final String createdAt;
+
+  factory ResponsibilityProposal.fromJson(Map<String, dynamic> json) =>
+      ResponsibilityProposal(
+        id: json['id'] as String,
+        side: json['side'] as String,
+        proposedBy:
+            (json['proposedBy'] as Map<String, dynamic>)['name'] as String,
+        arrangedBy: json['arrangedBy'] as String,
+        payer: json['payer'] as String,
+        tenantCap: json['tenantCap'] as String?,
+        basis: json['basis'] as String,
+        reason: json['reason'] as String,
+        clauseRef: json['clauseRef'] as String?,
+        summary: json['summary'] as String,
+        status: json['status'] as String,
+        respondedBy:
+            (json['respondedBy'] as Map<String, dynamic>?)?['name'] as String?,
+        respondedAt: json['respondedAt'] as String?,
+        responseNote: json['responseNote'] as String?,
+        createdAt: json['createdAt'] as String,
+      );
+}
+
+class CostShares {
+  const CostShares({
+    required this.total,
+    required this.tenant,
+    required this.landlord,
+  });
+  final String total;
+  final String tenant;
+  final String landlord;
+
+  factory CostShares.fromJson(Map<String, dynamic> json) => CostShares(
+    total: json['total'] as String,
+    tenant: json['tenant'] as String,
+    landlord: json['landlord'] as String,
+  );
+}
+
+class Responsibility {
+  const Responsibility({
+    required this.arrangedBy,
+    required this.history,
+    required this.canPropose,
+    required this.canAnswer,
+    required this.canWithdraw,
+    this.minorRepairCap,
+    this.agreement,
+    this.pending,
+    this.shares,
+  });
+  final String arrangedBy;
+  final String? minorRepairCap;
+  final ResponsibilityProposal? agreement;
+  final ResponsibilityProposal? pending;
+  final List<ResponsibilityProposal> history;
+  final CostShares? shares;
+  final bool canPropose;
+  final bool canAnswer;
+  final bool canWithdraw;
+
+  /// The most recent answer, when it was a no and nothing has replaced it.
+  ResponsibilityProposal? get rejection {
+    if (pending != null || history.isEmpty) return null;
+    final last = history.last;
+    return last.status == 'REJECTED' ? last : null;
+  }
+
+  factory Responsibility.fromJson(Map<String, dynamic> json) {
+    ResponsibilityProposal? proposal(Object? value) => value == null
+        ? null
+        : ResponsibilityProposal.fromJson(value as Map<String, dynamic>);
+    return Responsibility(
+      arrangedBy: json['arrangedBy'] as String,
+      minorRepairCap: json['minorRepairCap'] as String?,
+      agreement: proposal(json['agreement']),
+      pending: proposal(json['pending']),
+      history: (json['history'] as List<dynamic>)
+          .map((entry) => proposal(entry)!)
+          .toList(),
+      shares: json['shares'] == null
+          ? null
+          : CostShares.fromJson(json['shares'] as Map<String, dynamic>),
+      canPropose: json['canPropose'] as bool,
+      canAnswer: json['canAnswer'] as bool,
+      canWithdraw: json['canWithdraw'] as bool,
+    );
+  }
+}
+
 class MaintenanceCaseDetail {
   const MaintenanceCaseDetail({
     required this.id,
@@ -179,7 +355,9 @@ class MaintenanceCaseDetail {
     required this.property,
     required this.role,
     required this.canManage,
+    required this.canLogVisit,
     required this.canVerify,
+    required this.responsibility,
     required this.visits,
     required this.evidence,
     required this.events,
@@ -192,7 +370,9 @@ class MaintenanceCaseDetail {
   final String property;
   final String role;
   final bool canManage;
+  final bool canLogVisit;
   final bool canVerify;
+  final Responsibility responsibility;
   final List<MaintenanceVisitModel> visits;
   final List<MaintenanceEvidenceModel> evidence;
   final List<Map<String, dynamic>> events;
@@ -208,7 +388,11 @@ class MaintenanceCaseDetail {
     property: json['property'] as String,
     role: json['role'] as String,
     canManage: json['canManage'] as bool,
+    canLogVisit: json['canLogVisit'] as bool,
     canVerify: json['canVerify'] as bool,
+    responsibility: Responsibility.fromJson(
+      json['responsibility'] as Map<String, dynamic>,
+    ),
     visits: (json['visits'] as List<dynamic>)
         .map(
           (entry) =>

@@ -12,7 +12,19 @@ void main() {
       'property': '1 Example Street',
       'role': 'TENANT',
       'canManage': false,
+      'canLogVisit': false,
       'canVerify': true,
+      'responsibility': {
+        'arrangedBy': 'LANDLORD',
+        'minorRepairCap': null,
+        'agreement': null,
+        'pending': null,
+        'history': <Map<String, dynamic>>[],
+        'shares': null,
+        'canPropose': true,
+        'canAnswer': false,
+        'canWithdraw': false,
+      },
       'visits': [
         {
           'id': 'visit-1',
