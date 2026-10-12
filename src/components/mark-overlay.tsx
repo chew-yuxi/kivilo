@@ -72,7 +72,9 @@ export function MarkPaths({ marks, w, h }: { marks: Mark[]; w: number; h: number
         const anchor =
           mark.shape === 'ring'
             ? { x: (mark.cx - mark.rx) * w, y: (mark.cy - mark.ry) * h }
-            : { x: mark.tx * w, y: mark.ty * h }
+            : mark.shape === 'arrow'
+              ? { x: mark.tx * w, y: mark.ty * h }
+              : { x: mark.points[0].x * w, y: mark.points[0].y * h }
         return (
           <g key={`badge-${index}`} transform={`translate(${anchor.x} ${anchor.y})`}>
             <circle r={badgeRadius} fill="#dc2626" stroke="#ffffff" strokeWidth={stroke / 2} />

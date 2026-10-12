@@ -155,4 +155,60 @@ void main() {
       expect(mark['note'], 'Hairline crack above socket');
     },
   );
+
+  testWidgets('freehand stroke keeps its path and note', (tester) async {
+    final image = _DelayedImage();
+    PhotoMarksResult? saved;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () async {
+                saved = await Navigator.push<PhotoMarksResult>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PhotoMarkScreen(image: image),
+                  ),
+                );
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pump();
+
+    final recorder = ui.PictureRecorder();
+    ui.Canvas(recorder);
+    image.complete(await recorder.endRecording().toImage(400, 400));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Freehand'));
+    await tester.pumpAndSettle();
+    final canvas = find.byWidgetPredicate(
+      (widget) => widget is GestureDetector && widget.onPanStart != null,
+    );
+    final center = tester.getRect(canvas).center;
+    final gesture = await tester.startGesture(center + const Offset(-60, -30));
+    await gesture.moveTo(center + const Offset(-20, 20));
+    await gesture.moveTo(center + const Offset(25, -15));
+    await gesture.moveTo(center + const Offset(65, 30));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add a note to mark 1'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'Irregular scuff');
+    await tester.tap(find.text('Save mark'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    final mark = (saved!.annotations!['marks'] as List).single as Map;
+    expect(mark['shape'], 'freehand');
+    expect(mark['note'], 'Irregular scuff');
+    expect((mark['points'] as List).length, greaterThanOrEqualTo(3));
+  });
 }

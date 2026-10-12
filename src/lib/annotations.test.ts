@@ -11,6 +11,14 @@ import {
 
 const ring = { shape: 'ring' as const, cx: 0.5, cy: 0.5, rx: 0.1, ry: 0.1 }
 const arrow = { shape: 'arrow' as const, tx: 0.1, ty: 0.1, hx: 0.4, hy: 0.4 }
+const freehand = {
+  shape: 'freehand' as const,
+  points: [
+    { x: 0.1, y: 0.2 },
+    { x: 0.3, y: 0.4 },
+    { x: 0.5, y: 0.3 },
+  ],
+}
 
 const stored: StoredAnnotations = {
   v: 1,
@@ -25,10 +33,11 @@ const stored: StoredAnnotations = {
 /// that lands two centimetres from the chip still looks like a mark. These are the
 /// cheapest place to catch that.
 describe('annotationInputSchema', () => {
-  it('accepts a ring and an arrow', () => {
-    expect(annotationInputSchema.safeParse({ w: 1536, h: 2048, marks: [ring, arrow] }).success).toBe(
-      true,
-    )
+  it('accepts a ring, an arrow and a freehand stroke', () => {
+    expect(
+      annotationInputSchema.safeParse({ w: 1536, h: 2048, marks: [ring, arrow, freehand] })
+        .success,
+    ).toBe(true)
   })
 
   it('keeps a separate note on each mark and bounds its length', () => {
@@ -140,5 +149,9 @@ describe('markPath', () => {
   it('gives a degenerate ring something to draw rather than nothing', () => {
     const d = markPath({ shape: 'ring', cx: 0.5, cy: 0.5, rx: 0, ry: 0 }, 1000, 800)
     expect(d).toContain('a 1 1')
+  })
+
+  it('draws every freehand point in order', () => {
+    expect(markPath(freehand, 1000, 500)).toBe('M 100 100 L 300 200 L 500 150')
   })
 })

@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { MarkPaths } from '@/components/mark-overlay'
 import { toUnit, type Mark } from '@/lib/annotations'
 
-export type Tool = 'ring' | 'arrow'
+export type Tool = 'ring' | 'arrow' | 'freehand'
 
 /// A tap rather than a drag, in CSS pixels. Measured on the raw pointer coordinates,
 /// not in viewBox units, because what matters is how far the finger moved.
@@ -37,6 +37,7 @@ export function MarkEditor({
 }) {
   const svg = useRef<SVGSVGElement>(null)
   const start = useRef<{ vx: number; vy: number; cx: number; cy: number; id: number } | null>(null)
+  const freehand = useRef<{ vx: number; vy: number }[]>([])
   const [preview, setPreview] = useState<Mark | null>(null)
 
   /// viewBox units. Page zoom, letterboxing and the element's position are all already
@@ -73,6 +74,13 @@ export function MarkEditor({
     }
   }
 
+  function freehandMark(points: { vx: number; vy: number }[]): Mark {
+    return {
+      shape: 'freehand',
+      points: points.map((point) => ({ x: toUnit(point.vx, w), y: toUnit(point.vy, h) })),
+    }
+  }
+
   function down(event: React.PointerEvent<SVGSVGElement>) {
     // One gesture at a time. A palm is not a real scenario on a phone-sized screen and
     // the platform has no reliable discriminator, so ignoring non-primary pointers is
@@ -81,6 +89,7 @@ export function MarkEditor({
     event.currentTarget.setPointerCapture(event.pointerId)
     const { vx, vy } = at(event)
     start.current = { vx, vy, cx: event.clientX, cy: event.clientY, id: event.pointerId }
+    freehand.current = tool === 'freehand' ? [{ vx, vy }] : []
   }
 
   /// Every handler below is bound to the pointer that started the gesture. Capture is
@@ -93,6 +102,15 @@ export function MarkEditor({
 
   function move(event: React.PointerEvent<SVGSVGElement>) {
     if (!owns(event)) return
+    if (tool === 'freehand') {
+      const point = at(event)
+      const previous = freehand.current.at(-1)!
+      if (Math.hypot(point.vx - previous.vx, point.vy - previous.vy) < 2) return
+      if (freehand.current.length < 256) freehand.current.push(point)
+      else freehand.current[255] = point
+      setPreview(freehandMark(freehand.current))
+      return
+    }
     setPreview(shape(start.current!, at(event)))
   }
 
@@ -102,6 +120,7 @@ export function MarkEditor({
   function abandon(event: React.PointerEvent<SVGSVGElement>) {
     if (!owns(event)) return
     start.current = null
+    freehand.current = []
     setPreview(null)
   }
 
@@ -113,6 +132,21 @@ export function MarkEditor({
 
     const to = at(event)
     const moved = Math.hypot(event.clientX - from.cx, event.clientY - from.cy)
+
+    if (tool === 'freehand') {
+      if (moved >= TAP_SLOP) {
+        const previous = freehand.current.at(-1)
+        if (
+          freehand.current.length < 256 &&
+          (!previous || Math.hypot(to.vx - previous.vx, to.vy - previous.vy) >= 2)
+        ) {
+          freehand.current.push(to)
+        }
+        if (freehand.current.length >= 2) onAdd(freehandMark(freehand.current))
+      }
+      freehand.current = []
+      return
+    }
 
     if (moved < TAP_SLOP) {
       // A tap is "point at this" for free: no second tool, no mode switch, and the

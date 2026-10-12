@@ -104,9 +104,11 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
     final existingNote = _redrawIndex == null
         ? null
         : _marks[_redrawIndex!]['note'] as String?;
-    final mark = _shape == 'ring'
-        ? _ringFromGesture(size, note: existingNote)
-        : _arrowFromGesture(size, note: existingNote);
+    final mark = switch (_shape) {
+      'ring' => _ringFromGesture(size, note: existingNote),
+      'arrow' => _arrowFromGesture(size, note: existingNote),
+      _ => _freehandFromGesture(size, note: existingNote),
+    };
     final index = _redrawIndex ?? _marks.length;
     setState(() {
       if (_redrawIndex == null) {
@@ -155,6 +157,28 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
         if (note != null && note.isNotEmpty) 'note': note,
       };
 
+  Map<String, dynamic> _freehandFromGesture(Size size, {String? note}) {
+    final spaced = <Offset>[_gesture.first];
+    for (final point in _gesture.skip(1)) {
+      if ((point - spaced.last).distance >= 2) spaced.add(point);
+    }
+    if (spaced.last != _gesture.last) spaced.add(_gesture.last);
+    final points = spaced.length <= 256
+        ? spaced
+        : [
+            for (var index = 0; index < 256; index++)
+              spaced[(index * (spaced.length - 1) / 255).round()],
+          ];
+    return <String, dynamic>{
+      'shape': 'freehand',
+      'points': [
+        for (final point in points)
+          {'x': _unit(point.dx, size.width), 'y': _unit(point.dy, size.height)},
+      ],
+      if (note != null && note.isNotEmpty) 'note': note,
+    };
+  }
+
   void _selectMark(Offset point, Size size) {
     final index = _hitTest(point, size);
     setState(() => _selectedIndex = index);
@@ -177,10 +201,30 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
         if ((normalized - 1).abs() <= tolerance || normalized < 1) {
           return index;
         }
-      } else {
+      } else if (mark['shape'] == 'arrow') {
         final tail = Offset(n('tx') * size.width, n('ty') * size.height);
         final head = Offset(n('hx') * size.width, n('hy') * size.height);
         if (_distanceToSegment(point, tail, head) <= 28) return index;
+      } else {
+        final points = (mark['points'] as List<dynamic>)
+            .map((value) => value as Map<dynamic, dynamic>)
+            .map(
+              (value) => Offset(
+                (value['x'] as num).toDouble() * size.width,
+                (value['y'] as num).toDouble() * size.height,
+              ),
+            )
+            .toList();
+        for (var pointIndex = 1; pointIndex < points.length; pointIndex++) {
+          if (_distanceToSegment(
+                point,
+                points[pointIndex - 1],
+                points[pointIndex],
+              ) <=
+              28) {
+            return index;
+          }
+        }
       }
     }
     return null;
@@ -294,7 +338,9 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                       ? 'Redraw mark ${_redrawIndex! + 1}.'
                       : _shape == 'ring'
                       ? 'Draw around an issue with your finger. Kivilo will smooth it into a clean circle.'
-                      : 'Draw from open space toward the issue. Tap any existing mark to edit it.',
+                      : _shape == 'arrow'
+                      ? 'Draw from open space toward the issue. Tap any existing mark to edit it.'
+                      : 'Draw directly over the detail. Your freehand stroke stays exactly where you draw it.',
                 ),
               ),
               Expanded(
@@ -361,6 +407,11 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                                   icon: Icon(Icons.arrow_outward),
                                   label: Text('Arrow'),
                                 ),
+                                ButtonSegment(
+                                  value: 'freehand',
+                                  icon: Icon(Icons.gesture),
+                                  label: Text('Freehand'),
+                                ),
                               ],
                               selected: {_shape},
                               onSelectionChanged: _redrawIndex == null
@@ -397,12 +448,11 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                               final note = _marks[index]['note'] as String?;
                               return ChoiceChip(
                                 selected: _selectedIndex == index,
-                                avatar: Icon(
-                                  _marks[index]['shape'] == 'ring'
-                                      ? Icons.circle_outlined
-                                      : Icons.arrow_outward,
-                                  size: 18,
-                                ),
+                                avatar: Icon(switch (_marks[index]['shape']) {
+                                  'ring' => Icons.circle_outlined,
+                                  'arrow' => Icons.arrow_outward,
+                                  _ => Icons.gesture,
+                                }, size: 18),
                                 label: Text(
                                   note == null || note.isEmpty
                                       ? 'Mark ${index + 1}'
@@ -474,7 +524,7 @@ class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
         children: [
           Text(
             widget.newMark
-                ? 'Say what this circle or arrow identifies.'
+                ? 'Say what this mark identifies.'
                 : 'Update its note, redraw its position, or remove it.',
           ),
           const SizedBox(height: 18),
@@ -548,7 +598,7 @@ class _MarkPainter extends CustomPainter {
     if (previewPoints.length > 1) {
       final path = Path()
         ..moveTo(previewPoints.first.dx, previewPoints.first.dy);
-      if (previewShape == 'ring') {
+      if (previewShape == 'ring' || previewShape == 'freehand') {
         for (final point in previewPoints.skip(1)) {
           path.lineTo(point.dx, point.dy);
         }
@@ -585,11 +635,26 @@ class _MarkPainter extends CustomPainter {
           ),
         );
       selectionDot = Offset(center.dx - radiusX, center.dy - radiusY);
-    } else {
+    } else if (mark['shape'] == 'arrow') {
       final tail = Offset(n('tx') * size.width, n('ty') * size.height);
       final head = Offset(n('hx') * size.width, n('hy') * size.height);
       path = _arrow(tail, head, size);
       selectionDot = tail;
+    } else {
+      final points = (mark['points'] as List<dynamic>)
+          .map((value) => value as Map<dynamic, dynamic>)
+          .map(
+            (value) => Offset(
+              (value['x'] as num).toDouble() * size.width,
+              (value['y'] as num).toDouble() * size.height,
+            ),
+          )
+          .toList();
+      path = Path()..moveTo(points.first.dx, points.first.dy);
+      for (final point in points.skip(1)) {
+        path.lineTo(point.dx, point.dy);
+      }
+      selectionDot = points.first;
     }
     _paintRim(canvas, path, size, selected: selected);
     final badgeColor = selected ? const Color(0xFF2563EB) : Colors.red;

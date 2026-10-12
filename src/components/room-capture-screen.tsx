@@ -353,7 +353,9 @@ function Viewer({
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between px-4 py-2">
           <span className="text-sm text-gray-300">
-            {annotating ? (tool === 'ring' ? 'Drag a ring, or tap to point' : 'Drag from the spot') : <span className="capitalize">{noun}</span>}
+            {annotating ? (
+              tool === 'ring' ? 'Draw a circle around the detail' : tool === 'arrow' ? 'Draw an arrow toward the detail' : 'Draw directly over the detail'
+            ) : <span className="capitalize">{noun}</span>}
           </span>
           <button
             type="button"
@@ -438,7 +440,7 @@ function Viewer({
                 <>
                   <div className="flex items-center gap-2">
                     <div className="flex overflow-hidden rounded-md border border-gray-700">
-                      {(['ring', 'arrow'] as const).map((option) => (
+                      {(['ring', 'arrow', 'freehand'] as const).map((option) => (
                         <button
                           key={option}
                           type="button"

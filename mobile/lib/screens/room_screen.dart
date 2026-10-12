@@ -155,6 +155,47 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
+  Future<void> _openRoomActions(RoomDetail room) async {
+    final action = await showKiviloDrawer<String>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: const Text('Room actions'),
+        content: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Rename room'),
+              subtitle: const Text('Change the room name'),
+              onTap: () => Navigator.pop(context, 'rename'),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_outline,
+                color: KiviloColors.red,
+              ),
+              title: const Text(
+                'Delete room',
+                style: TextStyle(color: KiviloColors.red),
+              ),
+              subtitle: const Text('Remove its captures and inventory'),
+              onTap: () => Navigator.pop(context, 'delete'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || action == null) return;
+    if (action == 'rename') await _rename(room);
+    if (action == 'delete') await _deleteRoom();
+  }
+
   Future<void> _deleteRoom() async {
     if (_busy) return;
     setState(() {
@@ -318,20 +359,12 @@ class _RoomScreenState extends State<RoomScreen> {
                     ),
                   ),
                   if (widget.editable)
-                    PopupMenuButton<String>(
-                      enabled: !_busy,
-                      onSelected: (value) =>
-                          value == 'rename' ? _rename(room) : _deleteRoom(),
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(
-                          value: 'rename',
-                          child: Text('Rename room'),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Delete room'),
-                        ),
-                      ],
+                    IconButton(
+                      onPressed: _busy
+                          ? null
+                          : () => unawaited(_openRoomActions(room)),
+                      icon: const Icon(Icons.more_horiz),
+                      tooltip: 'Room actions',
                     ),
                 ],
               ),

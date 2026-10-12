@@ -1,19 +1,26 @@
 import { z } from 'zod'
 
 /// Marks the inspector draws over a photo: a ring around the chip, an arrow at the
-/// crack. They are stored as geometry, never burned into the stored object, because the
+/// crack, or a freehand stroke over an irregular detail. They are stored as geometry,
+/// never burned into the stored object, because the
 /// capture is the evidence and a report whose photographs have been rewritten is worth
 /// less than one whose photographs have not. The same numbers re-render on the phone,
 /// on the review screen and in the landlord's report.
 
 const unit = z.number().min(0).max(1)
 const markNote = z.string().trim().min(1).max(500).optional()
+const point = z.object({ x: unit, y: unit })
 
 export const markSchema = z.discriminatedUnion('shape', [
   z.object({ shape: z.literal('ring'), cx: unit, cy: unit, rx: unit, ry: unit, note: markNote }),
   /// Head is the end that touches the defect; tail is where the inspector's finger
   /// ended up, out in open space where the arrow can be seen.
   z.object({ shape: z.literal('arrow'), tx: unit, ty: unit, hx: unit, hy: unit, note: markNote }),
+  z.object({
+    shape: z.literal('freehand'),
+    points: z.array(point).min(2).max(256),
+    note: markNote,
+  }),
 ])
 
 /// What the phone sends. `w` and `h` are the upright intrinsic pixels of the image the
@@ -80,6 +87,12 @@ export function markPath(mark: Mark, w: number, h: number): string {
       ` a ${r(rx)} ${r(ry)} 0 1 0 ${r(rx * 2)} 0` +
       ` a ${r(rx)} ${r(ry)} 0 1 0 ${r(-rx * 2)} 0`
     )
+  }
+
+  if (mark.shape === 'freehand') {
+    return mark.points
+      .map((point, index) => `${index === 0 ? 'M' : 'L'} ${r(point.x * w)} ${r(point.y * h)}`)
+      .join(' ')
   }
 
   const tx = mark.tx * w

@@ -265,6 +265,69 @@ class _CaptureScreenState extends State<CaptureScreen> {
     );
   }
 
+  Future<String?> _chooseEvidenceAction({required bool photo}) {
+    return showKiviloDrawer<String>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: const Text('Evidence actions'),
+        content: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.notes_outlined),
+              title: const Text('Edit note'),
+              subtitle: const Text('Describe what this evidence shows'),
+              onTap: () => Navigator.pop(context, 'note'),
+            ),
+            if (photo)
+              ListTile(
+                leading: const Icon(Icons.gesture_outlined),
+                title: const Text('Mark photo'),
+                subtitle: const Text('Circle or point to a detail'),
+                onTap: () => Navigator.pop(context, 'mark'),
+              ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_outline,
+                color: KiviloColors.red,
+              ),
+              title: const Text(
+                'Delete evidence',
+                style: TextStyle(color: KiviloColors.red),
+              ),
+              onTap: () => Navigator.pop(context, 'delete'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openQueuedActions(PendingCapture capture) async {
+    final action = await _chooseEvidenceAction(photo: capture.kind == 'PHOTO');
+    if (!mounted || action == null) return;
+    if (action == 'note') await _noteQueued(capture);
+    if (action == 'mark') await _markQueued(capture);
+    if (action == 'delete') await _deleteQueued(capture);
+  }
+
+  Future<void> _openServerActions(EvidenceCapture capture) async {
+    final action = await _chooseEvidenceAction(photo: capture.kind == 'PHOTO');
+    if (!mounted || action == null) return;
+    if (action == 'note') await _noteServer(capture);
+    if (action == 'mark') await _markServer(capture);
+    if (action == 'delete') {
+      await _queue.queueRemoteDelete(_ownerId, widget.inspectionId, capture.id);
+      await _drain();
+    }
+  }
+
   Future<void> _noteQueued(PendingCapture capture) async {
     final note = await _askNote(capture.note);
     if (note == null) return;
@@ -655,33 +718,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
                                 : KiviloColors.red,
                           ),
                         ),
-                        trailing: PopupMenuButton<String>(
-                          onSelected: (action) {
-                            if (action == 'note') {
-                              unawaited(_noteQueued(capture));
-                            }
-                            if (action == 'mark') {
-                              unawaited(_markQueued(capture));
-                            }
-                            if (action == 'delete') {
-                              unawaited(_deleteQueued(capture));
-                            }
-                          },
-                          itemBuilder: (_) => [
-                            const PopupMenuItem(
-                              value: 'note',
-                              child: Text('Edit note'),
-                            ),
-                            if (capture.kind == 'PHOTO')
-                              const PopupMenuItem(
-                                value: 'mark',
-                                child: Text('Mark photo'),
-                              ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                          ],
+                        trailing: IconButton(
+                          onPressed: () =>
+                              unawaited(_openQueuedActions(capture)),
+                          icon: const Icon(Icons.more_horiz),
+                          tooltip: 'Evidence actions',
                         ),
                       ),
                     ),
@@ -723,34 +764,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   'Synced to report',
                   style: TextStyle(color: KiviloColors.green),
                 ),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (action) {
-                    if (action == 'note') unawaited(_noteServer(capture));
-                    if (action == 'mark') unawaited(_markServer(capture));
-                    if (action == 'delete') {
-                      unawaited(
-                        _queue
-                            .queueRemoteDelete(
-                              _ownerId,
-                              widget.inspectionId,
-                              capture.id,
-                            )
-                            .then((_) => _drain()),
-                      );
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(
-                      value: 'note',
-                      child: Text('Edit note'),
-                    ),
-                    if (capture.kind == 'PHOTO')
-                      const PopupMenuItem(
-                        value: 'mark',
-                        child: Text('Mark photo'),
-                      ),
-                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
-                  ],
+                trailing: IconButton(
+                  onPressed: () => unawaited(_openServerActions(capture)),
+                  icon: const Icon(Icons.more_horiz),
+                  tooltip: 'Evidence actions',
                 ),
               ),
             ),

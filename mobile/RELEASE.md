@@ -7,6 +7,14 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
+Build `16` adds a proper Android adaptive icon, so the pink background fills the
+launcher mask instead of Android shrinking the legacy square inside it. It also adds
+the Android 13 monochrome layer. Evidence and room three-dot menus now open full-width
+bottom drawers with labelled actions and larger touch targets.
+Photo markup adds a Freehand tool beside Circle and Arrow. Freehand paths remain
+normalized vector annotation data over the untouched evidence photo, carry their own
+notes, and can be selected, redrawn, or deleted like every other mark.
+
 Build `15` (source `fe63cbe`) is on Play internal testing (`completed:15`) and in
 Apple's `Kivilo Internal` TestFlight group. App Store Connect build
 `83986204-f38e-482d-97fa-6798d362185c` is `VALID` and declares
