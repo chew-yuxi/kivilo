@@ -7,12 +7,22 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `17` replaces the remaining stock Material segmented buttons with one Kivilo
-control: a quiet canvas rail, 16px corners, a white selected surface, pink emphasis,
-subtle depth, and 48px touch targets. The photo/video mode, markup tool, maintenance
-priority, and service filters now share the same treatment. Existing photo-mark chips
-use the same borders, selection colour, corner radius, and type weight. Flutter
-analysis and all 67 mobile tests pass.
+Build `17` (source `dfd666e`) replaces the remaining stock Material segmented buttons
+with one Kivilo control: a quiet canvas rail, 16px corners, a white selected surface,
+pink emphasis, subtle depth, and 48px touch targets. The photo/video mode, markup tool,
+maintenance priority, and service filters now share the same treatment. Existing
+photo-mark chips use the same borders, selection colour, corner radius, and type weight.
+Flutter analysis and all 67 mobile tests pass. The signed build was installed on the
+physical Nothing phone, where the full-width photo/video selector and both selected
+states were visually and functionally verified. Play internal testing serves
+`completed:17`; Play production remains build `13`. The Android AAB SHA-256 is
+`ec4ebbd313a2eb20871149ef211b915d29114651526f357e016fa44e1c9b1bb4` and the APK
+SHA-256 is `e3fada5dc90e016d502de7d4db7f8fe0a42ac40db76ab9be0b044c2007f97359`.
+App Store Connect build `7fc70242-ce09-4f96-baa9-5a1f1f3999b1` is `VALID`, declares
+`usesNonExemptEncryption: false`, and is attached only to the existing `Kivilo
+Internal` TestFlight group. Its IPA SHA-256 is
+`50c86c302bb423dcc9d00e96c3a153a33f6854153d71739c29aaaf88ea768ee3`. Apple's
+public build `12` submission remains `WAITING_FOR_REVIEW`.
 
 Build `16` (source `d2d971a`) adds a proper Android adaptive icon, so the pink
 background fills the launcher mask instead of Android shrinking the legacy square
