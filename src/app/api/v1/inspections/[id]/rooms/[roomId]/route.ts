@@ -48,6 +48,9 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
       sourceCaptureId: item.sourceCaptureId,
       sourceTimestampSec: item.sourceTimestampSec,
       evidenceCaptureIds: item.evidence.map((link) => link.captureId),
+      // Required by installed app builds up to 19. Delete once no such build is in use.
+      confidence: item.confidence,
+      editedByHuman: item.editedByHuman,
     })),
     captures: await Promise.all(
       stored.map(async (capture) => ({

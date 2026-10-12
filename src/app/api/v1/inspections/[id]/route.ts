@@ -83,6 +83,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     summary: inspection.summary,
     baselineId: inspection.baselineId,
     checkOutId: inspection.checkOut?.id ?? null,
+    // Required by installed app builds up to 19; see the note on rooms below.
+    aiConsentAt: inspection.aiConsentAt?.toISOString() ?? null,
     shareToken: inspection.shareToken,
     shareUrl: inspection.shareToken
       ? new URL(`/reports/${inspection.shareToken}`, request.url).toString()
@@ -113,6 +115,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       verdict: finding.verdict,
       rationale: finding.rationale,
       estimatedCost: finding.estimatedCost?.toString() ?? null,
+      confidence: finding.confidence,
       editedByHuman: finding.editedByHuman,
       itemId: finding.itemId,
       baselineItemId: finding.baselineItemId,
@@ -134,6 +137,11 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       items: room._count.items,
       photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
       videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
+      // Installed app builds up to 19 parse these as required fields and cannot open an
+      // inspection without them. Nothing drafts a room now, so they are constant.
+      // Delete once no such build is in use.
+      newSinceDraft: 0,
+      processingError: null,
     })),
   }
 })
