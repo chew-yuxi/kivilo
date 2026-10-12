@@ -10,10 +10,12 @@ const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: buildId },
 
   // The poster cron runs the ffmpeg binary, which nothing require()s, so file tracing
-  // would leave it out. Only that one function carries it.
+  // would leave it out. Only that one function carries it. The path is pnpm's real
+  // directory, which is also where Node resolves the package at runtime: Vercel rejects
+  // a function whose files arrive through the node_modules/ffmpeg-static symlink.
   serverExternalPackages: ['ffmpeg-static'],
   outputFileTracingIncludes: {
-    '/api/internal/posters': ['./node_modules/ffmpeg-static/ffmpeg'],
+    '/api/internal/posters': ['./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg'],
   },
 
   async headers() {
