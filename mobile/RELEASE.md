@@ -7,8 +7,10 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Android build `14` is now on the internal-testing track (`completed:14`) for the
-capture and form UX review. It makes the system camera and photo/video library the
+Build `14` (source `34eb6f1`) is now on Play internal testing (`completed:14`)
+and in Apple's `Kivilo Internal` TestFlight group for the capture and form UX
+review. The iOS build is `VALID`, declares `usesNonExemptEncryption: false`, and
+has App Store Connect build ID `d580d2b0-edde-45e5-bb7a-f403b1cdd206`. It makes the system camera and photo/video library the
 primary evidence actions, retains a compact optional rapid camera, and recovers an
 Android picker result if the operating system recreates the activity. Picker results
 are copied into Kivilo's app-support store and durable queue before upload. Freehand
@@ -18,8 +20,9 @@ numbered marks in shared reports. Form selectors and all former alert dialogs no
 full-width bottom drawers. Flutter analysis and all 73 tests pass; backend lint,
 typecheck, all 59 unit tests, and the production build pass. The signed AAB and APK
 are archived under ignored `mobile/build/release-artifacts/android/build14/`.
-The Play production track remains build `13` and remains in review; build `14` was
-committed to internal testing only.
+The Play production track remains build `13` and remains in review. Apple's public
+submission remains build `12`, `WAITING_FOR_REVIEW`. Build `14` was added only to
+the two internal testing tracks.
 
 Android build `13` (source `110a9dd`) passed its physical reconnect-burst regression.
 It uses foreground WorkManager uploads instead of the plugin's UIDT path, configures
