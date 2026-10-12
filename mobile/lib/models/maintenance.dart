@@ -145,13 +145,17 @@ class MaintenanceVisitModel {
     this.scheduledAt,
     this.completedAt,
     this.notes,
+    this.cost,
     this.verificationOutcome,
+    this.verificationNote,
   });
   final String id;
   final String? scheduledAt;
   final String? completedAt;
   final String? notes;
+  final String? cost;
   final String? verificationOutcome;
+  final String? verificationNote;
 
   factory MaintenanceVisitModel.fromJson(Map<String, dynamic> json) =>
       MaintenanceVisitModel(
@@ -159,9 +163,12 @@ class MaintenanceVisitModel {
         scheduledAt: json['scheduledAt'] as String?,
         completedAt: json['completedAt'] as String?,
         notes: json['notes'] as String?,
+        cost: json['cost'] as String?,
         verificationOutcome:
             (json['verification'] as Map<String, dynamic>?)?['outcome']
                 as String?,
+        verificationNote:
+            (json['verification'] as Map<String, dynamic>?)?['note'] as String?,
       );
 }
 
@@ -352,7 +359,10 @@ class MaintenanceCaseDetail {
     required this.description,
     required this.status,
     required this.priority,
+    required this.category,
     required this.property,
+    required this.reportedBy,
+    required this.createdAt,
     required this.role,
     required this.canManage,
     required this.canLogVisit,
@@ -361,13 +371,18 @@ class MaintenanceCaseDetail {
     required this.visits,
     required this.evidence,
     required this.events,
+    this.resolutionReason,
   });
   final String id;
   final String title;
   final String description;
   final String status;
   final String priority;
+  final String category;
   final String property;
+  final String reportedBy;
+  final String createdAt;
+  final String? resolutionReason;
   final String role;
   final bool canManage;
   final bool canLogVisit;
@@ -385,7 +400,11 @@ class MaintenanceCaseDetail {
     description: json['description'] as String,
     status: json['status'] as String,
     priority: json['priority'] as String,
+    category: json['category'] as String,
     property: json['property'] as String,
+    reportedBy: (json['reportedBy'] as Map<String, dynamic>)['name'] as String,
+    createdAt: json['createdAt'] as String,
+    resolutionReason: json['resolutionReason'] as String?,
     role: json['role'] as String,
     canManage: json['canManage'] as bool,
     canLogVisit: json['canLogVisit'] as bool,

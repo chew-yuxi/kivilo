@@ -506,6 +506,15 @@ class _KiviloSelectSheet<T> extends StatelessWidget {
   );
 }
 
+const maintenanceStatusLabels = {
+  'REPORTED': 'Reported',
+  'ACKNOWLEDGED': 'Acknowledged',
+  'SCHEDULED': 'Scheduled',
+  'AWAITING_CONFIRMATION': 'Awaiting confirmation',
+  'RESOLVED': 'Resolved',
+  'CLOSED_NO_ACTION': 'Closed',
+};
+
 class KiviloStatusPill extends StatelessWidget {
   const KiviloStatusPill({super.key, required this.status});
   final String status;
@@ -526,6 +535,24 @@ class KiviloStatusPill extends StatelessWidget {
       'PROCESSING' ||
       'FAILED' => ('Capturing', KiviloColors.pinkDark, KiviloColors.pinkSoft),
       'PENDING' => ('Not started', KiviloColors.muted, KiviloColors.canvas),
+      'REPORTED' => ('Reported', KiviloColors.amber, KiviloColors.amberSoft),
+      'ACKNOWLEDGED' => (
+        'Acknowledged',
+        KiviloColors.pinkDark,
+        KiviloColors.pinkSoft,
+      ),
+      'SCHEDULED' => (
+        'Scheduled',
+        KiviloColors.pinkDark,
+        KiviloColors.pinkSoft,
+      ),
+      'AWAITING_CONFIRMATION' => (
+        'Awaiting confirmation',
+        KiviloColors.amber,
+        KiviloColors.amberSoft,
+      ),
+      'RESOLVED' => ('Resolved', KiviloColors.green, KiviloColors.greenSoft),
+      'CLOSED_NO_ACTION' => ('Closed', KiviloColors.muted, KiviloColors.canvas),
       _ => ('Draft', KiviloColors.muted, KiviloColors.canvas),
     };
     return Container(
