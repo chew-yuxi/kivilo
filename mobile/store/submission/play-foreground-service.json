@@ -5,7 +5,7 @@
   "deferralImpact": "Deferring the transfer delays review of the room inventory and delivery of the inspection report while the inspector is completing a property handover.",
   "interruptionImpact": "Interrupting a large video upload requires another transfer attempt and delays the inspection workflow. The app retains the original capture and stable identity for retry; it does not discard evidence because a transfer fails.",
   "demonstrationVideoUrl": "https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4",
-  "status": "Demonstration deployed and verified by SHA-256 and HTTP 206 range response; Console declaration pending. This file is an answer sheet, not an API request.",
+  "status": "Demonstration deployed and verified by SHA-256 and HTTP 206 range response; Network processing: Other and the video link are saved in Play Publishing overview. This file is an answer sheet, not an API request.",
   "demonstration": {
     "build": 13,
     "sha256": "899ac0be6a1e94ada9937ed60024162c5ae4e6210a72016c59e006d569735de9",

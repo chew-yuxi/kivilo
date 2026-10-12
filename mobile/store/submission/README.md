@@ -1,9 +1,8 @@
 # Kivilo public submission request set
 
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
-Pte. Ltd. **No public review submission has been dispatched.** Complete the
-remaining release gates before committing a Play edit or submitting the Apple
-version. Apple now has an unsubmitted review draft; the current IDs are below.
+Pte. Ltd. Apple build 12 has been submitted for review. Google Play's changes are
+staged but have not been submitted for review.
 
 **Hold public Android submission:** build 13 replaces the native-upload
 notification path that caused an ANR in build 12. The foreground WorkManager fix
@@ -16,18 +15,20 @@ sizes. A real upload remained active after Kivilo was backgrounded, with the
 privacy-reviewed demonstration is deployed at
 `https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4`. Its public
 bytes match the reviewed SHA-256 and byte-range playback returns HTTP 206. The
-`dataSync` foreground-service declaration remains pending.
+`dataSync` foreground-service declaration and video link are saved in Publishing
+overview.
 A continuous background transfer longer than nine minutes, physical low-storage
 recovery, and recovery after an already expired session remain unverified.
 The iOS build is unaffected by this Android service failure.
 
 ## Apple
 
-Live App Store Connect read-back on 2026-10-12: iOS version `1.0.0` is
-`READY_FOR_REVIEW`, selected build `12` (`da103e08-bfc0-43f3-9e10-4f39579e5ef5`)
-is `VALID` and available to the internal TestFlight group. It has been added to
-review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9`, whose state is
-`READY_FOR_REVIEW` with no submitted date. Its item is
+Live App Store Connect read-back on 2026-10-12: iOS version `1.0.0`, selected
+build `12` (`da103e08-bfc0-43f3-9e10-4f39579e5ef5`), and review submission
+`cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` are submitted and
+`WAITING_FOR_REVIEW`. The submitted date is `2026-10-12T02:23:05.354Z`. The user
+explicitly accepted the remaining physical low-storage and already-expired-session
+test gaps for this Apple submission. Its item is
 `Y2ZiYmFmMTYtOGQ5MC00MzBiLWI0NjUtYmI4YzhlMWNjM2Q5fDZ8ODkyOTIyMTk0`.
 Build 12 includes the camera-permission, stalled-network, and foreground
 queue-retry fixes. Its physical iPhone 30-photo and ten-minute offline video,
@@ -45,13 +46,10 @@ for this iPhone-only build.
 Use the existing App Store Connect JWT helper at
 `/Users/liguro/.appstoreconnect/asc_check.py` without printing its token:
 
-1. Recheck `GET /v1/apps/6821514302/reviewSubmissions`, its single version item,
-   and the selected build. The current draft is already populated; do not create
-   a duplicate. `apple-create-review-submission.json` and
-   `apple-add-version.json` preserve the request bodies used to stage it.
-2. Only after the final release gates pass, `PATCH` `apple-submit-review.json` to
-   `/v1/reviewSubmissions/cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9`. This final call sends the
-   version to App Review. Confirm the submission and version states afterward.
+The current submission already exists; do not create or submit a duplicate.
+`apple-create-review-submission.json`, `apple-add-version.json`, and
+`apple-submit-review.json` preserve the structured requests used to stage and
+submit it.
 
 Apple's [submit-an-app instructions](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app/)
 distinguish adding a version to a draft submission from sending that submission
@@ -67,17 +65,18 @@ On 2026-10-12, Play Console saved the complete Kivilo default listing and showed
 icon, one feature graphic, and two phone screenshots are saved. Only the icon
 and feature graphic are labelled as created or edited using AI. Internal testing
 serves signed versionCode `13` with release status `completed`; the production
-track has only an empty, bundle-less Console draft and no public rollout. Play Console has
+track has a saved build-13 production draft and no public rollout. Play Console has
 Singapore alone saved under **Changes not yet submitted for review**; it is not
 published. The listing has no remaining required-image errors.
 The prepared production payload targets versionCode `13`, containing the
 Android foreground WorkManager upload fix. The reconnect regression passed;
 the short background-upload probe passed with 72/72 captures and private Storage
 objects. Its reviewed, genuine synthetic demonstration is live at the URL
-above; the Play foreground-service declaration remains pending. Build 13 alone
-is selected in the open production library picker, but its footer Add to release
-button is outside the browser tool's accessible snapshot. The user has been asked
-to click it; no bundle has yet been added or production release saved.
+above; the Play foreground-service declaration and its video link are saved.
+The production draft contains build 13, release name `Kivilo 1.0.0`, and the
+approved en-US release notes. Publishing overview shows ten changes not yet
+submitted for review and is running its automated quick checks. The two remaining
+physical test gaps have not yet been accepted for Android.
 The private reviewer login
 was recently verified, and its Play Sign in details were saved with optional
 Google/partner credential sharing off.

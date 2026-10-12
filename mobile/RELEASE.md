@@ -13,7 +13,7 @@ foreground mode before starting the downloader, and declares the `dataSync`
 foreground service. Flutter analysis and all 70 tests pass. The merged release
 manifest has both foreground-service permissions and no
 `RUN_USER_INITIATED_JOBS`; APK and AAB signing match the established upload key.
-Google's new foreground-service declaration remains pending. A genuine synthetic
+Google's new foreground-service declaration is saved in Publishing overview. A genuine synthetic
 capture/upload demonstration has been privacy-reviewed and deployed at
 `https://kivilo.nottoosweetlabs.com/review/android-evidence-upload.mp4`. The public
 URL returns HTTP 200 with the exact reviewed SHA-256 and supports HTTP 206 byte
@@ -39,21 +39,22 @@ background probe confirms a short active transfer, not a continuous transfer
 lasting more than nine minutes.
 
 Build `12` (source `333b099`) remains on internal TestFlight. Play internal
-testing now serves signed build `13` (`completed:13`); production has only an
-empty, bundle-less Console draft, with no public rollout. In the open Console
-library picker, build 13 alone is selected; the browser tool cannot reach its
-footer Add to release button, so adding it to the draft awaits that manual click.
+testing now serves signed build `13` (`completed:13`). The production draft now
+contains build 13 and its en-US release notes; Play shows it as ready to release
+among ten changes not yet submitted for review. There is no public rollout.
 Apple's build `da103e08-bfc0-43f3-9e10-4f39579e5ef5` is VALID, selected on the
-unsubmitted version draft, and installed in-place on the physical iPhone.
-Apple review draft `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version
-and is `READY_FOR_REVIEW`, with no submitted date. Google has saved the complete
-default listing as **Ready to send for review**. Neither public review has begun.
+submitted version, and installed in-place on the physical iPhone. Apple review
+submission `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version and was
+submitted at `2026-10-12T02:23:05.354Z`; both submission and version read back as
+`WAITING_FOR_REVIEW`. Google has saved the complete default listing as ready to
+send for review, but its public review has not begun.
 Physical-device low-storage and recovery after an already expired session remain
 unverified on both platforms; automated fault tests cover only part of those
 conditions. A read-only Android Auth check observed ordinary automatic refresh,
-which is not the same as expired-session recovery. The user has been asked
-whether to accept the two physical-test gaps for Apple build 12. No acceptance
-has been received, so the original release gate still applies.
+which is not the same as expired-session recovery. The user explicitly accepted
+these two physical-test gaps for Apple build 12 before its submission. That
+acceptance applies to Apple only; Android submission remains held pending a
+separate decision.
 **Android build 12 is withheld from public release:** its 31-capture reconnect
 burst triggered an Android 36 ANR, `required notification not provided`, when
 the native UIDT upload service missed its ten-second notification deadline.
