@@ -25,8 +25,9 @@ returns 200 and unauthenticated `/api/v1/me` returns 401.
 The signed build was installed on the physical Nothing phone. Its pink adaptive
 icon fills the launcher circle, evidence actions open in a bottom drawer, and the
 markup editor exposes Circle, Arrow, and Freehand. Flutter analysis passed with all
-67 mobile tests. Backend typecheck, lint, production build, all 60 unit tests, and
-all 37 local-Supabase integration tests passed. The Android AAB SHA-256 is
+67 mobile tests. Backend typecheck, lint, production build, all 60 unit tests, all
+37 local-Supabase integration tests, and all three full Playwright workflows passed.
+The Android AAB SHA-256 is
 `df09fbe295c074c7d0f4ae6456a81a4632ba556f78fdf9cec7723e6865d6c1d9`, the APK
 SHA-256 is `0b354d19aaf8c75c92424cc4e4795756ca8785ebca46e607029ef0876970b572`, and the
 iOS IPA SHA-256 is
