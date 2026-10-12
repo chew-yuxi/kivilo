@@ -7,13 +7,30 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `16` adds a proper Android adaptive icon, so the pink background fills the
-launcher mask instead of Android shrinking the legacy square inside it. It also adds
-the Android 13 monochrome layer. Evidence and room three-dot menus now open full-width
-bottom drawers with labelled actions and larger touch targets.
+Build `16` (source `d2d971a`) adds a proper Android adaptive icon, so the pink
+background fills the launcher mask instead of Android shrinking the legacy square
+inside it. It also adds the Android 13 monochrome layer. Evidence and room three-dot
+menus now open full-width bottom drawers with labelled actions and larger touch targets.
 Photo markup adds a Freehand tool beside Circle and Arrow. Freehand paths remain
 normalized vector annotation data over the untouched evidence photo, carry their own
 notes, and can be selected, redrawn, or deleted like every other mark.
+Play internal testing serves `completed:16`; Play production remains build `13`.
+App Store Connect build `9f90d179-3a71-4825-a9b5-d1abd3910473` is `VALID`, declares
+`usesNonExemptEncryption: false`, and is attached only to the existing `Kivilo
+Internal` TestFlight group. Apple's public build `12` submission remains
+`WAITING_FOR_REVIEW`. The production backend deployment
+`dpl_DDDNtjpRkrCq8CZzQmkh3fMpfm4X` is `READY` in `sin1`; the public privacy page
+returns 200 and unauthenticated `/api/v1/me` returns 401.
+
+The signed build was installed on the physical Nothing phone. Its pink adaptive
+icon fills the launcher circle, evidence actions open in a bottom drawer, and the
+markup editor exposes Circle, Arrow, and Freehand. Flutter analysis passed with all
+67 mobile tests. Backend typecheck, lint, production build, all 60 unit tests, and
+all 37 local-Supabase integration tests passed. The Android AAB SHA-256 is
+`df09fbe295c074c7d0f4ae6456a81a4632ba556f78fdf9cec7723e6865d6c1d9`, the APK
+SHA-256 is `0b354d19aaf8c75c92424cc4e4795756ca8785ebca46e607029ef0876970b572`, and the
+iOS IPA SHA-256 is
+`3a8198b3ac3cc18a2c3c59082b93ec4d7dc330eefa3406672128918f99d9c57e`.
 
 Build `15` (source `fe63cbe`) is on Play internal testing (`completed:15`) and in
 Apple's `Kivilo Internal` TestFlight group. App Store Connect build
