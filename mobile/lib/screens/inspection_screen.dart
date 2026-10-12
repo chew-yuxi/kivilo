@@ -281,15 +281,24 @@ class _InspectionScreenState extends State<InspectionScreen> {
     }
   }
 
-  Future<void> _publishFindings() async {
+  /// With no findings, publishing states that no damage was found, so the drawer says
+  /// exactly that and the request carries the confirmation the server requires.
+  Future<void> _publishFindings(bool noFindings) async {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Publish assessment?'),
-        content: const Text(
-          'The reviewed findings will be visible as a dated '
-          'assessment separate from the signed inventory. Future edits require '
-          'publishing a new version.',
+        title: Text(
+          noFindings ? 'Publish: no damage found?' : 'Publish assessment?',
+        ),
+        content: Text(
+          noFindings
+              ? 'No changes are recorded between check-in and check-out. '
+                    'Publishing states that you checked and found no damage, '
+                    'and both parties see that in the shared report. Future '
+                    'edits require publishing a new version.'
+              : 'The reviewed findings will be visible as a dated '
+                    'assessment separate from the signed inventory. Future '
+                    'edits require publishing a new version.',
         ),
         actions: [
           TextButton(
@@ -298,12 +307,14 @@ class _InspectionScreenState extends State<InspectionScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Publish'),
+            child: Text(noFindings ? 'Publish no damage' : 'Publish'),
           ),
         ],
       ),
     );
-    if (confirmed == true) await _run(() => _api.publishFindings(widget.id));
+    if (confirmed == true) {
+      await _run(() => _api.publishFindings(widget.id, noFindings: noFindings));
+    }
   }
 
   @override
@@ -1089,10 +1100,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
               _busy ||
                   inspection.findings.any((finding) => !finding.editedByHuman)
               ? null
-              : _publishFindings,
+              : () => _publishFindings(inspection.findings.isEmpty),
           icon: const Icon(Icons.publish_outlined),
           label: Text(
-            inspection.latestAssessment == null
+            inspection.findings.isEmpty
+                ? 'Publish: no damage found'
+                : inspection.latestAssessment == null
                 ? 'Publish assessment'
                 : 'Publish new version',
           ),

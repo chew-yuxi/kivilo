@@ -7,7 +7,14 @@ import { db } from '@/lib/db'
 
 /// Publishing is an explicit human review step. The signed inventory remains frozen;
 /// this is a separately dated assessment that can only be superseded by a new version.
-export async function publishAssessment(inspectionId: string) {
+/// An assessment with no findings says no damage was found, so publishing one has to be
+/// asked for in so many words. Installed builds 12 to 19 offer Publish on any completed
+/// check-out and cannot add a finding; without this an agent could publish a no-damage
+/// assessment nobody actually made.
+export async function publishAssessment(
+  inspectionId: string,
+  { noFindings = false }: { noFindings?: boolean } = {},
+) {
   const agent = await requireAgent()
   const authorized = await authorizeInspection(inspectionId, agent.id)
   if (authorized.kind !== 'CHECK_OUT' || authorized.status !== 'COMPLETED') {
@@ -33,6 +40,9 @@ export async function publishAssessment(inspectionId: string) {
     }
     if (inspection.findings.some((finding) => !finding.editedByHuman)) {
       throw new Error('Review every finding before publishing the assessment')
+    }
+    if (inspection.findings.length === 0 && !noFindings) {
+      throw new Error('Confirm that no damage was found before publishing an assessment without findings')
     }
 
     const snapshot = {

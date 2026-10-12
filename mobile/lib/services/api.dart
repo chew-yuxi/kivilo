@@ -471,10 +471,13 @@ class Api {
     );
   });
 
-  Future<void> publishFindings(String inspectionId) => _call(() async {
+  Future<void> publishFindings(
+    String inspectionId, {
+    bool noFindings = false,
+  }) => _call(() async {
     await _dio.post(
       '/api/v1/inspections/$inspectionId/findings/publish',
-      data: {},
+      data: {if (noFindings) 'noFindings': true},
     );
   });
 

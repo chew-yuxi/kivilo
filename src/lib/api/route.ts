@@ -49,6 +49,9 @@ export function authed<P>(
       if (/Review every finding before publishing/i.test(message)) {
         return Response.json({ error: 'assessment_review_incomplete' }, { status: 409 })
       }
+      if (/Confirm that no damage was found/i.test(message)) {
+        return Response.json({ error: 'no_damage_unconfirmed' }, { status: 409 })
+      }
       if (/Capture client id already registered|Capture is already registered with different media|Capture was deleted/i.test(message)) {
         return Response.json({ error: 'capture_conflict' }, { status: 409 })
       }

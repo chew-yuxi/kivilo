@@ -181,6 +181,10 @@ export function FindingsPanel({
   checkInItems: ComparableItem[]
 }) {
   const [pending, startTransition] = useTransition()
+  // With no findings, publishing states that no damage was found. The server refuses
+  // that unless it is confirmed, so the agent has to tick it.
+  const [noDamage, setNoDamage] = useState(false)
+  const empty = findings.length === 0
 
   const liable = findings.filter((f) => f.verdict === 'TENANT_LIABLE')
   const claimTotal = liable.reduce((sum, f) => sum + Number(f.estimatedCost ?? 0), 0)
@@ -350,13 +354,29 @@ export function FindingsPanel({
         {publishedVersion && (
           <p className="mt-2 text-xs text-gray-500">Published version {publishedVersion}</p>
         )}
+        {empty && (
+          <label className="mt-3 flex items-start gap-2 text-gray-800">
+            <input
+              type="checkbox"
+              checked={noDamage}
+              onChange={(event) => setNoDamage(event.target.checked)}
+              className="mt-0.5"
+            />
+            <span>
+              No damage was found. Both parties will see a no-damage assessment in the
+              shared report.
+            </span>
+          </label>
+        )}
         <button
           type="button"
-          disabled={pending || findings.some((finding) => !finding.editedByHuman)}
-          onClick={() => startTransition(() => void publishAssessment(inspectionId))}
+          disabled={
+            pending || (empty && !noDamage) || findings.some((finding) => !finding.editedByHuman)
+          }
+          onClick={() => startTransition(() => void publishAssessment(inspectionId, { noFindings: empty }))}
           className="mt-3 rounded-md bg-brand-600 px-3 py-2 font-medium text-white disabled:opacity-50"
         >
-          {pending ? 'Publishing…' : 'Publish assessment'}
+          {pending ? 'Publishing…' : empty ? 'Publish: no damage found' : 'Publish assessment'}
         </button>
       </div>
     </div>

@@ -18,6 +18,8 @@ class ApiFailure implements Exception {
         'Each room needs at least one item and a review first.',
       'assessment_review_incomplete' =>
         'Open and confirm every finding before publishing the assessment.',
+      'no_damage_unconfirmed' =>
+        'Add a finding, or confirm that no damage was found, before publishing.',
       'invalid_state' =>
         'This action is not available at the current report stage.',
       'capture_conflict' => 'This capture was already registered differently.',

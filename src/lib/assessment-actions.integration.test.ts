@@ -192,3 +192,35 @@ describe('post-signature assessment publication', () => {
     expect(snapshot.findings).toHaveLength(1)
   })
 })
+
+describe('a check-out with no findings', () => {
+  it('publishes a no-damage assessment only when that is confirmed', async () => {
+    const agent = await db.stakeholder.create({ data: { name: 'No damage agent' } })
+    vi.mocked(requireAgent).mockResolvedValue(agent)
+    const landlord = await db.stakeholder.create({ data: { name: 'No damage landlord' } })
+    const tenant = await db.stakeholder.create({ data: { name: 'No damage tenant' } })
+    const property = await db.property.create({
+      data: { line1: 'No damage test', postalCode: '991234', type: 'PRIVATE_NON_LANDED' },
+    })
+    const tenancy = await db.tenancy.create({
+      data: {
+        propertyId: property.id, landlordId: landlord.id, tenantId: tenant.id, agentId: agent.id,
+        startDate: new Date('2024-01-01'), endDate: new Date('2026-01-01'),
+        monthlyRent: '1000', deposit: '2000',
+      },
+    })
+    const inspection = await db.inspection.create({
+      data: { tenancyId: tenancy.id, kind: 'CHECK_OUT', status: 'COMPLETED' },
+    })
+
+    // What builds 12 to 20 send: an empty body, so no confirmation.
+    await expect(publishAssessment(inspection.id)).rejects.toThrow('Confirm that no damage was found')
+    expect(await db.assessmentVersion.count({ where: { inspectionId: inspection.id } })).toBe(0)
+
+    await expect(publishAssessment(inspection.id, { noFindings: true }))
+      .resolves.toMatchObject({ version: 1 })
+    const [version] = await db.assessmentVersion.findMany({ where: { inspectionId: inspection.id } })
+    expect(assessmentSnapshotSchema.parse(version.snapshot).findings).toEqual([])
+  })
+})
+
