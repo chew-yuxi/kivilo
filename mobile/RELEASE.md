@@ -40,8 +40,9 @@ lasting more than nine minutes.
 
 Build `12` (source `333b099`) remains on internal TestFlight. Play internal
 testing now serves signed build `13` (`completed:13`). The production draft now
-contains build 13 and its en-US release notes; Play shows it as ready to release
-among ten changes not yet submitted for review. There is no public rollout.
+contains build 13 and its en-US release notes. All ten changes passed Play's
+automated pre-submission checks and Publishing overview now says, `Your changes
+are now in review.` There is no public rollout yet.
 Apple's build `da103e08-bfc0-43f3-9e10-4f39579e5ef5` is VALID, selected on the
 submitted version, and installed in-place on the physical iPhone. Apple review
 submission `cfbbaf16-8d90-430b-b465-bb8c8e1cc3d9` contains this version and was
@@ -52,9 +53,8 @@ Physical-device low-storage and recovery after an already expired session remain
 unverified on both platforms; automated fault tests cover only part of those
 conditions. A read-only Android Auth check observed ordinary automatic refresh,
 which is not the same as expired-session recovery. The user explicitly accepted
-these two physical-test gaps for Apple build 12 before its submission. That
-acceptance applies to Apple only; Android submission remains held pending a
-separate decision.
+these two physical-test gaps separately for Apple build 12 and Android build 13
+before their submissions.
 **Android build 12 is withheld from public release:** its 31-capture reconnect
 burst triggered an Android 36 ANR, `required notification not provided`, when
 the native UIDT upload service missed its ten-second notification deadline.

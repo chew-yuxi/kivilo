@@ -1,10 +1,9 @@
 # Kivilo public submission request set
 
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
-Pte. Ltd. Apple build 12 has been submitted for review. Google Play's changes are
-staged but have not been submitted for review.
+Pte. Ltd. Apple build 12 and Google Play build 13 have been submitted for review.
 
-**Hold public Android submission:** build 13 replaces the native-upload
+Android build 13 replaces the native-upload
 notification path that caused an ANR in build 12. The foreground WorkManager fix
 is on internal testing, and its physical
 31-capture reconnect regression passed: the isolated synthetic room advanced
@@ -19,6 +18,8 @@ bytes match the reviewed SHA-256 and byte-range playback returns HTTP 206. The
 overview.
 A continuous background transfer longer than nine minutes, physical low-storage
 recovery, and recovery after an already expired session remain unverified.
+The user explicitly accepted the physical low-storage and already-expired-session
+test gaps for Android before submission.
 The iOS build is unaffected by this Android service failure.
 
 ## Apple
@@ -73,10 +74,12 @@ Android foreground WorkManager upload fix. The reconnect regression passed;
 the short background-upload probe passed with 72/72 captures and private Storage
 objects. Its reviewed, genuine synthetic demonstration is live at the URL
 above; the Play foreground-service declaration and its video link are saved.
-The production draft contains build 13, release name `Kivilo 1.0.0`, and the
-approved en-US release notes. Publishing overview shows ten changes not yet
-submitted for review and is running its automated quick checks. The two remaining
-physical test gaps have not yet been accepted for Android.
+The submitted production release contains build 13, release name `Kivilo 1.0.0`,
+and the approved en-US release notes. All ten changes passed Play's automated
+pre-submission checks; Publishing overview shows **Changes in review** and says
+the changes are now in review. Managed publishing is off, so the release will
+roll out in Singapore after approval. The user accepted the two remaining
+physical-test gaps for Android before submission.
 The private reviewer login
 was recently verified, and its Play Sign in details were saved with optional
 Google/partner credential sharing off.
