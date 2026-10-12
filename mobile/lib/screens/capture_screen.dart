@@ -48,10 +48,22 @@ class _CaptureScreenState extends State<CaptureScreen> {
   String? _error;
   List<PendingRemoteEdit> _remoteEdits = const [];
   List<String> _unresolved = const [];
+  StreamSubscription<EvidenceSyncUpdate>? _syncSubscription;
+  final Map<String, EvidenceSyncUpdate> _syncUpdates = {};
 
   @override
   void initState() {
     super.initState();
+    _syncSubscription = evidenceSyncUpdates.listen((update) {
+      if (!mounted) return;
+      setState(() {
+        if (update.stage == EvidenceSyncStage.complete) {
+          _syncUpdates.remove(update.clientId);
+        } else {
+          _syncUpdates[update.clientId] = update;
+        }
+      });
+    });
     unawaited(_initialize());
   }
 
@@ -258,10 +270,16 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
-  Future<String?> _askNote(String? initial) async {
-    return showKiviloDrawer<String>(
+  Future<_PhotoNoteResult?> _askNote(
+    String? initial, {
+    bool canReturnToActions = false,
+  }) async {
+    return showKiviloDrawer<_PhotoNoteResult>(
       context: context,
-      builder: (_) => _PhotoNoteDrawer(initial: initial),
+      builder: (_) => _PhotoNoteDrawer(
+        initial: initial,
+        canReturnToActions: canReturnToActions,
+      ),
     );
   }
 
@@ -273,6 +291,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         content: Column(
           children: [
             ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
               title: const Text('Edit note'),
               subtitle: const Text('Describe what this evidence shows'),
@@ -280,6 +299,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
             ),
             if (photo)
               ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.gesture_outlined),
                 title: const Text('Mark photo'),
                 subtitle: const Text('Circle or point to a detail'),
@@ -287,6 +307,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ),
             const Divider(),
             ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(
                 Icons.delete_outline,
                 color: KiviloColors.red,
@@ -310,27 +331,49 @@ class _CaptureScreenState extends State<CaptureScreen> {
   }
 
   Future<void> _openQueuedActions(PendingCapture capture) async {
-    final action = await _chooseEvidenceAction(photo: capture.kind == 'PHOTO');
-    if (!mounted || action == null) return;
-    if (action == 'note') await _noteQueued(capture);
-    if (action == 'mark') await _markQueued(capture);
-    if (action == 'delete') await _deleteQueued(capture);
-  }
-
-  Future<void> _openServerActions(EvidenceCapture capture) async {
-    final action = await _chooseEvidenceAction(photo: capture.kind == 'PHOTO');
-    if (!mounted || action == null) return;
-    if (action == 'note') await _noteServer(capture);
-    if (action == 'mark') await _markServer(capture);
-    if (action == 'delete') {
-      await _queue.queueRemoteDelete(_ownerId, widget.inspectionId, capture.id);
-      await _drain();
+    while (mounted) {
+      final action = await _chooseEvidenceAction(
+        photo: capture.kind == 'PHOTO',
+      );
+      if (!mounted || action == null) return;
+      if (action == 'note') {
+        if (await _noteQueued(capture)) continue;
+        return;
+      }
+      if (action == 'mark') await _markQueued(capture);
+      if (action == 'delete') await _deleteQueued(capture);
+      return;
     }
   }
 
-  Future<void> _noteQueued(PendingCapture capture) async {
-    final note = await _askNote(capture.note);
-    if (note == null) return;
+  Future<void> _openServerActions(EvidenceCapture capture) async {
+    while (mounted) {
+      final action = await _chooseEvidenceAction(
+        photo: capture.kind == 'PHOTO',
+      );
+      if (!mounted || action == null) return;
+      if (action == 'note') {
+        if (await _noteServer(capture)) continue;
+        return;
+      }
+      if (action == 'mark') await _markServer(capture);
+      if (action == 'delete') {
+        await _queue.queueRemoteDelete(
+          _ownerId,
+          widget.inspectionId,
+          capture.id,
+        );
+        await _drain();
+      }
+      return;
+    }
+  }
+
+  Future<bool> _noteQueued(PendingCapture capture) async {
+    final result = await _askNote(capture.note, canReturnToActions: true);
+    if (result == null) return false;
+    if (result.returnToActions) return true;
+    final note = result.note!;
     final value = note.trim().isEmpty ? null : note.trim();
     final current = await _queue.byId(capture.id);
     if (current != null) {
@@ -344,7 +387,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 'Could not locate this synced photo. Please retry the note.',
           );
         }
-        return;
+        return false;
       }
       await _queue.queueRemoteNote(
         _ownerId,
@@ -354,6 +397,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       );
     }
     unawaited(_drain());
+    return false;
   }
 
   Future<void> _markQueued(PendingCapture capture) async {
@@ -458,9 +502,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
     unawaited(_drain());
   }
 
-  Future<void> _noteServer(EvidenceCapture capture) async {
-    final note = await _askNote(capture.note);
-    if (note == null) return;
+  Future<bool> _noteServer(EvidenceCapture capture) async {
+    final result = await _askNote(capture.note, canReturnToActions: true);
+    if (result == null) return false;
+    if (result.returnToActions) return true;
+    final note = result.note!;
     await _queue.queueRemoteNote(
       _ownerId,
       widget.inspectionId,
@@ -468,6 +514,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       note.trim().isEmpty ? null : note.trim(),
     );
     unawaited(_drain());
+    return false;
   }
 
   Future<void> _markServer(EvidenceCapture capture) async {
@@ -552,8 +599,120 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
+  String _fileSize(int bytes) {
+    if (bytes >= 1024 * 1024) {
+      final digits = bytes >= 10 * 1024 * 1024 ? 1 : 2;
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(digits)} MB';
+    }
+    final digits = bytes >= 100 * 1024 ? 0 : 1;
+    return '${(bytes / 1024).toStringAsFixed(digits)} KB';
+  }
+
+  Widget _pendingCaptureCard(PendingCapture capture) {
+    final update = capture.clientId == null
+        ? null
+        : _syncUpdates[capture.clientId!];
+    final progress = (update?.progress ?? 0).clamp(0.0, 1.0);
+    final percentage = (progress * 100).round();
+    final transferred = (capture.sizeBytes * progress).round();
+    final annotationError =
+        capture.uploadedId != null &&
+        !capture.registrationAnnotationsApplied &&
+        capture.annotations != null;
+    final stage = annotationError
+        ? 'Marks need attention'
+        : capture.lastError != null
+        ? 'Upload paused'
+        : switch (update?.stage) {
+            EvidenceSyncStage.preparing => 'Preparing secure upload',
+            EvidenceSyncStage.uploading => 'Uploading evidence',
+            EvidenceSyncStage.registering => 'Adding evidence to room',
+            EvidenceSyncStage.finalizing => 'Syncing notes and marks',
+            EvidenceSyncStage.failed => 'Upload paused',
+            _ =>
+              capture.claimedAt == null
+                  ? 'Saved safely · waiting to upload'
+                  : 'Preparing secure upload',
+          };
+    final detail = annotationError
+        ? 'The photo uploaded, but its marks need attention. Retry sync or edit the marks.'
+        : capture.lastError != null
+        ? 'Retry ${capture.attempts}: ${capture.lastError}'
+        : '$percentage% · ${_fileSize(transferred)} of ${_fileSize(capture.sizeBytes)}';
+    final color = annotationError || capture.lastError != null
+        ? KiviloColors.red
+        : KiviloColors.pink;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 0),
+            leading: capture.kind == 'PHOTO' && _root != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      File('${_root!.path}/${capture.relativePath}'),
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+                    ),
+                  )
+                : const SizedBox(
+                    width: 56,
+                    child: Icon(
+                      Icons.videocam_outlined,
+                      color: KiviloColors.muted,
+                    ),
+                  ),
+            title: Text(
+              capture.note?.isNotEmpty == true
+                  ? capture.note!
+                  : capture.kind == 'PHOTO'
+                  ? 'Photo on this phone'
+                  : 'Video on this phone',
+            ),
+            subtitle: Text(stage, style: TextStyle(color: color)),
+            trailing: IconButton(
+              onPressed: () => unawaited(_openQueuedActions(capture)),
+              icon: const Icon(Icons.more_horiz),
+              tooltip: 'Evidence actions',
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LinearProgressIndicator(
+                  value: capture.lastError == null ? progress : null,
+                  minHeight: 6,
+                  borderRadius: BorderRadius.circular(6),
+                  color: color,
+                  backgroundColor: KiviloColors.border,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  detail,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: capture.lastError == null
+                        ? KiviloColors.muted
+                        : KiviloColors.red,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
+    unawaited(_syncSubscription?.cancel());
     final upload = _uploading;
     if (upload == null) {
       unawaited(_queue.close());
@@ -666,63 +825,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               final pending = snapshot.data ?? const [];
               return Column(
                 children: [
-                  for (final capture in pending)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
-                        leading: capture.kind == 'PHOTO' && _root != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.file(
-                                  File(
-                                    '${_root!.path}/${capture.relativePath}',
-                                  ),
-                                  width: 56,
-                                  height: 56,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) =>
-                                      const Icon(Icons.broken_image),
-                                ),
-                              )
-                            : const SizedBox(
-                                width: 56,
-                                child: Icon(
-                                  Icons.videocam_outlined,
-                                  color: KiviloColors.muted,
-                                ),
-                              ),
-                        title: Text(
-                          capture.note?.isNotEmpty == true
-                              ? capture.note!
-                              : (capture.kind == 'PHOTO'
-                                    ? 'Photo on this phone'
-                                    : 'Video on this phone'),
-                        ),
-                        subtitle: Text(
-                          capture.uploadedId != null &&
-                                  !capture.registrationAnnotationsApplied &&
-                                  capture.annotations != null
-                              ? 'Photo uploaded, but marks were not accepted. '
-                                    'Retry sync; if the report was sent, open Mark photo '
-                                    'and undo the marks to proceed.'
-                              : capture.lastError == null
-                              ? 'Saved on phone · syncing'
-                              : 'Retry ${capture.attempts}: ${capture.lastError}',
-                          style: TextStyle(
-                            color: capture.lastError == null
-                                ? KiviloColors.amber
-                                : KiviloColors.red,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          onPressed: () =>
-                              unawaited(_openQueuedActions(capture)),
-                          icon: const Icon(Icons.more_horiz),
-                          tooltip: 'Evidence actions',
-                        ),
-                      ),
-                    ),
+                  for (final capture in pending) _pendingCaptureCard(capture),
                 ],
               );
             },
@@ -827,10 +930,19 @@ class _CaptureScreenState extends State<CaptureScreen> {
   );
 }
 
+class _PhotoNoteResult {
+  const _PhotoNoteResult.save(this.note) : returnToActions = false;
+  const _PhotoNoteResult.back() : note = null, returnToActions = true;
+
+  final String? note;
+  final bool returnToActions;
+}
+
 class _PhotoNoteDrawer extends StatefulWidget {
-  const _PhotoNoteDrawer({this.initial});
+  const _PhotoNoteDrawer({this.initial, required this.canReturnToActions});
 
   final String? initial;
+  final bool canReturnToActions;
 
   @override
   State<_PhotoNoteDrawer> createState() => _PhotoNoteDrawerState();
@@ -850,7 +962,22 @@ class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
   @override
   Widget build(BuildContext context) {
     return KiviloDrawer(
-      title: const Text('Photo note'),
+      title: Row(
+        children: [
+          if (widget.canReturnToActions) ...[
+            IconButton(
+              onPressed: () =>
+                  Navigator.pop(context, const _PhotoNoteResult.back()),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              tooltip: 'Back to evidence actions',
+              icon: const Icon(Icons.arrow_back),
+            ),
+            const SizedBox(width: 8),
+          ],
+          const Text('Photo note'),
+        ],
+      ),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -869,7 +996,8 @@ class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
       ),
       actions: [
         FilledButton(
-          onPressed: () => Navigator.pop(context, _controller.text),
+          onPressed: () =>
+              Navigator.pop(context, _PhotoNoteResult.save(_controller.text)),
           child: const Text('Save note'),
         ),
       ],

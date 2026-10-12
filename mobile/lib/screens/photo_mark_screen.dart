@@ -40,6 +40,43 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   int? _selectedIndex;
   int? _redrawIndex;
   final List<Offset> _gesture = [];
+  final List<List<Map<String, dynamic>>> _undoHistory = [];
+  final List<List<Map<String, dynamic>>> _redoHistory = [];
+
+  List<Map<String, dynamic>> _snapshotMarks() => [
+    for (final mark in _marks) Map<String, dynamic>.from(mark),
+  ];
+
+  void _recordChange() {
+    _undoHistory.add(_snapshotMarks());
+    _redoHistory.clear();
+  }
+
+  void _restoreMarks(List<Map<String, dynamic>> marks) {
+    _marks
+      ..clear()
+      ..addAll([for (final mark in marks) Map<String, dynamic>.from(mark)]);
+    _gesture.clear();
+    _selectedIndex = null;
+    _redrawIndex = null;
+    _dirty = true;
+  }
+
+  void _undo() {
+    if (_undoHistory.isEmpty) return;
+    setState(() {
+      _redoHistory.add(_snapshotMarks());
+      _restoreMarks(_undoHistory.removeLast());
+    });
+  }
+
+  void _redo() {
+    if (_redoHistory.isEmpty) return;
+    setState(() {
+      _undoHistory.add(_snapshotMarks());
+      _restoreMarks(_redoHistory.removeLast());
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -112,6 +149,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
     };
     final index = _redrawIndex ?? _marks.length;
     setState(() {
+      _recordChange();
       if (_redrawIndex == null) {
         _marks.add(mark);
       } else {
@@ -255,6 +293,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
     if (!mounted || index >= _marks.length) return;
     if (result?.action == _MarkEditAction.delete) {
       setState(() {
+        _recordChange();
         _marks.removeAt(index);
         _selectedIndex = null;
         _dirty = true;
@@ -271,7 +310,10 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
     }
     if (result?.action == _MarkEditAction.done) {
       final note = result!.note.trim();
+      final previousNote = _marks[index]['note'] as String? ?? '';
+      if (note == previousNote) return;
       setState(() {
+        if (!newMark) _recordChange();
         if (note.isEmpty) {
           _marks[index].remove('note');
         } else {
@@ -422,16 +464,14 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                           ),
                           const SizedBox(width: 8),
                           IconButton(
-                            onPressed: _marks.isEmpty
-                                ? null
-                                : () => setState(() {
-                                    _marks.removeLast();
-                                    _selectedIndex = null;
-                                    _redrawIndex = null;
-                                    _dirty = true;
-                                  }),
+                            onPressed: _undoHistory.isEmpty ? null : _undo,
                             icon: const Icon(Icons.undo),
-                            tooltip: 'Undo last mark',
+                            tooltip: 'Undo mark change',
+                          ),
+                          IconButton(
+                            onPressed: _redoHistory.isEmpty ? null : _redo,
+                            icon: const Icon(Icons.redo),
+                            tooltip: 'Redo mark change',
                           ),
                         ],
                       ),

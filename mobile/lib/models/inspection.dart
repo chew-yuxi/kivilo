@@ -223,6 +223,9 @@ class InventoryItem {
     this.notes,
     this.identifier,
     this.meterReading,
+    this.sourceCaptureId,
+    this.sourceTimestampSec,
+    this.evidenceCaptureIds = const [],
     this.confidence,
     required this.editedByHuman,
   });
@@ -235,6 +238,9 @@ class InventoryItem {
   final String? notes;
   final String? identifier;
   final String? meterReading;
+  final String? sourceCaptureId;
+  final int? sourceTimestampSec;
+  final List<String> evidenceCaptureIds;
   final double? confidence;
   final bool editedByHuman;
 
@@ -247,6 +253,11 @@ class InventoryItem {
     notes: json['notes'] as String?,
     identifier: json['identifier'] as String?,
     meterReading: json['meterReading'] as String?,
+    sourceCaptureId: json['sourceCaptureId'] as String?,
+    sourceTimestampSec: json['sourceTimestampSec'] as int?,
+    evidenceCaptureIds:
+        (json['evidenceCaptureIds'] as List<dynamic>? ?? const [])
+            .cast<String>(),
     confidence: (json['confidence'] as num?)?.toDouble(),
     editedByHuman: json['editedByHuman'] as bool,
   );

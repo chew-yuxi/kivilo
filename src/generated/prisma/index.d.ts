@@ -51,6 +51,13 @@ export type Room = $Result.DefaultSelection<Prisma.$RoomPayload>
  */
 export type InspectionItem = $Result.DefaultSelection<Prisma.$InspectionItemPayload>
 /**
+ * Model ItemEvidence
+ * A human-curated link from an inventory line to one or more original room captures.
+ * Notes and photo marks remain on Capture, so the same evidence is never copied or
+ * rewritten when it is attached to several items.
+ */
+export type ItemEvidence = $Result.DefaultSelection<Prisma.$ItemEvidencePayload>
+/**
  * Model PropertyAsset
  * 
  */
@@ -628,6 +635,16 @@ export class PrismaClient<
     * ```
     */
   get inspectionItem(): Prisma.InspectionItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.itemEvidence`: Exposes CRUD operations for the **ItemEvidence** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ItemEvidences
+    * const itemEvidences = await prisma.itemEvidence.findMany()
+    * ```
+    */
+  get itemEvidence(): Prisma.ItemEvidenceDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.propertyAsset`: Exposes CRUD operations for the **PropertyAsset** model.
@@ -1242,6 +1259,7 @@ export namespace Prisma {
     Capture: 'Capture',
     Room: 'Room',
     InspectionItem: 'InspectionItem',
+    ItemEvidence: 'ItemEvidence',
     PropertyAsset: 'PropertyAsset',
     MaintenanceCase: 'MaintenanceCase',
     MaintenanceEvent: 'MaintenanceEvent',
@@ -1273,7 +1291,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
+      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1792,6 +1810,80 @@ export namespace Prisma {
           count: {
             args: Prisma.InspectionItemCountArgs<ExtArgs>
             result: $Utils.Optional<InspectionItemCountAggregateOutputType> | number
+          }
+        }
+      }
+      ItemEvidence: {
+        payload: Prisma.$ItemEvidencePayload<ExtArgs>
+        fields: Prisma.ItemEvidenceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ItemEvidenceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ItemEvidenceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>
+          }
+          findFirst: {
+            args: Prisma.ItemEvidenceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ItemEvidenceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>
+          }
+          findMany: {
+            args: Prisma.ItemEvidenceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>[]
+          }
+          create: {
+            args: Prisma.ItemEvidenceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>
+          }
+          createMany: {
+            args: Prisma.ItemEvidenceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ItemEvidenceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>[]
+          }
+          delete: {
+            args: Prisma.ItemEvidenceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>
+          }
+          update: {
+            args: Prisma.ItemEvidenceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>
+          }
+          deleteMany: {
+            args: Prisma.ItemEvidenceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ItemEvidenceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ItemEvidenceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>[]
+          }
+          upsert: {
+            args: Prisma.ItemEvidenceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemEvidencePayload>
+          }
+          aggregate: {
+            args: Prisma.ItemEvidenceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateItemEvidence>
+          }
+          groupBy: {
+            args: Prisma.ItemEvidenceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ItemEvidenceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ItemEvidenceCountArgs<ExtArgs>
+            result: $Utils.Optional<ItemEvidenceCountAggregateOutputType> | number
           }
         }
       }
@@ -3109,6 +3201,7 @@ export namespace Prisma {
     capture?: CaptureOmit
     room?: RoomOmit
     inspectionItem?: InspectionItemOmit
+    itemEvidence?: ItemEvidenceOmit
     propertyAsset?: PropertyAssetOmit
     maintenanceCase?: MaintenanceCaseOmit
     maintenanceEvent?: MaintenanceEventOmit
@@ -3474,10 +3567,12 @@ export namespace Prisma {
 
   export type CaptureCountOutputType = {
     items: number
+    itemEvidence: number
   }
 
   export type CaptureCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | CaptureCountOutputTypeCountItemsArgs
+    itemEvidence?: boolean | CaptureCountOutputTypeCountItemEvidenceArgs
   }
 
   // Custom InputTypes
@@ -3496,6 +3591,13 @@ export namespace Prisma {
    */
   export type CaptureCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InspectionItemWhereInput
+  }
+
+  /**
+   * CaptureCountOutputType without action
+   */
+  export type CaptureCountOutputTypeCountItemEvidenceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemEvidenceWhereInput
   }
 
 
@@ -3544,11 +3646,13 @@ export namespace Prisma {
    */
 
   export type InspectionItemCountOutputType = {
+    evidence: number
     findingsAsSubject: number
     findingsAsBaseline: number
   }
 
   export type InspectionItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    evidence?: boolean | InspectionItemCountOutputTypeCountEvidenceArgs
     findingsAsSubject?: boolean | InspectionItemCountOutputTypeCountFindingsAsSubjectArgs
     findingsAsBaseline?: boolean | InspectionItemCountOutputTypeCountFindingsAsBaselineArgs
   }
@@ -3562,6 +3666,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the InspectionItemCountOutputType
      */
     select?: InspectionItemCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * InspectionItemCountOutputType without action
+   */
+  export type InspectionItemCountOutputTypeCountEvidenceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemEvidenceWhereInput
   }
 
   /**
@@ -9344,6 +9455,7 @@ export namespace Prisma {
     createdAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
     items?: boolean | Capture$itemsArgs<ExtArgs>
+    itemEvidence?: boolean | Capture$itemEvidenceArgs<ExtArgs>
     _count?: boolean | CaptureCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["capture"]>
 
@@ -9401,6 +9513,7 @@ export namespace Prisma {
   export type CaptureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     items?: boolean | Capture$itemsArgs<ExtArgs>
+    itemEvidence?: boolean | Capture$itemEvidenceArgs<ExtArgs>
     _count?: boolean | CaptureCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CaptureIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9415,6 +9528,7 @@ export namespace Prisma {
     objects: {
       room: Prisma.$RoomPayload<ExtArgs>
       items: Prisma.$InspectionItemPayload<ExtArgs>[]
+      itemEvidence: Prisma.$ItemEvidencePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9842,6 +9956,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     items<T extends Capture$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Capture$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    itemEvidence<T extends Capture$itemEvidenceArgs<ExtArgs> = {}>(args?: Subset<T, Capture$itemEvidenceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10306,6 +10421,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InspectionItemScalarFieldEnum | InspectionItemScalarFieldEnum[]
+  }
+
+  /**
+   * Capture.itemEvidence
+   */
+  export type Capture$itemEvidenceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    where?: ItemEvidenceWhereInput
+    orderBy?: ItemEvidenceOrderByWithRelationInput | ItemEvidenceOrderByWithRelationInput[]
+    cursor?: ItemEvidenceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ItemEvidenceScalarFieldEnum | ItemEvidenceScalarFieldEnum[]
   }
 
   /**
@@ -11844,6 +11983,7 @@ export namespace Prisma {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
     propertyAsset?: boolean | InspectionItem$propertyAssetArgs<ExtArgs>
+    evidence?: boolean | InspectionItem$evidenceArgs<ExtArgs>
     findingsAsSubject?: boolean | InspectionItem$findingsAsSubjectArgs<ExtArgs>
     findingsAsBaseline?: boolean | InspectionItem$findingsAsBaselineArgs<ExtArgs>
     _count?: boolean | InspectionItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -11917,6 +12057,7 @@ export namespace Prisma {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
     propertyAsset?: boolean | InspectionItem$propertyAssetArgs<ExtArgs>
+    evidence?: boolean | InspectionItem$evidenceArgs<ExtArgs>
     findingsAsSubject?: boolean | InspectionItem$findingsAsSubjectArgs<ExtArgs>
     findingsAsBaseline?: boolean | InspectionItem$findingsAsBaselineArgs<ExtArgs>
     _count?: boolean | InspectionItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -11938,6 +12079,7 @@ export namespace Prisma {
       room: Prisma.$RoomPayload<ExtArgs>
       sourceCapture: Prisma.$CapturePayload<ExtArgs> | null
       propertyAsset: Prisma.$PropertyAssetPayload<ExtArgs> | null
+      evidence: Prisma.$ItemEvidencePayload<ExtArgs>[]
       findingsAsSubject: Prisma.$FindingPayload<ExtArgs>[]
       findingsAsBaseline: Prisma.$FindingPayload<ExtArgs>[]
     }
@@ -12376,6 +12518,7 @@ export namespace Prisma {
     room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     sourceCapture<T extends InspectionItem$sourceCaptureArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$sourceCaptureArgs<ExtArgs>>): Prisma__CaptureClient<$Result.GetResult<Prisma.$CapturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     propertyAsset<T extends InspectionItem$propertyAssetArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$propertyAssetArgs<ExtArgs>>): Prisma__PropertyAssetClient<$Result.GetResult<Prisma.$PropertyAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    evidence<T extends InspectionItem$evidenceArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$evidenceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findingsAsSubject<T extends InspectionItem$findingsAsSubjectArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$findingsAsSubjectArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findingsAsBaseline<T extends InspectionItem$findingsAsBaselineArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItem$findingsAsBaselineArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -12862,6 +13005,30 @@ export namespace Prisma {
   }
 
   /**
+   * InspectionItem.evidence
+   */
+  export type InspectionItem$evidenceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    where?: ItemEvidenceWhereInput
+    orderBy?: ItemEvidenceOrderByWithRelationInput | ItemEvidenceOrderByWithRelationInput[]
+    cursor?: ItemEvidenceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ItemEvidenceScalarFieldEnum | ItemEvidenceScalarFieldEnum[]
+  }
+
+  /**
    * InspectionItem.findingsAsSubject
    */
   export type InspectionItem$findingsAsSubjectArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12925,6 +13092,1051 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: InspectionItemInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ItemEvidence
+   */
+
+  export type AggregateItemEvidence = {
+    _count: ItemEvidenceCountAggregateOutputType | null
+    _min: ItemEvidenceMinAggregateOutputType | null
+    _max: ItemEvidenceMaxAggregateOutputType | null
+  }
+
+  export type ItemEvidenceMinAggregateOutputType = {
+    itemId: string | null
+    captureId: string | null
+    createdAt: Date | null
+  }
+
+  export type ItemEvidenceMaxAggregateOutputType = {
+    itemId: string | null
+    captureId: string | null
+    createdAt: Date | null
+  }
+
+  export type ItemEvidenceCountAggregateOutputType = {
+    itemId: number
+    captureId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ItemEvidenceMinAggregateInputType = {
+    itemId?: true
+    captureId?: true
+    createdAt?: true
+  }
+
+  export type ItemEvidenceMaxAggregateInputType = {
+    itemId?: true
+    captureId?: true
+    createdAt?: true
+  }
+
+  export type ItemEvidenceCountAggregateInputType = {
+    itemId?: true
+    captureId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ItemEvidenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ItemEvidence to aggregate.
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemEvidences to fetch.
+     */
+    orderBy?: ItemEvidenceOrderByWithRelationInput | ItemEvidenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ItemEvidenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemEvidences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemEvidences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ItemEvidences
+    **/
+    _count?: true | ItemEvidenceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ItemEvidenceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ItemEvidenceMaxAggregateInputType
+  }
+
+  export type GetItemEvidenceAggregateType<T extends ItemEvidenceAggregateArgs> = {
+        [P in keyof T & keyof AggregateItemEvidence]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateItemEvidence[P]>
+      : GetScalarType<T[P], AggregateItemEvidence[P]>
+  }
+
+
+
+
+  export type ItemEvidenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemEvidenceWhereInput
+    orderBy?: ItemEvidenceOrderByWithAggregationInput | ItemEvidenceOrderByWithAggregationInput[]
+    by: ItemEvidenceScalarFieldEnum[] | ItemEvidenceScalarFieldEnum
+    having?: ItemEvidenceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ItemEvidenceCountAggregateInputType | true
+    _min?: ItemEvidenceMinAggregateInputType
+    _max?: ItemEvidenceMaxAggregateInputType
+  }
+
+  export type ItemEvidenceGroupByOutputType = {
+    itemId: string
+    captureId: string
+    createdAt: Date
+    _count: ItemEvidenceCountAggregateOutputType | null
+    _min: ItemEvidenceMinAggregateOutputType | null
+    _max: ItemEvidenceMaxAggregateOutputType | null
+  }
+
+  type GetItemEvidenceGroupByPayload<T extends ItemEvidenceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ItemEvidenceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ItemEvidenceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ItemEvidenceGroupByOutputType[P]>
+            : GetScalarType<T[P], ItemEvidenceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ItemEvidenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    itemId?: boolean
+    captureId?: boolean
+    createdAt?: boolean
+    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
+    capture?: boolean | CaptureDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["itemEvidence"]>
+
+  export type ItemEvidenceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    itemId?: boolean
+    captureId?: boolean
+    createdAt?: boolean
+    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
+    capture?: boolean | CaptureDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["itemEvidence"]>
+
+  export type ItemEvidenceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    itemId?: boolean
+    captureId?: boolean
+    createdAt?: boolean
+    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
+    capture?: boolean | CaptureDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["itemEvidence"]>
+
+  export type ItemEvidenceSelectScalar = {
+    itemId?: boolean
+    captureId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ItemEvidenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"itemId" | "captureId" | "createdAt", ExtArgs["result"]["itemEvidence"]>
+  export type ItemEvidenceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
+    capture?: boolean | CaptureDefaultArgs<ExtArgs>
+  }
+  export type ItemEvidenceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
+    capture?: boolean | CaptureDefaultArgs<ExtArgs>
+  }
+  export type ItemEvidenceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    item?: boolean | InspectionItemDefaultArgs<ExtArgs>
+    capture?: boolean | CaptureDefaultArgs<ExtArgs>
+  }
+
+  export type $ItemEvidencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ItemEvidence"
+    objects: {
+      item: Prisma.$InspectionItemPayload<ExtArgs>
+      capture: Prisma.$CapturePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      itemId: string
+      captureId: string
+      createdAt: Date
+    }, ExtArgs["result"]["itemEvidence"]>
+    composites: {}
+  }
+
+  type ItemEvidenceGetPayload<S extends boolean | null | undefined | ItemEvidenceDefaultArgs> = $Result.GetResult<Prisma.$ItemEvidencePayload, S>
+
+  type ItemEvidenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ItemEvidenceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ItemEvidenceCountAggregateInputType | true
+    }
+
+  export interface ItemEvidenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ItemEvidence'], meta: { name: 'ItemEvidence' } }
+    /**
+     * Find zero or one ItemEvidence that matches the filter.
+     * @param {ItemEvidenceFindUniqueArgs} args - Arguments to find a ItemEvidence
+     * @example
+     * // Get one ItemEvidence
+     * const itemEvidence = await prisma.itemEvidence.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ItemEvidenceFindUniqueArgs>(args: SelectSubset<T, ItemEvidenceFindUniqueArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ItemEvidence that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ItemEvidenceFindUniqueOrThrowArgs} args - Arguments to find a ItemEvidence
+     * @example
+     * // Get one ItemEvidence
+     * const itemEvidence = await prisma.itemEvidence.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ItemEvidenceFindUniqueOrThrowArgs>(args: SelectSubset<T, ItemEvidenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ItemEvidence that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceFindFirstArgs} args - Arguments to find a ItemEvidence
+     * @example
+     * // Get one ItemEvidence
+     * const itemEvidence = await prisma.itemEvidence.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ItemEvidenceFindFirstArgs>(args?: SelectSubset<T, ItemEvidenceFindFirstArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ItemEvidence that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceFindFirstOrThrowArgs} args - Arguments to find a ItemEvidence
+     * @example
+     * // Get one ItemEvidence
+     * const itemEvidence = await prisma.itemEvidence.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ItemEvidenceFindFirstOrThrowArgs>(args?: SelectSubset<T, ItemEvidenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ItemEvidences that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ItemEvidences
+     * const itemEvidences = await prisma.itemEvidence.findMany()
+     * 
+     * // Get first 10 ItemEvidences
+     * const itemEvidences = await prisma.itemEvidence.findMany({ take: 10 })
+     * 
+     * // Only select the `itemId`
+     * const itemEvidenceWithItemIdOnly = await prisma.itemEvidence.findMany({ select: { itemId: true } })
+     * 
+     */
+    findMany<T extends ItemEvidenceFindManyArgs>(args?: SelectSubset<T, ItemEvidenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ItemEvidence.
+     * @param {ItemEvidenceCreateArgs} args - Arguments to create a ItemEvidence.
+     * @example
+     * // Create one ItemEvidence
+     * const ItemEvidence = await prisma.itemEvidence.create({
+     *   data: {
+     *     // ... data to create a ItemEvidence
+     *   }
+     * })
+     * 
+     */
+    create<T extends ItemEvidenceCreateArgs>(args: SelectSubset<T, ItemEvidenceCreateArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ItemEvidences.
+     * @param {ItemEvidenceCreateManyArgs} args - Arguments to create many ItemEvidences.
+     * @example
+     * // Create many ItemEvidences
+     * const itemEvidence = await prisma.itemEvidence.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ItemEvidenceCreateManyArgs>(args?: SelectSubset<T, ItemEvidenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ItemEvidences and returns the data saved in the database.
+     * @param {ItemEvidenceCreateManyAndReturnArgs} args - Arguments to create many ItemEvidences.
+     * @example
+     * // Create many ItemEvidences
+     * const itemEvidence = await prisma.itemEvidence.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ItemEvidences and only return the `itemId`
+     * const itemEvidenceWithItemIdOnly = await prisma.itemEvidence.createManyAndReturn({
+     *   select: { itemId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ItemEvidenceCreateManyAndReturnArgs>(args?: SelectSubset<T, ItemEvidenceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ItemEvidence.
+     * @param {ItemEvidenceDeleteArgs} args - Arguments to delete one ItemEvidence.
+     * @example
+     * // Delete one ItemEvidence
+     * const ItemEvidence = await prisma.itemEvidence.delete({
+     *   where: {
+     *     // ... filter to delete one ItemEvidence
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ItemEvidenceDeleteArgs>(args: SelectSubset<T, ItemEvidenceDeleteArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ItemEvidence.
+     * @param {ItemEvidenceUpdateArgs} args - Arguments to update one ItemEvidence.
+     * @example
+     * // Update one ItemEvidence
+     * const itemEvidence = await prisma.itemEvidence.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ItemEvidenceUpdateArgs>(args: SelectSubset<T, ItemEvidenceUpdateArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ItemEvidences.
+     * @param {ItemEvidenceDeleteManyArgs} args - Arguments to filter ItemEvidences to delete.
+     * @example
+     * // Delete a few ItemEvidences
+     * const { count } = await prisma.itemEvidence.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ItemEvidenceDeleteManyArgs>(args?: SelectSubset<T, ItemEvidenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ItemEvidences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ItemEvidences
+     * const itemEvidence = await prisma.itemEvidence.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ItemEvidenceUpdateManyArgs>(args: SelectSubset<T, ItemEvidenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ItemEvidences and returns the data updated in the database.
+     * @param {ItemEvidenceUpdateManyAndReturnArgs} args - Arguments to update many ItemEvidences.
+     * @example
+     * // Update many ItemEvidences
+     * const itemEvidence = await prisma.itemEvidence.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ItemEvidences and only return the `itemId`
+     * const itemEvidenceWithItemIdOnly = await prisma.itemEvidence.updateManyAndReturn({
+     *   select: { itemId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ItemEvidenceUpdateManyAndReturnArgs>(args: SelectSubset<T, ItemEvidenceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ItemEvidence.
+     * @param {ItemEvidenceUpsertArgs} args - Arguments to update or create a ItemEvidence.
+     * @example
+     * // Update or create a ItemEvidence
+     * const itemEvidence = await prisma.itemEvidence.upsert({
+     *   create: {
+     *     // ... data to create a ItemEvidence
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ItemEvidence we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ItemEvidenceUpsertArgs>(args: SelectSubset<T, ItemEvidenceUpsertArgs<ExtArgs>>): Prisma__ItemEvidenceClient<$Result.GetResult<Prisma.$ItemEvidencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ItemEvidences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceCountArgs} args - Arguments to filter ItemEvidences to count.
+     * @example
+     * // Count the number of ItemEvidences
+     * const count = await prisma.itemEvidence.count({
+     *   where: {
+     *     // ... the filter for the ItemEvidences we want to count
+     *   }
+     * })
+    **/
+    count<T extends ItemEvidenceCountArgs>(
+      args?: Subset<T, ItemEvidenceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ItemEvidenceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ItemEvidence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ItemEvidenceAggregateArgs>(args: Subset<T, ItemEvidenceAggregateArgs>): Prisma.PrismaPromise<GetItemEvidenceAggregateType<T>>
+
+    /**
+     * Group by ItemEvidence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemEvidenceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ItemEvidenceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ItemEvidenceGroupByArgs['orderBy'] }
+        : { orderBy?: ItemEvidenceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ItemEvidenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetItemEvidenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ItemEvidence model
+   */
+  readonly fields: ItemEvidenceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ItemEvidence.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ItemEvidenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    item<T extends InspectionItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionItemDefaultArgs<ExtArgs>>): Prisma__InspectionItemClient<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    capture<T extends CaptureDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CaptureDefaultArgs<ExtArgs>>): Prisma__CaptureClient<$Result.GetResult<Prisma.$CapturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ItemEvidence model
+   */
+  interface ItemEvidenceFieldRefs {
+    readonly itemId: FieldRef<"ItemEvidence", 'String'>
+    readonly captureId: FieldRef<"ItemEvidence", 'String'>
+    readonly createdAt: FieldRef<"ItemEvidence", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ItemEvidence findUnique
+   */
+  export type ItemEvidenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemEvidence to fetch.
+     */
+    where: ItemEvidenceWhereUniqueInput
+  }
+
+  /**
+   * ItemEvidence findUniqueOrThrow
+   */
+  export type ItemEvidenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemEvidence to fetch.
+     */
+    where: ItemEvidenceWhereUniqueInput
+  }
+
+  /**
+   * ItemEvidence findFirst
+   */
+  export type ItemEvidenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemEvidence to fetch.
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemEvidences to fetch.
+     */
+    orderBy?: ItemEvidenceOrderByWithRelationInput | ItemEvidenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ItemEvidences.
+     */
+    cursor?: ItemEvidenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemEvidences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemEvidences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ItemEvidences.
+     */
+    distinct?: ItemEvidenceScalarFieldEnum | ItemEvidenceScalarFieldEnum[]
+  }
+
+  /**
+   * ItemEvidence findFirstOrThrow
+   */
+  export type ItemEvidenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemEvidence to fetch.
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemEvidences to fetch.
+     */
+    orderBy?: ItemEvidenceOrderByWithRelationInput | ItemEvidenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ItemEvidences.
+     */
+    cursor?: ItemEvidenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemEvidences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemEvidences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ItemEvidences.
+     */
+    distinct?: ItemEvidenceScalarFieldEnum | ItemEvidenceScalarFieldEnum[]
+  }
+
+  /**
+   * ItemEvidence findMany
+   */
+  export type ItemEvidenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemEvidences to fetch.
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemEvidences to fetch.
+     */
+    orderBy?: ItemEvidenceOrderByWithRelationInput | ItemEvidenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ItemEvidences.
+     */
+    cursor?: ItemEvidenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemEvidences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemEvidences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ItemEvidences.
+     */
+    distinct?: ItemEvidenceScalarFieldEnum | ItemEvidenceScalarFieldEnum[]
+  }
+
+  /**
+   * ItemEvidence create
+   */
+  export type ItemEvidenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ItemEvidence.
+     */
+    data: XOR<ItemEvidenceCreateInput, ItemEvidenceUncheckedCreateInput>
+  }
+
+  /**
+   * ItemEvidence createMany
+   */
+  export type ItemEvidenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ItemEvidences.
+     */
+    data: ItemEvidenceCreateManyInput | ItemEvidenceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ItemEvidence createManyAndReturn
+   */
+  export type ItemEvidenceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * The data used to create many ItemEvidences.
+     */
+    data: ItemEvidenceCreateManyInput | ItemEvidenceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ItemEvidence update
+   */
+  export type ItemEvidenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ItemEvidence.
+     */
+    data: XOR<ItemEvidenceUpdateInput, ItemEvidenceUncheckedUpdateInput>
+    /**
+     * Choose, which ItemEvidence to update.
+     */
+    where: ItemEvidenceWhereUniqueInput
+  }
+
+  /**
+   * ItemEvidence updateMany
+   */
+  export type ItemEvidenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ItemEvidences.
+     */
+    data: XOR<ItemEvidenceUpdateManyMutationInput, ItemEvidenceUncheckedUpdateManyInput>
+    /**
+     * Filter which ItemEvidences to update
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * Limit how many ItemEvidences to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ItemEvidence updateManyAndReturn
+   */
+  export type ItemEvidenceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * The data used to update ItemEvidences.
+     */
+    data: XOR<ItemEvidenceUpdateManyMutationInput, ItemEvidenceUncheckedUpdateManyInput>
+    /**
+     * Filter which ItemEvidences to update
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * Limit how many ItemEvidences to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ItemEvidence upsert
+   */
+  export type ItemEvidenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ItemEvidence to update in case it exists.
+     */
+    where: ItemEvidenceWhereUniqueInput
+    /**
+     * In case the ItemEvidence found by the `where` argument doesn't exist, create a new ItemEvidence with this data.
+     */
+    create: XOR<ItemEvidenceCreateInput, ItemEvidenceUncheckedCreateInput>
+    /**
+     * In case the ItemEvidence was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ItemEvidenceUpdateInput, ItemEvidenceUncheckedUpdateInput>
+  }
+
+  /**
+   * ItemEvidence delete
+   */
+  export type ItemEvidenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
+    /**
+     * Filter which ItemEvidence to delete.
+     */
+    where: ItemEvidenceWhereUniqueInput
+  }
+
+  /**
+   * ItemEvidence deleteMany
+   */
+  export type ItemEvidenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ItemEvidences to delete
+     */
+    where?: ItemEvidenceWhereInput
+    /**
+     * Limit how many ItemEvidences to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ItemEvidence without action
+   */
+  export type ItemEvidenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemEvidence
+     */
+    select?: ItemEvidenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemEvidence
+     */
+    omit?: ItemEvidenceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemEvidenceInclude<ExtArgs> | null
   }
 
 
@@ -31626,6 +32838,15 @@ export namespace Prisma {
   export type InspectionItemScalarFieldEnum = (typeof InspectionItemScalarFieldEnum)[keyof typeof InspectionItemScalarFieldEnum]
 
 
+  export const ItemEvidenceScalarFieldEnum: {
+    itemId: 'itemId',
+    captureId: 'captureId',
+    createdAt: 'createdAt'
+  };
+
+  export type ItemEvidenceScalarFieldEnum = (typeof ItemEvidenceScalarFieldEnum)[keyof typeof ItemEvidenceScalarFieldEnum]
+
+
   export const PropertyAssetScalarFieldEnum: {
     id: 'id',
     propertyId: 'propertyId',
@@ -32732,6 +33953,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     items?: InspectionItemListRelationFilter
+    itemEvidence?: ItemEvidenceListRelationFilter
   }
 
   export type CaptureOrderByWithRelationInput = {
@@ -32750,6 +33972,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     room?: RoomOrderByWithRelationInput
     items?: InspectionItemOrderByRelationAggregateInput
+    itemEvidence?: ItemEvidenceOrderByRelationAggregateInput
   }
 
   export type CaptureWhereUniqueInput = Prisma.AtLeast<{
@@ -32771,6 +33994,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Capture"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     items?: InspectionItemListRelationFilter
+    itemEvidence?: ItemEvidenceListRelationFilter
   }, "id" | "clientId" | "storagePath">
 
   export type CaptureOrderByWithAggregationInput = {
@@ -32924,6 +34148,7 @@ export namespace Prisma {
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     sourceCapture?: XOR<CaptureNullableScalarRelationFilter, CaptureWhereInput> | null
     propertyAsset?: XOR<PropertyAssetNullableScalarRelationFilter, PropertyAssetWhereInput> | null
+    evidence?: ItemEvidenceListRelationFilter
     findingsAsSubject?: FindingListRelationFilter
     findingsAsBaseline?: FindingListRelationFilter
   }
@@ -32948,6 +34173,7 @@ export namespace Prisma {
     room?: RoomOrderByWithRelationInput
     sourceCapture?: CaptureOrderByWithRelationInput
     propertyAsset?: PropertyAssetOrderByWithRelationInput
+    evidence?: ItemEvidenceOrderByRelationAggregateInput
     findingsAsSubject?: FindingOrderByRelationAggregateInput
     findingsAsBaseline?: FindingOrderByRelationAggregateInput
   }
@@ -32975,6 +34201,7 @@ export namespace Prisma {
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
     sourceCapture?: XOR<CaptureNullableScalarRelationFilter, CaptureWhereInput> | null
     propertyAsset?: XOR<PropertyAssetNullableScalarRelationFilter, PropertyAssetWhereInput> | null
+    evidence?: ItemEvidenceListRelationFilter
     findingsAsSubject?: FindingListRelationFilter
     findingsAsBaseline?: FindingListRelationFilter
   }, "id">
@@ -33023,6 +34250,55 @@ export namespace Prisma {
     propertyAssetId?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"InspectionItem"> | Date | string
+  }
+
+  export type ItemEvidenceWhereInput = {
+    AND?: ItemEvidenceWhereInput | ItemEvidenceWhereInput[]
+    OR?: ItemEvidenceWhereInput[]
+    NOT?: ItemEvidenceWhereInput | ItemEvidenceWhereInput[]
+    itemId?: StringFilter<"ItemEvidence"> | string
+    captureId?: StringFilter<"ItemEvidence"> | string
+    createdAt?: DateTimeFilter<"ItemEvidence"> | Date | string
+    item?: XOR<InspectionItemScalarRelationFilter, InspectionItemWhereInput>
+    capture?: XOR<CaptureScalarRelationFilter, CaptureWhereInput>
+  }
+
+  export type ItemEvidenceOrderByWithRelationInput = {
+    itemId?: SortOrder
+    captureId?: SortOrder
+    createdAt?: SortOrder
+    item?: InspectionItemOrderByWithRelationInput
+    capture?: CaptureOrderByWithRelationInput
+  }
+
+  export type ItemEvidenceWhereUniqueInput = Prisma.AtLeast<{
+    itemId_captureId?: ItemEvidenceItemIdCaptureIdCompoundUniqueInput
+    AND?: ItemEvidenceWhereInput | ItemEvidenceWhereInput[]
+    OR?: ItemEvidenceWhereInput[]
+    NOT?: ItemEvidenceWhereInput | ItemEvidenceWhereInput[]
+    itemId?: StringFilter<"ItemEvidence"> | string
+    captureId?: StringFilter<"ItemEvidence"> | string
+    createdAt?: DateTimeFilter<"ItemEvidence"> | Date | string
+    item?: XOR<InspectionItemScalarRelationFilter, InspectionItemWhereInput>
+    capture?: XOR<CaptureScalarRelationFilter, CaptureWhereInput>
+  }, "itemId_captureId">
+
+  export type ItemEvidenceOrderByWithAggregationInput = {
+    itemId?: SortOrder
+    captureId?: SortOrder
+    createdAt?: SortOrder
+    _count?: ItemEvidenceCountOrderByAggregateInput
+    _max?: ItemEvidenceMaxOrderByAggregateInput
+    _min?: ItemEvidenceMinOrderByAggregateInput
+  }
+
+  export type ItemEvidenceScalarWhereWithAggregatesInput = {
+    AND?: ItemEvidenceScalarWhereWithAggregatesInput | ItemEvidenceScalarWhereWithAggregatesInput[]
+    OR?: ItemEvidenceScalarWhereWithAggregatesInput[]
+    NOT?: ItemEvidenceScalarWhereWithAggregatesInput | ItemEvidenceScalarWhereWithAggregatesInput[]
+    itemId?: StringWithAggregatesFilter<"ItemEvidence"> | string
+    captureId?: StringWithAggregatesFilter<"ItemEvidence"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ItemEvidence"> | Date | string
   }
 
   export type PropertyAssetWhereInput = {
@@ -34787,6 +36063,7 @@ export namespace Prisma {
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
     items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
+    itemEvidence?: ItemEvidenceCreateNestedManyWithoutCaptureInput
   }
 
   export type CaptureUncheckedCreateInput = {
@@ -34804,6 +36081,7 @@ export namespace Prisma {
     processedAt?: Date | string | null
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
+    itemEvidence?: ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput
   }
 
   export type CaptureUpdateInput = {
@@ -34821,6 +36099,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
     items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
+    itemEvidence?: ItemEvidenceUpdateManyWithoutCaptureNestedInput
   }
 
   export type CaptureUncheckedUpdateInput = {
@@ -34838,6 +36117,7 @@ export namespace Prisma {
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
+    itemEvidence?: ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput
   }
 
   export type CaptureCreateManyInput = {
@@ -35002,6 +36282,7 @@ export namespace Prisma {
     room: RoomCreateNestedOneWithoutItemsInput
     sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutInspectionItemsInput
+    evidence?: ItemEvidenceCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
@@ -35023,6 +36304,7 @@ export namespace Prisma {
     propertyAssetId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
@@ -35044,6 +36326,7 @@ export namespace Prisma {
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
     sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutInspectionItemsNestedInput
+    evidence?: ItemEvidenceUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
@@ -35065,6 +36348,7 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
@@ -35121,6 +36405,46 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceCreateInput = {
+    createdAt?: Date | string
+    item: InspectionItemCreateNestedOneWithoutEvidenceInput
+    capture: CaptureCreateNestedOneWithoutItemEvidenceInput
+  }
+
+  export type ItemEvidenceUncheckedCreateInput = {
+    itemId: string
+    captureId: string
+    createdAt?: Date | string
+  }
+
+  export type ItemEvidenceUpdateInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    item?: InspectionItemUpdateOneRequiredWithoutEvidenceNestedInput
+    capture?: CaptureUpdateOneRequiredWithoutItemEvidenceNestedInput
+  }
+
+  export type ItemEvidenceUncheckedUpdateInput = {
+    itemId?: StringFieldUpdateOperationsInput | string
+    captureId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceCreateManyInput = {
+    itemId: string
+    captureId: string
+    createdAt?: Date | string
+  }
+
+  export type ItemEvidenceUpdateManyMutationInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceUncheckedUpdateManyInput = {
+    itemId?: StringFieldUpdateOperationsInput | string
+    captureId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PropertyAssetCreateInput = {
@@ -37119,7 +38443,17 @@ export namespace Prisma {
     none?: InspectionItemWhereInput
   }
 
+  export type ItemEvidenceListRelationFilter = {
+    every?: ItemEvidenceWhereInput
+    some?: ItemEvidenceWhereInput
+    none?: ItemEvidenceWhereInput
+  }
+
   export type InspectionItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ItemEvidenceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -37477,6 +38811,39 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type InspectionItemScalarRelationFilter = {
+    is?: InspectionItemWhereInput
+    isNot?: InspectionItemWhereInput
+  }
+
+  export type CaptureScalarRelationFilter = {
+    is?: CaptureWhereInput
+    isNot?: CaptureWhereInput
+  }
+
+  export type ItemEvidenceItemIdCaptureIdCompoundUniqueInput = {
+    itemId: string
+    captureId: string
+  }
+
+  export type ItemEvidenceCountOrderByAggregateInput = {
+    itemId?: SortOrder
+    captureId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ItemEvidenceMaxOrderByAggregateInput = {
+    itemId?: SortOrder
+    captureId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ItemEvidenceMinOrderByAggregateInput = {
+    itemId?: SortOrder
+    captureId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type EnumPropertyAssetCategoryFilter<$PrismaModel = never> = {
@@ -39539,11 +40906,25 @@ export namespace Prisma {
     connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
   }
 
+  export type ItemEvidenceCreateNestedManyWithoutCaptureInput = {
+    create?: XOR<ItemEvidenceCreateWithoutCaptureInput, ItemEvidenceUncheckedCreateWithoutCaptureInput> | ItemEvidenceCreateWithoutCaptureInput[] | ItemEvidenceUncheckedCreateWithoutCaptureInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutCaptureInput | ItemEvidenceCreateOrConnectWithoutCaptureInput[]
+    createMany?: ItemEvidenceCreateManyCaptureInputEnvelope
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+  }
+
   export type InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput = {
     create?: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput> | InspectionItemCreateWithoutSourceCaptureInput[] | InspectionItemUncheckedCreateWithoutSourceCaptureInput[]
     connectOrCreate?: InspectionItemCreateOrConnectWithoutSourceCaptureInput | InspectionItemCreateOrConnectWithoutSourceCaptureInput[]
     createMany?: InspectionItemCreateManySourceCaptureInputEnvelope
     connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+  }
+
+  export type ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput = {
+    create?: XOR<ItemEvidenceCreateWithoutCaptureInput, ItemEvidenceUncheckedCreateWithoutCaptureInput> | ItemEvidenceCreateWithoutCaptureInput[] | ItemEvidenceUncheckedCreateWithoutCaptureInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutCaptureInput | ItemEvidenceCreateOrConnectWithoutCaptureInput[]
+    createMany?: ItemEvidenceCreateManyCaptureInputEnvelope
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
   }
 
   export type EnumCaptureKindFieldUpdateOperationsInput = {
@@ -39588,6 +40969,20 @@ export namespace Prisma {
     deleteMany?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
   }
 
+  export type ItemEvidenceUpdateManyWithoutCaptureNestedInput = {
+    create?: XOR<ItemEvidenceCreateWithoutCaptureInput, ItemEvidenceUncheckedCreateWithoutCaptureInput> | ItemEvidenceCreateWithoutCaptureInput[] | ItemEvidenceUncheckedCreateWithoutCaptureInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutCaptureInput | ItemEvidenceCreateOrConnectWithoutCaptureInput[]
+    upsert?: ItemEvidenceUpsertWithWhereUniqueWithoutCaptureInput | ItemEvidenceUpsertWithWhereUniqueWithoutCaptureInput[]
+    createMany?: ItemEvidenceCreateManyCaptureInputEnvelope
+    set?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    disconnect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    delete?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    update?: ItemEvidenceUpdateWithWhereUniqueWithoutCaptureInput | ItemEvidenceUpdateWithWhereUniqueWithoutCaptureInput[]
+    updateMany?: ItemEvidenceUpdateManyWithWhereWithoutCaptureInput | ItemEvidenceUpdateManyWithWhereWithoutCaptureInput[]
+    deleteMany?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
+  }
+
   export type InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput = {
     create?: XOR<InspectionItemCreateWithoutSourceCaptureInput, InspectionItemUncheckedCreateWithoutSourceCaptureInput> | InspectionItemCreateWithoutSourceCaptureInput[] | InspectionItemUncheckedCreateWithoutSourceCaptureInput[]
     connectOrCreate?: InspectionItemCreateOrConnectWithoutSourceCaptureInput | InspectionItemCreateOrConnectWithoutSourceCaptureInput[]
@@ -39600,6 +40995,20 @@ export namespace Prisma {
     update?: InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput | InspectionItemUpdateWithWhereUniqueWithoutSourceCaptureInput[]
     updateMany?: InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput | InspectionItemUpdateManyWithWhereWithoutSourceCaptureInput[]
     deleteMany?: InspectionItemScalarWhereInput | InspectionItemScalarWhereInput[]
+  }
+
+  export type ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput = {
+    create?: XOR<ItemEvidenceCreateWithoutCaptureInput, ItemEvidenceUncheckedCreateWithoutCaptureInput> | ItemEvidenceCreateWithoutCaptureInput[] | ItemEvidenceUncheckedCreateWithoutCaptureInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutCaptureInput | ItemEvidenceCreateOrConnectWithoutCaptureInput[]
+    upsert?: ItemEvidenceUpsertWithWhereUniqueWithoutCaptureInput | ItemEvidenceUpsertWithWhereUniqueWithoutCaptureInput[]
+    createMany?: ItemEvidenceCreateManyCaptureInputEnvelope
+    set?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    disconnect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    delete?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    update?: ItemEvidenceUpdateWithWhereUniqueWithoutCaptureInput | ItemEvidenceUpdateWithWhereUniqueWithoutCaptureInput[]
+    updateMany?: ItemEvidenceUpdateManyWithWhereWithoutCaptureInput | ItemEvidenceUpdateManyWithWhereWithoutCaptureInput[]
+    deleteMany?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
   }
 
   export type InspectionCreateNestedOneWithoutRoomsInput = {
@@ -39722,6 +41131,13 @@ export namespace Prisma {
     connect?: PropertyAssetWhereUniqueInput
   }
 
+  export type ItemEvidenceCreateNestedManyWithoutItemInput = {
+    create?: XOR<ItemEvidenceCreateWithoutItemInput, ItemEvidenceUncheckedCreateWithoutItemInput> | ItemEvidenceCreateWithoutItemInput[] | ItemEvidenceUncheckedCreateWithoutItemInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutItemInput | ItemEvidenceCreateOrConnectWithoutItemInput[]
+    createMany?: ItemEvidenceCreateManyItemInputEnvelope
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+  }
+
   export type FindingCreateNestedManyWithoutItemInput = {
     create?: XOR<FindingCreateWithoutItemInput, FindingUncheckedCreateWithoutItemInput> | FindingCreateWithoutItemInput[] | FindingUncheckedCreateWithoutItemInput[]
     connectOrCreate?: FindingCreateOrConnectWithoutItemInput | FindingCreateOrConnectWithoutItemInput[]
@@ -39734,6 +41150,13 @@ export namespace Prisma {
     connectOrCreate?: FindingCreateOrConnectWithoutBaselineItemInput | FindingCreateOrConnectWithoutBaselineItemInput[]
     createMany?: FindingCreateManyBaselineItemInputEnvelope
     connect?: FindingWhereUniqueInput | FindingWhereUniqueInput[]
+  }
+
+  export type ItemEvidenceUncheckedCreateNestedManyWithoutItemInput = {
+    create?: XOR<ItemEvidenceCreateWithoutItemInput, ItemEvidenceUncheckedCreateWithoutItemInput> | ItemEvidenceCreateWithoutItemInput[] | ItemEvidenceUncheckedCreateWithoutItemInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutItemInput | ItemEvidenceCreateOrConnectWithoutItemInput[]
+    createMany?: ItemEvidenceCreateManyItemInputEnvelope
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
   }
 
   export type FindingUncheckedCreateNestedManyWithoutItemInput = {
@@ -39798,6 +41221,20 @@ export namespace Prisma {
     update?: XOR<XOR<PropertyAssetUpdateToOneWithWhereWithoutInspectionItemsInput, PropertyAssetUpdateWithoutInspectionItemsInput>, PropertyAssetUncheckedUpdateWithoutInspectionItemsInput>
   }
 
+  export type ItemEvidenceUpdateManyWithoutItemNestedInput = {
+    create?: XOR<ItemEvidenceCreateWithoutItemInput, ItemEvidenceUncheckedCreateWithoutItemInput> | ItemEvidenceCreateWithoutItemInput[] | ItemEvidenceUncheckedCreateWithoutItemInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutItemInput | ItemEvidenceCreateOrConnectWithoutItemInput[]
+    upsert?: ItemEvidenceUpsertWithWhereUniqueWithoutItemInput | ItemEvidenceUpsertWithWhereUniqueWithoutItemInput[]
+    createMany?: ItemEvidenceCreateManyItemInputEnvelope
+    set?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    disconnect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    delete?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    update?: ItemEvidenceUpdateWithWhereUniqueWithoutItemInput | ItemEvidenceUpdateWithWhereUniqueWithoutItemInput[]
+    updateMany?: ItemEvidenceUpdateManyWithWhereWithoutItemInput | ItemEvidenceUpdateManyWithWhereWithoutItemInput[]
+    deleteMany?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
+  }
+
   export type FindingUpdateManyWithoutItemNestedInput = {
     create?: XOR<FindingCreateWithoutItemInput, FindingUncheckedCreateWithoutItemInput> | FindingCreateWithoutItemInput[] | FindingUncheckedCreateWithoutItemInput[]
     connectOrCreate?: FindingCreateOrConnectWithoutItemInput | FindingCreateOrConnectWithoutItemInput[]
@@ -39826,6 +41263,20 @@ export namespace Prisma {
     deleteMany?: FindingScalarWhereInput | FindingScalarWhereInput[]
   }
 
+  export type ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput = {
+    create?: XOR<ItemEvidenceCreateWithoutItemInput, ItemEvidenceUncheckedCreateWithoutItemInput> | ItemEvidenceCreateWithoutItemInput[] | ItemEvidenceUncheckedCreateWithoutItemInput[]
+    connectOrCreate?: ItemEvidenceCreateOrConnectWithoutItemInput | ItemEvidenceCreateOrConnectWithoutItemInput[]
+    upsert?: ItemEvidenceUpsertWithWhereUniqueWithoutItemInput | ItemEvidenceUpsertWithWhereUniqueWithoutItemInput[]
+    createMany?: ItemEvidenceCreateManyItemInputEnvelope
+    set?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    disconnect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    delete?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    connect?: ItemEvidenceWhereUniqueInput | ItemEvidenceWhereUniqueInput[]
+    update?: ItemEvidenceUpdateWithWhereUniqueWithoutItemInput | ItemEvidenceUpdateWithWhereUniqueWithoutItemInput[]
+    updateMany?: ItemEvidenceUpdateManyWithWhereWithoutItemInput | ItemEvidenceUpdateManyWithWhereWithoutItemInput[]
+    deleteMany?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
+  }
+
   export type FindingUncheckedUpdateManyWithoutItemNestedInput = {
     create?: XOR<FindingCreateWithoutItemInput, FindingUncheckedCreateWithoutItemInput> | FindingCreateWithoutItemInput[] | FindingUncheckedCreateWithoutItemInput[]
     connectOrCreate?: FindingCreateOrConnectWithoutItemInput | FindingCreateOrConnectWithoutItemInput[]
@@ -39852,6 +41303,34 @@ export namespace Prisma {
     update?: FindingUpdateWithWhereUniqueWithoutBaselineItemInput | FindingUpdateWithWhereUniqueWithoutBaselineItemInput[]
     updateMany?: FindingUpdateManyWithWhereWithoutBaselineItemInput | FindingUpdateManyWithWhereWithoutBaselineItemInput[]
     deleteMany?: FindingScalarWhereInput | FindingScalarWhereInput[]
+  }
+
+  export type InspectionItemCreateNestedOneWithoutEvidenceInput = {
+    create?: XOR<InspectionItemCreateWithoutEvidenceInput, InspectionItemUncheckedCreateWithoutEvidenceInput>
+    connectOrCreate?: InspectionItemCreateOrConnectWithoutEvidenceInput
+    connect?: InspectionItemWhereUniqueInput
+  }
+
+  export type CaptureCreateNestedOneWithoutItemEvidenceInput = {
+    create?: XOR<CaptureCreateWithoutItemEvidenceInput, CaptureUncheckedCreateWithoutItemEvidenceInput>
+    connectOrCreate?: CaptureCreateOrConnectWithoutItemEvidenceInput
+    connect?: CaptureWhereUniqueInput
+  }
+
+  export type InspectionItemUpdateOneRequiredWithoutEvidenceNestedInput = {
+    create?: XOR<InspectionItemCreateWithoutEvidenceInput, InspectionItemUncheckedCreateWithoutEvidenceInput>
+    connectOrCreate?: InspectionItemCreateOrConnectWithoutEvidenceInput
+    upsert?: InspectionItemUpsertWithoutEvidenceInput
+    connect?: InspectionItemWhereUniqueInput
+    update?: XOR<XOR<InspectionItemUpdateToOneWithWhereWithoutEvidenceInput, InspectionItemUpdateWithoutEvidenceInput>, InspectionItemUncheckedUpdateWithoutEvidenceInput>
+  }
+
+  export type CaptureUpdateOneRequiredWithoutItemEvidenceNestedInput = {
+    create?: XOR<CaptureCreateWithoutItemEvidenceInput, CaptureUncheckedCreateWithoutItemEvidenceInput>
+    connectOrCreate?: CaptureCreateOrConnectWithoutItemEvidenceInput
+    upsert?: CaptureUpsertWithoutItemEvidenceInput
+    connect?: CaptureWhereUniqueInput
+    update?: XOR<XOR<CaptureUpdateToOneWithWhereWithoutItemEvidenceInput, CaptureUpdateWithoutItemEvidenceInput>, CaptureUncheckedUpdateWithoutItemEvidenceInput>
   }
 
   export type PropertyCreateNestedOneWithoutAssetsInput = {
@@ -43608,6 +45087,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutInspectionItemsInput
+    evidence?: ItemEvidenceCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
@@ -43628,6 +45108,7 @@ export namespace Prisma {
     propertyAssetId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
@@ -43639,6 +45120,26 @@ export namespace Prisma {
 
   export type InspectionItemCreateManySourceCaptureInputEnvelope = {
     data: InspectionItemCreateManySourceCaptureInput | InspectionItemCreateManySourceCaptureInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ItemEvidenceCreateWithoutCaptureInput = {
+    createdAt?: Date | string
+    item: InspectionItemCreateNestedOneWithoutEvidenceInput
+  }
+
+  export type ItemEvidenceUncheckedCreateWithoutCaptureInput = {
+    itemId: string
+    createdAt?: Date | string
+  }
+
+  export type ItemEvidenceCreateOrConnectWithoutCaptureInput = {
+    where: ItemEvidenceWhereUniqueInput
+    create: XOR<ItemEvidenceCreateWithoutCaptureInput, ItemEvidenceUncheckedCreateWithoutCaptureInput>
+  }
+
+  export type ItemEvidenceCreateManyCaptureInputEnvelope = {
+    data: ItemEvidenceCreateManyCaptureInput | ItemEvidenceCreateManyCaptureInput[]
     skipDuplicates?: boolean
   }
 
@@ -43719,6 +45220,31 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
   }
 
+  export type ItemEvidenceUpsertWithWhereUniqueWithoutCaptureInput = {
+    where: ItemEvidenceWhereUniqueInput
+    update: XOR<ItemEvidenceUpdateWithoutCaptureInput, ItemEvidenceUncheckedUpdateWithoutCaptureInput>
+    create: XOR<ItemEvidenceCreateWithoutCaptureInput, ItemEvidenceUncheckedCreateWithoutCaptureInput>
+  }
+
+  export type ItemEvidenceUpdateWithWhereUniqueWithoutCaptureInput = {
+    where: ItemEvidenceWhereUniqueInput
+    data: XOR<ItemEvidenceUpdateWithoutCaptureInput, ItemEvidenceUncheckedUpdateWithoutCaptureInput>
+  }
+
+  export type ItemEvidenceUpdateManyWithWhereWithoutCaptureInput = {
+    where: ItemEvidenceScalarWhereInput
+    data: XOR<ItemEvidenceUpdateManyMutationInput, ItemEvidenceUncheckedUpdateManyWithoutCaptureInput>
+  }
+
+  export type ItemEvidenceScalarWhereInput = {
+    AND?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
+    OR?: ItemEvidenceScalarWhereInput[]
+    NOT?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
+    itemId?: StringFilter<"ItemEvidence"> | string
+    captureId?: StringFilter<"ItemEvidence"> | string
+    createdAt?: DateTimeFilter<"ItemEvidence"> | Date | string
+  }
+
   export type InspectionCreateWithoutRoomsInput = {
     id?: string
     kind: $Enums.InspectionKind
@@ -43782,6 +45308,7 @@ export namespace Prisma {
     processedAt?: Date | string | null
     createdAt?: Date | string
     items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
+    itemEvidence?: ItemEvidenceCreateNestedManyWithoutCaptureInput
   }
 
   export type CaptureUncheckedCreateWithoutRoomInput = {
@@ -43798,6 +45325,7 @@ export namespace Prisma {
     processedAt?: Date | string | null
     createdAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
+    itemEvidence?: ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput
   }
 
   export type CaptureCreateOrConnectWithoutRoomInput = {
@@ -43826,6 +45354,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutInspectionItemsInput
+    evidence?: ItemEvidenceCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
@@ -43846,6 +45375,7 @@ export namespace Prisma {
     propertyAssetId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
@@ -44013,6 +45543,7 @@ export namespace Prisma {
     processedAt?: Date | string | null
     createdAt?: Date | string
     room: RoomCreateNestedOneWithoutCapturesInput
+    itemEvidence?: ItemEvidenceCreateNestedManyWithoutCaptureInput
   }
 
   export type CaptureUncheckedCreateWithoutItemsInput = {
@@ -44029,6 +45560,7 @@ export namespace Prisma {
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: Date | string | null
     createdAt?: Date | string
+    itemEvidence?: ItemEvidenceUncheckedCreateNestedManyWithoutCaptureInput
   }
 
   export type CaptureCreateOrConnectWithoutItemsInput = {
@@ -44065,6 +45597,26 @@ export namespace Prisma {
   export type PropertyAssetCreateOrConnectWithoutInspectionItemsInput = {
     where: PropertyAssetWhereUniqueInput
     create: XOR<PropertyAssetCreateWithoutInspectionItemsInput, PropertyAssetUncheckedCreateWithoutInspectionItemsInput>
+  }
+
+  export type ItemEvidenceCreateWithoutItemInput = {
+    createdAt?: Date | string
+    capture: CaptureCreateNestedOneWithoutItemEvidenceInput
+  }
+
+  export type ItemEvidenceUncheckedCreateWithoutItemInput = {
+    captureId: string
+    createdAt?: Date | string
+  }
+
+  export type ItemEvidenceCreateOrConnectWithoutItemInput = {
+    where: ItemEvidenceWhereUniqueInput
+    create: XOR<ItemEvidenceCreateWithoutItemInput, ItemEvidenceUncheckedCreateWithoutItemInput>
+  }
+
+  export type ItemEvidenceCreateManyItemInputEnvelope = {
+    data: ItemEvidenceCreateManyItemInput | ItemEvidenceCreateManyItemInput[]
+    skipDuplicates?: boolean
   }
 
   export type FindingCreateWithoutItemInput = {
@@ -44211,6 +45763,7 @@ export namespace Prisma {
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
+    itemEvidence?: ItemEvidenceUpdateManyWithoutCaptureNestedInput
   }
 
   export type CaptureUncheckedUpdateWithoutItemsInput = {
@@ -44227,6 +45780,7 @@ export namespace Prisma {
     annotations?: NullableJsonNullValueInput | InputJsonValue
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itemEvidence?: ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput
   }
 
   export type PropertyAssetUpsertWithoutInspectionItemsInput = {
@@ -44266,6 +45820,22 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetNestedInput
   }
 
+  export type ItemEvidenceUpsertWithWhereUniqueWithoutItemInput = {
+    where: ItemEvidenceWhereUniqueInput
+    update: XOR<ItemEvidenceUpdateWithoutItemInput, ItemEvidenceUncheckedUpdateWithoutItemInput>
+    create: XOR<ItemEvidenceCreateWithoutItemInput, ItemEvidenceUncheckedCreateWithoutItemInput>
+  }
+
+  export type ItemEvidenceUpdateWithWhereUniqueWithoutItemInput = {
+    where: ItemEvidenceWhereUniqueInput
+    data: XOR<ItemEvidenceUpdateWithoutItemInput, ItemEvidenceUncheckedUpdateWithoutItemInput>
+  }
+
+  export type ItemEvidenceUpdateManyWithWhereWithoutItemInput = {
+    where: ItemEvidenceScalarWhereInput
+    data: XOR<ItemEvidenceUpdateManyMutationInput, ItemEvidenceUncheckedUpdateManyWithoutItemInput>
+  }
+
   export type FindingUpsertWithWhereUniqueWithoutItemInput = {
     where: FindingWhereUniqueInput
     update: XOR<FindingUpdateWithoutItemInput, FindingUncheckedUpdateWithoutItemInput>
@@ -44296,6 +45866,190 @@ export namespace Prisma {
   export type FindingUpdateManyWithWhereWithoutBaselineItemInput = {
     where: FindingScalarWhereInput
     data: XOR<FindingUpdateManyMutationInput, FindingUncheckedUpdateManyWithoutBaselineItemInput>
+  }
+
+  export type InspectionItemCreateWithoutEvidenceInput = {
+    id?: string
+    name: string
+    category: $Enums.ItemCategory
+    condition: $Enums.ItemCondition
+    quantity?: number
+    notes?: string | null
+    identifier?: string | null
+    meterReading?: string | null
+    sourceTimestampSec?: number | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    room: RoomCreateNestedOneWithoutItemsInput
+    sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutInspectionItemsInput
+    findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
+    findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
+  }
+
+  export type InspectionItemUncheckedCreateWithoutEvidenceInput = {
+    id?: string
+    roomId: string
+    name: string
+    category: $Enums.ItemCategory
+    condition: $Enums.ItemCondition
+    quantity?: number
+    notes?: string | null
+    identifier?: string | null
+    meterReading?: string | null
+    sourceCaptureId?: string | null
+    sourceTimestampSec?: number | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
+    findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
+  }
+
+  export type InspectionItemCreateOrConnectWithoutEvidenceInput = {
+    where: InspectionItemWhereUniqueInput
+    create: XOR<InspectionItemCreateWithoutEvidenceInput, InspectionItemUncheckedCreateWithoutEvidenceInput>
+  }
+
+  export type CaptureCreateWithoutItemEvidenceInput = {
+    id?: string
+    clientId?: string | null
+    kind?: $Enums.CaptureKind
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    room: RoomCreateNestedOneWithoutCapturesInput
+    items?: InspectionItemCreateNestedManyWithoutSourceCaptureInput
+  }
+
+  export type CaptureUncheckedCreateWithoutItemEvidenceInput = {
+    id?: string
+    clientId?: string | null
+    roomId: string
+    kind?: $Enums.CaptureKind
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    durationSec?: number | null
+    transcript?: string | null
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    processedAt?: Date | string | null
+    createdAt?: Date | string
+    items?: InspectionItemUncheckedCreateNestedManyWithoutSourceCaptureInput
+  }
+
+  export type CaptureCreateOrConnectWithoutItemEvidenceInput = {
+    where: CaptureWhereUniqueInput
+    create: XOR<CaptureCreateWithoutItemEvidenceInput, CaptureUncheckedCreateWithoutItemEvidenceInput>
+  }
+
+  export type InspectionItemUpsertWithoutEvidenceInput = {
+    update: XOR<InspectionItemUpdateWithoutEvidenceInput, InspectionItemUncheckedUpdateWithoutEvidenceInput>
+    create: XOR<InspectionItemCreateWithoutEvidenceInput, InspectionItemUncheckedCreateWithoutEvidenceInput>
+    where?: InspectionItemWhereInput
+  }
+
+  export type InspectionItemUpdateToOneWithWhereWithoutEvidenceInput = {
+    where?: InspectionItemWhereInput
+    data: XOR<InspectionItemUpdateWithoutEvidenceInput, InspectionItemUncheckedUpdateWithoutEvidenceInput>
+  }
+
+  export type InspectionItemUpdateWithoutEvidenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    room?: RoomUpdateOneRequiredWithoutItemsNestedInput
+    sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutInspectionItemsNestedInput
+    findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
+    findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
+  }
+
+  export type InspectionItemUncheckedUpdateWithoutEvidenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+    condition?: EnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition
+    quantity?: IntFieldUpdateOperationsInput | number
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReading?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceCaptureId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
+    findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
+  }
+
+  export type CaptureUpsertWithoutItemEvidenceInput = {
+    update: XOR<CaptureUpdateWithoutItemEvidenceInput, CaptureUncheckedUpdateWithoutItemEvidenceInput>
+    create: XOR<CaptureCreateWithoutItemEvidenceInput, CaptureUncheckedCreateWithoutItemEvidenceInput>
+    where?: CaptureWhereInput
+  }
+
+  export type CaptureUpdateToOneWithWhereWithoutItemEvidenceInput = {
+    where?: CaptureWhereInput
+    data: XOR<CaptureUpdateWithoutItemEvidenceInput, CaptureUncheckedUpdateWithoutItemEvidenceInput>
+  }
+
+  export type CaptureUpdateWithoutItemEvidenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    room?: RoomUpdateOneRequiredWithoutCapturesNestedInput
+    items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
+  }
+
+  export type CaptureUncheckedUpdateWithoutItemEvidenceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    roomId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumCaptureKindFieldUpdateOperationsInput | $Enums.CaptureKind
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    durationSec?: NullableIntFieldUpdateOperationsInput | number | null
+    transcript?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
   }
 
   export type PropertyCreateWithoutAssetsInput = {
@@ -44341,6 +46095,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
     sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
+    evidence?: ItemEvidenceCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
@@ -44361,6 +46116,7 @@ export namespace Prisma {
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
@@ -46484,6 +48240,7 @@ export namespace Prisma {
     room: RoomCreateNestedOneWithoutItemsInput
     sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutInspectionItemsInput
+    evidence?: ItemEvidenceCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingCreateNestedManyWithoutBaselineItemInput
   }
 
@@ -46504,6 +48261,7 @@ export namespace Prisma {
     propertyAssetId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
     findingsAsBaseline?: FindingUncheckedCreateNestedManyWithoutBaselineItemInput
   }
 
@@ -46529,6 +48287,7 @@ export namespace Prisma {
     room: RoomCreateNestedOneWithoutItemsInput
     sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutInspectionItemsInput
+    evidence?: ItemEvidenceCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingCreateNestedManyWithoutItemInput
   }
 
@@ -46549,6 +48308,7 @@ export namespace Prisma {
     propertyAssetId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
   }
 
@@ -46687,6 +48447,7 @@ export namespace Prisma {
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
     sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutInspectionItemsNestedInput
+    evidence?: ItemEvidenceUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
 
@@ -46707,6 +48468,7 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
 
@@ -46738,6 +48500,7 @@ export namespace Prisma {
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
     sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutInspectionItemsNestedInput
+    evidence?: ItemEvidenceUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
   }
 
@@ -46758,6 +48521,7 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
   }
 
@@ -48445,6 +50209,11 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ItemEvidenceCreateManyCaptureInput = {
+    itemId: string
+    createdAt?: Date | string
+  }
+
   export type InspectionItemUpdateWithoutSourceCaptureInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -48461,6 +50230,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutInspectionItemsNestedInput
+    evidence?: ItemEvidenceUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
@@ -48481,6 +50251,7 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
@@ -48501,6 +50272,21 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceUpdateWithoutCaptureInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    item?: InspectionItemUpdateOneRequiredWithoutEvidenceNestedInput
+  }
+
+  export type ItemEvidenceUncheckedUpdateWithoutCaptureInput = {
+    itemId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceUncheckedUpdateManyWithoutCaptureInput = {
+    itemId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaptureCreateManyRoomInput = {
@@ -48550,6 +50336,7 @@ export namespace Prisma {
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUpdateManyWithoutSourceCaptureNestedInput
+    itemEvidence?: ItemEvidenceUpdateManyWithoutCaptureNestedInput
   }
 
   export type CaptureUncheckedUpdateWithoutRoomInput = {
@@ -48566,6 +50353,7 @@ export namespace Prisma {
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutSourceCaptureNestedInput
+    itemEvidence?: ItemEvidenceUncheckedUpdateManyWithoutCaptureNestedInput
   }
 
   export type CaptureUncheckedUpdateManyWithoutRoomInput = {
@@ -48599,6 +50387,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutInspectionItemsNestedInput
+    evidence?: ItemEvidenceUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
@@ -48619,6 +50408,7 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }
@@ -48639,6 +50429,11 @@ export namespace Prisma {
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceCreateManyItemInput = {
+    captureId: string
+    createdAt?: Date | string
   }
 
   export type FindingCreateManyItemInput = {
@@ -48669,6 +50464,21 @@ export namespace Prisma {
     editedByHuman?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ItemEvidenceUpdateWithoutItemInput = {
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capture?: CaptureUpdateOneRequiredWithoutItemEvidenceNestedInput
+  }
+
+  export type ItemEvidenceUncheckedUpdateWithoutItemInput = {
+    captureId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemEvidenceUncheckedUpdateManyWithoutItemInput = {
+    captureId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUpdateWithoutItemInput = {
@@ -48812,6 +50622,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
     sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
+    evidence?: ItemEvidenceUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUpdateManyWithoutBaselineItemNestedInput
   }
@@ -48832,6 +50643,7 @@ export namespace Prisma {
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
     findingsAsBaseline?: FindingUncheckedUpdateManyWithoutBaselineItemNestedInput
   }

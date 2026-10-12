@@ -222,6 +222,12 @@ exports.Prisma.InspectionItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ItemEvidenceScalarFieldEnum = {
+  itemId: 'itemId',
+  captureId: 'captureId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.PropertyAssetScalarFieldEnum = {
   id: 'id',
   propertyId: 'propertyId',
@@ -604,6 +610,7 @@ exports.Prisma.ModelName = {
   Capture: 'Capture',
   Room: 'Room',
   InspectionItem: 'InspectionItem',
+  ItemEvidence: 'ItemEvidence',
   PropertyAsset: 'PropertyAsset',
   MaintenanceCase: 'MaintenanceCase',
   MaintenanceEvent: 'MaintenanceEvent',

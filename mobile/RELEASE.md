@@ -7,6 +7,23 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
+Build `19` balances the property-card actions. Resume and Maintenance now occupy equal
+widths and use the same 50px control height; Resume is the pink primary action and
+Maintenance is the outlined secondary action. Evidence actions align to the drawer
+grid, and the photo-note drawer has a back action that returns to the evidence menu.
+The mark editor adds full undo and redo history across drawing, redraws, note edits and
+deletions. Inventory items can attach several room photos or videos from their edit
+drawer; cards identify their attached and marked evidence, while capture notes and
+vector marks remain on the original evidence. The API validates that every attachment
+belongs to the item's room and freezes those links with the rest of a signed report.
+Room evidence now keeps the same signed media URL while processing polls, preventing
+the flashing thumbnails seen in build 18. Tapping any evidence opens a full action
+drawer for preview, note editing, photo markup, or deletion, with a back path from note
+editing. Uploads show their current stage, percentage, and transferred bytes, and native
+camera video handoff waits for the provider file before copying it into durable app
+storage. Gemini quota failures use a concise recovery message instead of displaying the
+provider's raw response; captured evidence remains available for review and retry.
+
 Build `18` (source `f44df49`) fixes property navigation. Inspection list responses now
 carry their actual tenancy ID, and the app uses that relationship to show the active
 handover on each property card. Tapping a property with an active inspection, or its

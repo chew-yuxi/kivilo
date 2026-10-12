@@ -382,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   if (target != null)
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: () => _openInspection(target.id),
                         icon: Icon(
                           active == null
@@ -393,10 +393,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   if (target != null) const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: () => _openTenancy(tenancy),
-                    icon: const Icon(Icons.build_outlined),
-                    label: const Text('Maintenance'),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _openTenancy(tenancy),
+                      icon: const Icon(Icons.build_outlined),
+                      label: const Text('Maintenance'),
+                    ),
                   ),
                 ],
               ),

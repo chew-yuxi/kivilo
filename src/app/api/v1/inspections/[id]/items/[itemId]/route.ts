@@ -12,6 +12,10 @@ const itemChanges = z.object({
   notes: z.string().max(5000).nullable().optional(),
   identifier: z.string().max(500).nullable().optional(),
   meterReading: z.string().max(500).nullable().optional(),
+  evidenceCaptureIds: z.array(z.string().min(1)).max(12).refine(
+    (ids) => new Set(ids).size === ids.length,
+    'Evidence captures must be unique',
+  ).optional(),
 }).strict().refine((value) => Object.keys(value).length > 0)
 
 export const PATCH = authed(

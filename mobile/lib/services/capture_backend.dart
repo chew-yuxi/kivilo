@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:background_downloader/background_downloader.dart';
@@ -6,6 +7,41 @@ import 'package:dio/dio.dart';
 import 'api_failure.dart';
 
 const _metadataDeadline = Duration(seconds: 20);
+
+enum EvidenceSyncStage {
+  preparing,
+  uploading,
+  registering,
+  finalizing,
+  complete,
+  failed,
+}
+
+class EvidenceSyncUpdate {
+  const EvidenceSyncUpdate({
+    required this.clientId,
+    required this.stage,
+    this.progress,
+  });
+
+  final String clientId;
+  final EvidenceSyncStage stage;
+  final double? progress;
+}
+
+final _evidenceSyncUpdates = StreamController<EvidenceSyncUpdate>.broadcast();
+Stream<EvidenceSyncUpdate> get evidenceSyncUpdates =>
+    _evidenceSyncUpdates.stream;
+
+void reportEvidenceSync(
+  String clientId,
+  EvidenceSyncStage stage, {
+  double? progress,
+}) {
+  _evidenceSyncUpdates.add(
+    EvidenceSyncUpdate(clientId: clientId, stage: stage, progress: progress),
+  );
+}
 
 Future<Response<T>> _metadata<T>(
   Future<Response<T>> Function(CancelToken) request,
@@ -181,9 +217,24 @@ class HttpCaptureBackend implements CaptureBackend {
         progressBar: true,
       ),
       displayName: 'Kivilo evidence',
+      updates: Updates.statusAndProgress,
     );
     final transfer = await downloader.transfers.getOrStart(task);
-    final result = await transfer.result;
+    final progress = transfer.progressUpdates.listen((update) {
+      if (update.progress >= 0 && update.progress <= 1) {
+        reportEvidenceSync(
+          clientId,
+          EvidenceSyncStage.uploading,
+          progress: update.progress,
+        );
+      }
+    });
+    late final TaskStatusUpdate result;
+    try {
+      result = await transfer.result;
+    } finally {
+      await progress.cancel();
+    }
     if (result.status != TaskStatus.complete) {
       throw StateError(
         'Upload ${result.status.name}: ${result.exception ?? result.responseStatusCode ?? 'retry later'}',

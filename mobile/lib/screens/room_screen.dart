@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'capture_screen.dart';
+import 'photo_mark_screen.dart';
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({
@@ -28,13 +31,34 @@ class RoomScreen extends StatefulWidget {
 
 class _RoomScreenState extends State<RoomScreen> {
   final _api = Api();
+  late final _evidenceBackend = RoutingEvidenceBackend(_api.dio);
+  final Map<String, String> _captureUrls = {};
   late Future<RoomDetail> _future = _load();
   Timer? _poller;
   bool _busy = false;
   String? _error;
 
   Future<RoomDetail> _load() async {
-    final room = await _api.room(widget.inspectionId, widget.roomId);
+    final fresh = await _api.room(widget.inspectionId, widget.roomId);
+    final captures = [
+      for (final capture in fresh.captures)
+        EvidenceCapture(
+          id: capture.id,
+          kind: capture.kind,
+          url: _captureUrls.putIfAbsent(capture.id, () => capture.url),
+          clientId: capture.clientId,
+          note: capture.note,
+          annotations: capture.annotations,
+        ),
+    ];
+    final room = RoomDetail(
+      id: fresh.id,
+      name: fresh.name,
+      status: fresh.status,
+      processingError: fresh.processingError,
+      items: fresh.items,
+      captures: captures,
+    );
     _poller?.cancel();
     if (mounted && room.status == 'PROCESSING') {
       _poller = Timer(const Duration(seconds: 5), () {
@@ -89,11 +113,188 @@ class _RoomScreenState extends State<RoomScreen> {
     if (mounted) await _refresh();
   }
 
-  Future<void> _editItem(InventoryItem item) async {
-    final data = await showModalBottomSheet<Map<String, dynamic>>(
+  String _friendlyProcessingError(String error) {
+    if (error.toLowerCase().contains('quota exceeded')) {
+      return 'AI drafting is temporarily unavailable because this Gemini project has no remaining request quota. Your captures are safe. Retry after the quota resets or the production project quota is enabled.';
+    }
+    return 'Kivilo could not draft this room. Your captures are safe. Review them and retry drafting.';
+  }
+
+  Future<String?> _evidenceAction(
+    EvidenceCapture capture,
+  ) => showKiviloDrawer<String>(
+    context: context,
+    builder: (context) => KiviloDrawer(
+      title: Text(capture.kind == 'PHOTO' ? 'Photo actions' : 'Video actions'),
+      content: Column(
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.open_in_full),
+            title: const Text('Preview'),
+            subtitle: const Text('Open the original evidence'),
+            onTap: () => Navigator.pop(context, 'preview'),
+          ),
+          if (widget.editable) ...[
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.notes_outlined),
+              title: const Text('Edit note'),
+              subtitle: const Text('Describe what this evidence shows'),
+              onTap: () => Navigator.pop(context, 'note'),
+            ),
+            if (capture.kind == 'PHOTO')
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.gesture_outlined),
+                title: const Text('Mark photo'),
+                subtitle: const Text('Circle, point to, or draw over a detail'),
+                onTap: () => Navigator.pop(context, 'mark'),
+              ),
+            const Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(
+                Icons.delete_outline,
+                color: KiviloColors.red,
+              ),
+              title: const Text(
+                'Delete evidence',
+                style: TextStyle(color: KiviloColors.red),
+              ),
+              onTap: () => Navigator.pop(context, 'delete'),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+
+  Future<void> _openEvidenceActions(EvidenceCapture capture) async {
+    while (mounted) {
+      final action = await _evidenceAction(capture);
+      if (!mounted || action == null) return;
+      if (action != 'note') {
+        await _handleEvidenceAction(capture, action);
+        return;
+      }
+      final result = await showKiviloDrawer<_EvidenceNoteResult>(
+        context: context,
+        builder: (_) => _EvidenceNoteDrawer(initial: capture.note),
+      );
+      if (!mounted || result == null) return;
+      if (result.returnToActions) continue;
+      if (result.note != null) {
+        await _run(
+          () => _evidenceBackend.updateNote(
+            widget.inspectionId,
+            capture.id,
+            result.note!.trim().isEmpty ? null : result.note!.trim(),
+          ),
+        );
+      }
+      return;
+    }
+  }
+
+  Future<void> _handleEvidenceAction(
+    EvidenceCapture capture,
+    String action,
+  ) async {
+    if (action == 'preview') {
+      if (capture.kind == 'VIDEO') {
+        if (!await launchUrl(
+          Uri.parse(capture.url),
+          mode: LaunchMode.externalApplication,
+        )) {
+          setState(() => _error = 'Could not open this video.');
+        }
+      } else {
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: const Text('Evidence photo')),
+              backgroundColor: Colors.black,
+              body: Center(
+                child: InteractiveViewer(
+                  minScale: 0.8,
+                  maxScale: 5,
+                  child: Image.network(
+                    capture.url,
+                    fit: BoxFit.contain,
+                    gaplessPlayback: true,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+    if (action == 'mark') {
+      final result = await Navigator.push<PhotoMarksResult>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PhotoMarkScreen(
+            image: NetworkImage(capture.url),
+            annotations: capture.annotations,
+          ),
+        ),
+      );
+      if (result != null) {
+        await _run(
+          () => _evidenceBackend.annotate(
+            widget.inspectionId,
+            capture.id,
+            result.annotations,
+          ),
+        );
+      }
+      return;
+    }
+    if (action == 'delete') {
+      final confirmed = await showKiviloDrawer<bool>(
+        context: context,
+        builder: (context) => KiviloDrawer(
+          title: const Text('Delete this evidence?'),
+          content: const Text(
+            'This removes the original capture from the room and any inventory attachments.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed == true) {
+        await _run(
+          () => _evidenceBackend.deleteCapture(widget.inspectionId, capture.id),
+        );
+      }
+    }
+  }
+
+  Future<void> _editItem(
+    InventoryItem item,
+    List<EvidenceCapture> captures,
+  ) async {
+    final data = await showKiviloDrawer<Map<String, dynamic>>(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => ItemEditor(item: item),
+      builder: (context) => ItemEditor(item: item, captures: captures),
     );
     if (data != null) {
       await _run(() => _api.updateItem(widget.inspectionId, item.id, data));
@@ -431,7 +632,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(14),
                     child: Text(
-                      room.processingError!,
+                      _friendlyProcessingError(room.processingError!),
                       style: const TextStyle(color: KiviloColors.red),
                     ),
                   ),
@@ -567,7 +768,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   ),
                 ),
               for (final item in room.items) ...[
-                _inventoryCard(item),
+                _inventoryCard(item, room.captures),
                 const SizedBox(height: 10),
               ],
               if (widget.editable && room.status == 'REVIEW') ...[
@@ -620,138 +821,172 @@ class _RoomScreenState extends State<RoomScreen> {
       width: 120,
       child: Card(
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            Expanded(
-              child: SizedBox.expand(
-                child: ColoredBox(
-                  color: KiviloColors.canvas,
-                  child: capture.kind == 'PHOTO'
-                      ? Image.network(
-                          capture.url,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => const Icon(
-                            Icons.broken_image_outlined,
-                            color: KiviloColors.subtle,
+        child: InkWell(
+          onTap: _busy ? null : () => unawaited(_openEvidenceActions(capture)),
+          child: Column(
+            children: [
+              Expanded(
+                child: SizedBox.expand(
+                  child: ColoredBox(
+                    color: KiviloColors.canvas,
+                    child: capture.kind == 'PHOTO'
+                        ? Image.network(
+                            capture.url,
+                            fit: BoxFit.contain,
+                            gaplessPlayback: true,
+                            errorBuilder: (_, _, _) => const Icon(
+                              Icons.broken_image_outlined,
+                              color: KiviloColors.subtle,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.videocam_outlined,
+                            size: 30,
+                            color: KiviloColors.pinkDark,
                           ),
-                        )
-                      : const Icon(
-                          Icons.videocam_outlined,
-                          size: 30,
-                          color: KiviloColors.pinkDark,
-                        ),
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-              child: Row(
-                children: [
-                  Icon(
-                    capture.kind == 'PHOTO'
-                        ? Icons.photo_outlined
-                        : Icons.videocam_outlined,
-                    size: 14,
-                    color: KiviloColors.muted,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 7,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      capture.kind == 'PHOTO'
+                          ? Icons.photo_outlined
+                          : Icons.videocam_outlined,
+                      size: 14,
+                      color: KiviloColors.muted,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),
   );
 
-  Widget _inventoryCard(InventoryItem item) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  item.name,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              if (widget.editable) ...[
-                IconButton(
-                  tooltip: 'Edit item',
-                  visualDensity: VisualDensity.compact,
-                  icon: const Icon(Icons.edit_outlined, size: 20),
-                  onPressed: _busy ? null : () => _editItem(item),
-                ),
-                IconButton(
-                  tooltip: 'Delete item',
-                  visualDensity: VisualDensity.compact,
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: _busy ? null : () => _deleteItem(item),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 5),
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: [
-              _itemTag(item.category.replaceAll('_', ' ')),
-              _itemTag(item.condition.replaceAll('_', ' ')),
-              _itemTag('Qty ${item.quantity}'),
-            ],
-          ),
-          if (item.identifier != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              'Identifier  ${item.identifier}',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-          if (item.meterReading != null) ...[
-            const SizedBox(height: 5),
-            Text(
-              'Reading  ${item.meterReading}',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-          if (item.notes != null) ...[
-            const SizedBox(height: 9),
-            Text(item.notes!, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-          if (!item.editedByHuman && item.confidence != null) ...[
-            const SizedBox(height: 12),
+  Widget _inventoryCard(InventoryItem item, List<EvidenceCapture> captures) {
+    final attached = captures
+        .where((capture) => item.evidenceCaptureIds.contains(capture.id))
+        .toList();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.auto_awesome_outlined,
-                  size: 15,
-                  color: KiviloColors.pinkDark,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  'AI draft · ${(item.confidence! * 100).round()}% confidence',
-                  style: const TextStyle(
-                    color: KiviloColors.pinkDark,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    item.name,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
+                if (widget.editable) ...[
+                  IconButton(
+                    tooltip: 'Edit item',
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.edit_outlined, size: 20),
+                    onPressed: _busy ? null : () => _editItem(item, captures),
+                  ),
+                  IconButton(
+                    tooltip: 'Delete item',
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.delete_outline, size: 20),
+                    onPressed: _busy ? null : () => _deleteItem(item),
+                  ),
+                ],
               ],
             ),
+            const SizedBox(height: 5),
+            Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: [
+                _itemTag(item.category.replaceAll('_', ' ')),
+                _itemTag(item.condition.replaceAll('_', ' ')),
+                _itemTag('Qty ${item.quantity}'),
+              ],
+            ),
+            if (item.identifier != null) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Identifier  ${item.identifier}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+            if (item.meterReading != null) ...[
+              const SizedBox(height: 5),
+              Text(
+                'Reading  ${item.meterReading}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+            if (item.notes != null) ...[
+              const SizedBox(height: 9),
+              Text(item.notes!, style: Theme.of(context).textTheme.bodyMedium),
+            ],
+            if (attached.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Attached evidence',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 7),
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: [
+                  for (final capture in attached)
+                    _itemTag(
+                      capture.kind == 'PHOTO'
+                          ? capture.annotations == null
+                                ? 'Photo'
+                                : 'Marked photo'
+                          : 'Video',
+                    ),
+                ],
+              ),
+            ],
+            if (!item.editedByHuman && item.confidence != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.auto_awesome_outlined,
+                    size: 15,
+                    color: KiviloColors.pinkDark,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    'AI draft · ${(item.confidence! * 100).round()}% confidence',
+                    style: const TextStyle(
+                      color: KiviloColors.pinkDark,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _itemTag(String label) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
@@ -770,9 +1005,74 @@ class _RoomScreenState extends State<RoomScreen> {
   );
 }
 
+class _EvidenceNoteDrawer extends StatefulWidget {
+  const _EvidenceNoteDrawer({this.initial});
+  final String? initial;
+
+  @override
+  State<_EvidenceNoteDrawer> createState() => _EvidenceNoteDrawerState();
+}
+
+class _EvidenceNoteResult {
+  const _EvidenceNoteResult.save(this.note) : returnToActions = false;
+  const _EvidenceNoteResult.back() : note = null, returnToActions = true;
+
+  final String? note;
+  final bool returnToActions;
+}
+
+class _EvidenceNoteDrawerState extends State<_EvidenceNoteDrawer> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => KiviloDrawer(
+    title: Row(
+      children: [
+        IconButton(
+          onPressed: () =>
+              Navigator.pop(context, const _EvidenceNoteResult.back()),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to evidence actions',
+        ),
+        const Text('Evidence note'),
+      ],
+    ),
+    content: TextField(
+      controller: _controller,
+      autofocus: true,
+      minLines: 3,
+      maxLines: 6,
+      decoration: const InputDecoration(
+        labelText: 'Note',
+        hintText: 'Describe what this evidence shows',
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(
+        onPressed: () =>
+            Navigator.pop(context, _EvidenceNoteResult.save(_controller.text)),
+        child: const Text('Save note'),
+      ),
+    ],
+  );
+}
+
 class ItemEditor extends StatefulWidget {
-  const ItemEditor({super.key, required this.item});
+  const ItemEditor({super.key, required this.item, required this.captures});
   final InventoryItem item;
+  final List<EvidenceCapture> captures;
 
   @override
   State<ItemEditor> createState() => _ItemEditorState();
@@ -788,6 +1088,9 @@ class _ItemEditorState extends State<ItemEditor> {
   );
   late String _category = widget.item.category;
   late String _condition = widget.item.condition;
+  late final Set<String> _evidenceCaptureIds = {
+    ...widget.item.evidenceCaptureIds,
+  };
   String? _error;
 
   @override
@@ -824,6 +1127,7 @@ class _ItemEditorState extends State<ItemEditor> {
       'meterReading': _meterReading.text.trim().isEmpty
           ? null
           : _meterReading.text.trim(),
+      'evidenceCaptureIds': _evidenceCaptureIds.toList(),
     });
   }
 
@@ -916,6 +1220,106 @@ class _ItemEditorState extends State<ItemEditor> {
             maxLines: 4,
             decoration: const InputDecoration(labelText: 'Notes'),
           ),
+          const SizedBox(height: 20),
+          Text(
+            'Attached evidence',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Choose the room photos and videos that support this inventory line. Their notes and photo marks stay attached.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 10),
+          if (widget.captures.isEmpty)
+            const Text('No room evidence is available yet.')
+          else
+            ...widget.captures.indexed.map((entry) {
+              final (index, capture) = entry;
+              final selected = _evidenceCaptureIds.contains(capture.id);
+              final detail = [
+                if (capture.note?.trim().isNotEmpty ?? false)
+                  capture.note!.trim(),
+                if (capture.annotations != null) 'Has photo marks',
+              ].join(' · ');
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  color: selected ? KiviloColors.pinkSoft : KiviloColors.canvas,
+                  borderRadius: BorderRadius.circular(14),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () => setState(() {
+                      if (selected) {
+                        _evidenceCaptureIds.remove(capture.id);
+                      } else {
+                        _evidenceCaptureIds.add(capture.id);
+                      }
+                    }),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox(
+                              width: 54,
+                              height: 54,
+                              child: ColoredBox(
+                                color: Colors.white,
+                                child: capture.kind == 'PHOTO'
+                                    ? Image.network(
+                                        capture.url,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) => const Icon(
+                                          Icons.broken_image_outlined,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.videocam_outlined,
+                                        color: KiviloColors.pinkDark,
+                                      ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} ${index + 1}',
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                                if (detail.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    detail,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            selected
+                                ? Icons.check_circle
+                                : Icons.circle_outlined,
+                            color: selected
+                                ? KiviloColors.pink
+                                : KiviloColors.subtle,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
           if (_error != null) ...[
             const SizedBox(height: 10),
             Text(_error!, style: const TextStyle(color: KiviloColors.red)),

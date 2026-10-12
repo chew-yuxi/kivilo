@@ -44,7 +44,8 @@ class CaptureStore {
     await journal.parent.create(recursive: true);
     await journal.writeAsString(jsonEncode(metadata), flush: true);
     final destination = File('${root.path}/$relativePath');
-    if (await source.exists() || !await destination.exists()) {
+    if (!await destination.exists()) {
+      await _waitForReadableSource(source);
       await _persistIntoSupport(source, destination);
     } else {
       // A previous attempt moved the camera file, then failed before its queue row.
@@ -163,6 +164,10 @@ class CaptureStore {
       }
       return;
     }
+    // Some Android camera providers return before their cache hand-off is visible to
+    // Dart. A rename can therefore lose a race even after the initial existence check.
+    // Wait for the provider path again before opening it for the streaming fallback.
+    await _waitForReadableSource(source);
     final partial = File('${destination.path}.partial');
     final input = await source.open();
     final output = await partial.open(mode: FileMode.write);
@@ -183,5 +188,19 @@ class CaptureStore {
       await output.close();
     }
     await partial.rename(destination.path);
+  }
+
+  Future<void> _waitForReadableSource(File source) async {
+    for (var attempt = 0; attempt < 25; attempt++) {
+      try {
+        if (await source.exists() && await source.length() > 0) return;
+      } on FileSystemException {
+        // The camera provider is still completing its cache hand-off.
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    throw StateError(
+      'The camera has not finished saving this video. Keep Kivilo open and retry.',
+    );
   }
 }

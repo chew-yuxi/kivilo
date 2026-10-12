@@ -184,6 +184,7 @@ model Capture {
 
   room  Room             @relation(fields: [roomId], references: [id], onDelete: Cascade)
   items InspectionItem[]
+  itemEvidence ItemEvidence[]
 
   @@index([roomId])
 }
@@ -264,12 +265,28 @@ model InspectionItem {
   room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   sourceCapture Capture? @relation(fields: [sourceCaptureId], references: [id], onDelete: SetNull)
   propertyAsset PropertyAsset? @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
+  evidence      ItemEvidence[]
 
   findingsAsSubject  Finding[] @relation("FindingItem")
   findingsAsBaseline Finding[] @relation("FindingBaselineItem")
 
   @@index([roomId])
   @@index([propertyAssetId])
+}
+
+/// A human-curated link from an inventory line to one or more original room captures.
+/// Notes and photo marks remain on Capture, so the same evidence is never copied or
+/// rewritten when it is attached to several items.
+model ItemEvidence {
+  itemId    String
+  captureId String
+  createdAt DateTime @default(now())
+
+  item    InspectionItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  capture Capture        @relation(fields: [captureId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, captureId])
+  @@index([captureId])
 }
 
 // ---------------------------------------------------------------------------

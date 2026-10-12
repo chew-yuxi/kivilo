@@ -138,6 +138,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('1. Crack above socket'), findsOneWidget);
 
+      await tester.tap(find.byTooltip('Undo mark change'));
+      await tester.pumpAndSettle();
+      expect(find.text('1. Crack above socket'), findsNothing);
+      await tester.tap(find.byTooltip('Redo mark change'));
+      await tester.pumpAndSettle();
+      expect(find.text('1. Crack above socket'), findsOneWidget);
+
       await tester.tapAt(center);
       await tester.pumpAndSettle();
       expect(find.text('Edit mark 1'), findsOneWidget);

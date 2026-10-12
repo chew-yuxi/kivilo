@@ -112,6 +112,22 @@ export async function processRoom(roomId: string, attemptId?: string) {
           confidence: item.confidence,
         })),
       })
+      const sourcedItems = await tx.inspectionItem.findMany({
+        where: {
+          roomId,
+          editedByHuman: false,
+          sourceCaptureId: { not: null },
+        },
+        select: { id: true, sourceCaptureId: true },
+      })
+      if (sourcedItems.length > 0) {
+        await tx.itemEvidence.createMany({
+          data: sourcedItems.map((item) => ({
+            itemId: item.id,
+            captureId: item.sourceCaptureId!,
+          })),
+        })
+      }
     })
   } catch (error) {
     await db.room.updateMany({

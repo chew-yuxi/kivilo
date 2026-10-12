@@ -82,7 +82,7 @@ async function editOpenInspection<T>(
 async function authorizeItem(itemId: string, inspectionId: string, agentId: string) {
   const item = await db.inspectionItem.findUnique({
     where: { id: itemId },
-    select: { id: true, room: { select: { inspectionId: true } } },
+    select: { id: true, roomId: true, room: { select: { inspectionId: true } } },
   })
   if (!item || item.room.inspectionId !== inspectionId) throw new Error('Item not found')
   assertOpen(await authorizeInspection(inspectionId, agentId))
@@ -579,17 +579,33 @@ export async function updateItem(
     notes?: string | null
     identifier?: string | null
     meterReading?: string | null
+    evidenceCaptureIds?: string[]
   },
 ) {
   const agent = await requireAgent()
-  await authorizeItem(itemId, inspectionId, agent.id)
+  const item = await authorizeItem(itemId, inspectionId, agent.id)
+  const { evidenceCaptureIds, ...changes } = data
 
-  await editOpenInspection(inspectionId, (tx) =>
-    tx.inspectionItem.update({
+  await editOpenInspection(inspectionId, async (tx) => {
+    if (evidenceCaptureIds !== undefined) {
+      const uniqueIds = [...new Set(evidenceCaptureIds)]
+      const captures = await tx.capture.count({
+        where: { id: { in: uniqueIds }, roomId: item.roomId },
+      })
+      if (captures !== uniqueIds.length) throw new Error('Evidence not found')
+      await tx.itemEvidence.deleteMany({ where: { itemId } })
+      if (uniqueIds.length > 0) {
+        await tx.itemEvidence.createMany({
+          data: uniqueIds.map((captureId) => ({ itemId, captureId })),
+        })
+      }
+    }
+    await tx.inspectionItem.update({
       where: { id: itemId },
       // A human has taken ownership of this line; the model's confidence no longer applies.
-      data: { ...data, editedByHuman: true, confidence: null },
-    }))
+      data: { ...changes, editedByHuman: true, confidence: null },
+    })
+  })
   revalidate(inspectionId)
 }
 

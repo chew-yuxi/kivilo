@@ -191,6 +191,12 @@ describe('an inspection still in progress', () => {
     await expect(addRoom(d.inspection.id, 'Balcony')).resolves.toEqual(expect.any(String))
     await expect(renameRoom(d.room.id, d.inspection.id, 'Scullery')).resolves.toBeUndefined()
     await expect(updateItem(d.item.id, d.inspection.id, { name: 'Hob' })).resolves.toBeUndefined()
+    await expect(updateItem(d.item.id, d.inspection.id, {
+      evidenceCaptureIds: [d.capture.id],
+    })).resolves.toBeUndefined()
+    await expect(db.itemEvidence.findMany({ where: { itemId: d.item.id } })).resolves.toMatchObject([
+      { itemId: d.item.id, captureId: d.capture.id },
+    ])
     await expect(updateCaptureNote(d.capture.id, d.inspection.id, 'plate')).resolves.toBeUndefined()
     await expect(requestUploadUrl(d.room.id, d.inspection.id, 'x.jpg')).resolves.toMatchObject({ token: 'tok' })
   })
@@ -210,6 +216,32 @@ describe('native action boundaries', () => {
     await expect(deleteCapture(d.capture.id, other.id)).rejects.toThrow('Capture not found')
     await expect(finishRoomCapture(d.room.id, other.id)).rejects.toThrow('Room not found')
     expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).name).toBe('Kitchen')
+  })
+
+  it('rejects evidence from another room', async () => {
+    const d = await deal('ITEM-EVIDENCE', 'REVIEW')
+    const otherRoom = await db.room.create({
+      data: {
+        inspectionId: d.inspection.id,
+        name: 'Bedroom',
+        order: 1,
+        status: 'REVIEW',
+      },
+    })
+    const otherCapture = await db.capture.create({
+      data: {
+        roomId: otherRoom.id,
+        kind: 'PHOTO',
+        storagePath: `${otherRoom.id}/other.jpg`,
+        mimeType: 'image/jpeg',
+        sizeBytes: 10,
+      },
+    })
+
+    await expect(updateItem(d.item.id, d.inspection.id, {
+      evidenceCaptureIds: [otherCapture.id],
+    })).rejects.toThrow('Evidence not found')
+    await expect(db.itemEvidence.count({ where: { itemId: d.item.id } })).resolves.toBe(0)
   })
 
   it('does not register the same native capture twice after a lost response', async () => {

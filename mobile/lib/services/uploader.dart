@@ -121,6 +121,11 @@ class Uploader {
         late final String storagePath;
         late final PendingCapture prepared;
         if (capture.registrationPrepared && capture.storagePath != null) {
+          reportEvidenceSync(
+            clientId,
+            EvidenceSyncStage.registering,
+            progress: 1,
+          );
           // A prior registration may already have succeeded even though its HTTP
           // response was lost. Retry that same call before asking for a new upload
           // token: issuing tokens is forbidden after countersignature, but returning
@@ -129,6 +134,11 @@ class Uploader {
           prepared = capture;
         } else {
           final file = File('${root.path}/${capture.relativePath}');
+          reportEvidenceSync(
+            clientId,
+            EvidenceSyncStage.preparing,
+            progress: 0,
+          );
           // Credentials expire, so mint one for each upload attempt. The backend
           // returns the same path and checks whether the object already exists.
           final credential = await backend.uploadUrl(
@@ -145,6 +155,11 @@ class Uploader {
                 'Local evidence file is missing. Capture retained for recovery.',
               );
             }
+            reportEvidenceSync(
+              clientId,
+              EvidenceSyncStage.uploading,
+              progress: 0,
+            );
             await backend.putBytes(
               credential.signedUrl!,
               file,
@@ -154,6 +169,11 @@ class Uploader {
           }
           prepared = await queue.prepareRegistration(capture.id, leaseId);
         }
+        reportEvidenceSync(
+          clientId,
+          EvidenceSyncStage.registering,
+          progress: 1,
+        );
         final registered = await backend.registerCapture(
           inspectionId: capture.inspectionId,
           roomId: capture.roomId,
@@ -178,6 +198,13 @@ class Uploader {
       // Snapshot just before each remote hand-over. A concurrent note or annotation
       // edit keeps the row in SQLite and makes the loop send the new version too.
       while (true) {
+        if (capture.clientId != null) {
+          reportEvidenceSync(
+            capture.clientId!,
+            EvidenceSyncStage.finalizing,
+            progress: 1,
+          );
+        }
         final current = await queue.byId(capture.id);
         if (current == null || current.leaseId != leaseId) return false;
         if (current.deleteRequested) {
@@ -207,9 +234,19 @@ class Uploader {
         final finished = await queue.finishIfUnchanged(current, leaseId);
         if (finished == null) continue;
         await queue.discardFile(root, finished);
+        if (capture.clientId != null) {
+          reportEvidenceSync(
+            capture.clientId!,
+            EvidenceSyncStage.complete,
+            progress: 1,
+          );
+        }
         return true;
       }
     } catch (error) {
+      if (capture.clientId != null) {
+        reportEvidenceSync(capture.clientId!, EvidenceSyncStage.failed);
+      }
       await queue.recordFailure(
         capture.id,
         error is DioException

@@ -26,7 +26,11 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
   if (index === -1) throw new Error('Room not found')
 
   const stored = await db.capture.findMany({ where: { roomId }, orderBy: { createdAt: 'asc' } })
-  const items = await db.inspectionItem.findMany({ where: { roomId }, orderBy: { createdAt: 'asc' } })
+  const items = await db.inspectionItem.findMany({
+    where: { roomId },
+    orderBy: { createdAt: 'asc' },
+    include: { evidence: { select: { captureId: true } } },
+  })
 
   return {
     room: rooms[index],
@@ -43,6 +47,7 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
       meterReading: item.meterReading,
       sourceCaptureId: item.sourceCaptureId,
       sourceTimestampSec: item.sourceTimestampSec,
+      evidenceCaptureIds: item.evidence.map((link) => link.captureId),
       confidence: item.confidence,
       editedByHuman: item.editedByHuman,
     })),

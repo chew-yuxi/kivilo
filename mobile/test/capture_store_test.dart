@@ -56,6 +56,31 @@ void main() {
   );
 
   test(
+    'save waits for a native camera video hand-off to become readable',
+    () async {
+      final source = File('${root.path}/camera-delayed.mp4');
+      final store = CaptureStore(queue: queue, root: root);
+      final saving = store.save(
+        source: source,
+        ownerId: 'owner-a',
+        inspectionId: 'inspection-a',
+        roomId: 'room-a',
+        kind: 'VIDEO',
+        extension: 'mp4',
+        mimeType: 'video/mp4',
+        clientId: 'delayed-video',
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      await source.writeAsBytes(List.filled(96, 4), flush: true);
+
+      final row = (await queue.byId(await saving))!;
+      expect(row.sizeBytes, 96);
+      expect(File('${root.path}/${row.relativePath}').lengthSync(), 96);
+    },
+  );
+
+  test(
     'a crash after file rename but before SQLite insert recovers on restart',
     () async {
       const clientId = 'old-camera-capture';
