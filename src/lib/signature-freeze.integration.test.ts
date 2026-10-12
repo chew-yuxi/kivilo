@@ -8,7 +8,6 @@ import { randomUUID } from 'node:crypto'
 /// server action is a public HTTP endpoint and nothing stops a request reaching it.
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
-vi.mock('next/server', () => ({ after: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/storage', () => ({
   createUploadUrl: vi.fn(async () => ({ signedUrl: 'https://x/y', token: 'tok' })),
@@ -126,8 +125,6 @@ describe.each(['AWAITING_SIGNATURE', 'COMPLETED'] as const)(
       await expect(updateCaptureNote(d.capture.id, d.inspection.id, 'x')).rejects.toThrow(SENT)
       await expect(annotateCapture(d.capture.id, d.inspection.id, marks)).rejects.toThrow(SENT)
       await expect(deleteCapture(d.capture.id, d.inspection.id)).rejects.toThrow(SENT)
-      // The worst of them: a re-read deletes and rewrites the room's inventory, which is
-      // the very list both parties put their names to.
       await expect(finishRoomCapture(d.room.id, d.inspection.id)).rejects.toThrow(SENT)
     })
 
@@ -302,7 +299,7 @@ describe('native action boundaries', () => {
     expect(await db.capture.count({ where: { roomId: d.room.id } })).toBe(1)
   })
 
-  it('requires another model pass and human review when media lands before Send', async () => {
+  it('requires another human review when media lands before Send', async () => {
     const d = await deal('LATE', 'REVIEW')
     vi.mocked(captureExists).mockResolvedValueOnce(true)
     await registerCapture({
@@ -316,8 +313,47 @@ describe('native action boundaries', () => {
       note: null,
     })
     expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEW')
-    await expect(markRoomReviewed(d.room.id, d.inspection.id)).rejects.toThrow('Process all new captures')
     await expect(completeReview(d.inspection.id)).rejects.toThrow('rooms still need review')
+    await markRoomReviewed(d.room.id, d.inspection.id)
+    expect(await db.capture.count({ where: { roomId: d.room.id, processedAt: null } })).toBe(0)
+    await expect(completeReview(d.inspection.id)).resolves.toBeUndefined()
+  })
+
+  it('keeps media that lands after Send off the agreed report', async () => {
+    const d = await deal('AFTER-SEND', 'AWAITING_SIGNATURE')
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    const id = await registerCapture({
+      inspectionId: d.inspection.id,
+      roomId: d.room.id,
+      kind: 'PHOTO',
+      storagePath: `${d.room.id}/after.jpg`,
+      mimeType: 'image/jpeg',
+      sizeBytes: 20,
+      durationSec: null,
+      note: null,
+    })
+    // The report shows only captures a person reviewed the room with.
+    expect((await db.capture.findUniqueOrThrow({ where: { id } })).processedAt).toBeNull()
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEWED')
+  })
+
+  it('moves a finished room to review with no model in between', async () => {
+    const d = await deal('FINISH', 'CAPTURING')
+    await db.room.update({ where: { id: d.room.id }, data: { status: 'CAPTURING' } })
+    await expect(markRoomReviewed(d.room.id, d.inspection.id)).rejects.toThrow('Finish capturing')
+    await finishRoomCapture(d.room.id, d.inspection.id)
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEW')
+    await markRoomReviewed(d.room.id, d.inspection.id)
+    // Tapping Done again on a reviewed room does not undo the review.
+    await finishRoomCapture(d.room.id, d.inspection.id)
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEWED')
+  })
+
+  it('refuses to review a room with no inventory', async () => {
+    const d = await deal('EMPTY', 'CAPTURING')
+    await db.inspectionItem.deleteMany({ where: { roomId: d.room.id } })
+    await db.room.update({ where: { id: d.room.id }, data: { status: 'REVIEW' } })
+    await expect(markRoomReviewed(d.room.id, d.inspection.id)).rejects.toThrow('Add at least one item')
   })
 
   it('only accepts tenancy parties and never overwrites a signature', async () => {

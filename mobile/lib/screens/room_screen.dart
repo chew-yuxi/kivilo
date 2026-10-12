@@ -34,7 +34,6 @@ class _RoomScreenState extends State<RoomScreen> {
   late final _evidenceBackend = RoutingEvidenceBackend(_api.dio);
   final Map<String, String> _captureUrls = {};
   late Future<RoomDetail> _future = _load();
-  Timer? _poller;
   bool _busy = false;
   String? _error;
 
@@ -51,39 +50,19 @@ class _RoomScreenState extends State<RoomScreen> {
           annotations: capture.annotations,
         ),
     ];
-    final room = RoomDetail(
+    return RoomDetail(
       id: fresh.id,
       name: fresh.name,
       status: fresh.status,
-      processingError: fresh.processingError,
       items: fresh.items,
       captures: captures,
     );
-    _poller?.cancel();
-    if (mounted && room.status == 'PROCESSING') {
-      _poller = Timer(const Duration(seconds: 5), () {
-        if (mounted) {
-          unawaited(
-            _refresh().catchError((Object error) {
-              if (mounted) setState(() => _error = '$error');
-            }),
-          );
-        }
-      });
-    }
-    return room;
   }
 
   Future<void> _refresh() async {
     final next = _load();
     setState(() => _future = next);
     await next;
-  }
-
-  @override
-  void dispose() {
-    _poller?.cancel();
-    super.dispose();
   }
 
   Future<void> _run(Future<void> Function() action) async {
@@ -111,13 +90,6 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
     if (mounted) await _refresh();
-  }
-
-  String _friendlyProcessingError(String error) {
-    if (error.toLowerCase().contains('quota exceeded')) {
-      return 'AI drafting is temporarily unavailable because this Gemini project has no remaining request quota. Your captures are safe. Retry after the quota resets or the production project quota is enabled.';
-    }
-    return 'Kivilo could not draft this room. Your captures are safe. Review them and retry drafting.';
   }
 
   Future<String?> _evidenceAction(
@@ -306,7 +278,7 @@ class _RoomScreenState extends State<RoomScreen> {
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text('Delete ${item.name}?'),
-        content: const Text('This removes the inventory line from the draft.'),
+        content: const Text('This removes the line from the inventory.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -607,16 +579,12 @@ class _RoomScreenState extends State<RoomScreen> {
                               : switch (room.status) {
                                   'PENDING' =>
                                     'Start with a narrated walkthrough, then photograph labels and details.',
-                                  'CAPTURING' =>
-                                    'Keep capturing. When ready, draft the room inventory from your evidence.',
-                                  'PROCESSING' =>
-                                    'Kivilo is drafting the room inventory. This page will update when it is ready.',
                                   'REVIEW' =>
-                                    'Check every drafted item against the evidence before marking this room reviewed.',
+                                    'Add each item you see, checked against the evidence, then mark this room reviewed.',
                                   'REVIEWED' =>
                                     'This room has been reviewed. You can still add evidence while the report is open.',
                                   _ =>
-                                    'Drafting needs attention. Review captures and retry from the capture screen.',
+                                    'Keep capturing. When you are done, write the room inventory from your evidence.',
                                 },
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -625,19 +593,6 @@ class _RoomScreenState extends State<RoomScreen> {
                   ),
                 ),
               ),
-              if (room.processingError != null) ...[
-                const SizedBox(height: 12),
-                Card(
-                  color: KiviloColors.redSoft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Text(
-                      _friendlyProcessingError(room.processingError!),
-                      style: const TextStyle(color: KiviloColors.red),
-                    ),
-                  ),
-                ),
-              ],
               if (_error != null) ...[
                 const SizedBox(height: 12),
                 Card(
@@ -658,14 +613,6 @@ class _RoomScreenState extends State<RoomScreen> {
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: const Text('Open camera & evidence'),
                 ),
-                if (room.status == 'FAILED') ...[
-                  const SizedBox(height: 8),
-                  OutlinedButton.icon(
-                    onPressed: _busy ? null : _capture,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Review captures and retry drafting'),
-                  ),
-                ],
               ],
               const SizedBox(height: 30),
               KiviloSectionHeading(
@@ -759,7 +706,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Add an item or draft from your room captures.',
+                          'Add each item you see in this room.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -786,12 +733,14 @@ class _RoomScreenState extends State<RoomScreen> {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          'Confirm every item against the photos and video. Your review makes this draft ready for the report.',
+                          room.items.isEmpty
+                              ? 'Add at least one item before marking this room reviewed.'
+                              : 'Check every item against the photos and video. Your review makes this room ready for the report.',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 14),
                         FilledButton.icon(
-                          onPressed: _busy
+                          onPressed: _busy || room.items.isEmpty
                               ? null
                               : () => _run(
                                   () => _api.markRoomReviewed(
@@ -958,27 +907,6 @@ class _RoomScreenState extends State<RoomScreen> {
                                 : 'Marked photo'
                           : 'Video',
                     ),
-                ],
-              ),
-            ],
-            if (!item.editedByHuman && item.confidence != null) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.auto_awesome_outlined,
-                    size: 15,
-                    color: KiviloColors.pinkDark,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    'AI draft · ${(item.confidence! * 100).round()}% confidence',
-                    style: const TextStyle(
-                      color: KiviloColors.pinkDark,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ],
               ),
             ],

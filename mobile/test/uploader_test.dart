@@ -142,11 +142,6 @@ class FakeBackend implements CaptureBackend {
     if (rejectDeletes) throw StateError('not found or unauthorized');
     calls.add('deleteCapture');
   }
-
-  @override
-  Future<void> finishRoom(String inspectionId, String roomId) async {
-    calls.add('finishRoom');
-  }
 }
 
 void main() {

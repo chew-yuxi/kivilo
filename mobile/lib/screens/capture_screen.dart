@@ -563,35 +563,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
         );
         return;
       }
-      final consent = await showKiviloDrawer<bool>(
-        context: context,
-        builder: (context) => KiviloDrawer(
-          title: const Text('Draft with AI?'),
-          content: const Text(
-            'Kivilo sends this room’s video, photos and property details to Google Gemini to draft an inventory. '
-            'For a check-out, it also sends the reviewed check-in and check-out inventories and tenancy length to Gemini to draft findings. '
-            'You review and correct every draft before anyone signs.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Not now'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Allow and draft'),
-            ),
-          ],
-        ),
-      );
-      if (consent != true) return;
       try {
-        await _api.consentToAiProcessing(widget.inspectionId);
-        await _api.processRoom(widget.inspectionId, widget.roomId);
+        await _api.finishRoom(widget.inspectionId, widget.roomId);
         if (mounted) Navigator.pop(context);
       } catch (error) {
         if (mounted) {
-          setState(() => _error = 'Could not start drafting: $error');
+          setState(() => _error = 'Could not finish this room: $error');
         }
       }
     } finally {
@@ -880,8 +857,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
             onPressed: _room == null || _busy || _leaving || _finishing
                 ? null
                 : _finishRoom,
-            icon: const Icon(Icons.auto_awesome_outlined),
-            label: const Text('Finish room & draft inventory'),
+            icon: const Icon(Icons.check_rounded),
+            label: const Text('Done capturing'),
           ),
         ),
       ),

@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/inspection.dart';
 
 void main() {
-  test('detail carries native lifecycle, consent and publication state', () {
+  test('detail carries native lifecycle, comparison and publication state', () {
     final detail = InspectionDetail.fromJson({
       'id': 'inspection-1',
       'tenancyRecordId': 'tenancy-1',
@@ -18,9 +18,14 @@ void main() {
       'checkOutId': null,
       'shareToken': null,
       'shareUrl': null,
-      'aiConsentAt': '2026-10-10T08:00:00Z',
       'latestAssessment': {'version': 2, 'publishedAt': '2026-10-10T09:00:00Z'},
       'assessmentDraftChanged': true,
+      'checkOutItems': [
+        {'id': 'item-out', 'label': 'Kitchen · Counter'},
+      ],
+      'checkInItems': [
+        {'id': 'item-in', 'label': 'Kitchen · Counter'},
+      ],
       'signatures': [
         {'stakeholderId': 'landlord-1', 'signedAt': '2026-10-10T08:30:00Z'},
       ],
@@ -44,8 +49,6 @@ void main() {
           'items': 1,
           'photos': 2,
           'videos': 1,
-          'newSinceDraft': 0,
-          'processingError': null,
         },
       ],
     });
@@ -57,15 +60,16 @@ void main() {
     expect(detail.latestAssessment!.version, 2);
     expect(detail.assessmentDraftChanged, isTrue);
     expect(detail.findings.single.verdict, 'UNDECIDED');
+    expect(detail.checkOutItems.single.id, 'item-out');
+    expect(detail.checkInItems.single.label, 'Kitchen · Counter');
   });
 
-  test('room review includes model ownership and original photo marks', () {
+  test('room review carries its items and original photo marks', () {
     final room = RoomDetail.fromJson({
       'room': {
         'id': 'room-1',
         'name': 'Kitchen',
         'status': 'REVIEW',
-        'processingError': null,
       },
       'position': {'index': 1, 'total': 1},
       'next': null,
@@ -79,8 +83,6 @@ void main() {
           'notes': null,
           'identifier': null,
           'meterReading': null,
-          'confidence': 0.8,
-          'editedByHuman': false,
         },
       ],
       'captures': [
@@ -94,8 +96,7 @@ void main() {
       ],
     });
 
-    expect(room.items.single.confidence, 0.8);
-    expect(room.items.single.editedByHuman, isFalse);
+    expect(room.items.single.condition, 'FAIR');
     expect(room.captures.single.annotations!['v'], 1);
   });
 }

@@ -345,7 +345,7 @@ class Api {
         await _dio.delete('/api/v1/inspections/$inspectionId/rooms/$roomId');
       });
 
-  Future<void> processRoom(String inspectionId, String roomId) => _call(
+  Future<void> finishRoom(String inspectionId, String roomId) => _call(
     () async {
       await _dio.post('/api/v1/inspections/$inspectionId/rooms/$roomId/finish');
     },
@@ -410,9 +410,20 @@ class Api {
     return response.data!['id'] as String;
   });
 
-  Future<void> runFindings(String inspectionId) => _call(() async {
-    await _dio.post('/api/v1/inspections/$inspectionId/findings/run');
-  });
+  Future<void> createFinding(String inspectionId, Map<String, dynamic> data) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/inspections/$inspectionId/findings',
+          data: data,
+        );
+      });
+
+  Future<void> deleteFinding(String inspectionId, String findingId) =>
+      _call(() async {
+        await _dio.delete(
+          '/api/v1/inspections/$inspectionId/findings/$findingId',
+        );
+      });
 
   Future<void> updateFinding(
     String inspectionId,
@@ -441,12 +452,5 @@ class Api {
 
   Future<void> requestDeletion() => _call(() async {
     await _dio.post('/api/v1/account/deletion-request');
-  });
-
-  Future<void> consentToAiProcessing(String inspectionId) => _call(() async {
-    await _dio.post(
-      '/api/v1/inspections/$inspectionId/ai-consent',
-      data: {'consent': true},
-    );
   });
 }

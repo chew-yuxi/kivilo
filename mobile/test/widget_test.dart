@@ -24,7 +24,6 @@ void main() {
       'items': items,
       'photos': photos,
       'videos': videos,
-      'newSinceDraft': 0,
     });
 
     test('says nothing captured when there is nothing', () {
@@ -41,7 +40,8 @@ void main() {
 
     /// The two clients must not grow two vocabularies for one workflow.
     test('uses the same status wording as the web room list', () {
-      expect(room(status: 'PROCESSING').statusLabel, 'Drafting');
+      expect(room(status: 'CAPTURING').statusLabel, 'Capturing');
+      expect(room(status: 'PROCESSING').statusLabel, 'Capturing');
       expect(room(status: 'REVIEW').statusLabel, 'Needs review');
       expect(room(status: 'REVIEWED').statusLabel, 'Reviewed');
     });

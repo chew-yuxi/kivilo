@@ -31,7 +31,6 @@ export async function publishAssessment(inspectionId: string) {
     if (inspection.status !== 'COMPLETED' || inspection.kind !== 'CHECK_OUT') {
       throw new Error('Complete the check-out inventory before publishing its assessment')
     }
-    if (inspection.summary === null) throw new Error('Draft the comparison first')
     if (inspection.findings.some((finding) => !finding.editedByHuman)) {
       throw new Error('Review every finding before publishing the assessment')
     }

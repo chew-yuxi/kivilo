@@ -17,7 +17,7 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
   const rooms = await db.room.findMany({
     where: { inspectionId: id },
     orderBy: { order: 'asc' },
-    select: { id: true, name: true, status: true, processingError: true },
+    select: { id: true, name: true, status: true },
   })
 
   const index = rooms.findIndex((room) => room.id === roomId)
@@ -48,8 +48,6 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
       sourceCaptureId: item.sourceCaptureId,
       sourceTimestampSec: item.sourceTimestampSec,
       evidenceCaptureIds: item.evidence.map((link) => link.captureId),
-      confidence: item.confidence,
-      editedByHuman: item.editedByHuman,
     })),
     captures: await Promise.all(
       stored.map(async (capture) => ({
@@ -61,7 +59,6 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
         createdAt: capture.createdAt.toISOString(),
         url: await createDownloadUrl(capture.storagePath),
         annotations: toAnnotations(capture.annotations),
-        processed: capture.processedAt !== null,
       })),
     ),
   }

@@ -14,7 +14,8 @@ class ApiFailure implements Exception {
       'report_frozen' =>
         'This report has been sent for signature and cannot be changed.',
       'invalid_request' => 'Please check the details and try again.',
-      'review_incomplete' => 'Finish reviewing every room before sending.',
+      'review_incomplete' =>
+        'Each room needs at least one item and a review first.',
       'assessment_review_incomplete' =>
         'Open and confirm every finding before publishing the assessment.',
       'invalid_state' =>
@@ -26,7 +27,6 @@ class ApiFailure implements Exception {
         'Evidence has not reached storage. The saved file remains on this phone; retry upload.',
       'maintenance_conflict' =>
         'This maintenance update was already recorded differently. Refresh and check the timeline.',
-      'consent_required' => 'Allow AI processing before drafting this report.',
       _ =>
         status == null
             ? 'Check your connection and retry. Saved captures remain on this device.'

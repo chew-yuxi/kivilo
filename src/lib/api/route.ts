@@ -27,12 +27,6 @@ export function authed<P>(
       // cannot be used to discover which ids are real. Nothing else is echoed back: the
       // thrown message can carry a Prisma model name or a driver error.
       const message = error instanceof Error ? error.message : ''
-      if (/\bmodels\/gemini-[\w.-]+\b.*\b(no longer available|not available|does not exist|not found|unsupported)\b/i.test(message)) {
-        return Response.json({ error: 'ai_unavailable' }, { status: 503 })
-      }
-      if (message === 'AI draft failed validation; retry the comparison') {
-        return Response.json({ error: 'ai_invalid_draft' }, { status: 502 })
-      }
       if (/not found/i.test(message)) {
         return Response.json({ error: 'not_found' }, { status: 404 })
       }
@@ -43,16 +37,13 @@ export function authed<P>(
       if (/no longer be changed/i.test(message)) {
         return Response.json({ error: 'report_frozen' }, { status: 409 })
       }
-      if (/AI processing consent is required/i.test(message)) {
-        return Response.json({ error: 'consent_required' }, { status: 409 })
-      }
       if (/Capture has not reached storage/i.test(message)) {
         return Response.json({ error: 'capture_missing' }, { status: 409 })
       }
       if (/Maintenance evidence has not reached storage/i.test(message)) {
         return Response.json({ error: 'evidence_missing' }, { status: 409 })
       }
-      if (/rooms? still need review|Add and review at least one room|Room must be processed before review|Process all new captures/i.test(message)) {
+      if (/rooms? still need review|Add and review at least one room|Review every room with new captures|Finish capturing this room|Add at least one item/i.test(message)) {
         return Response.json({ error: 'review_incomplete' }, { status: 409 })
       }
       if (/Review every finding before publishing/i.test(message)) {

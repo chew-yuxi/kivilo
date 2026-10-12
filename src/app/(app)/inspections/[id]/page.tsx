@@ -6,12 +6,10 @@ import { propertyLabel } from '@/lib/format'
 import { StatusBadge } from '@/components/status-badge'
 import { RoomCapture, type RoomRow } from '@/components/room-capture'
 import { SignaturePad } from '@/components/signature-pad'
-import { FindingsPanel, type FindingRow } from '@/components/findings-panel'
-import { ProcessingPoller } from '@/components/processing-poller'
+import { FindingsPanel, type ComparableItem, type FindingRow } from '@/components/findings-panel'
 import { CheckOutButton } from '@/components/check-out-button'
 import { CompleteReviewButton } from '@/components/complete-review-button'
 import { ShareReport } from '@/components/share-report'
-import { AiConsentButton } from '@/components/ai-consent-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,17 +55,11 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     id: room.id,
     name: room.name,
     status: room.status,
-    processingError: room.processingError,
     itemCount: room._count.items,
     videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
     photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
-    newSinceDraft:
-      room.status === 'REVIEW' || room.status === 'REVIEWED'
-        ? room.captures.filter((capture) => capture.processedAt === null).length
-        : 0,
   }))
 
-  const anyProcessing = rooms.some((room) => room.status === 'PROCESSING')
   const allReviewed = rooms.length > 0 && rooms.every((room) => room.status === 'REVIEWED')
 
   const signatureFor = (stakeholderId: string) =>
@@ -79,7 +71,6 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     verdict: finding.verdict,
     rationale: finding.rationale,
     estimatedCost: finding.estimatedCost?.toString() ?? null,
-    confidence: finding.confidence,
     editedByHuman: finding.editedByHuman,
     itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
     baselineLabel: finding.baselineItem
@@ -90,6 +81,20 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     maintenanceCaseId: finding.maintenanceCaseId,
     maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
   }))
+
+  // What the add-finding form offers: every item on both signed reports.
+  const comparable = async (inspectionId: string | null): Promise<ComparableItem[]> =>
+    inspectionId && kind === 'CHECK_OUT' && status === 'COMPLETED'
+      ? (
+          await db.inspectionItem.findMany({
+            where: { room: { inspectionId } },
+            orderBy: [{ room: { order: 'asc' } }, { createdAt: 'asc' }],
+            include: { room: { select: { name: true } } },
+          })
+        ).map((item) => ({ id: item.id, label: `${item.room.name} · ${item.name}` }))
+      : []
+  const checkOutItems = await comparable(id)
+  const checkInItems = await comparable(inspection.baseline?.id ?? null)
 
   const maintenanceCases = await db.maintenanceCase.findMany({
     where: { tenancyId: inspection.tenancyId },
@@ -137,9 +142,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
       {isCapturePhase && (
         <>
-          {!inspection.aiConsentAt && <AiConsentButton inspectionId={id} />}
           <RoomCapture inspectionId={id} rooms={rooms} />
-          {anyProcessing && <ProcessingPoller />}
           {allReviewed && <CompleteReviewButton inspectionId={id} roomCount={rooms.length} />}
         </>
       )}
@@ -194,13 +197,14 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       {kind === 'CHECK_OUT' && status === 'COMPLETED' && (
         <section className="space-y-3">
           <h2 className="text-sm font-medium">Comparison against check-in</h2>
-          {!inspection.aiConsentAt && <AiConsentButton inspectionId={id} />}
           <FindingsPanel
             inspectionId={id}
             findings={findings}
             depositAmount={tenancy.deposit.toString()}
             publishedVersion={inspection.assessments[0]?.version ?? null}
             maintenanceCases={maintenanceCases}
+            checkOutItems={checkOutItems}
+            checkInItems={checkInItems}
           />
         </section>
       )}

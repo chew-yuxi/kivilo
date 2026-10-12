@@ -106,8 +106,6 @@ abstract class CaptureBackend {
   );
 
   Future<void> deleteCapture(String inspectionId, String captureId);
-
-  Future<void> finishRoom(String inspectionId, String roomId);
 }
 
 class HttpCaptureBackend implements CaptureBackend {
@@ -315,10 +313,6 @@ class HttpCaptureBackend implements CaptureBackend {
         ),
         _deadline,
       );
-
-  @override
-  Future<void> finishRoom(String inspectionId, String roomId) =>
-      _dio.post<void>('/api/v1/inspections/$inspectionId/rooms/$roomId/finish');
 }
 
 /// Routes the shared durable evidence queue without teaching it about product domains.
@@ -393,9 +387,6 @@ class RoutingEvidenceBackend implements CaptureBackend {
   @override
   Future<void> deleteCapture(String inspectionId, String captureId) =>
       _for(inspectionId).deleteCapture(inspectionId, captureId);
-  @override
-  Future<void> finishRoom(String inspectionId, String roomId) =>
-      _for(inspectionId).finishRoom(inspectionId, roomId);
 }
 
 class HttpMaintenanceEvidenceBackend implements CaptureBackend {
@@ -501,6 +492,4 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
   @override
   Future<void> deleteCapture(String inspectionId, String captureId) async =>
       _immutable();
-  @override
-  Future<void> finishRoom(String inspectionId, String roomId) async {}
 }

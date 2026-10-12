@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { signIn, freshEmail, scribble, FIXTURES } from './helpers'
 
 /// The whole check-in, as an agent does it on a phone: create the deal, capture one
-/// room, let extraction draft it, review, send for signature, both parties sign, share
+/// room, write its inventory, review, send for signature, both parties sign, share
 /// the report. Then the two things the product promises on top: a report link works
 /// without a session and dies on revoke, and another agent cannot see any of it.
 test('check-in from capture to countersigned report', async ({ page, browser }) => {
@@ -20,8 +20,6 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page).toHaveURL(/\/inspections\/c[a-z0-9]{20,}$/)
   await expect(page.getByRole('heading', { name: 'Check-in', exact: true })).toBeVisible()
   const inspectionUrl = page.url()
-  await page.getByRole('button', { name: 'I agree to AI processing for this inspection' }).click()
-  await expect(page.getByRole('button', { name: 'I agree to AI processing for this inspection' })).toHaveCount(0)
 
   // Capture the kitchen: one label photo and one walkthrough, through the offline
   // queue and a signed upload URL, exactly as the phone does it. The photo is on
@@ -66,15 +64,12 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await page.locator('input[type=file][accept="video/*"]').setInputFiles(FIXTURES.video)
   await expect(page.getByRole('button', { name: /^Video 3/ })).toBeVisible()
 
-  // Done waits for the room's uploads, hands it to extraction, and moves on; with no
-  // next room that is the list, which polls until the draft is in.
+  // Done waits for the room's uploads, then opens the room's inventory, which the
+  // inspector writes against the evidence. An empty room cannot be marked reviewed.
   await page.getByRole('button', { name: 'Done with Kitchen' }).click()
-  await expect(page).toHaveURL(inspectionUrl)
-  await expect(page.getByText('Needs review')).toBeVisible({ timeout: 30_000 })
-
-  // Review: the draft is the model's, and a person touching a line takes it over.
-  await page.getByRole('link', { name: 'Continue with Kitchen' }).click()
-  await expect(page.getByText('2 items · 2 not yet touched by a person')).toBeVisible()
+  await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}$/)
+  await expect(page.getByText('No items in this room yet.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mark room reviewed' })).toBeDisabled()
 
   // The evidence strip becomes a two-column grid from sm up, where a row is as tall as
   // its tallest item. That is the one surface where the overlay can stretch away from
@@ -90,12 +85,23 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
     2,
   )
   await page.setViewportSize({ width: 412, height: 915 })
+
+  // Two items, typed by hand. Each new line arrives as "New item" and is renamed in place.
+  await page.getByRole('button', { name: '+ Add an item' }).click()
+  const fridge = page.locator('input[value="New item"]')
+  await fridge.fill('Refrigerator')
+  await fridge.blur()
+  await expect(page.locator('input[value="Refrigerator"]')).toBeVisible()
+  const serial = page.getByPlaceholder('Make / model / serial')
+  await serial.fill('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')
+  await serial.blur()
   await expect(page.locator('input[value="SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N"]')).toBeVisible()
-  await expect(page.getByText('unsure')).toBeVisible()
-  const worktop = page.locator('input[value="Worktop"]')
+  await page.getByRole('button', { name: '+ Add an item' }).click()
+  const worktop = page.locator('input[value="New item"]')
   await worktop.fill('Quartz worktop')
   await worktop.blur()
-  await expect(page.getByText('2 items · 1 not yet touched by a person')).toBeVisible()
+  await expect(page.locator('input[value="Quartz worktop"]')).toBeVisible()
+  await expect(page.getByText('2 items', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Mark room reviewed' }).click()
   await expect(page).toHaveURL(inspectionUrl)
   await expect(page.getByText('Reviewed', { exact: true })).toBeVisible()

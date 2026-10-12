@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             current == null
-                ? 'Capture each room, review the draft, then sign with both parties.'
+                ? 'Capture each room, write its inventory, then sign with both parties.'
                 : '${current.kindLabel} · ${current.tenant} · ${current.rooms} ${current.rooms == 1 ? 'room' : 'rooms'}',
             style: Theme.of(context).textTheme.bodyMedium,
           ),

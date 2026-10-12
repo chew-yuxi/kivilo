@@ -5,7 +5,8 @@ import { CHANGE_TYPES, VERDICTS } from '@/lib/inspection/schema'
 /// mutable Finding rows, which remain a private working draft for the next version.
 export const assessmentSnapshotSchema = z.object({
   schemaVersion: z.literal(1),
-  summary: z.string(),
+  /// Written by the AI comparison in snapshots published before it was removed.
+  summary: z.string().nullable(),
   findings: z.array(z.object({
     id: z.string(),
     itemLabel: z.string(),

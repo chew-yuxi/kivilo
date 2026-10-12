@@ -1,16 +1,15 @@
 'use server'
 
-import { randomBytes, randomUUID } from 'node:crypto'
-import { after } from 'next/server'
+import { randomBytes } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
 import { requireAgent, authorizeInspection, authorizeRoom } from '@/lib/auth'
 import { captureExists, createUploadUrl } from '@/lib/storage'
-import { processRoom, generateFindings } from '@/lib/inspection/process'
 import { annotationInputSchema } from '@/lib/annotations'
 import { Prisma } from '@/generated/prisma'
 import type {
+  ChangeType,
   InspectionStatus,
   CaptureKind,
   ItemCategory,
@@ -230,14 +229,19 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
   assertOpen(room.inspection)
 
   await editOpenInspection(inspectionId, async (tx) => {
-    const current = await tx.room.findUniqueOrThrow({ where: { id: roomId }, select: { status: true } })
+    const current = await tx.room.findUniqueOrThrow({
+      where: { id: roomId },
+      select: { status: true, _count: { select: { items: true } } },
+    })
     if (current.status !== 'REVIEW' && current.status !== 'REVIEWED') {
-      throw new Error('Room must be processed before review')
+      throw new Error('Finish capturing this room before reviewing it')
     }
-    const unprocessed = await tx.capture.count({ where: { roomId, processedAt: null } })
-    if (unprocessed > 0) {
-      throw new Error('Process all new captures before reviewing this room')
+    if (current._count.items === 0) {
+      throw new Error('Add at least one item before reviewing this room')
     }
+    // processedAt marks a capture a person has reviewed the room with. The report only
+    // shows those, so a photo that lands after Send never joins what was agreed.
+    await tx.capture.updateMany({ where: { roomId, processedAt: null }, data: { processedAt: new Date() } })
     await tx.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
   })
   revalidate(inspectionId)
@@ -401,13 +405,13 @@ export async function registerCapture(input: {
           annotations,
         },
       })
-      // A late upload cannot move a drafted room back to CAPTURING.
+      // A late upload cannot move a finished room back to CAPTURING.
       await tx.room.updateMany({
         where: { id: input.roomId, status: { in: ['PENDING', 'FAILED'] } },
         data: { status: 'CAPTURING' },
       })
-      // A room reviewed before a delayed capture registered needs another model pass
-      // and human review. Once sent, late bytes stay stored but cannot alter status.
+      // A room reviewed before a delayed capture registered needs another human review.
+      // Once sent, late bytes stay stored but cannot alter status.
       if (inspection.status !== 'AWAITING_SIGNATURE') {
         await tx.room.updateMany({
           where: { id: input.roomId, status: 'REVIEWED' },
@@ -520,48 +524,21 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
   revalidate(inspectionId)
 }
 
-/// Called once the inspector says the room is fully captured. Extraction takes minutes,
-/// so the page polls the room's status rather than waiting on the response.
+/// Called once the inspector says the room is fully captured. The room moves to REVIEW,
+/// where the inspector writes its inventory against the evidence. A room already
+/// reviewed stays reviewed; a new capture is what sends it back.
 export async function finishRoomCapture(roomId: string, inspectionId: string) {
   const agent = await requireAgent()
-  // Re-reading a room deletes and rewrites its inventory. On a signed report that would
-  // change the very lines both parties put their names to.
   const room = await authorizeRoom(roomId, agent.id)
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
-  const inspection = await db.inspection.findUniqueOrThrow({
-    where: { id: inspectionId },
-    select: { aiConsentAt: true },
-  })
-  if (!inspection.aiConsentAt) throw new Error('AI processing consent is required')
 
-  const attemptId = randomUUID()
-  const staleBefore = new Date(Date.now() - 30 * 60 * 1000)
-  const claimed = await editOpenInspection(inspectionId, (tx) =>
+  await editOpenInspection(inspectionId, (tx) =>
     tx.room.updateMany({
-      where: {
-        id: roomId,
-        OR: [
-          { status: { not: 'PROCESSING' } },
-          { processingStartedAt: null },
-          { processingStartedAt: { lt: staleBefore } },
-        ],
-      },
-      data: {
-        status: 'PROCESSING',
-        processingError: null,
-        processingAttemptId: attemptId,
-        processingStartedAt: new Date(),
-      },
+      where: { id: roomId, status: { not: 'REVIEWED' } },
+      data: { status: 'REVIEW' },
     }))
-  if (claimed.count === 0) return
   revalidate(inspectionId)
-
-  after(async () => {
-    await processRoom(roomId, attemptId).catch((error) => {
-      console.error(`Processing failed for room ${roomId}:`, error)
-    })
-  })
 }
 
 // ---------------------------------------------------------------------------
@@ -661,7 +638,7 @@ export async function completeReview(inspectionId: string) {
       where: { room: { inspectionId }, processedAt: null },
     })
     if (unprocessed > 0) {
-      throw new Error('Process all new captures before sending for signature')
+      throw new Error('Review every room with new captures before sending for signature')
     }
 
     await tx.inspection.update({
@@ -726,19 +703,84 @@ export async function signInspection(
   revalidate(inspectionId)
 }
 
-export async function runFindings(inspectionId: string) {
+/// Findings are written by the agent, one per change they find between the signed
+/// check-in and the signed check-out. A finding names a check-out item, a check-in item,
+/// or both; given only the check-out item, the check-in item with the same room and name
+/// is matched to it, so the report can show the condition at both ends.
+export async function createFinding(
+  inspectionId: string,
+  data: {
+    itemId: string | null
+    baselineItemId: string | null
+    changeType: ChangeType
+    verdict: Verdict
+    rationale: string
+    estimatedCost: string | null
+  },
+) {
   const agent = await requireAgent()
-  const authorized = await authorizeInspection(inspectionId, agent.id)
-  if (authorized.kind !== 'CHECK_OUT' || !['AWAITING_SIGNATURE', 'COMPLETED'].includes(authorized.status)) {
+  const inspection = await authorizeInspection(inspectionId, agent.id)
+  if (inspection.kind !== 'CHECK_OUT' || !['AWAITING_SIGNATURE', 'COMPLETED'].includes(inspection.status)) {
     throw new Error('Findings require a reviewed check-out')
   }
-  const inspection = await db.inspection.findUniqueOrThrow({
+  if (!data.itemId && !data.baselineItemId) throw new Error('Item not found')
+  const { baselineId } = await db.inspection.findUniqueOrThrow({
     where: { id: inspectionId },
-    select: { aiConsentAt: true },
+    select: { baselineId: true },
   })
-  if (!inspection.aiConsentAt) throw new Error('AI processing consent is required')
 
-  await generateFindings(inspectionId)
+  const item = data.itemId
+    ? await db.inspectionItem.findFirst({
+        where: { id: data.itemId, room: { inspectionId } },
+        include: { room: { select: { name: true } } },
+      })
+    : null
+  if (data.itemId && !item) throw new Error('Item not found')
+
+  let baselineItemId = data.baselineItemId
+  if (baselineItemId) {
+    const baselineItem = baselineId
+      ? await db.inspectionItem.findFirst({
+          where: { id: baselineItemId, room: { inspectionId: baselineId } },
+          select: { id: true },
+        })
+      : null
+    if (!baselineItem) throw new Error('Item not found')
+  } else if (item && baselineId) {
+    const match = await db.inspectionItem.findFirst({
+      where: {
+        name: { equals: item.name, mode: 'insensitive' },
+        room: { inspectionId: baselineId, name: { equals: item.room.name, mode: 'insensitive' } },
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    })
+    baselineItemId = match?.id ?? null
+  }
+
+  const finding = await db.finding.create({
+    data: {
+      inspectionId,
+      itemId: data.itemId,
+      baselineItemId,
+      changeType: data.changeType,
+      verdict: data.verdict,
+      rationale: data.rationale,
+      estimatedCost: data.estimatedCost,
+      editedByHuman: true,
+    },
+  })
+  revalidate(inspectionId)
+  return finding.id
+}
+
+export async function deleteFinding(findingId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  const finding = await db.finding.findUnique({ where: { id: findingId }, select: { inspectionId: true } })
+  if (!finding || finding.inspectionId !== inspectionId) throw new Error('Finding not found')
+  await authorizeInspection(inspectionId, agent.id)
+
+  await db.finding.delete({ where: { id: findingId } })
   revalidate(inspectionId)
 }
 
@@ -746,6 +788,7 @@ export async function updateFinding(
   findingId: string,
   inspectionId: string,
   data: {
+    changeType?: ChangeType
     verdict?: Verdict
     rationale?: string
     estimatedCost?: string | null

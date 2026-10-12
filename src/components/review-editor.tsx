@@ -25,8 +25,6 @@ export type EditableItem = {
   meterReading: string | null
   sourceCaptureId: string | null
   sourceTimestampSec: number | null
-  confidence: number | null
-  editedByHuman: boolean
 }
 
 export type EvidenceCapture = {
@@ -57,8 +55,6 @@ function ItemRow({
 
   const save = (data: Parameters<typeof updateItem>[2]) =>
     startTransition(() => void updateItem(item.id, inspectionId, data))
-
-  const lowConfidence = item.confidence !== null && item.confidence < 0.6
 
   return (
     // Stacked on a phone, which is where this is actually used, and a single row from
@@ -103,14 +99,6 @@ function ItemRow({
             >
               {item.sourceTimestampSec !== null ? timecode(item.sourceTimestampSec) : 'photo'}
             </button>
-          )}
-          {lowConfidence && (
-            <span
-              className="text-xs text-amber-700"
-              title={`Model confidence ${Math.round(item.confidence! * 100)}%. Check the evidence.`}
-            >
-              unsure
-            </span>
           )}
         </div>
       </div>
@@ -198,8 +186,6 @@ export function ReviewEditor({
     element.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  const unreviewed = items.filter((i) => !i.editedByHuman).length
-
   return (
     <div className="space-y-6">
       {captures.length > 0 && (
@@ -251,7 +237,7 @@ export function ReviewEditor({
           <div>
             <h2 className="text-sm font-medium">{roomName}</h2>
             <p className="text-xs text-gray-500">
-              {items.length} items · {unreviewed} not yet touched by a person
+              {items.length} {items.length === 1 ? 'item' : 'items'}
             </p>
           </div>
         </div>
@@ -279,20 +265,15 @@ export function ReviewEditor({
             onClick={() => startTransition(() => void addItem(roomId, inspectionId))}
             className="text-sm font-medium text-brand-600 hover:underline disabled:opacity-50"
           >
-            + Add an item the model missed
+            + Add an item
           </button>
         </div>
       </div>
 
       <div className="flex items-center justify-end gap-4">
-        {unreviewed > 0 && (
-          <p className="text-xs text-gray-500">
-            {unreviewed} items still carry only the model&rsquo;s reading of the evidence.
-          </p>
-        )}
         <button
           type="button"
-          disabled={pending}
+          disabled={pending || items.length === 0}
           onClick={() =>
             startTransition(async () => {
               await markRoomReviewed(roomId, inspectionId)

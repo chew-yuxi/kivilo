@@ -10,9 +10,6 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
   decision rather than a default.
 - A Vercel project (or any Node host) for the app. `vercel.json` pins functions to
   `sin1` so they sit next to the database; leave that in place.
-- A Google Generative AI key from a paid-tier project for extraction and the
-  Gemini 3.1 Pro Preview check-out diff. Verify its billing tier in Google AI Studio before
-  sending real property data.
 
 ## First deploy
 
@@ -34,9 +31,7 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
    `{{ .ConfirmationURL }}` link, which the app cannot use), and configure a real SMTP
    sender; the default Supabase mailer is rate limited and not for production.
 4. **Environment.** Set every variable in `.env.example`. `SUPABASE_SERVICE_ROLE_KEY`
-   is server only and must not be exposed to the browser. Never set
-   `KIVILO_FAKE_EXTRACTION`; it is the e2e suite's stand-in for Gemini and the app
-   refuses it on Vercel anyway.
+   is server only and must not be exposed to the browser.
 5. **Deploy**, then sign in once and confirm you land on an empty inspection list rather
    than someone else's.
 
@@ -87,16 +82,9 @@ Still open, and each one bites before the first real inspection:
   route and set `RESEND_API_KEY` / `RESEND_FROM_EMAIL` **first**, and only then enable
   the hook.
 
-- **Production Gemini key.** A synthetic Gemini 2.5 Pro check-out comparison passed
-  the schema and edge-case probe on 2026-10-11 under an older project. Google no
-  longer permits that model on new projects; Kivilo now uses Gemini 3.1 Pro Preview.
-  The company reports its new key's project is Tier 1 postpay; the key was saved in
-  Vercel Production before deployment. On backend commit `1f200b6`, isolated
-  synthetic inventory passed the deployed findings route (HTTP 200, one fair-wear
-  draft), and synthetic video/photo captures passed deployed room extraction
-  (HTTP 200, room REVIEW, one AI-authored item). All temporary Auth, database and
-  Storage fixtures were removed. A full signed check-in/check-out through the app
-  remains to be tested.
+- **No AI provider.** Gemini drafting was removed on 2026-10-12. The
+  `GOOGLE_GENERATIVE_AI_API_KEY` and `ANTHROPIC_API_KEY` set in Vercel Production are
+  no longer read and can be deleted, along with the Google AI Studio key itself.
 - **Domain.** Settled as `kivilo.nottoosweetlabs.com` on 2026-08-23; the Supabase auth
   site URL and allow list already point at it. kivilo.io was still unregistered that day
   if a standalone name is ever wanted.
@@ -113,12 +101,9 @@ These are known gaps, not oversights. Decide each one deliberately.
   records have no automatic expiry; the owner records why each is still needed and
   deletes or de-identifies it when no stated purpose remains. The mailbox
   `hello@nottoosweetlabs.com` is monitored for Kivilo.
-- **The full app workflow still needs a real rehearsal.** Production AI routes passed
-  isolated synthetic probes; review a complete check-in/check-out, both signatures,
-  and assessment publication in the app before inviting agents.
-- **Extraction failures are only visible in the app.** A room that fails parks as FAILED
-  with the reason on the row, which an agent sees, but nothing pages anyone. Wire the
-  `console.error` in `src/lib/actions.ts` to whatever you use for alerting.
+- **The full app workflow still needs a real rehearsal.** Run a complete
+  check-in/check-out, both signatures, and assessment publication in the app before
+  inviting agents.
 - **No rate limiting on sign-in.** Supabase applies its own, but there is nothing
   application side.
 - **Report links do not expire.** They are revocable by hand and unguessable, but a link

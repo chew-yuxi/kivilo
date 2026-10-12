@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { authorizeInspection } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { authed } from '@/lib/api/route'
+import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +19,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       rooms: {
         orderBy: { order: 'asc' },
         include: {
-          captures: { select: { kind: true, processedAt: true } },
+          captures: { select: { kind: true } },
           _count: { select: { items: true } },
         },
       },
@@ -32,7 +33,11 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
           maintenanceCase: { select: { id: true, title: true } },
         },
       },
-      assessments: { orderBy: { version: 'desc' }, take: 1, select: { version: true, publishedAt: true } },
+      assessments: {
+        orderBy: { version: 'desc' },
+        take: 1,
+        select: { version: true, publishedAt: true, snapshot: true },
+      },
     },
   })
   const maintenanceHistory = await db.maintenanceCase.findMany({
@@ -44,6 +49,25 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       _count: { select: { evidence: true } },
     },
   })
+
+  // What the add-finding form offers: every item on both signed reports.
+  const comparable = async (inspectionId: string | null) =>
+    inspectionId && inspection.kind === 'CHECK_OUT' && inspection.status === 'COMPLETED'
+      ? (
+          await db.inspectionItem.findMany({
+            where: { room: { inspectionId } },
+            orderBy: [{ room: { order: 'asc' } }, { createdAt: 'asc' }],
+            include: { room: { select: { name: true } } },
+          })
+        ).map((item) => ({ id: item.id, label: `${item.room.name} · ${item.name}` }))
+      : []
+
+  // Unpublished work: an edit or addition since the last version (updatedAt), or a
+  // deletion, which leaves no row behind and shows only as a different count.
+  const latest = inspection.assessments[0]
+  const draftChanged = !latest ||
+    inspection.findings.some((finding) => finding.updatedAt > latest.publishedAt) ||
+    inspection.findings.length !== assessmentSnapshotSchema.parse(latest.snapshot).findings.length
 
   return {
     id: inspection.id,
@@ -59,7 +83,6 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     summary: inspection.summary,
     baselineId: inspection.baselineId,
     checkOutId: inspection.checkOut?.id ?? null,
-    aiConsentAt: inspection.aiConsentAt?.toISOString() ?? null,
     shareToken: inspection.shareToken,
     shareUrl: inspection.shareToken
       ? new URL(`/reports/${inspection.shareToken}`, request.url).toString()
@@ -74,11 +97,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
           publishedAt: inspection.assessments[0].publishedAt.toISOString(),
         }
       : null,
-    assessmentDraftChanged:
-      inspection.kind === 'CHECK_OUT' && inspection.summary !== null &&
-      (!inspection.assessments[0] || inspection.findings.some(
-        (finding) => finding.updatedAt > inspection.assessments[0].publishedAt,
-      )),
+    assessmentDraftChanged: inspection.kind === 'CHECK_OUT' && draftChanged,
     maintenanceHistory: maintenanceHistory.map((item) => ({
       id: item.id,
       title: item.title,
@@ -94,7 +113,6 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       verdict: finding.verdict,
       rationale: finding.rationale,
       estimatedCost: finding.estimatedCost?.toString() ?? null,
-      confidence: finding.confidence,
       editedByHuman: finding.editedByHuman,
       itemId: finding.itemId,
       baselineItemId: finding.baselineItemId,
@@ -107,18 +125,15 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       maintenanceCaseId: finding.maintenanceCaseId,
       maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
     })),
+    checkOutItems: await comparable(inspection.id),
+    checkInItems: await comparable(inspection.baselineId),
     rooms: inspection.rooms.map((room) => ({
       id: room.id,
       name: room.name,
       status: room.status,
-      processingError: room.processingError,
       items: room._count.items,
       photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
       videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
-      newSinceDraft:
-        room.status === 'REVIEW' || room.status === 'REVIEWED'
-          ? room.captures.filter((capture) => capture.processedAt === null).length
-          : 0,
     })),
   }
 })

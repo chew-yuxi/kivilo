@@ -50,10 +50,11 @@ class InspectionDetail {
     required this.checkOutId,
     required this.shareToken,
     required this.shareUrl,
-    required this.aiConsentAt,
     required this.latestAssessment,
     required this.assessmentDraftChanged,
     required this.maintenanceHistory,
+    required this.checkOutItems,
+    required this.checkInItems,
   });
 
   final String id;
@@ -73,10 +74,14 @@ class InspectionDetail {
   final String? checkOutId;
   final String? shareToken;
   final String? shareUrl;
-  final String? aiConsentAt;
   final AssessmentVersion? latestAssessment;
   final bool assessmentDraftChanged;
   final List<Map<String, dynamic>> maintenanceHistory;
+
+  /// What a finding can be written against, once a check-out is signed: every item on
+  /// the check-out, and every item on the check-in for anything now missing.
+  final List<ComparableItem> checkOutItems;
+  final List<ComparableItem> checkInItems;
 
   factory InspectionDetail.fromJson(Map<String, dynamic> json) =>
       InspectionDetail(
@@ -106,7 +111,6 @@ class InspectionDetail {
         checkOutId: json['checkOutId'] as String?,
         shareToken: json['shareToken'] as String?,
         shareUrl: json['shareUrl'] as String?,
-        aiConsentAt: json['aiConsentAt'] as String?,
         latestAssessment: json['latestAssessment'] == null
             ? null
             : AssessmentVersion.fromJson(
@@ -116,6 +120,8 @@ class InspectionDetail {
         maintenanceHistory:
             (json['maintenanceHistory'] as List<dynamic>? ?? const [])
                 .cast<Map<String, dynamic>>(),
+        checkOutItems: ComparableItem.listFromJson(json['checkOutItems']),
+        checkInItems: ComparableItem.listFromJson(json['checkInItems']),
       );
 
   bool get isOpen => !['AWAITING_SIGNATURE', 'COMPLETED'].contains(status);
@@ -133,8 +139,6 @@ class RoomSummary {
     required this.items,
     required this.photos,
     required this.videos,
-    required this.newSinceDraft,
-    this.processingError,
   });
 
   final String id;
@@ -143,8 +147,6 @@ class RoomSummary {
   final int items;
   final int photos;
   final int videos;
-  final int newSinceDraft;
-  final String? processingError;
 
   factory RoomSummary.fromJson(Map<String, dynamic> json) => RoomSummary(
     id: json['id'] as String,
@@ -153,17 +155,14 @@ class RoomSummary {
     items: json['items'] as int,
     photos: json['photos'] as int,
     videos: json['videos'] as int,
-    newSinceDraft: json['newSinceDraft'] as int,
-    processingError: json['processingError'] as String?,
   );
 
   String get statusLabel => switch (status) {
     'PENDING' => 'Not started',
-    'CAPTURING' => 'Capturing',
-    'PROCESSING' => 'Drafting',
     'REVIEW' => 'Needs review',
     'REVIEWED' => 'Reviewed',
-    _ => 'Failed',
+    // PROCESSING and FAILED are left over from AI drafting; Done moves them on.
+    _ => 'Capturing',
   };
 
   String get countsLabel {
@@ -183,13 +182,11 @@ class RoomDetail {
     required this.status,
     required this.items,
     required this.captures,
-    this.processingError,
   });
 
   final String id;
   final String name;
   final String status;
-  final String? processingError;
   final List<InventoryItem> items;
   final List<EvidenceCapture> captures;
 
@@ -199,7 +196,6 @@ class RoomDetail {
       id: room['id'] as String,
       name: room['name'] as String,
       status: room['status'] as String,
-      processingError: room['processingError'] as String?,
       items: (json['items'] as List<dynamic>)
           .map((item) => InventoryItem.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -226,8 +222,6 @@ class InventoryItem {
     this.sourceCaptureId,
     this.sourceTimestampSec,
     this.evidenceCaptureIds = const [],
-    this.confidence,
-    required this.editedByHuman,
   });
 
   final String id;
@@ -241,8 +235,6 @@ class InventoryItem {
   final String? sourceCaptureId;
   final int? sourceTimestampSec;
   final List<String> evidenceCaptureIds;
-  final double? confidence;
-  final bool editedByHuman;
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) => InventoryItem(
     id: json['id'] as String,
@@ -258,8 +250,6 @@ class InventoryItem {
     evidenceCaptureIds:
         (json['evidenceCaptureIds'] as List<dynamic>? ?? const [])
             .cast<String>(),
-    confidence: (json['confidence'] as num?)?.toDouble(),
-    editedByHuman: json['editedByHuman'] as bool,
   );
 }
 
@@ -317,7 +307,6 @@ class Finding {
     required this.editedByHuman,
     required this.maintenanceCaseId,
     required this.maintenanceCaseTitle,
-    this.confidence,
   });
 
   final String id;
@@ -328,7 +317,6 @@ class Finding {
   final String? itemLabel;
   final String? baselineLabel;
   final bool editedByHuman;
-  final double? confidence;
   final String? maintenanceCaseId;
   final String? maintenanceCaseTitle;
 
@@ -341,10 +329,26 @@ class Finding {
     itemLabel: json['itemLabel'] as String?,
     baselineLabel: json['baselineLabel'] as String?,
     editedByHuman: json['editedByHuman'] as bool,
-    confidence: (json['confidence'] as num?)?.toDouble(),
     maintenanceCaseId: json['maintenanceCaseId'] as String?,
     maintenanceCaseTitle: json['maintenanceCaseTitle'] as String?,
   );
+}
+
+class ComparableItem {
+  const ComparableItem({required this.id, required this.label});
+  final String id;
+  final String label;
+
+  static List<ComparableItem> listFromJson(Object? json) =>
+      (json as List<dynamic>)
+          .map((entry) => entry as Map<String, dynamic>)
+          .map(
+            (entry) => ComparableItem(
+              id: entry['id'] as String,
+              label: entry['label'] as String,
+            ),
+          )
+          .toList();
 }
 
 class AssessmentVersion {

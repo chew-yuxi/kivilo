@@ -156,16 +156,9 @@ test('a native client can create and capture a room end to end', async ({ reques
   expect(body.captures[0]).toMatchObject({
     kind: 'PHOTO',
     note: 'Fridge rating plate',
-    processed: false,
     annotations: { w: 640, h: 480, marks: [{ shape: 'ring' }] },
   })
   expect(body.captures[0].url).toContain('token=')
-
-  const consent = await request.post(`/api/v1/inspections/${inspectionId}/ai-consent`, {
-    headers,
-    data: { consent: true },
-  })
-  expect(consent.status()).toBe(200)
 
   const finished = await request.post(
     `/api/v1/inspections/${inspectionId}/rooms/${roomId}/finish`,
@@ -173,18 +166,26 @@ test('a native client can create and capture a room end to end', async ({ reques
   )
   expect(finished.status()).toBe(200)
 
-  // Extraction is the same background job the web client triggers, so the room lands in
-  // review with a draft a human still has to pass through before anything is signed.
-  await expect
-    .poll(
-      async () => {
-        const detail = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
-        return (await detail.json()).rooms[0].status
-      },
-      { timeout: 30_000 },
-    )
-    .toBe('REVIEW')
+  // Finishing hands the room straight to the inspector to write. Nothing drafts it, so
+  // an empty room cannot be reviewed until a person adds a line.
+  const detail = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
+  expect((await detail.json()).rooms[0]).toMatchObject({ status: 'REVIEW', items: 0 })
+  const empty = await request.post(
+    `/api/v1/inspections/${inspectionId}/rooms/${roomId}/review`,
+    { headers },
+  )
+  expect(empty.status()).toBe(409)
+  expect(await empty.json()).toEqual({ error: 'review_incomplete' })
 
-  const drafted = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
-  expect((await drafted.json()).rooms[0].items).toBeGreaterThan(0)
+  const item = await request.post(`/api/v1/inspections/${inspectionId}/rooms/${roomId}/items`, {
+    headers,
+  })
+  expect(item.status()).toBe(200)
+  const reviewed = await request.post(
+    `/api/v1/inspections/${inspectionId}/rooms/${roomId}/review`,
+    { headers },
+  )
+  expect(reviewed.status()).toBe(200)
+  const after = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
+  expect((await after.json()).rooms[0]).toMatchObject({ status: 'REVIEWED', items: 1 })
 })

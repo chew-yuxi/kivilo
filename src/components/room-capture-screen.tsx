@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useUploadQueue } from '@/components/upload-queue'
-import { ProcessingPoller } from '@/components/processing-poller'
 import { patch, take, type PendingCapture } from '@/lib/offline-queue'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { MarkEditor, type Tool } from '@/components/mark-editor'
@@ -26,8 +25,6 @@ export type ServerCapture = {
   durationSec: number | null
   url: string
   annotations: StoredAnnotations | null
-  /// False once a capture arrived after the room's last read: new against the draft.
-  processed: boolean
 }
 
 /// One thing on the screen, whether it is still on the phone or already on the server.
@@ -43,7 +40,7 @@ type Tile = {
 )
 
 /// Longest edge a photo is sent at. A phone camera frame is 4 to 6 MB; at this size it
-/// is a fifth of that and a rating plate is still legible, which is all the model needs.
+/// is a fifth of that and a rating plate is still legible, which is all the report needs.
 const MAX_PHOTO_EDGE = 2048
 
 /// Resolves to null when the photo is already small enough, or when the browser cannot
@@ -188,12 +185,11 @@ function QueuedMedia({
   )
 }
 
-function tileState(tile: Tile, online: boolean, drafted: boolean): string | null {
+function tileState(tile: Tile, online: boolean): string | null {
   if (tile.source === 'queue') {
     if (!online) return 'On this phone'
     return tile.capture.attempts === 0 ? 'Uploading' : `Retrying (${tile.capture.attempts})`
   }
-  if (drafted && !tile.capture.processed) return 'New'
   if (tile.kind === 'VIDEO' && tile.capture.durationSec) return `${tile.capture.durationSec}s`
   return null
 }
@@ -569,7 +565,7 @@ export function RoomCaptureScreen({
   next,
 }: {
   inspectionId: string
-  room: { id: string; name: string; status: RoomStatus; processingError: string | null }
+  room: { id: string; name: string; status: RoomStatus }
   captures: ServerCapture[]
   position: { index: number; total: number }
   next: { href: string; name: string } | null
@@ -588,9 +584,7 @@ export function RoomCaptureScreen({
   const [busy, startTransition] = useTransition()
 
   const queued = pending.filter((c) => c.roomId === room.id)
-  const drafted = room.status === 'REVIEW' || room.status === 'REVIEWED'
-  const processing = room.status === 'PROCESSING'
-  const newSinceDraft = captures.filter((c) => !c.processed).length
+  const finished = room.status === 'REVIEW' || room.status === 'REVIEWED'
 
   const tiles: Tile[] = [
     ...captures.map((c) => ({
@@ -662,10 +656,10 @@ export function RoomCaptureScreen({
       try {
         await finishRoomCapture(room.id, inspectionId)
       } catch (e) {
-        setError(`Could not hand ${room.name} over: ${e instanceof Error ? e.message : String(e)}`)
+        setError(`Could not finish ${room.name}: ${e instanceof Error ? e.message : String(e)}`)
         return
       }
-      router.push(next?.href ?? inspectionHref)
+      router.push(reviewHref)
     })
 
   const canFinish = online && queued.length === 0 && captures.length > 0 && !finishing
@@ -676,26 +670,7 @@ export function RoomCaptureScreen({
         : `${queued.length} saved on this phone, waiting for signal`
       : !online
         ? 'Waiting for signal'
-        : drafted
-          ? `Re-read ${room.name}`
-          : `Done with ${room.name}`
-
-  const statusLine = () => {
-    switch (room.status) {
-      case 'PENDING':
-        return 'Nothing captured yet.'
-      case 'CAPTURING':
-        return `${tiles.length} capture${tiles.length === 1 ? '' : 's'}.`
-      case 'PROCESSING':
-        return `Drafting the inventory from ${captures.length} capture${captures.length === 1 ? '' : 's'}. A minute or two.`
-      case 'FAILED':
-        return `Drafting failed: ${room.processingError}. Done tries again.`
-      default:
-        return newSinceDraft > 0
-          ? `Draft ready. ${newSinceDraft} new since the draft; re-read to include ${newSinceDraft === 1 ? 'it' : 'them'}. Your edits are kept.`
-          : 'Draft ready.'
-    }
-  }
+        : `Done with ${room.name}`
 
   return (
     <div className="space-y-5">
@@ -720,97 +695,87 @@ export function RoomCaptureScreen({
           className="w-full rounded border border-transparent px-1 py-0.5 text-2xl font-semibold tracking-tight focus:border-brand-500 focus:outline-none"
         />
         <p className="mt-1 px-1 text-sm text-gray-600">
-          {statusLine()}
-          {drafted && (
-            <>
-              {' '}
-              <Link href={reviewHref} className="font-medium text-brand-600 hover:underline">
-                Open the draft
-              </Link>
-            </>
-          )}
+          {tiles.length === 0
+            ? 'Nothing captured yet.'
+            : `${tiles.length} capture${tiles.length === 1 ? '' : 's'}.`}
         </p>
       </div>
 
-      {processing && <ProcessingPoller />}
-
-      {!processing && (
-        <div className="space-y-3">
-          <input
-            ref={photoInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void capture(file, 'PHOTO')
-              e.target.value = ''
-            }}
-          />
-          <input
-            ref={videoInput}
-            type="file"
-            accept="video/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void capture(file, 'VIDEO')
-              e.target.value = ''
-            }}
-          />
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => photoInput.current?.click()}
-            className="w-full rounded-lg bg-brand-500 px-4 py-4 text-base font-semibold text-white active:bg-brand-600 disabled:opacity-50"
-          >
-            {saving ? 'Saving' : 'Take a photo'}
-          </button>
-          {lastShot ? (
-            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2">
-              <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
-                {lastShot.source === 'queue' ? (
-                  <QueuedMedia capture={lastShot.capture} />
-                ) : (
-                  <Media kind={lastShot.kind} url={lastShot.capture.url} />
-                )}
-              </div>
-              <p className="min-w-0 flex-1 text-sm text-gray-600">
-                {lastShot.marks ? 'Marked' : 'Circle the damage'}
-              </p>
-              <button
-                type="button"
-                onClick={() => setViewing({ tile: lastShot, annotate: true })}
-                className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium active:bg-gray-100"
-              >
-                Mark it up ›
-              </button>
+      <div className="space-y-3">
+        <input
+          ref={photoInput}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) void capture(file, 'PHOTO')
+            e.target.value = ''
+          }}
+        />
+        <input
+          ref={videoInput}
+          type="file"
+          accept="video/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) void capture(file, 'VIDEO')
+            e.target.value = ''
+          }}
+        />
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => photoInput.current?.click()}
+          className="w-full rounded-lg bg-brand-500 px-4 py-4 text-base font-semibold text-white active:bg-brand-600 disabled:opacity-50"
+        >
+          {saving ? 'Saving' : 'Take a photo'}
+        </button>
+        {lastShot ? (
+          <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2">
+            <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
+              {lastShot.source === 'queue' ? (
+                <QueuedMedia capture={lastShot.capture} />
+              ) : (
+                <Media kind={lastShot.kind} url={lastShot.capture.url} />
+              )}
             </div>
-          ) : (
-            <p className="text-sm text-gray-600">
-              Each corner, every appliance and fixture, rating plates and meters up close, any
-              damage.
+            <p className="min-w-0 flex-1 text-sm text-gray-600">
+              {lastShot.marks ? 'Marked' : 'Circle the damage'}
             </p>
-          )}
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => videoInput.current?.click()}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium active:bg-gray-100 disabled:opacity-50"
-          >
-            Record a walkthrough
-          </button>
-          <p className="text-sm text-gray-600">Walk the room once, saying what you see.</p>
-          {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={() => setViewing({ tile: lastShot, annotate: true })}
+              className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium active:bg-gray-100"
+            >
+              Mark it up ›
+            </button>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600">
+            Each corner, every appliance and fixture, rating plates and meters up close, any
+            damage.
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => videoInput.current?.click()}
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium active:bg-gray-100 disabled:opacity-50"
+        >
+          Record a walkthrough
+        </button>
+        <p className="text-sm text-gray-600">Walk the room once, saying what you see.</p>
+        {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      </div>
 
       {tiles.length > 0 && (
         <ul className="grid grid-cols-3 gap-2">
           {tiles.map((tile, index) => {
-            const state = tileState(tile, online, drafted)
+            const state = tileState(tile, online)
             const noun = tile.kind === 'VIDEO' ? 'Video' : 'Photo'
             return (
               <li key={tile.key}>
@@ -847,7 +812,7 @@ export function RoomCaptureScreen({
         </ul>
       )}
 
-      {tiles.length === 0 && !processing && !drafted && (
+      {tiles.length === 0 && !finished && (
         <button
           type="button"
           disabled={busy}
@@ -865,9 +830,7 @@ export function RoomCaptureScreen({
 
       <div className="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:mx-0 sm:rounded-lg sm:border">
         <div className="flex items-center gap-3">
-          {processing ? (
-            <p className="flex-1 text-sm text-gray-600">Drafting {room.name}</p>
-          ) : drafted && newSinceDraft === 0 && queued.length === 0 ? (
+          {finished && queued.length === 0 ? (
             <Link
               href={reviewHref}
               className="flex-1 rounded-md bg-gray-900 px-4 py-3 text-center text-sm font-medium text-white active:bg-gray-800"

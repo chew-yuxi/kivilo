@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 11 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 12 October 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -39,17 +39,9 @@ export default function PrivacyPage() {
         <h2 className="text-xl font-semibold">How we use it</h2>
         <p>
           We use this information to sign users in, preserve and organize evidence,
-          draft and review inspections, record signatures, provide private report links,
+          record and review inspections, record signatures, provide private report links,
           compare check-out with check-in, manage maintenance, send account and service
           messages, and handle support and deletion requests.
-        </p>
-        <p>
-          We send inspection content to Google Gemini only after an inspector permits
-          AI processing for that inspection. Gemini receives each room&apos;s photos,
-          video, narration, notes and property label to draft an inventory. For a
-          check-out, it also receives the reviewed check-in and check-out inventories,
-          property label and tenancy length to draft a comparison. A person reviews
-          these drafts before a report is signed or an assessment is published.
         </p>
       </section>
 
@@ -68,10 +60,7 @@ export default function PrivacyPage() {
           notifications; Firebase may process data globally.
         </p>
         <p>
-          Google&apos;s paid Gemini service may process or cache inspection content
-          globally. Under its paid terms, Google does not use that content to improve
-          its products, but retains prompts and responses for 55 days for abuse
-          monitoring. We keep report media in a private bucket. Anyone who holds a
+          We keep report media in a private bucket. Anyone who holds a
           private report link can view that report until the inspector revokes the
           link; report photos use expiring signed URLs.
         </p>
@@ -97,7 +86,7 @@ export default function PrivacyPage() {
         </p>
         <p>
           Some service-provider copies can remain after deletion from Kivilo&apos;s
-          active records. Gemini retains safety logs for 55 days; Resend retains email
+          active records. Resend retains email
           and delivery logs for 30 days on its standard plans, with seven-day backups;
           Supabase&apos;s database backup period depends on its plan. Firebase can keep
           a device installation ID until a separate deletion request is made to it,

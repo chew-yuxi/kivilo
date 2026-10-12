@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Kivilo: check-in / check-out',
-  description: 'Condition reports that write themselves from a walkthrough.',
+  description: 'Condition reports from a walkthrough, signed on the spot.',
   appleWebApp: { capable: true, title: 'Kivilo', statusBarStyle: 'default' },
 }
 

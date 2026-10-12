@@ -2,9 +2,9 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Kivilo: the condition report that writes itself',
+  title: 'Kivilo: the condition report, done at the handover',
   description:
-    'Walk the unit narrating what you see. Kivilo drafts the inventory, you review it, both parties sign on your phone, and the landlord gets a link.',
+    'Walk the unit narrating what you see and write the inventory against the evidence. Both parties sign on your phone, and the landlord gets a link.',
 }
 
 /// Public landing page. Static, outside the (app) group, so it carries no session, no
@@ -35,14 +35,14 @@ const STEPS = [
     p: 'Add rooms with one tap. In each, record a narrated walkthrough and photograph anything with small print: rating plates, serial labels, meter faces. Captures save to the phone first and upload when there is signal.',
   },
   {
-    k: 'Draft',
-    h: 'The inventory writes itself.',
-    p: 'Each room’s video, audio, and photos are read in one pass. Out comes a draft item list with condition notes, meter readings, and serials transcribed character for character, every line tied to the second of footage it came from.',
+    k: 'Inventory',
+    h: 'Write it with the evidence in front of you.',
+    p: 'In each room, add the items you see with their condition, serials, and meter readings, the photos and video right above the list. Typed once, on the phone, before you leave the unit.',
   },
   {
     k: 'Review',
-    h: 'You are the witness. It is the scribe.',
-    p: 'Edit any line, add what it missed, remove what it imagined. Uncertain items are flagged. Nothing reaches a signature until a person has been through it.',
+    h: 'Every line has a person behind it.',
+    p: 'Check each room against its photos and video, then mark it reviewed. Nothing reaches a signature until every room has been.',
   },
   {
     k: 'Sign & share',
@@ -58,7 +58,7 @@ const PROMISES = [
   },
   {
     h: 'Rooms are independent',
-    p: 'Re-shoot the kitchen and the bedrooms you already reviewed are untouched. Re-read a room any time.',
+    p: 'Re-shoot the kitchen and the bedrooms you already reviewed are untouched.',
   },
   {
     h: 'Private by construction',
@@ -66,7 +66,7 @@ const PROMISES = [
   },
   {
     h: 'Evidence, not opinion',
-    p: 'Every model-written line carries a confidence and flips to human-edited the moment you touch it. The timestamped video is what a dispute is argued against.',
+    p: 'Every line is written by the inspector, and every photograph is kept exactly as taken. The timestamped video is what a dispute is argued against.',
   },
 ]
 
@@ -98,9 +98,10 @@ export default function LandingPage() {
             A ten-minute walkthrough becomes the condition report.
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-gray-600 sm:text-xl">
-            Walk the unit narrating what you see and photograph the labels. Kivilo drafts the
-            inventory, you review it, both parties sign on your phone, and the landlord gets a
-            link. No evening of typing, no camera roll to dig through two years later.
+            Walk the unit narrating what you see and photograph the labels. Write the inventory
+            room by room against that evidence, both parties sign on your phone, and the
+            landlord gets a link. No evening of typing, no camera roll to dig through two years
+            later.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -128,11 +129,11 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex gap-2">
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500" />
-                  Serial numbers read off deliberate photos, not guessed from video
+                  Serial numbers photographed up close, not squinted at in video
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500" />
-                  Every item links to the second of footage it was read from
+                  Every item can point at the photo that shows it
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500" />
@@ -159,7 +160,7 @@ export default function LandingPage() {
                   {[
                     { room: 'Living room', meta: '1 video, 2 photos · 14 items', badge: 'Reviewed', tone: 'bg-emerald-50 text-emerald-700' },
                     { room: 'Kitchen', meta: '1 video, 4 photos · 19 items', badge: 'Needs review', tone: 'bg-amber-50 text-amber-800' },
-                    { room: 'Master bedroom', meta: '1 video', badge: 'Reading', tone: 'bg-blue-50 text-blue-700' },
+                    { room: 'Master bedroom', meta: '1 video', badge: 'Capturing', tone: 'bg-blue-50 text-blue-700' },
                     { room: 'Bedroom 2', meta: 'Nothing captured yet', badge: 'Not started', tone: 'bg-gray-100 text-gray-600' },
                   ].map((r) => (
                     <div key={r.room} className="rounded-lg border border-gray-200 p-3">
@@ -217,10 +218,10 @@ export default function LandingPage() {
               The check-out is a diff, not a debate.
             </h2>
             <p className="mt-4 max-w-2xl text-lg text-gray-600">
-              Walk the same rooms again. Kivilo compares the check-out against the signed
-              check-in item by item, separates fair wear and tear from damage, drafts a
-              rationale a landlord and tenant would both accept, and totals the claim against
-              the deposit. You overrule any line before anyone signs.
+              Walk the same rooms again. Against the signed check-in, record each change item
+              by item, mark it fair wear and tear or damage with a rationale a landlord and
+              tenant would both accept, and Kivilo totals the claim against the deposit.
+              Nothing is shared until you publish it.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[

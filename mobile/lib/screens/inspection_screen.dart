@@ -245,47 +245,19 @@ class _InspectionScreenState extends State<InspectionScreen> {
     }
   }
 
-  Future<bool> _ensureAiConsent(InspectionDetail inspection) async {
-    if (inspection.aiConsentAt != null) return true;
-    final consent = await showKiviloDrawer<bool>(
+  Future<void> _addFinding(InspectionDetail inspection) async {
+    final data = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (context) => KiviloDrawer(
-        title: const Text('Allow AI drafting?'),
-        content: const Text(
-          'Kivilo sends this inspection’s room video, audio, photos and details to '
-          'Google Gemini to draft inventory. For a check-out comparison, Kivilo '
-          'also sends the reviewed check-in and check-out inventories and tenancy '
-          'length to Gemini '
-          'to draft findings. '
-          'A person must review every draft before it is used. Do you agree to '
-          'this processing for this inspection?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Not now'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('I agree'),
-          ),
-        ],
+      isScrollControlled: true,
+      builder: (context) => FindingEditor(
+        maintenanceHistory: inspection.maintenanceHistory,
+        checkOutItems: inspection.checkOutItems,
+        checkInItems: inspection.checkInItems,
       ),
     );
-    if (consent != true) return false;
-    try {
-      await _api.consentToAiProcessing(widget.id);
-      if (mounted) await _refresh();
-      return true;
-    } catch (error) {
-      if (mounted) setState(() => _error = '$error');
-      return false;
+    if (data != null) {
+      await _run(() => _api.createFinding(widget.id, data));
     }
-  }
-
-  Future<void> _runFindings(InspectionDetail inspection) async {
-    if (!await _ensureAiConsent(inspection)) return;
-    await _run(() => _api.runFindings(widget.id));
   }
 
   Future<void> _editFinding(
@@ -300,7 +272,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
         maintenanceHistory: maintenanceHistory,
       ),
     );
-    if (data != null) {
+    if (data == null) return;
+    if (data[FindingEditor.remove] == true) {
+      await _run(() => _api.deleteFinding(widget.id, finding.id));
+    } else {
       await _run(() => _api.updateFinding(widget.id, finding.id, data));
     }
   }
@@ -501,7 +476,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         Text(
                           inspection.allRoomsReviewed
                               ? 'Every room is reviewed. The inventory is ready to send.'
-                              : 'Capture each room, review its draft, then send the report for signatures.',
+                              : 'Capture each room, write and review its inventory, then send the report for signatures.',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -851,17 +826,6 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     room.countsLabel,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  if (room.newSinceDraft > 0) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      '${room.newSinceDraft} new since draft',
-                      style: const TextStyle(
-                        color: KiviloColors.pinkDark,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -936,7 +900,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'AI drafts stay private until a person reviews and publishes them. The signed inventory does not change.',
+                  'Record each change since check-in. Findings stay private until you publish them, and the signed inventory does not change.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -965,35 +929,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
           ),
         ),
       ],
-      if (inspection.findings.isEmpty && inspection.summary == null) ...[
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: _busy ? null : () => _runFindings(inspection),
-          icon: const Icon(Icons.auto_awesome_outlined),
-          label: const Text('Draft comparison'),
-        ),
-      ],
-      if (inspection.findings.isEmpty && inspection.summary != null) ...[
-        const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'The draft comparison found no item changes.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-        ),
-      ],
-      if (inspection.findings.isNotEmpty) ...[
-        const SizedBox(height: 20),
-        KiviloSectionHeading(
-          title: 'Findings',
-          subtitle:
-              '${inspection.findings.length} ${inspection.findings.length == 1 ? 'change' : 'changes'} to review',
-        ),
-        const SizedBox(height: 12),
-      ],
+      const SizedBox(height: 20),
+      KiviloSectionHeading(
+        title: 'Findings',
+        subtitle: inspection.findings.isEmpty
+            ? 'No changes recorded yet'
+            : '${inspection.findings.length} ${inspection.findings.length == 1 ? 'change' : 'changes'} recorded',
+        action: inspection.status == 'COMPLETED'
+            ? TextButton.icon(
+                onPressed: _busy ? null : () => _addFinding(inspection),
+                icon: const Icon(Icons.add),
+                label: const Text('Add'),
+              )
+            : null,
+      ),
+      const SizedBox(height: 12),
       for (final finding in inspection.findings) ...[
         Card(
           child: InkWell(
@@ -1031,9 +981,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     children: [
                       _findingTag(finding.changeType.replaceAll('_', ' ')),
                       _findingTag(finding.verdict.replaceAll('_', ' ')),
+                      // Drafted by the old AI comparison, not yet confirmed.
                       if (!finding.editedByHuman)
                         _findingTag(
-                          'AI draft',
+                          'Unconfirmed',
                           tint: KiviloColors.pinkSoft,
                           color: KiviloColors.pinkDark,
                         ),
@@ -1051,13 +1002,6 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
-                  if (!finding.editedByHuman && finding.confidence != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      '${(finding.confidence! * 100).round()}% AI confidence',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -1068,7 +1012,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       if (inspection.findings.any((finding) => !finding.editedByHuman)) ...[
         const SizedBox(height: 4),
         Text(
-          'Open and confirm each drafted finding before publishing.',
+          'Open and confirm each unconfirmed finding before publishing.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
@@ -1084,7 +1028,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           icon: const Icon(Icons.publish_outlined),
           label: Text(
             inspection.latestAssessment == null
-                ? 'Publish reviewed assessment'
+                ? 'Publish assessment'
                 : 'Publish new version',
           ),
         ),
@@ -1109,24 +1053,39 @@ class _InspectionScreenState extends State<InspectionScreen> {
   );
 }
 
+/// Writes a new finding, or reviews an existing one. A new finding is written against
+/// an item from either report: the check-out for anything still there, the check-in for
+/// anything now missing.
 class FindingEditor extends StatefulWidget {
   const FindingEditor({
     super.key,
-    required this.finding,
+    this.finding,
     required this.maintenanceHistory,
+    this.checkOutItems = const [],
+    this.checkInItems = const [],
   });
-  final Finding finding;
+  final Finding? finding;
   final List<Map<String, dynamic>> maintenanceHistory;
+  final List<ComparableItem> checkOutItems;
+  final List<ComparableItem> checkInItems;
+
+  /// Key of the result that asks for the finding to be removed rather than saved.
+  static const remove = 'remove';
 
   @override
   State<FindingEditor> createState() => _FindingEditorState();
 }
 
 class _FindingEditorState extends State<FindingEditor> {
-  late String _verdict = widget.finding.verdict;
-  late final _rationale = TextEditingController(text: widget.finding.rationale);
-  late final _cost = TextEditingController(text: widget.finding.estimatedCost);
-  late String? _maintenanceCaseId = widget.finding.maintenanceCaseId;
+  /// `out:<id>` or `in:<id>`, so one picker can offer both reports.
+  String? _item;
+  late String _changeType = widget.finding?.changeType ?? 'DAMAGE';
+  late String _verdict = widget.finding?.verdict ?? 'UNDECIDED';
+  late final _rationale = TextEditingController(
+    text: widget.finding?.rationale,
+  );
+  late final _cost = TextEditingController(text: widget.finding?.estimatedCost);
+  late String? _maintenanceCaseId = widget.finding?.maintenanceCaseId;
   String? _error;
 
   @override
@@ -1138,19 +1097,34 @@ class _FindingEditorState extends State<FindingEditor> {
 
   void _save() {
     final cost = _cost.text.trim();
-    if (_rationale.text.trim().isEmpty ||
+    if ((widget.finding == null && _item == null) ||
+        _rationale.text.trim().isEmpty ||
         (cost.isNotEmpty && !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(cost))) {
       setState(
-        () => _error = 'Enter a rationale and a cost with up to 2 decimals.',
+        () => _error =
+            'Choose an item, enter a rationale and a cost with up to 2 decimals.',
       );
       return;
     }
-    Navigator.pop(context, <String, dynamic>{
+    final fields = <String, dynamic>{
+      'changeType': _changeType,
       'verdict': _verdict,
       'rationale': _rationale.text.trim(),
       'estimatedCost': cost.isEmpty ? null : cost,
-      'maintenanceCaseId': _maintenanceCaseId,
-    });
+    };
+    if (widget.finding == null) {
+      final [side, id] = _item!.split(':');
+      Navigator.pop(context, <String, dynamic>{
+        'itemId': side == 'out' ? id : null,
+        'baselineItemId': side == 'in' ? id : null,
+        ...fields,
+      });
+    } else {
+      Navigator.pop(context, <String, dynamic>{
+        ...fields,
+        'maintenanceCaseId': _maintenanceCaseId,
+      });
+    }
   }
 
   @override
@@ -1177,15 +1151,56 @@ class _FindingEditorState extends State<FindingEditor> {
             ),
           ),
           const SizedBox(height: 20),
-          Text('Review finding', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 4),
           Text(
-            widget.finding.itemLabel ??
-                widget.finding.baselineLabel ??
-                widget.finding.changeType,
-            style: Theme.of(context).textTheme.bodyMedium,
+            widget.finding == null ? 'Add finding' : 'Review finding',
+            style: Theme.of(context).textTheme.titleLarge,
           ),
+          const SizedBox(height: 4),
+          if (widget.finding != null)
+            Text(
+              widget.finding!.itemLabel ??
+                  widget.finding!.baselineLabel ??
+                  widget.finding!.changeType,
+              style: Theme.of(context).textTheme.bodyMedium,
+            )
+          else ...[
+            const SizedBox(height: 16),
+            KiviloSelectField<String?>(
+              label: 'Item',
+              value: _item,
+              options: [
+                const KiviloSelectOption<String?>(
+                  value: null,
+                  label: 'Choose an item',
+                ),
+                for (final item in widget.checkOutItems)
+                  KiviloSelectOption<String?>(
+                    value: 'out:${item.id}',
+                    label: item.label,
+                  ),
+                for (final item in widget.checkInItems)
+                  KiviloSelectOption<String?>(
+                    value: 'in:${item.id}',
+                    label: '${item.label} (at check-in)',
+                  ),
+              ],
+              onChanged: (value) => setState(() => _item = value),
+            ),
+          ],
           const SizedBox(height: 20),
+          KiviloSelectField<String>(
+            label: 'Change',
+            value: _changeType,
+            options: const [
+              KiviloSelectOption(value: 'DAMAGE', label: 'Damage'),
+              KiviloSelectOption(value: 'WEAR', label: 'Wear'),
+              KiviloSelectOption(value: 'MISSING', label: 'Missing'),
+              KiviloSelectOption(value: 'IMPROVED', label: 'Improved'),
+              KiviloSelectOption(value: 'UNCHANGED', label: 'Unchanged'),
+            ],
+            onChanged: (value) => setState(() => _changeType = value),
+          ),
+          const SizedBox(height: 12),
           KiviloSelectField<String>(
             label: 'Verdict',
             value: _verdict,
@@ -1207,24 +1222,26 @@ class _FindingEditorState extends State<FindingEditor> {
             maxLines: 6,
             decoration: const InputDecoration(labelText: 'Rationale'),
           ),
-          const SizedBox(height: 12),
-          KiviloSelectField<String?>(
-            label: 'Maintenance evidence',
-            value: _maintenanceCaseId,
-            options: [
-              const KiviloSelectOption<String?>(
-                value: null,
-                label: 'No linked maintenance record',
-              ),
-              ...widget.maintenanceHistory.map(
-                (item) => KiviloSelectOption<String?>(
-                  value: item['id'] as String,
-                  label: item['title'] as String,
+          if (widget.finding != null) ...[
+            const SizedBox(height: 12),
+            KiviloSelectField<String?>(
+              label: 'Maintenance evidence',
+              value: _maintenanceCaseId,
+              options: [
+                const KiviloSelectOption<String?>(
+                  value: null,
+                  label: 'No linked maintenance record',
                 ),
-              ),
-            ],
-            onChanged: (value) => setState(() => _maintenanceCaseId = value),
-          ),
+                ...widget.maintenanceHistory.map(
+                  (item) => KiviloSelectOption<String?>(
+                    value: item['id'] as String,
+                    label: item['title'] as String,
+                  ),
+                ),
+              ],
+              onChanged: (value) => setState(() => _maintenanceCaseId = value),
+            ),
+          ],
           const SizedBox(height: 12),
           TextField(
             controller: _cost,
@@ -1240,8 +1257,19 @@ class _FindingEditorState extends State<FindingEditor> {
           const SizedBox(height: 20),
           FilledButton(
             onPressed: _save,
-            child: const Text('Save reviewed finding'),
+            child: Text(
+              widget.finding == null ? 'Add finding' : 'Save reviewed finding',
+            ),
           ),
+          if (widget.finding != null) ...[
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.pop(context, <String, dynamic>{
+                FindingEditor.remove: true,
+              }),
+              child: const Text('Remove finding'),
+            ),
+          ],
         ],
       ),
     ),

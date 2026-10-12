@@ -521,17 +521,10 @@ class KiviloStatusPill extends StatelessWidget {
         KiviloColors.amberSoft,
       ),
       'REVIEW' => ('Needs review', KiviloColors.amber, KiviloColors.amberSoft),
-      'FAILED' => ('Needs attention', KiviloColors.red, KiviloColors.redSoft),
-      'PROCESSING' => (
-        'Drafting',
-        KiviloColors.pinkDark,
-        KiviloColors.pinkSoft,
-      ),
-      'CAPTURING' => (
-        'Capturing',
-        KiviloColors.pinkDark,
-        KiviloColors.pinkSoft,
-      ),
+      // PROCESSING and FAILED are left over from AI drafting; nothing sets them now.
+      'CAPTURING' ||
+      'PROCESSING' ||
+      'FAILED' => ('Capturing', KiviloColors.pinkDark, KiviloColors.pinkSoft),
       'PENDING' => ('Not started', KiviloColors.muted, KiviloColors.canvas),
       _ => ('Draft', KiviloColors.muted, KiviloColors.canvas),
     };

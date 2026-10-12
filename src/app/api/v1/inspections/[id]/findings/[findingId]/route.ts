@@ -1,11 +1,13 @@
 import { z } from 'zod'
-import { updateFinding } from '@/lib/actions'
+import { deleteFinding, updateFinding } from '@/lib/actions'
 import { authed } from '@/lib/api/route'
+import { CHANGE_TYPES, VERDICTS } from '@/lib/inspection/schema'
 
 export const dynamic = 'force-dynamic'
 
 const body = z.object({
-  verdict: z.enum(['TENANT_LIABLE', 'FAIR_WEAR', 'DISPUTED', 'UNDECIDED']).optional(),
+  changeType: z.enum(CHANGE_TYPES).optional(),
+  verdict: z.enum(VERDICTS).optional(),
   rationale: z.string().trim().min(1).max(10000).optional(),
   estimatedCost: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/).nullable().optional(),
   maintenanceCaseId: z.string().min(1).nullable().optional(),
@@ -14,6 +16,13 @@ const body = z.object({
 export const PATCH = authed(
   async (_agent, { id, findingId }: { id: string; findingId: string }, request) => {
     await updateFinding(findingId, id, body.parse(await request.json()))
+    return { ok: true }
+  },
+)
+
+export const DELETE = authed(
+  async (_agent, { id, findingId }: { id: string; findingId: string }) => {
+    await deleteFinding(findingId, id)
     return { ok: true }
   },
 )

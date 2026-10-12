@@ -11,21 +11,19 @@ export type RoomRow = {
   id: string
   name: string
   status: RoomStatus
-  processingError: string | null
   itemCount: number
   videos: number
   photos: number
-  /// Captures added after the room was last read. Only meaningful once it has a draft.
-  newSinceDraft: number
 }
 
 export const ROOM_STATUS: Record<RoomStatus, { text: string; className: string }> = {
   PENDING: { text: 'Not started', className: 'bg-gray-100 text-gray-600' },
   CAPTURING: { text: 'Capturing', className: 'bg-blue-50 text-blue-700' },
-  PROCESSING: { text: 'Drafting', className: 'bg-blue-50 text-blue-700' },
+  // PROCESSING and FAILED are left over from AI drafting; nothing sets them now.
+  PROCESSING: { text: 'Capturing', className: 'bg-blue-50 text-blue-700' },
   REVIEW: { text: 'Needs review', className: 'bg-amber-50 text-amber-800' },
   REVIEWED: { text: 'Reviewed', className: 'bg-emerald-50 text-emerald-700' },
-  FAILED: { text: 'Failed', className: 'bg-red-50 text-red-700' },
+  FAILED: { text: 'Capturing', className: 'bg-blue-50 text-blue-700' },
 }
 
 /// Common Singapore residential rooms, offered as one-tap adds so the inspector is
@@ -70,11 +68,7 @@ function RoomListRow({
           <p className="mt-0.5 text-xs text-gray-600">
             {counts.length > 0 ? counts.join(', ') : 'Nothing captured yet'}
             {room.itemCount > 0 && ` · ${room.itemCount} items`}
-            {room.newSinceDraft > 0 && ` · ${room.newSinceDraft} new since the draft`}
           </p>
-          {room.processingError && (
-            <p className="mt-1 font-mono text-xs text-red-600">{room.processingError}</p>
-          )}
         </div>
         <span
           className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}

@@ -30,11 +30,9 @@ class _Backend {
   final roomStatuses = <String, String>{};
   final signatures = <String, Set<String>>{};
   final items = <String, List<Map<String, dynamic>>>{};
-  bool consentIn = false;
-  bool consentOut = false;
   bool hasOut = false;
-  bool hasFinding = false;
-  bool findingEdited = false;
+  Map<String, dynamic>? finding;
+  bool findingChanged = false;
   bool shared = false;
   bool deletionRequested = false;
   int assessmentVersion = 0;
@@ -43,11 +41,9 @@ class _Backend {
     'id': 'room-$inspectionId',
     'name': 'Kitchen',
     'status': roomStatuses[inspectionId]!,
-    'processingError': null,
     'items': items[inspectionId]?.length ?? 0,
     'photos': 1,
     'videos': 1,
-    'newSinceDraft': 0,
   };
 
   Map<String, dynamic> _detail(String id) => {
@@ -60,18 +56,25 @@ class _Backend {
     'landlordId': 'landlord',
     'tenant': 'Tariq Tenant',
     'tenantId': 'tenant',
-    'summary': id == 'out' && hasFinding ? 'Counter damage' : null,
+    'summary': null,
     'baselineId': id == 'out' ? 'in' : null,
     'checkOutId': id == 'in' && hasOut ? 'out' : null,
     'shareToken': id == 'in' && shared ? 'bearer-token' : null,
     'shareUrl': id == 'in' && shared
         ? 'https://kivilo.test/reports/bearer-token'
         : null,
-    'aiConsentAt': (id == 'in' ? consentIn : consentOut)
-        ? '2026-10-10T08:00:00Z'
-        : null,
     'assessmentDraftChanged':
-        id == 'out' && hasFinding && (assessmentVersion == 0 || findingEdited),
+        id == 'out' && (assessmentVersion == 0 || findingChanged),
+    'checkOutItems': id == 'out'
+        ? [
+            {'id': 'item-out', 'label': 'Kitchen · Counter'},
+          ]
+        : <Map<String, dynamic>>[],
+    'checkInItems': id == 'out'
+        ? [
+            {'id': 'item-in', 'label': 'Kitchen · Counter'},
+          ]
+        : <Map<String, dynamic>>[],
     'latestAssessment': assessmentVersion == 0 || id == 'in'
         ? null
         : {'version': assessmentVersion, 'publishedAt': '2026-10-10T11:00:00Z'},
@@ -79,21 +82,8 @@ class _Backend {
       for (final stakeholder in signatures[id] ?? <String>{})
         {'stakeholderId': stakeholder, 'signedAt': '2026-10-10T10:00:00Z'},
     ],
-    'findings': id == 'out' && hasFinding
-        ? [
-            {
-              'id': 'finding',
-              'changeType': 'DAMAGE',
-              'verdict': findingEdited ? 'TENANT_LIABLE' : 'UNDECIDED',
-              'rationale': findingEdited
-                  ? 'Photographed chip'
-                  : 'Possible chip',
-              'estimatedCost': findingEdited ? '80.00' : null,
-              'itemLabel': 'Kitchen · Counter',
-              'baselineLabel': 'Kitchen · Counter',
-              'editedByHuman': findingEdited,
-            },
-          ]
+    'findings': id == 'out' && finding != null
+        ? [finding!]
         : <Map<String, dynamic>>[],
     'rooms': roomStatuses.containsKey(id)
         ? [_roomSummary(id)]
@@ -105,7 +95,6 @@ class _Backend {
       'id': 'room-$id',
       'name': 'Kitchen',
       'status': roomStatuses[id],
-      'processingError': null,
     },
     'position': {'index': 1, 'total': 1},
     'next': null,
@@ -168,14 +157,6 @@ class _Backend {
     final id = parts[4];
     if (parts.length == 5 && method == 'GET') return _detail(id);
     final action = parts.length > 5 ? parts[5] : '';
-    if (action == 'ai-consent' && method == 'POST') {
-      if ((request.data as Map)['consent'] != true) {
-        throw StateError('Consent must be explicit');
-      }
-      if (id == 'in') consentIn = true;
-      if (id == 'out') consentOut = true;
-      return {'consentedAt': '2026-10-10T08:00:00Z'};
-    }
     if (action == 'rooms') {
       if (parts.length == 6 && method == 'POST') {
         if ((request.data as Map)['name'] != 'Kitchen') {
@@ -186,14 +167,14 @@ class _Backend {
       }
       if (parts.length == 7 && method == 'GET') return _room(id);
       if (parts.length == 8 && parts[7] == 'finish') {
-        if (!(id == 'in' ? consentIn : consentOut)) {
-          throw StateError('Drafting before consent');
-        }
         roomStatuses[id] = 'REVIEW';
         statuses[id] = 'REVIEW';
         return {'ok': true};
       }
       if (parts.length == 8 && parts[7] == 'review') {
+        if (items[id]?.isEmpty ?? true) {
+          throw StateError('Room reviewed with no inventory');
+        }
         roomStatuses[id] = 'REVIEWED';
         return {'ok': true};
       }
@@ -208,8 +189,6 @@ class _Backend {
             'notes': null,
             'identifier': null,
             'meterReading': null,
-            'confidence': null,
-            'editedByHuman': true,
           },
         ];
         return {'id': 'item-$id'};
@@ -218,7 +197,6 @@ class _Backend {
     if (action == 'items' && parts.length == 7 && method == 'PATCH') {
       final body = request.data as Map<String, dynamic>;
       items[id]!.single.addAll(body);
-      items[id]!.single['editedByHuman'] = true;
       return {'ok': true};
     }
     if (action == 'review' && method == 'POST') {
@@ -257,17 +235,33 @@ class _Backend {
       return {'id': 'out'};
     }
     if (action == 'findings') {
-      if (parts.length == 7 && parts[6] == 'run') {
-        if (!consentOut) throw StateError('Comparison before consent');
-        hasFinding = true;
-        return {'ok': true};
+      if (parts.length == 6 && method == 'POST') {
+        final body = request.data as Map<String, dynamic>;
+        if (body['itemId'] != 'item-out' ||
+            body['baselineItemId'] != null ||
+            body['changeType'] != 'DAMAGE' ||
+            (body['rationale'] as String).isEmpty) {
+          throw StateError('Finding payload changed');
+        }
+        finding = {
+          'id': 'finding',
+          'changeType': body['changeType'],
+          'verdict': body['verdict'],
+          'rationale': body['rationale'],
+          'estimatedCost': body['estimatedCost'],
+          'itemLabel': 'Kitchen · Counter',
+          'baselineLabel': 'Kitchen · Counter',
+          'editedByHuman': true,
+        };
+        findingChanged = true;
+        return {'id': 'finding'};
       }
       if (parts.length == 7 && parts[6] == 'publish') {
-        if (statuses[id] != 'COMPLETED' || !findingEdited) {
-          throw StateError('Assessment published before human review');
+        if (statuses[id] != 'COMPLETED') {
+          throw StateError('Assessment published before signing');
         }
         assessmentVersion++;
-        findingEdited = false;
+        findingChanged = false;
         return {
           'version': assessmentVersion,
           'publishedAt': '2026-10-10T11:00:00Z',
@@ -279,7 +273,13 @@ class _Backend {
             body['estimatedCost'] != '80.00') {
           throw StateError('Finding review payload changed');
         }
-        findingEdited = true;
+        finding!.addAll(body);
+        findingChanged = true;
+        return {'ok': true};
+      }
+      if (parts.length == 7 && method == 'DELETE') {
+        finding = null;
+        findingChanged = true;
         return {'ok': true};
       }
     }
@@ -505,8 +505,7 @@ void main() {
       expect((await api.inspection(id)).rooms, isEmpty);
 
       expect(await api.addRoom(id, 'Kitchen'), 'room-in');
-      await api.consentToAiProcessing(id);
-      await api.processRoom(id, 'room-in');
+      await api.finishRoom(id, 'room-in');
       final draftedRoom = await api.room(id, 'room-in');
       expect(draftedRoom.status, 'REVIEW');
       expect(draftedRoom.captures.single.clientId, 'client-in');
@@ -532,11 +531,23 @@ void main() {
       final checkOutId = await api.startCheckOut(id);
       expect(checkOutId, 'out');
       expect((await api.inspection(id)).checkOutId, checkOutId);
-      await api.consentToAiProcessing(checkOutId);
-      await api.processRoom(checkOutId, 'room-out');
+      await api.finishRoom(checkOutId, 'room-out');
+      await api.addItem(checkOutId, 'room-out');
       await api.markRoomReviewed(checkOutId, 'room-out');
       await api.completeReview(checkOutId);
-      await api.runFindings(checkOutId);
+      await api.sign(checkOutId, 'landlord', 'data:image/png;base64,c2lnbg==');
+      await api.sign(checkOutId, 'tenant', 'data:image/png;base64,c2lnbg==');
+      final signedOut = await api.inspection(checkOutId);
+      expect(signedOut.findings, isEmpty);
+      expect(signedOut.checkOutItems.single.id, 'item-out');
+      await api.createFinding(checkOutId, {
+        'itemId': signedOut.checkOutItems.single.id,
+        'baselineItemId': null,
+        'changeType': 'DAMAGE',
+        'verdict': 'UNDECIDED',
+        'rationale': 'Chip at the counter edge',
+        'estimatedCost': null,
+      });
       expect(
         (await api.inspection(checkOutId)).findings.single.verdict,
         'UNDECIDED',
@@ -546,11 +557,13 @@ void main() {
         'rationale': 'Photographed chip',
         'estimatedCost': '80.00',
       });
-      await api.sign(checkOutId, 'landlord', 'data:image/png;base64,c2lnbg==');
-      await api.sign(checkOutId, 'tenant', 'data:image/png;base64,c2lnbg==');
       expect((await api.inspection(checkOutId)).assessmentDraftChanged, isTrue);
       await api.publishFindings(checkOutId);
       expect((await api.inspection(checkOutId)).latestAssessment!.version, 1);
+      expect((await api.inspection(checkOutId)).assessmentDraftChanged, isFalse);
+      await api.deleteFinding(checkOutId, 'finding');
+      expect((await api.inspection(checkOutId)).findings, isEmpty);
+      expect((await api.inspection(checkOutId)).assessmentDraftChanged, isTrue);
 
       expect((await api.deletionRequest())['request'], isNull);
       await api.requestDeletion();

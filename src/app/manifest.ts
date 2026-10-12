@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Kivilo: check-in / check-out',
     short_name: 'Kivilo',
-    description: 'Record a property walkthrough and get the condition report drafted for you.',
+    description: 'Record a property walkthrough and write the condition report room by room.',
     start_url: '/inspections',
     display: 'standalone',
     orientation: 'portrait',

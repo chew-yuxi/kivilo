@@ -1,9 +1,16 @@
 # kivilo: M4 check-in / check-out
 
-Installable PWA for AI-drafted property condition reports. The inspector walks a unit
-room by room, narrating a video and photographing labels; each room's captures become a
-draft inventory. At end of tenancy the check-out is diffed against the check-in and the
-damage-versus-fair-wear assessment is drafted for an agent to review.
+Installable PWA for property condition reports. The inspector walks a unit room by room,
+narrating a video and photographing labels, and writes each room's inventory against that
+evidence. At end of tenancy the agent records each change between the signed check-in and
+check-out, with a damage-versus-fair-wear verdict, and publishes it as a dated assessment.
+
+There is no AI in the product. Gemini drafting of room inventories and of the check-out
+comparison was removed on 2026-10-12: agents need accuracy and are used to writing the
+inventory themselves. The AI-era columns (`InspectionItem.confidence`, `Capture.transcript`,
+`Room.processing*`, `Inspection.summary`/`aiConsentAt`, `Finding.confidence`) and the
+`PROCESSING`/`FAILED` room statuses are left in the schema unused, pending a cleanup
+migration; rows written by the old pipeline still carry them.
 
 Product context: `plans/product-spec.md`. Build plan for this module: `plans/m4-check-in-out.md`.
 
@@ -21,10 +28,12 @@ when someone is ready to re-migrate and re-seed.
 
 ## Four invariants
 
-**AI is the scribe, not the witness.** The timestamped video is the evidence. Every
-model-authored row carries a `confidence`, and `editedByHuman` flips the moment a person
-touches it. Nothing reaches a signature until a human has passed through review. Do not
-add a path that writes model output straight to a signed report.
+**A person writes every line.** The timestamped video is the evidence, and the inventory
+is the inspector's reading of it. A room reaches `REVIEWED` only through
+`markRoomReviewed`, which needs at least one item and stamps `Capture.processedAt` on
+every capture the room was reviewed with. That stamp is what the shared report filters
+photos on, so a capture that lands after Send never joins what was agreed, and
+`completeReview` refuses while any capture is unstamped.
 
 **A capture is never lost.** Media is written to IndexedDB (`src/lib/offline-queue.ts`)
 the instant it is taken and only leaves the queue once storage confirms it; a failed
@@ -39,19 +48,16 @@ page query is filtered by `inspectionScope`. Server actions are public HTTP endp
 and every id they take is attacker-controlled, so none of them may trust one. A refusal
 returns the same error as a missing row, so the API cannot be used to enumerate ids.
 
-**Rooms are independent.** Extraction is scoped to one room (`processRoom`), so
-re-shooting the kitchen cannot touch a bedroom someone already reviewed. Anything that
-deletes across an inspection rather than a room is a bug. The `deleteMany` in
-`processRoom` is deliberately keyed on `roomId`, and there is a regression risk here
-worth guarding whenever that function changes.
+**Rooms are independent.** Finishing, reviewing and re-shooting are all scoped to one
+room, so re-shooting the kitchen cannot touch a bedroom someone already reviewed. A new
+capture sends only its own room back to `REVIEW`. Anything that deletes or resets across
+an inspection rather than a room is a bug.
 
 ## Stack
 
 - Next.js 16 App Router (Turbopack), React 19, TypeScript 5.9, Tailwind v4
 - Postgres via local Supabase, Prisma 7 with the `@prisma/adapter-pg` driver adapter
 - Supabase Storage for captures: **private bucket, signed URLs only**
-- Gemini (`@ai-sdk/google`) reads each room's video, audio, and photos in one pass;
-  Gemini 3.1 Pro Preview drafts the check-out diff from reviewed inventories
 - PWA: `src/app/manifest.ts`, `public/sw.js` (network-first pages, cache-first build
   assets), IndexedDB upload queue read through `useSyncExternalStore`
 - Vitest for unit tests
@@ -66,9 +72,6 @@ pnpm db:seed
 pnpm dev
 ```
 
-`.env` needs `GOOGLE_GENERATIVE_AI_API_KEY` for extraction and check-out comparison.
-Confirm its Google AI Studio project is on a paid tier before sending real property data.
-
 ## Verification, run before claiming done
 
 - `pnpm typecheck`: `prisma generate && next typegen && tsc --noEmit`. The typegen step
@@ -79,12 +82,10 @@ Confirm its Google AI Studio project is on a paid tier before sending real prope
 - `pnpm test:integration`: Vitest against the local Postgres. Needs `supabase start`.
   Kept separate so a stopped stack does not look like a broken build.
 - `pnpm test:e2e`: Playwright, the whole check-in on a phone viewport: sign in with the
-  emailed code (read back from mailpit), create the deal, capture, extraction, review,
-  send for signature, both signatures, share link with no session, revoke, and a
-  second agent getting 404. Needs `supabase start`; starts its own dev server on port
-  3111 with `KIVILO_FAKE_EXTRACTION=1`, which swaps Gemini for a canned inventory
-  (`fakeExtraction` in `src/lib/inspection/extract.ts`) and is refused on Vercel.
-  Everything else in the run is the real path. First run: `pnpm exec playwright
+  emailed code (read back from mailpit), create the deal, capture, write the inventory,
+  review, send for signature, both signatures, share link with no session, revoke, and
+  a second agent getting 404. Needs `supabase start`; starts its own dev server on port
+  3111. Everything in the run is the real path. First run: `pnpm exec playwright
   install chromium`.
 
 ## Auth
@@ -139,11 +140,9 @@ without any object becoming public.
 
 ## Why photos as well as video
 
-Video sent to the model is downsampled hard, roughly a frame a second and resized, so a
-serial plate or meter dial is unreadable in it. Identifiers come from deliberate stills
-instead, which is why `Capture.kind` exists and why the extraction prompt tells the model
-to read text only from photos. This is a capture-quality problem, not a model problem;
-swapping in a dedicated OCR engine on the same video would fail the same way.
+A phone video is compressed hard enough that a serial plate or meter dial is unreadable
+in a frame of it. Identifiers come from deliberate stills instead, which is why
+`Capture.kind` exists and why the capture screens lead with photos.
 
 ## Two clients, one boundary
 
@@ -174,8 +173,7 @@ Sending for signature is the moment the report stops being a working document an
 the thing two people are agreeing to. `/reports/[token]` renders rooms, items and photo
 captures at `AWAITING_SIGNATURE` and `COMPLETED`, so every action that changes what it
 says calls `assertOpen` and refuses from that point: rooms, items, captions, marks,
-deletes, and above all `finishRoomCapture`, which re-reads a room and replaces its whole
-inventory. The capture page's status filter is a convenience, not the control; a server
+deletes, and `finishRoomCapture` and `markRoomReviewed`, which move a room's status. The capture page's status filter is a convenience, not the control; a server
 action is a public HTTP endpoint and the guard has to be in the action.
 
 New bytes are the one exception, via `assertNotCountersigned`. A capture taken before the
@@ -212,22 +210,10 @@ Drawing reads pointer positions through `svg.getScreenCTM().inverse()`, not
 the picture inside it is letterboxed, so the rect puts every mark in the wrong place on any
 photo whose aspect does not match its container.
 
-Gemini reads the original bytes and the extraction prompt is unchanged. A ring burned into
-what the model reads either gets listed as an item, which breaks scribe-not-witness, or
-covers the serial the prompt demands be transcribed character-for-character.
-
 Marks stop once the inspection is `AWAITING_SIGNATURE`: a red ring is a stronger claim
 than a caption, and the report is the artefact both parties are signing.
 
 ## Dev scripts
-
-The capture flow expects a phone. To exercise one room's pipeline without one:
-
-```bash
-pnpm exec tsx scripts/dev-run-room.ts "Kitchen" walkthrough.mp4 label.jpg
-```
-
-Files ending `.jpg`/`.png` are registered as PHOTO captures, everything else as VIDEO.
 
 Image generation goes through Based AI (`src/lib/based-ai.ts`, OpenAI-compatible
 `ai.based.one/v1`, needs `BASED_AI_API_KEY`). Nothing in the product calls it yet; try it with:

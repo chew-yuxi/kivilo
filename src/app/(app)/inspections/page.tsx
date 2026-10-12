@@ -24,8 +24,8 @@ export default async function InspectionsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Inspections</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Record a walkthrough; the condition report drafts itself. You review and both
-            parties countersign.
+            Record a walkthrough and write the inventory room by room. Both parties
+            countersign on your phone.
           </p>
         </div>
         <Link
@@ -41,7 +41,7 @@ export default async function InspectionsPage() {
           <p className="text-sm font-medium">Nothing here yet</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500">
             Start a check-in when you next hand over a unit. You walk the rooms narrating
-            what you see, and the inventory is drafted for you to review.
+            what you see, and write the inventory against it.
           </p>
           <Link
             href="/inspections/new"

@@ -256,7 +256,9 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
             Reviewed and published {published.publishedAt.toLocaleString('en-SG')}.
             This assessment is separate from the signed inventory above.
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-gray-700">{assessment.summary}</p>
+          {assessment.summary && (
+            <p className="mt-4 text-sm leading-relaxed text-gray-700">{assessment.summary}</p>
+          )}
           <p className="mt-4 text-sm text-gray-700">
             {liable.length} of {assessment.findings.length} findings assess tenant liability,
             totalling <strong>{sgd(claimTotal)}</strong> against a deposit of{' '}
@@ -308,8 +310,8 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
       )}
 
       <footer className="mt-8 border-t border-gray-200 pt-4 text-xs leading-relaxed text-gray-500">
-        Rooms and items in this report were drafted from a recorded walkthrough and then
-        reviewed, corrected, and agreed by the people named above. The recordings and
+        Rooms and items in this report were written by the inspector against a recorded
+        walkthrough and agreed by the people named above. The recordings and
         photographs are retained as the underlying evidence. Where a photograph carries
         marks, the inspector drew them to point out a detail; they are recorded
         separately and nothing has been painted onto the photograph itself.
