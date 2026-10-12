@@ -275,3 +275,15 @@ pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out
 - Video never goes through a server action or route handler. The browser uploads
   straight to Supabase Storage with a signed URL. A 10-minute walkthrough is far past
   the serverless body cap.
+- Released app builds read `/api/v1` responses with required casts (`as int`, `as bool`),
+  so removing a response field crashes every installed build that reads it, including
+  the ones sitting in store review. Removing AI dropped `newSinceDraft` and an item's
+  `editedByHuman` and broke builds 12 to 19 until they were restored. Before removing or
+  renaming any response field or route, check the model in the oldest build still on a
+  track (`git show <source>:mobile/lib/models/...`, sources are in `mobile/RELEASE.md`)
+  and keep a constant in its place until that build is retired.
+- The Vercel git integration can stop deploying silently: after `4fb1b31` errored with
+  no build log, later pushes to `main` produced no deployment at all. After pushing,
+  confirm with `vercel ls` and, if nothing appeared, deploy from a clean `git worktree`
+  of the commit with `vercel deploy --prod` (a plain deploy from the repo would upload
+  the untracked `.claude/` worktrees).
