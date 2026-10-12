@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'maintenance_evidence_screen.dart';
 import 'responsibility_card.dart';
@@ -246,7 +247,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                       Text(item.description, style: text.bodyLarge),
                       const SizedBox(height: 10),
                       Text(
-                        'Reported by ${item.reportedBy} on ${_date(item.createdAt)}',
+                        'Reported by ${item.reportedBy} on ${shortDate(item.createdAt)}',
                         style: text.bodySmall,
                       ),
                     ],
@@ -439,26 +440,6 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   }
 }
 
-const _months = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-String _date(String iso) {
-  final date = DateTime.parse(iso).toLocal();
-  return '${date.day} ${_months[date.month - 1]} ${date.year}';
-}
-
 const _categoryIcons = {
   'APPLIANCE': Icons.kitchen_outlined,
   'PLUMBING': Icons.water_drop_outlined,
@@ -603,7 +584,7 @@ class _VisitRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Repaired ${_date(visit.completedAt!)}'
+                  'Repaired ${shortDate(visit.completedAt!)}'
                   '${visit.cost == null ? '' : ' · S\$${visit.cost}'}',
                   style: text.titleMedium,
                 ),
@@ -722,7 +703,7 @@ class _EvidenceCard extends StatelessWidget {
                         ],
                         const SizedBox(height: 2),
                         Text(
-                          _date(evidence.createdAt),
+                          shortDate(evidence.createdAt),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -800,7 +781,7 @@ class _HistoryRow extends StatelessWidget {
                 ],
                 const SizedBox(height: 2),
                 Text(
-                  [?actor, _date(event['createdAt'] as String)].join(' · '),
+                  [?actor, shortDate(event['createdAt'] as String)].join(' · '),
                   style: text.bodySmall,
                 ),
               ],

@@ -485,3 +485,53 @@ class NotificationModel {
         createdAt: json['createdAt'] as String,
       );
 }
+
+class TimelineEvent {
+  const TimelineEvent({
+    required this.id,
+    required this.at,
+    required this.kind,
+    required this.title,
+    this.detail,
+    this.linkType,
+    this.linkId,
+  });
+  final String id;
+  final String at;
+  final String kind;
+  final String title;
+  final String? detail;
+
+  /// `maintenance` or `inspection`, present only when this viewer can open it.
+  final String? linkType;
+  final String? linkId;
+
+  factory TimelineEvent.fromJson(Map<String, dynamic> json) {
+    final link = json['link'] as Map<String, dynamic>?;
+    return TimelineEvent(
+      id: json['id'] as String,
+      at: json['at'] as String,
+      kind: json['kind'] as String,
+      title: json['title'] as String,
+      detail: json['detail'] as String?,
+      linkType: link?['type'] as String?,
+      linkId: link?['id'] as String?,
+    );
+  }
+}
+
+class PropertyTimeline {
+  const PropertyTimeline({required this.property, required this.events});
+  final String property;
+  final List<TimelineEvent> events;
+
+  factory PropertyTimeline.fromJson(Map<String, dynamic> json) =>
+      PropertyTimeline(
+        property: json['property'] as String,
+        events: (json['events'] as List<dynamic>)
+            .map(
+              (entry) => TimelineEvent.fromJson(entry as Map<String, dynamic>),
+            )
+            .toList(),
+      );
+}
