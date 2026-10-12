@@ -7,12 +7,20 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `15` removes every embedded camera preview from room capture and maintenance
-evidence. Photo and video capture now always opens the phone's native camera, with
-the system photo/video library available beside it. The Flutter camera and screen-lock
-plugins and their now-unused lifecycle code have been removed. Picker results are
-copied into Kivilo's app-support store and durable queue before upload, and Android
-recovers a result if the operating system recreates the activity.
+Build `15` (source `fe63cbe`) is on Play internal testing (`completed:15`) and in
+Apple's `Kivilo Internal` TestFlight group. App Store Connect build
+`83986204-f38e-482d-97fa-6798d362185c` is `VALID` and declares
+`usesNonExemptEncryption: false`. It removes every embedded camera preview from room
+capture and maintenance evidence. Photo and video capture now always opens the phone's
+native camera, with the system photo/video library available beside it. The Flutter
+camera and screen-lock plugins and their now-unused lifecycle code have been removed.
+Picker results are copied into Kivilo's app-support store and durable queue before
+upload, and Android recovers a result if the operating system recreates the activity.
+On the physical Nothing phone, the signed APK opened
+`com.google.android.photopicker` for library import and `com.nothing.camera` for photo
+capture. The signed Android and iOS artifacts built successfully, Flutter analysis was
+clean, and all 66 remaining mobile tests passed. Play production remains build `13`,
+and Apple's public build `12` submission remains `WAITING_FOR_REVIEW`.
 
 Build `14` (source `34eb6f1`) is on Play internal testing (`completed:14`)
 and in Apple's `Kivilo Internal` TestFlight group for the capture and form UX
