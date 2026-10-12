@@ -7,14 +7,30 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate — 2026-10-12 Singapore time
 
-Build `18` fixes property navigation. Inspection list responses now carry their actual
-tenancy ID, and the app uses that relationship to show the active handover on each
-property card. Tapping a property with an active inspection, or its explicit `Resume
-check-in` / `Resume check-out` action, opens that inspection. Maintenance is a separate,
-labelled action. The maintenance page now identifies itself as Property care, links its
-emergency panel to the urgent-service directory, uses proper empty-state cards, and
-replaces the ambiguous house-plus icon with a labelled Add asset action. Older cached
-inspection responses remain readable during an offline app upgrade.
+Build `18` (source `f44df49`) fixes property navigation. Inspection list responses now
+carry their actual tenancy ID, and the app uses that relationship to show the active
+handover on each property card. Tapping a property with an active inspection, or its
+explicit `Resume check-in` / `Resume check-out` action, opens that inspection.
+Maintenance is a separate, labelled action. The maintenance page now identifies itself
+as Property care, links its emergency panel to the urgent-service directory, uses proper
+empty-state cards, and replaces the ambiguous house-plus icon with a labelled Add asset
+action. Older cached inspection responses remain readable during an offline app upgrade.
+
+The signed build was installed on the physical Nothing phone against production. Its
+property cards displayed the correct active check-in from the server, and tapping
+`Resume check-in` opened that exact inspection. Play internal testing serves
+`completed:18`; Play production remains build `13`. Production deployment
+`dpl_7tTQDvc46NuSKLTrRaNk1E4b3zeb` is `READY` and aliased to
+`kivilo.nottoosweetlabs.com`. Flutter analysis and all 67 mobile tests pass, along with
+backend typecheck, lint, production build, all 60 unit tests, all 37 integration tests,
+and all three full Playwright workflows. The Android AAB SHA-256 is
+`1fd7213e75706f7136f6fd554f869b0a34823b3a5983f8250f21edfebb416c25`; the APK
+SHA-256 is `64b93242480f4ace537058e999125d6f3e2a457ba6e2cdc886ca7c09993ef864`.
+App Store Connect build `7fcfc648-0f18-4ca7-8b12-1a081264d77d` is `VALID`, declares
+`usesNonExemptEncryption: false`, and is attached only to the existing `Kivilo
+Internal` TestFlight group. Its IPA SHA-256 is
+`6b9abcc2cf1a6dbaca2104693019bf2e07b640ecaec3d65e77c6bf764bf4aadb`. Apple's
+public build `12` submission remains `WAITING_FOR_REVIEW`.
 
 Build `17` (source `dfd666e`) replaces the remaining stock Material segmented buttons
 with one Kivilo control: a quiet canvas rail, 16px corners, a white selected surface,
