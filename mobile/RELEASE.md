@@ -50,6 +50,13 @@ icon font: patch `1` (Android) and patch `2` (iOS). The property card actions re
 filled pink with white text; the photo mark toolbar puts the shapes on one row and
 labelled Undo and Redo on the next. Flutter analysis is clean and all 91 tests pass.
 
+Patch `3` (Android) and patch `4` (iOS) on `1.0.0+22`, built from `12155d0`: user-facing
+"evidence" now reads "media"; a room lists its inventory before its media, and the
+media strip runs newest first with a toggle, each capture keeping its number; the
+property timeline from `b3d9ede` ships here, with `history`, `logout_outlined` and
+`task_alt` standing in for three icons build `22` does not carry. Flutter analysis is
+clean and all 94 tests pass.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
@@ -657,7 +664,14 @@ Check it on a phone, then promote the patch to stable in the Shorebird console.
   so removing an icon shows up as a changed `MaterialIcons-Regular.otf`. That is safe
   to pass with `--allow-asset-diffs`, because the release's font still holds every icon
   the patch draws. Using an icon the release never used is not: its glyph is missing
-  from the font on the phone and draws as a blank box, so it needs a store build.
+  from the font on the phone and draws as a blank box, so it needs a store build, or
+  an icon the release already has. Before every patch, from the repo root, with the
+  release's source commit (`b16da52` for `1.0.0+22`); it must print nothing:
+
+  ```bash
+  comm -13 <(git grep -h -o -E 'Icons\.[a-zA-Z0-9_]+' b16da52 -- mobile/lib | sort -u) \
+    <(grep -rhoE 'Icons\.[a-zA-Z0-9_]+' mobile/lib | sort -u)
+  ```
 - The phone checks for a patch at launch, downloads it in the background, and runs it
   from the next cold start. Nothing in the app can apply it sooner: Hopshift built an
   in-app restart button and removed it because a warm restart never applied the patch
