@@ -140,6 +140,43 @@ class _KiviloSegment<T> extends StatelessWidget {
   }
 }
 
+/// A progress bar that glides to each new value instead of jumping, so an upload that
+/// reports in steps reads as steady movement. It holds still when the phone asks for
+/// reduced motion. A null value is indeterminate.
+class KiviloProgressBar extends StatelessWidget {
+  const KiviloProgressBar({
+    super.key,
+    required this.value,
+    required this.color,
+    this.minHeight = 6,
+  });
+
+  final double? value;
+  final Color color;
+  final double minHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    LinearProgressIndicator bar(double? shown) => LinearProgressIndicator(
+      value: shown,
+      minHeight: minHeight,
+      borderRadius: BorderRadius.circular(minHeight),
+      color: color,
+      backgroundColor: KiviloColors.border,
+    );
+    final target = value;
+    if (target == null) return bar(null);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: target),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 450),
+      curve: Curves.easeOutCubic,
+      builder: (context, shown, _) => bar(shown),
+    );
+  }
+}
+
 Future<T?> showKiviloDrawer<T>({
   required BuildContext context,
   required WidgetBuilder builder,

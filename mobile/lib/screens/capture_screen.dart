@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -604,13 +605,21 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
-  String _fileSize(int bytes) {
-    if (bytes >= 1024 * 1024) {
-      final digits = bytes >= 10 * 1024 * 1024 ? 1 : 2;
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(digits)} MB';
+  /// [bytes] in the unit and precision the [total] calls for, so the moving figure keeps
+  /// the unit of the size it is counting towards instead of jumping from KB to MB.
+  ({double value, int digits, String unit}) _sizeIn(int bytes, int total) {
+    if (total >= 1024 * 1024) {
+      return (
+        value: bytes / (1024 * 1024),
+        digits: total >= 10 * 1024 * 1024 ? 1 : 2,
+        unit: 'MB',
+      );
     }
-    final digits = bytes >= 100 * 1024 ? 0 : 1;
-    return '${(bytes / 1024).toStringAsFixed(digits)} KB';
+    return (
+      value: bytes / 1024,
+      digits: total >= 100 * 1024 ? 0 : 1,
+      unit: 'KB',
+    );
   }
 
   Widget _pendingCaptureCard(PendingCapture capture) {
@@ -618,8 +627,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
         ? null
         : _syncUpdates[capture.clientId!];
     final progress = (update?.progress ?? 0).clamp(0.0, 1.0);
-    final percentage = (progress * 100).round();
-    final transferred = (capture.sizeBytes * progress).round();
+    final sent = _sizeIn((capture.sizeBytes * progress).round(), capture.sizeBytes);
+    final whole = _sizeIn(capture.sizeBytes, capture.sizeBytes);
     final annotationError =
         capture.uploadedId != null &&
         !capture.registrationAnnotationsApplied &&
@@ -639,14 +648,15 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   ? 'Saved safely · waiting to upload'
                   : 'Preparing secure upload',
           };
-    final detail = annotationError
+    final message = annotationError
         ? 'The photo uploaded, but its marks did not. Try again, or edit the marks.'
-        : capture.lastError != null
-        ? capture.lastError!
-        : '$percentage% · ${_fileSize(transferred)} of ${_fileSize(capture.sizeBytes)}';
+        : capture.lastError;
     final color = annotationError || capture.lastError != null
         ? KiviloColors.red
         : KiviloColors.pink;
+    final detailStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: capture.lastError == null ? KiviloColors.muted : KiviloColors.red,
+    );
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -691,22 +701,39 @@ class _CaptureScreenState extends State<CaptureScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                LinearProgressIndicator(
+                KiviloProgressBar(
                   value: capture.lastError == null ? progress : null,
-                  minHeight: 6,
-                  borderRadius: BorderRadius.circular(6),
                   color: color,
-                  backgroundColor: KiviloColors.border,
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  detail,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: capture.lastError == null
-                        ? KiviloColors.muted
-                        : KiviloColors.red,
+                if (message != null)
+                  Text(message, style: detailStyle)
+                else
+                  // The figures roll digit by digit, NumberFlow style, rather than
+                  // flickering as each progress event lands.
+                  Row(
+                    children: [
+                      // All of the line is NumberFlow's own text: beside a plain Text
+                      // its glyphs sit a pixel higher.
+                      NumberFlow(
+                        value: (progress * 100).round(),
+                        suffix: '% · ',
+                        style: detailStyle,
+                        tabularNums: true,
+                      ),
+                      NumberFlow(
+                        value: sent.value,
+                        format: NumberFlowFormat.decimal(
+                          minFraction: sent.digits,
+                          maxFraction: sent.digits,
+                        ),
+                        suffix:
+                            ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
+                        style: detailStyle,
+                        tabularNums: true,
+                      ),
+                    ],
                   ),
-                ),
               ],
             ),
           ),

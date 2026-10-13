@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -465,23 +466,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
-                            Text(
-                              '$reviewed/${inspection.rooms.length} reviewed',
+                            NumberFlow(
+                              value: reviewed,
+                              suffix: '/${inspection.rooms.length} reviewed',
                               style: Theme.of(context).textTheme.bodySmall,
+                              tabularNums: true,
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            minHeight: 7,
-                            value: inspection.rooms.isEmpty
-                                ? 0
-                                : reviewed / inspection.rooms.length,
-                            backgroundColor: KiviloColors.border,
-                            color: KiviloColors.pink,
-                          ),
+                        KiviloProgressBar(
+                          minHeight: 7,
+                          value: inspection.rooms.isEmpty
+                              ? 0
+                              : reviewed / inspection.rooms.length,
+                          color: KiviloColors.pink,
                         ),
                         const SizedBox(height: 12),
                         Text(
