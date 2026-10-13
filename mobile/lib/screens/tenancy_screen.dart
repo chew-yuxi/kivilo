@@ -6,6 +6,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
+import 'property_timeline_screen.dart';
 import 'service_directory_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
@@ -240,6 +241,30 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 onPressed: () => _report(assets),
                 icon: const Icon(Icons.add),
                 label: const Text('Report a problem'),
+              ),
+              const SizedBox(height: 10),
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.timeline,
+                    color: KiviloColors.pinkDark,
+                  ),
+                  title: const Text('Property timeline'),
+                  subtitle: const Text(
+                    'Signed reports, repairs and agreed costs at this address',
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: KiviloColors.subtle,
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PropertyTimelineScreen(
+                        propertyId: widget.tenancy.propertyId,
+                      ),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
               KiviloSectionHeading(

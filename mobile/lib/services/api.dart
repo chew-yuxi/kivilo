@@ -171,6 +171,14 @@ class Api {
     return MaintenanceCaseDetail.fromJson(data as Map<String, dynamic>);
   }
 
+  Future<PropertyTimeline> propertyTimeline(String propertyId) async {
+    final data = await _read(
+      '/api/v1/properties/$propertyId/timeline',
+      'property-timeline:$propertyId',
+    );
+    return PropertyTimeline.fromJson(data as Map<String, dynamic>);
+  }
+
   Future<List<PropertyAssetSummary>> propertyAssets(String propertyId) async {
     final data = await _read(
       '/api/v1/properties/$propertyId/assets',
