@@ -246,7 +246,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
               Card(
                 child: ListTile(
                   leading: const Icon(
-                    Icons.timeline,
+                    Icons.history,
                     color: KiviloColors.pinkDark,
                   ),
                   title: const Text('Property timeline'),

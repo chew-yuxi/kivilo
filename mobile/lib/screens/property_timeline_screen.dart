@@ -138,12 +138,12 @@ class _EventRow extends StatelessWidget {
         KiviloColors.pinkSoft,
       ),
       'TENANCY_ENDED' => (
-        Icons.door_back_door_outlined,
+        Icons.logout_outlined,
         KiviloColors.muted,
         KiviloColors.canvas,
       ),
       'CHECK_IN_SIGNED' || 'CHECK_OUT_SIGNED' => (
-        Icons.assignment_turned_in_outlined,
+        Icons.task_alt,
         KiviloColors.green,
         KiviloColors.greenSoft,
       ),
