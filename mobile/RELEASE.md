@@ -43,6 +43,13 @@ replaced with build `22`.
 - iOS 22 IPA `build/release-artifacts/ios/build22/kivilo.ipa`, SHA-256
   `7f872a582ade3ef0065b2b312a767a34390c797f555529427a700135fed43319`.
 
+Shorebird patches on release `1.0.0+22`, both on the stable track while `22` is only on
+the internal tracks, built from `59af396` with `--allow-asset-diffs` for the tree-shaken
+icon font: patch `1` (Android) and patch `2` (iOS). The property card actions read
+`Resume` and `Maintenance` without icons; the chosen option of every segmented toggle is
+filled pink with white text; the photo mark toolbar puts the shapes on one row and
+labelled Undo and Redo on the next. Flutter analysis is clean and all 91 tests pass.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
@@ -645,6 +652,12 @@ Check it on a phone, then promote the patch to stable in the Shorebird console.
   build. `shorebird patch` stops when it detects native changes; treat that as the
   signal to ship a store build, never as something to override with
   `--allow-native-diffs`.
+- Asset changes are never shipped in a patch; the phone keeps the release's assets.
+  The usual one is the icon font, which Flutter tree-shakes to the icons the code uses,
+  so removing an icon shows up as a changed `MaterialIcons-Regular.otf`. That is safe
+  to pass with `--allow-asset-diffs`, because the release's font still holds every icon
+  the patch draws. Using an icon the release never used is not: its glyph is missing
+  from the font on the phone and draws as a blank box, so it needs a store build.
 - The phone checks for a patch at launch, downloads it in the background, and runs it
   from the next cold start. Nothing in the app can apply it sooner: Hopshift built an
   in-app restart button and removed it because a warm restart never applied the patch
