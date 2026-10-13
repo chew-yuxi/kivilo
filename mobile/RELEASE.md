@@ -543,10 +543,76 @@ has Kivilo registered with package `one.kivilo.kivilo` (app ID
    `one.kivilo.kivilo.upload-signing`. Supply its path and credentials in
    `KIVILO_UPLOAD_KEYSTORE`, `KIVILO_UPLOAD_STORE_PASSWORD`, `KIVILO_UPLOAD_KEY_ALIAS`,
    and `KIVILO_UPLOAD_KEY_PASSWORD` when building. The Gradle release task refuses to
-   run without these values.
+   run without these values. The key alias is `kivilo-upload`, not the Keychain
+   account name, and the store and key share one password:
+
+   ```bash
+   pw=$(security find-generic-password -s one.kivilo.kivilo.upload-signing -a kivilo-android-upload -w)
+   export KIVILO_UPLOAD_KEYSTORE=~/.android/kivilo-upload.jks KIVILO_UPLOAD_KEY_ALIAS=kivilo-upload \
+     KIVILO_UPLOAD_STORE_PASSWORD="$pw" KIVILO_UPLOAD_KEY_PASSWORD="$pw"
+   ```
 4. Fill a local ignored `env.json` with the production `SUPABASE_URL`, publishable
    `SUPABASE_ANON_KEY`, and HTTPS `API_BASE`. These are client-side configuration, never
    service-role credentials. Confirm both origins point to the same production project.
+
+## Over-the-air patches (Shorebird)
+
+Shorebird replaces the Dart code of an installed build without a store review. The app
+is `Kivilo` in Yuxi's personal Shorebird organization, beside Hopshift, on the free plan;
+its `app_id` is in `shorebird.yaml`, which is bundled as an asset and is not a secret.
+
+Only a build made with `shorebird release` can ever be patched. Builds `21` and earlier
+were made with `flutter build` and cannot be; build `22` is the first that can. Every
+store build from now on is made this way:
+
+```bash
+shorebird release android --flutter-version=3.47.2 --dart-define-from-file=env.json
+shorebird release ios --flutter-version=3.47.2 --export-options-plist=ios/ExportOptions.plist \
+  --dart-define-from-file=env.json
+```
+
+Keep `--flutter-version` pinned to the Flutter the tests ran on. It defaults to `latest`,
+so a `shorebird upgrade` would otherwise build the store binary on an untested Flutter.
+The Android signing variables above are still required.
+
+`ios/ExportOptions.plist` is the export build `21` used, and it matters for patching: it
+sets `manageAppVersionAndBuildNumber` to false. Left to its default, Xcode may rewrite
+the build number while exporting, and the IPA in App Store Connect then no longer matches
+the release Shorebird recorded, so no patch ever reaches it.
+
+Shorebird searches `build/ios/ipa/` recursively and refuses to release when it finds
+more than one IPA, so archive each finished IPA under
+`build/release-artifacts/ios/buildNN/`, beside the Android artifacts, never under
+`build/ios/ipa/`. The archived IPAs for builds `1` to `21` were moved there on
+2026-10-13; the `build/ios/ipa/buildNN/` paths in the entries above now live at
+`build/release-artifacts/ios/buildNN/`.
+
+To install the release on the test phone use `shorebird preview`: an APK from
+`flutter build apk` has no updater in it and never receives a patch.
+
+A patch targets one release, so a fix that has to reach both build `22` and build `23`
+is two patches:
+
+```bash
+shorebird patch android --release-version=1.0.0+22 --track=staging --dart-define-from-file=env.json
+shorebird patch ios --release-version=1.0.0+22 --track=staging --export-options-plist=ios/ExportOptions.plist \
+  --dart-define-from-file=env.json
+shorebird preview --release-version=1.0.0+22 --track=staging
+```
+
+Check it on a phone, then promote the patch to stable in the Shorebird console.
+
+- A patch replaces the whole Dart program, compile-time defines included. A patch built
+  without `--dart-define-from-file=env.json` ships an app with no Supabase URL.
+- A patch carries Dart code only. A new or upgraded plugin, `Info.plist`,
+  `AndroidManifest.xml`, entitlements, Gradle or Podfile changes all need a store
+  build. `shorebird patch` stops when it detects native changes; treat that as the
+  signal to ship a store build, never as something to override with
+  `--allow-native-diffs`.
+- The phone checks for a patch at launch, downloads it in the background, and runs it
+  from the next cold start. Nothing in the app can apply it sooner: Hopshift built an
+  in-app restart button and removed it because a warm restart never applied the patch
+  (`sarnies-labs-mono/apps/mobile/lib/core/app_update/patch_update.dart`).
 
 ## Firebase Cloud Messaging
 
@@ -819,9 +885,13 @@ Build from `mobile/`:
 ```bash
 flutter analyze
 flutter test
-flutter build appbundle --release --dart-define-from-file=env.json
-flutter build ipa --release --dart-define-from-file=env.json
+shorebird release android --flutter-version=3.47.2 --dart-define-from-file=env.json
+shorebird release ios --flutter-version=3.47.2 --export-options-plist=ios/ExportOptions.plist \
+  --dart-define-from-file=env.json
 ```
+
+These were `flutter build appbundle` and `flutter build ipa` through build `21`; see
+"Over-the-air patches" for why they changed.
 
 Build `4` is on Play internal testing and internal TestFlight, and is attached to
 App Store version `1.0.0`. Neither build has been submitted for public review.
