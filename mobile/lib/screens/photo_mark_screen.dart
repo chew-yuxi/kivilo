@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../services/api_failure.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 
@@ -365,7 +366,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Could not open photo: ${snapshot.error}'),
+              child: Text('Could not open this photo. ${plainError(snapshot.error!)}'),
             );
           }
           if (!snapshot.hasData) {

@@ -36,7 +36,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text('${snapshot.error}'));
+        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
         final items = snapshot.data!;
         if (items.isEmpty) return const Center(child: Text('No notifications yet.'));
         return ListView.separated(

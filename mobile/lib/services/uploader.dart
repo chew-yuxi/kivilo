@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 
 import 'api_failure.dart';
 import 'capture_backend.dart';
@@ -94,9 +93,7 @@ class Uploader {
     } catch (error) {
       await queue.failRemoteEdit(
         edit,
-        error is DioException
-            ? ApiFailure.fromDio(error).message
-            : error.toString(),
+        plainError(error),
       );
       return false;
     } finally {
@@ -151,8 +148,9 @@ class Uploader {
           await queue.setStoragePath(capture.id, leaseId, storagePath);
           if (!credential.alreadyUploaded) {
             if (!await file.exists()) {
-              throw StateError(
-                'Local media file is missing. Capture retained for recovery.',
+              throw const ApiFailure(
+                'The file for this photo or video is missing from this phone.',
+                null,
               );
             }
             reportEvidenceSync(
@@ -249,9 +247,7 @@ class Uploader {
       }
       await queue.recordFailure(
         capture.id,
-        error is DioException
-            ? ApiFailure.fromDio(error).message
-            : error.toString(),
+        plainError(error),
         leaseId: leaseId,
       );
       return false;

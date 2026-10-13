@@ -111,7 +111,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         });
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not load room: $error');
+      if (mounted) setState(() => _error = 'Could not open this room. ${plainError(error)}');
     }
   }
 
@@ -144,7 +144,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       if (picked != null) await _savePickedFile(picked, video: _videoMode);
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not capture media: $error');
+        setState(() => _error = 'Could not save that photo or video. ${plainError(error)}');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -173,7 +173,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         }
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not add media: $error');
+      if (mounted) setState(() => _error = 'Could not add that photo or video. ${plainError(error)}');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -265,7 +265,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       final edits = await _queue.remoteEditsFor(_ownerId, widget.inspectionId);
       if (mounted) setState(() => _remoteEdits = edits);
     } catch (error) {
-      if (mounted) setState(() => _error = 'Upload paused: $error');
+      if (mounted) setState(() => _error = 'Upload paused. ${plainError(error)}');
     } finally {
       _uploading = null;
     }
@@ -412,7 +412,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not locate this synced photo. Please retry the note.',
+                'Could not find this photo. Please try the note again.',
           );
         }
         return false;
@@ -474,7 +474,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not locate this synced photo. Please retry the marks.',
+                'Could not find this photo. Please try the marks again.',
           );
         }
         return;
@@ -520,7 +520,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not locate this synced capture. Please retry deletion.',
+                'Could not find this photo or video. Please try deleting it again.',
           );
         }
         return;
@@ -569,7 +569,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
   Future<void> _finishRoom() async {
     if (_finishing) return;
     if (_busy || _leaving) {
-      setState(() => _error = 'Wait for the capture to finish saving.');
+      setState(() => _error = 'Wait for the photo or video to finish saving.');
       return;
     }
     setState(() => _finishing = true);
@@ -587,7 +587,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           _unresolved.isNotEmpty) {
         setState(
           () => _error =
-              'Media or edits are still waiting to sync. Retry when connected.',
+              'Some photos, videos or changes have not uploaded yet. Try again when you have signal.',
         );
         return;
       }
@@ -596,7 +596,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) Navigator.pop(context);
       } catch (error) {
         if (mounted) {
-          setState(() => _error = 'Could not finish this room: $error');
+          setState(() => _error = 'Could not finish this room. ${plainError(error)}');
         }
       }
     } finally {
@@ -632,7 +632,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
             EvidenceSyncStage.preparing => 'Preparing secure upload',
             EvidenceSyncStage.uploading => 'Uploading',
             EvidenceSyncStage.registering => 'Adding to room',
-            EvidenceSyncStage.finalizing => 'Syncing notes and marks',
+            EvidenceSyncStage.finalizing => 'Uploading notes and marks',
             EvidenceSyncStage.failed => 'Upload paused',
             _ =>
               capture.claimedAt == null
@@ -640,9 +640,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   : 'Preparing secure upload',
           };
     final detail = annotationError
-        ? 'The photo uploaded, but its marks need attention. Retry sync or edit the marks.'
+        ? 'The photo uploaded, but its marks did not. Try again, or edit the marks.'
         : capture.lastError != null
-        ? 'Retry ${capture.attempts}: ${capture.lastError}'
+        ? capture.lastError!
         : '$percentage% · ${_fileSize(transferred)} of ${_fileSize(capture.sizeBytes)}';
     final color = annotationError || capture.lastError != null
         ? KiviloColors.red
@@ -759,7 +759,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           if (_offline)
             _notice(
               Icons.cloud_off_outlined,
-              'Offline. Captures are saved on this phone until they sync.',
+              'Offline. Photos and videos stay on this phone and upload when you have signal.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
             ),
@@ -774,14 +774,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
           if (_unresolved.isNotEmpty)
             _notice(
               Icons.warning_amber_outlined,
-              '${_unresolved.length} interrupted capture(s) need recovery. Keep the app data on this phone.',
+              '${_unresolved.length == 1 ? 'A photo or video was' : '${_unresolved.length} photos or videos were'} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
             ),
           if (_remoteEdits.isNotEmpty)
             _notice(
               Icons.sync,
-              '${_remoteEdits.length} edit(s) are waiting to sync. Tap to retry.',
+              '${_remoteEdits.length == 1 ? 'A change is' : '${_remoteEdits.length} changes are'} waiting to upload. Tap to try again.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
               onTap: () => unawaited(_drain()),
@@ -868,11 +868,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   capture.note?.isNotEmpty == true
                       ? capture.note!
                       : (capture.kind == 'PHOTO'
-                            ? 'Photo synced'
-                            : 'Video synced'),
+                            ? 'Photo'
+                            : 'Video'),
                 ),
                 subtitle: const Text(
-                  'Synced to report',
+                  'In the report',
                   style: TextStyle(color: KiviloColors.green),
                 ),
                 trailing: IconButton(

@@ -121,7 +121,7 @@ class FakeBackend implements CaptureBackend {
     String captureId,
     String? note,
   ) async {
-    if (rejectEdits) throw StateError('report frozen');
+    if (rejectEdits) throw _reportFrozen();
     calls.add('updateNote');
     notes.add(note);
   }
@@ -132,7 +132,7 @@ class FakeBackend implements CaptureBackend {
     String captureId,
     Map<String, dynamic>? marks,
   ) async {
-    if (rejectEdits) throw StateError('report frozen');
+    if (rejectEdits) throw _reportFrozen();
     calls.add('annotate');
     annotations.add(marks);
   }
@@ -142,6 +142,20 @@ class FakeBackend implements CaptureBackend {
     if (rejectDeletes) throw StateError('not found or unauthorized');
     calls.add('deleteCapture');
   }
+}
+
+/// What the server answers when an edit reaches a report that has been sent for
+/// signature: a 409 the backend lets through as a DioException.
+DioException _reportFrozen() {
+  final request = RequestOptions(path: '/api/v1/edit');
+  return DioException(
+    requestOptions: request,
+    response: Response(
+      requestOptions: request,
+      statusCode: 409,
+      data: {'error': 'report_frozen'},
+    ),
+  );
 }
 
 void main() {
@@ -343,7 +357,10 @@ void main() {
         reason: 'original media reached the server',
       );
       expect(pending.registrationAnnotationsApplied, isFalse);
-      expect(pending.lastError, contains('report frozen'));
+      expect(
+        pending.lastError,
+        'This report has been sent for signature and cannot be changed.',
+      );
       expect(await file.exists(), isTrue);
 
       // The inspector can explicitly undo the refused marks without deleting the
@@ -417,7 +434,7 @@ void main() {
     final pending = (await queue.byId(id))!;
     expect(
       pending.lastError,
-      'Check your connection and retry. Saved captures remain on this device.',
+      'No connection. Anything you took is saved on this phone, so try again when you have signal.',
     );
     expect(pending.attempts, 1);
     expect(pending.claimedAt, isNull);
@@ -455,7 +472,7 @@ void main() {
       expect(await uploader(backend).drain(), isFalse);
       final afterTimeout = (await queue.byId(id))!;
       expect(afterTimeout.clientId, original.clientId);
-      expect(afterTimeout.lastError, contains('server did not respond'));
+      expect(afterTimeout.lastError, contains('Kivilo did not respond'));
       expect(afterTimeout.claimedAt, isNull);
       expect(afterTimeout.leaseId, isNull);
       expect(await file.exists(), isTrue);
@@ -476,7 +493,7 @@ void main() {
     (
       code: 'unauthorized',
       status: 401,
-      message: 'Your session has expired. Please sign in again.',
+      message: 'You have been signed out. Please sign in again.',
     ),
     (
       code: 'report_frozen',

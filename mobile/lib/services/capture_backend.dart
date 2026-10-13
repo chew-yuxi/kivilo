@@ -53,8 +53,8 @@ Future<Response<T>> _metadata<T>(
     onTimeout: () {
       cancel.cancel('Evidence metadata request deadline exceeded');
       throw const ApiFailure(
-        'The server did not respond. Check your connection and retry. '
-        'Saved captures remain on this device.',
+        'Kivilo did not respond. Check your signal and try again. '
+        'Anything you took is saved on this phone.',
         null,
       );
     },

@@ -28,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         throw StateError('Could not open $uri');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     }
   }
 
@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await _api.requestDeletion();
       if (mounted) setState(() => _request = _api.deletionRequest());
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -98,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         debugPrint('Remote sign-out could not be confirmed: $error');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not sign out: $error');
+      if (mounted) setState(() => _error = 'Could not sign out. ${plainError(error)}');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -258,7 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (snapshot.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
-                child: Text('Could not load request status: ${snapshot.error}'),
+                child: Text('Could not load your deletion request. ${plainError(snapshot.error!)}'),
               ),
             if (_error != null) ...[
               const SizedBox(height: 12),

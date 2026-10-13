@@ -41,7 +41,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       await action();
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -113,10 +113,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Media is still syncing'),
+            title: const Text('Still uploading'),
             content: Text(
-              '${pending.captures} capture(s) and ${pending.edits} '
-              'note, mark or deletion edit(s) are saved on this phone. '
+              'Some photos, videos or changes have not uploaded yet. '
               'Open the rooms and tap Retry uploads before sending for signature.',
             ),
             actions: [
@@ -155,7 +154,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         if (mounted) await _refresh();
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -240,7 +239,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -333,7 +332,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not load inspection: ${snapshot.error}'),
+                  child: Text('Could not open this inspection. ${plainError(snapshot.error!)}'),
                 ),
               ],
             );

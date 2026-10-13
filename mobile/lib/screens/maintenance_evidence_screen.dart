@@ -54,7 +54,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       await _recoverLostPhoto();
     } catch (error) {
       if (mounted) {
-        setState(() => _message = 'Could not prepare photo: $error');
+        setState(() => _message = 'Could not prepare the photo. ${plainError(error)}');
       }
     }
   }
@@ -88,7 +88,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       if (photo != null) await _savePhoto(photo);
     } catch (error) {
       if (mounted) {
-        setState(() => _message = 'Could not add photo: $error');
+        setState(() => _message = 'Could not add the photo. ${plainError(error)}');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
