@@ -334,3 +334,7 @@ and JPEG, and the agent can set the name printed beside them.
 - Supabase Storage encodes a signed URL's `download` file name twice in
   `Content-Disposition`, so a `#` or `,` reaches the reader's disk as `%23` or `%2C`.
   Report file names are letters, digits, spaces, dots and hyphens only.
+- A Shorebird patch compiles the working tree as it is at that moment, not a commit.
+  Editing files during a patch build, or another session merging into the shared
+  checkout, ships that code to phones. Build patches from a `git worktree` pinned to the
+  commit; `mobile/RELEASE.md` has the commands.

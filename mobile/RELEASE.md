@@ -63,6 +63,16 @@ error becomes text on screen, so no raw exception reaches an agent; sync reads a
 a capture as a photo or video, edits as changes. Flutter analysis is clean and all 97
 tests pass.
 
+Patch `7` (Android) shows `Version 1.0.0 (22) · Patch N` under Sign out on the account
+screen, from `be29cbb`. Patch `8` (Android) and patch `9` (iOS), built from `4b4ba4d`, add
+that line on iOS and roll the upload card's percentage and bytes with NumberFlow; the
+upload and walkthrough bars glide to each value. Both still on reduce motion. An iOS
+attempt for `be29cbb` hung in the Xcode build and was stopped unpublished. `main` was
+fast-forwarded by another session to `6902969` while patch `9` built; its compiled Dart
+is timestamped before that merge and carries none of the report branding strings, and
+does carry `4b4ba4d`'s, so `9` matches `4b4ba4d`. Flutter analysis is clean and all 99
+tests pass.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
@@ -677,6 +687,15 @@ Check it on a phone, then promote the patch to stable in the Shorebird console.
   ```bash
   comm -13 <(git grep -h -o -E 'Icons\.[a-zA-Z0-9_]+' b16da52 -- mobile/lib | sort -u) \
     <(grep -rhoE 'Icons\.[a-zA-Z0-9_]+' mobile/lib | sort -u)
+  ```
+- A patch compiles whatever the working tree holds when Dart is compiled. Never build
+  one in a checkout that anyone else can change: another session merged into `main`
+  while patch `9` built. Build from a worktree pinned to the commit, with `env.json`
+  copied in, since it is ignored:
+
+  ```bash
+  git worktree add /tmp/kivilo-patch <commit> && cp mobile/env.json /tmp/kivilo-patch/mobile/
+  cd /tmp/kivilo-patch/mobile && shorebird patch ...      # then: git worktree remove /tmp/kivilo-patch
   ```
 - The phone checks for a patch at launch, downloads it in the background, and runs it
   from the next cold start. Nothing in the app can apply it sooner: Hopshift built an
