@@ -72,6 +72,11 @@ pnpm db:seed
 pnpm dev
 ```
 
+Printing a report to PDF needs a local Chromium. Point `CHROMIUM_PATH` in `.env` at the
+one Playwright installs for the end-to-end tests (`pnpm exec playwright install chromium`,
+then the `Google Chrome for Testing` binary under `~/Library/Caches/ms-playwright/`). On
+Vercel the variable is unset and `@sparticuz/chromium` is used instead.
+
 ## Verification, run before claiming done
 
 - `pnpm typecheck`: `prisma generate && next typegen && tsc --noEmit`. The typegen step
@@ -222,6 +227,17 @@ Image generation goes through Based AI (`src/lib/based-ai.ts`, OpenAI-compatible
 pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out.png
 ```
 
+## Branded PDF
+
+A PDF is the shared report page printed by headless Chromium, never a second layout, so
+it cannot drift from the link. `src/lib/report-pdf.ts` mints a two-minute render token
+(`src/lib/render-token.ts`, HMAC with a key derived from the service-role secret) that
+the report page accepts for a `COMPLETED` inspection only; that is how an unshared report
+prints without anyone minting a share link. The file goes to private storage and the
+caller gets a short-lived URL, because a photo-heavy PDF exceeds the function response
+cap. The header comes from the tenancy agent's `AgentBranding`; with none, the report
+reads as Kivilo's.
+
 ## Lessons
 
 - Prisma 7 dropped `url` from the `datasource` block. The connection string lives in
@@ -287,3 +303,8 @@ pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out
   confirm with `vercel ls` and, if nothing appeared, deploy from a clean `git worktree`
   of the commit with `vercel deploy --prod` (a plain deploy from the repo would upload
   the untracked `.claude/` worktrees).
+- The `captures` bucket enforces an allowed MIME list, and `pnpm setup:storage` used to
+  return early on an existing bucket, so types added later never reached it: WebP and
+  PDF maintenance evidence the app offered were refused by storage with a 415. The script
+  now updates an existing bucket. Adding a stored file type means adding it there and
+  running it once per environment, production included.

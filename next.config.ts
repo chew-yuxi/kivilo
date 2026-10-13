@@ -13,9 +13,12 @@ const nextConfig: NextConfig = {
   // would leave it out. Only that one function carries it. The path is pnpm's real
   // directory, which is also where Node resolves the package at runtime: Vercel rejects
   // a function whose files arrive through the node_modules/ffmpeg-static symlink.
-  serverExternalPackages: ['ffmpeg-static'],
+  serverExternalPackages: ['ffmpeg-static', '@sparticuz/chromium', 'puppeteer-core'],
   outputFileTracingIncludes: {
     '/api/internal/posters': ['./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg'],
+    // The PDF route unpacks Chromium from these brotli archives at runtime, which no
+    // require() reveals to tracing. Same pnpm real-path rule as ffmpeg above.
+    '/api/v1/inspections/[id]/pdf': ['./node_modules/.pnpm/@sparticuz+chromium@*/node_modules/@sparticuz/chromium/bin/**'],
   },
 
   async headers() {

@@ -166,6 +166,16 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   expect(revoked!.status()).toBe(404)
   await outsider.close()
 
+  // The PDF prints the signed report with no share link alive at all: the renderer
+  // opens it with its own two-minute token, not by quietly minting a link.
+  const inspectionId = new URL(inspectionUrl, page.url()).pathname.split('/').pop()!
+  const pdf = await page.request.post(`/api/v1/inspections/${inspectionId}/pdf`)
+  expect(pdf.status()).toBe(200)
+  const file = await page.request.get((await pdf.json() as { url: string }).url)
+  const bytes = await file.body()
+  expect(bytes.subarray(0, 5).toString()).toBe('%PDF-')
+  expect(bytes.length).toBeGreaterThan(20_000)
+
   // Authorization lives in the data layer: a second agent sees nothing of this deal.
   const other = await browser.newContext()
   const otherPage = await other.newPage()
@@ -173,5 +183,6 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(otherPage.getByText('Nothing here yet')).toBeVisible()
   const denied = await otherPage.goto(inspectionUrl)
   expect(denied!.status()).toBe(404)
+  expect((await otherPage.request.post(`/api/v1/inspections/${inspectionId}/pdf`)).status()).toBe(404)
   await other.close()
 })

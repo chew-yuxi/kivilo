@@ -9,6 +9,7 @@ import { RoomCapture, type RoomRow } from '@/components/room-capture'
 import { SignaturePad } from '@/components/signature-pad'
 import { FindingsPanel, type ComparableItem, type FindingRow } from '@/components/findings-panel'
 import { CheckOutButton } from '@/components/check-out-button'
+import { DownloadPdf } from '@/components/download-pdf'
 import { CompleteReviewButton } from '@/components/complete-review-button'
 import { ShareReport } from '@/components/share-report'
 
@@ -195,7 +196,10 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       )}
 
       {status === 'COMPLETED' && (
-        <ShareReport inspectionId={id} shareToken={inspection.shareToken} />
+        <>
+          <ShareReport inspectionId={id} shareToken={inspection.shareToken} />
+          <DownloadPdf inspectionId={id} />
+        </>
       )}
 
       {status === 'COMPLETED' && kind === 'CHECK_IN' && (
