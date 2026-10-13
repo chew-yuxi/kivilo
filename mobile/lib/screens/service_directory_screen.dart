@@ -1,28 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/maintenance.dart';
-import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 
-class ServiceDirectoryScreen extends StatefulWidget {
+// Placeholder partners until real ones are signed. They carry no phone number on
+// purpose: a made-up number could ring a stranger.
+const _partners = [
+  (
+    name: 'Pipewell Plumbing',
+    icon: Icons.plumbing,
+    services: 'Leaks, blocked drains, water heaters',
+    hours: 'Open 24 hours',
+  ),
+  (
+    name: 'Fernvale Pipeworks',
+    icon: Icons.plumbing,
+    services: 'Burst pipes, toilets, taps and mixers',
+    hours: 'Daily 8am to 10pm',
+  ),
+  (
+    name: 'Halcyon Locksmiths',
+    icon: Icons.key_outlined,
+    services: 'Lockouts, lock changes, digital locks',
+    hours: 'Open 24 hours',
+  ),
+  (
+    name: 'Keyline Lock & Key',
+    icon: Icons.key_outlined,
+    services: 'Gate locks, key cutting, safes',
+    hours: 'Mon to Sat 9am to 7pm',
+  ),
+];
+
+class ServiceDirectoryScreen extends StatelessWidget {
   const ServiceDirectoryScreen({super.key});
-
-  @override
-  State<ServiceDirectoryScreen> createState() => _ServiceDirectoryScreenState();
-}
-
-class _ServiceDirectoryScreenState extends State<ServiceDirectoryScreen> {
-  final _api = Api();
-  String? _category;
-  late Future<List<ServiceProviderModel>> _future = _api.serviceProviders();
-
-  void _filter(String? category) {
-    setState(() {
-      _category = category;
-      _future = _api.serviceProviders(category: category);
-    });
-  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -32,75 +43,52 @@ class _ServiceDirectoryScreenState extends State<ServiceDirectoryScreen> {
       children: [
         Card(
           color: Theme.of(context).colorScheme.errorContainer,
+          clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
               ListTile(
                 leading: const Icon(Icons.local_police_outlined),
                 title: const Text('Police emergency'),
                 subtitle: const Text('999'),
+                trailing: const Icon(Icons.call_outlined),
                 onTap: () => launchUrl(Uri.parse('tel:999')),
               ),
               ListTile(
                 leading: const Icon(Icons.fire_truck_outlined),
                 title: const Text('Fire or ambulance'),
                 subtitle: const Text('995'),
+                trailing: const Icon(Icons.call_outlined),
                 onTap: () => launchUrl(Uri.parse('tel:995')),
               ),
             ],
           ),
         ),
-        const Text(
-          'Kivilo lists contacts only and does not guarantee availability, pricing, or workmanship.',
+        const SizedBox(height: 24),
+        const KiviloSectionHeading(
+          title: 'Kivilo partners',
+          subtitle: 'Plumbers and locksmiths we work with',
         ),
         const SizedBox(height: 12),
-        KiviloSegmentedControl<String>(
-          allowEmptySelection: true,
-          options: const [
-            KiviloSegmentOption(value: 'PLUMBING', label: 'Plumbing'),
-            KiviloSegmentOption(value: 'LOCKSMITH', label: 'Locksmith'),
-          ],
-          value: _category,
-          onChanged: _filter,
-        ),
-        const SizedBox(height: 16),
-        FutureBuilder<List<ServiceProviderModel>>(
-          future: _future,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) return Text('${snapshot.error}');
-            final providers = snapshot.data!;
-            if (providers.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
-                child: Text(
-                  'No currently verified providers match this category.',
+        for (var index = 0; index < _partners.length; index++) ...[
+          if (index > 0) const SizedBox(height: 10),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              leading: Icon(_partners[index].icon),
+              title: Text(_partners[index].name),
+              subtitle: Text(
+                '${_partners[index].services}\n${_partners[index].hours}',
+              ),
+              isThreeLine: true,
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Booking through Kivilo opens soon.'),
                 ),
-              );
-            }
-            return Column(
-              children: [
-                for (final provider in providers)
-                  Card(
-                    child: ListTile(
-                      title: Text(provider.name),
-                      subtitle: Text(
-                        [
-                          provider.category.toLowerCase(),
-                          if (provider.hours != null) provider.hours!,
-                          'checked ${provider.lastVerifiedAt.substring(0, 10)}',
-                        ].join(' · '),
-                      ),
-                      trailing: const Icon(Icons.call_outlined),
-                      onTap: () =>
-                          launchUrl(Uri.parse('tel:${provider.phone}')),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+              ),
+            ),
+          ),
+        ],
       ],
     ),
   );
