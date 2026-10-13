@@ -73,6 +73,17 @@ is timestamped before that merge and carries none of the report branding strings
 does carry `4b4ba4d`'s, so `9` matches `4b4ba4d`. Flutter analysis is clean and all 99
 tests pass.
 
+Patch `10` (Android) and patch `11` (iOS) on `1.0.0+22`, built from `7822486` in a
+pinned worktree: report branding and the report PDF. Account gets a Report branding card
+and drawer (your name, agency name, licence, CEA registration, phone, logo from the photo
+library); a signed inspection gets Download PDF beside its share link, opened in the
+phone's own viewer. The server half was deployed first (`6902969`). The icon check
+caught `picture_as_pdf_outlined` and `storefront_outlined`, which build `22` does not
+carry; `description_outlined` and `store_rounded` stand in. Both compiled binaries were
+checked for the new screens' strings. The Android build needs the `KIVILO_UPLOAD_*`
+variables even for a patch: without them Gradle stops in under a second and nothing is
+published. Flutter analysis is clean and all 101 tests pass.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
