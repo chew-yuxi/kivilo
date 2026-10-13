@@ -47,6 +47,10 @@ action calls `requireAgent()` then `authorizeInspection` / `authorizeRoom`, and 
 page query is filtered by `inspectionScope`. Server actions are public HTTP endpoints
 and every id they take is attacker-controlled, so none of them may trust one. A refusal
 returns the same error as a missing row, so the API cannot be used to enumerate ids.
+Agents on one `Team` (set with `pnpm team:set`) work each other's deals as the deal's
+agent would; that rule lives only in `actsAsAgent`, so no other file decides who an
+agent is. Landlords and tenants read a report through `authorizeReport`, never through
+the agent rules.
 
 **Rooms are independent.** Finishing, reviewing and re-shooting are all scoped to one
 room, so re-shooting the kitchen cannot touch a bedroom someone already reviewed. A new

@@ -114,6 +114,23 @@ export const requireAgent = requireStakeholder
 
 export type TenancyRole = 'LANDLORD' | 'TENANT' | 'AGENT'
 
+/// The agents who stand where `stakeholderId` does: themselves, and everyone on their
+/// team. Small teams cover each other's handovers and check-outs, so a teammate acts on a
+/// deal exactly as its own agent would. Every agent rule goes through this.
+function actsAsAgent(stakeholderId: string): Prisma.TenancyWhereInput {
+  return {
+    OR: [
+      { agentId: stakeholderId },
+      { agent: { team: { members: { some: { id: stakeholderId } } } } },
+    ],
+  }
+}
+
+/// The tenancies someone works as an agent: while the tenancy runs, as with maintenance.
+export function agentTenancies(stakeholderId: string, now = new Date()): Prisma.TenancyWhereInput {
+  return { AND: [actsAsAgent(stakeholderId), { endDate: { gte: now } }] }
+}
+
 /// A landlord owns the durable property history, a tenant sees their own tenancy, and
 /// an agent may manage maintenance only while the tenancy is active. The inspection
 /// scope remains separate because completed reports have their own retention rules.
@@ -122,7 +139,7 @@ export function tenancyScope(stakeholderId: string, now = new Date()): Prisma.Te
     OR: [
       { landlordId: stakeholderId },
       { tenantId: stakeholderId },
-      { agentId: stakeholderId, endDate: { gte: now } },
+      agentTenancies(stakeholderId, now),
     ],
   }
 }
@@ -142,11 +159,11 @@ export async function authorizeTenancy(tenancyId: string, stakeholderId: string)
   return { tenancy, role }
 }
 
-/// The scope every inspection query is filtered by. An agent sees a deal they are the
-/// agent on, or an inspection they personally conducted. Nothing else.
+/// The scope every inspection query is filtered by. An agent sees a deal they or a
+/// teammate are the agent on, or an inspection they personally conducted. Nothing else.
 export function inspectionScope(agentId: string): Prisma.InspectionWhereInput {
   return {
-    OR: [{ tenancy: { agentId } }, { conductedById: agentId }],
+    OR: [{ tenancy: actsAsAgent(agentId) }, { conductedById: agentId }],
   }
 }
 

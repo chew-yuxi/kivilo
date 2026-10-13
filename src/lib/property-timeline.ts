@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { tenancyScope } from '@/lib/auth'
+import { inspectionScope, tenancyScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { describeProposal } from '@/lib/maintenance'
 import type { Prisma } from '@/generated/prisma'
@@ -11,7 +11,6 @@ const timelineInclude = {
     select: {
       id: true,
       kind: true,
-      conductedById: true,
       signatures: { select: { signedAt: true } },
       assessments: { select: { version: true, publishedAt: true } },
     },
@@ -66,7 +65,7 @@ export type TimelineEvent = {
 /// drafts, open proposals and unsigned reports belong to the working screens.
 export function timelineEvents(
   tenancies: TimelineTenancy[],
-  viewerId: string,
+  workingCopies: Set<string>,
   now = new Date(),
 ): TimelineEvent[] {
   type Draft = Omit<TimelineEvent, 'at'> & { at: Date }
@@ -89,8 +88,7 @@ export function timelineEvents(
     }
 
     for (const inspection of tenancy.inspections) {
-      // inspectionScope: only the agent on the deal or whoever conducted it opens one.
-      const link = tenancy.agentId === viewerId || inspection.conductedById === viewerId
+      const link = workingCopies.has(inspection.id)
         ? { type: 'inspection' as const, id: inspection.id }
         : null
       const signed = inspection.signatures.map((signature) => signature.signedAt.getTime())
@@ -166,6 +164,12 @@ export async function propertyTimeline(propertyId: string, stakeholderId: string
     include: { ...timelineInclude, property: true },
   })
   if (tenancies.length === 0) throw new Error('Property not found')
+  // The working copies this viewer may open, decided by the one inspection rule rather
+  // than a second reading of it here.
+  const workingCopies = await db.inspection.findMany({
+    where: { AND: [{ tenancyId: { in: tenancies.map((tenancy) => tenancy.id) } }, inspectionScope(stakeholderId)] },
+    select: { id: true },
+  })
   return {
     property: propertyLabel(tenancies[0].property),
     tenancies: tenancies.map((tenancy) => ({
@@ -174,6 +178,6 @@ export async function propertyTimeline(propertyId: string, stakeholderId: string
       startDate: tenancy.startDate.toISOString(),
       endDate: tenancy.endDate.toISOString(),
     })),
-    events: timelineEvents(tenancies, stakeholderId),
+    events: timelineEvents(tenancies, new Set(workingCopies.map((inspection) => inspection.id))),
   }
 }

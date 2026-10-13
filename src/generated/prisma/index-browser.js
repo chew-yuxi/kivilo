@@ -128,6 +128,14 @@ exports.Prisma.StakeholderScalarFieldEnum = {
   email: 'email',
   phone: 'phone',
   authUserId: 'authUserId',
+  teamId: 'teamId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeamScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -657,6 +665,7 @@ exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {
 
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
+  Team: 'Team',
   Property: 'Property',
   Tenancy: 'Tenancy',
   Inspection: 'Inspection',

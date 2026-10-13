@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { authorizeTenancy, tenancyScope, type TenancyRole } from '@/lib/auth'
+import { agentTenancies, authorizeTenancy, tenancyScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { Prisma } from '@/generated/prisma'
@@ -888,7 +888,7 @@ export async function createPropertyAsset(
   const managerTenancies = await db.tenancy.findMany({
     where: {
       propertyId,
-      OR: [{ landlordId: stakeholderId }, { agentId: stakeholderId, endDate: { gte: new Date() } }],
+      OR: [{ landlordId: stakeholderId }, agentTenancies(stakeholderId)],
     },
     select: { landlordId: true },
   })
@@ -897,7 +897,7 @@ export async function createPropertyAsset(
     (tenancy) => tenancy.landlordId === stakeholderId,
   )
     ? { propertyId }
-    : { propertyId, agentId: stakeholderId, endDate: { gte: new Date() } }
+    : { AND: [{ propertyId }, agentTenancies(stakeholderId)] }
   if (input.inspectionItemId) {
     const item = await db.inspectionItem.findFirst({
       where: { id: input.inspectionItemId, room: { inspection: { tenancy: tenancyScopeForItem } } },

@@ -30,8 +30,12 @@ model Stakeholder {
   /// Most stakeholders (landlords, tenants) never sign in and leave this null; it is
   /// what separates "a person on a deal" from "a person with a login".
   authUserId String?        @unique
+  /// Agents on one team work each other's deals as if each were the deal's agent.
+  teamId    String?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+
+  team                Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
 
   tenanciesAsLandlord Tenancy[] @relation("LandlordTenancies")
   tenanciesAsTenant   Tenancy[] @relation("TenantTenancies")
@@ -49,6 +53,19 @@ model Stakeholder {
   deviceInstallations DeviceInstallation[]
 
   @@index([name])
+  @@index([teamId])
+}
+
+/// A small group of agents who share their deals. Set up with `pnpm team:set`; nothing in
+/// the app creates or edits one yet. Leaving ends access to teammates' deals at once, and
+/// a deal never moves: it stays with the agent who holds it.
+model Team {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members Stakeholder[]
 }
 
 enum PropertyType {
