@@ -56,6 +56,10 @@ export type TimelineEvent = {
   detail: string | null
   tenancyId: string
   link: { type: 'maintenance' | 'inspection'; id: string } | null
+  /// The signed report behind the event, which every viewer of the feed may read
+  /// (`authorizeReport`). Separate from `link`, which build 22 routes to the
+  /// maintenance screen whenever it is not an inspection.
+  reportId: string | null
 }
 
 /// Turns the tenancies a viewer may see into one feed, newest first. Only settled facts:
@@ -74,13 +78,13 @@ export function timelineEvents(
     if (tenancy.startDate <= now) {
       add({
         id: `${tenancyId}:start`, at: tenancy.startDate, kind: 'TENANCY_STARTED',
-        title: 'Tenancy began', detail: tenancy.tenant.name, tenancyId, link: null,
+        title: 'Tenancy began', detail: tenancy.tenant.name, tenancyId, link: null, reportId: null,
       })
     }
     if (tenancy.endDate <= now) {
       add({
         id: `${tenancyId}:end`, at: tenancy.endDate, kind: 'TENANCY_ENDED',
-        title: 'Tenancy ended', detail: tenancy.tenant.name, tenancyId, link: null,
+        title: 'Tenancy ended', detail: tenancy.tenant.name, tenancyId, link: null, reportId: null,
       })
     }
 
@@ -96,7 +100,7 @@ export function timelineEvents(
           id: `${inspection.id}:signed`, at: new Date(Math.max(...signed)),
           kind: checkIn ? 'CHECK_IN_SIGNED' : 'CHECK_OUT_SIGNED',
           title: checkIn ? 'Check-in signed' : 'Check-out signed',
-          detail: 'Signed by both parties', tenancyId, link,
+          detail: 'Signed by both parties', tenancyId, link, reportId: inspection.id,
         })
       }
       for (const assessment of inspection.assessments) {
@@ -106,7 +110,7 @@ export function timelineEvents(
           title: assessment.version === 1
             ? 'Check-out assessment published'
             : `Check-out assessment version ${assessment.version} published`,
-          detail: null, tenancyId, link,
+          detail: null, tenancyId, link, reportId: inspection.id,
         })
       }
     }
@@ -115,13 +119,13 @@ export function timelineEvents(
       const link = { type: 'maintenance' as const, id: item.id }
       add({
         id: `${item.id}:reported`, at: item.createdAt, kind: 'PROBLEM_REPORTED',
-        title: `Reported: ${item.title}`, detail: null, tenancyId, link,
+        title: `Reported: ${item.title}`, detail: null, tenancyId, link, reportId: null,
       })
       for (const visit of item.visits) {
         add({
           id: `${visit.id}:repaired`, at: visit.completedAt!, kind: 'REPAIRED',
           title: `Repaired: ${item.title}`,
-          detail: visit.cost ? `S$${visit.cost.toFixed(2)}` : null, tenancyId, link,
+          detail: visit.cost ? `S$${visit.cost.toFixed(2)}` : null, tenancyId, link, reportId: null,
         })
         if (visit.verification) {
           const fixed = visit.verification.outcome === 'FIXED'
@@ -129,20 +133,20 @@ export function timelineEvents(
             id: `${visit.id}:verified`, at: visit.verification.createdAt,
             kind: fixed ? 'CONFIRMED_FIXED' : 'NOT_FIXED',
             title: fixed ? `Confirmed fixed: ${item.title}` : `Not fixed: ${item.title}`,
-            detail: null, tenancyId, link,
+            detail: null, tenancyId, link, reportId: null,
           })
         }
       }
       for (const agreement of item.responsibilityProposals) {
         add({
           id: `${agreement.id}:agreed`, at: agreement.respondedAt!, kind: 'COST_AGREED',
-          title: `Cost agreed: ${item.title}`, detail: describeProposal(agreement), tenancyId, link,
+          title: `Cost agreed: ${item.title}`, detail: describeProposal(agreement), tenancyId, link, reportId: null,
         })
       }
       if (item.status === 'CLOSED_NO_ACTION' && item.resolvedAt) {
         add({
           id: `${item.id}:closed`, at: item.resolvedAt, kind: 'CLOSED_WITHOUT_REPAIR',
-          title: `Closed without repair: ${item.title}`, detail: null, tenancyId, link,
+          title: `Closed without repair: ${item.title}`, detail: null, tenancyId, link, reportId: null,
         })
       }
     }

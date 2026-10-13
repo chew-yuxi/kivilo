@@ -165,6 +165,32 @@ export async function authorizeInspection(inspectionId: string, agentId: string)
   return inspection
 }
 
+/// The report is what the landlord and tenant agree to, so they read it from the moment
+/// it is sent for signature, when `assertOpen` freezes it, alongside anyone
+/// `inspectionScope` admits. Nothing earlier: the working inspection, with its drafts,
+/// stays the agent's. Read-only: no mutation may authorize through this.
+export async function authorizeReport(inspectionId: string, stakeholderId: string) {
+  const inspection = await db.inspection.findFirst({
+    where: {
+      AND: [
+        { id: inspectionId },
+        {
+          OR: [
+            inspectionScope(stakeholderId),
+            {
+              status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] },
+              tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
+            },
+          ],
+        },
+      ],
+    },
+    select: { id: true },
+  })
+  if (!inspection) throw new Error('Report not found')
+  return inspection
+}
+
 /// Resolves a room to its inspection and authorizes that, so a room id from the client
 /// cannot reach across into another agent's deal.
 export async function authorizeRoom(roomId: string, agentId: string) {

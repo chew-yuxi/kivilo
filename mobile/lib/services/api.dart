@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
+import '../models/report.dart';
 import 'api_failure.dart';
 import 'read_cache.dart';
 
@@ -177,6 +178,14 @@ class Api {
       'property-timeline:$propertyId',
     );
     return PropertyTimeline.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<SignedReport> report(String inspectionId) async {
+    final data = await _read(
+      '/api/v1/inspections/$inspectionId/report',
+      'report:$inspectionId',
+    );
+    return SignedReport.fromJson(data as Map<String, dynamic>);
   }
 
   Future<List<PropertyAssetSummary>> propertyAssets(String propertyId) async {

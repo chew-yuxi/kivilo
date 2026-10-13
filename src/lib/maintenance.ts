@@ -266,6 +266,13 @@ export async function listTenancies(stakeholderId: string) {
       tenant: { select: { id: true, name: true } },
       agent: { select: { id: true, name: true } },
       _count: { select: { maintenanceCases: true, inspections: true } },
+      // The newest report sent for signature, which `authorizeReport` lets every party read.
+      inspections: {
+        where: { status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] } },
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: { id: true, kind: true, status: true },
+      },
     },
   })
   return tenancies.map((tenancy) => ({
@@ -281,6 +288,7 @@ export async function listTenancies(stakeholderId: string) {
     endDate: tenancy.endDate.toISOString(),
     maintenanceCases: tenancy._count.maintenanceCases,
     inspections: tenancy._count.inspections,
+    latestReport: tenancy.inspections[0] ?? null,
   }))
 }
 

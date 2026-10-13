@@ -6,6 +6,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'maintenance_case_screen.dart';
+import 'report_screen.dart';
 
 /// Everything settled at one address, newest first. The server decides which tenancies
 /// this viewer may see; the screen only lays them out.
@@ -33,9 +34,12 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
   Future<void> _open(TimelineEvent event) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => event.linkType == 'inspection'
-            ? InspectionScreen(id: event.linkId!)
-            : MaintenanceCaseScreen(caseId: event.linkId!),
+        // The agent's working copy when they may open it, otherwise the signed report.
+        builder: (_) => switch (event.linkType) {
+          'inspection' => InspectionScreen(id: event.linkId!),
+          'maintenance' => MaintenanceCaseScreen(caseId: event.linkId!),
+          _ => ReportScreen(id: event.reportId!),
+        },
       ),
     );
     if (mounted) await _refresh();
@@ -106,7 +110,9 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
                         if (index > 0) const Divider(height: 1, indent: 60),
                         _EventRow(
                           event: events[index],
-                          onTap: events[index].linkId == null
+                          onTap:
+                              events[index].linkId == null &&
+                                  events[index].reportId == null
                               ? null
                               : () => _open(events[index]),
                         ),

@@ -26,6 +26,9 @@ class TenancySummary {
     required this.tenant,
     required this.maintenanceCases,
     required this.inspections,
+    this.latestReportId,
+    this.latestReportKind,
+    this.latestReportStatus,
   });
   final String id;
   final String role;
@@ -37,6 +40,13 @@ class TenancySummary {
   final int maintenanceCases;
   final int inspections;
 
+  /// The newest report sent for signature, which every party on the tenancy may read.
+  final String? latestReportId;
+  final String? latestReportKind;
+
+  /// `AWAITING_SIGNATURE` or `COMPLETED`.
+  final String? latestReportStatus;
+
   factory TenancySummary.fromJson(Map<String, dynamic> json) => TenancySummary(
     id: json['id'] as String,
     role: json['role'] as String,
@@ -47,6 +57,12 @@ class TenancySummary {
     tenant: json['tenant'] as String,
     maintenanceCases: json['maintenanceCases'] as int,
     inspections: json['inspections'] as int,
+    latestReportId:
+        (json['latestReport'] as Map<String, dynamic>?)?['id'] as String?,
+    latestReportKind:
+        (json['latestReport'] as Map<String, dynamic>?)?['kind'] as String?,
+    latestReportStatus:
+        (json['latestReport'] as Map<String, dynamic>?)?['status'] as String?,
   );
 }
 
@@ -495,6 +511,7 @@ class TimelineEvent {
     this.detail,
     this.linkType,
     this.linkId,
+    this.reportId,
   });
   final String id;
   final String at;
@@ -506,6 +523,10 @@ class TimelineEvent {
   final String? linkType;
   final String? linkId;
 
+  /// The signed report behind a check-in, check-out or assessment event. Every viewer of
+  /// the timeline may read it, including a landlord or tenant with no [linkId].
+  final String? reportId;
+
   factory TimelineEvent.fromJson(Map<String, dynamic> json) {
     final link = json['link'] as Map<String, dynamic>?;
     return TimelineEvent(
@@ -516,6 +537,7 @@ class TimelineEvent {
       detail: json['detail'] as String?,
       linkType: link?['type'] as String?,
       linkId: link?['id'] as String?,
+      reportId: json['reportId'] as String?,
     );
   }
 }

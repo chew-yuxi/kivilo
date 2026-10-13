@@ -414,7 +414,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                             children: [
                               Image(image: widget.image, fit: BoxFit.fill),
                               CustomPaint(
-                                painter: _MarkPainter(
+                                painter: MarkPainter(
                                   _marks,
                                   selectedIndex: _selectedIndex,
                                   previewShape: _shape,
@@ -630,12 +630,14 @@ class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
   }
 }
 
-class _MarkPainter extends CustomPainter {
-  const _MarkPainter(
+/// Draws marks over a photo laid out at exactly the image's box. Shared by the editor
+/// and the signed report, so a ring looks the same wherever it is read.
+class MarkPainter extends CustomPainter {
+  const MarkPainter(
     this.marks, {
     this.selectedIndex,
-    required this.previewShape,
-    required this.previewPoints,
+    this.previewShape = 'ring',
+    this.previewPoints = const [],
   });
 
   final List<Map<String, dynamic>> marks;
@@ -781,5 +783,5 @@ class _MarkPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _MarkPainter oldDelegate) => true;
+  bool shouldRepaint(covariant MarkPainter oldDelegate) => true;
 }

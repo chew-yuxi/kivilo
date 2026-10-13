@@ -9,6 +9,7 @@ import 'inspection_screen.dart';
 import 'inspections_screen.dart';
 import 'new_inspection_screen.dart';
 import 'notifications_screen.dart';
+import 'report_screen.dart';
 import 'service_directory_screen.dart';
 import 'settings_screen.dart';
 import 'tenancy_screen.dart';
@@ -26,12 +27,31 @@ class _HomeScreenState extends State<HomeScreen> {
   _future = _load();
   int _tab = 0;
 
+  /// Someone who is only a landlord or tenant: no inspections of their own and no deal
+  /// they are the agent on. They get their tenancies, not an inspector's desk.
+  bool _partyOnly = false;
+
+  List<String> get _tabs => _partyOnly
+      ? const ['home', 'account']
+      : const ['home', 'inspections', 'account'];
+
   Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _load() async {
     final profile = _api.me();
     final tenancies = _api.tenancies();
     final inspections = _api.inspections();
-    return (await profile, await tenancies, await inspections);
+    final loaded = (await profile, await tenancies, await inspections);
+    final partyOnly =
+        loaded.$1.roles.isNotEmpty &&
+        !loaded.$1.roles.contains('AGENT') &&
+        loaded.$3.isEmpty;
+    if (mounted && partyOnly != _partyOnly) {
+      setState(() {
+        _partyOnly = partyOnly;
+        _tab = 0;
+      });
+    }
+    return loaded;
   }
 
   Future<void> _refresh() async {
@@ -48,6 +68,13 @@ class _HomeScreenState extends State<HomeScreen> {
     await Navigator.of(
       context,
     ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
+    if (mounted) await _refresh();
+  }
+
+  Future<void> _openReport(String id) async {
+    await Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute(builder: (_) => ReportScreen(id: id)));
     if (mounted) await _refresh();
   }
 
@@ -91,9 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           )
         : null,
-    body: switch (_tab) {
-      1 => const InspectionsScreen(),
-      2 => const SettingsScreen(),
+    body: switch (_tabs[_tab]) {
+      'inspections' => const InspectionsScreen(),
+      'account' => SettingsScreen(onStartCheckIn: _partyOnly ? _create : null),
       _ => _overview(),
     },
     bottomNavigationBar: BottomNavigationBar(
@@ -103,22 +130,25 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _tab = index);
         if (index == 0) _refresh();
       },
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fact_check_outlined),
-          activeIcon: Icon(Icons.fact_check),
-          label: 'Inspections',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
-          label: 'Account',
-        ),
+      items: [
+        for (final tab in _tabs)
+          switch (tab) {
+            'inspections' => const BottomNavigationBarItem(
+              icon: Icon(Icons.fact_check_outlined),
+              activeIcon: Icon(Icons.fact_check),
+              label: 'Inspections',
+            ),
+            'account' => const BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Account',
+            ),
+            _ => const BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home',
+            ),
+          },
       ],
     ),
   );
@@ -177,6 +207,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 : hour < 18
                 ? 'Good afternoon'
                 : 'Good evening';
+
+            if (_partyOnly) {
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+                children: [
+                  Text(
+                    '$greeting, $firstName',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Your reports, repairs and history, in one place.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 24),
+                  for (final tenancy in tenancies) ...[
+                    _partyCard(tenancy),
+                    const SizedBox(height: 12),
+                  ],
+                ],
+              );
+            }
 
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
@@ -384,12 +436,84 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () => _openInspection(target.id),
                         child: Text(actionLabel),
                       ),
+                    )
+                  else if (tenancy.latestReportId != null)
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => _openReport(tenancy.latestReportId!),
+                        child: const Text('View report'),
+                      ),
                     ),
-                  if (target != null) const SizedBox(width: 8),
+                  if (target != null || tenancy.latestReportId != null)
+                    const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => _openTenancy(tenancy),
                       child: const Text('Maintenance'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A landlord's or tenant's tenancy: the report they agreed and the repairs since.
+  Widget _partyCard(TenancySummary tenancy) {
+    final text = Theme.of(context).textTheme;
+    final reportId = tenancy.latestReportId;
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => _openTenancy(tenancy),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                tenancy.property,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: text.titleMedium,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                tenancy.role == 'LANDLORD'
+                    ? 'You are the landlord'
+                    : 'You are the tenant',
+                style: text.bodySmall,
+              ),
+              if (reportId == null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Your check-in report appears here once your agent sends it.',
+                  style: text.bodySmall,
+                ),
+              ],
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  if (reportId != null) ...[
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => _openReport(reportId),
+                        child: Text(
+                          tenancy.latestReportKind == 'CHECK_OUT'
+                              ? 'Check-out report'
+                              : 'Check-in report',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => _openTenancy(tenancy),
+                      child: const Text('Repairs'),
                     ),
                   ),
                 ],

@@ -82,12 +82,12 @@ class _SignInScreenState extends State<SignInScreen> {
         ? 'Welcome back'
         : _sent
         ? 'Check your email'
-        : 'A better way to hand over';
+        : 'Your property, on record';
     final subtitle = _passwordMode
         ? 'Sign in to continue your inspections.'
         : _sent
         ? 'Enter the six-digit code sent to ${_email.text.trim()}.'
-        : 'Create a clear, room-by-room record of every property.';
+        : 'Condition reports, repairs and their history, for agents, landlords and tenants.';
 
     return Scaffold(
       body: SafeArea(

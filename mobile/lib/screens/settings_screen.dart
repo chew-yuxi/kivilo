@@ -9,7 +9,11 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.onStartCheckIn});
+
+  /// Set for someone whose home shows only their own tenancies, so an agent who is also
+  /// somebody's tenant can still start an inspection.
+  final VoidCallback? onStartCheckIn;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -163,6 +167,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            if (widget.onStartCheckIn != null) ...[
+              const SizedBox(height: 28),
+              const KiviloSectionHeading(title: 'For agents'),
+              const SizedBox(height: 12),
+              _linkCard(
+                icon: Icons.add_home_work_outlined,
+                title: 'Start a check-in',
+                subtitle: 'Write a room-by-room report of a property',
+                onTap: widget.onStartCheckIn!,
+              ),
+            ],
             const SizedBox(height: 28),
             const KiviloSectionHeading(title: 'Privacy & support'),
             const SizedBox(height: 12),

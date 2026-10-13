@@ -25,6 +25,7 @@ Map<String, dynamic> event(
   String at, {
   String? detail,
   Map<String, dynamic>? link,
+  String? reportId,
 }) => {
   'id': '$kind:$at',
   'at': at,
@@ -33,6 +34,7 @@ Map<String, dynamic> event(
   'detail': detail,
   'tenancyId': 'tenancy-1',
   'link': link,
+  'reportId': reportId,
 };
 
 final sampleEvents = [
@@ -99,6 +101,21 @@ void main() {
     expect(find.text('Tenancy began'), findsOneWidget);
     // Only the three maintenance rows can be opened by this viewer.
     expect(find.byIcon(Icons.chevron_right), findsNWidgets(3));
+  });
+
+  testWidgets('lets a landlord or tenant open the report they signed', (
+    tester,
+  ) async {
+    await pumpTimeline(tester, [
+      event(
+        'CHECK_IN_SIGNED',
+        'Check-in signed',
+        '2025-02-02T10:00:00Z',
+        detail: 'Signed by both parties',
+        reportId: 'inspection-1',
+      ),
+    ]);
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
   });
 
   testWidgets('says so when nothing has been settled yet', (tester) async {

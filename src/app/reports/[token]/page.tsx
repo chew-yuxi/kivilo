@@ -7,6 +7,7 @@ import { PrintButton } from '@/components/print-button'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
+import { reportInclude } from '@/lib/report'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,21 +29,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
 
   const inspection = await db.inspection.findUnique({
     where: { shareToken: token },
-    include: {
-      tenancy: { include: { property: true, landlord: true, tenant: true, agent: true } },
-      conductedBy: true,
-      rooms: {
-        orderBy: { order: 'asc' },
-        include: {
-          items: { orderBy: { createdAt: 'asc' } },
-          // Late phone uploads may finish after Send. Their bytes remain safely in
-          // private storage, but unprocessed evidence is not part of the agreed report.
-          captures: { where: { kind: 'PHOTO', processedAt: { not: null } }, orderBy: { createdAt: 'asc' } },
-        },
-      },
-      signatures: { include: { stakeholder: true } },
-      assessments: { orderBy: { version: 'desc' }, take: 1 },
-    },
+    include: reportInclude,
   })
 
   // An unknown or revoked token is indistinguishable from a report that never existed.

@@ -97,9 +97,10 @@ describe('property timeline', () => {
     })
     expect(landlordView.events.find((event) => event.kind === 'COST_AGREED')?.detail)
       .toBe('Landlord pays. Landlord arranges the repair.')
-    // The landlord sees a report was signed but cannot open the agent's working copy.
-    expect(landlordView.events.filter((event) => event.kind === 'CHECK_IN_SIGNED').map((event) => event.link))
-      .toEqual([null, null])
+    // The landlord cannot open the agent's working copy, only the signed report.
+    const landlordSigned = landlordView.events.filter((event) => event.kind === 'CHECK_IN_SIGNED')
+    expect(landlordSigned.map((event) => event.link)).toEqual([null, null])
+    expect(landlordSigned.map((event) => event.reportId)).toEqual([currentCheckIn.id, pastCheckIn.id])
 
     const pastTenantView = await propertyTimeline(property.id, pastTenant.id)
     expect(new Set(pastTenantView.events.map((event) => event.tenancyId))).toEqual(new Set([past.id]))
