@@ -4421,6 +4421,10 @@ export namespace Prisma {
       kind: $Enums.StakeholderKind
       name: string
       idNumber: string | null
+      /**
+       * Stored lowercase. Unique because sign-in links a login to the one row holding its
+       * verified address, so a second row for the same person is a deal they never see.
+       */
       email: string | null
       phone: string | null
       /**
@@ -35263,6 +35267,7 @@ export namespace Prisma {
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    email?: string
     authUserId?: string
     AND?: StakeholderWhereInput | StakeholderWhereInput[]
     OR?: StakeholderWhereInput[]
@@ -35270,7 +35275,6 @@ export namespace Prisma {
     kind?: EnumStakeholderKindFilter<"Stakeholder"> | $Enums.StakeholderKind
     name?: StringFilter<"Stakeholder"> | string
     idNumber?: StringNullableFilter<"Stakeholder"> | string | null
-    email?: StringNullableFilter<"Stakeholder"> | string | null
     phone?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
@@ -35288,7 +35292,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalListRelationFilter
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
-  }, "id" | "authUserId">
+  }, "id" | "email" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
     id?: SortOrder

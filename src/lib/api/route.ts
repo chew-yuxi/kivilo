@@ -31,7 +31,7 @@ export function authed<P>(
         return Response.json({ error: 'not_found' }, { status: 404 })
       }
       if (error instanceof ZodError || error instanceof SyntaxError ||
-          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path)/.test(message)) {
+          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|The landlord and tenant need different email addresses)/.test(message)) {
         return Response.json({ error: 'invalid_request' }, { status: 400 })
       }
       if (/no longer be changed/i.test(message)) {

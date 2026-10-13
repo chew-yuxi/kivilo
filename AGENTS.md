@@ -94,7 +94,9 @@ Supabase Auth, emailed six digit code rather than a magic link: a link opens the
 default browser, so an installed PWA would send the agent to Safari with no session in
 the app. On first sign-in an agent claims an existing Stakeholder with the same verified
 address, or gets a new one, so someone already named on a deal keeps their tenancies
-instead of becoming a duplicate.
+instead of becoming a duplicate. That only works if there is one row to claim, so
+`Stakeholder.email` is unique and stored lowercase, and `createInspection` reuses the
+person on file rather than creating another (pinned by `deal-parties.integration.test.ts`).
 
 Locally the code arrives in mailpit on port 56324; the message body is readable through
 its API at `/api/v1/messages`.

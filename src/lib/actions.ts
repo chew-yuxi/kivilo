@@ -99,6 +99,10 @@ async function authorizeItem(itemId: string, inspectionId: string, agentId: stri
 /// This deliberately creates a thin tenancy rather than a full deal record. M1 owns the
 /// deal wizard; this is the least a check-in needs in order to exist, and M1 will
 /// extend these rows rather than replace them.
+///
+/// A landlord or tenant with an email is matched to the person already on file under
+/// it, so they see every deal that names them from the one login. The name the agent
+/// typed does not overwrite the one on file, since other deals show that name too.
 export async function createInspection(input: {
   line1: string
   unit: string | null
@@ -129,6 +133,16 @@ export async function createInspection(input: {
     throw new Error('The tenancy must end after it starts')
   }
 
+  const landlordEmail = input.landlordEmail?.trim().toLowerCase() || null
+  const tenantEmail = input.tenantEmail?.trim().toLowerCase() || null
+  if (landlordEmail && landlordEmail === tenantEmail) {
+    throw new Error('The landlord and tenant need different email addresses')
+  }
+  const party = (name: string, email: string | null) => {
+    const create = { name: name.trim(), email }
+    return email ? { connectOrCreate: { where: { email }, create } } : { create }
+  }
+
   const inspection = await db.inspection.create({
     data: {
       kind: 'CHECK_IN',
@@ -151,12 +165,8 @@ export async function createInspection(input: {
               type: input.propertyType,
             },
           },
-          landlord: {
-            create: { name: input.landlordName.trim(), email: input.landlordEmail?.trim() || null },
-          },
-          tenant: {
-            create: { name: input.tenantName.trim(), email: input.tenantEmail?.trim() || null },
-          },
+          landlord: party(input.landlordName, landlordEmail),
+          tenant: party(input.tenantName, tenantEmail),
         },
       },
     },

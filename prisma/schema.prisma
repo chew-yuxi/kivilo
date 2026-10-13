@@ -22,7 +22,9 @@ model Stakeholder {
   kind      StakeholderKind @default(INDIVIDUAL)
   name      String
   idNumber  String?
-  email     String?
+  /// Stored lowercase. Unique because sign-in links a login to the one row holding its
+  /// verified address, so a second row for the same person is a deal they never see.
+  email     String?         @unique
   phone     String?
   /// Supabase auth user id, set when someone signs in and claims this stakeholder.
   /// Most stakeholders (landlords, tenants) never sign in and leave this null; it is
