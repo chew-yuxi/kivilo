@@ -228,6 +228,36 @@ Image generation goes through Based AI (`src/lib/based-ai.ts`, OpenAI-compatible
 pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out.png
 ```
 
+`scripts/dev-seed-report.ts <manifest.json>` seeds a countersigned check-in on the local
+stack from a folder of photos (shape in the file), for working on the report and its PDF
+against something the size of a real one. It refuses any non-local database.
+
+## The report PDF
+
+The bar is a real agency report (`plans/report-pdf.md`): photos three across, a header
+and "Page X of Y" on every page, the room heading on every page, red defect captions. The
+web page cannot meet it when printed, so the PDF is its own A4 document drawn with
+`@react-pdf/renderer` (`src/lib/report-pdf/`): `model.ts` turns the database rows into
+plain data, `document.tsx` draws it, `render.tsx` fetches the photos and stores the file.
+It shares the evidence rules with the page, not the markup: only `COMPLETED` reports, only
+photos stamped `processedAt`, marks drawn as vectors over an untouched photograph with the
+same `markPath`, and no URL anywhere in the document, since the URL is the credential.
+
+Photos are downloaded and shrunk with `sharp`, `.rotate()` first so EXIF orientation is
+applied before the marks, which are stored against the upright picture, are drawn. The
+file is far past the 4.5 MB a function may return, so it is written to
+`reports/<inspectionId>/<hash>.pdf` and handed out as a 10-minute signed URL. The hash
+covers everything drawn plus `RENDER_VERSION`, so a stored copy is correct by
+construction; **bump `RENDER_VERSION` whenever the layout changes**, or every report
+keeps serving its old drawing. Revoking a share link deletes the prefix.
+
+Two ways in: `GET /reports/[token]/pdf` for anyone holding the link, and `POST
+/api/v1/inspections/[id]/pdf` for the agent, which needs no link to exist (the web
+inspection page and the app both use it). The header is the tenancy agent's
+`AgentBranding` (agency name, licence, CEA number, phone, logo); with none set the report
+reads as Kivilo's. Logos are stored as PNG whatever arrives, since the PDF draws only PNG
+and JPEG, and the agent can set the name printed beside them.
+
 ## Lessons
 
 - Prisma 7 dropped `url` from the `datasource` block. The connection string lives in
@@ -293,3 +323,24 @@ pnpm exec tsx scripts/dev-generate-image.ts "a tidy studio flat, wide angle" out
   confirm with `vercel ls` and, if nothing appeared, deploy from a clean `git worktree`
   of the commit with `vercel deploy --prod` (a plain deploy from the repo would upload
   the untracked `.claude/` worktrees).
+- The `captures` bucket enforces an allowed MIME list, and `pnpm setup:storage` used to
+  return early on an existing bucket, so types added later never reached it: WebP and
+  PDF maintenance evidence the app offered were refused by storage with a 415. The script
+  now updates an existing bucket. Adding a stored file type means adding it there and
+  running it once per environment, production included.
+- `@react-pdf/renderer` 4.9 has two silent failure modes, both pinned by
+  `src/lib/report-pdf/document.test.tsx`. A `lineHeight` on a page style stops every
+  `render` text (page numbers, "continued") and every bottom-anchored fixed element from
+  drawing at all. And a component returning a fragment of fixed elements draws only the
+  first, which is why the running header and footer are separate components.
+- `@react-pdf/hyphenate` ships an ESM-only entry, so anything loading the renderer as
+  CommonJS (a plain `tsx` script, Playwright's spec loader) fails with
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`. Next and Vitest load it as ESM and are fine; probe the
+  document through a Vitest test, not a script.
+- Supabase Storage encodes a signed URL's `download` file name twice in
+  `Content-Disposition`, so a `#` or `,` reaches the reader's disk as `%23` or `%2C`.
+  Report file names are letters, digits, spaces, dots and hyphens only.
+- A Shorebird patch compiles the working tree as it is at that moment, not a commit.
+  Editing files during a patch build, or another session merging into the shared
+  checkout, ships that code to phones. Build patches from a `git worktree` pinned to the
+  commit; `mobile/RELEASE.md` has the commands.

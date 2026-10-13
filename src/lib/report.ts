@@ -10,7 +10,9 @@ import type { Prisma } from '@/generated/prisma'
 /// different documents. Late phone uploads may finish after Send; their bytes stay safely
 /// in private storage, but evidence not stamped at review is not part of what was agreed.
 export const reportInclude = {
-  tenancy: { include: { property: true, landlord: true, tenant: true, agent: true } },
+  tenancy: {
+    include: { property: true, landlord: true, tenant: true, agent: { include: { branding: true } } },
+  },
   conductedBy: true,
   rooms: {
     orderBy: { order: 'asc' },

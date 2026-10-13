@@ -21,8 +21,9 @@ surface yet; anyone who can sign in becomes an agent and sees the deals they are
    which is why `prisma.config.ts` reads `DIRECT_URL`. Run `pnpm exec prisma migrate
    deploy`. Do not run `migrate dev` against a deployed database; it is interactive and
    can reset.
-2. **Storage.** `pnpm setup:storage` creates the private `captures` bucket. It is
-   idempotent, so it is safe to re-run. Confirm in the Supabase dashboard that the
+2. **Storage.** `pnpm setup:storage` creates the private `captures` bucket, or brings
+   an existing one's allowed file types up to date. It is idempotent, so it is safe to
+   re-run, and it must be re-run against production whenever the script changes. Confirm in the Supabase dashboard that the
    bucket is **not** public: every read goes through a signed URL minted server side.
 3. **Auth.** In Supabase Auth settings, set the site URL to the deployed origin and add
    it to the redirect allow list. Raise the storage file size limit first (see the

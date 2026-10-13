@@ -50,6 +50,40 @@ icon font: patch `1` (Android) and patch `2` (iOS). The property card actions re
 filled pink with white text; the photo mark toolbar puts the shapes on one row and
 labelled Undo and Redo on the next. Flutter analysis is clean and all 91 tests pass.
 
+Patch `3` (Android) and patch `4` (iOS) on `1.0.0+22`, built from `12155d0`: user-facing
+"evidence" now reads "media"; a room lists its inventory before its media, and the
+media strip runs newest first with a toggle, each capture keeping its number; the
+property timeline from `b3d9ede` ships here, with `history`, `logout_outlined` and
+`task_alt` standing in for three icons build `22` does not carry. Flutter analysis is
+clean and all 94 tests pass.
+
+Patch `5` (Android) and patch `6` (iOS) on `1.0.0+22`, built from `0644bbf`: plain
+language throughout. `plainError` in `lib/services/api_failure.dart` is the only way an
+error becomes text on screen, so no raw exception reaches an agent; sync reads as upload,
+a capture as a photo or video, edits as changes. Flutter analysis is clean and all 97
+tests pass.
+
+Patch `7` (Android) shows `Version 1.0.0 (22) · Patch N` under Sign out on the account
+screen, from `be29cbb`. Patch `8` (Android) and patch `9` (iOS), built from `4b4ba4d`, add
+that line on iOS and roll the upload card's percentage and bytes with NumberFlow; the
+upload and walkthrough bars glide to each value. Both still on reduce motion. An iOS
+attempt for `be29cbb` hung in the Xcode build and was stopped unpublished. `main` was
+fast-forwarded by another session to `6902969` while patch `9` built; its compiled Dart
+is timestamped before that merge and carries none of the report branding strings, and
+does carry `4b4ba4d`'s, so `9` matches `4b4ba4d`. Flutter analysis is clean and all 99
+tests pass.
+
+Patch `10` (Android) and patch `11` (iOS) on `1.0.0+22`, built from `7822486` in a
+pinned worktree: report branding and the report PDF. Account gets a Report branding card
+and drawer (your name, agency name, licence, CEA registration, phone, logo from the photo
+library); a signed inspection gets Download PDF beside its share link, opened in the
+phone's own viewer. The server half was deployed first (`6902969`). The icon check
+caught `picture_as_pdf_outlined` and `storefront_outlined`, which build `22` does not
+carry; `description_outlined` and `store_rounded` stand in. Both compiled binaries were
+checked for the new screens' strings. The Android build needs the `KIVILO_UPLOAD_*`
+variables even for a patch: without them Gradle stops in under a second and nothing is
+published. Flutter analysis is clean and all 101 tests pass.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
@@ -657,7 +691,23 @@ Check it on a phone, then promote the patch to stable in the Shorebird console.
   so removing an icon shows up as a changed `MaterialIcons-Regular.otf`. That is safe
   to pass with `--allow-asset-diffs`, because the release's font still holds every icon
   the patch draws. Using an icon the release never used is not: its glyph is missing
-  from the font on the phone and draws as a blank box, so it needs a store build.
+  from the font on the phone and draws as a blank box, so it needs a store build, or
+  an icon the release already has. Before every patch, from the repo root, with the
+  release's source commit (`b16da52` for `1.0.0+22`); it must print nothing:
+
+  ```bash
+  comm -13 <(git grep -h -o -E 'Icons\.[a-zA-Z0-9_]+' b16da52 -- mobile/lib | sort -u) \
+    <(grep -rhoE 'Icons\.[a-zA-Z0-9_]+' mobile/lib | sort -u)
+  ```
+- A patch compiles whatever the working tree holds when Dart is compiled. Never build
+  one in a checkout that anyone else can change: another session merged into `main`
+  while patch `9` built. Build from a worktree pinned to the commit, with `env.json`
+  copied in, since it is ignored:
+
+  ```bash
+  git worktree add /tmp/kivilo-patch <commit> && cp mobile/env.json /tmp/kivilo-patch/mobile/
+  cd /tmp/kivilo-patch/mobile && shorebird patch ...      # then: git worktree remove /tmp/kivilo-patch
+  ```
 - The phone checks for a patch at launch, downloads it in the background, and runs it
   from the next cold start. Nothing in the app can apply it sooner: Hopshift built an
   in-app restart button and removed it because a warm restart never applied the patch

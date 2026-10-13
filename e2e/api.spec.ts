@@ -77,6 +77,14 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
 
   const theirList = await request.get('/api/v1/inspections', { headers: outsider })
   expect(await theirList.json()).toEqual([])
+
+  // A document only exists once both parties have signed, and another agent's request
+  // for one is the same 404 as for an id that never existed.
+  const draftPdf = await request.post(`/api/v1/inspections/${id}/pdf`, { headers: owner })
+  expect(draftPdf.status()).toBe(409)
+  const foreignPdf = await request.post(`/api/v1/inspections/${id}/pdf`, { headers: outsider })
+  expect(foreignPdf.status()).toBe(404)
+  expect(await foreignPdf.json()).toEqual({ error: 'not_found' })
 })
 
 /// The capture path as a native client walks it: no browser, no cookie, bytes going
@@ -231,4 +239,45 @@ test('a native client takes a check-in from capture to both signatures', async (
   expect(landlordSigned.status()).toBe(200)
   const signed = await request.get(`/api/v1/inspections/${inspectionId}/report`, { headers: landlord })
   expect(await signed.json()).toMatchObject({ status: 'COMPLETED', signAs: null })
+})
+
+test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {
+  const headers = { Authorization: `Bearer ${await accessTokenFor(freshEmail('api-branding'))}` }
+
+  expect(await (await request.get('/api/v1/me/branding', { headers })).json()).toEqual({ branding: null })
+  // A logo needs an agency to belong to.
+  const early = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(early.status()).toBe(409)
+
+  const saved = await request.put('/api/v1/me/branding', {
+    headers,
+    data: { agentName: 'Alaric Yeo', agencyName: 'Harbourline Realty Pte Ltd', agencyLicence: 'L3010000A', ceaRegistration: '', phone: '' },
+  })
+  expect(saved.status()).toBe(200)
+  expect((await saved.json()).branding).toMatchObject({ agencyName: 'Harbourline Realty Pte Ltd', ceaRegistration: null })
+  // The name printed on the report is the agent's own, not the start of their email.
+  expect(await (await request.get('/api/v1/me', { headers })).json()).toMatchObject({ name: 'Alaric Yeo' })
+
+  const notAnImage = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+  })
+  expect(notAnImage.status()).toBe(400)
+
+  const logo = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(logo.status()).toBe(200)
+  const logoUrl = (await logo.json()).branding.logoUrl as string
+  const fetched = await request.get(logoUrl)
+  expect(fetched.ok()).toBeTruthy()
+  // Stored as PNG whatever arrived, since the PDF draws only PNG and JPEG.
+  expect((await fetched.body()).subarray(0, 4)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+
+  const removed = await request.delete('/api/v1/me/branding/logo', { headers })
+  expect((await removed.json()).branding.logoUrl).toBeNull()
 })

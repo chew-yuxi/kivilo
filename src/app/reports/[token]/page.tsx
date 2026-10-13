@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { createDownloadUrl } from '@/lib/storage'
 import { propertyLabel, sgd } from '@/lib/format'
-import { PrintButton } from '@/components/print-button'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
@@ -78,21 +77,53 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
   const itemCount = inspection.rooms.reduce((n, room) => n + room.items.length, 0)
 
   const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long' })
+  // The agent on the deal heads the report with their agency, if they have set one.
+  const branding = tenancy.agent?.branding ?? null
+  const logoUrl = branding?.logoPath ? await createDownloadUrl(branding.logoPath, 60 * 60 * 24) : null
 
   return (
     <article className="mx-auto max-w-3xl bg-white p-5 sm:p-10 print:p-0">
       <header className="border-b border-gray-300 pb-6">
+        {branding && tenancy.agent && (
+          <div className="mb-6 flex items-start justify-between gap-6 border-b border-gray-200 pb-5">
+            <div className="flex min-w-0 items-center gap-3">
+              {logoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logoUrl} alt={branding.agencyName} className="h-12 w-auto max-w-40 object-contain" />
+              )}
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900">{branding.agencyName}</p>
+                {branding.agencyLicence && (
+                  <p className="text-xs text-gray-500">Agency licence {branding.agencyLicence}</p>
+                )}
+              </div>
+            </div>
+            <div className="shrink-0 text-right text-xs leading-relaxed text-gray-600">
+              <p className="font-medium text-gray-900">{tenancy.agent.name}</p>
+              {branding.ceaRegistration && <p>CEA registration {branding.ceaRegistration}</p>}
+              {branding.phone && <p>{branding.phone}</p>}
+              {tenancy.agent.email && <p>{tenancy.agent.email}</p>}
+            </div>
+          </div>
+        )}
         <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
-              Kivilo condition report
+              {branding ? 'Condition report' : 'Kivilo condition report'}
             </p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight">
               {isCheckOut ? 'Check-out' : 'Check-in'} inventory and schedule of condition
             </h1>
             <p className="mt-1 text-sm text-gray-600">{propertyLabel(tenancy.property)}</p>
           </div>
-          <PrintButton />
+          {/* The PDF is drawn on the server: a browser print would page the report badly and
+              stamp this page's address, which is the share token, into its footer. */}
+          <a
+            href={`/reports/${token}/pdf`}
+            className="self-start rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 print:hidden"
+          >
+            Download PDF
+          </a>
         </div>
 
         <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-3 text-sm sm:grid-cols-3">
@@ -302,6 +333,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
         photographs are retained as the underlying evidence. Where a photograph carries
         marks, the inspector drew them to point out a detail; they are recorded
         separately and nothing has been painted onto the photograph itself.
+        {branding && <span className="mt-2 block">Prepared with Kivilo.</span>}
       </footer>
     </article>
   )

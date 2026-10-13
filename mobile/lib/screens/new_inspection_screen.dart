@@ -101,7 +101,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       });
       if (mounted) Navigator.pop(context, id);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

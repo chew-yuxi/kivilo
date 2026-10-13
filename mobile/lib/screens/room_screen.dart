@@ -94,7 +94,7 @@ class _RoomScreenState extends State<RoomScreen> {
       await action();
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -260,7 +260,7 @@ class _RoomScreenState extends State<RoomScreen> {
             'Delete this ${capture.kind == 'PHOTO' ? 'photo' : 'video'}?',
           ),
           content: const Text(
-            'This removes the original capture from the room and any inventory attachments.',
+            'This removes it from the room and from any inventory item it is attached to.',
           ),
           actions: [
             TextButton(
@@ -373,7 +373,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 'Delete room',
                 style: TextStyle(color: KiviloColors.red),
               ),
-              subtitle: const Text('Remove its captures and inventory'),
+              subtitle: const Text('Remove its photos, videos and inventory'),
               onTap: () => Navigator.pop(context, 'delete'),
             ),
           ],
@@ -420,11 +420,11 @@ class _RoomScreenState extends State<RoomScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Media is still syncing'),
+            title: const Text('Still uploading'),
             content: Text(
-              'This room has ${pending.captures} saved capture(s) and '
-              '${pending.edits} note, mark or deletion edit(s) waiting to sync. '
-              'Open camera & media and retry uploads before deleting the room.',
+              'Some photos, videos or changes in this room have not uploaded '
+              'yet. Open camera & media and tap Retry uploads before deleting '
+              'the room.',
             ),
             actions: [
               TextButton(
@@ -440,7 +440,7 @@ class _RoomScreenState extends State<RoomScreen> {
         context: context,
         builder: (context) => KiviloDrawer(
           title: const Text('Delete this room?'),
-          content: const Text('Its captures and inventory will be removed.'),
+          content: const Text('Its photos, videos and inventory will be removed.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -457,7 +457,7 @@ class _RoomScreenState extends State<RoomScreen> {
       await _api.deleteRoom(widget.inspectionId, widget.roomId);
       if (mounted) Navigator.pop(context);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -479,7 +479,7 @@ class _RoomScreenState extends State<RoomScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not load room: ${snapshot.error}'),
+                  child: Text('Could not open this room. ${plainError(snapshot.error!)}'),
                 ),
               ],
             );
@@ -694,8 +694,10 @@ class _RoomScreenState extends State<RoomScreen> {
               KiviloSectionHeading(
                 title: 'Media',
                 subtitle: room.captures.isEmpty
-                    ? 'The source record for this room'
-                    : '${room.captures.length} synced ${room.captures.length == 1 ? 'capture' : 'captures'}',
+                    ? 'Photos and videos of this room'
+                    : room.captures.length == 1
+                    ? '1 photo or video'
+                    : '${room.captures.length} photos and videos',
                 action: room.captures.length > 1
                     ? TextButton(
                         onPressed: () =>
@@ -723,12 +725,12 @@ class _RoomScreenState extends State<RoomScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'No synced captures yet',
+                          'No photos or videos yet',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Captures saved on this phone appear here after upload.',
+                          'Photos and videos appear here once they upload.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),

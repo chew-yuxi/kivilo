@@ -5,7 +5,8 @@ import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
 import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom } from '@/lib/auth'
-import { captureExists, createUploadUrl } from '@/lib/storage'
+import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
+import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
 import { Prisma } from '@/generated/prisma'
 import type {
@@ -894,6 +895,9 @@ export async function revokeReportLink(inspectionId: string) {
     where: { id: inspectionId },
     data: { shareToken: null, sharedAt: null },
   })
+  // A generated PDF is a copy of the report. The link that reached it is dead now, and
+  // so are the copies; the agent's next download draws a fresh one.
+  await removePrefix(reportPrefix(inspectionId))
   revalidate(inspectionId)
 }
 

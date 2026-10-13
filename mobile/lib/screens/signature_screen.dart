@@ -73,10 +73,10 @@ class _SignatureScreenState extends State<SignatureScreen> {
           await queue.close();
         }
         if (pending.captures > 0 || pending.edits > 0) {
-          throw StateError(
-            '${pending.captures} capture(s) and ${pending.edits} '
-            'edit(s) still need to sync. Return to the rooms and retry uploads '
-            'before either person signs.',
+          throw const ApiFailure(
+            'Some photos, videos or changes have not uploaded yet. Go back to the '
+            'rooms and tap Retry uploads before either person signs.',
+            null,
           );
         }
       }
@@ -99,7 +99,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
       }
       if (mounted) Navigator.pop(context, true);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

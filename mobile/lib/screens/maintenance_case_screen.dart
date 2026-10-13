@@ -42,7 +42,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
       await operation();
       await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -205,7 +205,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text('${snapshot.error}'));
+        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
         final item = snapshot.data!;
         final text = Theme.of(context).textTheme;
         return RefreshIndicator(

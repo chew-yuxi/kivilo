@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
@@ -41,7 +43,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       await action();
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -113,10 +115,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Media is still syncing'),
+            title: const Text('Still uploading'),
             content: Text(
-              '${pending.captures} capture(s) and ${pending.edits} '
-              'note, mark or deletion edit(s) are saved on this phone. '
+              'Some photos, videos or changes have not uploaded yet. '
               'Open the rooms and tap Retry uploads before sending for signature.',
             ),
             actions: [
@@ -155,7 +156,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         if (mounted) await _refresh();
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -174,6 +175,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
     );
     if (signed == true && mounted) await _refresh();
   }
+
+  /// Printed on the server, then opened in the phone's viewer, which has its own share
+  /// sheet for email and messaging.
+  Future<void> _downloadPdf() => _run(() async {
+    final url = await _api.reportPdf(widget.id);
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  });
 
   Future<void> _share(InspectionDetail inspection) async {
     if (inspection.shareToken == null) {
@@ -240,7 +248,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -333,7 +341,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not load inspection: ${snapshot.error}'),
+                  child: Text('Could not open this inspection. ${plainError(snapshot.error!)}'),
                 ),
               ],
             );
@@ -466,23 +474,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
-                            Text(
-                              '$reviewed/${inspection.rooms.length} reviewed',
+                            NumberFlow(
+                              value: reviewed,
+                              suffix: '/${inspection.rooms.length} reviewed',
                               style: Theme.of(context).textTheme.bodySmall,
+                              tabularNums: true,
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            minHeight: 7,
-                            value: inspection.rooms.isEmpty
-                                ? 0
-                                : reviewed / inspection.rooms.length,
-                            backgroundColor: KiviloColors.border,
-                            color: KiviloColors.pink,
-                          ),
+                        KiviloProgressBar(
+                          minHeight: 7,
+                          value: inspection.rooms.isEmpty
+                              ? 0
+                              : reviewed / inspection.rooms.length,
+                          color: KiviloColors.pink,
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -648,7 +654,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 const SizedBox(height: 28),
                 const KiviloSectionHeading(
                   title: 'Share report',
-                  subtitle: 'A private, read-only link for the signed report.',
+                  subtitle: 'A private link, or a PDF headed with your agency.',
                 ),
                 const SizedBox(height: 12),
                 Card(
@@ -683,6 +689,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 ? 'Create and copy link'
                                 : 'Copy report link',
                           ),
+                        ),
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          onPressed: _busy ? null : _downloadPdf,
+                          icon: const Icon(Icons.description_outlined),
+                          label: const Text('Download PDF'),
                         ),
                         if (inspection.shareToken != null)
                           TextButton(

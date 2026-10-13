@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiFailure implements Exception {
   const ApiFailure(this.message, this.statusCode);
@@ -9,8 +10,8 @@ class ApiFailure implements Exception {
         ? (error.response!.data as Map)['error']
         : null;
     final message = switch (code) {
-      'unauthorized' => 'Your session has expired. Please sign in again.',
-      'not_found' => 'This record was not found or you cannot access it.',
+      'unauthorized' => 'You have been signed out. Please sign in again.',
+      'not_found' => 'This could not be found, or your account cannot open it.',
       'report_frozen' =>
         'This report has been sent for signature and cannot be changed.',
       'invalid_request' => 'Please check the details and try again.',
@@ -20,19 +21,19 @@ class ApiFailure implements Exception {
         'Open and confirm every finding before publishing the assessment.',
       'no_damage_unconfirmed' =>
         'Add a finding, or confirm that no damage was found, before publishing.',
-      'invalid_state' =>
-        'This action is not available at the current report stage.',
-      'capture_conflict' => 'This capture was already registered differently.',
+      'invalid_state' => 'This cannot be done at this stage of the report.',
+      'capture_conflict' =>
+        'This photo or video clashes with one already in the report. Refresh the room and check it.',
       'capture_missing' =>
-        'Upload has not reached storage. The saved file remains on this phone; retry upload.',
+        'The upload did not finish. The file is still on this phone, so try again.',
       'evidence_missing' =>
-        'Media has not reached storage. The saved file remains on this phone; retry upload.',
+        'The upload did not finish. The photo is still on this phone, so try again.',
       'maintenance_conflict' =>
-        'This maintenance update was already recorded differently. Refresh and check the timeline.',
+        'Someone already updated this repair. Refresh and check the timeline.',
       _ =>
         status == null
-            ? 'Check your connection and retry. Saved captures remain on this device.'
-            : 'The server could not complete this request ($status).',
+            ? 'No connection. Anything you took is saved on this phone, so try again when you have signal.'
+            : 'Kivilo could not do that just now. Please try again. (Error $status)',
     };
     return ApiFailure(message, status);
   }
@@ -42,4 +43,16 @@ class ApiFailure implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// The sentence to show when [error] stops something a person asked for. A failure
+/// from the server, or one this app raised for a person to read, already carries one.
+/// Anything else is a programmer's message, such as a file the phone could not read or
+/// a plugin that failed, which means nothing to an agent: it is logged for us and a
+/// plain sentence is shown instead.
+String plainError(Object error) {
+  if (error is ApiFailure) return error.message;
+  if (error is DioException) return ApiFailure.fromDio(error).message;
+  debugPrint('$error');
+  return 'Something went wrong. Please try again.';
 }

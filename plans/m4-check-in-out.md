@@ -71,7 +71,7 @@ person touches it. Nothing is countersignable until a human has passed through r
 3. ~~Upload + capture~~: done (signed-URL direct upload)
 4. ~~Gemini extraction → draft report~~: done, verified against a real narrated clip
 5. ~~Review editor~~: done
-6. Signing: done. **PDF export still to do.**
+6. Signing: done. PDF export done 2026-10-13, see `plans/report-pdf.md`.
 7. ~~Check-out diff~~: done; prompt and persistence verified, but the Claude call
    itself is unproven on a funded key (the available one 400s on billing)
 8. ~~Room-by-room capture, resumable~~: done 2026-08-13. Captures belong to a room;

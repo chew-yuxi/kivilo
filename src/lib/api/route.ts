@@ -31,7 +31,7 @@ export function authed<P>(
         return Response.json({ error: 'not_found' }, { status: 404 })
       }
       if (error instanceof ZodError || error instanceof SyntaxError ||
-          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|The landlord and tenant need different email addresses)/.test(message)) {
+          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Unsupported logo|The landlord and tenant need different email addresses)/.test(message)) {
         return Response.json({ error: 'invalid_request' }, { status: 400 })
       }
       if (/no longer be changed/i.test(message)) {
@@ -61,7 +61,7 @@ export function authed<P>(
       if (/Invalid maintenance status transition|Closing without action requires a reason|Only a completed visit can be verified|After evidence requires a completed visit|Only a human-reviewed inspection item can be linked/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
-      if (/not awaiting signature|already countersigned|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed/i.test(message)) {
+      if (/not awaiting signature|already countersigned|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed|Save your agency name/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       console.error('API route failed:', error)

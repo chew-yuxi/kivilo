@@ -54,7 +54,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text('${snapshot.error}'));
+        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
         final timeline = snapshot.data!;
         final text = Theme.of(context).textTheme;
         final months = <String, List<TimelineEvent>>{};

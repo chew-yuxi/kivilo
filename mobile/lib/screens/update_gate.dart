@@ -61,7 +61,13 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
         throw StateError('Could not open $uri');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      debugPrint('store link error: $error');
+      if (mounted) {
+        setState(
+          () => _error =
+              'Could not open the store. Search for Kivilo in it instead.',
+        );
+      }
     }
   }
 
@@ -89,7 +95,7 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'This version is no longer supported. Captures already on '
+                    'This version is no longer supported. Photos and videos already on '
                     'this phone are kept and finish uploading after the update.',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),

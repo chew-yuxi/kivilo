@@ -155,6 +155,16 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       })
     }
 
+    // Report branding carries licence numbers and a phone number. Signed reports keep
+    // their content; their header simply stops naming an agency. The logo is removed
+    // before the row, and removing an absent object succeeds, so a rerun after a
+    // failure here repeats safely.
+    const branding = await db.agentBranding.findUnique({ where: { stakeholderId: person.id } })
+    if (branding?.logoPath) {
+      const { error } = await serviceClient().storage.from(CAPTURE_BUCKET).remove([branding.logoPath])
+      if (error) throw error
+    }
+
     await db.$transaction(async (tx) => {
       const current = await tx.$queryRaw<{
         status: 'REQUESTED' | 'PROCESSING' | 'COMPLETED'
@@ -230,6 +240,8 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       // The notification cascade also removes queued push deliveries and emailTo.
       await tx.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } })
       await tx.notification.deleteMany({ where: { recipientId: person.id } })
+      // The logo object went before this transaction; see above.
+      await tx.agentBranding.deleteMany({ where: { stakeholderId: person.id } })
 
       await tx.stakeholder.update({
         where: { id: person.id },
