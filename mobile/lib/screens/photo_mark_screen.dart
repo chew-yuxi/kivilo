@@ -435,43 +435,46 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                   child: Column(
                     children: [
+                      KiviloSegmentedControl<String>(
+                        options: const [
+                          KiviloSegmentOption(
+                            value: 'ring',
+                            icon: Icons.circle_outlined,
+                            label: 'Circle',
+                          ),
+                          KiviloSegmentOption(
+                            value: 'arrow',
+                            icon: Icons.arrow_outward,
+                            label: 'Arrow',
+                          ),
+                          KiviloSegmentOption(
+                            value: 'freehand',
+                            icon: Icons.gesture,
+                            label: 'Freehand',
+                          ),
+                        ],
+                        value: _shape,
+                        onChanged: _redrawIndex == null
+                            ? (value) => setState(() => _shape = value!)
+                            : null,
+                      ),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
-                            child: KiviloSegmentedControl<String>(
-                              options: const [
-                                KiviloSegmentOption(
-                                  value: 'ring',
-                                  icon: Icons.circle_outlined,
-                                  label: 'Circle',
-                                ),
-                                KiviloSegmentOption(
-                                  value: 'arrow',
-                                  icon: Icons.arrow_outward,
-                                  label: 'Arrow',
-                                ),
-                                KiviloSegmentOption(
-                                  value: 'freehand',
-                                  icon: Icons.gesture,
-                                  label: 'Freehand',
-                                ),
-                              ],
-                              value: _shape,
-                              onChanged: _redrawIndex == null
-                                  ? (value) => setState(() => _shape = value!)
-                                  : null,
+                            child: TextButton.icon(
+                              onPressed: _undoHistory.isEmpty ? null : _undo,
+                              icon: const Icon(Icons.undo),
+                              label: const Text('Undo'),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: _undoHistory.isEmpty ? null : _undo,
-                            icon: const Icon(Icons.undo),
-                            tooltip: 'Undo mark change',
-                          ),
-                          IconButton(
-                            onPressed: _redoHistory.isEmpty ? null : _redo,
-                            icon: const Icon(Icons.redo),
-                            tooltip: 'Redo mark change',
+                          Expanded(
+                            child: TextButton.icon(
+                              onPressed: _redoHistory.isEmpty ? null : _redo,
+                              icon: const Icon(Icons.redo),
+                              label: const Text('Redo'),
+                            ),
                           ),
                         ],
                       ),

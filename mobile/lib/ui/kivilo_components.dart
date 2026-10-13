@@ -74,11 +74,12 @@ class _KiviloSegment<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = !enabled
-        ? KiviloColors.subtle
-        : selected
-        ? KiviloColors.pinkDark
-        : KiviloColors.muted;
+    // The chosen option is filled with the primary colour, as a FilledButton is.
+    final foreground = selected && enabled
+        ? Colors.white
+        : enabled
+        ? KiviloColors.muted
+        : KiviloColors.subtle;
     return Semantics(
       button: true,
       selected: selected,
@@ -88,20 +89,12 @@ class _KiviloSegment<T> extends StatelessWidget {
         curve: Curves.easeOut,
         margin: const EdgeInsets.all(1),
         decoration: BoxDecoration(
-          color: selected ? Colors.white : Colors.transparent,
+          color: !selected
+              ? Colors.transparent
+              : enabled
+              ? KiviloColors.pink
+              : KiviloColors.border,
           borderRadius: BorderRadius.circular(11),
-          border: Border.all(
-            color: selected ? const Color(0xFFFBCFE8) : Colors.transparent,
-          ),
-          boxShadow: selected
-              ? const [
-                  BoxShadow(
-                    color: Color(0x12000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ]
-              : const [],
         ),
         child: Material(
           color: Colors.transparent,
