@@ -125,8 +125,8 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
       if (mounted) {
         setState(
           () => _error = saved
-              ? '$error Your draft is saved on this phone.'
-              : '$error This phone could not save your draft. Keep this screen open and retry.',
+              ? '${plainError(error)} Your draft is saved on this phone.'
+              : '${plainError(error)} This phone could not save your draft. Keep this screen open and try again.',
         );
       }
     } finally {

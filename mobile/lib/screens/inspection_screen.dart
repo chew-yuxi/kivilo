@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -42,7 +43,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       await action();
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -114,10 +115,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Evidence is still syncing'),
+            title: const Text('Still uploading'),
             content: Text(
-              '${pending.captures} capture(s) and ${pending.edits} '
-              'note, mark or deletion edit(s) are saved on this phone. '
+              'Some photos, videos or changes have not uploaded yet. '
               'Open the rooms and tap Retry uploads before sending for signature.',
             ),
             actions: [
@@ -156,7 +156,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         if (mounted) await _refresh();
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -248,7 +248,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -341,7 +341,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not load inspection: ${snapshot.error}'),
+                  child: Text('Could not open this inspection. ${plainError(snapshot.error!)}'),
                 ),
               ],
             );
@@ -474,23 +474,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
-                            Text(
-                              '$reviewed/${inspection.rooms.length} reviewed',
+                            NumberFlow(
+                              value: reviewed,
+                              suffix: '/${inspection.rooms.length} reviewed',
                               style: Theme.of(context).textTheme.bodySmall,
+                              tabularNums: true,
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            minHeight: 7,
-                            value: inspection.rooms.isEmpty
-                                ? 0
-                                : reviewed / inspection.rooms.length,
-                            backgroundColor: KiviloColors.border,
-                            color: KiviloColors.pink,
-                          ),
+                        KiviloProgressBar(
+                          minHeight: 7,
+                          value: inspection.rooms.isEmpty
+                              ? 0
+                              : reviewed / inspection.rooms.length,
+                          color: KiviloColors.pink,
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -557,7 +555,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 title: 'Rooms',
                 subtitle: inspection.rooms.isEmpty
                     ? 'Start with your first room'
-                    : 'Evidence and inventory, room by room',
+                    : 'Inventory and media, room by room',
                 action: inspection.isOpen
                     ? TextButton.icon(
                         onPressed: _busy ? null : _addRoom,
@@ -775,7 +773,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       subtitle: Text(
                         '${maintenanceStatusLabels[record['status']]} · '
                         '${record['repairAttempts']} ${record['repairAttempts'] == 1 ? 'repair' : 'repairs'} · '
-                        '${record['evidence']} evidence ${record['evidence'] == 1 ? 'file' : 'files'}'
+                        '${record['evidence']} media ${record['evidence'] == 1 ? 'file' : 'files'}'
                         '${_costLine(record)}',
                       ),
                       trailing: const Icon(
@@ -1317,7 +1315,7 @@ class _FindingEditorState extends State<FindingEditor> {
           if (widget.finding != null) ...[
             const SizedBox(height: 12),
             KiviloSelectField<String?>(
-              label: 'Maintenance evidence',
+              label: 'Maintenance media',
               value: _maintenanceCaseId,
               options: [
                 const KiviloSelectOption<String?>(

@@ -19,18 +19,20 @@ class RoomScreen extends StatefulWidget {
     required this.inspectionId,
     required this.roomId,
     required this.editable,
+    this.api,
   });
 
   final String inspectionId;
   final String roomId;
   final bool editable;
+  final Api? api;
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();
 }
 
 class _RoomScreenState extends State<RoomScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late final _evidenceBackend = RoutingEvidenceBackend(_api.dio);
 
   /// Signed URLs kept across refreshes so thumbnails do not flash, but renewed before
@@ -49,6 +51,7 @@ class _RoomScreenState extends State<RoomScreen> {
 
   late Future<RoomDetail> _future = _load();
   bool _busy = false;
+  bool _newestFirst = true;
   String? _error;
 
   Future<RoomDetail> _load() async {
@@ -91,7 +94,7 @@ class _RoomScreenState extends State<RoomScreen> {
       await action();
       if (mounted) await _refresh();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -121,7 +124,7 @@ class _RoomScreenState extends State<RoomScreen> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.open_in_full),
             title: const Text('Preview'),
-            subtitle: const Text('Open the original evidence'),
+            subtitle: const Text('Open the original file'),
             onTap: () => Navigator.pop(context, 'preview'),
           ),
           if (widget.editable) ...[
@@ -129,7 +132,7 @@ class _RoomScreenState extends State<RoomScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
               title: const Text('Edit note'),
-              subtitle: const Text('Describe what this evidence shows'),
+              subtitle: const Text('Describe what this shows'),
               onTap: () => Navigator.pop(context, 'note'),
             ),
             if (capture.kind == 'PHOTO')
@@ -148,7 +151,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 color: KiviloColors.red,
               ),
               title: const Text(
-                'Delete evidence',
+                'Delete media',
                 style: TextStyle(color: KiviloColors.red),
               ),
               onTap: () => Navigator.pop(context, 'delete'),
@@ -209,7 +212,7 @@ class _RoomScreenState extends State<RoomScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => Scaffold(
-              appBar: AppBar(title: const Text('Evidence photo')),
+              appBar: AppBar(title: const Text('Photo')),
               backgroundColor: Colors.black,
               body: Center(
                 child: InteractiveViewer(
@@ -253,9 +256,11 @@ class _RoomScreenState extends State<RoomScreen> {
       final confirmed = await showKiviloDrawer<bool>(
         context: context,
         builder: (context) => KiviloDrawer(
-          title: const Text('Delete this evidence?'),
+          title: Text(
+            'Delete this ${capture.kind == 'PHOTO' ? 'photo' : 'video'}?',
+          ),
           content: const Text(
-            'This removes the original capture from the room and any inventory attachments.',
+            'This removes it from the room and from any inventory item it is attached to.',
           ),
           actions: [
             TextButton(
@@ -368,7 +373,7 @@ class _RoomScreenState extends State<RoomScreen> {
                 'Delete room',
                 style: TextStyle(color: KiviloColors.red),
               ),
-              subtitle: const Text('Remove its captures and inventory'),
+              subtitle: const Text('Remove its photos, videos and inventory'),
               onTap: () => Navigator.pop(context, 'delete'),
             ),
           ],
@@ -415,11 +420,11 @@ class _RoomScreenState extends State<RoomScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Evidence is still syncing'),
+            title: const Text('Still uploading'),
             content: Text(
-              'This room has ${pending.captures} saved capture(s) and '
-              '${pending.edits} note, mark or deletion edit(s) waiting to sync. '
-              'Open camera & evidence and retry uploads before deleting the room.',
+              'Some photos, videos or changes in this room have not uploaded '
+              'yet. Open camera & media and tap Retry uploads before deleting '
+              'the room.',
             ),
             actions: [
               TextButton(
@@ -435,7 +440,7 @@ class _RoomScreenState extends State<RoomScreen> {
         context: context,
         builder: (context) => KiviloDrawer(
           title: const Text('Delete this room?'),
-          content: const Text('Its captures and inventory will be removed.'),
+          content: const Text('Its photos, videos and inventory will be removed.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -452,7 +457,7 @@ class _RoomScreenState extends State<RoomScreen> {
       await _api.deleteRoom(widget.inspectionId, widget.roomId);
       if (mounted) Navigator.pop(context);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -474,7 +479,7 @@ class _RoomScreenState extends State<RoomScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not load room: ${snapshot.error}'),
+                  child: Text('Could not open this room. ${plainError(snapshot.error!)}'),
                 ),
               ],
             );
@@ -592,16 +597,16 @@ class _RoomScreenState extends State<RoomScreen> {
                       Expanded(
                         child: Text(
                           !widget.editable
-                              ? 'This inventory is fixed for signing. Evidence remains available below.'
+                              ? 'This inventory is fixed for signing. Media remains available below.'
                               : switch (room.status) {
                                   'PENDING' =>
                                     'Start with a narrated walkthrough, then photograph labels and details.',
                                   'REVIEW' =>
-                                    'Add each item you see, checked against the evidence, then mark this room reviewed.',
+                                    'Add each item you see, checked against the media, then mark this room reviewed.',
                                   'REVIEWED' =>
-                                    'This room has been reviewed. You can still add evidence while the report is open.',
+                                    'This room has been reviewed. You can still add media while the report is open.',
                                   _ =>
-                                    'Keep capturing. When you are done, write the room inventory from your evidence.',
+                                    'Keep capturing. When you are done, write the room inventory from your photos and videos.',
                                 },
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -628,59 +633,9 @@ class _RoomScreenState extends State<RoomScreen> {
                 FilledButton.icon(
                   onPressed: _busy ? null : _capture,
                   icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text('Open camera & evidence'),
+                  label: const Text('Open camera & media'),
                 ),
               ],
-              const SizedBox(height: 30),
-              KiviloSectionHeading(
-                title: 'Evidence',
-                subtitle: room.captures.isEmpty
-                    ? 'The source record for this room'
-                    : '${room.captures.length} synced ${room.captures.length == 1 ? 'capture' : 'captures'}',
-              ),
-              const SizedBox(height: 12),
-              if (room.captures.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 28,
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.photo_camera_back_outlined,
-                          size: 32,
-                          color: KiviloColors.subtle,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'No synced captures yet',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Captures saved on this phone appear here after upload.',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              if (room.captures.isNotEmpty)
-                SizedBox(
-                  height: 132,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: room.captures.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 10),
-                    itemBuilder: (_, index) {
-                      final capture = room.captures[index];
-                      return _evidenceCard(capture, index + 1);
-                    },
-                  ),
-                ),
               const SizedBox(height: 30),
               KiviloSectionHeading(
                 title: 'Inventory',
@@ -735,6 +690,72 @@ class _RoomScreenState extends State<RoomScreen> {
                 _inventoryCard(item, room.captures),
                 const SizedBox(height: 10),
               ],
+              const SizedBox(height: 20),
+              KiviloSectionHeading(
+                title: 'Media',
+                subtitle: room.captures.isEmpty
+                    ? 'Photos and videos of this room'
+                    : room.captures.length == 1
+                    ? '1 photo or video'
+                    : '${room.captures.length} photos and videos',
+                action: room.captures.length > 1
+                    ? TextButton(
+                        onPressed: () =>
+                            setState(() => _newestFirst = !_newestFirst),
+                        child: Text(
+                          _newestFirst ? 'Newest first' : 'Oldest first',
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              if (room.captures.isEmpty)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 28,
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.photo_camera_back_outlined,
+                          size: 32,
+                          color: KiviloColors.subtle,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'No photos or videos yet',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Photos and videos appear here once they upload.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (room.captures.isNotEmpty)
+                SizedBox(
+                  height: 132,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: room.captures.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    itemBuilder: (_, index) {
+                      // The API lists captures oldest first. Each keeps the number it
+                      // was added with whichever way the strip runs, so "Photo 3" is
+                      // the same capture in both orders.
+                      final number = _newestFirst
+                          ? room.captures.length - index
+                          : index + 1;
+                      return _evidenceCard(room.captures[number - 1], number);
+                    },
+                  ),
+                ),
               if (widget.editable && room.status == 'REVIEW') ...[
                 const SizedBox(height: 10),
                 Card(
@@ -782,7 +803,7 @@ class _RoomScreenState extends State<RoomScreen> {
   );
 
   Widget _evidenceCard(EvidenceCapture capture, int number) => Semantics(
-    label: capture.kind == 'PHOTO' ? 'Photo evidence' : 'Video evidence',
+    label: capture.kind == 'PHOTO' ? 'Photo' : 'Video',
     child: SizedBox(
       width: 120,
       child: Card(
@@ -824,9 +845,13 @@ class _RoomScreenState extends State<RoomScreen> {
                       color: KiviloColors.muted,
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
-                      style: Theme.of(context).textTheme.bodySmall,
+                    Flexible(
+                      child: Text(
+                        '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                   ],
                 ),
@@ -904,7 +929,7 @@ class _RoomScreenState extends State<RoomScreen> {
             if (attached.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
-                'Attached evidence',
+                'Attached media',
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const SizedBox(height: 7),
@@ -981,9 +1006,9 @@ class _EvidenceNoteDrawerState extends State<_EvidenceNoteDrawer> {
           onPressed: () =>
               Navigator.pop(context, const _EvidenceNoteResult.back()),
           icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back to evidence actions',
+          tooltip: 'Back to media actions',
         ),
-        const Text('Evidence note'),
+        const Text('Note'),
       ],
     ),
     content: TextField(
@@ -993,7 +1018,7 @@ class _EvidenceNoteDrawerState extends State<_EvidenceNoteDrawer> {
       maxLines: 6,
       decoration: const InputDecoration(
         labelText: 'Note',
-        hintText: 'Describe what this evidence shows',
+        hintText: 'Describe what this shows',
       ),
     ),
     actions: [
@@ -1102,7 +1127,7 @@ class _ItemEditorState extends State<ItemEditor> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Confirm the details against room evidence.',
+            'Confirm the details against the room\'s media.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
@@ -1163,7 +1188,7 @@ class _ItemEditorState extends State<ItemEditor> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Attached evidence',
+            'Attached media',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
@@ -1173,7 +1198,7 @@ class _ItemEditorState extends State<ItemEditor> {
           ),
           const SizedBox(height: 10),
           if (widget.captures.isEmpty)
-            const Text('No room evidence is available yet.')
+            const Text('No media in this room yet.')
           else
             ...widget.captures.indexed.map((entry) {
               final (index, capture) = entry;

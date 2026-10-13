@@ -64,7 +64,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             return _message(
               icon: Icons.cloud_off_outlined,
               title: 'Could not load inspections',
-              body: '${snapshot.error}',
+              body: plainError(snapshot.error!),
               action: OutlinedButton(
                 onPressed: _refresh,
                 child: const Text('Try again'),
@@ -88,7 +88,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Capture the evidence, review each room, then sign.',
+                'Capture each room, write its inventory, then sign.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               if (_api.offlineCopy) ...[
@@ -106,7 +106,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Offline copy. Saved room captures can continue.',
+                            'Offline. Showing what was last loaded; you can keep taking photos.',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),

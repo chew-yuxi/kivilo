@@ -50,7 +50,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text('${snapshot.error}'));
+        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
         final timeline = snapshot.data!;
         final text = Theme.of(context).textTheme;
         final months = <String, List<TimelineEvent>>{};
@@ -138,12 +138,12 @@ class _EventRow extends StatelessWidget {
         KiviloColors.pinkSoft,
       ),
       'TENANCY_ENDED' => (
-        Icons.door_back_door_outlined,
+        Icons.logout_outlined,
         KiviloColors.muted,
         KiviloColors.canvas,
       ),
       'CHECK_IN_SIGNED' || 'CHECK_OUT_SIGNED' => (
-        Icons.assignment_turned_in_outlined,
+        Icons.task_alt,
         KiviloColors.green,
         KiviloColors.greenSoft,
       ),

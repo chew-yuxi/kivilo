@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,8 +23,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _api = Api();
   late Future<Map<String, dynamic>> _request = _api.deletionRequest();
   late Future<AgentBranding?> _branding = _api.branding();
+  late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
+
+  /// What is on this phone, for support: the store build, and the Shorebird patch it is
+  /// running. A build not made with `shorebird release` has no patch to report.
+  Future<String> _readVersion() async {
+    final (info, patch) = await (
+      PackageInfo.fromPlatform(),
+      ShorebirdUpdater().readCurrentPatch(),
+    ).wait;
+    final version = 'Version ${info.version} (${info.buildNumber})';
+    return patch == null ? version : '$version · Patch ${patch.number}';
+  }
 
   Future<void> _openPage(String path) async {
     final uri = Uri.parse(Config.apiBase).resolve(path);
@@ -31,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         throw StateError('Could not open $uri');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     }
   }
 
@@ -66,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await _api.requestDeletion();
       if (mounted) setState(() => _request = _api.deletionRequest());
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -101,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         debugPrint('Remote sign-out could not be confirmed: $error');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not sign out: $error');
+      if (mounted) setState(() => _error = 'Could not sign out. ${plainError(error)}');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -337,7 +351,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (snapshot.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
-                child: Text('Could not load request status: ${snapshot.error}'),
+                child: Text('Could not load your deletion request. ${plainError(snapshot.error!)}'),
               ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -348,6 +362,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: _busy ? null : _signOut,
               icon: const Icon(Icons.logout),
               label: const Text('Sign out'),
+            ),
+            const SizedBox(height: 20),
+            FutureBuilder<String>(
+              future: _version,
+              builder: (context, version) => Text(
+                version.data ?? '',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ),
           ],
         );

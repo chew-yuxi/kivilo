@@ -91,7 +91,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
       }
       if (mounted) Navigator.pop(context, saved);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) setState(() => _error = plainError(error));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -204,7 +204,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
-          return Center(child: Text('${snapshot.error}'));
+          return Center(child: Text(plainError(snapshot.error!)));
         }
         final (cases, assets, terms) = snapshot.data!;
         return RefreshIndicator(
@@ -246,7 +246,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
               Card(
                 child: ListTile(
                   leading: const Icon(
-                    Icons.timeline,
+                    Icons.history,
                     color: KiviloColors.pinkDark,
                   ),
                   title: const Text('Property timeline'),

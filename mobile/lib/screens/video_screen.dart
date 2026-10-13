@@ -44,7 +44,7 @@ class _VideoScreenState extends State<VideoScreen> {
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.black,
     appBar: AppBar(
-      title: const Text('Evidence video'),
+      title: const Text('Video'),
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
     ),

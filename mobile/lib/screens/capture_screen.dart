@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -111,7 +112,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         });
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not load room: $error');
+      if (mounted) setState(() => _error = 'Could not open this room. ${plainError(error)}');
     }
   }
 
@@ -144,7 +145,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       if (picked != null) await _savePickedFile(picked, video: _videoMode);
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not capture evidence: $error');
+        setState(() => _error = 'Could not save that photo or video. ${plainError(error)}');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -173,7 +174,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         }
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not add evidence: $error');
+      if (mounted) setState(() => _error = 'Could not add that photo or video. ${plainError(error)}');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -265,7 +266,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       final edits = await _queue.remoteEditsFor(_ownerId, widget.inspectionId);
       if (mounted) setState(() => _remoteEdits = edits);
     } catch (error) {
-      if (mounted) setState(() => _error = 'Upload paused: $error');
+      if (mounted) setState(() => _error = 'Upload paused. ${plainError(error)}');
     } finally {
       _uploading = null;
     }
@@ -288,7 +289,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
     return showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Evidence actions'),
+        title: const Text('Media actions'),
         content: Column(
           children: [
             if (!photo)
@@ -302,7 +303,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
               title: const Text('Edit note'),
-              subtitle: const Text('Describe what this evidence shows'),
+              subtitle: const Text('Describe what this shows'),
               onTap: () => Navigator.pop(context, 'note'),
             ),
             if (photo)
@@ -321,7 +322,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 color: KiviloColors.red,
               ),
               title: const Text(
-                'Delete evidence',
+                'Delete media',
                 style: TextStyle(color: KiviloColors.red),
               ),
               onTap: () => Navigator.pop(context, 'delete'),
@@ -412,7 +413,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not locate this synced photo. Please retry the note.',
+                'Could not find this photo. Please try the note again.',
           );
         }
         return false;
@@ -474,7 +475,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not locate this synced photo. Please retry the marks.',
+                'Could not find this photo. Please try the marks again.',
           );
         }
         return;
@@ -520,7 +521,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not locate this synced capture. Please retry deletion.',
+                'Could not find this photo or video. Please try deleting it again.',
           );
         }
         return;
@@ -569,7 +570,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
   Future<void> _finishRoom() async {
     if (_finishing) return;
     if (_busy || _leaving) {
-      setState(() => _error = 'Wait for the capture to finish saving.');
+      setState(() => _error = 'Wait for the photo or video to finish saving.');
       return;
     }
     setState(() => _finishing = true);
@@ -587,7 +588,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           _unresolved.isNotEmpty) {
         setState(
           () => _error =
-              'Evidence or edits are still waiting to sync. Retry when connected.',
+              'Some photos, videos or changes have not uploaded yet. Try again when you have signal.',
         );
         return;
       }
@@ -596,7 +597,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) Navigator.pop(context);
       } catch (error) {
         if (mounted) {
-          setState(() => _error = 'Could not finish this room: $error');
+          setState(() => _error = 'Could not finish this room. ${plainError(error)}');
         }
       }
     } finally {
@@ -604,13 +605,21 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
-  String _fileSize(int bytes) {
-    if (bytes >= 1024 * 1024) {
-      final digits = bytes >= 10 * 1024 * 1024 ? 1 : 2;
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(digits)} MB';
+  /// [bytes] in the unit and precision the [total] calls for, so the moving figure keeps
+  /// the unit of the size it is counting towards instead of jumping from KB to MB.
+  ({double value, int digits, String unit}) _sizeIn(int bytes, int total) {
+    if (total >= 1024 * 1024) {
+      return (
+        value: bytes / (1024 * 1024),
+        digits: total >= 10 * 1024 * 1024 ? 1 : 2,
+        unit: 'MB',
+      );
     }
-    final digits = bytes >= 100 * 1024 ? 0 : 1;
-    return '${(bytes / 1024).toStringAsFixed(digits)} KB';
+    return (
+      value: bytes / 1024,
+      digits: total >= 100 * 1024 ? 0 : 1,
+      unit: 'KB',
+    );
   }
 
   Widget _pendingCaptureCard(PendingCapture capture) {
@@ -618,8 +627,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
         ? null
         : _syncUpdates[capture.clientId!];
     final progress = (update?.progress ?? 0).clamp(0.0, 1.0);
-    final percentage = (progress * 100).round();
-    final transferred = (capture.sizeBytes * progress).round();
+    final sent = _sizeIn((capture.sizeBytes * progress).round(), capture.sizeBytes);
+    final whole = _sizeIn(capture.sizeBytes, capture.sizeBytes);
     final annotationError =
         capture.uploadedId != null &&
         !capture.registrationAnnotationsApplied &&
@@ -630,23 +639,24 @@ class _CaptureScreenState extends State<CaptureScreen> {
         ? 'Upload paused'
         : switch (update?.stage) {
             EvidenceSyncStage.preparing => 'Preparing secure upload',
-            EvidenceSyncStage.uploading => 'Uploading evidence',
-            EvidenceSyncStage.registering => 'Adding evidence to room',
-            EvidenceSyncStage.finalizing => 'Syncing notes and marks',
+            EvidenceSyncStage.uploading => 'Uploading',
+            EvidenceSyncStage.registering => 'Adding to room',
+            EvidenceSyncStage.finalizing => 'Uploading notes and marks',
             EvidenceSyncStage.failed => 'Upload paused',
             _ =>
               capture.claimedAt == null
                   ? 'Saved safely · waiting to upload'
                   : 'Preparing secure upload',
           };
-    final detail = annotationError
-        ? 'The photo uploaded, but its marks need attention. Retry sync or edit the marks.'
-        : capture.lastError != null
-        ? 'Retry ${capture.attempts}: ${capture.lastError}'
-        : '$percentage% · ${_fileSize(transferred)} of ${_fileSize(capture.sizeBytes)}';
+    final message = annotationError
+        ? 'The photo uploaded, but its marks did not. Try again, or edit the marks.'
+        : capture.lastError;
     final color = annotationError || capture.lastError != null
         ? KiviloColors.red
         : KiviloColors.pink;
+    final detailStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: capture.lastError == null ? KiviloColors.muted : KiviloColors.red,
+    );
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -683,7 +693,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
             trailing: IconButton(
               onPressed: () => unawaited(_openQueuedActions(capture)),
               icon: const Icon(Icons.more_horiz),
-              tooltip: 'Evidence actions',
+              tooltip: 'Media actions',
             ),
           ),
           Padding(
@@ -691,22 +701,39 @@ class _CaptureScreenState extends State<CaptureScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                LinearProgressIndicator(
+                KiviloProgressBar(
                   value: capture.lastError == null ? progress : null,
-                  minHeight: 6,
-                  borderRadius: BorderRadius.circular(6),
                   color: color,
-                  backgroundColor: KiviloColors.border,
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  detail,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: capture.lastError == null
-                        ? KiviloColors.muted
-                        : KiviloColors.red,
+                if (message != null)
+                  Text(message, style: detailStyle)
+                else
+                  // The figures roll digit by digit, NumberFlow style, rather than
+                  // flickering as each progress event lands.
+                  Row(
+                    children: [
+                      // All of the line is NumberFlow's own text: beside a plain Text
+                      // its glyphs sit a pixel higher.
+                      NumberFlow(
+                        value: (progress * 100).round(),
+                        suffix: '% · ',
+                        style: detailStyle,
+                        tabularNums: true,
+                      ),
+                      NumberFlow(
+                        value: sent.value,
+                        format: NumberFlowFormat.decimal(
+                          minFraction: sent.digits,
+                          maxFraction: sent.digits,
+                        ),
+                        suffix:
+                            ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
+                        style: detailStyle,
+                        tabularNums: true,
+                      ),
+                    ],
                   ),
-                ),
               ],
             ),
           ),
@@ -759,7 +786,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           if (_offline)
             _notice(
               Icons.cloud_off_outlined,
-              'Offline. Captures are saved on this phone until they sync.',
+              'Offline. Photos and videos stay on this phone and upload when you have signal.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
             ),
@@ -774,14 +801,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
           if (_unresolved.isNotEmpty)
             _notice(
               Icons.warning_amber_outlined,
-              '${_unresolved.length} interrupted capture(s) need recovery. Keep the app data on this phone.',
+              '${_unresolved.length == 1 ? 'A photo or video was' : '${_unresolved.length} photos or videos were'} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
             ),
           if (_remoteEdits.isNotEmpty)
             _notice(
               Icons.sync,
-              '${_remoteEdits.length} edit(s) are waiting to sync. Tap to retry.',
+              '${_remoteEdits.length == 1 ? 'A change is' : '${_remoteEdits.length} changes are'} waiting to upload. Tap to try again.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
               onTap: () => unawaited(_drain()),
@@ -820,7 +847,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           ),
           const SizedBox(height: 24),
           const KiviloSectionHeading(
-            title: 'Evidence',
+            title: 'Media',
             subtitle: 'Saved on your phone first, then added to the report',
           ),
           const SizedBox(height: 12),
@@ -830,12 +857,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
               final pending = snapshot.data ?? const [];
               return Column(
                 children: [
-                  for (final capture in pending) _pendingCaptureCard(capture),
+                  for (final capture in pending.reversed)
+                    _pendingCaptureCard(capture),
                 ],
               );
             },
           ),
-          for (final capture in _room?.captures ?? const <EvidenceCapture>[])
+          for (final capture
+              in (_room?.captures ?? const <EvidenceCapture>[]).reversed)
             Card(
               margin: const EdgeInsets.only(bottom: 10),
               child: ListTile(
@@ -866,17 +895,17 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   capture.note?.isNotEmpty == true
                       ? capture.note!
                       : (capture.kind == 'PHOTO'
-                            ? 'Photo synced'
-                            : 'Video synced'),
+                            ? 'Photo'
+                            : 'Video'),
                 ),
                 subtitle: const Text(
-                  'Synced to report',
+                  'In the report',
                   style: TextStyle(color: KiviloColors.green),
                 ),
                 trailing: IconButton(
                   onPressed: () => unawaited(_openServerActions(capture)),
                   icon: const Icon(Icons.more_horiz),
-                  tooltip: 'Evidence actions',
+                  tooltip: 'Media actions',
                 ),
               ),
             ),
@@ -979,7 +1008,7 @@ class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
                   Navigator.pop(context, const _PhotoNoteResult.back()),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              tooltip: 'Back to evidence actions',
+              tooltip: 'Back to media actions',
               icon: const Icon(Icons.arrow_back),
             ),
             const SizedBox(width: 8),
