@@ -319,9 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((inspection) => inspection.status != 'COMPLETED')
         .firstOrNull;
     final target = active ?? inspections.firstOrNull;
-    final actionLabel = active == null
-        ? 'View latest report'
-        : 'Resume ${active.kindLabel.toLowerCase()}';
+    final actionLabel = active == null ? 'View latest report' : 'Resume';
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -382,22 +380,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   if (target != null)
                     Expanded(
-                      child: FilledButton.icon(
+                      child: FilledButton(
                         onPressed: () => _openInspection(target.id),
-                        icon: Icon(
-                          active == null
-                              ? Icons.description_outlined
-                              : Icons.play_arrow_rounded,
-                        ),
-                        label: Text(actionLabel),
+                        child: Text(actionLabel),
                       ),
                     ),
                   if (target != null) const SizedBox(width: 8),
                   Expanded(
-                    child: OutlinedButton.icon(
+                    child: OutlinedButton(
                       onPressed: () => _openTenancy(tenancy),
-                      icon: const Icon(Icons.build_outlined),
-                      label: const Text('Maintenance'),
+                      child: const Text('Maintenance'),
                     ),
                   ),
                 ],
