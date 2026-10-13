@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
@@ -174,6 +175,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
     );
     if (signed == true && mounted) await _refresh();
   }
+
+  /// Printed on the server, then opened in the phone's viewer, which has its own share
+  /// sheet for email and messaging.
+  Future<void> _downloadPdf() => _run(() async {
+    final url = await _api.reportPdf(widget.id);
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  });
 
   Future<void> _share(InspectionDetail inspection) async {
     if (inspection.shareToken == null) {
@@ -648,7 +656,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 const SizedBox(height: 28),
                 const KiviloSectionHeading(
                   title: 'Share report',
-                  subtitle: 'A private, read-only link for the signed report.',
+                  subtitle: 'A private link, or a PDF headed with your agency.',
                 ),
                 const SizedBox(height: 12),
                 Card(
@@ -683,6 +691,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 ? 'Create and copy link'
                                 : 'Copy report link',
                           ),
+                        ),
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          onPressed: _busy ? null : _downloadPdf,
+                          icon: const Icon(Icons.picture_as_pdf_outlined),
+                          label: const Text('Download PDF'),
                         ),
                         if (inspection.shareToken != null)
                           TextButton(

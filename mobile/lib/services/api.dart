@@ -126,6 +126,47 @@ class Api {
   Future<Map<String, dynamic>> appConfig() async =>
       (await _get<Map<String, dynamic>>('/api/v1/app-config')).data!;
 
+  Future<AgentBranding?> branding() async => AgentBranding.fromResponse(
+    await _read('/api/v1/me/branding', 'branding') as Map<String, dynamic>,
+  );
+
+  Future<AgentBranding?> saveBranding(Map<String, dynamic> body) =>
+      _call(() async {
+        final response = await _dio.put<Map<String, dynamic>>(
+          '/api/v1/me/branding',
+          data: body,
+        );
+        return AgentBranding.fromResponse(response.data!);
+      });
+
+  /// The raw image is the body. The server decides what it is from its bytes.
+  Future<AgentBranding?> uploadBrandingLogo(Uint8List bytes) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/me/branding/logo',
+      data: Stream.fromIterable([bytes]),
+      options: Options(
+        contentType: 'application/octet-stream',
+        headers: {'content-length': bytes.length},
+      ),
+    );
+    return AgentBranding.fromResponse(response.data!);
+  });
+
+  Future<AgentBranding?> removeBrandingLogo() => _call(() async {
+    final response = await _dio.delete<Map<String, dynamic>>(
+      '/api/v1/me/branding/logo',
+    );
+    return AgentBranding.fromResponse(response.data!);
+  });
+
+  /// Prints the signed report on the server; the link expires in ten minutes.
+  Future<String> reportPdf(String inspectionId) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/inspections/$inspectionId/pdf',
+    );
+    return response.data!['url'] as String;
+  });
+
   Future<List<TenancySummary>> tenancies() async {
     final data = await _read('/api/v1/tenancies', 'tenancies');
     return (data as List<dynamic>)

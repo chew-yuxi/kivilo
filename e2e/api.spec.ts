@@ -206,3 +206,41 @@ test('a native client can create and capture a room end to end', async ({ reques
   )
   expect((await reviewedRoom.json()).items[0]).toMatchObject({ editedByHuman: true })
 })
+
+test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {
+  const headers = { Authorization: `Bearer ${await accessTokenFor(freshEmail('api-branding'))}` }
+
+  expect(await (await request.get('/api/v1/me/branding', { headers })).json()).toEqual({ branding: null })
+  // A logo needs an agency to belong to.
+  const early = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(early.status()).toBe(409)
+
+  const saved = await request.put('/api/v1/me/branding', {
+    headers,
+    data: { agencyName: 'Harbourline Realty Pte Ltd', agencyLicence: 'L3010000A', ceaRegistration: '', phone: '' },
+  })
+  expect(saved.status()).toBe(200)
+  expect((await saved.json()).branding).toMatchObject({ agencyName: 'Harbourline Realty Pte Ltd', ceaRegistration: null })
+
+  const notAnImage = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+  })
+  expect(notAnImage.status()).toBe(400)
+
+  const logo = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(logo.status()).toBe(200)
+  const logoUrl = (await logo.json()).branding.logoUrl as string
+  const fetched = await request.get(logoUrl)
+  expect(fetched.ok()).toBeTruthy()
+  expect((await fetched.body()).equals(FIXTURES.photo.buffer)).toBe(true)
+
+  const removed = await request.delete('/api/v1/me/branding/logo', { headers })
+  expect((await removed.json()).branding.logoUrl).toBeNull()
+})
