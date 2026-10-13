@@ -119,7 +119,7 @@ class CaptureStore {
     final file = File('${root.path}/${metadata['relativePath']}');
     final size = await file.length();
     if (size == 0) {
-      throw StateError('Empty evidence file; capture retained for recovery.');
+      throw StateError('Empty media file; capture retained for recovery.');
     }
     final id = await queue.enqueue(
       PendingCapturesCompanion.insert(
@@ -177,7 +177,7 @@ class CaptureStore {
       while (offset < length) {
         final bytes = await input.read((length - offset).clamp(0, 1024 * 1024));
         if (bytes.isEmpty) {
-          throw const FileSystemException('Evidence copy ended early');
+          throw const FileSystemException('Media copy ended early');
         }
         await output.writeFrom(bytes);
         offset += bytes.length;

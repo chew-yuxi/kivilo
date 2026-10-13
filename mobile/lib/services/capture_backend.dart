@@ -124,7 +124,7 @@ class HttpCaptureBackend implements CaptureBackend {
       );
       if (configured.any((item) => item.$2.isNotEmpty)) {
         throw StateError(
-          'Could not enable foreground evidence uploads: $configured',
+          'Could not enable foreground media uploads: $configured',
         );
       }
     }
@@ -209,12 +209,12 @@ class HttpCaptureBackend implements CaptureBackend {
       },
       notificationConfig: TaskNotificationConfig(
         running: const TaskNotification(
-          'Uploading Kivilo evidence',
+          'Uploading Kivilo media',
           '{displayName} · {progress}',
         ),
         progressBar: true,
       ),
-      displayName: 'Kivilo evidence',
+      displayName: 'Kivilo media',
       updates: Updates.statusAndProgress,
     );
     final transfer = await downloader.transfers.getOrStart(task);

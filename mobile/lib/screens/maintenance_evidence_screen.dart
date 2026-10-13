@@ -54,7 +54,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       await _recoverLostPhoto();
     } catch (error) {
       if (mounted) {
-        setState(() => _message = 'Could not prepare evidence: $error');
+        setState(() => _message = 'Could not prepare photo: $error');
       }
     }
   }
@@ -88,7 +88,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       if (photo != null) await _savePhoto(photo);
     } catch (error) {
       if (mounted) {
-        setState(() => _message = 'Could not add evidence: $error');
+        setState(() => _message = 'Could not add photo: $error');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -135,8 +135,8 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
     if (mounted) {
       setState(
         () => _message = moved
-            ? 'Evidence saved and uploaded.'
-            : 'Evidence saved on this phone. Kivilo will retry automatically.',
+            ? 'Photo saved and uploaded.'
+            : 'Photo saved on this phone. Kivilo will retry automatically.',
       );
     }
   }
@@ -151,7 +151,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: Text(
-        widget.purpose == 'BEFORE' ? 'Before evidence' : 'After evidence',
+        widget.purpose == 'BEFORE' ? 'Before photos' : 'After photos',
       ),
     ),
     body: ListView(
@@ -173,7 +173,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
               ),
               SizedBox(height: 14),
               Text(
-                'Add evidence with your phone’s camera',
+                'Add photos with your phone’s camera',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: KiviloColors.ink,
@@ -196,7 +196,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
               ? null
               : () => unawaited(_addPhoto(ImageSource.camera)),
           icon: const Icon(Icons.photo_camera_outlined),
-          label: Text(_busy ? 'Saving…' : 'Take evidence photo'),
+          label: Text(_busy ? 'Saving…' : 'Take photo'),
         ),
         const SizedBox(height: 10),
         OutlinedButton.icon(

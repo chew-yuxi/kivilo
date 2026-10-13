@@ -144,7 +144,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       if (picked != null) await _savePickedFile(picked, video: _videoMode);
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not capture evidence: $error');
+        setState(() => _error = 'Could not capture media: $error');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -173,7 +173,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         }
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not add evidence: $error');
+      if (mounted) setState(() => _error = 'Could not add media: $error');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -288,7 +288,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
     return showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Evidence actions'),
+        title: const Text('Media actions'),
         content: Column(
           children: [
             if (!photo)
@@ -302,7 +302,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
               title: const Text('Edit note'),
-              subtitle: const Text('Describe what this evidence shows'),
+              subtitle: const Text('Describe what this shows'),
               onTap: () => Navigator.pop(context, 'note'),
             ),
             if (photo)
@@ -321,7 +321,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 color: KiviloColors.red,
               ),
               title: const Text(
-                'Delete evidence',
+                'Delete media',
                 style: TextStyle(color: KiviloColors.red),
               ),
               onTap: () => Navigator.pop(context, 'delete'),
@@ -587,7 +587,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           _unresolved.isNotEmpty) {
         setState(
           () => _error =
-              'Evidence or edits are still waiting to sync. Retry when connected.',
+              'Media or edits are still waiting to sync. Retry when connected.',
         );
         return;
       }
@@ -630,8 +630,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
         ? 'Upload paused'
         : switch (update?.stage) {
             EvidenceSyncStage.preparing => 'Preparing secure upload',
-            EvidenceSyncStage.uploading => 'Uploading evidence',
-            EvidenceSyncStage.registering => 'Adding evidence to room',
+            EvidenceSyncStage.uploading => 'Uploading',
+            EvidenceSyncStage.registering => 'Adding to room',
             EvidenceSyncStage.finalizing => 'Syncing notes and marks',
             EvidenceSyncStage.failed => 'Upload paused',
             _ =>
@@ -683,7 +683,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
             trailing: IconButton(
               onPressed: () => unawaited(_openQueuedActions(capture)),
               icon: const Icon(Icons.more_horiz),
-              tooltip: 'Evidence actions',
+              tooltip: 'Media actions',
             ),
           ),
           Padding(
@@ -820,7 +820,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           ),
           const SizedBox(height: 24),
           const KiviloSectionHeading(
-            title: 'Evidence',
+            title: 'Media',
             subtitle: 'Saved on your phone first, then added to the report',
           ),
           const SizedBox(height: 12),
@@ -830,12 +830,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
               final pending = snapshot.data ?? const [];
               return Column(
                 children: [
-                  for (final capture in pending) _pendingCaptureCard(capture),
+                  for (final capture in pending.reversed)
+                    _pendingCaptureCard(capture),
                 ],
               );
             },
           ),
-          for (final capture in _room?.captures ?? const <EvidenceCapture>[])
+          for (final capture
+              in (_room?.captures ?? const <EvidenceCapture>[]).reversed)
             Card(
               margin: const EdgeInsets.only(bottom: 10),
               child: ListTile(
@@ -876,7 +878,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 trailing: IconButton(
                   onPressed: () => unawaited(_openServerActions(capture)),
                   icon: const Icon(Icons.more_horiz),
-                  tooltip: 'Evidence actions',
+                  tooltip: 'Media actions',
                 ),
               ),
             ),
@@ -979,7 +981,7 @@ class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
                   Navigator.pop(context, const _PhotoNoteResult.back()),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              tooltip: 'Back to evidence actions',
+              tooltip: 'Back to media actions',
               icon: const Icon(Icons.arrow_back),
             ),
             const SizedBox(width: 8),

@@ -152,7 +152,7 @@ class Uploader {
           if (!credential.alreadyUploaded) {
             if (!await file.exists()) {
               throw StateError(
-                'Local evidence file is missing. Capture retained for recovery.',
+                'Local media file is missing. Capture retained for recovery.',
               );
             }
             reportEvidenceSync(

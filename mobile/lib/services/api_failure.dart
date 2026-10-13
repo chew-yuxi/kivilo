@@ -26,7 +26,7 @@ class ApiFailure implements Exception {
       'capture_missing' =>
         'Upload has not reached storage. The saved file remains on this phone; retry upload.',
       'evidence_missing' =>
-        'Evidence has not reached storage. The saved file remains on this phone; retry upload.',
+        'Media has not reached storage. The saved file remains on this phone; retry upload.',
       'maintenance_conflict' =>
         'This maintenance update was already recorded differently. Refresh and check the timeline.',
       _ =>

@@ -113,7 +113,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Evidence is still syncing'),
+            title: const Text('Media is still syncing'),
             content: Text(
               '${pending.captures} capture(s) and ${pending.edits} '
               'note, mark or deletion edit(s) are saved on this phone. '
@@ -549,7 +549,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 title: 'Rooms',
                 subtitle: inspection.rooms.isEmpty
                     ? 'Start with your first room'
-                    : 'Evidence and inventory, room by room',
+                    : 'Inventory and media, room by room',
                 action: inspection.isOpen
                     ? TextButton.icon(
                         onPressed: _busy ? null : _addRoom,
@@ -761,7 +761,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       subtitle: Text(
                         '${maintenanceStatusLabels[record['status']]} · '
                         '${record['repairAttempts']} ${record['repairAttempts'] == 1 ? 'repair' : 'repairs'} · '
-                        '${record['evidence']} evidence ${record['evidence'] == 1 ? 'file' : 'files'}'
+                        '${record['evidence']} media ${record['evidence'] == 1 ? 'file' : 'files'}'
                         '${_costLine(record)}',
                       ),
                       trailing: const Icon(
@@ -1303,7 +1303,7 @@ class _FindingEditorState extends State<FindingEditor> {
           if (widget.finding != null) ...[
             const SizedBox(height: 12),
             KiviloSelectField<String?>(
-              label: 'Maintenance evidence',
+              label: 'Maintenance media',
               value: _maintenanceCaseId,
               options: [
                 const KiviloSelectOption<String?>(

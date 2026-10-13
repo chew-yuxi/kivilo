@@ -88,7 +88,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Capture the evidence, review each room, then sign.',
+                'Capture each room, write its inventory, then sign.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               if (_api.offlineCopy) ...[
