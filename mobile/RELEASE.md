@@ -7,6 +7,42 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current candidate: 2026-10-13 Singapore time
 
+Build `22` is the first build that can be patched over the air and the first that can be
+retired. It was made with `shorebird release` on both platforms (Shorebird release
+`1.0.0+22`, Flutter 3.47.2), so Dart-only fixes can now reach it without a store review;
+see "Over-the-air patches". Below a server-held minimum build it covers every screen with
+"Update Kivilo" and a store link; see "Retiring an old build". The urgent services screen
+lists placeholder Kivilo partners instead of reading `/api/v1/service-providers`. It adds
+the native `package_info_plus` plugin.
+
+Build `22` source is `b16da52` on `main`. Flutter analysis is clean and all 91 mobile
+tests pass; backend typecheck, lint and all 44 unit tests pass. The AAB was built with
+`--dart-define-from-file=env.json` against the production configuration and signed with
+the established upload key (`CN=Kivilo Upload`, certificate SHA-256
+`6d2be9b2745ce98abdace4162a20722a57305b3cd95df4e73958ea1692e836e7`); `jarsigner -verify`
+passes. There is no APK: a `flutter build apk` would carry no updater, so the test phone
+gets this build through `shorebird preview` or the internal track. The IPA passed strict
+`codesign` verification: bundle `one.kivilo.kivilo`, version `1.0.0` build `22`, Apple
+Distribution for team `4N9TA3WSYM`, `aps-environment=production`,
+`get-task-allow=false`, exported with `ios/ExportOptions.plist`. This build was not
+installed on a physical device before release.
+
+The backend route `/api/v1/app-config` is not yet deployed, so until it is the update
+check fails open and build `22` behaves as if no build were retired.
+
+Play internal testing serves `completed:22` and the production track still reads
+`completed:13`. The signed iOS build `22` uploaded under delivery
+`d4ea7d4a-a6f2-4114-acba-2f0778637eca`, which is also its App Store Connect build ID. It
+is `VALID`, declares `usesNonExemptEncryption: false`, and is attached only to the
+existing `Kivilo Internal` TestFlight group. Apple's public build `12` submission
+remains `WAITING_FOR_REVIEW` and Play production remains build `13`; neither has been
+replaced with build `22`.
+
+- Android 22 AAB `build/release-artifacts/android/build22/kivilo-v22.aab`, SHA-256
+  `3ff514f906822ae3a6636025382196ad1413483dc789c674dd597f3a5ea35e2a`.
+- iOS 22 IPA `build/release-artifacts/ios/build22/kivilo.ipa`, SHA-256
+  `7f872a582ade3ef0065b2b312a767a34390c797f555529427a700135fed43319`.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
