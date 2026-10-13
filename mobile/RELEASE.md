@@ -57,6 +57,12 @@ property timeline from `b3d9ede` ships here, with `history`, `logout_outlined` a
 `task_alt` standing in for three icons build `22` does not carry. Flutter analysis is
 clean and all 94 tests pass.
 
+Patch `5` (Android) and patch `6` (iOS) on `1.0.0+22`, built from `0644bbf`: plain
+language throughout. `plainError` in `lib/services/api_failure.dart` is the only way an
+error becomes text on screen, so no raw exception reaches an agent; sync reads as upload,
+a capture as a photo or video, edits as changes. Flutter analysis is clean and all 97
+tests pass.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
