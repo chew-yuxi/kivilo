@@ -49,6 +49,10 @@ describe('operator account deletion fulfillment', () => {
         idNumber: `QA-${tag}`, authUserId,
       } })
       stakeholderId = person.id
+      await db.errorEvent.create({ data: {
+        source: 'WEB', context: 'window', name: 'TypeError', message: `Deletion QA ${tag}`,
+        fingerprint: 'deletion-qa', stakeholderId: person.id, occurredAt: new Date(),
+      } })
       const request = await db.accountDeletionRequest.create({ data: {
         stakeholderId: person.id, email, dueAt: new Date('2099-01-01'),
       } })
@@ -58,6 +62,7 @@ describe('operator account deletion fulfillment', () => {
       await expect(fulfillAccountDeletion(request.id, policyVersion))
         .rejects.toThrow('Local synthetic mail outage')
       expect((await admin.getUserById(authUserId)).data.user).toBeNull()
+      expect(await db.errorEvent.count({ where: { stakeholderId: person.id } })).toBe(0)
       expect(await db.stakeholder.findUniqueOrThrow({ where: { id: person.id } })).toMatchObject({
         name: 'Deleted user', authUserId: null, email: null, phone: null, idNumber: null,
       })

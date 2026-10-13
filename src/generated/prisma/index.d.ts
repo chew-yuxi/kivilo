@@ -158,6 +158,15 @@ export type AccountDeletionStoragePurge = $Result.DefaultSelection<Prisma.$Accou
  * delayed and retried independently of the request that deleted the row.
  */
 export type StoragePurge = $Result.DefaultSelection<Prisma.$StoragePurgePayload>
+/**
+ * Model ErrorEvent
+ * One error, as it happened, from the server or an agent's browser. Grouped on read by
+ * `fingerprint`, a hash of where it came from and what it said with ids and numbers
+ * normalized out, so the same bug on two inspections is one problem rather than two.
+ * `notifiedAt` is stamped by the alert cron, which emails a fingerprint only the first
+ * time it is seen. Kept for 90 days, as the privacy policy says.
+ */
+export type ErrorEvent = $Result.DefaultSelection<Prisma.$ErrorEventPayload>
 
 /**
  * Enums
@@ -420,6 +429,14 @@ export const DeletionRequestStatus: {
 
 export type DeletionRequestStatus = (typeof DeletionRequestStatus)[keyof typeof DeletionRequestStatus]
 
+
+export const ErrorSource: {
+  SERVER: 'SERVER',
+  WEB: 'WEB'
+};
+
+export type ErrorSource = (typeof ErrorSource)[keyof typeof ErrorSource]
+
 }
 
 export type StakeholderKind = $Enums.StakeholderKind
@@ -521,6 +538,10 @@ export const Verdict: typeof $Enums.Verdict
 export type DeletionRequestStatus = $Enums.DeletionRequestStatus
 
 export const DeletionRequestStatus: typeof $Enums.DeletionRequestStatus
+
+export type ErrorSource = $Enums.ErrorSource
+
+export const ErrorSource: typeof $Enums.ErrorSource
 
 /**
  * ##  Prisma Client ʲˢ
@@ -902,6 +923,16 @@ export class PrismaClient<
     * ```
     */
   get storagePurge(): Prisma.StoragePurgeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.errorEvent`: Exposes CRUD operations for the **ErrorEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ErrorEvents
+    * const errorEvents = await prisma.errorEvent.findMany()
+    * ```
+    */
+  get errorEvent(): Prisma.ErrorEventDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1374,7 +1405,8 @@ export namespace Prisma {
     AssessmentVersion: 'AssessmentVersion',
     AccountDeletionRequest: 'AccountDeletionRequest',
     AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
-    StoragePurge: 'StoragePurge'
+    StoragePurge: 'StoragePurge',
+    ErrorEvent: 'ErrorEvent'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1390,7 +1422,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
+      modelProps: "stakeholder" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3318,6 +3350,80 @@ export namespace Prisma {
           }
         }
       }
+      ErrorEvent: {
+        payload: Prisma.$ErrorEventPayload<ExtArgs>
+        fields: Prisma.ErrorEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ErrorEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ErrorEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>
+          }
+          findFirst: {
+            args: Prisma.ErrorEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ErrorEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>
+          }
+          findMany: {
+            args: Prisma.ErrorEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>[]
+          }
+          create: {
+            args: Prisma.ErrorEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>
+          }
+          createMany: {
+            args: Prisma.ErrorEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ErrorEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>[]
+          }
+          delete: {
+            args: Prisma.ErrorEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>
+          }
+          update: {
+            args: Prisma.ErrorEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.ErrorEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ErrorEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ErrorEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.ErrorEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ErrorEventPayload>
+          }
+          aggregate: {
+            args: Prisma.ErrorEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateErrorEvent>
+          }
+          groupBy: {
+            args: Prisma.ErrorEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ErrorEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ErrorEventCountArgs<ExtArgs>
+            result: $Utils.Optional<ErrorEventCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3467,6 +3573,7 @@ export namespace Prisma {
     accountDeletionRequest?: AccountDeletionRequestOmit
     accountDeletionStoragePurge?: AccountDeletionStoragePurgeOmit
     storagePurge?: StoragePurgeOmit
+    errorEvent?: ErrorEventOmit
   }
 
   /* Types for Logging */
@@ -3561,6 +3668,7 @@ export namespace Prisma {
     responsibilityResponded: number
     notifications: number
     deviceInstallations: number
+    errorEvents: number
   }
 
   export type StakeholderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3578,6 +3686,7 @@ export namespace Prisma {
     responsibilityResponded?: boolean | StakeholderCountOutputTypeCountResponsibilityRespondedArgs
     notifications?: boolean | StakeholderCountOutputTypeCountNotificationsArgs
     deviceInstallations?: boolean | StakeholderCountOutputTypeCountDeviceInstallationsArgs
+    errorEvents?: boolean | StakeholderCountOutputTypeCountErrorEventsArgs
   }
 
   // Custom InputTypes
@@ -3687,6 +3796,13 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountDeviceInstallationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DeviceInstallationWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountErrorEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ErrorEventWhereInput
   }
 
 
@@ -4434,6 +4550,7 @@ export namespace Prisma {
     notifications?: boolean | Stakeholder$notificationsArgs<ExtArgs>
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
+    errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["stakeholder"]>
 
@@ -4490,6 +4607,7 @@ export namespace Prisma {
     notifications?: boolean | Stakeholder$notificationsArgs<ExtArgs>
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
+    errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StakeholderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4513,6 +4631,7 @@ export namespace Prisma {
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       deviceInstallations: Prisma.$DeviceInstallationPayload<ExtArgs>[]
       branding: Prisma.$AgentBrandingPayload<ExtArgs> | null
+      errorEvents: Prisma.$ErrorEventPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4938,6 +5057,7 @@ export namespace Prisma {
     notifications<T extends Stakeholder$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deviceInstallations<T extends Stakeholder$deviceInstallationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deviceInstallationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceInstallationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     branding<T extends Stakeholder$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$brandingArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    errorEvents<T extends Stakeholder$errorEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$errorEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5721,6 +5841,30 @@ export namespace Prisma {
      */
     include?: AgentBrandingInclude<ExtArgs> | null
     where?: AgentBrandingWhereInput
+  }
+
+  /**
+   * Stakeholder.errorEvents
+   */
+  export type Stakeholder$errorEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    where?: ErrorEventWhereInput
+    orderBy?: ErrorEventOrderByWithRelationInput | ErrorEventOrderByWithRelationInput[]
+    cursor?: ErrorEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ErrorEventScalarFieldEnum | ErrorEventScalarFieldEnum[]
   }
 
   /**
@@ -35508,6 +35652,1229 @@ export namespace Prisma {
 
 
   /**
+   * Model ErrorEvent
+   */
+
+  export type AggregateErrorEvent = {
+    _count: ErrorEventCountAggregateOutputType | null
+    _min: ErrorEventMinAggregateOutputType | null
+    _max: ErrorEventMaxAggregateOutputType | null
+  }
+
+  export type ErrorEventMinAggregateOutputType = {
+    id: string | null
+    source: $Enums.ErrorSource | null
+    context: string | null
+    name: string | null
+    message: string | null
+    stack: string | null
+    digest: string | null
+    path: string | null
+    release: string | null
+    userAgent: string | null
+    fingerprint: string | null
+    stakeholderId: string | null
+    occurredAt: Date | null
+    createdAt: Date | null
+    notifiedAt: Date | null
+  }
+
+  export type ErrorEventMaxAggregateOutputType = {
+    id: string | null
+    source: $Enums.ErrorSource | null
+    context: string | null
+    name: string | null
+    message: string | null
+    stack: string | null
+    digest: string | null
+    path: string | null
+    release: string | null
+    userAgent: string | null
+    fingerprint: string | null
+    stakeholderId: string | null
+    occurredAt: Date | null
+    createdAt: Date | null
+    notifiedAt: Date | null
+  }
+
+  export type ErrorEventCountAggregateOutputType = {
+    id: number
+    source: number
+    context: number
+    name: number
+    message: number
+    stack: number
+    digest: number
+    path: number
+    release: number
+    userAgent: number
+    fingerprint: number
+    stakeholderId: number
+    occurredAt: number
+    createdAt: number
+    notifiedAt: number
+    _all: number
+  }
+
+
+  export type ErrorEventMinAggregateInputType = {
+    id?: true
+    source?: true
+    context?: true
+    name?: true
+    message?: true
+    stack?: true
+    digest?: true
+    path?: true
+    release?: true
+    userAgent?: true
+    fingerprint?: true
+    stakeholderId?: true
+    occurredAt?: true
+    createdAt?: true
+    notifiedAt?: true
+  }
+
+  export type ErrorEventMaxAggregateInputType = {
+    id?: true
+    source?: true
+    context?: true
+    name?: true
+    message?: true
+    stack?: true
+    digest?: true
+    path?: true
+    release?: true
+    userAgent?: true
+    fingerprint?: true
+    stakeholderId?: true
+    occurredAt?: true
+    createdAt?: true
+    notifiedAt?: true
+  }
+
+  export type ErrorEventCountAggregateInputType = {
+    id?: true
+    source?: true
+    context?: true
+    name?: true
+    message?: true
+    stack?: true
+    digest?: true
+    path?: true
+    release?: true
+    userAgent?: true
+    fingerprint?: true
+    stakeholderId?: true
+    occurredAt?: true
+    createdAt?: true
+    notifiedAt?: true
+    _all?: true
+  }
+
+  export type ErrorEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ErrorEvent to aggregate.
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ErrorEvents to fetch.
+     */
+    orderBy?: ErrorEventOrderByWithRelationInput | ErrorEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ErrorEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ErrorEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ErrorEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ErrorEvents
+    **/
+    _count?: true | ErrorEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ErrorEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ErrorEventMaxAggregateInputType
+  }
+
+  export type GetErrorEventAggregateType<T extends ErrorEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateErrorEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateErrorEvent[P]>
+      : GetScalarType<T[P], AggregateErrorEvent[P]>
+  }
+
+
+
+
+  export type ErrorEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ErrorEventWhereInput
+    orderBy?: ErrorEventOrderByWithAggregationInput | ErrorEventOrderByWithAggregationInput[]
+    by: ErrorEventScalarFieldEnum[] | ErrorEventScalarFieldEnum
+    having?: ErrorEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ErrorEventCountAggregateInputType | true
+    _min?: ErrorEventMinAggregateInputType
+    _max?: ErrorEventMaxAggregateInputType
+  }
+
+  export type ErrorEventGroupByOutputType = {
+    id: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack: string | null
+    digest: string | null
+    path: string | null
+    release: string | null
+    userAgent: string | null
+    fingerprint: string
+    stakeholderId: string | null
+    occurredAt: Date
+    createdAt: Date
+    notifiedAt: Date | null
+    _count: ErrorEventCountAggregateOutputType | null
+    _min: ErrorEventMinAggregateOutputType | null
+    _max: ErrorEventMaxAggregateOutputType | null
+  }
+
+  type GetErrorEventGroupByPayload<T extends ErrorEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ErrorEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ErrorEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ErrorEventGroupByOutputType[P]>
+            : GetScalarType<T[P], ErrorEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ErrorEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    context?: boolean
+    name?: boolean
+    message?: boolean
+    stack?: boolean
+    digest?: boolean
+    path?: boolean
+    release?: boolean
+    userAgent?: boolean
+    fingerprint?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    notifiedAt?: boolean
+    stakeholder?: boolean | ErrorEvent$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["errorEvent"]>
+
+  export type ErrorEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    context?: boolean
+    name?: boolean
+    message?: boolean
+    stack?: boolean
+    digest?: boolean
+    path?: boolean
+    release?: boolean
+    userAgent?: boolean
+    fingerprint?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    notifiedAt?: boolean
+    stakeholder?: boolean | ErrorEvent$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["errorEvent"]>
+
+  export type ErrorEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    context?: boolean
+    name?: boolean
+    message?: boolean
+    stack?: boolean
+    digest?: boolean
+    path?: boolean
+    release?: boolean
+    userAgent?: boolean
+    fingerprint?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    notifiedAt?: boolean
+    stakeholder?: boolean | ErrorEvent$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["errorEvent"]>
+
+  export type ErrorEventSelectScalar = {
+    id?: boolean
+    source?: boolean
+    context?: boolean
+    name?: boolean
+    message?: boolean
+    stack?: boolean
+    digest?: boolean
+    path?: boolean
+    release?: boolean
+    userAgent?: boolean
+    fingerprint?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    notifiedAt?: boolean
+  }
+
+  export type ErrorEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "source" | "context" | "name" | "message" | "stack" | "digest" | "path" | "release" | "userAgent" | "fingerprint" | "stakeholderId" | "occurredAt" | "createdAt" | "notifiedAt", ExtArgs["result"]["errorEvent"]>
+  export type ErrorEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | ErrorEvent$stakeholderArgs<ExtArgs>
+  }
+  export type ErrorEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | ErrorEvent$stakeholderArgs<ExtArgs>
+  }
+  export type ErrorEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | ErrorEvent$stakeholderArgs<ExtArgs>
+  }
+
+  export type $ErrorEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ErrorEvent"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      /**
+       * A browser report carries its own UUID, so a retried batch cannot record twice.
+       */
+      id: string
+      source: $Enums.ErrorSource
+      /**
+       * Where it was caught: render, action, route or api on the server; boundary, window
+       * or rejection in the browser.
+       */
+      context: string
+      name: string
+      message: string
+      stack: string | null
+      /**
+       * React's digest for a server error. The browser shows it as the error's reference,
+       * so it is how an agent's screenshot is matched to the stack.
+       */
+      digest: string | null
+      path: string | null
+      release: string | null
+      userAgent: string | null
+      fingerprint: string
+      stakeholderId: string | null
+      occurredAt: Date
+      createdAt: Date
+      notifiedAt: Date | null
+    }, ExtArgs["result"]["errorEvent"]>
+    composites: {}
+  }
+
+  type ErrorEventGetPayload<S extends boolean | null | undefined | ErrorEventDefaultArgs> = $Result.GetResult<Prisma.$ErrorEventPayload, S>
+
+  type ErrorEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ErrorEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ErrorEventCountAggregateInputType | true
+    }
+
+  export interface ErrorEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ErrorEvent'], meta: { name: 'ErrorEvent' } }
+    /**
+     * Find zero or one ErrorEvent that matches the filter.
+     * @param {ErrorEventFindUniqueArgs} args - Arguments to find a ErrorEvent
+     * @example
+     * // Get one ErrorEvent
+     * const errorEvent = await prisma.errorEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ErrorEventFindUniqueArgs>(args: SelectSubset<T, ErrorEventFindUniqueArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ErrorEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ErrorEventFindUniqueOrThrowArgs} args - Arguments to find a ErrorEvent
+     * @example
+     * // Get one ErrorEvent
+     * const errorEvent = await prisma.errorEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ErrorEventFindUniqueOrThrowArgs>(args: SelectSubset<T, ErrorEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ErrorEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventFindFirstArgs} args - Arguments to find a ErrorEvent
+     * @example
+     * // Get one ErrorEvent
+     * const errorEvent = await prisma.errorEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ErrorEventFindFirstArgs>(args?: SelectSubset<T, ErrorEventFindFirstArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ErrorEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventFindFirstOrThrowArgs} args - Arguments to find a ErrorEvent
+     * @example
+     * // Get one ErrorEvent
+     * const errorEvent = await prisma.errorEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ErrorEventFindFirstOrThrowArgs>(args?: SelectSubset<T, ErrorEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ErrorEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ErrorEvents
+     * const errorEvents = await prisma.errorEvent.findMany()
+     * 
+     * // Get first 10 ErrorEvents
+     * const errorEvents = await prisma.errorEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const errorEventWithIdOnly = await prisma.errorEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ErrorEventFindManyArgs>(args?: SelectSubset<T, ErrorEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ErrorEvent.
+     * @param {ErrorEventCreateArgs} args - Arguments to create a ErrorEvent.
+     * @example
+     * // Create one ErrorEvent
+     * const ErrorEvent = await prisma.errorEvent.create({
+     *   data: {
+     *     // ... data to create a ErrorEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends ErrorEventCreateArgs>(args: SelectSubset<T, ErrorEventCreateArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ErrorEvents.
+     * @param {ErrorEventCreateManyArgs} args - Arguments to create many ErrorEvents.
+     * @example
+     * // Create many ErrorEvents
+     * const errorEvent = await prisma.errorEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ErrorEventCreateManyArgs>(args?: SelectSubset<T, ErrorEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ErrorEvents and returns the data saved in the database.
+     * @param {ErrorEventCreateManyAndReturnArgs} args - Arguments to create many ErrorEvents.
+     * @example
+     * // Create many ErrorEvents
+     * const errorEvent = await prisma.errorEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ErrorEvents and only return the `id`
+     * const errorEventWithIdOnly = await prisma.errorEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ErrorEventCreateManyAndReturnArgs>(args?: SelectSubset<T, ErrorEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ErrorEvent.
+     * @param {ErrorEventDeleteArgs} args - Arguments to delete one ErrorEvent.
+     * @example
+     * // Delete one ErrorEvent
+     * const ErrorEvent = await prisma.errorEvent.delete({
+     *   where: {
+     *     // ... filter to delete one ErrorEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ErrorEventDeleteArgs>(args: SelectSubset<T, ErrorEventDeleteArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ErrorEvent.
+     * @param {ErrorEventUpdateArgs} args - Arguments to update one ErrorEvent.
+     * @example
+     * // Update one ErrorEvent
+     * const errorEvent = await prisma.errorEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ErrorEventUpdateArgs>(args: SelectSubset<T, ErrorEventUpdateArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ErrorEvents.
+     * @param {ErrorEventDeleteManyArgs} args - Arguments to filter ErrorEvents to delete.
+     * @example
+     * // Delete a few ErrorEvents
+     * const { count } = await prisma.errorEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ErrorEventDeleteManyArgs>(args?: SelectSubset<T, ErrorEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ErrorEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ErrorEvents
+     * const errorEvent = await prisma.errorEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ErrorEventUpdateManyArgs>(args: SelectSubset<T, ErrorEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ErrorEvents and returns the data updated in the database.
+     * @param {ErrorEventUpdateManyAndReturnArgs} args - Arguments to update many ErrorEvents.
+     * @example
+     * // Update many ErrorEvents
+     * const errorEvent = await prisma.errorEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ErrorEvents and only return the `id`
+     * const errorEventWithIdOnly = await prisma.errorEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ErrorEventUpdateManyAndReturnArgs>(args: SelectSubset<T, ErrorEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ErrorEvent.
+     * @param {ErrorEventUpsertArgs} args - Arguments to update or create a ErrorEvent.
+     * @example
+     * // Update or create a ErrorEvent
+     * const errorEvent = await prisma.errorEvent.upsert({
+     *   create: {
+     *     // ... data to create a ErrorEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ErrorEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ErrorEventUpsertArgs>(args: SelectSubset<T, ErrorEventUpsertArgs<ExtArgs>>): Prisma__ErrorEventClient<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ErrorEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventCountArgs} args - Arguments to filter ErrorEvents to count.
+     * @example
+     * // Count the number of ErrorEvents
+     * const count = await prisma.errorEvent.count({
+     *   where: {
+     *     // ... the filter for the ErrorEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends ErrorEventCountArgs>(
+      args?: Subset<T, ErrorEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ErrorEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ErrorEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ErrorEventAggregateArgs>(args: Subset<T, ErrorEventAggregateArgs>): Prisma.PrismaPromise<GetErrorEventAggregateType<T>>
+
+    /**
+     * Group by ErrorEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ErrorEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ErrorEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ErrorEventGroupByArgs['orderBy'] }
+        : { orderBy?: ErrorEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ErrorEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetErrorEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ErrorEvent model
+   */
+  readonly fields: ErrorEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ErrorEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ErrorEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends ErrorEvent$stakeholderArgs<ExtArgs> = {}>(args?: Subset<T, ErrorEvent$stakeholderArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ErrorEvent model
+   */
+  interface ErrorEventFieldRefs {
+    readonly id: FieldRef<"ErrorEvent", 'String'>
+    readonly source: FieldRef<"ErrorEvent", 'ErrorSource'>
+    readonly context: FieldRef<"ErrorEvent", 'String'>
+    readonly name: FieldRef<"ErrorEvent", 'String'>
+    readonly message: FieldRef<"ErrorEvent", 'String'>
+    readonly stack: FieldRef<"ErrorEvent", 'String'>
+    readonly digest: FieldRef<"ErrorEvent", 'String'>
+    readonly path: FieldRef<"ErrorEvent", 'String'>
+    readonly release: FieldRef<"ErrorEvent", 'String'>
+    readonly userAgent: FieldRef<"ErrorEvent", 'String'>
+    readonly fingerprint: FieldRef<"ErrorEvent", 'String'>
+    readonly stakeholderId: FieldRef<"ErrorEvent", 'String'>
+    readonly occurredAt: FieldRef<"ErrorEvent", 'DateTime'>
+    readonly createdAt: FieldRef<"ErrorEvent", 'DateTime'>
+    readonly notifiedAt: FieldRef<"ErrorEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ErrorEvent findUnique
+   */
+  export type ErrorEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ErrorEvent to fetch.
+     */
+    where: ErrorEventWhereUniqueInput
+  }
+
+  /**
+   * ErrorEvent findUniqueOrThrow
+   */
+  export type ErrorEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ErrorEvent to fetch.
+     */
+    where: ErrorEventWhereUniqueInput
+  }
+
+  /**
+   * ErrorEvent findFirst
+   */
+  export type ErrorEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ErrorEvent to fetch.
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ErrorEvents to fetch.
+     */
+    orderBy?: ErrorEventOrderByWithRelationInput | ErrorEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ErrorEvents.
+     */
+    cursor?: ErrorEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ErrorEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ErrorEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ErrorEvents.
+     */
+    distinct?: ErrorEventScalarFieldEnum | ErrorEventScalarFieldEnum[]
+  }
+
+  /**
+   * ErrorEvent findFirstOrThrow
+   */
+  export type ErrorEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ErrorEvent to fetch.
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ErrorEvents to fetch.
+     */
+    orderBy?: ErrorEventOrderByWithRelationInput | ErrorEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ErrorEvents.
+     */
+    cursor?: ErrorEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ErrorEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ErrorEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ErrorEvents.
+     */
+    distinct?: ErrorEventScalarFieldEnum | ErrorEventScalarFieldEnum[]
+  }
+
+  /**
+   * ErrorEvent findMany
+   */
+  export type ErrorEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ErrorEvents to fetch.
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ErrorEvents to fetch.
+     */
+    orderBy?: ErrorEventOrderByWithRelationInput | ErrorEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ErrorEvents.
+     */
+    cursor?: ErrorEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ErrorEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ErrorEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ErrorEvents.
+     */
+    distinct?: ErrorEventScalarFieldEnum | ErrorEventScalarFieldEnum[]
+  }
+
+  /**
+   * ErrorEvent create
+   */
+  export type ErrorEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ErrorEvent.
+     */
+    data: XOR<ErrorEventCreateInput, ErrorEventUncheckedCreateInput>
+  }
+
+  /**
+   * ErrorEvent createMany
+   */
+  export type ErrorEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ErrorEvents.
+     */
+    data: ErrorEventCreateManyInput | ErrorEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ErrorEvent createManyAndReturn
+   */
+  export type ErrorEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many ErrorEvents.
+     */
+    data: ErrorEventCreateManyInput | ErrorEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ErrorEvent update
+   */
+  export type ErrorEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ErrorEvent.
+     */
+    data: XOR<ErrorEventUpdateInput, ErrorEventUncheckedUpdateInput>
+    /**
+     * Choose, which ErrorEvent to update.
+     */
+    where: ErrorEventWhereUniqueInput
+  }
+
+  /**
+   * ErrorEvent updateMany
+   */
+  export type ErrorEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ErrorEvents.
+     */
+    data: XOR<ErrorEventUpdateManyMutationInput, ErrorEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ErrorEvents to update
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * Limit how many ErrorEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ErrorEvent updateManyAndReturn
+   */
+  export type ErrorEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * The data used to update ErrorEvents.
+     */
+    data: XOR<ErrorEventUpdateManyMutationInput, ErrorEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ErrorEvents to update
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * Limit how many ErrorEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ErrorEvent upsert
+   */
+  export type ErrorEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ErrorEvent to update in case it exists.
+     */
+    where: ErrorEventWhereUniqueInput
+    /**
+     * In case the ErrorEvent found by the `where` argument doesn't exist, create a new ErrorEvent with this data.
+     */
+    create: XOR<ErrorEventCreateInput, ErrorEventUncheckedCreateInput>
+    /**
+     * In case the ErrorEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ErrorEventUpdateInput, ErrorEventUncheckedUpdateInput>
+  }
+
+  /**
+   * ErrorEvent delete
+   */
+  export type ErrorEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+    /**
+     * Filter which ErrorEvent to delete.
+     */
+    where: ErrorEventWhereUniqueInput
+  }
+
+  /**
+   * ErrorEvent deleteMany
+   */
+  export type ErrorEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ErrorEvents to delete
+     */
+    where?: ErrorEventWhereInput
+    /**
+     * Limit how many ErrorEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ErrorEvent.stakeholder
+   */
+  export type ErrorEvent$stakeholderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
+  }
+
+  /**
+   * ErrorEvent without action
+   */
+  export type ErrorEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ErrorEvent
+     */
+    select?: ErrorEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ErrorEvent
+     */
+    omit?: ErrorEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ErrorEventInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -35930,6 +37297,27 @@ export namespace Prisma {
   };
 
   export type StoragePurgeScalarFieldEnum = (typeof StoragePurgeScalarFieldEnum)[keyof typeof StoragePurgeScalarFieldEnum]
+
+
+  export const ErrorEventScalarFieldEnum: {
+    id: 'id',
+    source: 'source',
+    context: 'context',
+    name: 'name',
+    message: 'message',
+    stack: 'stack',
+    digest: 'digest',
+    path: 'path',
+    release: 'release',
+    userAgent: 'userAgent',
+    fingerprint: 'fingerprint',
+    stakeholderId: 'stakeholderId',
+    occurredAt: 'occurredAt',
+    createdAt: 'createdAt',
+    notifiedAt: 'notifiedAt'
+  };
+
+  export type ErrorEventScalarFieldEnum = (typeof ErrorEventScalarFieldEnum)[keyof typeof ErrorEventScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -36424,6 +37812,20 @@ export namespace Prisma {
    */
   export type ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeletionRequestStatus[]'>
     
+
+
+  /**
+   * Reference to a field of type 'ErrorSource'
+   */
+  export type EnumErrorSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErrorSource'>
+    
+
+
+  /**
+   * Reference to a field of type 'ErrorSource[]'
+   */
+  export type ListEnumErrorSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErrorSource[]'>
+    
   /**
    * Deep Input Types
    */
@@ -36457,6 +37859,7 @@ export namespace Prisma {
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
+    errorEvents?: ErrorEventListRelationFilter
   }
 
   export type StakeholderOrderByWithRelationInput = {
@@ -36484,6 +37887,7 @@ export namespace Prisma {
     notifications?: NotificationOrderByRelationAggregateInput
     deviceInstallations?: DeviceInstallationOrderByRelationAggregateInput
     branding?: AgentBrandingOrderByWithRelationInput
+    errorEvents?: ErrorEventOrderByRelationAggregateInput
   }
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
@@ -36514,6 +37918,7 @@ export namespace Prisma {
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
+    errorEvents?: ErrorEventListRelationFilter
   }, "id" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
@@ -38697,6 +40102,111 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"StoragePurge"> | Date | string
   }
 
+  export type ErrorEventWhereInput = {
+    AND?: ErrorEventWhereInput | ErrorEventWhereInput[]
+    OR?: ErrorEventWhereInput[]
+    NOT?: ErrorEventWhereInput | ErrorEventWhereInput[]
+    id?: StringFilter<"ErrorEvent"> | string
+    source?: EnumErrorSourceFilter<"ErrorEvent"> | $Enums.ErrorSource
+    context?: StringFilter<"ErrorEvent"> | string
+    name?: StringFilter<"ErrorEvent"> | string
+    message?: StringFilter<"ErrorEvent"> | string
+    stack?: StringNullableFilter<"ErrorEvent"> | string | null
+    digest?: StringNullableFilter<"ErrorEvent"> | string | null
+    path?: StringNullableFilter<"ErrorEvent"> | string | null
+    release?: StringNullableFilter<"ErrorEvent"> | string | null
+    userAgent?: StringNullableFilter<"ErrorEvent"> | string | null
+    fingerprint?: StringFilter<"ErrorEvent"> | string
+    stakeholderId?: StringNullableFilter<"ErrorEvent"> | string | null
+    occurredAt?: DateTimeFilter<"ErrorEvent"> | Date | string
+    createdAt?: DateTimeFilter<"ErrorEvent"> | Date | string
+    notifiedAt?: DateTimeNullableFilter<"ErrorEvent"> | Date | string | null
+    stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+  }
+
+  export type ErrorEventOrderByWithRelationInput = {
+    id?: SortOrder
+    source?: SortOrder
+    context?: SortOrder
+    name?: SortOrder
+    message?: SortOrder
+    stack?: SortOrderInput | SortOrder
+    digest?: SortOrderInput | SortOrder
+    path?: SortOrderInput | SortOrder
+    release?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    fingerprint?: SortOrder
+    stakeholderId?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    notifiedAt?: SortOrderInput | SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+  }
+
+  export type ErrorEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ErrorEventWhereInput | ErrorEventWhereInput[]
+    OR?: ErrorEventWhereInput[]
+    NOT?: ErrorEventWhereInput | ErrorEventWhereInput[]
+    source?: EnumErrorSourceFilter<"ErrorEvent"> | $Enums.ErrorSource
+    context?: StringFilter<"ErrorEvent"> | string
+    name?: StringFilter<"ErrorEvent"> | string
+    message?: StringFilter<"ErrorEvent"> | string
+    stack?: StringNullableFilter<"ErrorEvent"> | string | null
+    digest?: StringNullableFilter<"ErrorEvent"> | string | null
+    path?: StringNullableFilter<"ErrorEvent"> | string | null
+    release?: StringNullableFilter<"ErrorEvent"> | string | null
+    userAgent?: StringNullableFilter<"ErrorEvent"> | string | null
+    fingerprint?: StringFilter<"ErrorEvent"> | string
+    stakeholderId?: StringNullableFilter<"ErrorEvent"> | string | null
+    occurredAt?: DateTimeFilter<"ErrorEvent"> | Date | string
+    createdAt?: DateTimeFilter<"ErrorEvent"> | Date | string
+    notifiedAt?: DateTimeNullableFilter<"ErrorEvent"> | Date | string | null
+    stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+  }, "id">
+
+  export type ErrorEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    source?: SortOrder
+    context?: SortOrder
+    name?: SortOrder
+    message?: SortOrder
+    stack?: SortOrderInput | SortOrder
+    digest?: SortOrderInput | SortOrder
+    path?: SortOrderInput | SortOrder
+    release?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    fingerprint?: SortOrder
+    stakeholderId?: SortOrderInput | SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    notifiedAt?: SortOrderInput | SortOrder
+    _count?: ErrorEventCountOrderByAggregateInput
+    _max?: ErrorEventMaxOrderByAggregateInput
+    _min?: ErrorEventMinOrderByAggregateInput
+  }
+
+  export type ErrorEventScalarWhereWithAggregatesInput = {
+    AND?: ErrorEventScalarWhereWithAggregatesInput | ErrorEventScalarWhereWithAggregatesInput[]
+    OR?: ErrorEventScalarWhereWithAggregatesInput[]
+    NOT?: ErrorEventScalarWhereWithAggregatesInput | ErrorEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ErrorEvent"> | string
+    source?: EnumErrorSourceWithAggregatesFilter<"ErrorEvent"> | $Enums.ErrorSource
+    context?: StringWithAggregatesFilter<"ErrorEvent"> | string
+    name?: StringWithAggregatesFilter<"ErrorEvent"> | string
+    message?: StringWithAggregatesFilter<"ErrorEvent"> | string
+    stack?: StringNullableWithAggregatesFilter<"ErrorEvent"> | string | null
+    digest?: StringNullableWithAggregatesFilter<"ErrorEvent"> | string | null
+    path?: StringNullableWithAggregatesFilter<"ErrorEvent"> | string | null
+    release?: StringNullableWithAggregatesFilter<"ErrorEvent"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"ErrorEvent"> | string | null
+    fingerprint?: StringWithAggregatesFilter<"ErrorEvent"> | string
+    stakeholderId?: StringNullableWithAggregatesFilter<"ErrorEvent"> | string | null
+    occurredAt?: DateTimeWithAggregatesFilter<"ErrorEvent"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ErrorEvent"> | Date | string
+    notifiedAt?: DateTimeNullableWithAggregatesFilter<"ErrorEvent"> | Date | string | null
+  }
+
   export type StakeholderCreateInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -38722,6 +40232,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateInput = {
@@ -38749,6 +40260,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUpdateInput = {
@@ -38776,6 +40288,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateInput = {
@@ -38803,6 +40316,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateManyInput = {
@@ -41160,6 +42674,131 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ErrorEventCreateInput = {
+    id?: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack?: string | null
+    digest?: string | null
+    path?: string | null
+    release?: string | null
+    userAgent?: string | null
+    fingerprint: string
+    occurredAt: Date | string
+    createdAt?: Date | string
+    notifiedAt?: Date | string | null
+    stakeholder?: StakeholderCreateNestedOneWithoutErrorEventsInput
+  }
+
+  export type ErrorEventUncheckedCreateInput = {
+    id?: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack?: string | null
+    digest?: string | null
+    path?: string | null
+    release?: string | null
+    userAgent?: string | null
+    fingerprint: string
+    stakeholderId?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    notifiedAt?: Date | string | null
+  }
+
+  export type ErrorEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stakeholder?: StakeholderUpdateOneWithoutErrorEventsNestedInput
+  }
+
+  export type ErrorEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ErrorEventCreateManyInput = {
+    id?: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack?: string | null
+    digest?: string | null
+    path?: string | null
+    release?: string | null
+    userAgent?: string | null
+    fingerprint: string
+    stakeholderId?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    notifiedAt?: Date | string | null
+  }
+
+  export type ErrorEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ErrorEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -41279,6 +42918,12 @@ export namespace Prisma {
     isNot?: AgentBrandingWhereInput | null
   }
 
+  export type ErrorEventListRelationFilter = {
+    every?: ErrorEventWhereInput
+    some?: ErrorEventWhereInput
+    none?: ErrorEventWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -41325,6 +42970,10 @@ export namespace Prisma {
   }
 
   export type DeviceInstallationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ErrorEventOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -43398,6 +45047,77 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type EnumErrorSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ErrorSource | EnumErrorSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumErrorSourceFilter<$PrismaModel> | $Enums.ErrorSource
+  }
+
+  export type ErrorEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    context?: SortOrder
+    name?: SortOrder
+    message?: SortOrder
+    stack?: SortOrder
+    digest?: SortOrder
+    path?: SortOrder
+    release?: SortOrder
+    userAgent?: SortOrder
+    fingerprint?: SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    notifiedAt?: SortOrder
+  }
+
+  export type ErrorEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    context?: SortOrder
+    name?: SortOrder
+    message?: SortOrder
+    stack?: SortOrder
+    digest?: SortOrder
+    path?: SortOrder
+    release?: SortOrder
+    userAgent?: SortOrder
+    fingerprint?: SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    notifiedAt?: SortOrder
+  }
+
+  export type ErrorEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    context?: SortOrder
+    name?: SortOrder
+    message?: SortOrder
+    stack?: SortOrder
+    digest?: SortOrder
+    path?: SortOrder
+    release?: SortOrder
+    userAgent?: SortOrder
+    fingerprint?: SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    notifiedAt?: SortOrder
+  }
+
+  export type EnumErrorSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ErrorSource | EnumErrorSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumErrorSourceWithAggregatesFilter<$PrismaModel> | $Enums.ErrorSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumErrorSourceFilter<$PrismaModel>
+    _max?: NestedEnumErrorSourceFilter<$PrismaModel>
+  }
+
   export type TenancyCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -43502,6 +45222,13 @@ export namespace Prisma {
     connect?: AgentBrandingWhereUniqueInput
   }
 
+  export type ErrorEventCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<ErrorEventCreateWithoutStakeholderInput, ErrorEventUncheckedCreateWithoutStakeholderInput> | ErrorEventCreateWithoutStakeholderInput[] | ErrorEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
+    createMany?: ErrorEventCreateManyStakeholderInputEnvelope
+    connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+  }
+
   export type TenancyUncheckedCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -43604,6 +45331,13 @@ export namespace Prisma {
     create?: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: AgentBrandingCreateOrConnectWithoutStakeholderInput
     connect?: AgentBrandingWhereUniqueInput
+  }
+
+  export type ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<ErrorEventCreateWithoutStakeholderInput, ErrorEventUncheckedCreateWithoutStakeholderInput> | ErrorEventCreateWithoutStakeholderInput[] | ErrorEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
+    createMany?: ErrorEventCreateManyStakeholderInputEnvelope
+    connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -43828,6 +45562,20 @@ export namespace Prisma {
     update?: XOR<XOR<AgentBrandingUpdateToOneWithWhereWithoutStakeholderInput, AgentBrandingUpdateWithoutStakeholderInput>, AgentBrandingUncheckedUpdateWithoutStakeholderInput>
   }
 
+  export type ErrorEventUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<ErrorEventCreateWithoutStakeholderInput, ErrorEventUncheckedCreateWithoutStakeholderInput> | ErrorEventCreateWithoutStakeholderInput[] | ErrorEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
+    upsert?: ErrorEventUpsertWithWhereUniqueWithoutStakeholderInput | ErrorEventUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: ErrorEventCreateManyStakeholderInputEnvelope
+    set?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    disconnect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    delete?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    update?: ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput | ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: ErrorEventUpdateManyWithWhereWithoutStakeholderInput | ErrorEventUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
+  }
+
   export type TenancyUncheckedUpdateManyWithoutLandlordNestedInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -44032,6 +45780,20 @@ export namespace Prisma {
     delete?: AgentBrandingWhereInput | boolean
     connect?: AgentBrandingWhereUniqueInput
     update?: XOR<XOR<AgentBrandingUpdateToOneWithWhereWithoutStakeholderInput, AgentBrandingUpdateWithoutStakeholderInput>, AgentBrandingUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<ErrorEventCreateWithoutStakeholderInput, ErrorEventUncheckedCreateWithoutStakeholderInput> | ErrorEventCreateWithoutStakeholderInput[] | ErrorEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
+    upsert?: ErrorEventUpsertWithWhereUniqueWithoutStakeholderInput | ErrorEventUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: ErrorEventCreateManyStakeholderInputEnvelope
+    set?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    disconnect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    delete?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+    update?: ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput | ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: ErrorEventUpdateManyWithWhereWithoutStakeholderInput | ErrorEventUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
   }
 
   export type StakeholderCreateNestedOneWithoutBrandingInput = {
@@ -46027,6 +47789,26 @@ export namespace Prisma {
     update?: XOR<XOR<AccountDeletionRequestUpdateToOneWithWhereWithoutStoragePurgesInput, AccountDeletionRequestUpdateWithoutStoragePurgesInput>, AccountDeletionRequestUncheckedUpdateWithoutStoragePurgesInput>
   }
 
+  export type StakeholderCreateNestedOneWithoutErrorEventsInput = {
+    create?: XOR<StakeholderCreateWithoutErrorEventsInput, StakeholderUncheckedCreateWithoutErrorEventsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutErrorEventsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type EnumErrorSourceFieldUpdateOperationsInput = {
+    set?: $Enums.ErrorSource
+  }
+
+  export type StakeholderUpdateOneWithoutErrorEventsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutErrorEventsInput, StakeholderUncheckedCreateWithoutErrorEventsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutErrorEventsInput
+    upsert?: StakeholderUpsertWithoutErrorEventsInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutErrorEventsInput, StakeholderUpdateWithoutErrorEventsInput>, StakeholderUncheckedUpdateWithoutErrorEventsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -46769,6 +48551,23 @@ export namespace Prisma {
     _max?: NestedEnumDeletionRequestStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumErrorSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ErrorSource | EnumErrorSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumErrorSourceFilter<$PrismaModel> | $Enums.ErrorSource
+  }
+
+  export type NestedEnumErrorSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ErrorSource | EnumErrorSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ErrorSource[] | ListEnumErrorSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumErrorSourceWithAggregatesFilter<$PrismaModel> | $Enums.ErrorSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumErrorSourceFilter<$PrismaModel>
+    _max?: NestedEnumErrorSourceFilter<$PrismaModel>
+  }
+
   export type TenancyCreateWithoutLandlordInput = {
     id?: string
     startDate: Date | string
@@ -47344,6 +49143,50 @@ export namespace Prisma {
     create: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
   }
 
+  export type ErrorEventCreateWithoutStakeholderInput = {
+    id?: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack?: string | null
+    digest?: string | null
+    path?: string | null
+    release?: string | null
+    userAgent?: string | null
+    fingerprint: string
+    occurredAt: Date | string
+    createdAt?: Date | string
+    notifiedAt?: Date | string | null
+  }
+
+  export type ErrorEventUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack?: string | null
+    digest?: string | null
+    path?: string | null
+    release?: string | null
+    userAgent?: string | null
+    fingerprint: string
+    occurredAt: Date | string
+    createdAt?: Date | string
+    notifiedAt?: Date | string | null
+  }
+
+  export type ErrorEventCreateOrConnectWithoutStakeholderInput = {
+    where: ErrorEventWhereUniqueInput
+    create: XOR<ErrorEventCreateWithoutStakeholderInput, ErrorEventUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type ErrorEventCreateManyStakeholderInputEnvelope = {
+    data: ErrorEventCreateManyStakeholderInput | ErrorEventCreateManyStakeholderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithWhereUniqueWithoutLandlordInput = {
     where: TenancyWhereUniqueInput
     update: XOR<TenancyUpdateWithoutLandlordInput, TenancyUncheckedUpdateWithoutLandlordInput>
@@ -47782,6 +49625,43 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ErrorEventUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: ErrorEventWhereUniqueInput
+    update: XOR<ErrorEventUpdateWithoutStakeholderInput, ErrorEventUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<ErrorEventCreateWithoutStakeholderInput, ErrorEventUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: ErrorEventWhereUniqueInput
+    data: XOR<ErrorEventUpdateWithoutStakeholderInput, ErrorEventUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type ErrorEventUpdateManyWithWhereWithoutStakeholderInput = {
+    where: ErrorEventScalarWhereInput
+    data: XOR<ErrorEventUpdateManyMutationInput, ErrorEventUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type ErrorEventScalarWhereInput = {
+    AND?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
+    OR?: ErrorEventScalarWhereInput[]
+    NOT?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
+    id?: StringFilter<"ErrorEvent"> | string
+    source?: EnumErrorSourceFilter<"ErrorEvent"> | $Enums.ErrorSource
+    context?: StringFilter<"ErrorEvent"> | string
+    name?: StringFilter<"ErrorEvent"> | string
+    message?: StringFilter<"ErrorEvent"> | string
+    stack?: StringNullableFilter<"ErrorEvent"> | string | null
+    digest?: StringNullableFilter<"ErrorEvent"> | string | null
+    path?: StringNullableFilter<"ErrorEvent"> | string | null
+    release?: StringNullableFilter<"ErrorEvent"> | string | null
+    userAgent?: StringNullableFilter<"ErrorEvent"> | string | null
+    fingerprint?: StringFilter<"ErrorEvent"> | string
+    stakeholderId?: StringNullableFilter<"ErrorEvent"> | string | null
+    occurredAt?: DateTimeFilter<"ErrorEvent"> | Date | string
+    createdAt?: DateTimeFilter<"ErrorEvent"> | Date | string
+    notifiedAt?: DateTimeNullableFilter<"ErrorEvent"> | Date | string | null
+  }
+
   export type StakeholderCreateWithoutBrandingInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -47806,6 +49686,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutBrandingInput = {
@@ -47832,6 +49713,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutBrandingInput = {
@@ -47874,6 +49756,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutBrandingInput = {
@@ -47900,6 +49783,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyCreateWithoutPropertyInput = {
@@ -48080,6 +49964,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsLandlordInput = {
@@ -48106,6 +49991,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsLandlordInput = {
@@ -48137,6 +50023,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsTenantInput = {
@@ -48163,6 +50050,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsTenantInput = {
@@ -48194,6 +50082,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsAgentInput = {
@@ -48220,6 +50109,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsAgentInput = {
@@ -48403,6 +50293,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsLandlordInput = {
@@ -48429,6 +50320,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsTenantInput = {
@@ -48466,6 +50358,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsTenantInput = {
@@ -48492,6 +50385,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsAgentInput = {
@@ -48529,6 +50423,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput = {
@@ -48555,6 +50450,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionUpsertWithWhereUniqueWithoutTenancyInput = {
@@ -48652,6 +50548,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionsRunInput = {
@@ -48678,6 +50575,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionsRunInput = {
@@ -48995,6 +50893,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionsRunInput = {
@@ -49021,6 +50920,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionUpsertWithoutCheckOutInput = {
@@ -50573,6 +52473,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceCasesReportedInput = {
@@ -50599,6 +52500,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceCasesReportedInput = {
@@ -50905,6 +52807,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceCasesReportedInput = {
@@ -50931,6 +52834,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceEventUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
@@ -51101,6 +53005,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEventsInput = {
@@ -51127,6 +53032,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEventsInput = {
@@ -51224,6 +53130,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEventsInput = {
@@ -51250,6 +53157,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutVisitsInput = {
@@ -51632,6 +53540,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEvidenceUploadedInput = {
@@ -51658,6 +53567,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEvidenceUploadedInput = {
@@ -51792,6 +53702,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEvidenceUploadedInput = {
@@ -51818,6 +53729,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutVerificationInput = {
@@ -51875,6 +53787,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceVerificationsInput = {
@@ -51901,6 +53814,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceVerificationsInput = {
@@ -51980,6 +53894,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceVerificationsInput = {
@@ -52006,6 +53921,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
@@ -52081,6 +53997,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityProposedInput = {
@@ -52107,6 +54024,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityProposedInput = {
@@ -52138,6 +54056,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityRespondedInput = {
@@ -52164,6 +54083,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityRespondedInput = {
@@ -52261,6 +54181,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityProposedInput = {
@@ -52287,6 +54208,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityRespondedInput = {
@@ -52324,6 +54246,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput = {
@@ -52350,6 +54273,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutProviderInput = {
@@ -52428,6 +54352,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeviceInstallationsInput = {
@@ -52454,6 +54379,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeviceInstallationsInput = {
@@ -52528,6 +54454,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeviceInstallationsInput = {
@@ -52554,6 +54481,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutInstallationInput = {
@@ -52611,6 +54539,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutNotificationsInput = {
@@ -52637,6 +54566,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutNotificationsInput = {
@@ -52711,6 +54641,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutNotificationsInput = {
@@ -52737,6 +54668,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutNotificationInput = {
@@ -53380,6 +55312,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSignaturesInput = {
@@ -53406,6 +55339,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSignaturesInput = {
@@ -53503,6 +55437,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSignaturesInput = {
@@ -53529,6 +55464,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutAssessmentsInput = {
@@ -53659,6 +55595,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeletionRequestsInput = {
@@ -53685,6 +55622,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeletionRequestsInput = {
@@ -53751,6 +55689,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeletionRequestsInput = {
@@ -53777,6 +55716,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput = {
@@ -53872,6 +55812,130 @@ export namespace Prisma {
     processingPolicyVersion?: NullableStringFieldUpdateOperationsInput | string | null
     fulfilledUnderPolicy?: NullableStringFieldUpdateOperationsInput | string | null
     email?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StakeholderCreateWithoutErrorEventsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutErrorEventsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutErrorEventsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutErrorEventsInput, StakeholderUncheckedCreateWithoutErrorEventsInput>
+  }
+
+  export type StakeholderUpsertWithoutErrorEventsInput = {
+    update: XOR<StakeholderUpdateWithoutErrorEventsInput, StakeholderUncheckedUpdateWithoutErrorEventsInput>
+    create: XOR<StakeholderCreateWithoutErrorEventsInput, StakeholderUncheckedCreateWithoutErrorEventsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutErrorEventsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutErrorEventsInput, StakeholderUncheckedUpdateWithoutErrorEventsInput>
+  }
+
+  export type StakeholderUpdateWithoutErrorEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutErrorEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type TenancyCreateManyLandlordInput = {
@@ -54059,6 +56123,23 @@ export namespace Prisma {
     disabledAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ErrorEventCreateManyStakeholderInput = {
+    id?: string
+    source: $Enums.ErrorSource
+    context: string
+    name: string
+    message: string
+    stack?: string | null
+    digest?: string | null
+    path?: string | null
+    release?: string | null
+    userAgent?: string | null
+    fingerprint: string
+    occurredAt: Date | string
+    createdAt?: Date | string
+    notifiedAt?: Date | string | null
   }
 
   export type TenancyUpdateWithoutLandlordInput = {
@@ -54658,6 +56739,57 @@ export namespace Prisma {
     disabledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ErrorEventUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ErrorEventUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ErrorEventUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumErrorSourceFieldUpdateOperationsInput | $Enums.ErrorSource
+    context?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    stack?: NullableStringFieldUpdateOperationsInput | string | null
+    digest?: NullableStringFieldUpdateOperationsInput | string | null
+    path?: NullableStringFieldUpdateOperationsInput | string | null
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TenancyCreateManyPropertyInput = {

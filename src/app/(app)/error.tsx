@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { reportError } from '@/lib/error-reporter'
 
 /// Server actions throw plain errors for the authorization failures in src/lib/auth.ts,
 /// and Next serialises those to a generic message in production rather than leaking the
@@ -16,6 +17,7 @@ export default function AppError({
 }) {
   useEffect(() => {
     console.error('Unhandled error in app route:', error)
+    reportError(error, 'boundary')
   }, [error])
 
   return (

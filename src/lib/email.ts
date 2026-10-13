@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import type { ErrorEvent } from '@/generated/prisma'
 
 /// Sign-in email, sent by us rather than by Supabase's dashboard templates.
 ///
@@ -90,4 +91,23 @@ export async function sendMaintenanceNotification(
     text: [notification.body, '', 'Open Kivilo to view the maintenance timeline and respond.'].join('\n'),
   }, { idempotencyKey: `maintenance-notification-${notification.id}` })
   if (error) throw new Error(`Resend refused the maintenance notification: ${error.message}`)
+}
+
+/// To the operator, not an agent: one message per run of the error cron, listing each
+/// kind of error seen for the first time. Plain text, because it is read to fix a bug.
+export async function sendErrorAlert(to: string, errors: { count: number; latest: ErrorEvent }[]) {
+  const subject = errors.length === 1
+    ? `New Kivilo error: ${errors[0].latest.name}`
+    : `${errors.length} new Kivilo errors`
+  const text = errors.map(({ count, latest }) => [
+    `${latest.source} ${latest.name}: ${latest.message.slice(0, 300)}`,
+    `Path: ${latest.path ?? 'unknown'} (${latest.context})`,
+    `Seen ${count === 1 ? 'once' : `${count} times`}, last at ${latest.occurredAt.toISOString()}`,
+    latest.digest && `Reference: ${latest.digest}`,
+    latest.release && `Build: ${latest.release}`,
+    `Fingerprint: ${latest.fingerprint}`,
+    ...(latest.stack?.split('\n').slice(1, 6) ?? []),
+  ].filter(Boolean).join('\n')).join('\n\n')
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text })
+  if (error) throw new Error(`Resend refused the error alert: ${error.message}`)
 }

@@ -1,0 +1,155 @@
+import { createHash } from 'node:crypto'
+import { z } from 'zod'
+import { db } from '@/lib/db'
+import { sendErrorAlert } from '@/lib/email'
+import type { ErrorSource } from '@/generated/prisma'
+
+/// Error tracking, in our own database. The server records what it throws through
+/// `src/instrumentation.ts` and `authed`; an agent's browser posts the rest to
+/// `/api/v1/errors`. Every occurrence is a row, grouped by fingerprint when read, and a
+/// cron emails each kind of error the first time it is seen.
+
+const RETENTION_DAYS = 90
+
+/// Ids, counts and hashes change between occurrences of one bug, so they come out before
+/// hashing. Otherwise every inspection would be its own error.
+export function normalize(text: string) {
+  return text
+    .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ':uuid')
+    .replace(/\bc[a-z0-9]{24}\b/g, ':id')
+    .replace(/\d+/g, ':n')
+}
+
+/// A report path carries its share token, which is a bearer credential, so it never
+/// reaches this table or an alert email. The query string goes for the same reason.
+export function redactPath(path: string) {
+  return path.split(/[?#]/)[0].replace(/^\/reports\/[^/]+/, '/reports/:token')
+}
+
+export function fingerprint(error: {
+  source: ErrorSource
+  name: string
+  message: string
+  path: string | null
+}) {
+  return createHash('sha256')
+    .update([error.source, error.name, normalize(error.message), normalize(error.path ?? '')].join('\n'))
+    .digest('hex')
+    .slice(0, 16)
+}
+
+const clientErrorBatch = z.object({
+  errors: z.array(z.object({
+    id: z.uuid(),
+    context: z.enum(['boundary', 'window', 'rejection']),
+    name: z.string().max(200),
+    message: z.string().max(2000),
+    stack: z.string().max(8000).nullable(),
+    path: z.string().max(500),
+    release: z.string().max(64).nullable(),
+    occurredAt: z.iso.datetime(),
+  })).min(1).max(20),
+})
+
+/// A batch from an agent's browser. The ids are the browser's own, so a batch sent twice,
+/// because the response was lost on a bad connection, is recorded once.
+export async function recordClientErrors(stakeholderId: string, body: unknown, userAgent: string | null) {
+  const { errors } = clientErrorBatch.parse(body)
+  const now = Date.now()
+  const { count } = await db.errorEvent.createMany({
+    data: errors.map((error) => {
+      const path = redactPath(error.path)
+      return {
+        id: error.id,
+        source: 'WEB' as const,
+        context: error.context,
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        path,
+        release: error.release,
+        userAgent: userAgent?.slice(0, 300) ?? null,
+        fingerprint: fingerprint({ source: 'WEB', name: error.name, message: error.message, path }),
+        stakeholderId,
+        // A report can wait days on a phone with no signal, but a phone's clock can be
+        // anywhere, and nothing happened in the future.
+        occurredAt: new Date(Math.min(Date.parse(error.occurredAt), now)),
+      }
+    }),
+    skipDuplicates: true,
+  })
+  return count
+}
+
+/// A server error. `onRequestError` passes renders, server actions and route handlers;
+/// `authed` passes its own failures, which it turns into a 500 before Next sees them.
+export async function recordServerError(
+  error: unknown,
+  at: { context: string; path: string; userAgent: string | null; stakeholderId?: string },
+) {
+  const { name, message, stack } = error instanceof Error
+    ? error
+    : { name: 'NonError', message: String(error), stack: undefined }
+  const path = redactPath(at.path)
+  await db.errorEvent.create({
+    data: {
+      source: 'SERVER',
+      context: at.context,
+      name,
+      message: message.slice(0, 2000),
+      stack: stack?.slice(0, 8000) ?? null,
+      digest: typeof error === 'object' && error !== null && 'digest' in error
+        ? String(error.digest)
+        : null,
+      path,
+      release: process.env.NEXT_PUBLIC_BUILD_ID ?? null,
+      userAgent: at.userAgent?.slice(0, 300) ?? null,
+      fingerprint: fingerprint({ source: 'SERVER', name, message, path }),
+      stakeholderId: at.stakeholderId ?? null,
+      occurredAt: new Date(),
+    },
+  })
+}
+
+/// Emails each kind of error the first time it is seen, then stamps everything pending,
+/// so a recurrence never mails again. Only fingerprints read here are stamped: one that
+/// first arrives mid-run stays pending for the next run rather than being marked seen
+/// without anyone being told.
+export async function alertNewErrors(now = new Date()) {
+  const to = process.env.ERROR_ALERT_TO
+  if (!to) throw new Error('ERROR_ALERT_TO must be set')
+
+  const pending = await db.errorEvent.groupBy({
+    by: ['fingerprint'],
+    where: { notifiedAt: null },
+    _count: true,
+  })
+  const fingerprints = pending.map((group) => group.fingerprint)
+  const known = new Set((await db.errorEvent.findMany({
+    where: { fingerprint: { in: fingerprints }, notifiedAt: { not: null } },
+    distinct: ['fingerprint'],
+    select: { fingerprint: true },
+  })).map((event) => event.fingerprint))
+
+  const fresh = await Promise.all(
+    pending
+      .filter((group) => !known.has(group.fingerprint))
+      .map(async (group) => ({
+        count: group._count,
+        latest: await db.errorEvent.findFirstOrThrow({
+          where: { fingerprint: group.fingerprint },
+          orderBy: { occurredAt: 'desc' },
+        }),
+      })),
+  )
+  if (fresh.length) await sendErrorAlert(to, fresh)
+
+  await db.errorEvent.updateMany({
+    where: { notifiedAt: null, fingerprint: { in: fingerprints } },
+    data: { notifiedAt: now },
+  })
+  const { count: pruned } = await db.errorEvent.deleteMany({
+    where: { createdAt: { lt: new Date(now.getTime() - RETENTION_DAYS * 86_400_000) } },
+  })
+  return { new: fresh.length, recurring: pending.length - fresh.length, pruned }
+}

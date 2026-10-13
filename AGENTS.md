@@ -213,6 +213,18 @@ photo whose aspect does not match its container.
 Marks stop once the inspection is `AWAITING_SIGNATURE`: a red ring is a stronger claim
 than a caption, and the report is the artefact both parties are signing.
 
+## Error tracking
+
+Errors go to our own `ErrorEvent` table, not a third-party tool (`plans/telemetry.md`).
+The server records what it throws through `onRequestError` in `src/instrumentation.ts`,
+plus `authed`'s own 500s, which Next never sees. An agent's browser posts the rest to
+`/api/v1/errors` from `src/lib/error-reporter.ts`, holding them in `localStorage` until
+the server confirms. The browser skips anything with a `digest`, because the server already
+recorded it under that digest, and the digest is the "Reference" an agent sees on screen.
+Every 15 minutes `/api/internal/errors` emails `ERROR_ALERT_TO` once per new fingerprint,
+then deletes anything over 90 days, as the privacy page promises. Never store a
+`/reports/[token]` path unredacted: `redactPath` is the guard.
+
 ## Dev scripts
 
 Image generation goes through Based AI (`src/lib/based-ai.ts`, OpenAI-compatible
