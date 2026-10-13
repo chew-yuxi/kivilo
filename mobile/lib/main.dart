@@ -6,6 +6,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
 import 'screens/home_screen.dart';
+import 'screens/update_gate.dart';
+import 'services/api.dart';
+import 'services/app_update.dart';
 import 'services/secure_session_store.dart';
 import 'services/capture_sync.dart';
 import 'services/foreground_capture_retry.dart';
@@ -60,6 +63,9 @@ class KiviloApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: buildKiviloTheme(),
+      // Above the navigator, so a retired build cannot reach any route, signed in or not.
+      builder: (context, child) =>
+          UpdateGate(check: () => requiredUpdateUrl(Api()), child: child!),
       home: const _Root(),
     );
   }

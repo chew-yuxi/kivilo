@@ -614,6 +614,33 @@ Check it on a phone, then promote the patch to stable in the Shorebird console.
   in-app restart button and removed it because a warm restart never applied the patch
   (`sarnies-labs-mono/apps/mobile/lib/core/app_update/patch_update.dart`).
 
+## Retiring an old build
+
+From build `22` the app asks `GET /api/v1/app-config` at launch for the oldest build its
+platform may run, and below it covers every screen with "Update Kivilo" and a button to
+its store page. This is for what a patch cannot do: reach a build made before Shorebird,
+or require a native change. The floors are the Vercel variables `KIVILO_MIN_BUILD_IOS`
+and `KIVILO_MIN_BUILD_ANDROID`; unset is 0 and retires nothing. To raise one:
+
+```bash
+vercel env rm KIVILO_MIN_BUILD_IOS production
+vercel env add KIVILO_MIN_BUILD_IOS production   # enter the new floor, e.g. 23
+vercel ls --prod                                  # the current production deployment
+vercel redeploy <that deployment's url> --target production
+```
+
+A variable only reaches a deployment built after it was set, hence the redeploy.
+
+- Raise a floor only once that build is live in that store. Apple review lags Play,
+  which is why there are two. Raised early, the wall sends people to a store page that
+  has nothing newer on it. The button opens the public store page, not TestFlight.
+- The check fails open: offline, a server error, or a response the build does not
+  understand all leave the app usable. An inspector is offline by default.
+- The app stays mounted under the wall, so the capture queue keeps draining, and store
+  updates keep the queue on the phone. The check runs once per cold start.
+- Builds `21` and earlier have no wall and never will. The floors only move people who
+  are on build `22` or later.
+
 ## Firebase Cloud Messaging
 
 Firebase is used for mobile push notifications; Supabase remains the account and data

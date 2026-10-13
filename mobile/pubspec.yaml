@@ -46,6 +46,7 @@ dependencies:
   firebase_messaging: ^16.7.0
   image_picker: ^1.2.4
   video_player: ^2.14.1
+  package_info_plus: ^10.2.2
 
 dev_dependencies:
   flutter_test:

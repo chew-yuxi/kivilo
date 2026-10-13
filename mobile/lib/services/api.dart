@@ -122,6 +122,10 @@ class Api {
     return UserProfile.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Public, so it is read the same with or without a session.
+  Future<Map<String, dynamic>> appConfig() async =>
+      (await _get<Map<String, dynamic>>('/api/v1/app-config')).data!;
+
   Future<List<TenancySummary>> tenancies() async {
     final data = await _read('/api/v1/tenancies', 'tenancies');
     return (data as List<dynamic>)
