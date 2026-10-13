@@ -32,12 +32,16 @@ The landlord acknowledges or disputes the update and arranges the repair.
 ## Order
 
 1. **Landlords and tenants read the report in the app, on their own home.** Done.
-2. **Team sharing.** Teammates see and work on each other's deals as if they were the
+2. **Team sharing.** Done. Teammates see and work on each other's deals as if they were the
    deal's agent; the deal's agent stays the named one, `conductedBy` records who walked
    it. Set up by command, no team screens yet. Leaving ends access; deals stay with
    their agent. Every agent clause needs it: `src/lib/auth.ts` and the two in
    `src/lib/maintenance.ts` that bypass `tenancyScope`.
-3. **The landlord signs remotely.** Today only the agent's phone can submit a signature.
+3. **The landlord signs remotely.** Done. A landlord or tenant signs as themselves, on
+   their own tenancy, while the report awaits signature (`authorizeOwnSignature`,
+   `POST /api/v1/inspections/[id]/report/signature`), through the same transaction as a
+   signature on the agent's phone. Not yet: telling the agent when the report completes;
+   it belongs with the emails in 4.
 4. **The tenant's copy at handover.** QR after signing, email with the defect deadline.
 5. **"It was like this when I moved in"**, with a per-tenancy defect window.
 

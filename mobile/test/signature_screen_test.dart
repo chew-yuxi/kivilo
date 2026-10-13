@@ -22,6 +22,22 @@ void main() {
     );
   }
 
+  testWidgets('a landlord signing on their own phone is spoken to directly', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SignatureScreen.own(
+          inspectionId: 'inspection-1',
+          name: 'Tan Wei Ming',
+          role: 'Landlord',
+        ),
+      ),
+    );
+    expect(find.text('Landlord signature'), findsOneWidget);
+    expect(find.textContaining('the report you just read'), findsOneWidget);
+  });
+
   testWidgets('vertical-dominant stroke inside the signature pad is recorded', (
     tester,
   ) async {

@@ -5,6 +5,7 @@ class SignedReport {
     required this.id,
     required this.kind,
     required this.status,
+    this.signAs,
     required this.property,
     required this.landlord,
     required this.tenant,
@@ -24,6 +25,9 @@ class SignedReport {
 
   /// `AWAITING_SIGNATURE` until both parties have signed, then `COMPLETED`.
   final String status;
+
+  /// `LANDLORD` or `TENANT` while the report still waits for this viewer's signature.
+  final String? signAs;
   final String property;
   final String landlord;
   final String tenant;
@@ -48,6 +52,7 @@ class SignedReport {
     id: json['id'] as String,
     kind: json['kind'] as String,
     status: json['status'] as String,
+    signAs: json['signAs'] as String?,
     property: json['property'] as String,
     landlord: json['landlord'] as String,
     tenant: json['tenant'] as String,

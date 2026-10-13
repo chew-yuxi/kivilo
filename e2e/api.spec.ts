@@ -82,8 +82,9 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
 /// The capture path as a native client walks it: no browser, no cookie, bytes going
 /// straight to storage with a one-shot credential. Deliberately no page at all, because
 /// the point is that the app never needs one.
-test('a native client can create and capture a room end to end', async ({ request }) => {
+test('a native client takes a check-in from capture to both signatures', async ({ request }) => {
   const headers = { Authorization: `Bearer ${await accessTokenFor(freshEmail('api-capture'))}` }
+  const landlordEmail = freshEmail('api-landlord')
 
   const created = await request.post('/api/v1/inspections', {
     headers,
@@ -92,6 +93,7 @@ test('a native client can create and capture a room end to end', async ({ reques
       postalCode: '048616',
       propertyType: 'PRIVATE_NON_LANDED',
       landlordName: 'Ng Wei Liang',
+      landlordEmail,
       tenantName: 'Sofia Alvarez',
       startDate: '2026-09-01',
       endDate: '2028-08-31',
@@ -205,4 +207,28 @@ test('a native client can create and capture a room end to end', async ({ reques
     { headers },
   )
   expect((await reviewedRoom.json()).items[0]).toMatchObject({ editedByHuman: true })
+
+  // Send for signature. The tenant signs on the agent's phone at the handover; the
+  // landlord, who was not there, signs from their own login.
+  expect((await request.post(`/api/v1/inspections/${inspectionId}/review`, { headers })).status()).toBe(200)
+  const { tenantId } = await (await request.get(`/api/v1/inspections/${inspectionId}`, { headers })).json()
+  const png = 'data:image/png;base64,iVBORw0KGgo='
+  const tenantSigned = await request.post(`/api/v1/inspections/${inspectionId}/signatures`, {
+    headers,
+    data: { stakeholderId: tenantId, imageData: png },
+  })
+  expect(tenantSigned.status()).toBe(200)
+
+  const landlord = { Authorization: `Bearer ${await accessTokenFor(landlordEmail)}` }
+  const toSign = await request.get(`/api/v1/inspections/${inspectionId}/report`, { headers: landlord })
+  expect(await toSign.json()).toMatchObject({ status: 'AWAITING_SIGNATURE', signAs: 'LANDLORD' })
+  // The report, never the agent's working copy.
+  expect((await request.get(`/api/v1/inspections/${inspectionId}`, { headers: landlord })).status()).toBe(404)
+  const landlordSigned = await request.post(`/api/v1/inspections/${inspectionId}/report/signature`, {
+    headers: landlord,
+    data: { imageData: png },
+  })
+  expect(landlordSigned.status()).toBe(200)
+  const signed = await request.get(`/api/v1/inspections/${inspectionId}/report`, { headers: landlord })
+  expect(await signed.json()).toMatchObject({ status: 'COMPLETED', signAs: null })
 })

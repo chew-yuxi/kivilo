@@ -8,10 +8,14 @@ import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
-Map<String, dynamic> reportJson({String status = 'AWAITING_SIGNATURE'}) => {
+Map<String, dynamic> reportJson({
+  String status = 'AWAITING_SIGNATURE',
+  String? signAs,
+}) => {
   'id': 'inspection-1',
   'kind': 'CHECK_IN',
   'status': status,
+  'signAs': signAs,
   'property': '#28-05, 2 Marina Boulevard, Singapore 018987',
   'landlord': 'Tan Wei Ming',
   'tenant': 'Priya Raman',
@@ -104,11 +108,13 @@ void main() {
         'latestReport': {
           'id': 'inspection-1',
           'kind': 'CHECK_IN',
-          'status': 'COMPLETED',
+          'status': 'AWAITING_SIGNATURE',
+          'awaitingMySignature': true,
         },
       });
       expect(current.latestReportId, 'inspection-1');
-      expect(current.latestReportStatus, 'COMPLETED');
+      expect(current.awaitingMySignature, isTrue);
+      expect(current.latestReportStatus, 'AWAITING_SIGNATURE');
       expect(TenancySummary.fromJson(base).latestReportId, isNull);
     },
   );
@@ -176,5 +182,23 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Signed by both parties · 1 Oct 2026'), findsOneWidget);
+    expect(find.textContaining('Sign as'), findsNothing);
+  });
+
+  testWidgets('offers the landlord their signature while the report waits', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: ReportScreen(
+          id: 'inspection-1',
+          api: FakeReportApi(reportJson(signAs: 'LANDLORD')),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sign as landlord'), findsOneWidget);
   });
 }

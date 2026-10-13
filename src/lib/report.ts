@@ -32,6 +32,10 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
     include: reportInclude,
   })
   const { tenancy } = inspection
+  const party = tenancy.landlordId === stakeholderId
+    ? 'LANDLORD' as const
+    : tenancy.tenantId === stakeholderId ? 'TENANT' as const : null
+  const signed = inspection.signatures.some((signature) => signature.stakeholderId === stakeholderId)
   const published = inspection.assessments[0] ?? null
   const assessment = published ? assessmentSnapshotSchema.parse(published.snapshot) : null
 
@@ -39,6 +43,8 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
     id: inspection.id,
     kind: inspection.kind,
     status: inspection.status,
+    // The role this viewer signs as, while the report still waits for their signature.
+    signAs: inspection.status === 'AWAITING_SIGNATURE' && !signed ? party : null,
     property: propertyLabel(tenancy.property),
     landlord: tenancy.landlord.name,
     tenant: tenancy.tenant.name,

@@ -271,7 +271,12 @@ export async function listTenancies(stakeholderId: string) {
         where: { status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] } },
         orderBy: { createdAt: 'desc' },
         take: 1,
-        select: { id: true, kind: true, status: true },
+        select: {
+          id: true,
+          kind: true,
+          status: true,
+          signatures: { where: { stakeholderId }, select: { id: true } },
+        },
       },
     },
   })
@@ -288,7 +293,17 @@ export async function listTenancies(stakeholderId: string) {
     endDate: tenancy.endDate.toISOString(),
     maintenanceCases: tenancy._count.maintenanceCases,
     inspections: tenancy._count.inspections,
-    latestReport: tenancy.inspections[0] ?? null,
+    latestReport: tenancy.inspections[0]
+      ? {
+        id: tenancy.inspections[0].id,
+        kind: tenancy.inspections[0].kind,
+        status: tenancy.inspections[0].status,
+        // Only a landlord or tenant signs; an agent collects signatures, never gives one.
+        awaitingMySignature: tenancy.inspections[0].status === 'AWAITING_SIGNATURE' &&
+          (tenancy.landlordId === stakeholderId || tenancy.tenantId === stakeholderId) &&
+          tenancy.inspections[0].signatures.length === 0,
+      }
+      : null,
   }))
 }
 

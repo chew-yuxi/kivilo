@@ -208,6 +208,22 @@ export async function authorizeReport(inspectionId: string, stakeholderId: strin
   return inspection
 }
 
+/// A landlord or tenant signs their own tenancy's report, as themselves, while it awaits
+/// signature. Usually the landlord, who is rarely at the handover. The signer is the
+/// signed-in person, never an id from the request.
+export async function authorizeOwnSignature(inspectionId: string, stakeholderId: string) {
+  const inspection = await db.inspection.findFirst({
+    where: {
+      id: inspectionId,
+      status: 'AWAITING_SIGNATURE',
+      tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
+    },
+    select: { id: true, tenancyId: true },
+  })
+  if (!inspection) throw new Error('Report not found')
+  return inspection
+}
+
 /// Resolves a room to its inspection and authorizes that, so a room id from the client
 /// cannot reach across into another agent's deal.
 export async function authorizeRoom(roomId: string, agentId: string) {

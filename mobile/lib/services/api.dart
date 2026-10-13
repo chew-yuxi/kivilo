@@ -437,6 +437,15 @@ class Api {
     await _dio.post('/api/v1/inspections/$inspectionId/review');
   });
 
+  /// The signed-in landlord or tenant signs their own report.
+  Future<void> signOwnReport(String inspectionId, String imageData) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/inspections/$inspectionId/report/signature',
+          data: {'imageData': imageData},
+        );
+      });
+
   Future<void> sign(
     String inspectionId,
     String stakeholderId,

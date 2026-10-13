@@ -17,8 +17,19 @@ class SignatureScreen extends StatefulWidget {
     required this.role,
   });
 
+  /// The signed-in landlord or tenant signing their own report on their own phone.
+  const SignatureScreen.own({
+    super.key,
+    required this.inspectionId,
+    required this.name,
+    required this.role,
+  }) : stakeholderId = null;
+
   final String inspectionId;
-  final String stakeholderId;
+
+  /// The party the agent is collecting a signature from, or null when the signer is
+  /// whoever is signed in.
+  final String? stakeholderId;
   final String name;
   final String role;
 
@@ -49,22 +60,25 @@ class _SignatureScreenState extends State<SignatureScreen> {
     try {
       final ownerId = Supabase.instance.client.auth.currentUser?.id;
       if (ownerId == null) throw StateError('Sign in again before signing.');
-      final queue = CaptureQueue();
-      late final ({int captures, int edits}) pending;
-      try {
-        pending = await queue.pendingForInspection(
-          widget.inspectionId,
-          ownerId,
-        );
-      } finally {
-        await queue.close();
-      }
-      if (pending.captures > 0 || pending.edits > 0) {
-        throw StateError(
-          '${pending.captures} capture(s) and ${pending.edits} '
-          'edit(s) still need to sync. Return to the rooms and retry uploads '
-          'before either person signs.',
-        );
+      // Only the agent's phone holds captures for this report.
+      if (widget.stakeholderId != null) {
+        final queue = CaptureQueue();
+        late final ({int captures, int edits}) pending;
+        try {
+          pending = await queue.pendingForInspection(
+            widget.inspectionId,
+            ownerId,
+          );
+        } finally {
+          await queue.close();
+        }
+        if (pending.captures > 0 || pending.edits > 0) {
+          throw StateError(
+            '${pending.captures} capture(s) and ${pending.edits} '
+            'edit(s) still need to sync. Return to the rooms and retry uploads '
+            'before either person signs.',
+          );
+        }
       }
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
@@ -77,7 +91,12 @@ class _SignatureScreenState extends State<SignatureScreen> {
       if (data == null) throw StateError('Could not render signature');
       final imageData =
           'data:image/png;base64,${base64Encode(data.buffer.asUint8List())}';
-      await _api.sign(widget.inspectionId, widget.stakeholderId, imageData);
+      final stakeholderId = widget.stakeholderId;
+      if (stakeholderId == null) {
+        await _api.signOwnReport(widget.inspectionId, imageData);
+      } else {
+        await _api.sign(widget.inspectionId, stakeholderId, imageData);
+      }
       if (mounted) Navigator.pop(context, true);
     } catch (error) {
       if (mounted) setState(() => _error = '$error');
@@ -94,9 +113,12 @@ class _SignatureScreenState extends State<SignatureScreen> {
       children: [
         Text(widget.name, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
-        const Text(
-          'Review the agreed inventory with this person before they sign. '
-          'Their signature confirms the report as shown.',
+        Text(
+          widget.stakeholderId == null
+              ? 'Your signature confirms that the report you just read '
+                    'records the property as it was handed over.'
+              : 'Review the agreed inventory with this person before they sign. '
+                    'Their signature confirms the report as shown.',
         ),
         const SizedBox(height: 16),
         Align(

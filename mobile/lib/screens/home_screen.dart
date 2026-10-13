@@ -502,7 +502,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: FilledButton(
                         onPressed: () => _openReport(reportId),
                         child: Text(
-                          tenancy.latestReportKind == 'CHECK_OUT'
+                          tenancy.awaitingMySignature
+                              ? 'Review and sign'
+                              : tenancy.latestReportKind == 'CHECK_OUT'
                               ? 'Check-out report'
                               : 'Check-in report',
                         ),

@@ -6,6 +6,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'photo_mark_screen.dart';
+import 'signature_screen.dart';
 
 /// The signed report, read-only: what the landlord and tenant agreed, laid out for a
 /// phone. It shows exactly what the shared link shows, because the server loads both
@@ -27,6 +28,20 @@ class _ReportScreenState extends State<ReportScreen> {
     final next = _api.report(widget.id);
     setState(() => _future = next);
     await next;
+  }
+
+  Future<void> _sign(SignedReport report) async {
+    final landlord = report.signAs == 'LANDLORD';
+    final signed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => SignatureScreen.own(
+          inspectionId: report.id,
+          name: landlord ? report.landlord : report.tenant,
+          role: landlord ? 'Landlord' : 'Tenant',
+        ),
+      ),
+    );
+    if (signed == true && mounted) await _refresh();
   }
 
   @override
@@ -54,6 +69,19 @@ class _ReportScreenState extends State<ReportScreen> {
             : report == null
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(onRefresh: _refresh, child: _body(report)),
+        bottomNavigationBar: report != null && report.signAs != null
+            ? SafeArea(
+                minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: FilledButton(
+                  onPressed: () => _sign(report),
+                  child: Text(
+                    report.signAs == 'LANDLORD'
+                        ? 'Sign as landlord'
+                        : 'Sign as tenant',
+                  ),
+                ),
+              )
+            : null,
       );
     },
   );

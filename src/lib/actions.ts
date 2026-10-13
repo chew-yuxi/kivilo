@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { db } from '@/lib/db'
-import { requireAgent, authorizeInspection, authorizeRoom } from '@/lib/auth'
+import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom } from '@/lib/auth'
 import { captureExists, createUploadUrl } from '@/lib/storage'
 import { annotationInputSchema } from '@/lib/annotations'
 import { Prisma } from '@/generated/prisma'
@@ -672,7 +672,25 @@ export async function signInspection(
   if (authorized.status !== 'AWAITING_SIGNATURE' && authorized.status !== 'COMPLETED') {
     throw new Error('Report is not awaiting signature')
   }
+  await recordSignature(inspectionId, authorized.tenancyId, stakeholderId, imageData)
+  revalidate(inspectionId)
+}
 
+/// The landlord or tenant signs on their own phone, as themselves. Same record and same
+/// completion as a signature taken on the agent's phone.
+export async function signOwnReport(inspectionId: string, imageData: string) {
+  const signer = await requireStakeholder()
+  const authorized = await authorizeOwnSignature(inspectionId, signer.id)
+  await recordSignature(inspectionId, authorized.tenancyId, signer.id, imageData)
+  revalidate(inspectionId)
+}
+
+async function recordSignature(
+  inspectionId: string,
+  tenancyId: string,
+  stakeholderId: string,
+  imageData: string,
+) {
   if (!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2_000_000) {
     throw new Error('Invalid signature image')
   }
@@ -687,7 +705,7 @@ export async function signInspection(
       throw new Error('Report is not awaiting signature')
     }
     const tenancy = await tx.tenancy.findUniqueOrThrow({
-      where: { id: authorized.tenancyId },
+      where: { id: tenancyId },
       select: { landlordId: true, tenantId: true },
     })
     const required = [tenancy.landlordId, tenancy.tenantId]
@@ -712,8 +730,6 @@ export async function signInspection(
       await tx.inspection.update({ where: { id: inspectionId }, data: { status: 'COMPLETED' } })
     }
   })
-
-  revalidate(inspectionId)
 }
 
 /// Findings are written by the agent, one per change they find between the signed

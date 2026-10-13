@@ -29,6 +29,7 @@ class TenancySummary {
     this.latestReportId,
     this.latestReportKind,
     this.latestReportStatus,
+    this.awaitingMySignature = false,
   });
   final String id;
   final String role;
@@ -47,6 +48,9 @@ class TenancySummary {
   /// `AWAITING_SIGNATURE` or `COMPLETED`.
   final String? latestReportStatus;
 
+  /// The latest report still needs this landlord's or tenant's own signature.
+  final bool awaitingMySignature;
+
   factory TenancySummary.fromJson(Map<String, dynamic> json) => TenancySummary(
     id: json['id'] as String,
     role: json['role'] as String,
@@ -63,6 +67,10 @@ class TenancySummary {
         (json['latestReport'] as Map<String, dynamic>?)?['kind'] as String?,
     latestReportStatus:
         (json['latestReport'] as Map<String, dynamic>?)?['status'] as String?,
+    awaitingMySignature:
+        (json['latestReport'] as Map<String, dynamic>?)?['awaitingMySignature']
+            as bool? ??
+        false,
   );
 }
 
