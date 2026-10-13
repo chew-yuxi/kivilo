@@ -176,6 +176,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
     if (signed == true && mounted) await _refresh();
   }
 
+  /// Printed on the server, then opened in the phone's viewer, which has its own share
+  /// sheet for email and messaging.
+  Future<void> _downloadPdf() => _run(() async {
+    final url = await _api.reportPdf(widget.id);
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  });
+
   Future<void> _share(InspectionDetail inspection) async {
     if (inspection.shareToken == null) {
       await _run(() async {
@@ -197,14 +204,6 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ).showSnackBar(const SnackBar(content: Text('Report link copied')));
     }
   }
-
-  /// Opens the PDF outside the app, where the phone's own viewer offers Share.
-  Future<void> _downloadPdf() => _run(() async {
-    final url = Uri.parse(await _api.reportPdfUrl(widget.id));
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw StateError('Could not open the report PDF');
-    }
-  });
 
   Future<void> _revoke() async {
     final confirmed = await showKiviloDrawer<bool>(
@@ -657,7 +656,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 const SizedBox(height: 28),
                 const KiviloSectionHeading(
                   title: 'Share report',
-                  subtitle: 'A private, read-only link for the signed report.',
+                  subtitle: 'A private link, or a PDF headed with your agency.',
                 ),
                 const SizedBox(height: 12),
                 Card(
@@ -693,7 +692,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 : 'Copy report link',
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         OutlinedButton.icon(
                           onPressed: _busy ? null : _downloadPdf,
                           icon: const Icon(Icons.picture_as_pdf_outlined),

@@ -3,11 +3,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';
+import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/push_notifications.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
-import 'branding_screen.dart';
+import 'branding_drawer.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,6 +20,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _api = Api();
   late Future<Map<String, dynamic>> _request = _api.deletionRequest();
+  late Future<AgentBranding?> _branding = _api.branding();
   bool _busy = false;
   String? _error;
 
@@ -105,6 +107,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _editBranding(AgentBranding? current) async {
+    final profile = await _api.me();
+    if (!mounted) return;
+    final saved = await showKiviloDrawer<AgentBranding>(
+      context: context,
+      builder: (_) =>
+          BrandingDrawer(api: _api, current: current, agentName: profile.name),
+    );
+    if (saved != null && mounted) {
+      setState(() => _branding = Future.value(saved));
+    }
+  }
+
+  Widget _brandingCard() => FutureBuilder<AgentBranding?>(
+    future: _branding,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Card(
+          child: SizedBox(
+            height: 72,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        );
+      }
+      final branding = snapshot.data;
+      final details = [
+        if (branding?.agencyLicence != null)
+          'Licence ${branding!.agencyLicence}',
+        if (branding?.ceaRegistration != null)
+          'CEA ${branding!.ceaRegistration}',
+      ].join(' · ');
+      return Card(
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 6,
+          ),
+          leading: Container(
+            width: 44,
+            height: 44,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: KiviloColors.pinkSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: branding?.logoUrl != null
+                ? Image.network(branding!.logoUrl!, fit: BoxFit.contain)
+                : const Icon(
+                    Icons.storefront_outlined,
+                    color: KiviloColors.pinkDark,
+                  ),
+          ),
+          title: Text(branding?.agencyName ?? 'Add your agency'),
+          subtitle: Text(
+            snapshot.hasError
+                ? 'Could not load: ${snapshot.error}'
+                : branding == null
+                ? 'Your name and logo at the top of PDF reports'
+                : details.isEmpty
+                ? 'Shown on your PDF and shared reports'
+                : details,
+          ),
+          trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+          onTap: snapshot.hasError ? null : () => _editBranding(branding),
+        ),
+      );
+    },
+  );
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Account')),
@@ -164,15 +235,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            _linkCard(
-              icon: Icons.badge_outlined,
+            const SizedBox(height: 28),
+            const KiviloSectionHeading(
               title: 'Report branding',
-              subtitle: 'For agents: your name, agency and logo on reports',
-              onTap: () => Navigator.of(context).push<void>(
-                MaterialPageRoute(builder: (_) => const BrandingScreen()),
-              ),
+              subtitle: 'Your agency on PDF and shared reports.',
             ),
+            const SizedBox(height: 12),
+            _brandingCard(),
             const SizedBox(height: 28),
             const KiviloSectionHeading(title: 'Privacy & support'),
             const SizedBox(height: 12),

@@ -90,37 +90,31 @@ without it an early-morning inspection prints the previous day.
 
 ## Agency branding
 
-- Migration: `Stakeholder.agencyName String?` and `Stakeholder.agencyLogoPath String?
-  @unique`. Additive and nullable. Per agent rather than an Agency table: nothing yet
-  needs agents to share an agency, and grouping distinct names later is a data
-  migration.
-- The agent can also set their own `name`. Today it is never user-set and defaults to
-  the part of the email before the @, which would print on a branded cover.
-- `src/lib/profile.ts`, a plain module like `maintenance.ts`, taking the stakeholder id.
-  The agent's own id is the whole scope, so there is no `authorize*` call.
-- `GET /api/v1/me` gains `agencyName` and `agencyLogoUrl` (signed). Additive only;
-  `id`, `name`, `roles` stay as released builds cast them.
-- `PATCH /api/v1/me` takes `{ name?, agencyName? }`. `PUT /api/v1/me/agency-logo` takes
-  the image bytes; the server decodes with sharp (so whatever is stored is an image),
-  bounds it to about 800x300, keeps transparency as PNG, stores it at
-  `agents/<stakeholderId>/logo-<random>.png`, and removes the previous file.
-  `DELETE /api/v1/me/agency-logo` clears it. New validation messages join the 400
-  list in `src/lib/api/route.ts`.
+Built first on branch `claude/branded-pdf` by another session the same afternoon, and
+merged here; its Chromium print of the web page was dropped in favour of this document
+(on the reference report it came to 84 pages and 13 MB against this one's 47 and 7, with
+no page numbers, and its size grows with every full-size phone photo it embeds).
+
+- `AgentBranding`, one row per agent (migration `20261013120000_agent_branding`): agency
+  name, agency licence, CEA registration, phone, logo. Per agent because a Singapore agent
+  is individually registered; an agency shared across agents waits for agencies to exist
+  as records.
+- `src/lib/branding.ts`, `GET/PUT /api/v1/me/branding`, `POST/DELETE
+  /api/v1/me/branding/logo` (raw image body, sniffed, at most 1 MB). The logo is stored as
+  PNG at `branding/<stakeholderId>/logo`, replaced in place; the row's `updatedAt` is in the
+  PDF cache key so a new logo redraws the report.
+- `PUT` also takes `agentName`, the name printed beside the agency. Until then it is the
+  start of the agent's email address.
 - The report uses the tenancy's agent, falling back to the inspector.
-- `scripts/fulfill-account-deletion.ts` clears both fields and removes the logo file.
-- Flutter: the account card in `settings_screen.dart` opens a new "Your details"
-  screen (name, agency name, logo pick and remove with a preview). Dart only, so it can
-  go out as build 23 or a Shorebird patch to 22; Yuxi's call.
-- PWA: no profile screen. Flutter is the inspector client now; the PWA stays the
-  rollback and test harness.
+- Account deletion removes the row and the logo.
 
 ## Entry points
 
-- Web report: "Print or save PDF" becomes "Download PDF", a link to `./pdf`. The web
-  header shows the agency logo and name when set.
-- Flutter: the share card on a completed inspection gains "Download PDF", opening the
-  PDF URL externally with `url_launcher`, from where the phone's share sheet sends it
-  on.
+- Web report: "Print or save PDF" is now "Download PDF", a link to `./pdf`, and the page
+  carries the agency header.
+- Web inspection page: a "PDF copy" card for the agent (`src/components/download-pdf.tsx`).
+- App: Account has a Report branding card and drawer (agency fields, your name, logo); a
+  signed inspection has Download PDF beside its share link, opened in the phone's viewer.
 
 ## Verification
 

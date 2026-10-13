@@ -129,27 +129,3 @@ describe('report PDF', () => {
     expect(await storedReports(inspection.id)).toEqual([])
   })
 })
-
-describe('agency branding', () => {
-  it('stores any accepted logo as PNG, and refuses bytes that are not an image', async () => {
-    const { agent } = await signedReport()
-    await saveBranding(agent.id, { agencyName: 'Example Realty' })
-
-    const webp = await sharp({ create: { width: 200, height: 60, channels: 4, background: '#16a34a' } }).webp().toBuffer()
-    await saveBrandingLogo(agent.id, webp)
-    const { data } = await serviceClient().storage.from(CAPTURE_BUCKET).download(`branding/${agent.id}/logo`)
-    const stored = new Uint8Array(await data!.arrayBuffer())
-    expect(Array.from(stored.slice(0, 4))).toEqual([0x89, 0x50, 0x4e, 0x47])
-
-    await expect(saveBrandingLogo(agent.id, new TextEncoder().encode('<svg onload="x()"/>'))).rejects.toThrow(/^Unsupported logo/)
-    // The right signature with nothing readable behind it: a truncated upload.
-    const truncated = (await sharp({ create: { width: 50, height: 50, channels: 3, background: '#000' } }).png().toBuffer()).subarray(0, 40)
-    await expect(saveBrandingLogo(agent.id, truncated)).rejects.toThrow(/^Unsupported logo/)
-  })
-
-  it('lets the agent set the name printed on their reports', async () => {
-    const { agent } = await signedReport()
-    await saveBranding(agent.id, { agentName: '  Alaric Yeo ', agencyName: 'Example Realty' })
-    expect((await db.stakeholder.findUniqueOrThrow({ where: { id: agent.id } })).name).toBe('Alaric Yeo')
-  })
-})

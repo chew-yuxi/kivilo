@@ -15,6 +15,34 @@ class UserProfile {
   );
 }
 
+/// How this agent's reports are headed. Null until they set an agency name.
+class AgentBranding {
+  const AgentBranding({
+    required this.agencyName,
+    this.agencyLicence,
+    this.ceaRegistration,
+    this.phone,
+    this.logoUrl,
+  });
+  final String agencyName;
+  final String? agencyLicence;
+  final String? ceaRegistration;
+  final String? phone;
+  final String? logoUrl;
+
+  static AgentBranding? fromResponse(Map<String, dynamic> json) {
+    final branding = json['branding'] as Map<String, dynamic>?;
+    if (branding == null) return null;
+    return AgentBranding(
+      agencyName: branding['agencyName'] as String,
+      agencyLicence: branding['agencyLicence'] as String?,
+      ceaRegistration: branding['ceaRegistration'] as String?,
+      phone: branding['phone'] as String?,
+      logoUrl: branding['logoUrl'] as String?,
+    );
+  }
+}
+
 class TenancySummary {
   const TenancySummary({
     required this.id,

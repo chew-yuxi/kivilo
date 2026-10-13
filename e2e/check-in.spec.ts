@@ -180,11 +180,14 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   expect(revoked!.status()).toBe(404)
   expect((await report.request.get(`${link}/pdf`)).status()).toBe(404)
 
-  // The agent keeps their own copy without a link existing at all.
-  const own = await page.request.post(`/api/v1/inspections/${inspectionUrl.split('/').pop()}/pdf`)
+  // The agent keeps their own copy with no share link alive at all: the document is
+  // drawn from the database, not by quietly minting a link.
+  const inspectionId = new URL(inspectionUrl, page.url()).pathname.split('/').pop()!
+  const own = await page.request.post(`/api/v1/inspections/${inspectionId}/pdf`)
   expect(own.status()).toBe(200)
-  const ownPdf = await page.request.get((await own.json()).url)
+  const ownPdf = await page.request.get((await own.json() as { url: string }).url)
   expect(ownPdf.headers()['content-type']).toBe('application/pdf')
+  expect((await ownPdf.body()).subarray(0, 5).toString()).toBe('%PDF-')
   await outsider.close()
 
   // Authorization lives in the data layer: a second agent sees nothing of this deal.
@@ -194,5 +197,6 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(otherPage.getByText('Nothing here yet')).toBeVisible()
   const denied = await otherPage.goto(inspectionUrl)
   expect(denied!.status()).toBe(404)
+  expect((await otherPage.request.post(`/api/v1/inspections/${inspectionId}/pdf`)).status()).toBe(404)
   await other.close()
 })

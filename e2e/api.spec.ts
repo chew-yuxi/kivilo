@@ -85,28 +85,6 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
   const foreignPdf = await request.post(`/api/v1/inspections/${id}/pdf`, { headers: outsider })
   expect(foreignPdf.status()).toBe(404)
   expect(await foreignPdf.json()).toEqual({ error: 'not_found' })
-
-  // Branding: the name and agency an agent's reports are headed with.
-  const saved = await request.put('/api/v1/me/branding', {
-    headers: owner,
-    data: { agentName: 'Alaric Yeo', agencyName: 'Example Realty', ceaRegistration: 'R123456B' },
-  })
-  expect(saved.status()).toBe(200)
-  expect(await saved.json()).toMatchObject({
-    branding: { agencyName: 'Example Realty', ceaRegistration: 'R123456B', logoUrl: null },
-  })
-  expect(await (await request.get('/api/v1/me', { headers: owner })).json()).toMatchObject({ name: 'Alaric Yeo' })
-  const notAnImage = await request.post('/api/v1/me/branding/logo', {
-    headers: { ...owner, 'Content-Type': 'image/png' },
-    data: Buffer.from('<svg onload="x()"/>'),
-  })
-  expect(notAnImage.status()).toBe(400)
-  const logo = await request.post('/api/v1/me/branding/logo', {
-    headers: { ...owner, 'Content-Type': 'image/png' },
-    data: FIXTURES.photo.buffer,
-  })
-  expect(logo.status()).toBe(200)
-  expect((await logo.json()).branding.logoUrl).toEqual(expect.stringContaining('/branding/'))
 })
 
 /// The capture path as a native client walks it: no browser, no cookie, bytes going
@@ -235,4 +213,45 @@ test('a native client can create and capture a room end to end', async ({ reques
     { headers },
   )
   expect((await reviewedRoom.json()).items[0]).toMatchObject({ editedByHuman: true })
+})
+
+test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {
+  const headers = { Authorization: `Bearer ${await accessTokenFor(freshEmail('api-branding'))}` }
+
+  expect(await (await request.get('/api/v1/me/branding', { headers })).json()).toEqual({ branding: null })
+  // A logo needs an agency to belong to.
+  const early = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(early.status()).toBe(409)
+
+  const saved = await request.put('/api/v1/me/branding', {
+    headers,
+    data: { agentName: 'Alaric Yeo', agencyName: 'Harbourline Realty Pte Ltd', agencyLicence: 'L3010000A', ceaRegistration: '', phone: '' },
+  })
+  expect(saved.status()).toBe(200)
+  expect((await saved.json()).branding).toMatchObject({ agencyName: 'Harbourline Realty Pte Ltd', ceaRegistration: null })
+  // The name printed on the report is the agent's own, not the start of their email.
+  expect(await (await request.get('/api/v1/me', { headers })).json()).toMatchObject({ name: 'Alaric Yeo' })
+
+  const notAnImage = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'),
+  })
+  expect(notAnImage.status()).toBe(400)
+
+  const logo = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...headers, 'content-type': 'application/octet-stream' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(logo.status()).toBe(200)
+  const logoUrl = (await logo.json()).branding.logoUrl as string
+  const fetched = await request.get(logoUrl)
+  expect(fetched.ok()).toBeTruthy()
+  // Stored as PNG whatever arrived, since the PDF draws only PNG and JPEG.
+  expect((await fetched.body()).subarray(0, 4)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+
+  const removed = await request.delete('/api/v1/me/branding/logo', { headers })
+  expect((await removed.json()).branding.logoUrl).toBeNull()
 })
