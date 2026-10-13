@@ -131,7 +131,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
                 child:
                     preview ??
                     const Icon(
-                      Icons.storefront_outlined,
+                      Icons.store_rounded,
                       color: KiviloColors.subtle,
                     ),
               ),

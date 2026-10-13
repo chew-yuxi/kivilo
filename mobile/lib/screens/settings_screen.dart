@@ -169,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: branding?.logoUrl != null
                 ? Image.network(branding!.logoUrl!, fit: BoxFit.contain)
                 : const Icon(
-                    Icons.storefront_outlined,
+                    Icons.store_rounded,
                     color: KiviloColors.pinkDark,
                   ),
           ),

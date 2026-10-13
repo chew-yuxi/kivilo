@@ -693,7 +693,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         const SizedBox(height: 10),
                         OutlinedButton.icon(
                           onPressed: _busy ? null : _downloadPdf,
-                          icon: const Icon(Icons.picture_as_pdf_outlined),
+                          icon: const Icon(Icons.description_outlined),
                           label: const Text('Download PDF'),
                         ),
                         if (inspection.shareToken != null)
