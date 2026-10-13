@@ -27,8 +27,8 @@ Distribution for team `4N9TA3WSYM`, `aps-environment=production`,
 `get-task-allow=false`, exported with `ios/ExportOptions.plist`. This build was not
 installed on a physical device before release.
 
-The backend route `/api/v1/app-config` is not yet deployed, so until it is the update
-check fails open and build `22` behaves as if no build were retired.
+The backend route `/api/v1/app-config` is deployed from `18afb88` (Ready in `sin1`) and
+answers with both floors at `0`, so no build is retired yet.
 
 Play internal testing serves `completed:22` and the production track still reads
 `completed:13`. The signed iOS build `22` uploaded under delivery
