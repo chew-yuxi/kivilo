@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
@@ -196,6 +197,14 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ).showSnackBar(const SnackBar(content: Text('Report link copied')));
     }
   }
+
+  /// Opens the PDF outside the app, where the phone's own viewer offers Share.
+  Future<void> _downloadPdf() => _run(() async {
+    final url = Uri.parse(await _api.reportPdfUrl(widget.id));
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw StateError('Could not open the report PDF');
+    }
+  });
 
   Future<void> _revoke() async {
     final confirmed = await showKiviloDrawer<bool>(
@@ -683,6 +692,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 ? 'Create and copy link'
                                 : 'Copy report link',
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          onPressed: _busy ? null : _downloadPdf,
+                          icon: const Icon(Icons.picture_as_pdf_outlined),
+                          label: const Text('Download PDF'),
                         ),
                         if (inspection.shareToken != null)
                           TextButton(

@@ -77,6 +77,36 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
 
   const theirList = await request.get('/api/v1/inspections', { headers: outsider })
   expect(await theirList.json()).toEqual([])
+
+  // A document only exists once both parties have signed, and another agent's request
+  // for one is the same 404 as for an id that never existed.
+  const draftPdf = await request.post(`/api/v1/inspections/${id}/pdf`, { headers: owner })
+  expect(draftPdf.status()).toBe(409)
+  const foreignPdf = await request.post(`/api/v1/inspections/${id}/pdf`, { headers: outsider })
+  expect(foreignPdf.status()).toBe(404)
+  expect(await foreignPdf.json()).toEqual({ error: 'not_found' })
+
+  // Branding: the name and agency an agent's reports are headed with.
+  const saved = await request.put('/api/v1/me/branding', {
+    headers: owner,
+    data: { agentName: 'Alaric Yeo', agencyName: 'Example Realty', ceaRegistration: 'R123456B' },
+  })
+  expect(saved.status()).toBe(200)
+  expect(await saved.json()).toMatchObject({
+    branding: { agencyName: 'Example Realty', ceaRegistration: 'R123456B', logoUrl: null },
+  })
+  expect(await (await request.get('/api/v1/me', { headers: owner })).json()).toMatchObject({ name: 'Alaric Yeo' })
+  const notAnImage = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...owner, 'Content-Type': 'image/png' },
+    data: Buffer.from('<svg onload="x()"/>'),
+  })
+  expect(notAnImage.status()).toBe(400)
+  const logo = await request.post('/api/v1/me/branding/logo', {
+    headers: { ...owner, 'Content-Type': 'image/png' },
+    data: FIXTURES.photo.buffer,
+  })
+  expect(logo.status()).toBe(200)
+  expect((await logo.json()).branding.logoUrl).toEqual(expect.stringContaining('/branding/'))
 })
 
 /// The capture path as a native client walks it: no browser, no cookie, bytes going

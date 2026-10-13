@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { signIn, freshEmail, scribble, FIXTURES } from './helpers'
+import { pdfPageTexts } from '../src/lib/report-pdf/pdf-text'
 
 /// The whole check-in, as an agent does it on a phone: create the deal, capture one
 /// room, write its inventory, review, send for signature, both parties sign, share
@@ -160,10 +161,30 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   )
   await report.emulateMedia({ media: 'screen' })
 
+  // The same report as a file, still with no session: drawn on the server, headed and
+  // numbered on every page, and carrying nowhere the token that reached it.
+  const pdf = await report.request.get(`${link}/pdf`)
+  expect(pdf.status()).toBe(200)
+  expect(pdf.headers()['content-type']).toBe('application/pdf')
+  const pages = await pdfPageTexts(await pdf.body())
+  pages.forEach((text, index) => expect(text).toContain(`Page ${index + 1} of ${pages.length}`))
+  const document = pages.join(' ')
+  expect(document).toContain('#28-05')
+  expect(document).toContain('Quartz worktop')
+  expect(document).toContain('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')
+  expect(document).not.toContain(link!.split('/reports/')[1])
+
   await page.getByRole('button', { name: 'Revoke' }).click()
   await expect(page.getByRole('button', { name: 'Create report link' })).toBeVisible()
   const revoked = await report.goto(link!)
   expect(revoked!.status()).toBe(404)
+  expect((await report.request.get(`${link}/pdf`)).status()).toBe(404)
+
+  // The agent keeps their own copy without a link existing at all.
+  const own = await page.request.post(`/api/v1/inspections/${inspectionUrl.split('/').pop()}/pdf`)
+  expect(own.status()).toBe(200)
+  const ownPdf = await page.request.get((await own.json()).url)
+  expect(ownPdf.headers()['content-type']).toBe('application/pdf')
   await outsider.close()
 
   // Authorization lives in the data layer: a second agent sees nothing of this deal.

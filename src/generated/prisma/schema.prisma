@@ -45,8 +45,27 @@ model Stakeholder {
   responsibilityResponded     ResponsibilityProposal[]  @relation("ResponsibilityResponder")
   notifications               Notification[]
   deviceInstallations         DeviceInstallation[]
+  branding                    AgentBranding?
 
   @@index([name])
+}
+
+/// How an agent's reports are headed: agency name, licence numbers, contact, logo. One
+/// per agent, because a Singapore agent is individually registered and a report is
+/// prepared by one. With none set, a report reads as Kivilo's. The header is
+/// presentation, not part of what the parties signed, so it follows the agent's current
+/// branding rather than being frozen with the report.
+model AgentBranding {
+  stakeholderId   String   @id
+  agencyName      String
+  agencyLicence   String?
+  ceaRegistration String?
+  phone           String?
+  /// Private bucket path, at `branding/<stakeholderId>/logo`.
+  logoPath        String?
+  updatedAt       DateTime @updatedAt
+
+  stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
 }
 
 enum PropertyType {

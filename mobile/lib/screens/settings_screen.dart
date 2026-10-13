@@ -7,6 +7,7 @@ import '../services/api.dart';
 import '../services/push_notifications.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
+import 'branding_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -161,6 +162,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _linkCard(
+              icon: Icons.badge_outlined,
+              title: 'Report branding',
+              subtitle: 'For agents: your name, agency and logo on reports',
+              onTap: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(builder: (_) => const BrandingScreen()),
               ),
             ),
             const SizedBox(height: 28),

@@ -35,12 +35,25 @@ export async function captureExists(storagePath: string) {
   return data
 }
 
-export async function createDownloadUrl(storagePath: string, expiresInSec = 3600) {
+/// With `downloadAs`, storage serves the object as an attachment under that file name.
+export async function createDownloadUrl(storagePath: string, expiresInSec = 3600, downloadAs?: string) {
   const { data, error } = await serviceClient()
     .storage.from(CAPTURE_BUCKET)
-    .createSignedUrl(storagePath, expiresInSec)
+    .createSignedUrl(storagePath, expiresInSec, downloadAs ? { download: downloadAs } : undefined)
   if (error) throw error
   return data.signedUrl
+}
+
+/// Deletes every object directly under `prefix`, except `keep`. For prefixes that hold a
+/// handful of generated files, not capture folders.
+export async function removePrefix(prefix: string, { keep }: { keep?: string } = {}) {
+  const storage = serviceClient().storage.from(CAPTURE_BUCKET)
+  const { data, error } = await storage.list(prefix, { limit: 100 })
+  if (error) throw error
+  const paths = data.map((object) => `${prefix}/${object.name}`).filter((path) => path !== keep)
+  if (paths.length === 0) return
+  const removed = await storage.remove(paths)
+  if (removed.error) throw removed.error
 }
 
 export async function downloadCapture(storagePath: string): Promise<Uint8Array> {

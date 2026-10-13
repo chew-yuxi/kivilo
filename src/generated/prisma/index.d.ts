@@ -19,6 +19,15 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Stakeholder = $Result.DefaultSelection<Prisma.$StakeholderPayload>
 /**
+ * Model AgentBranding
+ * How an agent's reports are headed: agency name, licence numbers, contact, logo. One
+ * per agent, because a Singapore agent is individually registered and a report is
+ * prepared by one. With none set, a report reads as Kivilo's. The header is
+ * presentation, not part of what the parties signed, so it follows the agent's current
+ * branding rather than being frozen with the report.
+ */
+export type AgentBranding = $Result.DefaultSelection<Prisma.$AgentBrandingPayload>
+/**
  * Model Property
  * The durable hub. Outlives every relationship on it.
  */
@@ -643,6 +652,16 @@ export class PrismaClient<
     * ```
     */
   get stakeholder(): Prisma.StakeholderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agentBranding`: Exposes CRUD operations for the **AgentBranding** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentBrandings
+    * const agentBrandings = await prisma.agentBranding.findMany()
+    * ```
+    */
+  get agentBranding(): Prisma.AgentBrandingDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.property`: Exposes CRUD operations for the **Property** model.
@@ -1331,6 +1350,7 @@ export namespace Prisma {
 
   export const ModelName: {
     Stakeholder: 'Stakeholder',
+    AgentBranding: 'AgentBranding',
     Property: 'Property',
     Tenancy: 'Tenancy',
     Inspection: 'Inspection',
@@ -1370,7 +1390,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
+      modelProps: "stakeholder" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1445,6 +1465,80 @@ export namespace Prisma {
           count: {
             args: Prisma.StakeholderCountArgs<ExtArgs>
             result: $Utils.Optional<StakeholderCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgentBranding: {
+        payload: Prisma.$AgentBrandingPayload<ExtArgs>
+        fields: Prisma.AgentBrandingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgentBrandingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgentBrandingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>
+          }
+          findFirst: {
+            args: Prisma.AgentBrandingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgentBrandingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>
+          }
+          findMany: {
+            args: Prisma.AgentBrandingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>[]
+          }
+          create: {
+            args: Prisma.AgentBrandingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>
+          }
+          createMany: {
+            args: Prisma.AgentBrandingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgentBrandingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>[]
+          }
+          delete: {
+            args: Prisma.AgentBrandingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>
+          }
+          update: {
+            args: Prisma.AgentBrandingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgentBrandingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgentBrandingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgentBrandingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgentBrandingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgentBrandingPayload>
+          }
+          aggregate: {
+            args: Prisma.AgentBrandingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgentBranding>
+          }
+          groupBy: {
+            args: Prisma.AgentBrandingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgentBrandingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgentBrandingCountArgs<ExtArgs>
+            result: $Utils.Optional<AgentBrandingCountAggregateOutputType> | number
           }
         }
       }
@@ -3348,6 +3442,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     stakeholder?: StakeholderOmit
+    agentBranding?: AgentBrandingOmit
     property?: PropertyOmit
     tenancy?: TenancyOmit
     inspection?: InspectionOmit
@@ -4338,6 +4433,7 @@ export namespace Prisma {
     responsibilityResponded?: boolean | Stakeholder$responsibilityRespondedArgs<ExtArgs>
     notifications?: boolean | Stakeholder$notificationsArgs<ExtArgs>
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
+    branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["stakeholder"]>
 
@@ -4393,6 +4489,7 @@ export namespace Prisma {
     responsibilityResponded?: boolean | Stakeholder$responsibilityRespondedArgs<ExtArgs>
     notifications?: boolean | Stakeholder$notificationsArgs<ExtArgs>
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
+    branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StakeholderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4415,6 +4512,7 @@ export namespace Prisma {
       responsibilityResponded: Prisma.$ResponsibilityProposalPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       deviceInstallations: Prisma.$DeviceInstallationPayload<ExtArgs>[]
+      branding: Prisma.$AgentBrandingPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4839,6 +4937,7 @@ export namespace Prisma {
     responsibilityResponded<T extends Stakeholder$responsibilityRespondedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$responsibilityRespondedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Stakeholder$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deviceInstallations<T extends Stakeholder$deviceInstallationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deviceInstallationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceInstallationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    branding<T extends Stakeholder$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$brandingArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5606,6 +5705,25 @@ export namespace Prisma {
   }
 
   /**
+   * Stakeholder.branding
+   */
+  export type Stakeholder$brandingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    where?: AgentBrandingWhereInput
+  }
+
+  /**
    * Stakeholder without action
    */
   export type StakeholderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5621,6 +5739,1098 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: StakeholderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgentBranding
+   */
+
+  export type AggregateAgentBranding = {
+    _count: AgentBrandingCountAggregateOutputType | null
+    _min: AgentBrandingMinAggregateOutputType | null
+    _max: AgentBrandingMaxAggregateOutputType | null
+  }
+
+  export type AgentBrandingMinAggregateOutputType = {
+    stakeholderId: string | null
+    agencyName: string | null
+    agencyLicence: string | null
+    ceaRegistration: string | null
+    phone: string | null
+    logoPath: string | null
+    updatedAt: Date | null
+  }
+
+  export type AgentBrandingMaxAggregateOutputType = {
+    stakeholderId: string | null
+    agencyName: string | null
+    agencyLicence: string | null
+    ceaRegistration: string | null
+    phone: string | null
+    logoPath: string | null
+    updatedAt: Date | null
+  }
+
+  export type AgentBrandingCountAggregateOutputType = {
+    stakeholderId: number
+    agencyName: number
+    agencyLicence: number
+    ceaRegistration: number
+    phone: number
+    logoPath: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgentBrandingMinAggregateInputType = {
+    stakeholderId?: true
+    agencyName?: true
+    agencyLicence?: true
+    ceaRegistration?: true
+    phone?: true
+    logoPath?: true
+    updatedAt?: true
+  }
+
+  export type AgentBrandingMaxAggregateInputType = {
+    stakeholderId?: true
+    agencyName?: true
+    agencyLicence?: true
+    ceaRegistration?: true
+    phone?: true
+    logoPath?: true
+    updatedAt?: true
+  }
+
+  export type AgentBrandingCountAggregateInputType = {
+    stakeholderId?: true
+    agencyName?: true
+    agencyLicence?: true
+    ceaRegistration?: true
+    phone?: true
+    logoPath?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgentBrandingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentBranding to aggregate.
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentBrandings to fetch.
+     */
+    orderBy?: AgentBrandingOrderByWithRelationInput | AgentBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgentBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgentBrandings
+    **/
+    _count?: true | AgentBrandingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgentBrandingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgentBrandingMaxAggregateInputType
+  }
+
+  export type GetAgentBrandingAggregateType<T extends AgentBrandingAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgentBranding]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgentBranding[P]>
+      : GetScalarType<T[P], AggregateAgentBranding[P]>
+  }
+
+
+
+
+  export type AgentBrandingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgentBrandingWhereInput
+    orderBy?: AgentBrandingOrderByWithAggregationInput | AgentBrandingOrderByWithAggregationInput[]
+    by: AgentBrandingScalarFieldEnum[] | AgentBrandingScalarFieldEnum
+    having?: AgentBrandingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgentBrandingCountAggregateInputType | true
+    _min?: AgentBrandingMinAggregateInputType
+    _max?: AgentBrandingMaxAggregateInputType
+  }
+
+  export type AgentBrandingGroupByOutputType = {
+    stakeholderId: string
+    agencyName: string
+    agencyLicence: string | null
+    ceaRegistration: string | null
+    phone: string | null
+    logoPath: string | null
+    updatedAt: Date
+    _count: AgentBrandingCountAggregateOutputType | null
+    _min: AgentBrandingMinAggregateOutputType | null
+    _max: AgentBrandingMaxAggregateOutputType | null
+  }
+
+  type GetAgentBrandingGroupByPayload<T extends AgentBrandingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgentBrandingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgentBrandingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgentBrandingGroupByOutputType[P]>
+            : GetScalarType<T[P], AgentBrandingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgentBrandingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    stakeholderId?: boolean
+    agencyName?: boolean
+    agencyLicence?: boolean
+    ceaRegistration?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentBranding"]>
+
+  export type AgentBrandingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    stakeholderId?: boolean
+    agencyName?: boolean
+    agencyLicence?: boolean
+    ceaRegistration?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentBranding"]>
+
+  export type AgentBrandingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    stakeholderId?: boolean
+    agencyName?: boolean
+    agencyLicence?: boolean
+    ceaRegistration?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agentBranding"]>
+
+  export type AgentBrandingSelectScalar = {
+    stakeholderId?: boolean
+    agencyName?: boolean
+    agencyLicence?: boolean
+    ceaRegistration?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgentBrandingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"stakeholderId" | "agencyName" | "agencyLicence" | "ceaRegistration" | "phone" | "logoPath" | "updatedAt", ExtArgs["result"]["agentBranding"]>
+  export type AgentBrandingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AgentBrandingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AgentBrandingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $AgentBrandingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgentBranding"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      stakeholderId: string
+      agencyName: string
+      agencyLicence: string | null
+      ceaRegistration: string | null
+      phone: string | null
+      /**
+       * Private bucket path, at `branding/<stakeholderId>/logo`.
+       */
+      logoPath: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["agentBranding"]>
+    composites: {}
+  }
+
+  type AgentBrandingGetPayload<S extends boolean | null | undefined | AgentBrandingDefaultArgs> = $Result.GetResult<Prisma.$AgentBrandingPayload, S>
+
+  type AgentBrandingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgentBrandingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgentBrandingCountAggregateInputType | true
+    }
+
+  export interface AgentBrandingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgentBranding'], meta: { name: 'AgentBranding' } }
+    /**
+     * Find zero or one AgentBranding that matches the filter.
+     * @param {AgentBrandingFindUniqueArgs} args - Arguments to find a AgentBranding
+     * @example
+     * // Get one AgentBranding
+     * const agentBranding = await prisma.agentBranding.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgentBrandingFindUniqueArgs>(args: SelectSubset<T, AgentBrandingFindUniqueArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgentBranding that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgentBrandingFindUniqueOrThrowArgs} args - Arguments to find a AgentBranding
+     * @example
+     * // Get one AgentBranding
+     * const agentBranding = await prisma.agentBranding.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgentBrandingFindUniqueOrThrowArgs>(args: SelectSubset<T, AgentBrandingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentBranding that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingFindFirstArgs} args - Arguments to find a AgentBranding
+     * @example
+     * // Get one AgentBranding
+     * const agentBranding = await prisma.agentBranding.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgentBrandingFindFirstArgs>(args?: SelectSubset<T, AgentBrandingFindFirstArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgentBranding that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingFindFirstOrThrowArgs} args - Arguments to find a AgentBranding
+     * @example
+     * // Get one AgentBranding
+     * const agentBranding = await prisma.agentBranding.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgentBrandingFindFirstOrThrowArgs>(args?: SelectSubset<T, AgentBrandingFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgentBrandings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgentBrandings
+     * const agentBrandings = await prisma.agentBranding.findMany()
+     * 
+     * // Get first 10 AgentBrandings
+     * const agentBrandings = await prisma.agentBranding.findMany({ take: 10 })
+     * 
+     * // Only select the `stakeholderId`
+     * const agentBrandingWithStakeholderIdOnly = await prisma.agentBranding.findMany({ select: { stakeholderId: true } })
+     * 
+     */
+    findMany<T extends AgentBrandingFindManyArgs>(args?: SelectSubset<T, AgentBrandingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgentBranding.
+     * @param {AgentBrandingCreateArgs} args - Arguments to create a AgentBranding.
+     * @example
+     * // Create one AgentBranding
+     * const AgentBranding = await prisma.agentBranding.create({
+     *   data: {
+     *     // ... data to create a AgentBranding
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgentBrandingCreateArgs>(args: SelectSubset<T, AgentBrandingCreateArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgentBrandings.
+     * @param {AgentBrandingCreateManyArgs} args - Arguments to create many AgentBrandings.
+     * @example
+     * // Create many AgentBrandings
+     * const agentBranding = await prisma.agentBranding.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgentBrandingCreateManyArgs>(args?: SelectSubset<T, AgentBrandingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AgentBrandings and returns the data saved in the database.
+     * @param {AgentBrandingCreateManyAndReturnArgs} args - Arguments to create many AgentBrandings.
+     * @example
+     * // Create many AgentBrandings
+     * const agentBranding = await prisma.agentBranding.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AgentBrandings and only return the `stakeholderId`
+     * const agentBrandingWithStakeholderIdOnly = await prisma.agentBranding.createManyAndReturn({
+     *   select: { stakeholderId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgentBrandingCreateManyAndReturnArgs>(args?: SelectSubset<T, AgentBrandingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AgentBranding.
+     * @param {AgentBrandingDeleteArgs} args - Arguments to delete one AgentBranding.
+     * @example
+     * // Delete one AgentBranding
+     * const AgentBranding = await prisma.agentBranding.delete({
+     *   where: {
+     *     // ... filter to delete one AgentBranding
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgentBrandingDeleteArgs>(args: SelectSubset<T, AgentBrandingDeleteArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgentBranding.
+     * @param {AgentBrandingUpdateArgs} args - Arguments to update one AgentBranding.
+     * @example
+     * // Update one AgentBranding
+     * const agentBranding = await prisma.agentBranding.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgentBrandingUpdateArgs>(args: SelectSubset<T, AgentBrandingUpdateArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgentBrandings.
+     * @param {AgentBrandingDeleteManyArgs} args - Arguments to filter AgentBrandings to delete.
+     * @example
+     * // Delete a few AgentBrandings
+     * const { count } = await prisma.agentBranding.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgentBrandingDeleteManyArgs>(args?: SelectSubset<T, AgentBrandingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentBrandings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgentBrandings
+     * const agentBranding = await prisma.agentBranding.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgentBrandingUpdateManyArgs>(args: SelectSubset<T, AgentBrandingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgentBrandings and returns the data updated in the database.
+     * @param {AgentBrandingUpdateManyAndReturnArgs} args - Arguments to update many AgentBrandings.
+     * @example
+     * // Update many AgentBrandings
+     * const agentBranding = await prisma.agentBranding.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AgentBrandings and only return the `stakeholderId`
+     * const agentBrandingWithStakeholderIdOnly = await prisma.agentBranding.updateManyAndReturn({
+     *   select: { stakeholderId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgentBrandingUpdateManyAndReturnArgs>(args: SelectSubset<T, AgentBrandingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AgentBranding.
+     * @param {AgentBrandingUpsertArgs} args - Arguments to update or create a AgentBranding.
+     * @example
+     * // Update or create a AgentBranding
+     * const agentBranding = await prisma.agentBranding.upsert({
+     *   create: {
+     *     // ... data to create a AgentBranding
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgentBranding we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgentBrandingUpsertArgs>(args: SelectSubset<T, AgentBrandingUpsertArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgentBrandings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingCountArgs} args - Arguments to filter AgentBrandings to count.
+     * @example
+     * // Count the number of AgentBrandings
+     * const count = await prisma.agentBranding.count({
+     *   where: {
+     *     // ... the filter for the AgentBrandings we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgentBrandingCountArgs>(
+      args?: Subset<T, AgentBrandingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgentBrandingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgentBranding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgentBrandingAggregateArgs>(args: Subset<T, AgentBrandingAggregateArgs>): Prisma.PrismaPromise<GetAgentBrandingAggregateType<T>>
+
+    /**
+     * Group by AgentBranding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgentBrandingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgentBrandingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgentBrandingGroupByArgs['orderBy'] }
+        : { orderBy?: AgentBrandingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgentBrandingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgentBrandingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgentBranding model
+   */
+  readonly fields: AgentBrandingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgentBranding.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgentBrandingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgentBranding model
+   */
+  interface AgentBrandingFieldRefs {
+    readonly stakeholderId: FieldRef<"AgentBranding", 'String'>
+    readonly agencyName: FieldRef<"AgentBranding", 'String'>
+    readonly agencyLicence: FieldRef<"AgentBranding", 'String'>
+    readonly ceaRegistration: FieldRef<"AgentBranding", 'String'>
+    readonly phone: FieldRef<"AgentBranding", 'String'>
+    readonly logoPath: FieldRef<"AgentBranding", 'String'>
+    readonly updatedAt: FieldRef<"AgentBranding", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgentBranding findUnique
+   */
+  export type AgentBrandingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentBranding to fetch.
+     */
+    where: AgentBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgentBranding findUniqueOrThrow
+   */
+  export type AgentBrandingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentBranding to fetch.
+     */
+    where: AgentBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgentBranding findFirst
+   */
+  export type AgentBrandingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentBranding to fetch.
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentBrandings to fetch.
+     */
+    orderBy?: AgentBrandingOrderByWithRelationInput | AgentBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentBrandings.
+     */
+    cursor?: AgentBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentBrandings.
+     */
+    distinct?: AgentBrandingScalarFieldEnum | AgentBrandingScalarFieldEnum[]
+  }
+
+  /**
+   * AgentBranding findFirstOrThrow
+   */
+  export type AgentBrandingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentBranding to fetch.
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentBrandings to fetch.
+     */
+    orderBy?: AgentBrandingOrderByWithRelationInput | AgentBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgentBrandings.
+     */
+    cursor?: AgentBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentBrandings.
+     */
+    distinct?: AgentBrandingScalarFieldEnum | AgentBrandingScalarFieldEnum[]
+  }
+
+  /**
+   * AgentBranding findMany
+   */
+  export type AgentBrandingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgentBrandings to fetch.
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgentBrandings to fetch.
+     */
+    orderBy?: AgentBrandingOrderByWithRelationInput | AgentBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgentBrandings.
+     */
+    cursor?: AgentBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgentBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgentBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgentBrandings.
+     */
+    distinct?: AgentBrandingScalarFieldEnum | AgentBrandingScalarFieldEnum[]
+  }
+
+  /**
+   * AgentBranding create
+   */
+  export type AgentBrandingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgentBranding.
+     */
+    data: XOR<AgentBrandingCreateInput, AgentBrandingUncheckedCreateInput>
+  }
+
+  /**
+   * AgentBranding createMany
+   */
+  export type AgentBrandingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgentBrandings.
+     */
+    data: AgentBrandingCreateManyInput | AgentBrandingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgentBranding createManyAndReturn
+   */
+  export type AgentBrandingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * The data used to create many AgentBrandings.
+     */
+    data: AgentBrandingCreateManyInput | AgentBrandingCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgentBranding update
+   */
+  export type AgentBrandingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgentBranding.
+     */
+    data: XOR<AgentBrandingUpdateInput, AgentBrandingUncheckedUpdateInput>
+    /**
+     * Choose, which AgentBranding to update.
+     */
+    where: AgentBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgentBranding updateMany
+   */
+  export type AgentBrandingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgentBrandings.
+     */
+    data: XOR<AgentBrandingUpdateManyMutationInput, AgentBrandingUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentBrandings to update
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * Limit how many AgentBrandings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentBranding updateManyAndReturn
+   */
+  export type AgentBrandingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * The data used to update AgentBrandings.
+     */
+    data: XOR<AgentBrandingUpdateManyMutationInput, AgentBrandingUncheckedUpdateManyInput>
+    /**
+     * Filter which AgentBrandings to update
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * Limit how many AgentBrandings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgentBranding upsert
+   */
+  export type AgentBrandingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgentBranding to update in case it exists.
+     */
+    where: AgentBrandingWhereUniqueInput
+    /**
+     * In case the AgentBranding found by the `where` argument doesn't exist, create a new AgentBranding with this data.
+     */
+    create: XOR<AgentBrandingCreateInput, AgentBrandingUncheckedCreateInput>
+    /**
+     * In case the AgentBranding was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgentBrandingUpdateInput, AgentBrandingUncheckedUpdateInput>
+  }
+
+  /**
+   * AgentBranding delete
+   */
+  export type AgentBrandingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
+    /**
+     * Filter which AgentBranding to delete.
+     */
+    where: AgentBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgentBranding deleteMany
+   */
+  export type AgentBrandingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgentBrandings to delete
+     */
+    where?: AgentBrandingWhereInput
+    /**
+     * Limit how many AgentBrandings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgentBranding without action
+   */
+  export type AgentBrandingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgentBranding
+     */
+    select?: AgentBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgentBranding
+     */
+    omit?: AgentBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgentBrandingInclude<ExtArgs> | null
   }
 
 
@@ -34326,6 +35536,19 @@ export namespace Prisma {
   export type StakeholderScalarFieldEnum = (typeof StakeholderScalarFieldEnum)[keyof typeof StakeholderScalarFieldEnum]
 
 
+  export const AgentBrandingScalarFieldEnum: {
+    stakeholderId: 'stakeholderId',
+    agencyName: 'agencyName',
+    agencyLicence: 'agencyLicence',
+    ceaRegistration: 'ceaRegistration',
+    phone: 'phone',
+    logoPath: 'logoPath',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgentBrandingScalarFieldEnum = (typeof AgentBrandingScalarFieldEnum)[keyof typeof AgentBrandingScalarFieldEnum]
+
+
   export const PropertyScalarFieldEnum: {
     id: 'id',
     line1: 'line1',
@@ -35233,6 +36456,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalListRelationFilter
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
+    branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
   }
 
   export type StakeholderOrderByWithRelationInput = {
@@ -35259,6 +36483,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     deviceInstallations?: DeviceInstallationOrderByRelationAggregateInput
+    branding?: AgentBrandingOrderByWithRelationInput
   }
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
@@ -35288,6 +36513,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalListRelationFilter
     notifications?: NotificationListRelationFilter
     deviceInstallations?: DeviceInstallationListRelationFilter
+    branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
   }, "id" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
@@ -35318,6 +36544,71 @@ export namespace Prisma {
     authUserId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
+  }
+
+  export type AgentBrandingWhereInput = {
+    AND?: AgentBrandingWhereInput | AgentBrandingWhereInput[]
+    OR?: AgentBrandingWhereInput[]
+    NOT?: AgentBrandingWhereInput | AgentBrandingWhereInput[]
+    stakeholderId?: StringFilter<"AgentBranding"> | string
+    agencyName?: StringFilter<"AgentBranding"> | string
+    agencyLicence?: StringNullableFilter<"AgentBranding"> | string | null
+    ceaRegistration?: StringNullableFilter<"AgentBranding"> | string | null
+    phone?: StringNullableFilter<"AgentBranding"> | string | null
+    logoPath?: StringNullableFilter<"AgentBranding"> | string | null
+    updatedAt?: DateTimeFilter<"AgentBranding"> | Date | string
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type AgentBrandingOrderByWithRelationInput = {
+    stakeholderId?: SortOrder
+    agencyName?: SortOrder
+    agencyLicence?: SortOrderInput | SortOrder
+    ceaRegistration?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    logoPath?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+  }
+
+  export type AgentBrandingWhereUniqueInput = Prisma.AtLeast<{
+    stakeholderId?: string
+    AND?: AgentBrandingWhereInput | AgentBrandingWhereInput[]
+    OR?: AgentBrandingWhereInput[]
+    NOT?: AgentBrandingWhereInput | AgentBrandingWhereInput[]
+    agencyName?: StringFilter<"AgentBranding"> | string
+    agencyLicence?: StringNullableFilter<"AgentBranding"> | string | null
+    ceaRegistration?: StringNullableFilter<"AgentBranding"> | string | null
+    phone?: StringNullableFilter<"AgentBranding"> | string | null
+    logoPath?: StringNullableFilter<"AgentBranding"> | string | null
+    updatedAt?: DateTimeFilter<"AgentBranding"> | Date | string
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "stakeholderId">
+
+  export type AgentBrandingOrderByWithAggregationInput = {
+    stakeholderId?: SortOrder
+    agencyName?: SortOrder
+    agencyLicence?: SortOrderInput | SortOrder
+    ceaRegistration?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    logoPath?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: AgentBrandingCountOrderByAggregateInput
+    _max?: AgentBrandingMaxOrderByAggregateInput
+    _min?: AgentBrandingMinOrderByAggregateInput
+  }
+
+  export type AgentBrandingScalarWhereWithAggregatesInput = {
+    AND?: AgentBrandingScalarWhereWithAggregatesInput | AgentBrandingScalarWhereWithAggregatesInput[]
+    OR?: AgentBrandingScalarWhereWithAggregatesInput[]
+    NOT?: AgentBrandingScalarWhereWithAggregatesInput | AgentBrandingScalarWhereWithAggregatesInput[]
+    stakeholderId?: StringWithAggregatesFilter<"AgentBranding"> | string
+    agencyName?: StringWithAggregatesFilter<"AgentBranding"> | string
+    agencyLicence?: StringNullableWithAggregatesFilter<"AgentBranding"> | string | null
+    ceaRegistration?: StringNullableWithAggregatesFilter<"AgentBranding"> | string | null
+    phone?: StringNullableWithAggregatesFilter<"AgentBranding"> | string | null
+    logoPath?: StringNullableWithAggregatesFilter<"AgentBranding"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"AgentBranding"> | Date | string
   }
 
   export type PropertyWhereInput = {
@@ -37430,6 +38721,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateInput = {
@@ -37456,6 +38748,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUpdateInput = {
@@ -37482,6 +38775,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateInput = {
@@ -37508,6 +38802,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateManyInput = {
@@ -37543,6 +38838,75 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentBrandingCreateInput = {
+    agencyName: string
+    agencyLicence?: string | null
+    ceaRegistration?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+    stakeholder: StakeholderCreateNestedOneWithoutBrandingInput
+  }
+
+  export type AgentBrandingUncheckedCreateInput = {
+    stakeholderId: string
+    agencyName: string
+    agencyLicence?: string | null
+    ceaRegistration?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgentBrandingUpdateInput = {
+    agencyName?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    ceaRegistration?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneRequiredWithoutBrandingNestedInput
+  }
+
+  export type AgentBrandingUncheckedUpdateInput = {
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    agencyName?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    ceaRegistration?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentBrandingCreateManyInput = {
+    stakeholderId: string
+    agencyName: string
+    agencyLicence?: string | null
+    ceaRegistration?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgentBrandingUpdateManyMutationInput = {
+    agencyName?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    ceaRegistration?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentBrandingUncheckedUpdateManyInput = {
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    agencyName?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    ceaRegistration?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -39910,6 +41274,11 @@ export namespace Prisma {
     none?: DeviceInstallationWhereInput
   }
 
+  export type AgentBrandingNullableScalarRelationFilter = {
+    is?: AgentBrandingWhereInput | null
+    isNot?: AgentBrandingWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -40055,6 +41424,41 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type StakeholderScalarRelationFilter = {
+    is?: StakeholderWhereInput
+    isNot?: StakeholderWhereInput
+  }
+
+  export type AgentBrandingCountOrderByAggregateInput = {
+    stakeholderId?: SortOrder
+    agencyName?: SortOrder
+    agencyLicence?: SortOrder
+    ceaRegistration?: SortOrder
+    phone?: SortOrder
+    logoPath?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentBrandingMaxOrderByAggregateInput = {
+    stakeholderId?: SortOrder
+    agencyName?: SortOrder
+    agencyLicence?: SortOrder
+    ceaRegistration?: SortOrder
+    phone?: SortOrder
+    logoPath?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgentBrandingMinOrderByAggregateInput = {
+    stakeholderId?: SortOrder
+    agencyName?: SortOrder
+    agencyLicence?: SortOrder
+    ceaRegistration?: SortOrder
+    phone?: SortOrder
+    logoPath?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type EnumPropertyTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.PropertyType | EnumPropertyTypeFieldRefInput<$PrismaModel>
     in?: $Enums.PropertyType[] | ListEnumPropertyTypeFieldRefInput<$PrismaModel>
@@ -40142,11 +41546,6 @@ export namespace Prisma {
   export type PropertyScalarRelationFilter = {
     is?: PropertyWhereInput
     isNot?: PropertyWhereInput
-  }
-
-  export type StakeholderScalarRelationFilter = {
-    is?: StakeholderWhereInput
-    isNot?: StakeholderWhereInput
   }
 
   export type StakeholderNullableScalarRelationFilter = {
@@ -42097,6 +43496,12 @@ export namespace Prisma {
     connect?: DeviceInstallationWhereUniqueInput | DeviceInstallationWhereUniqueInput[]
   }
 
+  export type AgentBrandingCreateNestedOneWithoutStakeholderInput = {
+    create?: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AgentBrandingCreateOrConnectWithoutStakeholderInput
+    connect?: AgentBrandingWhereUniqueInput
+  }
+
   export type TenancyUncheckedCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -42193,6 +43598,12 @@ export namespace Prisma {
     connectOrCreate?: DeviceInstallationCreateOrConnectWithoutStakeholderInput | DeviceInstallationCreateOrConnectWithoutStakeholderInput[]
     createMany?: DeviceInstallationCreateManyStakeholderInputEnvelope
     connect?: DeviceInstallationWhereUniqueInput | DeviceInstallationWhereUniqueInput[]
+  }
+
+  export type AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput = {
+    create?: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AgentBrandingCreateOrConnectWithoutStakeholderInput
+    connect?: AgentBrandingWhereUniqueInput
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -42407,6 +43818,16 @@ export namespace Prisma {
     deleteMany?: DeviceInstallationScalarWhereInput | DeviceInstallationScalarWhereInput[]
   }
 
+  export type AgentBrandingUpdateOneWithoutStakeholderNestedInput = {
+    create?: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AgentBrandingCreateOrConnectWithoutStakeholderInput
+    upsert?: AgentBrandingUpsertWithoutStakeholderInput
+    disconnect?: AgentBrandingWhereInput | boolean
+    delete?: AgentBrandingWhereInput | boolean
+    connect?: AgentBrandingWhereUniqueInput
+    update?: XOR<XOR<AgentBrandingUpdateToOneWithWhereWithoutStakeholderInput, AgentBrandingUpdateWithoutStakeholderInput>, AgentBrandingUncheckedUpdateWithoutStakeholderInput>
+  }
+
   export type TenancyUncheckedUpdateManyWithoutLandlordNestedInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -42601,6 +44022,30 @@ export namespace Prisma {
     update?: DeviceInstallationUpdateWithWhereUniqueWithoutStakeholderInput | DeviceInstallationUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: DeviceInstallationUpdateManyWithWhereWithoutStakeholderInput | DeviceInstallationUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: DeviceInstallationScalarWhereInput | DeviceInstallationScalarWhereInput[]
+  }
+
+  export type AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput = {
+    create?: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AgentBrandingCreateOrConnectWithoutStakeholderInput
+    upsert?: AgentBrandingUpsertWithoutStakeholderInput
+    disconnect?: AgentBrandingWhereInput | boolean
+    delete?: AgentBrandingWhereInput | boolean
+    connect?: AgentBrandingWhereUniqueInput
+    update?: XOR<XOR<AgentBrandingUpdateToOneWithWhereWithoutStakeholderInput, AgentBrandingUpdateWithoutStakeholderInput>, AgentBrandingUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type StakeholderCreateNestedOneWithoutBrandingInput = {
+    create?: XOR<StakeholderCreateWithoutBrandingInput, StakeholderUncheckedCreateWithoutBrandingInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutBrandingInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutBrandingNestedInput = {
+    create?: XOR<StakeholderCreateWithoutBrandingInput, StakeholderUncheckedCreateWithoutBrandingInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutBrandingInput
+    upsert?: StakeholderUpsertWithoutBrandingInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutBrandingInput, StakeholderUpdateWithoutBrandingInput>, StakeholderUncheckedUpdateWithoutBrandingInput>
   }
 
   export type TenancyCreateNestedManyWithoutPropertyInput = {
@@ -45876,6 +47321,29 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AgentBrandingCreateWithoutStakeholderInput = {
+    agencyName: string
+    agencyLicence?: string | null
+    ceaRegistration?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgentBrandingUncheckedCreateWithoutStakeholderInput = {
+    agencyName: string
+    agencyLicence?: string | null
+    ceaRegistration?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgentBrandingCreateOrConnectWithoutStakeholderInput = {
+    where: AgentBrandingWhereUniqueInput
+    create: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
+  }
+
   export type TenancyUpsertWithWhereUniqueWithoutLandlordInput = {
     where: TenancyWhereUniqueInput
     update: XOR<TenancyUpdateWithoutLandlordInput, TenancyUncheckedUpdateWithoutLandlordInput>
@@ -46285,6 +47753,155 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"DeviceInstallation"> | Date | string
   }
 
+  export type AgentBrandingUpsertWithoutStakeholderInput = {
+    update: XOR<AgentBrandingUpdateWithoutStakeholderInput, AgentBrandingUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AgentBrandingCreateWithoutStakeholderInput, AgentBrandingUncheckedCreateWithoutStakeholderInput>
+    where?: AgentBrandingWhereInput
+  }
+
+  export type AgentBrandingUpdateToOneWithWhereWithoutStakeholderInput = {
+    where?: AgentBrandingWhereInput
+    data: XOR<AgentBrandingUpdateWithoutStakeholderInput, AgentBrandingUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AgentBrandingUpdateWithoutStakeholderInput = {
+    agencyName?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    ceaRegistration?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgentBrandingUncheckedUpdateWithoutStakeholderInput = {
+    agencyName?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    ceaRegistration?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StakeholderCreateWithoutBrandingInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutBrandingInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutBrandingInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutBrandingInput, StakeholderUncheckedCreateWithoutBrandingInput>
+  }
+
+  export type StakeholderUpsertWithoutBrandingInput = {
+    update: XOR<StakeholderUpdateWithoutBrandingInput, StakeholderUncheckedUpdateWithoutBrandingInput>
+    create: XOR<StakeholderCreateWithoutBrandingInput, StakeholderUncheckedCreateWithoutBrandingInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutBrandingInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutBrandingInput, StakeholderUncheckedUpdateWithoutBrandingInput>
+  }
+
+  export type StakeholderUpdateWithoutBrandingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutBrandingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
   export type TenancyCreateWithoutPropertyInput = {
     id?: string
     startDate: Date | string
@@ -46462,6 +48079,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsLandlordInput = {
@@ -46487,6 +48105,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsLandlordInput = {
@@ -46517,6 +48136,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsTenantInput = {
@@ -46542,6 +48162,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsTenantInput = {
@@ -46572,6 +48193,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsAgentInput = {
@@ -46597,6 +48219,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsAgentInput = {
@@ -46779,6 +48402,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsLandlordInput = {
@@ -46804,6 +48428,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsTenantInput = {
@@ -46840,6 +48465,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsTenantInput = {
@@ -46865,6 +48491,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsAgentInput = {
@@ -46901,6 +48528,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput = {
@@ -46926,6 +48554,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type InspectionUpsertWithWhereUniqueWithoutTenancyInput = {
@@ -47022,6 +48651,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionsRunInput = {
@@ -47047,6 +48677,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionsRunInput = {
@@ -47363,6 +48994,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionsRunInput = {
@@ -47388,6 +49020,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type InspectionUpsertWithoutCheckOutInput = {
@@ -48939,6 +50572,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceCasesReportedInput = {
@@ -48964,6 +50598,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceCasesReportedInput = {
@@ -49269,6 +50904,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceCasesReportedInput = {
@@ -49294,6 +50930,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type MaintenanceEventUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
@@ -49463,6 +51100,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEventsInput = {
@@ -49488,6 +51126,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEventsInput = {
@@ -49584,6 +51223,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEventsInput = {
@@ -49609,6 +51249,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutVisitsInput = {
@@ -49990,6 +51631,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEvidenceUploadedInput = {
@@ -50015,6 +51657,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEvidenceUploadedInput = {
@@ -50148,6 +51791,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEvidenceUploadedInput = {
@@ -50173,6 +51817,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutVerificationInput = {
@@ -50229,6 +51874,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceVerificationsInput = {
@@ -50254,6 +51900,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceVerificationsInput = {
@@ -50332,6 +51979,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceVerificationsInput = {
@@ -50357,6 +52005,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
@@ -50431,6 +52080,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityProposedInput = {
@@ -50456,6 +52106,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityProposedInput = {
@@ -50486,6 +52137,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityRespondedInput = {
@@ -50511,6 +52163,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityRespondedInput = {
@@ -50607,6 +52260,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityProposedInput = {
@@ -50632,6 +52286,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityRespondedInput = {
@@ -50668,6 +52323,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput = {
@@ -50693,6 +52349,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutProviderInput = {
@@ -50770,6 +52427,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeviceInstallationsInput = {
@@ -50795,6 +52453,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeviceInstallationsInput = {
@@ -50868,6 +52527,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeviceInstallationsInput = {
@@ -50893,6 +52553,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutInstallationInput = {
@@ -50949,6 +52610,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutNotificationsInput = {
@@ -50974,6 +52636,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutNotificationsInput = {
@@ -51047,6 +52710,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutNotificationsInput = {
@@ -51072,6 +52736,7 @@ export namespace Prisma {
     responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutNotificationInput = {
@@ -51714,6 +53379,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSignaturesInput = {
@@ -51739,6 +53405,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSignaturesInput = {
@@ -51835,6 +53502,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSignaturesInput = {
@@ -51860,6 +53528,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutAssessmentsInput = {
@@ -51989,6 +53658,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeletionRequestsInput = {
@@ -52014,6 +53684,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeletionRequestsInput = {
@@ -52079,6 +53750,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeletionRequestsInput = {
@@ -52104,6 +53776,7 @@ export namespace Prisma {
     responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
   export type AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput = {

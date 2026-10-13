@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
+import '../models/branding.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import 'api_failure.dart';
@@ -448,6 +449,53 @@ class Api {
 
   Future<void> revokeShare(String inspectionId) => _call(() async {
     await _dio.delete('/api/v1/inspections/$inspectionId/share');
+  });
+
+  /// A short-lived link to the signed report as a PDF. The first request for a large
+  /// report draws it, which can take a while.
+  Future<String> reportPdfUrl(String inspectionId) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/inspections/$inspectionId/pdf',
+    );
+    return response.data!['url'] as String;
+  });
+
+  Future<AgentBranding?> branding() => _call(() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/me/branding',
+    );
+    final json = response.data!['branding'] as Map<String, dynamic>?;
+    return json == null ? null : AgentBranding.fromJson(json);
+  });
+
+  Future<AgentBranding> saveBranding(Map<String, dynamic> body) =>
+      _call(() async {
+        final response = await _dio.put<Map<String, dynamic>>(
+          '/api/v1/me/branding',
+          data: body,
+        );
+        return AgentBranding.fromJson(
+          response.data!['branding'] as Map<String, dynamic>,
+        );
+      });
+
+  /// The raw image is the body; the server decides what it is from its bytes.
+  Future<AgentBranding> uploadBrandingLogo(Uint8List bytes) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/me/branding/logo',
+      data: Stream.fromIterable([bytes]),
+      options: Options(
+        contentType: 'application/octet-stream',
+        headers: {'content-length': bytes.length},
+      ),
+    );
+    return AgentBranding.fromJson(
+      response.data!['branding'] as Map<String, dynamic>,
+    );
+  });
+
+  Future<void> removeBrandingLogo() => _call(() async {
+    await _dio.delete('/api/v1/me/branding/logo');
   });
 
   Future<String> startCheckOut(String inspectionId) => _call(() async {
