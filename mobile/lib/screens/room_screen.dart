@@ -318,6 +318,41 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
+  /// A reviewed room with no items tells both parties there was nothing in it to
+  /// record, so the drawer says exactly that and the request carries the
+  /// confirmation the server requires.
+  Future<void> _nothingToRecord(RoomDetail room) async {
+    final confirmed = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: Text('Nothing to record in ${room.name}?'),
+        content: const Text(
+          'This marks the room reviewed with no items. The report will say '
+          'nothing was recorded in this room.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _run(
+        () => _api.markRoomReviewed(
+          widget.inspectionId,
+          widget.roomId,
+          nothingToRecord: true,
+        ),
+      );
+    }
+  }
+
   Future<void> _rename(RoomDetail room) async {
     final controller = TextEditingController(text: room.name);
     final name = await showKiviloDrawer<String>(
@@ -772,7 +807,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         const SizedBox(height: 5),
                         Text(
                           room.items.isEmpty
-                              ? 'Add at least one item before marking this room reviewed.'
+                              ? 'Add an item, or confirm there is nothing to record in this room.'
                               : 'Check every item against the photos and video. Your review makes this room ready for the report.',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -789,6 +824,15 @@ class _RoomScreenState extends State<RoomScreen> {
                           icon: const Icon(Icons.check_rounded),
                           label: const Text('I reviewed this room'),
                         ),
+                        if (room.items.isEmpty) ...[
+                          const SizedBox(height: 8),
+                          OutlinedButton(
+                            onPressed: _busy
+                                ? null
+                                : () => _nothingToRecord(room),
+                            child: const Text('Nothing to record'),
+                          ),
+                        ],
                       ],
                     ),
                   ),

@@ -448,11 +448,16 @@ class Api {
     },
   );
 
-  Future<void> markRoomReviewed(String inspectionId, String roomId) => _call(
-    () async {
-      await _dio.post('/api/v1/inspections/$inspectionId/rooms/$roomId/review');
-    },
-  );
+  Future<void> markRoomReviewed(
+    String inspectionId,
+    String roomId, {
+    bool nothingToRecord = false,
+  }) => _call(() async {
+    await _dio.post(
+      '/api/v1/inspections/$inspectionId/rooms/$roomId/review',
+      data: {if (nothingToRecord) 'nothingToRecord': true},
+    );
+  });
 
   Future<void> addItem(String inspectionId, String roomId) => _call(() async {
     await _dio.post('/api/v1/inspections/$inspectionId/rooms/$roomId/items');

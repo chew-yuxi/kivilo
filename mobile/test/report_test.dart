@@ -169,6 +169,31 @@ void main() {
     expect(find.text('Priya Raman'), findsWidgets);
   });
 
+  testWidgets('says when a room had nothing to record', (tester) async {
+    final json = reportJson();
+    (json['rooms'] as List).add({
+      'id': 'room-2',
+      'name': 'Store room',
+      'items': <Map<String, dynamic>>[],
+      'photos': <Map<String, dynamic>>[],
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: ReportScreen(id: 'inspection-1', api: FakeReportApi(json)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Nothing recorded in this room.'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Store room'), findsOneWidget);
+    expect(find.text('Nothing recorded in this room.'), findsOneWidget);
+  });
+
   testWidgets('says both parties signed once it is complete', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

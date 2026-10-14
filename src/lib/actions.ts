@@ -8,6 +8,7 @@ import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSign
 import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
+import { templateRows } from '@/lib/room-templates'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -191,8 +192,23 @@ export async function addRoom(inspectionId: string, name: string) {
       orderBy: { order: 'desc' },
       select: { order: true },
     })
+    // The room's standard rows, made as addItem makes a line. Items are listed by
+    // createdAt, so each gets its own millisecond to keep the template's order.
+    const now = Date.now()
     return tx.room.create({
-      data: { inspectionId, name, order: (last?.order ?? -1) + 1 },
+      data: {
+        inspectionId,
+        name,
+        order: (last?.order ?? -1) + 1,
+        items: {
+          create: templateRows(name).map((row, index) => ({
+            ...row,
+            condition: 'GOOD',
+            editedByHuman: true,
+            createdAt: new Date(now + index),
+          })),
+        },
+      },
     })
   })
 
@@ -233,7 +249,14 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
   revalidate(inspectionId)
 }
 
-export async function markRoomReviewed(roomId: string, inspectionId: string) {
+/// A reviewed room with no items tells both parties there was nothing in it to record,
+/// so reviewing one has to be asked for in so many words, as a no-damage assessment is.
+/// Released app builds cannot ask, and keep the refusal they have always had.
+export async function markRoomReviewed(
+  roomId: string,
+  inspectionId: string,
+  { nothingToRecord = false }: { nothingToRecord?: boolean } = {},
+) {
   const agent = await requireAgent()
   const room = await authorizeRoom(roomId, agent.id)
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
@@ -247,8 +270,8 @@ export async function markRoomReviewed(roomId: string, inspectionId: string) {
     if (current.status !== 'REVIEW' && current.status !== 'REVIEWED') {
       throw new Error('Finish capturing this room before reviewing it')
     }
-    if (current._count.items === 0) {
-      throw new Error('Add at least one item before reviewing this room')
+    if (current._count.items === 0 && !nothingToRecord) {
+      throw new Error('Add at least one item, or confirm there is nothing to record, before reviewing this room')
     }
     // processedAt marks a capture a person has reviewed the room with. The report only
     // shows those, so a photo that lands after Send never joins what was agreed.

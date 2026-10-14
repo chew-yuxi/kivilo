@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { timecode } from '@/lib/format'
 import { MarkOverlay } from '@/components/mark-overlay'
@@ -172,6 +172,13 @@ export function ReviewEditor({
   const router = useRouter()
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
   const [pending, startTransition] = useTransition()
+  const [confirmEmpty, setConfirmEmpty] = useState(false)
+
+  const review = (options?: { nothingToRecord: boolean }) =>
+    startTransition(async () => {
+      await markRoomReviewed(roomId, inspectionId, options)
+      router.push(alreadyReviewed ? `/inspections/${inspectionId}` : nextHref)
+    })
 
   const showEvidence = (captureId: string, seconds: number | null) => {
     const element =
@@ -270,16 +277,49 @@ export function ReviewEditor({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-4">
+      {items.length === 0 && (
+        <p className="text-right text-sm text-gray-600">
+          Add an item, or confirm there is nothing to record in this room.
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center justify-end gap-4">
+        {/* An empty reviewed room tells both parties there was nothing in it, so that
+            is said in so many words rather than by tapping the usual button. */}
+        {items.length === 0 &&
+          (confirmEmpty ? (
+            <div className="flex items-center gap-2 text-sm">
+              <span>Nothing to record in {roomName}?</span>
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => review({ nothingToRecord: true })}
+                className="rounded-md bg-brand-500 px-3 py-2 font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmEmpty(false)}
+                className="rounded-md px-3 py-2 text-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => setConfirmEmpty(true)}
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+            >
+              Nothing to record
+            </button>
+          ))}
         <button
           type="button"
           disabled={pending || items.length === 0}
-          onClick={() =>
-            startTransition(async () => {
-              await markRoomReviewed(roomId, inspectionId)
-              router.push(alreadyReviewed ? `/inspections/${inspectionId}` : nextHref)
-            })
-          }
+          onClick={() => review()}
           className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
           {alreadyReviewed ? 'Save and go back' : 'Mark room reviewed'}

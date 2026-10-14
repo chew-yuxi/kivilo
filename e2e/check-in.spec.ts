@@ -3,8 +3,8 @@ import { signIn, freshEmail, scribble, FIXTURES } from './helpers'
 import { pdfPageTexts } from '../src/lib/report-pdf/pdf-text'
 
 /// The whole check-in, as an agent does it on a phone: create the deal, capture one
-/// room, write its inventory, review, send for signature, both parties sign, share
-/// the report. Then the two things the product promises on top: a report link works
+/// room, write its inventory, review, confirm a second room has nothing to record, send
+/// for signature, both parties sign, share the report. Then the two things the product promises on top: a report link works
 /// without a session and dies on revoke, and another agent cannot see any of it.
 test('check-in from capture to countersigned report', async ({ page, browser }) => {
   await signIn(page, freshEmail('agent'))
@@ -66,11 +66,12 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page.getByRole('button', { name: /^Video 3/ })).toBeVisible()
 
   // Done waits for the room's uploads, then opens the room's inventory, which the
-  // inspector writes against the evidence. An empty room cannot be marked reviewed.
+  // inspector writes against the evidence, starting from the standard kitchen rows.
   await page.getByRole('button', { name: 'Done with Kitchen' }).click()
   await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}$/)
-  await expect(page.getByText('No items in this room yet.')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Mark room reviewed' })).toBeDisabled()
+  await expect(page.getByText('9 items', { exact: true })).toBeVisible()
+  await expect(page.locator('input[value="Walls"]')).toBeVisible()
+  await expect(page.locator('input[value="Cooker hood"]')).toBeVisible()
 
   // The evidence strip becomes a two-column grid from sm up, where a row is as tall as
   // its tallest item. That is the one surface where the overlay can stretch away from
@@ -87,13 +88,14 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   )
   await page.setViewportSize({ width: 412, height: 915 })
 
-  // Two items, typed by hand. Each new line arrives as "New item" and is renamed in place.
+  // Two items, typed by hand. Each new line arrives as "New item" at the bottom and is
+  // renamed in place.
   await page.getByRole('button', { name: '+ Add an item' }).click()
   const fridge = page.locator('input[value="New item"]')
   await fridge.fill('Refrigerator')
   await fridge.blur()
   await expect(page.locator('input[value="Refrigerator"]')).toBeVisible()
-  const serial = page.getByPlaceholder('Make / model / serial')
+  const serial = page.getByPlaceholder('Make / model / serial').last()
   await serial.fill('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')
   await serial.blur()
   await expect(page.locator('input[value="SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N"]')).toBeVisible()
@@ -102,10 +104,33 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await worktop.fill('Quartz worktop')
   await worktop.blur()
   await expect(page.locator('input[value="Quartz worktop"]')).toBeVisible()
-  await expect(page.getByText('2 items', { exact: true })).toBeVisible()
+  await expect(page.getByText('11 items', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Mark room reviewed' }).click()
   await expect(page).toHaveURL(inspectionUrl)
   await expect(page.getByText('Reviewed', { exact: true })).toBeVisible()
+
+  // A balcony with nothing in it worth recording. Its standard rows go like any line,
+  // and an empty room is reviewed only once the inspector says so in so many words.
+  await page.getByRole('button', { name: 'Balcony' }).click()
+  await page.getByRole('link', { name: 'Start with Balcony' }).click()
+  await page.locator('input[type=file][accept="image/*"]').setInputFiles(FIXTURES.photo)
+  await expect(page.getByRole('button', { name: /^Photo 1/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Done with Balcony' }).click()
+  await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}$/)
+  const remove = page.getByRole('button', { name: 'Remove' })
+  await expect(remove).toHaveCount(5)
+  for (let left = 4; left >= 0; left--) {
+    await remove.first().click()
+    await expect(remove).toHaveCount(left)
+  }
+  await expect(
+    page.getByText('Add an item, or confirm there is nothing to record in this room.'),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mark room reviewed' })).toBeDisabled()
+  await page.getByRole('button', { name: 'Nothing to record' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(page).toHaveURL(inspectionUrl)
+  await expect(page.getByText('Reviewed', { exact: true })).toHaveCount(2)
 
   // Freeze the report and collect both signatures.
   await page.getByRole('button', { name: 'Send for signature' }).click()
@@ -133,6 +158,7 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(report.getByText('#28-05')).toBeVisible()
   await expect(report.getByText('Quartz worktop')).toBeVisible()
   await expect(report.getByText('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')).toBeVisible()
+  await expect(report.getByText('Nothing recorded in this room.')).toBeVisible()
   await expect(report.getByRole('button', { name: 'Install app' })).toHaveCount(0)
 
   // The mark survived to the document both parties argue over, and it is still pointing
@@ -172,6 +198,7 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   expect(document).toContain('#28-05')
   expect(document).toContain('Quartz worktop')
   expect(document).toContain('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')
+  expect(document).toContain('Nothing recorded in this room.')
   expect(document).not.toContain(link!.split('/reports/')[1])
 
   await page.getByRole('button', { name: 'Revoke' }).click()

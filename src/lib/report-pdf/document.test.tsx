@@ -100,6 +100,12 @@ describe('report PDF', () => {
     expect(pages.slice(1).some((text) => text.includes('1. Entrance') && text.includes('2. Kitchen'))).toBe(false)
   })
 
+  it('says so when the inspector confirmed a room had nothing to record', async () => {
+    const pages = await render(model([room(1, 'Store room', 0)]))
+
+    expect(pages.join(' ')).toContain('Nothing recorded in this room.')
+  })
+
   it('lists noted condition with photo references, and captions in place', async () => {
     const bedroom = room(1, 'Master bedroom', 3, [{
       name: 'Wardrobe',

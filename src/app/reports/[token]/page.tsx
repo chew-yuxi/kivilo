@@ -204,7 +204,7 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
                   {room.items.length === 0 && (
                     <tr>
                       <td colSpan={3} className="py-2 text-gray-500">
-                        No items recorded.
+                        Nothing recorded in this room.
                       </td>
                     </tr>
                   )}

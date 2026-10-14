@@ -119,6 +119,7 @@ describe.each(['AWAITING_SIGNATURE', 'COMPLETED'] as const)(
       await expect(renameRoom(d.room.id, d.inspection.id, 'Scullery')).rejects.toThrow(SENT)
       await expect(deleteRoom(d.room.id, d.inspection.id)).rejects.toThrow(SENT)
       await expect(markRoomReviewed(d.room.id, d.inspection.id)).rejects.toThrow(SENT)
+      await expect(markRoomReviewed(d.room.id, d.inspection.id, { nothingToRecord: true })).rejects.toThrow(SENT)
       await expect(addItem(d.room.id, d.inspection.id)).rejects.toThrow(SENT)
       await expect(updateItem(d.item.id, d.inspection.id, { name: 'Hob' })).rejects.toThrow(SENT)
       await expect(deleteItem(d.item.id, d.inspection.id)).rejects.toThrow(SENT)
@@ -208,6 +209,7 @@ describe('native action boundaries', () => {
 
     await expect(renameRoom(d.room.id, other.id, 'Wrong')).rejects.toThrow('Room not found')
     await expect(markRoomReviewed(d.room.id, other.id)).rejects.toThrow('Room not found')
+    await expect(markRoomReviewed(d.room.id, other.id, { nothingToRecord: true })).rejects.toThrow('Room not found')
     await expect(addItem(d.room.id, other.id)).rejects.toThrow('Room not found')
     await expect(updateCaptureNote(d.capture.id, other.id, 'Wrong')).rejects.toThrow('Capture not found')
     await expect(deleteCapture(d.capture.id, other.id)).rejects.toThrow('Capture not found')
@@ -354,6 +356,34 @@ describe('native action boundaries', () => {
     await db.inspectionItem.deleteMany({ where: { roomId: d.room.id } })
     await db.room.update({ where: { id: d.room.id }, data: { status: 'REVIEW' } })
     await expect(markRoomReviewed(d.room.id, d.inspection.id)).rejects.toThrow('Add at least one item')
+    await expect(markRoomReviewed(d.room.id, d.inspection.id, { nothingToRecord: false }))
+      .rejects.toThrow('Add at least one item')
+  })
+
+  it('reviews an empty room once the inspector confirms there is nothing to record', async () => {
+    const d = await deal('NOTHING', 'CAPTURING')
+    await db.inspectionItem.deleteMany({ where: { roomId: d.room.id } })
+    await db.capture.update({ where: { id: d.capture.id }, data: { processedAt: null } })
+    await db.room.update({ where: { id: d.room.id }, data: { status: 'CAPTURING' } })
+    // The confirmation is about the inventory, not a way round the other checks.
+    await expect(markRoomReviewed(d.room.id, d.inspection.id, { nothingToRecord: true }))
+      .rejects.toThrow('Finish capturing')
+
+    await finishRoomCapture(d.room.id, d.inspection.id)
+    await markRoomReviewed(d.room.id, d.inspection.id, { nothingToRecord: true })
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEWED')
+    expect(await db.capture.count({ where: { roomId: d.room.id, processedAt: null } })).toBe(0)
+    await expect(completeReview(d.inspection.id)).resolves.toBeUndefined()
+  })
+
+  it('reviews a room with items the same way whether or not the flag is sent', async () => {
+    const d = await deal('FLAGGED', 'CAPTURING')
+    await db.capture.update({ where: { id: d.capture.id }, data: { processedAt: null } })
+    await db.room.update({ where: { id: d.room.id }, data: { status: 'REVIEW' } })
+    await markRoomReviewed(d.room.id, d.inspection.id, { nothingToRecord: true })
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEWED')
+    expect(await db.capture.count({ where: { roomId: d.room.id, processedAt: null } })).toBe(0)
+    expect(await db.inspectionItem.count({ where: { roomId: d.room.id } })).toBe(1)
   })
 
   it('only accepts tenancy parties and never overwrites a signature', async () => {

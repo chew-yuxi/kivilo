@@ -351,7 +351,7 @@ function RoomSection({ room, assets }: { room: ReportRoom; assets: ReportAssets 
           ))}
         </View>
       ) : (
-        <Text style={[s.small, { marginBottom: 16 }]}>No items recorded.</Text>
+        <Text style={[s.small, { marginBottom: 16 }]}>Nothing recorded in this room.</Text>
       )}
 
       {rows.map((row) => (

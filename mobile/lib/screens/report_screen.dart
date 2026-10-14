@@ -221,7 +221,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _items(ReportRoom room) {
     final text = Theme.of(context).textTheme;
     if (room.items.isEmpty) {
-      return Text('No items recorded.', style: text.bodyMedium);
+      return Text('Nothing recorded in this room.', style: text.bodyMedium);
     }
     return Card(
       child: Column(

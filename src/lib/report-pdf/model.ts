@@ -6,7 +6,7 @@ import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 1
+export const RENDER_VERSION = 2
 
 const reportInclude = {
   tenancy: {

@@ -90,7 +90,7 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
 /// The capture path as a native client walks it: no browser, no cookie, bytes going
 /// straight to storage with a one-shot credential. Deliberately no page at all, because
 /// the point is that the app never needs one.
-test('a native client takes a check-in from capture to both signatures', async ({ request }) => {
+test('a native client takes a check-in from capture to both signatures, then opens its check-out', async ({ request }) => {
   const headers = { Authorization: `Bearer ${await accessTokenFor(freshEmail('api-capture'))}` }
   const landlordEmail = freshEmail('api-landlord')
 
@@ -183,38 +183,34 @@ test('a native client takes a check-in from capture to both signatures', async (
   )
   expect(finished.status()).toBe(200)
 
-  // Finishing hands the room straight to the inspector to write. Nothing drafts it, so
-  // an empty room cannot be reviewed until a person adds a line.
+  // Finishing hands the room straight to the inspector to write. Nothing drafts it; the
+  // room arrived with the standard rows for a kitchen, made as Add makes a line, which
+  // is what every installed build sees too.
   const detail = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
-  expect((await detail.json()).rooms[0]).toMatchObject({ status: 'REVIEW', items: 0 })
-  const empty = await request.post(
-    `/api/v1/inspections/${inspectionId}/rooms/${roomId}/review`,
-    { headers },
-  )
-  expect(empty.status()).toBe(409)
-  expect(await empty.json()).toEqual({ error: 'review_incomplete' })
-
-  const item = await request.post(`/api/v1/inspections/${inspectionId}/rooms/${roomId}/items`, {
+  expect((await detail.json()).rooms[0]).toMatchObject({ status: 'REVIEW', items: 9 })
+  const kitchen = await request.get(`/api/v1/inspections/${inspectionId}/rooms/${roomId}`, {
     headers,
   })
-  expect(item.status()).toBe(200)
+  const rows = (await kitchen.json()).items as { name: string }[]
+  expect(rows.map((row) => row.name)).toEqual([
+    'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches',
+    'Cabinets', 'Sink and tap', 'Hob', 'Cooker hood',
+  ])
+  // editedByHuman is a required field in installed app builds up to 19.
+  expect(rows[0]).toMatchObject({ condition: 'GOOD', quantity: 1, editedByHuman: true })
+
   const reviewed = await request.post(
     `/api/v1/inspections/${inspectionId}/rooms/${roomId}/review`,
     { headers },
   )
   expect(reviewed.status()).toBe(200)
   const after = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
-  // newSinceDraft and editedByHuman are required fields in installed app builds up to 19.
+  // newSinceDraft is a required field in installed app builds up to 19.
   expect((await after.json()).rooms[0]).toMatchObject({
     status: 'REVIEWED',
-    items: 1,
+    items: 9,
     newSinceDraft: 0,
   })
-  const reviewedRoom = await request.get(
-    `/api/v1/inspections/${inspectionId}/rooms/${roomId}`,
-    { headers },
-  )
-  expect((await reviewedRoom.json()).items[0]).toMatchObject({ editedByHuman: true })
 
   // Send for signature. The tenant signs on the agent's phone at the handover; the
   // landlord, who was not there, signs from their own login.
@@ -239,6 +235,29 @@ test('a native client takes a check-in from capture to both signatures', async (
   expect(landlordSigned.status()).toBe(200)
   const signed = await request.get(`/api/v1/inspections/${inspectionId}/report`, { headers: landlord })
   expect(await signed.json()).toMatchObject({ status: 'COMPLETED', signAs: null })
+
+  // The check-out walks the same rooms. They are the check-in's route, not new rooms, so
+  // they carry no template rows, and an empty one is reviewed only on the inspector's
+  // word that there is nothing to record. Installed builds post no body and are refused.
+  const checkOut = await request.post(`/api/v1/inspections/${inspectionId}/checkout`, { headers })
+  expect(checkOut.status()).toBe(200)
+  const checkOutId = (await checkOut.json()).id as string
+  const opened = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
+  expect(opened.rooms).toMatchObject([{ name: 'Kitchen', items: 0 }])
+  const emptyRoom = `/api/v1/inspections/${checkOutId}/rooms/${opened.rooms[0].id}`
+  expect((await request.post(`${emptyRoom}/finish`, { headers })).status()).toBe(200)
+
+  const unconfirmed = await request.post(`${emptyRoom}/review`, { headers })
+  expect(unconfirmed.status()).toBe(409)
+  expect(await unconfirmed.json()).toEqual({ error: 'review_incomplete' })
+  const confirmed = await request.post(`${emptyRoom}/review`, {
+    headers,
+    data: { nothingToRecord: true },
+  })
+  expect(confirmed.status()).toBe(200)
+  expect(await confirmed.json()).toEqual({ ok: true })
+  const walked = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
+  expect(walked.rooms[0]).toMatchObject({ status: 'REVIEWED', items: 0 })
 })
 
 test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {
