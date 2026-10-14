@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 12 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 13 October 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -29,6 +29,12 @@ export default function PrivacyPage() {
           notifications use a device token and notification history.
         </p>
         <p>
+          When something goes wrong in the app, we record an error report: the error
+          message and where in our code it happened, the page, the app version, your
+          browser or device type, and which account was signed in. We do not record
+          your IP address in it.
+        </p>
+        <p>
           The mobile app saves unsent captures, pending edits and previously viewed
           inspection data on your device so you can work without a connection. It also
           stores your sign-in session there.
@@ -41,7 +47,8 @@ export default function PrivacyPage() {
           We use this information to sign users in, preserve and organize evidence,
           record and review inspections, record signatures, provide private report links,
           compare check-out with check-in, manage maintenance, send account and service
-          messages, and handle support and deletion requests.
+          messages, find and fix faults in Kivilo, and handle support and deletion
+          requests.
         </p>
       </section>
 
@@ -82,7 +89,8 @@ export default function PrivacyPage() {
           request, and in regular record reviews. When none applies, we delete the
           information or remove its link to an identifiable person. We keep a limited
           record of a deletion request while needed to demonstrate fulfillment or
-          resolve a complaint, then remove or de-identify it.
+          resolve a complaint, then remove or de-identify it. We delete error reports
+          90 days after they are recorded.
         </p>
         <p>
           Some service-provider copies can remain after deletion from Kivilo&apos;s
@@ -104,10 +112,10 @@ export default function PrivacyPage() {
           </Link>. If you cannot sign in, email us from your account address. We
           acknowledge requests and aim to complete them within 30 days. When we
           fulfill a request, we remove the sign-in account, contact and identity
-          fields, our push-device registration, and account-specific notification
-          history. We remove unsigned drafts that belong solely to the requesting
-          account and verify that their stored media is removed after outstanding
-          upload links expire.
+          fields, our push-device registration, account-specific notification
+          history, and error reports recorded while you were signed in. We remove
+          unsigned drafts that belong solely to the requesting account and verify that
+          their stored media is removed after outstanding upload links expire.
         </p>
         <p>
           Signed reports and unsigned work involving another party may retain your

@@ -1,4 +1,6 @@
+import { after } from 'next/server'
 import { currentStakeholder } from '@/lib/auth'
+import { recordServerError } from '@/lib/errors'
 import type { Stakeholder } from '@/generated/prisma'
 import { ZodError } from 'zod'
 
@@ -65,6 +67,15 @@ export function authed<P>(
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       console.error('API route failed:', error)
+      // Caught here, so Next never sees it and onRequestError never fires. Recorded after
+      // the response, because the app reads this JSON body and a database too broken to
+      // record the error must not also turn it into a different response.
+      after(() => recordServerError(error, {
+        context: 'api',
+        path: new URL(request.url).pathname,
+        userAgent: request.headers.get('user-agent'),
+        stakeholderId: stakeholder.id,
+      }))
       return Response.json({ error: 'server_error' }, { status: 500 })
     }
   }

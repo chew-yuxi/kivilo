@@ -52,6 +52,7 @@ model Stakeholder {
   notifications Notification[]
   deviceInstallations DeviceInstallation[]
   branding AgentBranding?
+  errorEvents ErrorEvent[]
 
   @@index([name])
   @@index([teamId])
@@ -797,4 +798,44 @@ model StoragePurge {
   createdAt   DateTime  @default(now())
 
   @@index([completedAt, readyAt])
+}
+
+enum ErrorSource {
+  SERVER
+  WEB
+}
+
+/// One error, as it happened, from the server or an agent's browser. Grouped on read by
+/// `fingerprint`, a hash of where it came from and what it said with ids and numbers
+/// normalized out, so the same bug on two inspections is one problem rather than two.
+/// `notifiedAt` is stamped by the alert cron, which emails a fingerprint only the first
+/// time it is seen. Kept for 90 days, as the privacy policy says.
+model ErrorEvent {
+  /// A browser report carries its own UUID, so a retried batch cannot record twice.
+  id            String      @id @default(uuid())
+  source        ErrorSource
+  /// Where it was caught: render, action, route or api on the server; boundary, window
+  /// or rejection in the browser.
+  context       String
+  name          String
+  message       String
+  stack         String?
+  /// React's digest for a server error. The browser shows it as the error's reference,
+  /// so it is how an agent's screenshot is matched to the stack.
+  digest        String?
+  path          String?
+  release       String?
+  userAgent     String?
+  fingerprint   String
+  stakeholderId String?
+  occurredAt    DateTime
+  createdAt     DateTime    @default(now())
+  notifiedAt    DateTime?
+
+  stakeholder Stakeholder? @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
+
+  @@index([fingerprint])
+  @@index([notifiedAt])
+  @@index([createdAt])
+  @@index([stakeholderId])
 }

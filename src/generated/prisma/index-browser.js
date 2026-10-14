@@ -461,6 +461,24 @@ exports.Prisma.StoragePurgeScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ErrorEventScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  context: 'context',
+  name: 'name',
+  message: 'message',
+  stack: 'stack',
+  digest: 'digest',
+  path: 'path',
+  release: 'release',
+  userAgent: 'userAgent',
+  fingerprint: 'fingerprint',
+  stakeholderId: 'stakeholderId',
+  occurredAt: 'occurredAt',
+  createdAt: 'createdAt',
+  notifiedAt: 'notifiedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -673,6 +691,11 @@ exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {
   COMPLETED: 'COMPLETED'
 };
 
+exports.ErrorSource = exports.$Enums.ErrorSource = {
+  SERVER: 'SERVER',
+  WEB: 'WEB'
+};
+
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Team: 'Team',
@@ -700,7 +723,8 @@ exports.Prisma.ModelName = {
   AssessmentVersion: 'AssessmentVersion',
   AccountDeletionRequest: 'AccountDeletionRequest',
   AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
-  StoragePurge: 'StoragePurge'
+  StoragePurge: 'StoragePurge',
+  ErrorEvent: 'ErrorEvent'
 };
 
 /**

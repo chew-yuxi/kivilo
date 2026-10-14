@@ -120,6 +120,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
     await db.$transaction([
       db.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } }),
       db.notification.deleteMany({ where: { recipientId: person.id } }),
+      db.errorEvent.deleteMany({ where: { stakeholderId: person.id } }),
     ])
 
     // An inspection can be this agent's work while also being a landlord's or
