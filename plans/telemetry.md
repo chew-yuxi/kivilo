@@ -41,7 +41,17 @@ production env, then push (the cron is in `vercel.json`).
 existing timestamps (inspection created, captured, reviewed, sent, countersigned) rather
 than duplicated into events, and an `/admin` page behind an `ADMIN_EMAILS` allowlist.
 
-## Phase 3: Flutter errors
+## Phase 3: Flutter errors (built 2026-10-14)
 
-`FlutterError.onError` and `PlatformDispatcher.instance.onError` posting to
-`/api/v1/errors` with a platform field. Ships in a store build.
+`mobile/lib/services/error_reporter.dart`: `FlutterError.onError`,
+`PlatformDispatcher.instance.onError` and `plainError`'s fallback post to `/api/v1/errors`
+with `source` ANDROID or IOS and the build and Shorebird patch as `release`, buffered in a
+file under the app support directory (cap 20). Server and network failures are never
+reported. An upload that loses signal now raises `ApiFailure.noConnection` instead of a
+`StateError`, so the pending card says "No connection" and it is not reported.
+Server: migration `20261014090000_error_source_app` adds the two sources, and
+`redactSecrets` cuts JWTs (signed storage tokens) from messages and stacks.
+
+Ships as a Shorebird patch on `1.0.0+22`: pure Dart, no new plugin, no new icon. The
+server half must be deployed first, or the app's batches are refused with a 400 and
+dropped. Build 13 on Play production cannot be patched.

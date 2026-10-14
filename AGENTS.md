@@ -227,6 +227,12 @@ plus `authed`'s own 500s, which Next never sees. An agent's browser posts the re
 `/api/v1/errors` from `src/lib/error-reporter.ts`, holding them in `localStorage` until
 the server confirms. The browser skips anything with a `digest`, because the server already
 recorded it under that digest, and the digest is the "Reference" an agent sees on screen.
+The app does the same from `mobile/lib/services/error_reporter.dart`, with its bearer and a
+file in place of `localStorage`: Flutter's and the platform's uncaught errors, and whatever
+`plainError` turns into "Something went wrong". It never reports an `ApiFailure`, a
+`DioException` or a lost connection, because the server records its own failures and no
+signal is not a bug. Signed storage URLs quote their token as a JWT, so `redactSecrets`
+cuts JWTs from every message and stack before they are stored or mailed.
 Every 15 minutes `/api/internal/errors` emails `ERROR_ALERT_TO` once per new fingerprint,
 then deletes anything over 90 days, as the privacy page promises. Never store a
 `/reports/[token]` path unredacted: `redactPath` is the guard.

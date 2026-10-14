@@ -1,8 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import 'error_reporter.dart';
+
 class ApiFailure implements Exception {
   const ApiFailure(this.message, this.statusCode);
+
+  static const noConnection = ApiFailure(
+    'No connection. Anything you took is saved on this phone, so try again when you have signal.',
+    null,
+  );
 
   factory ApiFailure.fromDio(DioException error) {
     final status = error.response?.statusCode;
@@ -32,7 +39,7 @@ class ApiFailure implements Exception {
         'Someone already updated this repair. Refresh and check the timeline.',
       _ =>
         status == null
-            ? 'No connection. Anything you took is saved on this phone, so try again when you have signal.'
+            ? noConnection.message
             : 'Kivilo could not do that just now. Please try again. (Error $status)',
     };
     return ApiFailure(message, status);
@@ -48,11 +55,17 @@ class ApiFailure implements Exception {
 /// The sentence to show when [error] stops something a person asked for. A failure
 /// from the server, or one this app raised for a person to read, already carries one.
 /// Anything else is a programmer's message, such as a file the phone could not read or
-/// a plugin that failed, which means nothing to an agent: it is logged for us and a
+/// a plugin that failed, which means nothing to an agent: it is reported to us and a
 /// plain sentence is shown instead.
 String plainError(Object error) {
   if (error is ApiFailure) return error.message;
   if (error is DioException) return ApiFailure.fromDio(error).message;
   debugPrint('$error');
+  // Where it was thrown when the error carries that, otherwise where it was shown.
+  ErrorReporter.report(
+    error,
+    (error is Error ? error.stackTrace : null) ?? StackTrace.current,
+    'caught',
+  );
   return 'Something went wrong. Please try again.';
 }

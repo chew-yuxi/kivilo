@@ -693,7 +693,9 @@ exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {
 
 exports.ErrorSource = exports.$Enums.ErrorSource = {
   SERVER: 'SERVER',
-  WEB: 'WEB'
+  WEB: 'WEB',
+  ANDROID: 'ANDROID',
+  IOS: 'IOS'
 };
 
 exports.Prisma.ModelName = {

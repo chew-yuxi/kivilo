@@ -234,6 +234,11 @@ class HttpCaptureBackend implements CaptureBackend {
       await progress.cancel();
     }
     if (result.status != TaskStatus.complete) {
+      // Losing signal mid-upload is not a fault. Say so in the words every other lost
+      // connection uses, which also keeps it out of the error reports.
+      if (result.exception is TaskConnectionException) {
+        throw ApiFailure.noConnection;
+      }
       throw StateError(
         'Upload ${result.status.name}: ${result.exception ?? result.responseStatusCode ?? 'retry later'}',
       );

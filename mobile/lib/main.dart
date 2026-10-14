@@ -9,6 +9,7 @@ import 'screens/home_screen.dart';
 import 'screens/update_gate.dart';
 import 'services/api.dart';
 import 'services/app_update.dart';
+import 'services/error_reporter.dart';
 import 'services/secure_session_store.dart';
 import 'services/capture_sync.dart';
 import 'services/foreground_capture_retry.dart';
@@ -47,6 +48,12 @@ Future<void> main() async {
       (_) => _resumeUserServices(),
       onError: (Object error) => debugPrint('auth state error: $error'),
     );
+    // Not awaited: reporting errors must never be what stops the app starting.
+    unawaited(
+      ErrorReporter.install(Api().dio).catchError(
+        (Object error) => debugPrint('error reporting setup error: $error'),
+      ),
+    );
     _resumeUserServices();
   }
 
@@ -82,6 +89,9 @@ Future<void> _resumeCaptures() async {
 
 void _resumeUserServices() {
   unawaited(_resumeCaptures());
+  // Reports wait for a session as well as for signal, so a sign-in is a moment to send.
+  final reporter = ErrorReporter.current;
+  if (reporter != null) unawaited(reporter.flush());
   if (!Config.isPushComplete ||
       Supabase.instance.client.auth.currentSession == null) {
     return;

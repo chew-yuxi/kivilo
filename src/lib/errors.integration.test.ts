@@ -62,6 +62,24 @@ describe('error tracking', () => {
     expect(rows.find((row) => row.id === future.id)!.occurredAt.getTime()).toBeLessThanOrEqual(Date.now())
   })
 
+  it('records reports from the app under its platform, with no path and no token', async () => {
+    const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ4In0.c2lnbmF0dXJl'
+    const caught = report(`app ${tag} at https://s.example/sign/a.jpg?token=${jwt}`, {
+      context: 'caught',
+      name: '_TypeError',
+      path: null,
+      stack: `#0 main (package:kivilo/main.dart:1:2) token=${jwt}`,
+      // Dart's toIso8601String carries microseconds.
+      occurredAt: '2026-10-14T01:02:03.123456Z',
+    })
+    expect(await recordClientErrors(agentId, { source: 'IOS', errors: [caught] }, 'Dart/3.9 (dart:io)')).toBe(1)
+
+    const row = await db.errorEvent.findUniqueOrThrow({ where: { id: caught.id } })
+    expect(row).toMatchObject({ source: 'IOS', context: 'caught', path: null, release: 'test' })
+    expect(row.message).not.toContain(jwt)
+    expect(row.stack).not.toContain(jwt)
+  })
+
   it('refuses a batch that is not reports, rather than storing it', async () => {
     await expect(recordClientErrors(agentId, { errors: [{ message: tag }] }, null)).rejects.toThrow()
     await expect(recordClientErrors(agentId, { errors: [] }, null)).rejects.toThrow()

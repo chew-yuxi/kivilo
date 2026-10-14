@@ -167,7 +167,7 @@ export type AccountDeletionStoragePurge = $Result.DefaultSelection<Prisma.$Accou
 export type StoragePurge = $Result.DefaultSelection<Prisma.$StoragePurgePayload>
 /**
  * Model ErrorEvent
- * One error, as it happened, from the server or an agent's browser. Grouped on read by
+ * One error, as it happened, from the server, an agent's browser, or the app. Grouped on read by
  * `fingerprint`, a hash of where it came from and what it said with ids and numbers
  * normalized out, so the same bug on two inspections is one problem rather than two.
  * `notifiedAt` is stamped by the alert cron, which emails a fingerprint only the first
@@ -439,7 +439,9 @@ export type DeletionRequestStatus = (typeof DeletionRequestStatus)[keyof typeof 
 
 export const ErrorSource: {
   SERVER: 'SERVER',
-  WEB: 'WEB'
+  WEB: 'WEB',
+  ANDROID: 'ANDROID',
+  IOS: 'IOS'
 };
 
 export type ErrorSource = (typeof ErrorSource)[keyof typeof ErrorSource]
@@ -37221,7 +37223,7 @@ export namespace Prisma {
       source: $Enums.ErrorSource
       /**
        * Where it was caught: render, action, route or api on the server; boundary, window
-       * or rejection in the browser.
+       * or rejection in the browser; flutter, platform or caught in the app.
        */
       context: string
       name: string

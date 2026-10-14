@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 13 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 14 October 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -35,8 +35,8 @@ export default function PrivacyPage() {
           your IP address in it.
         </p>
         <p>
-          The mobile app saves unsent captures, pending edits and previously viewed
-          inspection data on your device so you can work without a connection. It also
+          The mobile app saves unsent captures, pending edits, error reports not yet
+          sent and previously viewed inspection data on your device so you can work without a connection. It also
           stores your sign-in session there.
         </p>
       </section>
@@ -125,7 +125,8 @@ export default function PrivacyPage() {
         </p>
         <p>
           Signing out or requesting account deletion does not currently erase unsent
-          captures, pending edits or previously viewed inspection data from your phone.
+          captures, pending edits, unsent error reports or previously viewed inspection
+          data from your phone.
           Those files are kept in app storage separately for each account. Clear
           Kivilo&apos;s app storage or uninstall it to remove them from that device;
           doing so permanently discards any evidence that has not uploaded.

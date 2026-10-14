@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fingerprint, redactPath } from './errors'
+import { fingerprint, redactPath, redactSecrets } from './errors'
 
 describe('fingerprint', () => {
   it('groups one bug across inspections, rooms and counts', () => {
@@ -26,5 +26,17 @@ describe('redactPath', () => {
   it('drops a report token and any query string', () => {
     expect(redactPath('/reports/AbC_d-123xyz/print?render=secret#top')).toBe('/reports/:token/print')
     expect(redactPath('/inspections/abc?tab=rooms')).toBe('/inspections/abc')
+  })
+})
+
+describe('redactSecrets', () => {
+  /// An app error quotes the signed URL an upload or a photo failed on, and the token in
+  /// it opens the object until it expires.
+  it('cuts a signed storage token out of a message', () => {
+    const url = 'https://x.supabase.co/storage/v1/object/upload/sign/captures/r/a.jpg' +
+      '?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXB0dXJlcy9yL2EuanBnIn0.c2lnbmF0dXJlX2hlcmU'
+    expect(redactSecrets(`Upload failed: 400 ${url}`)).toBe(
+      'Upload failed: 400 https://x.supabase.co/storage/v1/object/upload/sign/captures/r/a.jpg?token=:jwt',
+    )
   })
 })

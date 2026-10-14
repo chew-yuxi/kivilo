@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { freshEmail, signIn } from './helpers'
+import { accessTokenFor, freshEmail, signIn } from './helpers'
 
 /// The browser half of error tracking, on the real path. A report left over from an
 /// earlier visit goes on the next page load, an error nothing caught is posted for the
@@ -41,4 +41,21 @@ test('error reports reach the server, and wait out a lost connection', async ({ 
   await context.setOffline(false)
   expect(await (await posted).json()).toEqual({ recorded: 1 })
   await expect.poll(() => pendingReports(page)).toBe(0)
+})
+
+/// The app has no cookie, only its access token, exactly as for every other /api/v1 call.
+test('the app reports through its bearer, and nobody reports without one', async ({ request }) => {
+  const report = {
+    id: crypto.randomUUID(), context: 'caught', name: 'StateError', message: `app e2e-${Date.now()}`,
+    stack: null, path: null, release: '1.0.0+22 patch 12', occurredAt: new Date().toISOString(),
+  }
+  const anonymous = await request.post('/api/v1/errors', { data: { source: 'ANDROID', errors: [report] } })
+  expect(anonymous.status()).toBe(401)
+
+  const token = await accessTokenFor(freshEmail('app-errors'))
+  const posted = await request.post('/api/v1/errors', {
+    headers: { authorization: `Bearer ${token}` },
+    data: { source: 'ANDROID', errors: [report] },
+  })
+  expect(await posted.json()).toEqual({ recorded: 1 })
 })
