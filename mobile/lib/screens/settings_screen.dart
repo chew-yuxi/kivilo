@@ -8,6 +8,7 @@ import '../config.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/push_notifications.dart';
+import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
@@ -108,6 +109,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           debugPrint('Could not disable push before sign-out: $error');
         }
       }
+      // While there is still a user to find it by.
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) await SavedSignature(userId).forget();
       try {
         await Supabase.instance.client.auth.signOut().timeout(
           const Duration(seconds: 5),

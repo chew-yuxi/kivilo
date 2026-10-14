@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/report.dart';
 import '../services/api.dart';
+import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
@@ -38,6 +40,9 @@ class _ReportScreenState extends State<ReportScreen> {
           inspectionId: report.id,
           name: landlord ? report.landlord : report.tenant,
           role: landlord ? 'Landlord' : 'Tenant',
+          savedSignature: SavedSignature(
+            Supabase.instance.client.auth.currentUser!.id,
+          ),
         ),
       ),
     );
