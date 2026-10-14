@@ -495,30 +495,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
               const SizedBox(height: 14),
-              Row(
-                children: [
-                  if (reportId != null) ...[
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () => _openReport(reportId),
-                        child: Text(
-                          tenancy.awaitingMySignature
-                              ? 'Review and sign'
-                              : tenancy.latestReportKind == 'CHECK_OUT'
-                              ? 'Check-out report'
-                              : 'Check-in report',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _openTenancy(tenancy),
-                      child: const Text('Repairs'),
-                    ),
+              // Stacked full width: half a card is too tight for "Review and sign" on a
+              // small phone.
+              if (reportId != null) ...[
+                FilledButton(
+                  onPressed: () => _openReport(reportId),
+                  child: Text(
+                    tenancy.awaitingMySignature
+                        ? 'Review and sign'
+                        : tenancy.latestReportKind == 'CHECK_OUT'
+                        ? 'Check-out report'
+                        : 'Check-in report',
                   ),
-                ],
+                ),
+                const SizedBox(height: 8),
+              ],
+              OutlinedButton(
+                onPressed: () => _openTenancy(tenancy),
+                child: const Text('Repairs'),
               ),
             ],
           ),
