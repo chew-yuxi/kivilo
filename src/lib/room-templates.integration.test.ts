@@ -14,7 +14,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
-import { addItem, addRoom, startCheckOut } from '@/lib/actions'
+import { addItem, addRoom, deleteItem, startCheckOut } from '@/lib/actions'
 import type { InspectionItem } from '@/generated/prisma'
 
 const postalCode = '998811'
@@ -126,5 +126,20 @@ describe('room templates', () => {
       { name: 'Kitchen', _count: { items: 0 } },
       { name: 'Master bathroom', _count: { items: 0 } },
     ])
+  })
+})
+
+describe('emptying a reviewed room', () => {
+  it('sends it back to review, so "Nothing recorded" is only ever the inspector\'s word', async () => {
+    const inspection = await deal('TEMPLATE-EMPTIED')
+    const roomId = await addRoom(inspection.id, 'Store room')
+    await db.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
+    const [last, ...rest] = (await items(roomId)).reverse()
+
+    for (const row of rest) await deleteItem(row.id, inspection.id)
+    expect(await db.room.findUniqueOrThrow({ where: { id: roomId } })).toMatchObject({ status: 'REVIEWED' })
+
+    await deleteItem(last.id, inspection.id)
+    expect(await db.room.findUniqueOrThrow({ where: { id: roomId } })).toMatchObject({ status: 'REVIEW' })
   })
 })

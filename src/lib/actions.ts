@@ -627,8 +627,14 @@ export async function deleteItem(itemId: string, inspectionId: string) {
   const agent = await requireAgent()
   await authorizeItem(itemId, inspectionId, agent.id)
 
-  await editOpenInspection(inspectionId, (tx) =>
-    tx.inspectionItem.delete({ where: { id: itemId } }))
+  await editOpenInspection(inspectionId, async (tx) => {
+    const { roomId } = await tx.inspectionItem.delete({ where: { id: itemId } })
+    // A reviewed room emptied this way would read "Nothing recorded in this room" without
+    // the inspector ever saying so. It goes back to review to be asked.
+    if ((await tx.inspectionItem.count({ where: { roomId } })) === 0) {
+      await tx.room.updateMany({ where: { id: roomId, status: 'REVIEWED' }, data: { status: 'REVIEW' } })
+    }
+  })
   revalidate(inspectionId)
 }
 
