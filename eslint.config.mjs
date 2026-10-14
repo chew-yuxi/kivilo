@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Prisma's generated client.
     "src/generated/**",
+    // Other checkouts of this repo (git worktrees), each with its own build output.
+    ".claude/**",
   ]),
 ]);
 
