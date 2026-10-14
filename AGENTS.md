@@ -362,6 +362,13 @@ and JPEG, and the agent can set the name printed beside them.
 - Supabase Storage encodes a signed URL's `download` file name twice in
   `Content-Disposition`, so a `#` or `,` reaches the reader's disk as `%23` or `%2C`.
   Report file names are letters, digits, spaces, dots and hyphens only.
+- The first PDF drawn in production failed with `Cannot find module .../pdfkit/js/standard-fonts/Helvetica.cjs`.
+  pdfkit loads its built-in fonts through its package's `#standard-fonts/*` import alias,
+  which Vercel's file tracing cannot follow, and nothing local catches it because local
+  runs read `node_modules` directly. Both PDF routes now list the fonts in
+  `outputFileTracingIncludes`; a new route that draws a PDF needs the same entry. Check
+  a route's `.next/server/app/<route>/route.js.nft.json` after `pnpm build` for any file
+  a library loads by a path the tracer cannot see.
 - A Shorebird patch compiles the working tree as it is at that moment, not a commit.
   Editing files during a patch build, or another session merging into the shared
   checkout, ships that code to phones. Build patches from a `git worktree` pinned to the

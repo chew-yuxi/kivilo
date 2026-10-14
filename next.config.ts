@@ -6,6 +6,8 @@ import type { NextConfig } from 'next'
 const buildId =
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? `local-${Date.now().toString(36)}`
 
+const pdfkitFonts = './node_modules/.pnpm/pdfkit@*/node_modules/pdfkit/js/standard-fonts/*.cjs'
+
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: buildId },
 
@@ -13,9 +15,15 @@ const nextConfig: NextConfig = {
   // would leave it out. Only that one function carries it. The path is pnpm's real
   // directory, which is also where Node resolves the package at runtime: Vercel rejects
   // a function whose files arrive through the node_modules/ffmpeg-static symlink.
+  //
+  // The report PDF has the same gap. pdfkit loads Helvetica and the other built-in fonts
+  // through its package's `#standard-fonts/*` import alias, which tracing cannot follow,
+  // so every route that draws a PDF carries those files the same way.
   serverExternalPackages: ['ffmpeg-static'],
   outputFileTracingIncludes: {
     '/api/internal/posters': ['./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg'],
+    '/reports/\\[token\\]/pdf': [pdfkitFonts],
+    '/api/v1/inspections/\\[id\\]/pdf': [pdfkitFonts],
   },
 
   async headers() {
