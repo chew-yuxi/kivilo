@@ -1,14 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase/client'
 
 /// A six digit code rather than a magic link. A link opens the phone's default browser,
 /// which for an installed PWA means the agent lands in Safari instead of the app they
 /// were just using, with no session in the app itself. A code keeps them where they are.
 export function LoginForm() {
-  const router = useRouter()
   const next = useSearchParams().get('next') || '/inspections'
 
   const [stage, setStage] = useState<'email' | 'code'>('email')
@@ -44,13 +43,22 @@ export function LoginForm() {
       return setError('That code is not right, or it has expired. Check the email or request a new one.')
     }
 
-    // Deliberately stay busy. The code has been accepted, but /inspections is a server
-    // render that also provisions the agent on a first sign-in, so it can take seconds
-    // on a cold start. Clearing the flag here put the button back to "Sign in" while the
-    // page had visibly not moved, which reads as a sign-in that silently failed. The
-    // component unmounts on navigation, so there is nothing to reset.
-    router.replace(next)
-    router.refresh()
+    // Deliberately stay busy, and leave with a full page load rather than the router.
+    // The landing page's links prefetch /inspections while the visitor is signed out,
+    // and the client router keeps what came back: the proxy's redirect to /login. A
+    // router navigation after sign-in replayed that redirect, so the agent landed back
+    // here with the button stuck on "Working…" and /inspections was never requested. A
+    // full load discards everything the router cached under the old session. It also
+    // tears this page down, so there is nothing to reset, and the button keeps saying
+    // "Working…" through the seconds a first sign-in's server render can take.
+    //
+    // `next` comes from the URL, so anyone can link here with their own. A full load
+    // would follow it off site, so it must resolve to this origin. A prefix check is not
+    // enough: browsers read `/\evil.com` as `//evil.com`.
+    const target = new URL(next, window.location.href)
+    window.location.replace(
+      target.origin === window.location.origin ? target.href : '/inspections',
+    )
   }
 
   return (
