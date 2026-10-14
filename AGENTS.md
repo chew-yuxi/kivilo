@@ -366,9 +366,11 @@ and JPEG, and the agent can set the name printed beside them.
   pdfkit loads its built-in fonts through its package's `#standard-fonts/*` import alias,
   which Vercel's file tracing cannot follow, and nothing local catches it because local
   runs read `node_modules` directly. Both PDF routes now list the fonts in
-  `outputFileTracingIncludes`; a new route that draws a PDF needs the same entry. Check
-  a route's `.next/server/app/<route>/route.js.nft.json` after `pnpm build` for any file
-  a library loads by a path the tracer cannot see.
+  `outputFileTracingIncludes`, as `standard-fonts/**` because every font requires a
+  shared chunk in a subfolder (the first fix missed it and failed the same way); a new
+  route that draws a PDF needs the same entry. Included files are not traced in turn,
+  so to prove a fix, copy only the files in the route's
+  `.next/server/app/<route>/route.js.nft.json` to a temp tree and render from there.
 - A Shorebird patch compiles the working tree as it is at that moment, not a commit.
   Editing files during a patch build, or another session merging into the shared
   checkout, ships that code to phones. Build patches from a `git worktree` pinned to the

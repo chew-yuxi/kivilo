@@ -6,7 +6,7 @@ import type { NextConfig } from 'next'
 const buildId =
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? `local-${Date.now().toString(36)}`
 
-const pdfkitFonts = './node_modules/.pnpm/pdfkit@*/node_modules/pdfkit/js/standard-fonts/*.cjs'
+const pdfkitFonts = './node_modules/.pnpm/pdfkit@*/node_modules/pdfkit/js/standard-fonts/**/*.cjs'
 
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: buildId },
