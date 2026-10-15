@@ -117,6 +117,15 @@ confirmed the completed Ardmore Park demo already holds one marked capture. Shor
 reported 59.8% Dart code sharing while linking iOS, then verified applicability, signed
 build `1.0.0 (22)`, and published the patch.
 
+Patch `24` (Android) and patch `25` (iOS) on the stable track for `1.0.0+22`, built
+from `4506fa8` in a pinned worktree: every new check-in field now says whether it is
+required or optional, tapping outside a field dismisses the keyboard, and the Create
+check-in action moves above the keyboard so a number pad cannot block completion.
+Flutter analysis is clean and all 128 mobile tests pass. The release icon check found
+no glyph absent from build `22`. Shorebird reported 59.8% Dart code sharing while
+linking iOS, then verified applicability, signed build `1.0.0 (22)`, and published the
+patch.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
