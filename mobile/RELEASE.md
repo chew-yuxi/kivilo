@@ -84,6 +84,17 @@ checked for the new screens' strings. The Android build needs the `KIVILO_UPLOAD
 variables even for a patch: without them Gradle stops in under a second and nothing is
 published. Flutter analysis is clean and all 101 tests pass.
 
+Patch `18` (Android) and patch `19` (iOS) on the stable track for `1.0.0+22`, built
+from `5622ad3` in a pinned worktree: reviewed and in-progress room cards now show the
+latest room photo (or video poster), and every inventory item shows its attached photo
+and video previews even after review freezes the report. The API support was deployed
+first as Vercel deployment `dpl_6qMQuSXdJv4RqyqLZeCw9M7VHvMu`; the production endpoint
+responds from `sin1`. The release icon check found no glyph absent from build `22`.
+Flutter analysis is clean and all 128 mobile tests pass; backend typecheck, lint, build,
+56 unit tests and 78 integration tests pass. The relevant native API end-to-end flow
+also passes. Shorebird reported 60.1% Dart code sharing while linking the iOS patch; it
+still verified applicability, signed build `1.0.0 (22)`, and published the patch.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
