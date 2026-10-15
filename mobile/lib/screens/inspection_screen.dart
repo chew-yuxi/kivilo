@@ -879,32 +879,43 @@ class _InspectionScreenState extends State<InspectionScreen> {
       onTap: () => _openRoom(room, editable),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: 64,
-                height: 64,
-                child: room.previewUrl == null
-                    ? ColoredBox(
-                        color: room.status == 'REVIEWED'
-                            ? KiviloColors.greenSoft
-                            : KiviloColors.pinkSoft,
-                        child: Icon(
-                          room.status == 'REVIEWED'
-                              ? Icons.check_rounded
-                              : Icons.meeting_room_outlined,
-                          color: room.status == 'REVIEWED'
-                              ? KiviloColors.green
-                              : KiviloColors.pinkDark,
-                        ),
-                      )
-                    : Image.network(
-                        room.previewUrl!,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    room.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+              ],
+            ),
+            const SizedBox(height: 7),
+            KiviloStatusPill(status: room.status),
+            const SizedBox(height: 8),
+            Text(
+              room.countsLabel,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (room.previewUrls.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              SizedBox(
+                height: 76,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: room.previewUrls.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) => ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: SizedBox(
+                      width: 92,
+                      child: Image.network(
+                        room.previewUrls[index],
                         fit: BoxFit.cover,
-                        semanticLabel: '${room.name} preview',
+                        semanticLabel: '${room.name} preview ${index + 1}',
                         errorBuilder: (_, _, _) => const ColoredBox(
                           color: KiviloColors.canvas,
                           child: Icon(
@@ -913,28 +924,11 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           ),
                         ),
                       ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    room.name,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
-                  const SizedBox(height: 7),
-                  KiviloStatusPill(status: room.status),
-                  const SizedBox(height: 8),
-                  Text(
-                    room.countsLabel,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+            ],
           ],
         ),
       ),

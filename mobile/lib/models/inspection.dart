@@ -139,7 +139,7 @@ class RoomSummary {
     required this.items,
     required this.photos,
     required this.videos,
-    this.previewUrl,
+    this.previewUrls = const [],
   });
 
   final String id;
@@ -148,17 +148,22 @@ class RoomSummary {
   final int items;
   final int photos;
   final int videos;
-  final String? previewUrl;
+  final List<String> previewUrls;
 
-  factory RoomSummary.fromJson(Map<String, dynamic> json) => RoomSummary(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    status: json['status'] as String,
-    items: json['items'] as int,
-    photos: json['photos'] as int,
-    videos: json['videos'] as int,
-    previewUrl: json['previewUrl'] as String?,
-  );
+  factory RoomSummary.fromJson(Map<String, dynamic> json) {
+    final previews = (json['previewUrls'] as List<dynamic>?)?.cast<String>();
+    final previousPreview = json['previewUrl'] as String?;
+    return RoomSummary(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      status: json['status'] as String,
+      items: json['items'] as int,
+      photos: json['photos'] as int,
+      videos: json['videos'] as int,
+      // A cached response written before the strip API still has one preview.
+      previewUrls: previews ?? [?previousPreview],
+    );
+  }
 
   String get statusLabel => switch (status) {
     'PENDING' => 'Not started',

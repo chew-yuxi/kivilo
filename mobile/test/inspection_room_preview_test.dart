@@ -27,9 +27,13 @@ class _PreviewApi extends Api {
             name: 'Kitchen',
             status: 'REVIEWED',
             items: 3,
-            photos: 1,
+            photos: 3,
             videos: 0,
-            previewUrl: 'https://example.invalid/kitchen.jpg',
+            previewUrls: [
+              'https://example.invalid/kitchen-1.jpg',
+              'https://example.invalid/kitchen-2.jpg',
+              'https://example.invalid/kitchen-3.jpg',
+            ],
           ),
           RoomSummary(
             id: 'unreviewed-room',
@@ -38,7 +42,7 @@ class _PreviewApi extends Api {
             items: 1,
             photos: 1,
             videos: 0,
-            previewUrl: 'https://example.invalid/bathroom.jpg',
+            previewUrls: ['https://example.invalid/bathroom.jpg'],
           ),
         ],
         signatures: [],
@@ -56,7 +60,7 @@ class _PreviewApi extends Api {
 }
 
 void main() {
-  testWidgets('reviewed and unreviewed room cards show photo previews', (
+  testWidgets('reviewed and unreviewed room cards show photo strips', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1179, 4000);
@@ -74,14 +78,15 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is Image && widget.semanticLabel == 'Kitchen preview',
+            widget is Image &&
+            widget.semanticLabel?.startsWith('Kitchen preview ') == true,
       ),
-      findsOneWidget,
+      findsNWidgets(3),
     );
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is Image && widget.semanticLabel == 'Bathroom preview',
+            widget is Image && widget.semanticLabel == 'Bathroom preview 1',
       ),
       findsOneWidget,
     );

@@ -145,9 +145,13 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     checkOutItems: await comparable(inspection.id),
     checkInItems: await comparable(inspection.baselineId),
     rooms: await Promise.all(inspection.rooms.map(async (room) => {
-      const preview = room.captures.find((capture) => capture.kind === 'PHOTO')
-        ?? room.captures.find((capture) => capture.posterPath)
-      const previewPath = preview?.kind === 'PHOTO' ? preview.storagePath : preview?.posterPath
+      const previewPaths = room.captures
+        .map((capture) => capture.kind === 'PHOTO' ? capture.storagePath : capture.posterPath)
+        .filter((path): path is string => path !== null)
+        .slice(0, 4)
+      const previewUrls = await Promise.all(
+        previewPaths.map((path) => createDownloadUrl(path)),
+      )
       return {
         id: room.id,
         name: room.name,
@@ -155,7 +159,9 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         items: room._count.items,
         photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
         videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
-        previewUrl: previewPath ? await createDownloadUrl(previewPath) : null,
+        // previewUrl keeps patches 18 and 19 working; newer clients use the strip.
+        previewUrl: previewUrls[0] ?? null,
+        previewUrls,
         // Installed app builds up to 19 parse these as required fields and cannot open an
         // inspection without them. Nothing drafts a room now, so they are constant.
         // Delete once no such build is in use.

@@ -190,6 +190,8 @@ test('a native client takes a check-in from capture to both signatures, then ope
   const detailBody = await detail.json()
   expect(detailBody.rooms[0]).toMatchObject({ status: 'REVIEW', items: 9 })
   expect(detailBody.rooms[0].previewUrl).toContain('token=')
+  expect(detailBody.rooms[0].previewUrls).toHaveLength(1)
+  expect(detailBody.rooms[0].previewUrls[0]).toContain('token=')
   const kitchen = await request.get(`/api/v1/inspections/${inspectionId}/rooms/${roomId}`, {
     headers,
   })
