@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/screens/update_gate.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/app_update.dart';
+import 'package:kivilo/services/patch_update.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -23,6 +24,21 @@ class _FakeApi extends Api {
 
   @override
   Future<Map<String, dynamic>> appConfig() => _respond();
+}
+
+class _FakePatchUpdate implements PatchUpdate {
+  _FakePatchUpdate([this.availability = PatchAvailability.none]);
+
+  final PatchAvailability availability;
+  int installs = 0;
+
+  @override
+  Future<PatchAvailability> check() async => availability;
+
+  @override
+  Future<void> installAndClose() async {
+    installs++;
+  }
 }
 
 void main() {
@@ -108,11 +124,16 @@ void main() {
   });
 
   group('UpdateGate', () {
-    Widget app(Future<String?> Function() check) => MaterialApp(
-      theme: buildKiviloTheme(),
-      builder: (context, child) => UpdateGate(check: check, child: child!),
-      home: const _Counter(),
-    );
+    Widget app(Future<String?> Function() check, {PatchUpdate? patchUpdate}) =>
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          builder: (context, child) => UpdateGate(
+            check: check,
+            patchUpdate: patchUpdate ?? _FakePatchUpdate(),
+            child: child!,
+          ),
+          home: const _Counter(),
+        );
 
     testWidgets('shows the app when the build is current', (tester) async {
       await tester.pumpWidget(app(() async => null));
@@ -136,6 +157,45 @@ void main() {
       expect(find.text('Open Google Play'), findsOneWidget);
       expect(find.text('count 1'), findsNothing);
       expect(find.text('count 1', skipOffstage: false), findsOneWidget);
+    });
+
+    testWidgets('requires a tap before downloading a Shorebird patch', (
+      tester,
+    ) async {
+      final patch = _FakePatchUpdate(PatchAvailability.downloadRequired);
+      await tester.pumpWidget(app(() async => null, patchUpdate: patch));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Update Kivilo'), findsOneWidget);
+      expect(find.text('Update'), findsOneWidget);
+      expect(find.text('count 0'), findsNothing);
+      expect(find.text('count 0', skipOffstage: false), findsOneWidget);
+
+      await tester.tap(find.text('Update'));
+      await tester.pump();
+      expect(patch.installs, 1);
+    });
+
+    testWidgets('asks to close when Shorebird already staged the patch', (
+      tester,
+    ) async {
+      final patch = _FakePatchUpdate(PatchAvailability.restartRequired);
+      await tester.pumpWidget(app(() async => null, patchUpdate: patch));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Update ready'), findsOneWidget);
+      expect(find.text('Close and update'), findsOneWidget);
+    });
+
+    testWidgets('a required store release takes precedence over a patch', (
+      tester,
+    ) async {
+      final patch = _FakePatchUpdate(PatchAvailability.downloadRequired);
+      await tester.pumpWidget(app(() async => _play, patchUpdate: patch));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Open Google Play'), findsOneWidget);
+      expect(find.text('Update', findRichText: true), findsNothing);
     });
   });
 }

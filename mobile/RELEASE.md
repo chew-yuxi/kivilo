@@ -5,7 +5,24 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
-## Current candidate: 2026-10-13 Singapore time
+## Next store build: 23
+
+Build `23` makes Shorebird updates user-controlled. At launch Kivilo checks for a patch,
+covers the app when one is available, and downloads it only after the inspector taps
+Update. Once Shorebird confirms the patch is staged, Kivilo posts a local notification
+and terminates the process; tapping the notification starts the staged code. A patch
+already downloaded shows the same blocking restart step. A required store release still
+takes precedence over a Shorebird patch, and an offline patch check fails open.
+
+This needs a store release rather than a patch because it disables Shorebird's bundled
+automatic updater and adds the native `flutter_local_notifications` plugin. Build `22`
+continues using automatic background updates. Do not raise either server-held minimum
+build floor until build `23` is live in that platform's public store. Flutter analysis
+and all 131 mobile tests pass; Android and iOS simulator debug builds both compile as
+version `1.0.0 (23)`. Physical-device notification and Shorebird patch delivery still
+need release-candidate testing before upload.
+
+## Current store candidate: 2026-10-13 Singapore time
 
 Build `22` is the first build that can be patched over the air and the first that can be
 retired. It was made with `shorebird release` on both platforms (Shorebird release

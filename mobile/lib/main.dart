@@ -14,6 +14,7 @@ import 'services/secure_session_store.dart';
 import 'services/capture_sync.dart';
 import 'services/foreground_capture_retry.dart';
 import 'services/push_notifications.dart';
+import 'services/patch_update.dart';
 import 'screens/sign_in_screen.dart';
 import 'ui/kivilo_theme.dart';
 
@@ -63,6 +64,8 @@ Future<void> main() async {
 class KiviloApp extends StatelessWidget {
   const KiviloApp({super.key});
 
+  static final PatchUpdate _patchUpdate = DevicePatchUpdate();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,8 +74,11 @@ class KiviloApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: buildKiviloTheme(),
       // Above the navigator, so a retired build cannot reach any route, signed in or not.
-      builder: (context, child) =>
-          UpdateGate(check: () => requiredUpdateUrl(Api()), child: child!),
+      builder: (context, child) => UpdateGate(
+        check: () => requiredUpdateUrl(Api()),
+        patchUpdate: _patchUpdate,
+        child: child!,
+      ),
       home: const _Root(),
     );
   }
