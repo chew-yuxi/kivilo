@@ -95,6 +95,16 @@ Flutter analysis is clean and all 128 mobile tests pass; backend typecheck, lint
 also passes. Shorebird reported 60.1% Dart code sharing while linking the iOS patch; it
 still verified applicability, signed build `1.0.0 (22)`, and published the patch.
 
+Patch `20` (Android) and patch `21` (iOS) on the stable track for `1.0.0+22`, built
+from `3d89542` in a pinned worktree: room cards replace the single leading thumbnail
+with a bottom strip of up to four recent photos or video posters. The API keeps the
+single `previewUrl` for patches `18` and `19` and adds `previewUrls` for this version.
+The API was deployed first as Vercel deployment `dpl_DphSCYJh8Ye6ojobNWaBk8Edowt1`.
+Flutter analysis, the focused reviewed/unreviewed room-card tests, backend typecheck and
+lint pass. The release icon check found no glyph absent from build `22`. Shorebird again
+reported 60.1% Dart code sharing while linking iOS, then verified applicability, signed
+build `1.0.0 (22)`, and published the patch.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
