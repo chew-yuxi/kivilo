@@ -9,6 +9,7 @@ import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/marked_network_photo.dart';
 import 'capture_screen.dart';
 import 'photo_mark_screen.dart';
 import 'video_screen.dart';
@@ -218,10 +219,10 @@ class _RoomScreenState extends State<RoomScreen> {
                 child: InteractiveViewer(
                   minScale: 0.8,
                   maxScale: 5,
-                  child: Image.network(
-                    capture.url,
+                  child: MarkedNetworkPhoto(
+                    url: capture.url,
+                    annotations: capture.annotations,
                     fit: BoxFit.contain,
-                    gaplessPlayback: true,
                   ),
                 ),
               ),
@@ -865,14 +866,10 @@ class _RoomScreenState extends State<RoomScreen> {
                   child: ColoredBox(
                     color: KiviloColors.canvas,
                     child: capture.kind == 'PHOTO'
-                        ? Image.network(
-                            capture.url,
+                        ? MarkedNetworkPhoto(
+                            url: capture.url,
+                            annotations: capture.annotations,
                             fit: BoxFit.contain,
-                            gaplessPlayback: true,
-                            errorBuilder: (_, _, _) => const Icon(
-                              Icons.broken_image_outlined,
-                              color: KiviloColors.subtle,
-                            ),
                           )
                         : VideoPoster(posterUrl: capture.posterUrl),
                   ),
@@ -1029,14 +1026,9 @@ class _RoomScreenState extends State<RoomScreen> {
                   child: ColoredBox(
                     color: KiviloColors.canvas,
                     child: capture.kind == 'PHOTO'
-                        ? Image.network(
-                            capture.url,
-                            fit: BoxFit.cover,
-                            gaplessPlayback: true,
-                            errorBuilder: (_, _, _) => const Icon(
-                              Icons.broken_image_outlined,
-                              color: KiviloColors.subtle,
-                            ),
+                        ? MarkedNetworkPhoto(
+                            url: capture.url,
+                            annotations: capture.annotations,
                           )
                         : VideoPoster(
                             posterUrl: capture.posterUrl,
@@ -1344,12 +1336,9 @@ class _ItemEditorState extends State<ItemEditor> {
                               child: ColoredBox(
                                 color: Colors.white,
                                 child: capture.kind == 'PHOTO'
-                                    ? Image.network(
-                                        capture.url,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, _, _) => const Icon(
-                                          Icons.broken_image_outlined,
-                                        ),
+                                    ? MarkedNetworkPhoto(
+                                        url: capture.url,
+                                        annotations: capture.annotations,
                                       )
                                     : VideoPoster(
                                         posterUrl: capture.posterUrl,

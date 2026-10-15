@@ -5,6 +5,7 @@ import { authed } from '@/lib/api/route'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { costStanding, describeProposal } from '@/lib/maintenance'
 import { createDownloadUrl } from '@/lib/storage'
+import { toAnnotations } from '@/lib/annotations'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +24,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         include: {
           captures: {
             orderBy: { createdAt: 'desc' },
-            select: { kind: true, storagePath: true, posterPath: true },
+            select: { kind: true, storagePath: true, posterPath: true, annotations: true },
           },
           _count: { select: { items: true } },
         },
@@ -145,13 +146,20 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     checkOutItems: await comparable(inspection.id),
     checkInItems: await comparable(inspection.baselineId),
     rooms: await Promise.all(inspection.rooms.map(async (room) => {
-      const previewPaths = room.captures
-        .map((capture) => capture.kind === 'PHOTO' ? capture.storagePath : capture.posterPath)
-        .filter((path): path is string => path !== null)
+      const previews = room.captures
+        .map((capture) => ({
+          path: capture.kind === 'PHOTO' ? capture.storagePath : capture.posterPath,
+          annotations: capture.kind === 'PHOTO' ? toAnnotations(capture.annotations) : null,
+        }))
+        .filter((preview): preview is typeof preview & { path: string } => preview.path !== null)
         .slice(0, 4)
-      const previewUrls = await Promise.all(
-        previewPaths.map((path) => createDownloadUrl(path)),
+      const previewMedia = await Promise.all(
+        previews.map(async (preview) => ({
+          url: await createDownloadUrl(preview.path),
+          annotations: preview.annotations,
+        })),
       )
+      const previewUrls = previewMedia.map((preview) => preview.url)
       return {
         id: room.id,
         name: room.name,
@@ -162,6 +170,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         // previewUrl keeps patches 18 and 19 working; newer clients use the strip.
         previewUrl: previewUrls[0] ?? null,
         previewUrls,
+        previewMedia,
         // Installed app builds up to 19 parse these as required fields and cannot open an
         // inspection without them. Nothing drafts a room now, so they are constant.
         // Delete once no such build is in use.

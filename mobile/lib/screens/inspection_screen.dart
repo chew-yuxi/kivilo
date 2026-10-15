@@ -9,6 +9,7 @@ import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/marked_network_photo.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
@@ -900,29 +901,22 @@ class _InspectionScreenState extends State<InspectionScreen> {
               room.countsLabel,
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            if (room.previewUrls.isNotEmpty) ...[
+            if (room.previews.isNotEmpty) ...[
               const SizedBox(height: 14),
               SizedBox(
                 height: 76,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: room.previewUrls.length,
+                  itemCount: room.previews.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) => ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
                       width: 92,
-                      child: Image.network(
-                        room.previewUrls[index],
-                        fit: BoxFit.cover,
+                      child: MarkedNetworkPhoto(
+                        url: room.previews[index].url,
+                        annotations: room.previews[index].annotations,
                         semanticLabel: '${room.name} preview ${index + 1}',
-                        errorBuilder: (_, _, _) => const ColoredBox(
-                          color: KiviloColors.canvas,
-                          child: Icon(
-                            Icons.broken_image_outlined,
-                            color: KiviloColors.subtle,
-                          ),
-                        ),
                       ),
                     ),
                   ),

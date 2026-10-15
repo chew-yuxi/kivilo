@@ -5,6 +5,7 @@ import 'package:kivilo/screens/room_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
+import 'package:kivilo/screens/photo_mark_screen.dart';
 
 class _FakeApi extends Api {
   _FakeApi() : super(attachAuth: false, cache: ReadCache());
@@ -51,6 +52,13 @@ class _AttachedMediaApi extends Api {
             id: 'photo-1',
             kind: 'PHOTO',
             url: 'https://example.invalid/photo.jpg',
+            annotations: {
+              'w': 1200,
+              'h': 800,
+              'marks': [
+                {'shape': 'ring', 'cx': .5, 'cy': .5, 'rx': .1, 'ry': .15},
+              ],
+            },
           ),
         ],
       );
@@ -116,14 +124,21 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Attached media'), findsOneWidget);
-      expect(find.text('Photo 1'), findsWidgets);
+      expect(find.text('Marked photo 1'), findsOneWidget);
       expect(
         find.byWidgetPredicate(
           (widget) =>
               widget is Semantics &&
-              widget.properties.label == 'Open Photo 1 attached to Walls',
+              widget.properties.label ==
+                  'Open Marked photo 1 attached to Walls',
         ),
         findsOneWidget,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is CustomPaint && widget.painter is MarkPainter,
+        ),
+        findsNWidgets(2),
       );
     });
   }

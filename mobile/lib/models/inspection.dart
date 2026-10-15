@@ -139,7 +139,7 @@ class RoomSummary {
     required this.items,
     required this.photos,
     required this.videos,
-    this.previewUrls = const [],
+    this.previews = const [],
   });
 
   final String id;
@@ -148,10 +148,13 @@ class RoomSummary {
   final int items;
   final int photos;
   final int videos;
-  final List<String> previewUrls;
+  final List<RoomPreview> previews;
 
   factory RoomSummary.fromJson(Map<String, dynamic> json) {
-    final previews = (json['previewUrls'] as List<dynamic>?)?.cast<String>();
+    final previewMedia = (json['previewMedia'] as List<dynamic>?)
+        ?.map((value) => RoomPreview.fromJson(value as Map<String, dynamic>))
+        .toList();
+    final previewUrls = (json['previewUrls'] as List<dynamic>?)?.cast<String>();
     final previousPreview = json['previewUrl'] as String?;
     return RoomSummary(
       id: json['id'] as String,
@@ -161,7 +164,11 @@ class RoomSummary {
       photos: json['photos'] as int,
       videos: json['videos'] as int,
       // A cached response written before the strip API still has one preview.
-      previewUrls: previews ?? [?previousPreview],
+      previews:
+          previewMedia ??
+          (previewUrls ?? [?previousPreview])
+              .map((url) => RoomPreview(url: url))
+              .toList(),
     );
   }
 
@@ -181,6 +188,18 @@ class RoomSummary {
     final base = parts.isEmpty ? 'Nothing captured yet' : parts.join(', ');
     return items > 0 ? '$base · $items items' : base;
   }
+}
+
+class RoomPreview {
+  const RoomPreview({required this.url, this.annotations});
+
+  final String url;
+  final Map<String, dynamic>? annotations;
+
+  factory RoomPreview.fromJson(Map<String, dynamic> json) => RoomPreview(
+    url: json['url'] as String,
+    annotations: json['annotations'] as Map<String, dynamic>?,
+  );
 }
 
 class RoomDetail {

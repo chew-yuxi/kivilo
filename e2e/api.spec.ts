@@ -192,6 +192,11 @@ test('a native client takes a check-in from capture to both signatures, then ope
   expect(detailBody.rooms[0].previewUrl).toContain('token=')
   expect(detailBody.rooms[0].previewUrls).toHaveLength(1)
   expect(detailBody.rooms[0].previewUrls[0]).toContain('token=')
+  expect(detailBody.rooms[0].previewMedia).toHaveLength(1)
+  expect(detailBody.rooms[0].previewMedia[0]).toMatchObject({
+    url: expect.stringContaining('token='),
+    annotations: { w: 640, h: 480, marks: [{ shape: 'ring' }] },
+  })
   const kitchen = await request.get(`/api/v1/inspections/${inspectionId}/rooms/${roomId}`, {
     headers,
   })
