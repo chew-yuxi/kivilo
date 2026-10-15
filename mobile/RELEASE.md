@@ -105,6 +105,18 @@ lint pass. The release icon check found no glyph absent from build `22`. Shorebi
 reported 60.1% Dart code sharing while linking iOS, then verified applicability, signed
 build `1.0.0 (22)`, and published the patch.
 
+Patch `22` (Android) and patch `23` (iOS) on the stable track for `1.0.0+22`, built
+from `f158464` in a pinned worktree: saved rings, arrows and freehand marks now render
+over the untouched photograph in the room-card strip, room media, attached inventory
+media, inventory editor and full-screen room viewer. The shared contained-image renderer
+keeps the mark and photograph in one box so their geometry cannot drift. The API adds
+annotation-aware `previewMedia` while retaining the older preview fields. It was deployed
+first as Vercel deployment `dpl_Gf7ENLsHyriw5zqiLWPWp1NFsBxM`. Flutter analysis and all
+128 mobile tests pass; backend typecheck and lint pass. A read-only production audit
+confirmed the completed Ardmore Park demo already holds one marked capture. Shorebird
+reported 59.8% Dart code sharing while linking iOS, then verified applicability, signed
+build `1.0.0 (22)`, and published the patch.
+
 Build `21` plays video evidence inside the app with `video_player` instead of opening
 the signed storage link in the phone's browser, and a video still in the upload queue
 plays from the file on the phone. Every video tile shows a poster frame with a play
