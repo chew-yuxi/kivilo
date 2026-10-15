@@ -187,7 +187,9 @@ test('a native client takes a check-in from capture to both signatures, then ope
   // room arrived with the standard rows for a kitchen, made as Add makes a line, which
   // is what every installed build sees too.
   const detail = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
-  expect((await detail.json()).rooms[0]).toMatchObject({ status: 'REVIEW', items: 9 })
+  const detailBody = await detail.json()
+  expect(detailBody.rooms[0]).toMatchObject({ status: 'REVIEW', items: 9 })
+  expect(detailBody.rooms[0].previewUrl).toContain('token=')
   const kitchen = await request.get(`/api/v1/inspections/${inspectionId}/rooms/${roomId}`, {
     headers,
   })

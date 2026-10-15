@@ -475,7 +475,9 @@ class _RoomScreenState extends State<RoomScreen> {
         context: context,
         builder: (context) => KiviloDrawer(
           title: const Text('Delete this room?'),
-          content: const Text('Its photos, videos and inventory will be removed.'),
+          content: const Text(
+            'Its photos, videos and inventory will be removed.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -514,7 +516,9 @@ class _RoomScreenState extends State<RoomScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not open this room. ${plainError(snapshot.error!)}'),
+                  child: Text(
+                    'Could not open this room. ${plainError(snapshot.error!)}',
+                  ),
                 ),
               ],
             );
@@ -978,21 +982,83 @@ class _RoomScreenState extends State<RoomScreen> {
               ),
               const SizedBox(height: 7),
               Wrap(
-                spacing: 7,
-                runSpacing: 7,
+                spacing: 9,
+                runSpacing: 9,
                 children: [
                   for (final capture in attached)
-                    _itemTag(
-                      capture.kind == 'PHOTO'
-                          ? capture.annotations == null
-                                ? 'Photo'
-                                : 'Marked photo'
-                          : 'Video',
+                    _attachedMediaPreview(
+                      item,
+                      capture,
+                      captures.indexOf(capture) + 1,
                     ),
                 ],
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _attachedMediaPreview(
+    InventoryItem item,
+    EvidenceCapture capture,
+    int number,
+  ) {
+    final kind = capture.kind == 'PHOTO' ? 'Photo' : 'Video';
+    final label = capture.kind == 'PHOTO' && capture.annotations != null
+        ? 'Marked photo $number'
+        : '$kind $number';
+    return Semantics(
+      button: true,
+      label: 'Open $label attached to ${item.name}',
+      child: SizedBox(
+        width: 94,
+        height: 104,
+        child: Card(
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: _busy
+                ? null
+                : () => unawaited(_handleEvidenceAction(capture, 'preview')),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ColoredBox(
+                    color: KiviloColors.canvas,
+                    child: capture.kind == 'PHOTO'
+                        ? Image.network(
+                            capture.url,
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                            errorBuilder: (_, _, _) => const Icon(
+                              Icons.broken_image_outlined,
+                              color: KiviloColors.subtle,
+                            ),
+                          )
+                        : VideoPoster(
+                            posterUrl: capture.posterUrl,
+                            iconSize: 24,
+                          ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 6,
+                  ),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

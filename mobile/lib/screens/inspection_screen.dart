@@ -341,7 +341,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('Could not open this inspection. ${plainError(snapshot.error!)}'),
+                  child: Text(
+                    'Could not open this inspection. ${plainError(snapshot.error!)}',
+                  ),
                 ),
               ],
             );
@@ -880,22 +882,37 @@ class _InspectionScreenState extends State<InspectionScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: room.status == 'REVIEWED'
-                    ? KiviloColors.greenSoft
-                    : KiviloColors.pinkSoft,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                room.status == 'REVIEWED'
-                    ? Icons.check_rounded
-                    : Icons.meeting_room_outlined,
-                color: room.status == 'REVIEWED'
-                    ? KiviloColors.green
-                    : KiviloColors.pinkDark,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 64,
+                height: 64,
+                child: room.previewUrl == null
+                    ? ColoredBox(
+                        color: room.status == 'REVIEWED'
+                            ? KiviloColors.greenSoft
+                            : KiviloColors.pinkSoft,
+                        child: Icon(
+                          room.status == 'REVIEWED'
+                              ? Icons.check_rounded
+                              : Icons.meeting_room_outlined,
+                          color: room.status == 'REVIEWED'
+                              ? KiviloColors.green
+                              : KiviloColors.pinkDark,
+                        ),
+                      )
+                    : Image.network(
+                        room.previewUrl!,
+                        fit: BoxFit.cover,
+                        semanticLabel: '${room.name} preview',
+                        errorBuilder: (_, _, _) => const ColoredBox(
+                          color: KiviloColors.canvas,
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            color: KiviloColors.subtle,
+                          ),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 12),

@@ -4,6 +4,7 @@ import { propertyLabel } from '@/lib/format'
 import { authed } from '@/lib/api/route'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { costStanding, describeProposal } from '@/lib/maintenance'
+import { createDownloadUrl } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,10 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       rooms: {
         orderBy: { order: 'asc' },
         include: {
-          captures: { select: { kind: true } },
+          captures: {
+            orderBy: { createdAt: 'desc' },
+            select: { kind: true, storagePath: true, posterPath: true },
+          },
           _count: { select: { items: true } },
         },
       },
@@ -140,18 +144,24 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     })),
     checkOutItems: await comparable(inspection.id),
     checkInItems: await comparable(inspection.baselineId),
-    rooms: inspection.rooms.map((room) => ({
-      id: room.id,
-      name: room.name,
-      status: room.status,
-      items: room._count.items,
-      photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
-      videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
-      // Installed app builds up to 19 parse these as required fields and cannot open an
-      // inspection without them. Nothing drafts a room now, so they are constant.
-      // Delete once no such build is in use.
-      newSinceDraft: 0,
-      processingError: null,
+    rooms: await Promise.all(inspection.rooms.map(async (room) => {
+      const preview = room.captures.find((capture) => capture.kind === 'PHOTO')
+        ?? room.captures.find((capture) => capture.posterPath)
+      const previewPath = preview?.kind === 'PHOTO' ? preview.storagePath : preview?.posterPath
+      return {
+        id: room.id,
+        name: room.name,
+        status: room.status,
+        items: room._count.items,
+        photos: room.captures.filter((capture) => capture.kind === 'PHOTO').length,
+        videos: room.captures.filter((capture) => capture.kind === 'VIDEO').length,
+        previewUrl: previewPath ? await createDownloadUrl(previewPath) : null,
+        // Installed app builds up to 19 parse these as required fields and cannot open an
+        // inspection without them. Nothing drafts a room now, so they are constant.
+        // Delete once no such build is in use.
+        newSinceDraft: 0,
+        processingError: null,
+      }
     })),
   }
 })

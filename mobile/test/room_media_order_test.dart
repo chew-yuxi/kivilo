@@ -25,6 +25,37 @@ class _FakeApi extends Api {
       );
 }
 
+class _AttachedMediaApi extends Api {
+  _AttachedMediaApi(this.status) : super(attachAuth: false, cache: ReadCache());
+
+  final String status;
+
+  @override
+  Future<RoomDetail> room(String inspectionId, String roomId) async =>
+      RoomDetail(
+        id: 'room-1',
+        name: 'Kitchen',
+        status: status,
+        items: const [
+          InventoryItem(
+            id: 'item-1',
+            name: 'Walls',
+            category: 'SURFACE',
+            condition: 'GOOD',
+            quantity: 1,
+            evidenceCaptureIds: ['photo-1'],
+          ),
+        ],
+        captures: const [
+          EvidenceCapture(
+            id: 'photo-1',
+            kind: 'PHOTO',
+            url: 'https://example.invalid/photo.jpg',
+          ),
+        ],
+      );
+}
+
 void main() {
   testWidgets('media follows the inventory, newest first, and can be flipped', (
     tester,
@@ -60,4 +91,40 @@ void main() {
     expect(left('Video 1'), lessThan(left('Video 2')));
     expect(left('Video 2'), lessThan(left('Video 3')));
   });
+
+  for (final scenario in [
+    (status: 'REVIEW', editable: true, name: 'unreviewed'),
+    (status: 'REVIEWED', editable: false, name: 'reviewed'),
+  ]) {
+    testWidgets('attached image previews show in ${scenario.name} inventory', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1179, 4000);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: RoomScreen(
+            inspectionId: 'inspection-1',
+            roomId: 'room-1',
+            editable: scenario.editable,
+            api: _AttachedMediaApi(scenario.status),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Attached media'), findsOneWidget);
+      expect(find.text('Photo 1'), findsWidgets);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Open Photo 1 attached to Walls',
+        ),
+        findsOneWidget,
+      );
+    });
+  }
 }
