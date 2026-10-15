@@ -14,6 +14,7 @@ const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
 
 const field =
   'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none'
+const requirement = 'ml-1 font-normal text-gray-400'
 
 /// A two year tenancy is the common case in Singapore, so the dates start there and
 /// the agent adjusts rather than fills in from empty.
@@ -31,10 +32,15 @@ export function NewInspectionForm() {
   const [error, setError] = useState<string | null>(null)
   const dates = defaultDates()
 
+  function dismissKeyboard() {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  }
+
   // onSubmit rather than a form action: React resets a form once its action returns,
   // which after a validation error would wipe everything the agent had typed.
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    dismissKeyboard()
     const formData = new FormData(event.currentTarget)
     const value = (name: string) => String(formData.get(name) ?? '')
     setError(null)
@@ -67,26 +73,35 @@ export function NewInspectionForm() {
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">Property</legend>
         <label className="block text-xs font-medium text-gray-600">
-          Address
+          Address <span className={requirement}>(required)</span>
           <input name="line1" required placeholder="2 Marina Boulevard" className={field} />
         </label>
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="block text-xs font-medium text-gray-600">
-            Unit
+            Unit <span className={requirement}>(optional)</span>
             <input name="unit" placeholder="#28-05" className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Postal code
-            <input
-              name="postalCode"
-              required
-              inputMode="numeric"
-              placeholder="018987"
-              className={field}
-            />
+            Postal code <span className={requirement}>(required)</span>
+            <div className="group relative">
+              <input
+                name="postalCode"
+                required
+                inputMode="numeric"
+                placeholder="018987"
+                className={`${field} pr-16 sm:pr-3`}
+              />
+              <button
+                type="button"
+                onClick={dismissKeyboard}
+                className="pointer-events-none absolute right-2 bottom-1.5 rounded px-2 py-1 text-xs font-medium text-brand-600 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:hidden"
+              >
+                Done
+              </button>
+            </div>
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Type
+            Type <span className={requirement}>(required)</span>
             <select name="propertyType" defaultValue="PRIVATE_NON_LANDED" className={field}>
               {PROPERTY_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -102,20 +117,20 @@ export function NewInspectionForm() {
         <legend className="text-sm font-medium">Parties</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-xs font-medium text-gray-600">
-            Landlord
+            Landlord <span className={requirement}>(required)</span>
             <input name="landlordName" required placeholder="Full name" className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Landlord email
-            <input name="landlordEmail" type="email" placeholder="Optional" className={field} />
+            Landlord email <span className={requirement}>(optional)</span>
+            <input name="landlordEmail" type="email" className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Tenant
+            Tenant <span className={requirement}>(required)</span>
             <input name="tenantName" required placeholder="Full name" className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Tenant email
-            <input name="tenantEmail" type="email" placeholder="Optional" className={field} />
+            Tenant email <span className={requirement}>(optional)</span>
+            <input name="tenantEmail" type="email" className={field} />
           </label>
         </div>
       </fieldset>
@@ -124,20 +139,49 @@ export function NewInspectionForm() {
         <legend className="text-sm font-medium">Tenancy</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-xs font-medium text-gray-600">
-            Starts
+            Starts <span className={requirement}>(required)</span>
             <input name="startDate" type="date" required defaultValue={dates.start} className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Ends
+            Ends <span className={requirement}>(required)</span>
             <input name="endDate" type="date" required defaultValue={dates.end} className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Monthly rent (SGD)
-            <input name="monthlyRent" inputMode="decimal" placeholder="6800" className={field} />
+            Monthly rent (SGD) <span className={requirement}>(optional)</span>
+            <div className="group relative">
+              <input
+                name="monthlyRent"
+                inputMode="decimal"
+                placeholder="6800"
+                className={`${field} pr-16 sm:pr-3`}
+              />
+              <button
+                type="button"
+                onClick={dismissKeyboard}
+                className="pointer-events-none absolute right-2 bottom-1.5 rounded px-2 py-1 text-xs font-medium text-brand-600 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:hidden"
+              >
+                Done
+              </button>
+            </div>
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Deposit (SGD)
-            <input name="deposit" inputMode="decimal" placeholder="13600" className={field} />
+            Deposit (SGD) <span className={requirement}>(optional)</span>
+            <div className="group relative">
+              <input
+                name="deposit"
+                inputMode="decimal"
+                enterKeyHint="done"
+                placeholder="13600"
+                className={`${field} pr-16 sm:pr-3`}
+              />
+              <button
+                type="button"
+                onClick={dismissKeyboard}
+                className="pointer-events-none absolute right-2 bottom-1.5 rounded px-2 py-1 text-xs font-medium text-brand-600 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:hidden"
+              >
+                Done
+              </button>
+            </div>
           </label>
         </div>
         <p className="text-xs text-gray-500">
