@@ -68,6 +68,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   }
 
   Future<void> _create() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (!_form.currentState!.validate()) return;
     if (!_endDate.isAfter(_startDate)) {
       setState(() => _error = 'The tenancy must end after it starts.');
@@ -114,8 +115,11 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     TextInputType? keyboardType,
   }) => TextFormField(
     controller: _fields[key],
-    decoration: InputDecoration(labelText: label),
+    decoration: InputDecoration(
+      labelText: '$label (${required ? 'required' : 'optional'})',
+    ),
     keyboardType: keyboardType,
+    onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
     validator: (value) {
       final text = value?.trim() ?? '';
       if (required && text.isEmpty) return '$label is required';
@@ -168,7 +172,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 12),
           KiviloSelectField<String>(
-            label: 'Property type',
+            label: 'Property type (required)',
             sheetTitle: 'Choose a property type',
             value: _propertyType,
             options: const [
@@ -233,11 +237,19 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           Row(
             children: [
               Expanded(
-                child: _dateCard('Starts', _startDate, () => _pickDate(true)),
+                child: _dateCard(
+                  'Starts (required)',
+                  _startDate,
+                  () => _pickDate(true),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _dateCard('Ends', _endDate, () => _pickDate(false)),
+                child: _dateCard(
+                  'Ends (required)',
+                  _endDate,
+                  () => _pickDate(false),
+                ),
               ),
             ],
           ),
@@ -269,12 +281,17 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         ],
       ),
     ),
-    bottomNavigationBar: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-        child: FilledButton(
-          onPressed: _busy ? null : _create,
-          child: Text(_busy ? 'Creating…' : 'Create check-in'),
+    bottomNavigationBar: AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          child: FilledButton(
+            onPressed: _busy ? null : _create,
+            child: Text(_busy ? 'Creating…' : 'Create check-in'),
+          ),
         ),
       ),
     ),
