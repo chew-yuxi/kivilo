@@ -2,6 +2,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/maintenance.dart';
 
 void main() {
+  test('a workspace plan reads Free and a team Pro alike', () {
+    final free = WorkspacePlan.fromJson({
+      'plan': 'FREE',
+      'activeProperties': 1,
+      'limit': 1,
+      'seats': 1,
+      'team': null,
+    });
+    expect(
+      [free.pro, free.activeProperties, free.limit, free.team],
+      [false, 1, 1, null],
+    );
+    final team = WorkspacePlan.fromJson({
+      'plan': 'PRO',
+      'activeProperties': 12,
+      'limit': 75,
+      'seats': 3,
+      'team': 'Harbourline',
+    });
+    expect(
+      [team.pro, team.limit, team.seats, team.team],
+      [true, 75, 3, 'Harbourline'],
+    );
+  });
+
   test('case detail retains signed before and after evidence links', () {
     final detail = MaintenanceCaseDetail.fromJson({
       'id': 'case-1',

@@ -28,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _api = Api();
   late Future<Map<String, dynamic>> _request = _api.deletionRequest();
   late Future<AgentBranding?> _branding = _api.branding();
+  late final Future<WorkspacePlan> _plan = _api.plan();
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
@@ -198,6 +199,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
   );
 
+  Widget _planCard() => FutureBuilder<WorkspacePlan>(
+    future: _plan,
+    builder: (context, snapshot) {
+      final plan = snapshot.data;
+      final noun = plan?.limit == 1 ? 'property' : 'properties';
+      return Card(
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 6,
+          ),
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: KiviloColors.pinkSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.workspace_premium_outlined,
+              color: KiviloColors.pinkDark,
+            ),
+          ),
+          title: Text(
+            plan == null
+                ? 'Plan'
+                : [
+                    plan.pro ? 'Pro' : 'Free',
+                    if (plan.team != null) plan.team!,
+                  ].join(' · '),
+          ),
+          subtitle: Text(
+            snapshot.hasError
+                ? 'Could not load: ${plainError(snapshot.error!)}'
+                : plan == null
+                ? 'Loading'
+                : '${plan.activeProperties} of ${plan.limit} active $noun in use',
+          ),
+        ),
+      );
+    },
+  );
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Account')),
@@ -275,6 +319,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
             _brandingCard(),
+            const SizedBox(height: 28),
+            const KiviloSectionHeading(
+              title: 'Plan',
+              subtitle: 'How many properties you can work at once.',
+            ),
+            const SizedBox(height: 12),
+            _planCard(),
             const SizedBox(height: 28),
             const KiviloSectionHeading(title: 'Privacy & support'),
             const SizedBox(height: 12),

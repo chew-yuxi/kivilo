@@ -26,6 +26,31 @@ void main() {
     );
   });
 
+  /// Says what happened, never where to buy: store rules forbid pointing an app user at
+  /// a purchase made outside the store.
+  test('a plan limit is explained without selling anything', () {
+    final request = RequestOptions(path: '/api/v1/inspections');
+    final refusal = DioException(
+      requestOptions: request,
+      response: Response(
+        requestOptions: request,
+        statusCode: 403,
+        data: {'error': 'plan_limit'},
+      ),
+    );
+    final message = plainError(refusal);
+    expect(
+      message,
+      startsWith("Your plan's active properties are all in use."),
+    );
+    expect(
+      message,
+      isNot(
+        matches(RegExp(r'upgrade|buy|S\$|website|pro\b', caseSensitive: false)),
+      ),
+    );
+  });
+
   /// "Bad state: ..." or a file path means nothing to an agent.
   test('a programmer error never reaches the screen', () {
     expect(

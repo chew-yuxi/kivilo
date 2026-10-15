@@ -36,6 +36,9 @@ export function authed<P>(
           /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Unsupported logo|The landlord and tenant need different email addresses)/.test(message)) {
         return Response.json({ error: 'invalid_request' }, { status: 400 })
       }
+      if (/^Plan limit reached/.test(message)) {
+        return Response.json({ error: 'plan_limit' }, { status: 403 })
+      }
       if (/no longer be changed/i.test(message)) {
         return Response.json({ error: 'report_frozen' }, { status: 409 })
       }

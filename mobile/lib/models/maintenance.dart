@@ -43,6 +43,31 @@ class AgentBranding {
   }
 }
 
+/// The plan of the agent's workspace (their team, or them alone) and how much of it is
+/// in use. Deliberately no price and no way to buy: a plan is bought on the web.
+class WorkspacePlan {
+  const WorkspacePlan({
+    required this.pro,
+    required this.activeProperties,
+    required this.limit,
+    required this.seats,
+    this.team,
+  });
+  final bool pro;
+  final int activeProperties;
+  final int limit;
+  final int seats;
+  final String? team;
+
+  factory WorkspacePlan.fromJson(Map<String, dynamic> json) => WorkspacePlan(
+    pro: json['plan'] == 'PRO',
+    activeProperties: json['activeProperties'] as int,
+    limit: json['limit'] as int,
+    seats: json['seats'] as int,
+    team: json['team'] as String?,
+  );
+}
+
 class TenancySummary {
   const TenancySummary({
     required this.id,

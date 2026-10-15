@@ -280,6 +280,17 @@ inspection page and the app both use it). The header is the tenancy agent's
 reads as Kivilo's. Logos are stored as PNG whatever arrives, since the PDF draws only PNG
 and JPEG, and the agent can set the name printed beside them.
 
+## Plans and billing
+
+A plan belongs to a workspace: the agent's team, or the agent alone (`plans/billing.md`).
+Free holds 1 active property; Pro is per seat with 25 each, pooled. **`src/lib/plan.ts`
+is the only place a limit is decided**, and `createInspection`, the only place a property
+is made, calls its guard; the API answers 403 `plan_limit`. An active property is one
+whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so
+there is still one rule for who an agent is. Nothing is locked over the limit. The app
+shows the plan and never a price or a way to buy, because store rules forbid steering to
+an outside purchase. Comps go through `pnpm plan:set`. Stripe checkout is not wired yet.
+
 ## Lessons
 
 - Prisma 7 dropped `url` from the `datasource` block. The connection string lives in
@@ -375,3 +386,6 @@ and JPEG, and the agent can set the name printed beside them.
   Editing files during a patch build, or another session merging into the shared
   checkout, ships that code to phones. Build patches from a `git worktree` pinned to the
   commit; `mobile/RELEASE.md` has the commands.
+- `prisma format` and `dart format` rewrite the whole file, so running either on a file
+  with a small edit buries it in hundreds of lines of realignment nobody asked for. Format
+  only the lines you wrote, or check `git diff --stat` and redo the edit on a clean copy.

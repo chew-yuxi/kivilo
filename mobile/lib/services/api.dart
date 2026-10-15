@@ -131,6 +131,10 @@ class Api {
     await _read('/api/v1/me/branding', 'branding') as Map<String, dynamic>,
   );
 
+  Future<WorkspacePlan> plan() async => WorkspacePlan.fromJson(
+    await _read('/api/v1/me/plan', 'plan') as Map<String, dynamic>,
+  );
+
   Future<AgentBranding?> saveBranding(Map<String, dynamic> body) =>
       _call(() async {
         final response = await _dio.put<Map<String, dynamic>>(

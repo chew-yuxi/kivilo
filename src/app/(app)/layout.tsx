@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             <div className="ml-auto flex items-center gap-3">
               <QueueStatus />
               <ServiceWorker />
-              <Link href="/delete-account" className="text-xs text-gray-500 hover:underline">
+              <Link href="/account" className="text-xs text-gray-500 hover:underline">
                 Account
               </Link>
               <SignOut email={agent.email} />

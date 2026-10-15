@@ -140,6 +140,22 @@ exports.Prisma.TeamScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  stakeholderId: 'stakeholderId',
+  plan: 'plan',
+  seats: 'seats',
+  status: 'status',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  currentPeriodEnd: 'currentPeriodEnd',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  managedById: 'managedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AgentBrandingScalarFieldEnum = {
   stakeholderId: 'stakeholderId',
   agencyName: 'agencyName',
@@ -513,6 +529,10 @@ exports.StakeholderKind = exports.$Enums.StakeholderKind = {
   ENTITY: 'ENTITY'
 };
 
+exports.Plan = exports.$Enums.Plan = {
+  PRO: 'PRO'
+};
+
 exports.PropertyType = exports.$Enums.PropertyType = {
   HDB: 'HDB',
   PRIVATE_NON_LANDED: 'PRIVATE_NON_LANDED',
@@ -701,6 +721,7 @@ exports.ErrorSource = exports.$Enums.ErrorSource = {
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Team: 'Team',
+  Subscription: 'Subscription',
   AgentBranding: 'AgentBranding',
   Property: 'Property',
   Tenancy: 'Tenancy',

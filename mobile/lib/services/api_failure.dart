@@ -35,6 +35,10 @@ class ApiFailure implements Exception {
         'The upload did not finish. The file is still on this phone, so try again.',
       'evidence_missing' =>
         'The upload did not finish. The photo is still on this phone, so try again.',
+      // Says what happened and nothing about buying: store rules forbid pointing an
+      // app user at a purchase made outside the store.
+      'plan_limit' =>
+        'Your plan\'s active properties are all in use. A property stops counting when its check-out is signed or its tenancy ends.',
       'maintenance_conflict' =>
         'Someone already updated this repair. Refresh and check the timeline.',
       _ =>
