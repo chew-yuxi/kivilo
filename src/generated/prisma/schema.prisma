@@ -922,15 +922,23 @@ model ReportAddendumPhoto {
   @@index([entryId, createdAt])
 }
 
-/// A landlord or tenant saying "I acknowledge this update", as themselves, against the
-/// exact content they were shown.
+enum AcknowledgementMethod {
+  OWN_ACCOUNT
+  IN_PERSON
+}
+
+/// A landlord or tenant saying "I acknowledge this update", against the exact content
+/// they were shown: signed in as themselves, or in person on the agent's phone.
 model AddendumAcknowledgement {
-  id             String   @id @default(cuid())
+  id             String                 @id @default(cuid())
   addendumId     String
   stakeholderId  String
-  acknowledgedAt DateTime @default(now())
+  acknowledgedAt DateTime               @default(now())
   ipAddress      String?
   contentHash    String
+  /// How it was given: on the party's own account, or in person on the agent's phone.
+  /// Null on acknowledgements from before the in-person path, which were all their own.
+  method         AcknowledgementMethod?
 
   addendum    ReportAddendum @relation(fields: [addendumId], references: [id], onDelete: Cascade)
   stakeholder Stakeholder    @relation(fields: [stakeholderId], references: [id])

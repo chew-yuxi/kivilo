@@ -134,3 +134,55 @@ test('an update to a signed check-in is published on the web and acknowledged by
   expect(names).toContain('Induction hob')
   expect(names).not.toContain('Hob')
 })
+
+test('a party who is present acknowledges in person on the agent\'s phone, and a draft can be discarded', async ({ page, request }) => {
+  const agentEmail = freshEmail('addenda-inperson-agent')
+  const { id, headers } = await countersignedCheckIn(
+    request, agentEmail, freshEmail('addenda-inperson-landlord'), freshEmail('addenda-inperson-tenant'),
+  )
+
+  // Written and published through the app's endpoints, the same functions the web calls.
+  const draft = (await (await request.post(`/api/v1/inspections/${id}/addenda`, { headers })).json()).id as string
+  expect((await request.patch(`/api/v1/addenda/${draft}`, {
+    headers, data: { title: 'Kitchen hob replaced', reason: null, effectiveDate: '2026-10-01' },
+  })).status()).toBe(200)
+  const workspace = await (await request.get(`/api/v1/inspections/${id}/addenda`, { headers })).json()
+  const hob = (workspace.targets as { key: string; label: string }[]).find((target) => target.label === 'Kitchen · Hob')!
+  expect((await request.post(`/api/v1/addenda/${draft}/entries`, {
+    headers, data: { change: 'REPLACED', targetKey: hob.key, name: 'Gas hob', category: 'APPLIANCE', condition: 'NEW' },
+  })).status()).toBe(200)
+  expect((await request.post(`/api/v1/addenda/${draft}/publish`, { headers })).status()).toBe(200)
+  const { landlordId } = await (await request.get(`/api/v1/inspections/${id}`, { headers })).json()
+
+  // Only the tenancy's landlord or tenant can be named, refused like a missing update.
+  expect((await request.post(`/api/v1/addenda/${draft}/in-person-acknowledgement`, {
+    headers, data: { stakeholderId: 'c000000000000000000000000' },
+  })).status()).toBe(404)
+
+  // The landlord in person through the app's endpoint; the tenant on the agent's phone, on the web.
+  expect((await request.post(`/api/v1/addenda/${draft}/in-person-acknowledgement`, {
+    headers, data: { stakeholderId: landlordId },
+  })).status()).toBe(200)
+  await signIn(page, agentEmail)
+  await page.goto(`/updates/${draft}`)
+  await expect(page.getByRole('heading', { name: 'Tenant: Priya Raman' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Landlord: Tan Wei Ming' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'I acknowledge this update, Priya Raman' }).click()
+  await expect(page.getByText(/^Acknowledged in person /)).toHaveCount(2)
+  await expect(page.getByRole('button', { name: /I acknowledge this update/ })).toHaveCount(0)
+
+  // It counts, and the report and the agent's panel say how it was given.
+  const report = await (await request.get(`/api/v1/inspections/${id}/report`, { headers })).json()
+  expect(report.addenda[0].acknowledgedAt).not.toBeNull()
+  expect(report.addenda[0].acknowledgements.map((ack: { inPerson: boolean }) => ack.inPerson)).toEqual([true, true])
+  await page.goto(`/inspections/${id}`)
+  await expect(page.getByText('Landlord acknowledged in person · Tenant acknowledged in person')).toBeVisible()
+
+  // A draft the agent no longer wants is thrown away.
+  await page.getByRole('button', { name: 'Start an update' }).click()
+  await expect(page.getByRole('button', { name: 'Discard draft' })).toBeVisible()
+  page.once('dialog', (dialog) => void dialog.accept())
+  await page.getByRole('button', { name: 'Discard draft' }).click()
+  await expect(page.getByRole('button', { name: 'Start an update' })).toBeVisible()
+  expect((await (await request.get(`/api/v1/inspections/${id}/addenda`, { headers })).json()).draft).toBeNull()
+})

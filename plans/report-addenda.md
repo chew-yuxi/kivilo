@@ -116,9 +116,46 @@ sign-in (the proxy sends a signed-out visitor to `/login?next=/updates/<id>`), a
   viewer). The app's report screen shows them with an Acknowledge button.
 - Property timeline: `REPORT_UPDATED` at `acknowledgedAt`.
 - Agent web: on a completed check-in, "Updates since signing": the published list, the
-  draft editor (entries, photo upload, publish), and resolved maintenance cases with "Add
-  to the report as an update". The app's maintenance case screen offers the same button
-  to agents; authoring the rest of an addendum stays on the web for now.
+  draft editor (entries, photo upload, publish, discard), and resolved maintenance cases
+  with "Add to the report as an update".
+- Agent app (added 2026-10-17): the same, on `AddendaScreen` ("Write an update" on a
+  completed check-in, and where the maintenance case's button now lands). It reads
+  `GET /api/v1/inspections/[id]/addenda` (`addendaWorkspace`, also what the web panel
+  reads) and writes through thin routes under `/api/v1/addenda/[id]/` (details, entries,
+  upload URL, photos, publish, discard). Photos go through the app's durable capture
+  queue (owner `addendum:<id>`, room = entry id), so one taken offline is kept and
+  retried; it holds publishing back on the phone until it lands.
+
+### Acknowledging in person (added 2026-10-17)
+
+For a party with no email, or who is simply there: on the agent's device, as
+`signInspection` takes a signature. `acknowledgeAddendumInPerson(addendumId,
+stakeholderId)`: the agent passes `authorizeAddendum`, the addendum is published, and the
+named party must be the tenancy's landlord or tenant (anyone else is "Addendum not
+found"). `AddendumAcknowledgement.method` records `IN_PERSON` or `OWN_ACCOUNT` (nullable;
+older rows are own-account), and the report, `/updates/[id]`, the app and the PDF say
+"acknowledged in person" (`RENDER_VERSION` 4). Web: the agent opens `/updates/[id]`.
+App: the report screen, from `acknowledgeInPerson` in the report API.
+
+### Discarding a draft
+
+`discardAddendum` deletes the draft, its entries and photo rows, and queues a delayed
+`StoragePurge` for each photo it uploaded under `addenda/`, never for a repair's
+evidence it referenced. An upload whose URL was issued but never registered is not
+known to the database and is not purged, as with a deleted entry.
+
+### Photo formats
+
+Storage takes JPEG, PNG and WebP. The web re-encodes anything else (an iPhone's HEIC)
+to JPEG in the browser before upload (`downscale` in `src/lib/downscale.ts`, shared with
+room captures), and shrinks large photos as captures are. The app asks `image_picker`
+for `imageQuality: 90`, which re-encodes HEIC on both platforms, then checks the file's
+magic bytes and refuses anything else by name.
+
+### Push
+
+A `REPORT_UPDATED` push opens the report the update belongs to (looked up with `GET
+/api/v1/addenda/[id]`), not the notifications list.
 
 ### Check-out
 

@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../screens/maintenance_case_screen.dart';
 import '../screens/notifications_screen.dart';
 import 'api.dart';
+import 'notification_route.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -158,16 +158,23 @@ class PushNotifications {
       );
     }
     final href = message.data['href'];
-    final match = href is String
-        ? RegExp(r'^/maintenance/([^/]+)$').firstMatch(href)
-        : null;
-    final caseId = match?.group(1);
+    unawaited(_openHref(href is String ? href : null));
+  }
+
+  /// Straight to what the push is about, such as the report an update belongs to, and
+  /// to the notifications list when the app has no screen for it or cannot reach it.
+  Future<void> _openHref(String? href) async {
+    Widget? screen;
+    try {
+      screen = await notificationScreen(href, Api());
+    } catch (error) {
+      debugPrint('notification route error: $error');
+    }
+    // The lookup took a round trip; the account may have signed out meanwhile.
+    if (Supabase.instance.client.auth.currentSession == null) return;
+    final destination = screen ?? const NotificationsScreen();
     navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => caseId == null
-            ? const NotificationsScreen()
-            : MaintenanceCaseScreen(caseId: caseId),
-      ),
+      MaterialPageRoute<void>(builder: (_) => destination),
     );
   }
 }

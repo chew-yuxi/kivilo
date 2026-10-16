@@ -62,6 +62,17 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
         <AddendumSection addendum={addendum} />
       </div>
 
+      {/* Anyone else the read scope admits is the deal's agent or a teammate, on whose
+          device a party who is present acknowledges in person. */}
+      {!role && addendum.acknowledgements.filter((ack) => !ack.acknowledgedAt).map((ack) => (
+        <div key={ack.role} className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
+          <AcknowledgeButton
+            addendumId={addendumId}
+            inPerson={{ stakeholderId: ack.stakeholderId, name: ack.name, role: ack.role }}
+          />
+        </div>
+      ))}
+
       {mine && (
         <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
           {mine.acknowledgedAt ? (

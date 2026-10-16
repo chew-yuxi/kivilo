@@ -11,6 +11,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
+import 'addenda_screen.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
@@ -727,6 +728,17 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             ),
                             icon: const Icon(Icons.fact_check_outlined),
                             label: const Text('Signed report and updates'),
+                          ),
+                          const SizedBox(height: 10),
+                          OutlinedButton.icon(
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    AddendaScreen(inspectionId: widget.id),
+                              ),
+                            ),
+                            icon: const Icon(Icons.edit_outlined),
+                            label: const Text('Write an update'),
                           ),
                         ],
                         if (inspection.shareToken != null)

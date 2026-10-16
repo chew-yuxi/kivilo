@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useUploadQueue } from '@/components/upload-queue'
 import { patch, take, type PendingCapture } from '@/lib/offline-queue'
+import { downscale } from '@/lib/downscale'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { MarkEditor, type Tool } from '@/components/mark-editor'
 import { MAX_MARKS, type AnnotationInput, type Mark, type StoredAnnotations } from '@/lib/annotations'
@@ -38,40 +39,6 @@ type Tile = {
   | { source: 'server'; capture: ServerCapture }
   | { source: 'queue'; capture: PendingCapture }
 )
-
-/// Longest edge a photo is sent at. A phone camera frame is 4 to 6 MB; at this size it
-/// is a fifth of that and a rating plate is still legible, which is all the report needs.
-const MAX_PHOTO_EDGE = 2048
-
-/// Resolves to null when the photo is already small enough, or when the browser cannot
-/// decode it, in which case the original goes up as it is rather than being lost.
-async function downscale(file: File): Promise<Blob | null> {
-  const url = URL.createObjectURL(file)
-  try {
-    const image = new Image()
-    image.src = url
-    try {
-      await image.decode()
-    } catch {
-      return null
-    }
-    const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(image.naturalWidth, image.naturalHeight))
-    if (scale === 1) return null
-    const canvas = document.createElement('canvas')
-    canvas.width = Math.round(image.naturalWidth * scale)
-    canvas.height = Math.round(image.naturalHeight * scale)
-    canvas.getContext('2d')!.drawImage(image, 0, 0, canvas.width, canvas.height)
-    return await new Promise<Blob>((resolve, reject) =>
-      canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error('Could not encode the photo'))),
-        'image/jpeg',
-        0.85,
-      ),
-    )
-  } finally {
-    URL.revokeObjectURL(url)
-  }
-}
 
 function readDuration(file: File): Promise<number | null> {
   return new Promise((resolve) => {

@@ -83,7 +83,7 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
               {ack.name}
               <span className={`block text-xs ${ack.acknowledgedAt ? 'text-emerald-700' : 'text-amber-700'}`}>
                 {ack.acknowledgedAt
-                  ? `Acknowledged ${dateTime.format(new Date(ack.acknowledgedAt))}`
+                  ? `Acknowledged ${ack.inPerson ? 'in person ' : ''}${dateTime.format(new Date(ack.acknowledgedAt))}`
                   : 'Pending acknowledgement'}
               </span>
             </dd>

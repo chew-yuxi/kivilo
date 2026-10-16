@@ -6,6 +6,7 @@ import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import 'addenda_screen.dart';
 import 'maintenance_evidence_screen.dart';
 import 'responsibility_card.dart';
 import 'video_screen.dart';
@@ -50,14 +51,16 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     }
   }
 
+  /// Prefills a change on the draft update, then opens the draft to finish and publish.
   Future<void> _addToReport(String caseId) async {
-    await _run(() => _api.addendumFromMaintenanceCase(caseId));
-    if (!mounted || _error != null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Added to a draft update of the check-in report. Check it and publish it from the inspection on the web.',
-        ),
+    String? inspectionId;
+    await _run(() async {
+      inspectionId = await _api.addendumFromMaintenanceCase(caseId);
+    });
+    if (!mounted || _error != null || inspectionId == null) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AddendaScreen(inspectionId: inspectionId!, api: _api),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
+import '../models/addenda.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../models/report.dart';
@@ -511,10 +512,88 @@ class Api {
     return response.data!['inspectionId'] as String;
   });
 
-  /// "Add to the report as an update" on a resolved repair. The agent finishes and
-  /// publishes the draft on the web.
-  Future<void> addendumFromMaintenanceCase(String caseId) => _call(() async {
-    await _dio.post('/api/v1/maintenance/$caseId/addendum');
+  /// The landlord or tenant acknowledges on this (the agent's) phone. The server checks
+  /// the party belongs to the tenancy.
+  Future<void> acknowledgeAddendumInPerson(
+    String addendumId,
+    String stakeholderId,
+  ) => _call(() async {
+    await _dio.post(
+      '/api/v1/addenda/$addendumId/in-person-acknowledgement',
+      data: {'stakeholderId': stakeholderId},
+    );
+  });
+
+  /// "Add to the report as an update" on a resolved repair. Returns the check-in whose
+  /// draft update now carries it, where the agent finishes and publishes it.
+  Future<String> addendumFromMaintenanceCase(String caseId) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/maintenance/$caseId/addendum',
+    );
+    return response.data!['inspectionId'] as String;
+  });
+
+  /// Updates since signing on a countersigned check-in, with the open draft.
+  Future<AddendaWorkspace> addenda(String inspectionId) async {
+    final data = await _read(
+      '/api/v1/inspections/$inspectionId/addenda',
+      'addenda:$inspectionId',
+    );
+    return AddendaWorkspace.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// Opens the draft update, or returns the one already open.
+  Future<String> startAddendum(String inspectionId) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/inspections/$inspectionId/addenda',
+    );
+    return response.data!['id'] as String;
+  });
+
+  Future<void> updateAddendum(
+    String addendumId, {
+    required String title,
+    required String? reason,
+    required String effectiveDate,
+  }) => _call(() async {
+    await _dio.patch(
+      '/api/v1/addenda/$addendumId',
+      data: {'title': title, 'reason': reason, 'effectiveDate': effectiveDate},
+    );
+  });
+
+  Future<void> discardAddendum(String addendumId) => _call(() async {
+    await _dio.delete('/api/v1/addenda/$addendumId');
+  });
+
+  Future<void> addAddendumEntry(String addendumId, Map<String, dynamic> body) =>
+      _call(() async {
+        await _dio.post('/api/v1/addenda/$addendumId/entries', data: body);
+      });
+
+  Future<void> updateAddendumEntry(
+    String addendumId,
+    String entryId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    await _dio.patch(
+      '/api/v1/addenda/$addendumId/entries/$entryId',
+      data: body,
+    );
+  });
+
+  Future<void> deleteAddendumEntry(String addendumId, String entryId) =>
+      _call(() async {
+        await _dio.delete('/api/v1/addenda/$addendumId/entries/$entryId');
+      });
+
+  Future<void> deleteAddendumPhoto(String addendumId, String photoId) =>
+      _call(() async {
+        await _dio.delete('/api/v1/addenda/$addendumId/photos/$photoId');
+      });
+
+  Future<void> publishAddendum(String addendumId) => _call(() async {
+    await _dio.post('/api/v1/addenda/$addendumId/publish');
   });
 
   Future<void> sign(

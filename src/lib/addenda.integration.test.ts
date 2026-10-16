@@ -16,18 +16,20 @@ vi.mock('@/lib/storage', () => ({
 vi.mock('@/lib/auth', async (importActual) => {
   // Only the session lookup is faked; the authorization boundary is the real one.
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireAgent: vi.fn(), requireStakeholder: vi.fn() }
+  return { ...actual, requireAgent: vi.fn(), requireStakeholder: vi.fn(), currentStakeholder: vi.fn() }
 })
 
 import { db } from '@/lib/db'
-import { requireAgent, requireStakeholder } from '@/lib/auth'
+import { currentStakeholder, requireAgent, requireStakeholder } from '@/lib/auth'
 import { captureExists } from '@/lib/storage'
 import {
   acknowledgeAddendum,
+  acknowledgeAddendumInPerson,
   addAddendumEntry,
   addendumFromMaintenanceCase,
   deleteAddendumEntry,
   deleteAddendumPhoto,
+  discardAddendum,
   publishAddendum,
   registerAddendumPhoto,
   requestAddendumPhotoUpload,
@@ -36,6 +38,15 @@ import {
   updateAddendumEntry,
 } from '@/lib/addendum-actions'
 import { startCheckOut } from '@/lib/actions'
+import * as workspaceRoute from '@/app/api/v1/inspections/[id]/addenda/route'
+import * as addendumRoute from '@/app/api/v1/addenda/[id]/route'
+import * as entriesRoute from '@/app/api/v1/addenda/[id]/entries/route'
+import * as entryRoute from '@/app/api/v1/addenda/[id]/entries/[entryId]/route'
+import * as uploadRoute from '@/app/api/v1/addenda/[id]/entries/[entryId]/upload-url/route'
+import * as photosRoute from '@/app/api/v1/addenda/[id]/entries/[entryId]/photos/route'
+import * as photoRoute from '@/app/api/v1/addenda/[id]/photos/[photoId]/route'
+import * as publishRoute from '@/app/api/v1/addenda/[id]/publish/route'
+import * as inPersonRoute from '@/app/api/v1/addenda/[id]/in-person-acknowledgement/route'
 import { signedReport } from '@/lib/report'
 import { propertyTimeline } from '@/lib/property-timeline'
 import { addendumHash, addendumSnapshotSchema } from '@/lib/addenda'
@@ -46,6 +57,8 @@ const tag = randomUUID().slice(0, 8)
 const people: string[] = []
 const teams: string[] = []
 const FROZEN = 'This update has been published and can no longer be changed'
+/// Storage purges these tests queue, for paths that were never really uploaded.
+const purged: string[] = []
 
 async function person(name: string, teamId?: string) {
   const row = await db.stakeholder.create({ data: { name: `Addenda ${name} ${tag}`, teamId } })
@@ -96,6 +109,23 @@ async function deal(status: InspectionStatus = 'COMPLETED') {
 function as(stakeholder: Stakeholder) {
   vi.mocked(requireAgent).mockResolvedValue(stakeholder)
   vi.mocked(requireStakeholder).mockResolvedValue(stakeholder)
+  vi.mocked(currentStakeholder).mockResolvedValue(stakeholder)
+}
+
+/// Calls an /api/v1 route handler the way Next does, as whoever `as` last named.
+async function call<P>(
+  handler: (request: Request, context: { params: Promise<P> }) => Promise<Response>,
+  params: P,
+  init?: { method?: string; body?: unknown },
+) {
+  const response = await handler(
+    new Request('http://kivilo.test/api/v1', {
+      method: init?.method ?? 'POST',
+      body: init?.body === undefined ? undefined : JSON.stringify(init.body),
+    }),
+    { params: Promise.resolve(params) },
+  )
+  return { status: response.status, body: await response.json() }
 }
 
 const replacement = (targetKey: string) => ({
@@ -120,6 +150,7 @@ async function acknowledgedBy(addendumId: string, ...parties: Stakeholder[]) {
 }
 
 afterAll(async () => {
+  await db.storagePurge.deleteMany({ where: { path: { in: purged } } })
   await db.property.deleteMany({ where: { postalCode } })
   await db.stakeholder.deleteMany({ where: { id: { in: people } } })
   await db.team.deleteMany({ where: { id: { in: teams } } })
@@ -372,5 +403,151 @@ describe('report addenda', () => {
     await expect(registerAddendumPhoto(entryId, id, {
       clientId, mimeType: 'image/jpeg', storagePath: `addenda/${id}/${clientId}.jpg`, sizeBytes: 10,
     })).rejects.toThrow('Photo has not reached storage')
+  })
+
+  it('takes an acknowledgement in person on the agent\'s phone, only for the landlord or tenant, and says so', async () => {
+    const { agent, teammate, landlord, tenant, stranger, inspection, dishwasher } = await deal()
+    as(agent)
+    const draft = await startAddendum(inspection.id)
+    await updateAddendum(draft, { title: 'New dishwasher', reason: null, effectiveDate: '2026-03-02' })
+    await addAddendumEntry(draft, replacement(`item:${dishwasher.id}`))
+    // A draft is nobody's to acknowledge, in person or not.
+    await expect(acknowledgeAddendumInPerson(draft, landlord.id)).rejects.toThrow('Addendum not found')
+    await publishAddendum(draft)
+    const { contentHash } = await db.reportAddendum.findUniqueOrThrow({ where: { id: draft } })
+    expect((await signedReport(inspection.id, agent.id)).addenda[0].acknowledgeInPerson).toBe(true)
+    expect((await signedReport(inspection.id, landlord.id)).addenda[0].acknowledgeInPerson).toBe(false)
+
+    // Only someone `authorizeAddendum` admits holds the phone: not a stranger, and not a
+    // party recording the other party.
+    for (const [holder, party] of [[stranger, landlord], [landlord, tenant], [tenant, tenant]] as const) {
+      as(holder)
+      await expect(acknowledgeAddendumInPerson(draft, party.id)).rejects.toThrow('Addendum not found')
+    }
+    // And the party named must be the tenancy's landlord or tenant, refused like a missing id.
+    as(agent)
+    for (const outsider of [stranger.id, agent.id, teammate.id, randomUUID()]) {
+      await expect(acknowledgeAddendumInPerson(draft, outsider)).rejects.toThrow('Addendum not found')
+    }
+    await expect(acknowledgeAddendumInPerson(randomUUID(), landlord.id)).rejects.toThrow('Addendum not found')
+    expect(await db.addendumAcknowledgement.count({ where: { addendumId: draft } })).toBe(0)
+
+    // A teammate covering the deal can take it; a second tap records nothing new.
+    as(teammate)
+    await acknowledgeAddendumInPerson(draft, landlord.id)
+    await acknowledgeAddendumInPerson(draft, landlord.id)
+    as(tenant)
+    await acknowledgeAddendum(draft)
+
+    const acks = await db.addendumAcknowledgement.findMany({ where: { addendumId: draft }, orderBy: { acknowledgedAt: 'asc' } })
+    expect(acks).toMatchObject([
+      { stakeholderId: landlord.id, method: 'IN_PERSON', contentHash, ipAddress: '203.0.113.9' },
+      { stakeholderId: tenant.id, method: 'OWN_ACCOUNT', contentHash },
+    ])
+    // Either way counts: both parties are in, so the update counts.
+    expect((await db.reportAddendum.findUniqueOrThrow({ where: { id: draft } })).acknowledgedAt).not.toBeNull()
+    const view = (await signedReport(inspection.id, agent.id)).addenda[0]
+    expect(view.acknowledgements.map((ack) => [ack.role, ack.inPerson])).toEqual([['Landlord', true], ['Tenant', false]])
+    expect(view.acknowledgeInPerson).toBe(false)
+  })
+
+  it('discards a draft and queues only the photos it uploaded for deletion, never a published update', async () => {
+    const { agent, stranger, inspection } = await deal()
+    as(agent)
+    const id = await startAddendum(inspection.id)
+    const entryId = await addAddendumEntry(id, { change: 'ADDED', roomName: 'Kitchen', name: 'Oven', category: 'APPLIANCE', condition: 'NEW' })
+    const clientId = randomUUID()
+    const { storagePath } = await requestAddendumPhotoUpload(entryId, id, { clientId, mimeType: 'image/jpeg' })
+    await registerAddendumPhoto(entryId, id, { clientId, mimeType: 'image/jpeg', storagePath, sizeBytes: 900 })
+    purged.push(storagePath)
+    // A repair's photo, used by reference, belongs to the repair.
+    const evidencePath = `maintenance/${randomUUID()}/before.jpg`
+    await db.reportAddendumPhoto.create({ data: { entryId, storagePath: evidencePath, mimeType: 'image/jpeg', label: 'Before' } })
+
+    as(stranger)
+    await expect(discardAddendum(id)).rejects.toThrow('Addendum not found')
+    as(agent)
+    await discardAddendum(id)
+
+    expect(await db.reportAddendum.findUnique({ where: { id } })).toBeNull()
+    expect(await db.reportAddendumEntry.count({ where: { addendumId: id } })).toBe(0)
+    expect(await db.storagePurge.findUnique({ where: { path: storagePath } })).toMatchObject({ isPrefix: false, completedAt: null })
+    expect(await db.storagePurge.findUnique({ where: { path: evidencePath } })).toBeNull()
+    await expect(discardAddendum(id)).rejects.toThrow('Addendum not found')
+    // The next update starts afresh.
+    expect(await startAddendum(inspection.id)).not.toBe(id)
+
+    const kept = await published(agent, inspection.id, 'Oven added', [
+      { change: 'ADDED', roomName: 'Kitchen', name: 'Oven', category: 'APPLIANCE', condition: 'NEW' },
+    ])
+    await expect(discardAddendum(kept)).rejects.toThrow(FROZEN)
+  })
+
+  it('serves the app through thin API delegations, and a refusal is the same 404 as a missing id', async () => {
+    const { agent, landlord, tenant, stranger, inspection, hob } = await deal()
+    as(agent)
+    const notFound = { status: 404, body: { error: 'not_found' } }
+
+    const { body: { id } } = await call(workspaceRoute.POST, { id: inspection.id })
+    expect((await call(addendumRoute.PATCH, { id }, {
+      method: 'PATCH', body: { title: 'Induction hob', reason: 'Old one failed', effectiveDate: '2026-03-02' },
+    })).status).toBe(200)
+    const { body: { id: entryId } } = await call(entriesRoute.POST, { id }, {
+      body: { change: 'REPLACED', targetKey: `item:${hob.id}`, name: 'Induction hob', category: 'APPLIANCE', condition: 'NEW' },
+    })
+    expect((await call(entryRoute.PATCH, { id, entryId }, {
+      method: 'PATCH',
+      body: { change: 'REPLACED', targetKey: `item:${hob.id}`, name: 'Induction hob', category: 'APPLIANCE', condition: 'NEW', identifier: 'Bosch PUE611' },
+    })).status).toBe(200)
+    const clientId = randomUUID()
+    vi.mocked(captureExists).mockResolvedValueOnce(false)
+    const upload = await call(uploadRoute.POST, { id, entryId }, { body: { clientId, mimeType: 'image/jpeg' } })
+    expect(upload).toMatchObject({ status: 200, body: { storagePath: `addenda/${id}/${clientId}.jpg`, signedUrl: expect.any(String) } })
+    const photo = await call(photosRoute.POST, { id, entryId }, {
+      body: { clientId, mimeType: 'image/jpeg', storagePath: upload.body.storagePath, sizeBytes: 1200 },
+    })
+    // A retry after a lost response is the same photo.
+    expect((await call(photosRoute.POST, { id, entryId }, {
+      body: { clientId, mimeType: 'image/jpeg', storagePath: upload.body.storagePath, sizeBytes: 1200 },
+    })).body).toEqual(photo.body)
+
+    const workspace = await call(workspaceRoute.GET, { id: inspection.id }, { method: 'GET' })
+    expect(workspace.body.draft).toMatchObject({
+      id, title: 'Induction hob', entries: [{ id: entryId, identifier: 'Bosch PUE611', photos: [{ id: photo.body.id }] }],
+    })
+    expect(workspace.body.targets).toContainEqual({ key: `item:${hob.id}`, label: 'Kitchen · Hob' })
+
+    // Nobody outside the deal reaches any of it, and a refusal says nothing more.
+    as(stranger)
+    expect(await call(workspaceRoute.GET, { id: inspection.id }, { method: 'GET' })).toEqual(notFound)
+    expect(await call(entriesRoute.POST, { id }, { body: { change: 'ADDED', roomName: 'Kitchen', name: 'x', category: 'FIXTURE', condition: 'NEW' } })).toEqual(notFound)
+    expect(await call(photoRoute.DELETE, { id, photoId: photo.body.id }, { method: 'DELETE' })).toEqual(notFound)
+    expect(await call(publishRoute.POST, { id })).toEqual(notFound)
+    expect(await call(addendumRoute.DELETE, { id }, { method: 'DELETE' })).toEqual(notFound)
+
+    as(agent)
+    expect((await call(photoRoute.DELETE, { id, photoId: photo.body.id }, { method: 'DELETE' })).status).toBe(200)
+    purged.push(upload.body.storagePath)
+    expect(await call(publishRoute.POST, { id })).toMatchObject({ status: 200, body: { number: 1 } })
+    expect(await call(addendumRoute.DELETE, { id }, { method: 'DELETE' })).toEqual({ status: 409, body: { error: 'report_frozen' } })
+
+    // In person: a party of the tenancy, and nobody else, on the agent's token.
+    expect(await call(inPersonRoute.POST, { id }, { body: { stakeholderId: stranger.id } })).toEqual(notFound)
+    expect((await call(inPersonRoute.POST, { id }, { body: { stakeholderId: tenant.id } })).status).toBe(200)
+    as(landlord)
+    expect(await call(inPersonRoute.POST, { id }, { body: { stakeholderId: tenant.id } })).toEqual(notFound)
+    expect(await call(workspaceRoute.GET, { id: inspection.id }, { method: 'GET' })).toEqual(notFound)
+
+    as(agent)
+    const after = await call(workspaceRoute.GET, { id: inspection.id }, { method: 'GET' })
+    expect(after.body.draft).toBeNull()
+    expect(after.body.published[0].acknowledgements).toMatchObject([
+      { role: 'Landlord', acknowledgedAt: null, inPerson: false },
+      { role: 'Tenant', acknowledgedAt: expect.any(String), inPerson: true },
+    ])
+    // A new draft can be thrown away through the API.
+    const { body: next } = await call(workspaceRoute.POST, { id: inspection.id })
+    expect((await call(addendumRoute.DELETE, { id: next.id }, { method: 'DELETE' })).status).toBe(200)
+    expect(await db.reportAddendum.findUnique({ where: { id: next.id } })).toBeNull()
   })
 })

@@ -84,13 +84,15 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
       contentHash: signature.contentHash,
     })),
     // Updates since signing, oldest first. A party sees `acknowledgeAs` on each one still
-    // waiting for them.
+    // waiting for them. The agent, who is no party, sees `acknowledgeInPerson` while
+    // either party is still pending, to take it on their phone.
     addenda: await Promise.all(inspection.addenda.map(async (row) => {
       const view = addendumView(row, tenancy)
       const mine = view.acknowledgements.find((ack) => ack.role.toUpperCase() === party)
       return {
         ...view,
         acknowledgeAs: party && mine && !mine.acknowledgedAt ? party : null,
+        acknowledgeInPerson: !party && view.acknowledgements.some((ack) => !ack.acknowledgedAt),
         entries: await Promise.all(view.entries.map(async (entry) => ({
           ...entry,
           photos: await Promise.all(entry.photos.map(async ({ storagePath, ...photo }) => ({

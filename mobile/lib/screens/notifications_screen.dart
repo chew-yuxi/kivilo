@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/maintenance.dart';
 import '../services/api.dart';
-import 'maintenance_case_screen.dart';
-import 'report_screen.dart';
+import '../services/notification_route.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -18,19 +17,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _open(NotificationModel item) async {
     await _api.markNotificationRead(item.id);
-    final href = item.href ?? '';
-    Widget? screen;
-    if (href.startsWith('/maintenance/')) {
-      screen = MaintenanceCaseScreen(
-        caseId: href.substring('/maintenance/'.length),
-      );
-    } else if (href.startsWith('/updates/')) {
-      // An update to a signed report: open the report, where it is acknowledged.
-      final reportId = await _api.addendumReport(
-        href.substring('/updates/'.length),
-      );
-      screen = ReportScreen(id: reportId);
-    }
+    final screen = await notificationScreen(item.href, _api);
     if (!mounted || screen == null) return;
     final destination = screen;
     await Navigator.of(
