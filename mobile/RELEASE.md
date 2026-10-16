@@ -32,6 +32,14 @@ against `aff8443` caught `workspace_premium_outlined`, absent from 23's font, an
 Plan card now uses `verified_outlined`. Never patch `1.0.0+22` from this code: its update
 screen needs `flutter_local_notifications`, which build `22` does not carry.
 
+Patch `3` (Android) and patch `4` (iOS) on the staging track for `1.0.0+23`, built from
+`09e9e48` in a pinned worktree: the agent can email each party their signing link from the
+signature tiles, and the report screen shows dated updates to a signed report with an
+Acknowledge action for the landlord and tenant, reached from notifications and from a
+resolved repair's "Add to the report as an update". The server was deployed first
+(`ca0037a`, migrations `20261016100000_email_signing` and `20261016110000_report_addenda`).
+The icon check against `aff8443` printed nothing, and nothing outside `mobile/lib` changed.
+
 ## Current store candidate: 2026-10-13 Singapore time
 
 Build `22` is the first build that can be patched over the air and the first that can be
