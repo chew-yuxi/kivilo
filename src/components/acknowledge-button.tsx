@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useSyncExternalStore, useTransition } from 'react'
 import { acknowledgeAddendum, acknowledgeAddendumInPerson } from '@/lib/addendum-actions'
 
 /// "I acknowledge this update". Without `inPerson`, by the signed-in landlord or tenant:
@@ -16,6 +16,9 @@ export function AcknowledgeButton({
 }) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  // Server-rendered disabled: the page often arrives by a full load straight after sign-in,
+  // and a tap before hydration would otherwise land on a button with no handler and vanish.
+  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false)
 
   return (
     <div>
@@ -36,7 +39,7 @@ export function AcknowledgeButton({
       )}
       <button
         type="button"
-        disabled={pending}
+        disabled={pending || !hydrated}
         aria-label={inPerson ? `I acknowledge this update, ${inPerson.name}` : undefined}
         onClick={() => startTransition(async () => {
           setError(null)
@@ -55,3 +58,5 @@ export function AcknowledgeButton({
     </div>
   )
 }
+
+const subscribeNever = () => () => {}
