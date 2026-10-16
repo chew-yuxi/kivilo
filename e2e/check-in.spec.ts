@@ -34,7 +34,7 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await page.getByRole('button', { name: /^Photo 1/ }).click()
   await page.getByRole('textbox', { name: 'Note' }).fill('Fridge rating plate')
   await page.getByRole('button', { name: 'Save note' }).click()
-  await expect(page.getByText('Fridge rating plate')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Photo 1: Fridge rating plate' })).toBeVisible()
 
   // Circle the damage. The ring is stored as geometry over an untouched original, so
   // the assertion that matters is not that it saved but that it lands on the same part
