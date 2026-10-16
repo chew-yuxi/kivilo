@@ -9,6 +9,7 @@ import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
 import { templateRows } from '@/lib/room-templates'
+import { assertCanAddProperty } from '@/lib/plan'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -121,6 +122,7 @@ export async function createInspection(input: {
   deposit: string
 }) {
   const agent = await requireAgent()
+  await assertCanAddProperty(agent)
 
   const required = [input.line1, input.postalCode, input.landlordName, input.tenantName]
   if (required.some((value) => !value.trim())) {

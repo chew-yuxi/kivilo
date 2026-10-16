@@ -14,6 +14,7 @@
     "setup:storage": "tsx scripts/setup-storage.ts",
     "provider:upsert": "tsx scripts/upsert-service-provider.ts",
     "team:set": "tsx scripts/set-team.ts",
+    "plan:set": "tsx scripts/set-plan.ts",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.mts",
     "test:e2e": "playwright test"

@@ -22,7 +22,14 @@ const tag = randomUUID().slice(0, 8)
 const created: string[] = []
 
 async function agent(name: string) {
-  const person = await db.stakeholder.create({ data: { name: `${name} ${tag}` } })
+  // Comped onto Pro: some tests make several deals with one agent, past Free's limit,
+  // which is not what these tests are about.
+  const person = await db.stakeholder.create({
+    data: {
+      name: `${name} ${tag}`,
+      subscription: { create: { plan: 'PRO', seats: 1, status: 'comped' } },
+    },
+  })
   created.push(person.id)
   return person
 }

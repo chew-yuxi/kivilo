@@ -16,6 +16,10 @@ async function main() {
   const agent = await db.stakeholder.create({
     data: { name: 'Jocelyn Ng', idNumber: 'S9012345B', email: 'jocelyn@example.com' },
   })
+  // Comped, so local work is not capped at Free's single active property.
+  await db.subscription.create({
+    data: { stakeholderId: agent.id, plan: 'PRO', seats: 1, status: 'comped', managedById: agent.id },
+  })
 
   const property = await db.property.create({
     data: {
