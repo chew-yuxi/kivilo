@@ -22,6 +22,16 @@ and all 131 mobile tests pass; Android and iOS simulator debug builds both compi
 version `1.0.0 (23)`. Physical-device notification and Shorebird patch delivery still
 need release-candidate testing before upload.
 
+Shorebird release `1.0.0+23` was made from `aff8443` and is on Play internal testing
+(`completed:23`) and TestFlight (build `b977a04e-5404-4eb1-99e8-445556531850`, `VALID`).
+Patch `1` (Android) and patch `2` (iOS) on the staging track for `1.0.0+23`, built from
+`7351d59` in a pinned worktree: the check-in form asks whether the property is fully
+furnished, Account shows the workspace's plan, and the refresh helpers no longer return a
+Future from `setState`. The server was deployed first from `0229f2c`. The icon check
+against `aff8443` caught `workspace_premium_outlined`, absent from 23's font, and the
+Plan card now uses `verified_outlined`. Never patch `1.0.0+22` from this code: its update
+screen needs `flutter_local_notifications`, which build `22` does not carry.
+
 ## Current store candidate: 2026-10-13 Singapore time
 
 Build `22` is the first build that can be patched over the air and the first that can be
