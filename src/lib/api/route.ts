@@ -33,7 +33,7 @@ export function authed<P>(
         return Response.json({ error: 'not_found' }, { status: 404 })
       }
       if (error instanceof ZodError || error instanceof SyntaxError ||
-          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Unsupported logo|The landlord and tenant need different email addresses)/.test(message)) {
+          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Photo path|Unsupported logo|The landlord and tenant need different email addresses)/.test(message)) {
         return Response.json({ error: 'invalid_request' }, { status: 400 })
       }
       if (/^Plan limit reached/.test(message)) {
@@ -42,7 +42,7 @@ export function authed<P>(
       if (/no longer be changed/i.test(message)) {
         return Response.json({ error: 'report_frozen' }, { status: 409 })
       }
-      if (/Capture has not reached storage/i.test(message)) {
+      if (/Capture has not reached storage|Photo has not reached storage/i.test(message)) {
         return Response.json({ error: 'capture_missing' }, { status: 409 })
       }
       if (/Maintenance evidence has not reached storage/i.test(message)) {
@@ -64,6 +64,9 @@ export function authed<P>(
         return Response.json({ error: 'maintenance_conflict' }, { status: 409 })
       }
       if (/Invalid maintenance status transition|Closing without action requires a reason|Only a completed visit can be verified|After evidence requires a completed visit|Only a human-reviewed inspection item can be linked/i.test(message)) {
+        return Response.json({ error: 'invalid_state' }, { status: 409 })
+      }
+      if (/Only a countersigned check-in can be updated|Only a resolved repair|Give the update a title|Add at least one change|Each item can change only once|no longer in the report/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       if (/not awaiting signature|already countersigned|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed|Save your agency name/i.test(message)) {

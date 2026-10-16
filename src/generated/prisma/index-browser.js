@@ -448,6 +448,61 @@ exports.Prisma.AssessmentVersionScalarFieldEnum = {
   publishedById: 'publishedById'
 };
 
+exports.Prisma.ReportAddendumScalarFieldEnum = {
+  id: 'id',
+  inspectionId: 'inspectionId',
+  number: 'number',
+  title: 'title',
+  reason: 'reason',
+  effectiveDate: 'effectiveDate',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  publishedAt: 'publishedAt',
+  publishedById: 'publishedById',
+  snapshot: 'snapshot',
+  contentHash: 'contentHash',
+  acknowledgedAt: 'acknowledgedAt'
+};
+
+exports.Prisma.ReportAddendumEntryScalarFieldEnum = {
+  id: 'id',
+  addendumId: 'addendumId',
+  change: 'change',
+  roomName: 'roomName',
+  targetKey: 'targetKey',
+  name: 'name',
+  category: 'category',
+  condition: 'condition',
+  quantity: 'quantity',
+  identifier: 'identifier',
+  notes: 'notes',
+  maintenanceCaseId: 'maintenanceCaseId',
+  propertyAssetId: 'propertyAssetId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ReportAddendumPhotoScalarFieldEnum = {
+  id: 'id',
+  entryId: 'entryId',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  note: 'note',
+  label: 'label',
+  maintenanceEvidenceId: 'maintenanceEvidenceId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AddendumAcknowledgementScalarFieldEnum = {
+  id: 'id',
+  addendumId: 'addendumId',
+  stakeholderId: 'stakeholderId',
+  acknowledgedAt: 'acknowledgedAt',
+  ipAddress: 'ipAddress',
+  contentHash: 'contentHash'
+};
+
 exports.Prisma.AccountDeletionRequestScalarFieldEnum = {
   id: 'id',
   stakeholderId: 'stakeholderId',
@@ -688,7 +743,8 @@ exports.NotificationKind = exports.$Enums.NotificationKind = {
   MAINTENANCE_VISIT: 'MAINTENANCE_VISIT',
   MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
   MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
-  REPEAT_REPAIR: 'REPEAT_REPAIR'
+  REPEAT_REPAIR: 'REPEAT_REPAIR',
+  REPORT_UPDATED: 'REPORT_UPDATED'
 };
 
 exports.ChangeType = exports.$Enums.ChangeType = {
@@ -704,6 +760,12 @@ exports.Verdict = exports.$Enums.Verdict = {
   FAIR_WEAR: 'FAIR_WEAR',
   DISPUTED: 'DISPUTED',
   UNDECIDED: 'UNDECIDED'
+};
+
+exports.AddendumChange = exports.$Enums.AddendumChange = {
+  ADDED: 'ADDED',
+  REPLACED: 'REPLACED',
+  REMOVED: 'REMOVED'
 };
 
 exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {
@@ -745,6 +807,10 @@ exports.Prisma.ModelName = {
   Finding: 'Finding',
   Signature: 'Signature',
   AssessmentVersion: 'AssessmentVersion',
+  ReportAddendum: 'ReportAddendum',
+  ReportAddendumEntry: 'ReportAddendumEntry',
+  ReportAddendumPhoto: 'ReportAddendumPhoto',
+  AddendumAcknowledgement: 'AddendumAcknowledgement',
   AccountDeletionRequest: 'AccountDeletionRequest',
   AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
   StoragePurge: 'StoragePurge',

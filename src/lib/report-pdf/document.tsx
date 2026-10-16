@@ -3,6 +3,7 @@ import { Document, Font, Image, Link, Page, Path, StyleSheet, Svg, Text, View } 
 import type { ItemCondition } from '@/generated/prisma'
 import { markPath } from '@/lib/annotations'
 import { sgd } from '@/lib/format'
+import { entryHeading, type AddendumView } from '@/lib/addenda'
 import { markNotes, type ReportModel, type ReportPhoto, type ReportRoom } from './model'
 
 /// A serial number or meter reading split across lines with a hyphen reads as a
@@ -16,6 +17,7 @@ export type ReportAssets = {
   photos: Map<string, Bitmap>
   logo: Bitmap | null
   signatures: Bitmap[]
+  /// Pictures outside the room grid: repair evidence, and photos of updates since signing.
   evidence: Map<string, Bitmap>
 }
 
@@ -112,6 +114,15 @@ export function ReportDocument({ model, assets }: { model: ReportModel; assets: 
         <Agreement model={model} assets={assets} />
         {model.assessment && <Assessment model={model} assets={assets} />}
       </Page>
+      {/* Each update opens its own page, after the signatures, oldest first: the "Updated"
+          pages of a paper report, but recorded rather than edited in. */}
+      {model.addenda.map((addendum) => (
+        <Page key={addendum.id} size="A4" style={s.page} bookmark={{ title: `Update ${addendum.number}` }}>
+          <RunningHeader model={model} assets={assets} kind={kind} />
+          <RunningFooter model={model} />
+          <Addendum addendum={addendum} assets={assets} />
+        </Page>
+      ))}
     </Document>
   )
 }
@@ -217,6 +228,14 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
           />
         ))}
         <ContentsLine href="#agreement" label="Agreement" detail={model.assessment ? 'Signatures, and the check-out assessment' : 'Signatures'} />
+        {model.addenda.map((addendum) => (
+          <ContentsLine
+            key={addendum.id}
+            href={`#update-${addendum.number}`}
+            label={`Updated ${longDate.format(new Date(addendum.effectiveDate))}`}
+            detail={addendum.acknowledgedAt ? addendum.title : `${addendum.title}  ·  Pending acknowledgement`}
+          />
+        ))}
       </View>
 
       <RunningFooter model={model} />
@@ -506,6 +525,85 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
           )}
         </View>
       ))}
+    </View>
+  )
+}
+
+/// One update since signing. The banner is the "Updated <date>" a reader looks for; the
+/// acknowledgements say whether it is part of what both parties agreed yet.
+function Addendum({ addendum, assets }: { addendum: AddendumView; assets: ReportAssets }) {
+  return (
+    <View id={`update-${addendum.number}`}>
+      <View style={{ backgroundColor: '#fef3c7', paddingVertical: 6, paddingHorizontal: 8, marginBottom: 10 }}>
+        <Text style={[s.bold, { fontSize: 12, color: '#92400e' }]}>
+          Updated {longDate.format(new Date(addendum.effectiveDate))}
+        </Text>
+        <Text style={{ color: '#92400e' }}>
+          Update {addendum.number}
+          {addendum.acknowledgedAt ? '' : '  ·  Pending acknowledgement'}
+        </Text>
+      </View>
+      <Text style={s.h2}>{addendum.title}</Text>
+      {addendum.reason && <Text style={{ marginTop: 4 }}>{addendum.reason}</Text>}
+      <Text style={[s.small, { marginTop: 4, marginBottom: 12 }]}>
+        Published by {addendum.publishedBy}, {dateTime.format(new Date(addendum.publishedAt))}. Recorded beside
+        the signed report, which it does not change.
+      </Text>
+
+      {addendum.entries.map((entry) => (
+        <View key={entry.id} style={[s.row, { flexDirection: 'column', paddingVertical: 6 }]} wrap={false}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={s.bold}>{entryHeading(entry)}</Text>
+            <Text style={s.small}>{entry.roomName}</Text>
+          </View>
+          {entry.change === 'REPLACED' && entry.target && (
+            <Text style={s.small}>
+              Was: {entry.target.name}{entry.target.identifier && `  ·  ${entry.target.identifier}`}
+            </Text>
+          )}
+          {entry.line && (
+            <Text>
+              <Text style={{ color: CONDITION[entry.line.condition].color, fontFamily: 'Helvetica-Bold', fontSize: 8 }}>
+                {CONDITION[entry.line.condition].label}
+              </Text>
+              {entry.line.quantity > 1 && `  ×${entry.line.quantity}`}
+            </Text>
+          )}
+          {entry.line?.identifier && <Text style={{ fontFamily: 'Courier', fontSize: 7.5, color: MUTED }}>{entry.line.identifier}</Text>}
+          {entry.notes && <Text style={{ color: '#374151' }}>{entry.notes}</Text>}
+          {entry.maintenanceCase && <Text style={s.small}>From the repair record: {entry.maintenanceCase.title}</Text>}
+          {entry.photos.length > 0 && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: GRID_GAP, marginTop: 6 }}>
+              {entry.photos.map((photo) => {
+                const bitmap = assets.evidence.get(photo.storagePath)
+                return (
+                  <View key={photo.id} style={{ width: TILE }}>
+                    <View style={[s.tileBox, { height: 140 }]}>
+                      {bitmap
+                        ? <Image src={bitmap} style={{ width: TILE, height: 140, objectFit: 'contain' }} />
+                        : <Text style={s.small}>Photo unavailable</Text>}
+                    </View>
+                    {(photo.label || photo.note) && (
+                      <Text style={[s.small, { marginTop: 3 }]}>{[photo.label, photo.note].filter(Boolean).join(': ')}</Text>
+                    )}
+                  </View>
+                )
+              })}
+            </View>
+          )}
+        </View>
+      ))}
+
+      <View style={{ flexDirection: 'row', gap: 24, marginTop: 16 }} wrap={false}>
+        {addendum.acknowledgements.map((ack) => (
+          <View key={ack.role} style={{ flex: 1, borderTopWidth: 0.75, borderTopColor: INK, paddingTop: 4 }}>
+            <Text style={s.bold}>{ack.name}</Text>
+            <Text style={{ fontSize: 8, color: ack.acknowledgedAt ? '#047857' : '#b45309' }}>
+              {ack.role}, {ack.acknowledgedAt ? `acknowledged ${dateTime.format(new Date(ack.acknowledgedAt))}` : 'pending acknowledgement'}
+            </Text>
+          </View>
+        ))}
+      </View>
     </View>
   )
 }

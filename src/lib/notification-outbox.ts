@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { sendMaintenanceNotification } from '@/lib/email'
+import { sendMaintenanceNotification, sendReportUpdateNotification } from '@/lib/email'
 import { deliverPushOutbox } from '@/lib/push'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 
@@ -54,7 +54,11 @@ export async function deliverNotificationOutbox(limit = 25) {
   const failures: string[] = []
   for (const notification of pending) {
     try {
-      await sendMaintenanceNotification(notification.recipient.email!, notification)
+      if (notification.kind === 'REPORT_UPDATED') {
+        await sendReportUpdateNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+      } else {
+        await sendMaintenanceNotification(notification.recipient.email!, notification)
+      }
       await db.notification.update({
         where: { id: notification.id },
         data: {

@@ -7,6 +7,8 @@ import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { reportInclude } from '@/lib/report'
+import { addendumView } from '@/lib/addenda'
+import { AddendumSection } from '@/components/addendum-section'
 
 export const dynamic = 'force-dynamic'
 
@@ -265,6 +267,19 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
           )}
         </div>
       </section>
+
+      {inspection.addenda.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Updates since signing
+          </h2>
+          <div className="mt-4 space-y-8">
+            {inspection.addenda.map((row) => (
+              <AddendumSection key={row.id} addendum={addendumView(row, tenancy)} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {isCheckOut && assessment && published && (
         <section className="mt-10 break-inside-avoid border-t border-gray-300 pt-6">

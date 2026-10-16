@@ -93,6 +93,35 @@ export async function sendMaintenanceNotification(
   if (error) throw new Error(`Resend refused the maintenance notification: ${error.message}`)
 }
 
+/// To a landlord or tenant, when the agent publishes an update to their signed report.
+/// The link is the update page, which asks them to sign in, so it carries no credential.
+export function reportUpdateEmail(notification: { title: string; body: string; href: string }) {
+  const origin = process.env.KIVILO_APP_URL
+  if (!origin) throw new Error('KIVILO_APP_URL must be set')
+  const link = new URL(notification.href, origin).href
+  return {
+    subject: `${notification.title}, please review and acknowledge`,
+    text: [
+      notification.body,
+      '',
+      `Review and acknowledge it here: ${link}`,
+      '',
+      'You can also open the report in the Kivilo app and acknowledge it there.',
+    ].join('\n'),
+  }
+}
+
+export async function sendReportUpdateNotification(
+  to: string,
+  notification: { id: string; title: string; body: string; href: string },
+) {
+  const { subject, text } = reportUpdateEmail(notification)
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
+    idempotencyKey: `report-update-${notification.id}`,
+  })
+  if (error) throw new Error(`Resend refused the report update email: ${error.message}`)
+}
+
 /// To the operator, not an agent: one message per run of the error cron, listing each
 /// kind of error seen for the first time. Plain text, because it is read to fix a bug.
 export async function sendErrorAlert(to: string, errors: { count: number; latest: ErrorEvent }[]) {
