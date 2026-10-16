@@ -87,12 +87,16 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
         {inspection.status === 'COMPLETED' && (
           <p>
             <span className="font-medium">Completed.</span> Both parties have signed this
-            report{signer.email ? ', and the signed PDF has been emailed to you' : ''}.
+            report{signer.email ? ', and the signed PDF has been emailed to you' : ''}. You
+            can also download it here.
           </p>
         )}
       </div>
 
-      <ReportDocument inspection={inspection} pdfHref={null} />
+      <ReportDocument
+        inspection={inspection}
+        pdfHref={inspection.status === 'COMPLETED' ? `${here}/pdf` : null}
+      />
 
       {awaitingMe && (
         <section className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">

@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
     '/reports/\\[token\\]/pdf': [pdfkitFonts],
     '/api/v1/inspections/\\[id\\]/pdf': [pdfkitFonts],
     '/api/internal/report-emails': [pdfkitFonts],
+    '/sign/\\[inspectionId\\]/pdf': [pdfkitFonts],
   },
 
   async headers() {

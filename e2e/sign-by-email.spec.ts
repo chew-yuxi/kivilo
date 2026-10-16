@@ -70,6 +70,9 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   await expect(tenant.getByText('You signed')).toBeVisible()
   await expect(tenant.getByText('Waiting for Goh Siew Lan to sign')).toBeVisible()
   await expect(tenant.getByText(`Content fingerprint ${fingerprint}`)).toBeVisible()
+  // Nothing to download until both have signed.
+  await expect(tenant.getByRole('link', { name: 'Download PDF' })).toHaveCount(0)
+  expect((await tenant.request.get(`/sign/${id}/pdf`)).status()).toBe(404)
 
   // Someone else with a perfectly good session gets what a missing id gets, plus a way
   // to switch to the address the email went to.
@@ -92,7 +95,8 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   const landlord = { Authorization: `Bearer ${await accessTokenFor(landlordEmail)}` }
   const signed = await request.post(`/api/v1/inspections/${id}/report/signature`, {
     headers: landlord,
-    data: { imageData: 'data:image/png;base64,iVBORw0KGgo=' },
+    // A whole 1x1 PNG: the signed PDF draws it.
+    data: { imageData: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=' },
   })
   expect(signed.status()).toBe(200)
   const report = await (await request.get(`/api/v1/inspections/${id}/report`, { headers: landlord })).json()
@@ -104,5 +108,12 @@ test('a party signs from the emailed link, as themselves and nobody else', async
 
   await tenant.reload()
   await expect(tenant.getByText('Completed.')).toBeVisible()
+  // And the tenant downloads the signed PDF from the page, as themselves.
+  const download = tenant.getByRole('link', { name: 'Download PDF' })
+  await expect(download).toHaveAttribute('href', `/sign/${id}/pdf`)
+  const pdf = await tenant.request.get(`/sign/${id}/pdf`)
+  expect(pdf.status()).toBe(200)
+  expect(pdf.headers()['content-type']).toBe('application/pdf')
+  expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-')
   await tenantContext.close()
 })
