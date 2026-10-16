@@ -29,7 +29,9 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
 
   Future<void> _refresh() async {
     final next = _api.maintenanceCase(widget.caseId);
-    setState(() => _future = next);
+    setState(() {
+      _future = next;
+    });
     await next;
   }
 

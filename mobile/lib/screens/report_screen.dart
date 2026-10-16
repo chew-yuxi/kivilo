@@ -28,7 +28,9 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _refresh() async {
     final next = _api.report(widget.id);
-    setState(() => _future = next);
+    setState(() {
+      _future = next;
+    });
     await next;
   }
 

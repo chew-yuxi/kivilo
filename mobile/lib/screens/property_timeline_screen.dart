@@ -27,7 +27,9 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
 
   Future<void> _refresh() async {
     final next = _api.propertyTimeline(widget.propertyId);
-    setState(() => _future = next);
+    setState(() {
+      _future = next;
+    });
     await next;
   }
 

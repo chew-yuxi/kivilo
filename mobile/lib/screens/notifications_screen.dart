@@ -24,7 +24,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     await Navigator.of(context).push(MaterialPageRoute<void>(
       builder: (_) => MaintenanceCaseScreen(caseId: caseId),
     ));
-    if (mounted) setState(() => _future = _api.notifications());
+    if (!mounted) return;
+    setState(() {
+      _future = _api.notifications();
+    });
   }
 
   @override

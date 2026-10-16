@@ -20,7 +20,9 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
 
   Future<void> _refresh() async {
     final next = _api.inspections();
-    setState(() => _future = next);
+    setState(() {
+      _future = next;
+    });
     await next;
   }
 

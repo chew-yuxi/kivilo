@@ -1,11 +1,9 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { supabaseBrowser } from '@/lib/supabase/client'
 
 export function SignOut({ email }: { email: string | null }) {
-  const router = useRouter()
   const [busy, setBusy] = useState(false)
 
   return (
@@ -17,8 +15,9 @@ export function SignOut({ email }: { email: string | null }) {
         onClick={async () => {
           setBusy(true)
           await supabaseBrowser().auth.signOut()
-          router.replace('/login')
-          router.refresh()
+          // A full load, as sign-in does: the client router still holds signed-in pages,
+          // and Back would show them from that cache.
+          window.location.replace('/login')
         }}
         className="text-xs text-gray-500 hover:text-gray-900 disabled:opacity-50"
       >
