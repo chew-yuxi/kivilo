@@ -5,6 +5,12 @@ import { downloadCapture } from '@/lib/storage'
 import { sendSignatureRequest, sendSignedCopy } from '@/lib/email'
 import { MAX_ATTEMPTS } from '@/lib/report-email'
 
+/// Resend refuses a message over 40 MB, counted after base64, which grows a file by a
+/// third: an attachment of 30 MB already reaches 40 MB before the body and headers. 25 MB
+/// encodes to about 33 MB, leaving room for those. A PDF past it is linked instead of
+/// attached, rather than failing every retry until the row is given up on.
+export const MAX_ATTACHMENT_BYTES = 25_000_000
+
 /// The origin signing links point at. A cron run has no request worth trusting for it.
 function appUrl() {
   const url = process.env.KIVILO_APP_URL
@@ -39,13 +45,15 @@ export async function deliverReportEmails(limit = 20) {
     take: limit,
   })
 
-  // Three recipients share one report, so it is fetched once per run.
-  const pdfs = new Map<string, Promise<{ filename: string; content: Buffer }>>()
+  // Three recipients share one report, so it is fetched once per run. Null when it is
+  // too large to attach.
+  const pdfs = new Map<string, Promise<{ filename: string; content: Buffer } | null>>()
   const pdfFor = (inspectionId: string) => {
     if (!pdfs.has(inspectionId)) {
       pdfs.set(inspectionId, storedReportPdf(inspectionId).then(async (stored) => {
         if (!stored) throw new Error('Report is not countersigned')
-        return { filename: stored.filename, content: Buffer.from(await downloadCapture(stored.path)) }
+        const content = Buffer.from(await downloadCapture(stored.path))
+        return content.byteLength > MAX_ATTACHMENT_BYTES ? null : { filename: stored.filename, content }
       }))
     }
     return pdfs.get(inspectionId)!
@@ -87,6 +95,11 @@ export async function deliverReportEmails(limit = 20) {
           link: link.toString(),
         })
       } else {
+        // Too large to attach: a link to where the recipient can download it once signed
+        // in, which for a party is the signing page and for the agent the inspection.
+        const party = recipient.id === tenancy.landlordId || recipient.id === tenancy.tenantId
+        const link = new URL(party ? `/sign/${inspection.id}` : `/inspections/${inspection.id}`, appUrl())
+        link.searchParams.set('email', to)
         await sendSignedCopy(to, {
           id: row.id,
           recipientName: recipient.name,
@@ -97,7 +110,7 @@ export async function deliverReportEmails(limit = 20) {
             role: signature.stakeholderId === tenancy.landlordId ? 'Landlord' : 'Tenant',
             signedAt: signature.signedAt,
           })),
-        }, await pdfFor(inspection.id))
+        }, (await pdfFor(inspection.id)) ?? { link: link.toString() })
       }
       await db.reportEmail.update({
         where: { id: row.id },
