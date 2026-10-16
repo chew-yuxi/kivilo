@@ -218,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
-              Icons.workspace_premium_outlined,
+              Icons.verified_outlined,
               color: KiviloColors.pinkDark,
             ),
           ),
