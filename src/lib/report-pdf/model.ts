@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { propertyLabel } from '@/lib/format'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
+import { addendumView, publishedAddenda } from '@/lib/addenda'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
 export const RENDER_VERSION = 3
@@ -29,6 +30,7 @@ const reportInclude = {
   },
   signatures: { include: { stakeholder: true }, orderBy: { signedAt: 'asc' } },
   assessments: { orderBy: { version: 'desc' }, take: 1 },
+  addenda: publishedAddenda,
 } satisfies Prisma.InspectionInclude
 
 export type ReportRow = Prisma.InspectionGetPayload<{ include: typeof reportInclude }>
@@ -173,6 +175,9 @@ export function buildReportModel(row: ReportRow) {
       contentHash: signature.contentHash,
     })),
     assessment,
+    /// Updates since signing, oldest first, each with both parties' acknowledgement. An
+    /// acknowledgement changes the cache key, so the copy redraws when one arrives.
+    addenda: row.addenda.map((addendum) => addendumView(addendum, tenancy)),
   }
 }
 

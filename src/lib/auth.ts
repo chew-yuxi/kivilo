@@ -242,6 +242,48 @@ export async function signingRole(inspectionId: string, stakeholderId: string) {
   return inspection.tenancy.landlordId === stakeholderId ? 'LANDLORD' as const : 'TENANT' as const
 }
 
+/// An addendum the agent may write and publish: one on an inspection `inspectionScope`
+/// admits, so the deal's agent, a teammate, or the conductor. Never a landlord or tenant.
+export async function authorizeAddendum(addendumId: string, agentId: string) {
+  const addendum = await db.reportAddendum.findFirst({
+    where: { id: addendumId, inspection: inspectionScope(agentId) },
+    select: { id: true, inspectionId: true, publishedAt: true },
+  })
+  if (!addendum) throw new Error('Addendum not found')
+  return addendum
+}
+
+/// A published addendum, read by anyone who may read its report once it is signed: the
+/// agents `inspectionScope` admits, and the tenancy's landlord and tenant. A draft is
+/// the agent's working copy and is outside this scope for everyone.
+export function addendumReadScope(stakeholderId: string): Prisma.ReportAddendumWhereInput {
+  return {
+    publishedAt: { not: null },
+    inspection: {
+      OR: [
+        inspectionScope(stakeholderId),
+        { tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] } },
+      ],
+    },
+  }
+}
+
+/// The landlord or tenant acknowledges a published addendum to their own tenancy's
+/// report, as themselves. Like `authorizeOwnSignature`, the party is the signed-in
+/// person, never an id from the request, and an agent is not a party.
+export async function authorizeOwnAcknowledgement(addendumId: string, stakeholderId: string) {
+  const addendum = await db.reportAddendum.findFirst({
+    where: {
+      id: addendumId,
+      publishedAt: { not: null },
+      inspection: { tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] } },
+    },
+    select: { id: true, inspectionId: true },
+  })
+  if (!addendum) throw new Error('Addendum not found')
+  return addendum
+}
+
 /// Resolves a room to its inspection and authorizes that, so a room id from the client
 /// cannot reach across into another agent's deal.
 export async function authorizeRoom(roomId: string, agentId: string) {

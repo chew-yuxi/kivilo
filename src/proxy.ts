@@ -45,9 +45,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  /// The inspector-facing app, and the signing page a landlord or tenant reaches from
-  /// their email, which needs the same session refresh and the same redirect when
-  /// signed out. Shared reports are deliberately outside it: the token in the URL is the
-  /// credential, and a landlord has no account.
-  matcher: ['/inspections/:path*', '/account', '/sign/:path*'],
+  /// The inspector-facing app, and the pages a landlord or tenant reaches from an email:
+  /// signing a report and acknowledging an update to it. Those need the same session
+  /// refresh and the same redirect when signed out. Shared reports are deliberately
+  /// outside it: the token in the URL is the credential there.
+  matcher: ['/inspections/:path*', '/account', '/sign/:path*', '/updates/:path*'],
 }

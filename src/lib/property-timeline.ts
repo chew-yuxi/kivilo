@@ -13,6 +13,11 @@ const timelineInclude = {
       kind: true,
       signatures: { select: { signedAt: true } },
       assessments: { select: { version: true, publishedAt: true } },
+      // Only once both parties have acknowledged it is an update a settled fact.
+      addenda: {
+        where: { acknowledgedAt: { not: null } },
+        select: { id: true, number: true, title: true, acknowledgedAt: true },
+      },
     },
   },
   maintenanceCases: {
@@ -48,7 +53,7 @@ export type TimelineEvent = {
   at: string
   kind:
     | 'TENANCY_STARTED' | 'TENANCY_ENDED'
-    | 'CHECK_IN_SIGNED' | 'CHECK_OUT_SIGNED' | 'ASSESSMENT_PUBLISHED'
+    | 'CHECK_IN_SIGNED' | 'CHECK_OUT_SIGNED' | 'ASSESSMENT_PUBLISHED' | 'REPORT_UPDATED'
     | 'PROBLEM_REPORTED' | 'REPAIRED' | 'CONFIRMED_FIXED' | 'NOT_FIXED'
     | 'COST_AGREED' | 'CLOSED_WITHOUT_REPAIR'
   title: string
@@ -109,6 +114,13 @@ export function timelineEvents(
             ? 'Check-out assessment published'
             : `Check-out assessment version ${assessment.version} published`,
           detail: null, tenancyId, link, reportId: inspection.id,
+        })
+      }
+      for (const addendum of inspection.addenda) {
+        add({
+          id: `${addendum.id}:acknowledged`, at: addendum.acknowledgedAt!, kind: 'REPORT_UPDATED',
+          title: `Check-in report updated: ${addendum.title}`,
+          detail: `Update ${addendum.number}, acknowledged by both parties`, tenancyId, link, reportId: inspection.id,
         })
       }
     }

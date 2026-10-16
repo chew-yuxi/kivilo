@@ -34,6 +34,26 @@ class _ReportScreenState extends State<ReportScreen> {
     await next;
   }
 
+  String? _acknowledging;
+
+  /// "I acknowledge this update", as whoever is signed in. The server decides which
+  /// party that is; a failure leaves the button for another try.
+  Future<void> _acknowledge(ReportAddendum addendum) async {
+    setState(() => _acknowledging = addendum.id);
+    try {
+      await _api.acknowledgeAddendum(addendum.id);
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    } finally {
+      if (mounted) setState(() => _acknowledging = null);
+    }
+  }
+
   Future<void> _sign(SignedReport report) async {
     final landlord = report.signAs == 'LANDLORD';
     final signed = await Navigator.of(context).push<bool>(
@@ -188,6 +208,19 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
           ),
         ),
+        if (report.addenda.isNotEmpty) ...[
+          const SizedBox(height: 28),
+          const KiviloSectionHeading(
+            title: 'Updates since signing',
+            subtitle:
+                'Recorded beside the signed report, which they do not change. '
+                'Each counts once the landlord and tenant have both acknowledged it.',
+          ),
+          for (final addendum in report.addenda) ...[
+            const SizedBox(height: 10),
+            _addendum(addendum),
+          ],
+        ],
         if (report.isCheckOut && report.assessment != null) ...[
           const SizedBox(height: 28),
           _assessment(report, report.assessment!),
@@ -396,6 +429,149 @@ class _ReportScreenState extends State<ReportScreen> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
+    );
+  }
+
+  Widget _addendum(ReportAddendum addendum) {
+    final text = Theme.of(context).textTheme;
+    final pending = addendum.acknowledgedAt == null;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: KiviloColors.amberSoft,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Updated ${shortDate(addendum.effectiveDate)} · Update ${addendum.number}'
+                '${pending ? ' · Pending acknowledgement' : ''}',
+                style: const TextStyle(
+                  color: KiviloColors.amber,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(addendum.title, style: text.titleMedium),
+            if (addendum.reason != null) ...[
+              const SizedBox(height: 4),
+              Text(addendum.reason!, style: text.bodyMedium),
+            ],
+            const SizedBox(height: 4),
+            Text(
+              'Published by ${addendum.publishedBy}, ${shortDate(addendum.publishedAt)}',
+              style: text.bodySmall?.copyWith(color: KiviloColors.muted),
+            ),
+            for (final entry in addendum.entries) ...[
+              const Divider(height: 24),
+              Text(entry.heading, style: text.titleSmall),
+              Text(
+                entry.roomName,
+                style: text.bodySmall?.copyWith(color: KiviloColors.muted),
+              ),
+              if (entry.change == 'REPLACED' && entry.targetIdentifier != null)
+                Text(
+                  'Was: ${entry.targetIdentifier}',
+                  style: text.bodySmall?.copyWith(fontFamily: 'monospace'),
+                ),
+              if (entry.identifier != null)
+                Text(
+                  entry.identifier!,
+                  style: text.bodySmall?.copyWith(fontFamily: 'monospace'),
+                ),
+              if (entry.condition != null)
+                Text(_titleCase(entry.condition!), style: text.labelMedium),
+              if (entry.notes != null) ...[
+                const SizedBox(height: 4),
+                Text(entry.notes!, style: text.bodyMedium),
+              ],
+              if (entry.maintenanceTitle != null)
+                Text(
+                  'From the repair record: ${entry.maintenanceTitle}',
+                  style: text.bodySmall,
+                ),
+              if (entry.photos.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final photo in entry.photos)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              photo.url,
+                              width: 96,
+                              height: 96,
+                              fit: BoxFit.cover,
+                              semanticLabel: photo.note ?? entry.heading,
+                              errorBuilder: (_, _, _) => const SizedBox(
+                                width: 96,
+                                height: 96,
+                                child: ColoredBox(color: KiviloColors.canvas),
+                              ),
+                            ),
+                          ),
+                          if (photo.label != null)
+                            Text(photo.label!, style: text.bodySmall),
+                        ],
+                      ),
+                  ],
+                ),
+              ],
+            ],
+            const Divider(height: 24),
+            for (final ack in addendum.acknowledgements)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      ack.acknowledgedAt == null
+                          ? Icons.schedule_rounded
+                          : Icons.check_circle_outline,
+                      size: 16,
+                      color: ack.acknowledgedAt == null
+                          ? KiviloColors.amber
+                          : KiviloColors.green,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        ack.acknowledgedAt == null
+                            ? '${ack.role} ${ack.name}: pending acknowledgement'
+                            : '${ack.role} ${ack.name}: acknowledged ${shortDate(ack.acknowledgedAt!)}',
+                        style: text.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (addendum.acknowledgeAs != null) ...[
+              const SizedBox(height: 8),
+              FilledButton(
+                onPressed: _acknowledging == null
+                    ? () => _acknowledge(addendum)
+                    : null,
+                child: Text(
+                  _acknowledging == addendum.id
+                      ? 'Recording…'
+                      : 'I acknowledge this update',
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 

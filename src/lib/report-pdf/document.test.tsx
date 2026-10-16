@@ -57,6 +57,7 @@ function model(rooms: ReportRoom[]): ReportModel {
     noted: rooms.map((each) => ({ room: each, entries: notedEntries(each) })).filter(({ entries }) => entries.length > 0),
     signatures: [],
     assessment: null,
+    addenda: [],
   }
 }
 
@@ -67,7 +68,7 @@ async function render(report: ReportModel) {
     photos: new Map(report.rooms.flatMap((each) => each.photos.map((p) => [p.storagePath, bitmap]))),
     logo: null,
     signatures: [],
-    evidence: new Map(),
+    evidence: new Map(report.addenda.flatMap((each) => each.entries.flatMap((entry) => entry.photos.map((p) => [p.storagePath, bitmap])))),
   }
   return pdfPageTexts(await renderToBuffer(<ReportDocument model={report} assets={assets} />))
 }
@@ -142,5 +143,53 @@ describe('report PDF', () => {
 
     expect(text).toContain('Content fingerprint AB12 CD34 EF56 7890')
     expect(text.match(/Content fingerprint/g)).toHaveLength(1)
+  })
+
+  it('draws each update after the signatures with its date, and says who has not acknowledged it', async () => {
+    const report = model([room(1, 'Kitchen', 1)])
+    report.addenda = [{
+      id: 'addendum-1',
+      schemaVersion: 1,
+      number: 1,
+      title: 'New dishwasher',
+      reason: 'The old one failed',
+      // 16:30 UTC is half past midnight the next day in Singapore.
+      effectiveDate: '2025-09-10T16:30:00.000Z',
+      publishedAt: '2025-09-11T02:00:00.000Z',
+      publishedBy: 'Alaric Yeo',
+      contentHash: 'hash',
+      acknowledgedAt: null,
+      acknowledgements: [
+        { role: 'Landlord', name: 'Tan Wei Ming', acknowledgedAt: '2025-09-11T03:00:00.000Z' },
+        { role: 'Tenant', name: 'Priya Raman', acknowledgedAt: null },
+      ],
+      entries: [{
+        id: 'entry-1',
+        change: 'REPLACED',
+        roomName: 'Kitchen',
+        notes: 'Installed by the landlord',
+        target: { key: 'item:old', name: 'Dishwasher', condition: 'POOR', quantity: 1, identifier: 'Bosch SMS2', notes: null },
+        line: {
+          key: 'entry:entry-1', name: 'Dishwasher', category: 'APPLIANCE', condition: 'NEW', quantity: 1,
+          identifier: 'Miele G7100 SN 123', notes: 'Installed by the landlord', propertyAssetId: null,
+        },
+        maintenanceCase: null,
+        photos: [{ id: 'photo-1', storagePath: 'addenda/addendum-1/a.jpg', mimeType: 'image/jpeg', note: 'Rating plate', label: null }],
+      }],
+    }]
+
+    const pages = await render(report)
+    const update = pages.at(-1)!
+
+    expect(pages[0]).toContain('Updated 11 September 2025')
+    expect(update).toContain('Updated 11 September 2025')
+    expect(update).toContain('Replaced: Dishwasher with Dishwasher')
+    expect(update).toContain('Miele G7100 SN 123')
+    expect(update).toContain('Rating plate')
+    expect(update).toContain('Pending acknowledgement')
+    expect(update).toContain('Landlord, acknowledged')
+    expect(update).toContain('Tenant, pending acknowledgement')
+    expect(update).toContain(`Page ${pages.length} of ${pages.length}`)
+    expect(pages.findIndex((text) => text.includes('Agreement') && text.includes('signed by the'))).toBeLessThan(pages.length - 1)
   })
 })

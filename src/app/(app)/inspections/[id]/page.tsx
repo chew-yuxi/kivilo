@@ -14,6 +14,9 @@ import { CompleteReviewButton } from '@/components/complete-review-button'
 import { ShareReport } from '@/components/share-report'
 import { SigningEmail } from '@/components/signing-email'
 import { signingParties } from '@/lib/report-email'
+import { AddendaPanel, type DraftRow, type PublishedRow } from '@/components/addenda-panel'
+import { addendumView, currentState } from '@/lib/addenda'
+import { createDownloadUrl } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
 
@@ -114,6 +117,61 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     return standing && standing !== 'AGREED' ? [{ ...item, standing }] : []
   })
 
+  // Updates since signing, on a countersigned check-in only.
+  const signedCheckIn = status === 'COMPLETED' && kind === 'CHECK_IN'
+  const addenda = signedCheckIn
+    ? await db.reportAddendum.findMany({
+        where: { inspectionId: id },
+        orderBy: [{ number: 'asc' }, { createdAt: 'asc' }],
+        include: {
+          acknowledgements: true,
+          entries: {
+            orderBy: { createdAt: 'asc' },
+            include: { photos: { orderBy: { createdAt: 'asc' } }, maintenanceCase: { select: { title: true } } },
+          },
+        },
+      })
+    : []
+  const published: PublishedRow[] = addenda
+    .filter((row) => row.publishedAt)
+    .map((row) => {
+      const view = addendumView(row, tenancy)
+      return { id: row.id, number: view.number, title: view.title, effectiveDate: view.effectiveDate, acknowledgements: view.acknowledgements }
+    })
+  const draftRow = addenda.find((row) => !row.publishedAt)
+  const draft: DraftRow | null = draftRow
+    ? {
+        id: draftRow.id,
+        title: draftRow.title,
+        reason: draftRow.reason,
+        effectiveDate: draftRow.effectiveDate.toISOString().slice(0, 10),
+        entries: await Promise.all(draftRow.entries.map(async (entry) => ({
+          id: entry.id,
+          change: entry.change,
+          roomName: entry.roomName,
+          targetKey: entry.targetKey,
+          name: entry.name,
+          category: entry.category,
+          condition: entry.condition,
+          quantity: entry.quantity,
+          identifier: entry.identifier,
+          notes: entry.notes,
+          maintenanceCaseTitle: entry.maintenanceCase?.title ?? null,
+          photos: await Promise.all(entry.photos.map(async (photo) => ({
+            id: photo.id,
+            url: await createDownloadUrl(photo.storagePath),
+            note: photo.note,
+            label: photo.label,
+          }))),
+        }))),
+      }
+    : null
+  const state = signedCheckIn ? await currentState(id, { acknowledgedOnly: false }) : []
+  const addedFromCases = new Set(addenda.flatMap((row) => row.entries.map((entry) => entry.maintenanceCaseId)))
+  const resolvedCases = maintenanceCases
+    .filter((item) => item.status === 'RESOLVED' && !addedFromCases.has(item.id))
+    .map((item) => ({ id: item.id, title: item.title }))
+
   return (
     <div className="space-y-8">
       <div>
@@ -210,6 +268,20 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           <ShareReport inspectionId={id} shareToken={inspection.shareToken} />
           <DownloadPdf inspectionId={id} />
         </>
+      )}
+
+      {signedCheckIn && (
+        <AddendaPanel
+          inspectionId={id}
+          published={published}
+          draft={draft}
+          rooms={state.map((room) => room.name)}
+          targets={state.flatMap((room) => room.lines.map((line) => ({
+            key: line.key,
+            label: `${room.name} · ${line.name}${line.identifier ? ` (${line.identifier})` : ''}`,
+          })))}
+          resolvedCases={resolvedCases}
+        />
       )}
 
       {status === 'COMPLETED' && kind === 'CHECK_IN' && (

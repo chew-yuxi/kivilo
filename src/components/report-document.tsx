@@ -5,6 +5,8 @@ import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { shortFingerprint } from '@/lib/report-fingerprint'
 import type { reportInclude } from '@/lib/report'
+import { addendumView } from '@/lib/addenda'
+import { AddendumSection } from '@/components/addendum-section'
 import type { Prisma } from '@/generated/prisma'
 
 const VERDICT_LABEL = {
@@ -264,6 +266,19 @@ export async function ReportDocument({
           )}
         </div>
       </section>
+
+      {inspection.addenda.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Updates since signing
+          </h2>
+          <div className="mt-4 space-y-8">
+            {inspection.addenda.map((row) => (
+              <AddendumSection key={row.id} addendum={addendumView(row, tenancy)} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {isCheckOut && assessment && published && (
         <section className="mt-10 break-inside-avoid border-t border-gray-300 pt-6">

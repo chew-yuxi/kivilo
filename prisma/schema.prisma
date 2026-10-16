@@ -54,6 +54,9 @@ model Stakeholder {
   branding AgentBranding?
   errorEvents ErrorEvent[]
   reportEmails ReportEmail[]
+  addendaCreated   ReportAddendum[] @relation("AddendumCreator")
+  addendaPublished ReportAddendum[] @relation("AddendumPublisher")
+  addendumAcknowledgements AddendumAcknowledgement[]
   /// The plan of an agent who is on no team. An agent on a team uses the team's.
   subscription         Subscription?  @relation("OwnSubscription")
   subscriptionsManaged Subscription[] @relation("ManagedSubscriptions")
@@ -232,6 +235,7 @@ model Inspection {
   signatures Signature[]
   assessments AssessmentVersion[]
   reportEmails ReportEmail[]
+  addenda     ReportAddendum[]
 
   @@index([tenancyId, kind])
 }
@@ -410,6 +414,7 @@ model PropertyAsset {
   property        Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   inspectionItems InspectionItem[]
   maintenanceCases MaintenanceCase[]
+  addendumEntries ReportAddendumEntry[]
 
   @@index([propertyId, active])
   @@index([propertyId, identifier])
@@ -466,6 +471,7 @@ model MaintenanceCase {
   evidence      MaintenanceEvidence[]
   findings      Finding[]
   responsibilityProposals ResponsibilityProposal[]
+  addendumEntries ReportAddendumEntry[]
 
   @@index([tenancyId, status, createdAt])
   @@index([propertyAssetId, createdAt])
@@ -649,6 +655,8 @@ enum NotificationKind {
   MAINTENANCE_VERIFICATION
   MAINTENANCE_RESPONSIBILITY
   REPEAT_REPAIR
+  /// An addendum to a signed report was published and waits for this party.
+  REPORT_UPDATED
 }
 
 enum DevicePlatform {
@@ -822,6 +830,112 @@ model AssessmentVersion {
 
   @@unique([inspectionId, version])
   @@index([inspectionId, publishedAt])
+}
+
+/// A dated update to a COMPLETED check-in, after it was signed: an appliance replaced, a
+/// fixture removed. Never an edit to the signed rows; see plans/report-addenda.md.
+/// A draft has no number and is the agent's working copy, entries and photos included.
+/// Publishing numbers it, writes `snapshot` and `contentHash`, and freezes it. It counts
+/// (check-out baseline, timeline) only from `acknowledgedAt`, when both the landlord and
+/// the tenant have acknowledged it.
+model ReportAddendum {
+  id             String    @id @default(cuid())
+  inspectionId   String
+  number         Int?
+  title          String
+  reason         String?
+  /// The day the change happened, which is what the "Updated" banner shows.
+  effectiveDate  DateTime
+  createdById    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  publishedAt    DateTime?
+  publishedById  String?
+  /// Everything the report draws, by value. Shape in src/lib/addenda.ts.
+  snapshot       Json?
+  contentHash    String?
+  acknowledgedAt DateTime?
+
+  inspection       Inspection                @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  createdBy        Stakeholder               @relation("AddendumCreator", fields: [createdById], references: [id])
+  publishedBy      Stakeholder?              @relation("AddendumPublisher", fields: [publishedById], references: [id])
+  entries          ReportAddendumEntry[]
+  acknowledgements AddendumAcknowledgement[]
+
+  @@unique([inspectionId, number])
+  @@index([inspectionId, createdAt])
+}
+
+enum AddendumChange {
+  ADDED
+  REPLACED
+  REMOVED
+}
+
+/// One line of an addendum while it is drafted. Rendering reads the snapshot, never this.
+model ReportAddendumEntry {
+  id         String         @id @default(cuid())
+  addendumId String
+  change     AddendumChange
+  roomName   String
+  /// The line a REPLACED or REMOVED entry changes: `item:<InspectionItem id>` for a signed
+  /// check-in item, `entry:<entry id>` for a line an earlier addendum added.
+  targetKey  String?
+  /// The new line, for ADDED and REPLACED.
+  name       String?
+  category   ItemCategory?
+  condition  ItemCondition?
+  quantity   Int            @default(1)
+  identifier String?
+  notes      String?
+  /// The resolved repair this entry was started from.
+  maintenanceCaseId String?
+  /// The asset publishing created for this line, so a check-out copies the link.
+  propertyAssetId   String?
+  createdAt  DateTime       @default(now())
+
+  addendum        ReportAddendum        @relation(fields: [addendumId], references: [id], onDelete: Cascade)
+  maintenanceCase MaintenanceCase?      @relation(fields: [maintenanceCaseId], references: [id], onDelete: SetNull)
+  propertyAsset   PropertyAsset?        @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
+  photos          ReportAddendumPhoto[]
+
+  @@index([addendumId, createdAt])
+}
+
+/// A photo for an entry: uploaded under `addenda/<addendumId>/`, or the same object as a
+/// maintenance case's evidence, referenced rather than copied.
+model ReportAddendumPhoto {
+  id          String   @id @default(cuid())
+  entryId     String
+  storagePath String
+  mimeType    String
+  sizeBytes   Int?
+  note        String?
+  /// "Before" or "After" for a repair's evidence.
+  label       String?
+  /// Provenance only, so the same evidence is not attached twice.
+  maintenanceEvidenceId String?
+  createdAt   DateTime @default(now())
+
+  entry ReportAddendumEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId, createdAt])
+}
+
+/// A landlord or tenant saying "I acknowledge this update", as themselves, against the
+/// exact content they were shown.
+model AddendumAcknowledgement {
+  id             String   @id @default(cuid())
+  addendumId     String
+  stakeholderId  String
+  acknowledgedAt DateTime @default(now())
+  ipAddress      String?
+  contentHash    String
+
+  addendum    ReportAddendum @relation(fields: [addendumId], references: [id], onDelete: Cascade)
+  stakeholder Stakeholder    @relation(fields: [stakeholderId], references: [id])
+
+  @@unique([addendumId, stakeholderId])
 }
 
 enum DeletionRequestStatus {

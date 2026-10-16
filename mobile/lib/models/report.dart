@@ -18,6 +18,7 @@ class SignedReport {
     required this.rooms,
     required this.signatures,
     this.assessment,
+    this.addenda = const [],
   });
 
   final String id;
@@ -40,6 +41,9 @@ class SignedReport {
   final List<ReportRoom> rooms;
   final List<ReportSignature> signatures;
   final ReportAssessment? assessment;
+
+  /// Updates since signing, oldest first. Each counts once both parties acknowledge it.
+  final List<ReportAddendum> addenda;
 
   bool get isCheckOut => kind == 'CHECK_OUT';
 
@@ -71,6 +75,10 @@ class SignedReport {
     assessment: json['assessment'] == null
         ? null
         : ReportAssessment.fromJson(json['assessment'] as Map<String, dynamic>),
+    // Absent from a report cached before updates existed.
+    addenda: ((json['addenda'] as List<dynamic>?) ?? const [])
+        .map((a) => ReportAddendum.fromJson(a as Map<String, dynamic>))
+        .toList(),
   );
 }
 
@@ -228,4 +236,163 @@ class ReportFinding {
         .map((e) => e['url'] as String)
         .toList(),
   );
+}
+
+/// A published update to a signed report: a dated, numbered record beside it, never an
+/// edit to it.
+class ReportAddendum {
+  const ReportAddendum({
+    required this.id,
+    required this.number,
+    required this.title,
+    this.reason,
+    required this.effectiveDate,
+    required this.publishedAt,
+    required this.publishedBy,
+    required this.entries,
+    required this.acknowledgements,
+    this.acknowledgedAt,
+    this.acknowledgeAs,
+  });
+  final String id;
+  final int number;
+  final String title;
+  final String? reason;
+  final String effectiveDate;
+  final String publishedAt;
+  final String publishedBy;
+  final List<AddendumEntry> entries;
+  final List<AddendumAcknowledgement> acknowledgements;
+
+  /// When the second party acknowledged it; null while it is pending.
+  final String? acknowledgedAt;
+
+  /// `LANDLORD` or `TENANT` while this viewer still has to acknowledge it.
+  final String? acknowledgeAs;
+
+  factory ReportAddendum.fromJson(Map<String, dynamic> json) => ReportAddendum(
+    id: json['id'] as String,
+    number: json['number'] as int,
+    title: json['title'] as String,
+    reason: json['reason'] as String?,
+    effectiveDate: json['effectiveDate'] as String,
+    publishedAt: json['publishedAt'] as String,
+    publishedBy: json['publishedBy'] as String,
+    entries: (json['entries'] as List<dynamic>)
+        .map((e) => AddendumEntry.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    acknowledgements: (json['acknowledgements'] as List<dynamic>)
+        .map((a) => AddendumAcknowledgement.fromJson(a as Map<String, dynamic>))
+        .toList(),
+    acknowledgedAt: json['acknowledgedAt'] as String?,
+    acknowledgeAs: json['acknowledgeAs'] as String?,
+  );
+}
+
+class AddendumEntry {
+  const AddendumEntry({
+    required this.id,
+    required this.change,
+    required this.roomName,
+    this.notes,
+    this.targetName,
+    this.targetIdentifier,
+    this.name,
+    this.condition,
+    this.quantity = 1,
+    this.identifier,
+    this.maintenanceTitle,
+    required this.photos,
+  });
+  final String id;
+
+  /// `ADDED`, `REPLACED` or `REMOVED`.
+  final String change;
+  final String roomName;
+  final String? notes;
+
+  /// The line as it stood, for a replacement or removal.
+  final String? targetName;
+  final String? targetIdentifier;
+
+  /// The new line, for an addition or replacement.
+  final String? name;
+  final String? condition;
+  final int quantity;
+  final String? identifier;
+  final String? maintenanceTitle;
+  final List<AddendumPhoto> photos;
+
+  String get heading => switch (change) {
+    'ADDED' => 'Added: ${name ?? 'item'}',
+    'REMOVED' => 'Removed: ${targetName ?? 'item'}',
+    _ => 'Replaced: ${targetName ?? 'item'} with ${name ?? 'item'}',
+  };
+
+  factory AddendumEntry.fromJson(Map<String, dynamic> json) {
+    final target = json['target'] as Map<String, dynamic>?;
+    final line = json['line'] as Map<String, dynamic>?;
+    final maintenance = json['maintenanceCase'] as Map<String, dynamic>?;
+    return AddendumEntry(
+      id: json['id'] as String,
+      change: json['change'] as String,
+      roomName: json['roomName'] as String,
+      notes: json['notes'] as String?,
+      targetName: target?['name'] as String?,
+      targetIdentifier: target?['identifier'] as String?,
+      name: line?['name'] as String?,
+      condition: line?['condition'] as String?,
+      quantity: (line?['quantity'] as int?) ?? 1,
+      identifier: line?['identifier'] as String?,
+      maintenanceTitle: maintenance?['title'] as String?,
+      photos: (json['photos'] as List<dynamic>)
+          .map((p) => AddendumPhoto.fromJson(p as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class AddendumPhoto {
+  const AddendumPhoto({
+    required this.id,
+    required this.url,
+    required this.mimeType,
+    this.note,
+    this.label,
+  });
+  final String id;
+  final String url;
+  final String mimeType;
+  final String? note;
+
+  /// "Before" or "After" for a repair's evidence.
+  final String? label;
+
+  factory AddendumPhoto.fromJson(Map<String, dynamic> json) => AddendumPhoto(
+    id: json['id'] as String,
+    url: json['url'] as String,
+    mimeType: json['mimeType'] as String,
+    note: json['note'] as String?,
+    label: json['label'] as String?,
+  );
+}
+
+class AddendumAcknowledgement {
+  const AddendumAcknowledgement({
+    required this.role,
+    required this.name,
+    this.acknowledgedAt,
+  });
+
+  /// `Landlord` or `Tenant`.
+  final String role;
+  final String name;
+  final String? acknowledgedAt;
+
+  factory AddendumAcknowledgement.fromJson(Map<String, dynamic> json) =>
+      AddendumAcknowledgement(
+        role: json['role'] as String,
+        name: json['name'] as String,
+        acknowledgedAt: json['acknowledgedAt'] as String?,
+      );
 }

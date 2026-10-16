@@ -163,6 +163,33 @@ export type ReportEmail = $Result.DefaultSelection<Prisma.$ReportEmailPayload>
  */
 export type AssessmentVersion = $Result.DefaultSelection<Prisma.$AssessmentVersionPayload>
 /**
+ * Model ReportAddendum
+ * A dated update to a COMPLETED check-in, after it was signed: an appliance replaced, a
+ * fixture removed. Never an edit to the signed rows; see plans/report-addenda.md.
+ * A draft has no number and is the agent's working copy, entries and photos included.
+ * Publishing numbers it, writes `snapshot` and `contentHash`, and freezes it. It counts
+ * (check-out baseline, timeline) only from `acknowledgedAt`, when both the landlord and
+ * the tenant have acknowledged it.
+ */
+export type ReportAddendum = $Result.DefaultSelection<Prisma.$ReportAddendumPayload>
+/**
+ * Model ReportAddendumEntry
+ * One line of an addendum while it is drafted. Rendering reads the snapshot, never this.
+ */
+export type ReportAddendumEntry = $Result.DefaultSelection<Prisma.$ReportAddendumEntryPayload>
+/**
+ * Model ReportAddendumPhoto
+ * A photo for an entry: uploaded under `addenda/<addendumId>/`, or the same object as a
+ * maintenance case's evidence, referenced rather than copied.
+ */
+export type ReportAddendumPhoto = $Result.DefaultSelection<Prisma.$ReportAddendumPhotoPayload>
+/**
+ * Model AddendumAcknowledgement
+ * A landlord or tenant saying "I acknowledge this update", as themselves, against the
+ * exact content they were shown.
+ */
+export type AddendumAcknowledgement = $Result.DefaultSelection<Prisma.$AddendumAcknowledgementPayload>
+/**
  * Model AccountDeletionRequest
  * In-app requests are fulfilled by an operator under the approved retention policy.
  */
@@ -416,7 +443,8 @@ export const NotificationKind: {
   MAINTENANCE_VISIT: 'MAINTENANCE_VISIT',
   MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
   MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
-  REPEAT_REPAIR: 'REPEAT_REPAIR'
+  REPEAT_REPAIR: 'REPEAT_REPAIR',
+  REPORT_UPDATED: 'REPORT_UPDATED'
 };
 
 export type NotificationKind = (typeof NotificationKind)[keyof typeof NotificationKind]
@@ -457,6 +485,15 @@ export const ReportEmailKind: {
 };
 
 export type ReportEmailKind = (typeof ReportEmailKind)[keyof typeof ReportEmailKind]
+
+
+export const AddendumChange: {
+  ADDED: 'ADDED',
+  REPLACED: 'REPLACED',
+  REMOVED: 'REMOVED'
+};
+
+export type AddendumChange = (typeof AddendumChange)[keyof typeof AddendumChange]
 
 
 export const DeletionRequestStatus: {
@@ -582,6 +619,10 @@ export const Verdict: typeof $Enums.Verdict
 export type ReportEmailKind = $Enums.ReportEmailKind
 
 export const ReportEmailKind: typeof $Enums.ReportEmailKind
+
+export type AddendumChange = $Enums.AddendumChange
+
+export const AddendumChange: typeof $Enums.AddendumChange
 
 export type DeletionRequestStatus = $Enums.DeletionRequestStatus
 
@@ -971,6 +1012,46 @@ export class PrismaClient<
     * ```
     */
   get assessmentVersion(): Prisma.AssessmentVersionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reportAddendum`: Exposes CRUD operations for the **ReportAddendum** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReportAddenda
+    * const reportAddenda = await prisma.reportAddendum.findMany()
+    * ```
+    */
+  get reportAddendum(): Prisma.ReportAddendumDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reportAddendumEntry`: Exposes CRUD operations for the **ReportAddendumEntry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReportAddendumEntries
+    * const reportAddendumEntries = await prisma.reportAddendumEntry.findMany()
+    * ```
+    */
+  get reportAddendumEntry(): Prisma.ReportAddendumEntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reportAddendumPhoto`: Exposes CRUD operations for the **ReportAddendumPhoto** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReportAddendumPhotos
+    * const reportAddendumPhotos = await prisma.reportAddendumPhoto.findMany()
+    * ```
+    */
+  get reportAddendumPhoto(): Prisma.ReportAddendumPhotoDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.addendumAcknowledgement`: Exposes CRUD operations for the **AddendumAcknowledgement** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AddendumAcknowledgements
+    * const addendumAcknowledgements = await prisma.addendumAcknowledgement.findMany()
+    * ```
+    */
+  get addendumAcknowledgement(): Prisma.AddendumAcknowledgementDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.accountDeletionRequest`: Exposes CRUD operations for the **AccountDeletionRequest** model.
@@ -1484,6 +1565,10 @@ export namespace Prisma {
     Signature: 'Signature',
     ReportEmail: 'ReportEmail',
     AssessmentVersion: 'AssessmentVersion',
+    ReportAddendum: 'ReportAddendum',
+    ReportAddendumEntry: 'ReportAddendumEntry',
+    ReportAddendumPhoto: 'ReportAddendumPhoto',
+    AddendumAcknowledgement: 'AddendumAcknowledgement',
     AccountDeletionRequest: 'AccountDeletionRequest',
     AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
     StoragePurge: 'StoragePurge',
@@ -1503,7 +1588,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent"
+      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3431,6 +3516,302 @@ export namespace Prisma {
           }
         }
       }
+      ReportAddendum: {
+        payload: Prisma.$ReportAddendumPayload<ExtArgs>
+        fields: Prisma.ReportAddendumFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReportAddendumFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReportAddendumFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>
+          }
+          findFirst: {
+            args: Prisma.ReportAddendumFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReportAddendumFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>
+          }
+          findMany: {
+            args: Prisma.ReportAddendumFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>[]
+          }
+          create: {
+            args: Prisma.ReportAddendumCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>
+          }
+          createMany: {
+            args: Prisma.ReportAddendumCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReportAddendumCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>[]
+          }
+          delete: {
+            args: Prisma.ReportAddendumDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>
+          }
+          update: {
+            args: Prisma.ReportAddendumUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReportAddendumDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReportAddendumUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReportAddendumUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReportAddendumUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPayload>
+          }
+          aggregate: {
+            args: Prisma.ReportAddendumAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReportAddendum>
+          }
+          groupBy: {
+            args: Prisma.ReportAddendumGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReportAddendumGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReportAddendumCountArgs<ExtArgs>
+            result: $Utils.Optional<ReportAddendumCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReportAddendumEntry: {
+        payload: Prisma.$ReportAddendumEntryPayload<ExtArgs>
+        fields: Prisma.ReportAddendumEntryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReportAddendumEntryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReportAddendumEntryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>
+          }
+          findFirst: {
+            args: Prisma.ReportAddendumEntryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReportAddendumEntryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>
+          }
+          findMany: {
+            args: Prisma.ReportAddendumEntryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>[]
+          }
+          create: {
+            args: Prisma.ReportAddendumEntryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>
+          }
+          createMany: {
+            args: Prisma.ReportAddendumEntryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReportAddendumEntryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>[]
+          }
+          delete: {
+            args: Prisma.ReportAddendumEntryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>
+          }
+          update: {
+            args: Prisma.ReportAddendumEntryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReportAddendumEntryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReportAddendumEntryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReportAddendumEntryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReportAddendumEntryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumEntryPayload>
+          }
+          aggregate: {
+            args: Prisma.ReportAddendumEntryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReportAddendumEntry>
+          }
+          groupBy: {
+            args: Prisma.ReportAddendumEntryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReportAddendumEntryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReportAddendumEntryCountArgs<ExtArgs>
+            result: $Utils.Optional<ReportAddendumEntryCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReportAddendumPhoto: {
+        payload: Prisma.$ReportAddendumPhotoPayload<ExtArgs>
+        fields: Prisma.ReportAddendumPhotoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReportAddendumPhotoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReportAddendumPhotoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>
+          }
+          findFirst: {
+            args: Prisma.ReportAddendumPhotoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReportAddendumPhotoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>
+          }
+          findMany: {
+            args: Prisma.ReportAddendumPhotoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>[]
+          }
+          create: {
+            args: Prisma.ReportAddendumPhotoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>
+          }
+          createMany: {
+            args: Prisma.ReportAddendumPhotoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReportAddendumPhotoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>[]
+          }
+          delete: {
+            args: Prisma.ReportAddendumPhotoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>
+          }
+          update: {
+            args: Prisma.ReportAddendumPhotoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReportAddendumPhotoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReportAddendumPhotoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReportAddendumPhotoUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReportAddendumPhotoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportAddendumPhotoPayload>
+          }
+          aggregate: {
+            args: Prisma.ReportAddendumPhotoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReportAddendumPhoto>
+          }
+          groupBy: {
+            args: Prisma.ReportAddendumPhotoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReportAddendumPhotoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReportAddendumPhotoCountArgs<ExtArgs>
+            result: $Utils.Optional<ReportAddendumPhotoCountAggregateOutputType> | number
+          }
+        }
+      }
+      AddendumAcknowledgement: {
+        payload: Prisma.$AddendumAcknowledgementPayload<ExtArgs>
+        fields: Prisma.AddendumAcknowledgementFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AddendumAcknowledgementFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AddendumAcknowledgementFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>
+          }
+          findFirst: {
+            args: Prisma.AddendumAcknowledgementFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AddendumAcknowledgementFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>
+          }
+          findMany: {
+            args: Prisma.AddendumAcknowledgementFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>[]
+          }
+          create: {
+            args: Prisma.AddendumAcknowledgementCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>
+          }
+          createMany: {
+            args: Prisma.AddendumAcknowledgementCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AddendumAcknowledgementCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>[]
+          }
+          delete: {
+            args: Prisma.AddendumAcknowledgementDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>
+          }
+          update: {
+            args: Prisma.AddendumAcknowledgementUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>
+          }
+          deleteMany: {
+            args: Prisma.AddendumAcknowledgementDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AddendumAcknowledgementUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AddendumAcknowledgementUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>[]
+          }
+          upsert: {
+            args: Prisma.AddendumAcknowledgementUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddendumAcknowledgementPayload>
+          }
+          aggregate: {
+            args: Prisma.AddendumAcknowledgementAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAddendumAcknowledgement>
+          }
+          groupBy: {
+            args: Prisma.AddendumAcknowledgementGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AddendumAcknowledgementGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AddendumAcknowledgementCountArgs<ExtArgs>
+            result: $Utils.Optional<AddendumAcknowledgementCountAggregateOutputType> | number
+          }
+        }
+      }
       AccountDeletionRequest: {
         payload: Prisma.$AccountDeletionRequestPayload<ExtArgs>
         fields: Prisma.AccountDeletionRequestFieldRefs
@@ -3876,6 +4257,10 @@ export namespace Prisma {
     signature?: SignatureOmit
     reportEmail?: ReportEmailOmit
     assessmentVersion?: AssessmentVersionOmit
+    reportAddendum?: ReportAddendumOmit
+    reportAddendumEntry?: ReportAddendumEntryOmit
+    reportAddendumPhoto?: ReportAddendumPhotoOmit
+    addendumAcknowledgement?: AddendumAcknowledgementOmit
     accountDeletionRequest?: AccountDeletionRequestOmit
     accountDeletionStoragePurge?: AccountDeletionStoragePurgeOmit
     storagePurge?: StoragePurgeOmit
@@ -3976,6 +4361,9 @@ export namespace Prisma {
     deviceInstallations: number
     errorEvents: number
     reportEmails: number
+    addendaCreated: number
+    addendaPublished: number
+    addendumAcknowledgements: number
     subscriptionsManaged: number
   }
 
@@ -3996,6 +4384,9 @@ export namespace Prisma {
     deviceInstallations?: boolean | StakeholderCountOutputTypeCountDeviceInstallationsArgs
     errorEvents?: boolean | StakeholderCountOutputTypeCountErrorEventsArgs
     reportEmails?: boolean | StakeholderCountOutputTypeCountReportEmailsArgs
+    addendaCreated?: boolean | StakeholderCountOutputTypeCountAddendaCreatedArgs
+    addendaPublished?: boolean | StakeholderCountOutputTypeCountAddendaPublishedArgs
+    addendumAcknowledgements?: boolean | StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
   }
 
@@ -4120,6 +4511,27 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountReportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReportEmailWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountAddendaCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountAddendaPublishedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AddendumAcknowledgementWhereInput
   }
 
   /**
@@ -4251,6 +4663,7 @@ export namespace Prisma {
     signatures: number
     assessments: number
     reportEmails: number
+    addenda: number
   }
 
   export type InspectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4259,6 +4672,7 @@ export namespace Prisma {
     signatures?: boolean | InspectionCountOutputTypeCountSignaturesArgs
     assessments?: boolean | InspectionCountOutputTypeCountAssessmentsArgs
     reportEmails?: boolean | InspectionCountOutputTypeCountReportEmailsArgs
+    addenda?: boolean | InspectionCountOutputTypeCountAddendaArgs
   }
 
   // Custom InputTypes
@@ -4305,6 +4719,13 @@ export namespace Prisma {
    */
   export type InspectionCountOutputTypeCountReportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReportEmailWhereInput
+  }
+
+  /**
+   * InspectionCountOutputType without action
+   */
+  export type InspectionCountOutputTypeCountAddendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumWhereInput
   }
 
 
@@ -4444,11 +4865,13 @@ export namespace Prisma {
   export type PropertyAssetCountOutputType = {
     inspectionItems: number
     maintenanceCases: number
+    addendumEntries: number
   }
 
   export type PropertyAssetCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspectionItems?: boolean | PropertyAssetCountOutputTypeCountInspectionItemsArgs
     maintenanceCases?: boolean | PropertyAssetCountOutputTypeCountMaintenanceCasesArgs
+    addendumEntries?: boolean | PropertyAssetCountOutputTypeCountAddendumEntriesArgs
   }
 
   // Custom InputTypes
@@ -4476,6 +4899,13 @@ export namespace Prisma {
     where?: MaintenanceCaseWhereInput
   }
 
+  /**
+   * PropertyAssetCountOutputType without action
+   */
+  export type PropertyAssetCountOutputTypeCountAddendumEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumEntryWhereInput
+  }
+
 
   /**
    * Count Type MaintenanceCaseCountOutputType
@@ -4487,6 +4917,7 @@ export namespace Prisma {
     evidence: number
     findings: number
     responsibilityProposals: number
+    addendumEntries: number
   }
 
   export type MaintenanceCaseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4495,6 +4926,7 @@ export namespace Prisma {
     evidence?: boolean | MaintenanceCaseCountOutputTypeCountEvidenceArgs
     findings?: boolean | MaintenanceCaseCountOutputTypeCountFindingsArgs
     responsibilityProposals?: boolean | MaintenanceCaseCountOutputTypeCountResponsibilityProposalsArgs
+    addendumEntries?: boolean | MaintenanceCaseCountOutputTypeCountAddendumEntriesArgs
   }
 
   // Custom InputTypes
@@ -4541,6 +4973,13 @@ export namespace Prisma {
    */
   export type MaintenanceCaseCountOutputTypeCountResponsibilityProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ResponsibilityProposalWhereInput
+  }
+
+  /**
+   * MaintenanceCaseCountOutputType without action
+   */
+  export type MaintenanceCaseCountOutputTypeCountAddendumEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumEntryWhereInput
   }
 
 
@@ -4665,6 +5104,77 @@ export namespace Prisma {
    */
   export type NotificationCountOutputTypeCountPushDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NotificationPushDeliveryWhereInput
+  }
+
+
+  /**
+   * Count Type ReportAddendumCountOutputType
+   */
+
+  export type ReportAddendumCountOutputType = {
+    entries: number
+    acknowledgements: number
+  }
+
+  export type ReportAddendumCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    entries?: boolean | ReportAddendumCountOutputTypeCountEntriesArgs
+    acknowledgements?: boolean | ReportAddendumCountOutputTypeCountAcknowledgementsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ReportAddendumCountOutputType without action
+   */
+  export type ReportAddendumCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumCountOutputType
+     */
+    select?: ReportAddendumCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendumCountOutputType without action
+   */
+  export type ReportAddendumCountOutputTypeCountEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumEntryWhereInput
+  }
+
+  /**
+   * ReportAddendumCountOutputType without action
+   */
+  export type ReportAddendumCountOutputTypeCountAcknowledgementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AddendumAcknowledgementWhereInput
+  }
+
+
+  /**
+   * Count Type ReportAddendumEntryCountOutputType
+   */
+
+  export type ReportAddendumEntryCountOutputType = {
+    photos: number
+  }
+
+  export type ReportAddendumEntryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    photos?: boolean | ReportAddendumEntryCountOutputTypeCountPhotosArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ReportAddendumEntryCountOutputType without action
+   */
+  export type ReportAddendumEntryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntryCountOutputType
+     */
+    select?: ReportAddendumEntryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendumEntryCountOutputType without action
+   */
+  export type ReportAddendumEntryCountOutputTypeCountPhotosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumPhotoWhereInput
   }
 
 
@@ -4925,6 +5435,9 @@ export namespace Prisma {
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
+    addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
+    addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
+    addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -4991,6 +5504,9 @@ export namespace Prisma {
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
+    addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
+    addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
+    addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -5023,6 +5539,9 @@ export namespace Prisma {
       branding: Prisma.$AgentBrandingPayload<ExtArgs> | null
       errorEvents: Prisma.$ErrorEventPayload<ExtArgs>[]
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
+      addendaCreated: Prisma.$ReportAddendumPayload<ExtArgs>[]
+      addendaPublished: Prisma.$ReportAddendumPayload<ExtArgs>[]
+      addendumAcknowledgements: Prisma.$AddendumAcknowledgementPayload<ExtArgs>[]
       /**
        * The plan of an agent who is on no team. An agent on a team uses the team's.
        */
@@ -5464,6 +5983,9 @@ export namespace Prisma {
     branding<T extends Stakeholder$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$brandingArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     errorEvents<T extends Stakeholder$errorEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$errorEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportEmails<T extends Stakeholder$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addendaCreated<T extends Stakeholder$addendaCreatedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addendaPublished<T extends Stakeholder$addendaPublishedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaPublishedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addendumAcknowledgements<T extends Stakeholder$addendumAcknowledgementsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendumAcknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -6325,6 +6847,78 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.addendaCreated
+   */
+  export type Stakeholder$addendaCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    where?: ReportAddendumWhereInput
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    cursor?: ReportAddendumWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.addendaPublished
+   */
+  export type Stakeholder$addendaPublishedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    where?: ReportAddendumWhereInput
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    cursor?: ReportAddendumWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.addendumAcknowledgements
+   */
+  export type Stakeholder$addendumAcknowledgementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    where?: AddendumAcknowledgementWhereInput
+    orderBy?: AddendumAcknowledgementOrderByWithRelationInput | AddendumAcknowledgementOrderByWithRelationInput[]
+    cursor?: AddendumAcknowledgementWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
   }
 
   /**
@@ -12556,6 +13150,7 @@ export namespace Prisma {
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
     reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
+    addenda?: boolean | Inspection$addendaArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -12633,6 +13228,7 @@ export namespace Prisma {
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
     reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
+    addenda?: boolean | Inspection$addendaArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InspectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12658,6 +13254,7 @@ export namespace Prisma {
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
       assessments: Prisma.$AssessmentVersionPayload<ExtArgs>[]
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
+      addenda: Prisma.$ReportAddendumPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13094,6 +13691,7 @@ export namespace Prisma {
     signatures<T extends Inspection$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assessments<T extends Inspection$assessmentsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportEmails<T extends Inspection$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addenda<T extends Inspection$addendaArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$addendaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13714,6 +14312,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
+  }
+
+  /**
+   * Inspection.addenda
+   */
+  export type Inspection$addendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    where?: ReportAddendumWhereInput
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    cursor?: ReportAddendumWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
   }
 
   /**
@@ -18921,6 +19543,7 @@ export namespace Prisma {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     inspectionItems?: boolean | PropertyAsset$inspectionItemsArgs<ExtArgs>
     maintenanceCases?: boolean | PropertyAsset$maintenanceCasesArgs<ExtArgs>
+    addendumEntries?: boolean | PropertyAsset$addendumEntriesArgs<ExtArgs>
     _count?: boolean | PropertyAssetCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["propertyAsset"]>
 
@@ -18967,6 +19590,7 @@ export namespace Prisma {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     inspectionItems?: boolean | PropertyAsset$inspectionItemsArgs<ExtArgs>
     maintenanceCases?: boolean | PropertyAsset$maintenanceCasesArgs<ExtArgs>
+    addendumEntries?: boolean | PropertyAsset$addendumEntriesArgs<ExtArgs>
     _count?: boolean | PropertyAssetCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PropertyAssetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18982,6 +19606,7 @@ export namespace Prisma {
       property: Prisma.$PropertyPayload<ExtArgs>
       inspectionItems: Prisma.$InspectionItemPayload<ExtArgs>[]
       maintenanceCases: Prisma.$MaintenanceCasePayload<ExtArgs>[]
+      addendumEntries: Prisma.$ReportAddendumEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -19390,6 +20015,7 @@ export namespace Prisma {
     property<T extends PropertyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PropertyDefaultArgs<ExtArgs>>): Prisma__PropertyClient<$Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     inspectionItems<T extends PropertyAsset$inspectionItemsArgs<ExtArgs> = {}>(args?: Subset<T, PropertyAsset$inspectionItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     maintenanceCases<T extends PropertyAsset$maintenanceCasesArgs<ExtArgs> = {}>(args?: Subset<T, PropertyAsset$maintenanceCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addendumEntries<T extends PropertyAsset$addendumEntriesArgs<ExtArgs> = {}>(args?: Subset<T, PropertyAsset$addendumEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19877,6 +20503,30 @@ export namespace Prisma {
   }
 
   /**
+   * PropertyAsset.addendumEntries
+   */
+  export type PropertyAsset$addendumEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    where?: ReportAddendumEntryWhereInput
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
+  }
+
+  /**
    * PropertyAsset without action
    */
   export type PropertyAssetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -20147,6 +20797,7 @@ export namespace Prisma {
     evidence?: boolean | MaintenanceCase$evidenceArgs<ExtArgs>
     findings?: boolean | MaintenanceCase$findingsArgs<ExtArgs>
     responsibilityProposals?: boolean | MaintenanceCase$responsibilityProposalsArgs<ExtArgs>
+    addendumEntries?: boolean | MaintenanceCase$addendumEntriesArgs<ExtArgs>
     _count?: boolean | MaintenanceCaseCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceCase"]>
 
@@ -20220,6 +20871,7 @@ export namespace Prisma {
     evidence?: boolean | MaintenanceCase$evidenceArgs<ExtArgs>
     findings?: boolean | MaintenanceCase$findingsArgs<ExtArgs>
     responsibilityProposals?: boolean | MaintenanceCase$responsibilityProposalsArgs<ExtArgs>
+    addendumEntries?: boolean | MaintenanceCase$addendumEntriesArgs<ExtArgs>
     _count?: boolean | MaintenanceCaseCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MaintenanceCaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -20244,6 +20896,7 @@ export namespace Prisma {
       evidence: Prisma.$MaintenanceEvidencePayload<ExtArgs>[]
       findings: Prisma.$FindingPayload<ExtArgs>[]
       responsibilityProposals: Prisma.$ResponsibilityProposalPayload<ExtArgs>[]
+      addendumEntries: Prisma.$ReportAddendumEntryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -20663,6 +21316,7 @@ export namespace Prisma {
     evidence<T extends MaintenanceCase$evidenceArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$evidenceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findings<T extends MaintenanceCase$findingsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     responsibilityProposals<T extends MaintenanceCase$responsibilityProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$responsibilityProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addendumEntries<T extends MaintenanceCase$addendumEntriesArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$addendumEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21244,6 +21898,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ResponsibilityProposalScalarFieldEnum | ResponsibilityProposalScalarFieldEnum[]
+  }
+
+  /**
+   * MaintenanceCase.addendumEntries
+   */
+  export type MaintenanceCase$addendumEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    where?: ReportAddendumEntryWhereInput
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
   }
 
   /**
@@ -36543,6 +37221,4865 @@ export namespace Prisma {
 
 
   /**
+   * Model ReportAddendum
+   */
+
+  export type AggregateReportAddendum = {
+    _count: ReportAddendumCountAggregateOutputType | null
+    _avg: ReportAddendumAvgAggregateOutputType | null
+    _sum: ReportAddendumSumAggregateOutputType | null
+    _min: ReportAddendumMinAggregateOutputType | null
+    _max: ReportAddendumMaxAggregateOutputType | null
+  }
+
+  export type ReportAddendumAvgAggregateOutputType = {
+    number: number | null
+  }
+
+  export type ReportAddendumSumAggregateOutputType = {
+    number: number | null
+  }
+
+  export type ReportAddendumMinAggregateOutputType = {
+    id: string | null
+    inspectionId: string | null
+    number: number | null
+    title: string | null
+    reason: string | null
+    effectiveDate: Date | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    publishedAt: Date | null
+    publishedById: string | null
+    contentHash: string | null
+    acknowledgedAt: Date | null
+  }
+
+  export type ReportAddendumMaxAggregateOutputType = {
+    id: string | null
+    inspectionId: string | null
+    number: number | null
+    title: string | null
+    reason: string | null
+    effectiveDate: Date | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    publishedAt: Date | null
+    publishedById: string | null
+    contentHash: string | null
+    acknowledgedAt: Date | null
+  }
+
+  export type ReportAddendumCountAggregateOutputType = {
+    id: number
+    inspectionId: number
+    number: number
+    title: number
+    reason: number
+    effectiveDate: number
+    createdById: number
+    createdAt: number
+    updatedAt: number
+    publishedAt: number
+    publishedById: number
+    snapshot: number
+    contentHash: number
+    acknowledgedAt: number
+    _all: number
+  }
+
+
+  export type ReportAddendumAvgAggregateInputType = {
+    number?: true
+  }
+
+  export type ReportAddendumSumAggregateInputType = {
+    number?: true
+  }
+
+  export type ReportAddendumMinAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    number?: true
+    title?: true
+    reason?: true
+    effectiveDate?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    publishedAt?: true
+    publishedById?: true
+    contentHash?: true
+    acknowledgedAt?: true
+  }
+
+  export type ReportAddendumMaxAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    number?: true
+    title?: true
+    reason?: true
+    effectiveDate?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    publishedAt?: true
+    publishedById?: true
+    contentHash?: true
+    acknowledgedAt?: true
+  }
+
+  export type ReportAddendumCountAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    number?: true
+    title?: true
+    reason?: true
+    effectiveDate?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    publishedAt?: true
+    publishedById?: true
+    snapshot?: true
+    contentHash?: true
+    acknowledgedAt?: true
+    _all?: true
+  }
+
+  export type ReportAddendumAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportAddendum to aggregate.
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddenda to fetch.
+     */
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReportAddendumWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddenda from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddenda.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReportAddenda
+    **/
+    _count?: true | ReportAddendumCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReportAddendumAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReportAddendumSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReportAddendumMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReportAddendumMaxAggregateInputType
+  }
+
+  export type GetReportAddendumAggregateType<T extends ReportAddendumAggregateArgs> = {
+        [P in keyof T & keyof AggregateReportAddendum]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReportAddendum[P]>
+      : GetScalarType<T[P], AggregateReportAddendum[P]>
+  }
+
+
+
+
+  export type ReportAddendumGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumWhereInput
+    orderBy?: ReportAddendumOrderByWithAggregationInput | ReportAddendumOrderByWithAggregationInput[]
+    by: ReportAddendumScalarFieldEnum[] | ReportAddendumScalarFieldEnum
+    having?: ReportAddendumScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReportAddendumCountAggregateInputType | true
+    _avg?: ReportAddendumAvgAggregateInputType
+    _sum?: ReportAddendumSumAggregateInputType
+    _min?: ReportAddendumMinAggregateInputType
+    _max?: ReportAddendumMaxAggregateInputType
+  }
+
+  export type ReportAddendumGroupByOutputType = {
+    id: string
+    inspectionId: string
+    number: number | null
+    title: string
+    reason: string | null
+    effectiveDate: Date
+    createdById: string
+    createdAt: Date
+    updatedAt: Date
+    publishedAt: Date | null
+    publishedById: string | null
+    snapshot: JsonValue | null
+    contentHash: string | null
+    acknowledgedAt: Date | null
+    _count: ReportAddendumCountAggregateOutputType | null
+    _avg: ReportAddendumAvgAggregateOutputType | null
+    _sum: ReportAddendumSumAggregateOutputType | null
+    _min: ReportAddendumMinAggregateOutputType | null
+    _max: ReportAddendumMaxAggregateOutputType | null
+  }
+
+  type GetReportAddendumGroupByPayload<T extends ReportAddendumGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReportAddendumGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReportAddendumGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReportAddendumGroupByOutputType[P]>
+            : GetScalarType<T[P], ReportAddendumGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReportAddendumSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    number?: boolean
+    title?: boolean
+    reason?: boolean
+    effectiveDate?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    acknowledgedAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+    entries?: boolean | ReportAddendum$entriesArgs<ExtArgs>
+    acknowledgements?: boolean | ReportAddendum$acknowledgementsArgs<ExtArgs>
+    _count?: boolean | ReportAddendumCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendum"]>
+
+  export type ReportAddendumSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    number?: boolean
+    title?: boolean
+    reason?: boolean
+    effectiveDate?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    acknowledgedAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendum"]>
+
+  export type ReportAddendumSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    number?: boolean
+    title?: boolean
+    reason?: boolean
+    effectiveDate?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    acknowledgedAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendum"]>
+
+  export type ReportAddendumSelectScalar = {
+    id?: boolean
+    inspectionId?: boolean
+    number?: boolean
+    title?: boolean
+    reason?: boolean
+    effectiveDate?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    publishedAt?: boolean
+    publishedById?: boolean
+    snapshot?: boolean
+    contentHash?: boolean
+    acknowledgedAt?: boolean
+  }
+
+  export type ReportAddendumOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "number" | "title" | "reason" | "effectiveDate" | "createdById" | "createdAt" | "updatedAt" | "publishedAt" | "publishedById" | "snapshot" | "contentHash" | "acknowledgedAt", ExtArgs["result"]["reportAddendum"]>
+  export type ReportAddendumInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+    entries?: boolean | ReportAddendum$entriesArgs<ExtArgs>
+    acknowledgements?: boolean | ReportAddendum$acknowledgementsArgs<ExtArgs>
+    _count?: boolean | ReportAddendumCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ReportAddendumIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+  }
+  export type ReportAddendumIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+  }
+
+  export type $ReportAddendumPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReportAddendum"
+    objects: {
+      inspection: Prisma.$InspectionPayload<ExtArgs>
+      createdBy: Prisma.$StakeholderPayload<ExtArgs>
+      publishedBy: Prisma.$StakeholderPayload<ExtArgs> | null
+      entries: Prisma.$ReportAddendumEntryPayload<ExtArgs>[]
+      acknowledgements: Prisma.$AddendumAcknowledgementPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      inspectionId: string
+      number: number | null
+      title: string
+      reason: string | null
+      /**
+       * The day the change happened, which is what the "Updated" banner shows.
+       */
+      effectiveDate: Date
+      createdById: string
+      createdAt: Date
+      updatedAt: Date
+      publishedAt: Date | null
+      publishedById: string | null
+      /**
+       * Everything the report draws, by value. Shape in src/lib/addenda.ts.
+       */
+      snapshot: Prisma.JsonValue | null
+      contentHash: string | null
+      acknowledgedAt: Date | null
+    }, ExtArgs["result"]["reportAddendum"]>
+    composites: {}
+  }
+
+  type ReportAddendumGetPayload<S extends boolean | null | undefined | ReportAddendumDefaultArgs> = $Result.GetResult<Prisma.$ReportAddendumPayload, S>
+
+  type ReportAddendumCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReportAddendumFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReportAddendumCountAggregateInputType | true
+    }
+
+  export interface ReportAddendumDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReportAddendum'], meta: { name: 'ReportAddendum' } }
+    /**
+     * Find zero or one ReportAddendum that matches the filter.
+     * @param {ReportAddendumFindUniqueArgs} args - Arguments to find a ReportAddendum
+     * @example
+     * // Get one ReportAddendum
+     * const reportAddendum = await prisma.reportAddendum.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReportAddendumFindUniqueArgs>(args: SelectSubset<T, ReportAddendumFindUniqueArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReportAddendum that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReportAddendumFindUniqueOrThrowArgs} args - Arguments to find a ReportAddendum
+     * @example
+     * // Get one ReportAddendum
+     * const reportAddendum = await prisma.reportAddendum.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReportAddendumFindUniqueOrThrowArgs>(args: SelectSubset<T, ReportAddendumFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportAddendum that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumFindFirstArgs} args - Arguments to find a ReportAddendum
+     * @example
+     * // Get one ReportAddendum
+     * const reportAddendum = await prisma.reportAddendum.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReportAddendumFindFirstArgs>(args?: SelectSubset<T, ReportAddendumFindFirstArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportAddendum that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumFindFirstOrThrowArgs} args - Arguments to find a ReportAddendum
+     * @example
+     * // Get one ReportAddendum
+     * const reportAddendum = await prisma.reportAddendum.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReportAddendumFindFirstOrThrowArgs>(args?: SelectSubset<T, ReportAddendumFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReportAddenda that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReportAddenda
+     * const reportAddenda = await prisma.reportAddendum.findMany()
+     * 
+     * // Get first 10 ReportAddenda
+     * const reportAddenda = await prisma.reportAddendum.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reportAddendumWithIdOnly = await prisma.reportAddendum.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReportAddendumFindManyArgs>(args?: SelectSubset<T, ReportAddendumFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReportAddendum.
+     * @param {ReportAddendumCreateArgs} args - Arguments to create a ReportAddendum.
+     * @example
+     * // Create one ReportAddendum
+     * const ReportAddendum = await prisma.reportAddendum.create({
+     *   data: {
+     *     // ... data to create a ReportAddendum
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReportAddendumCreateArgs>(args: SelectSubset<T, ReportAddendumCreateArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReportAddenda.
+     * @param {ReportAddendumCreateManyArgs} args - Arguments to create many ReportAddenda.
+     * @example
+     * // Create many ReportAddenda
+     * const reportAddendum = await prisma.reportAddendum.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReportAddendumCreateManyArgs>(args?: SelectSubset<T, ReportAddendumCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReportAddenda and returns the data saved in the database.
+     * @param {ReportAddendumCreateManyAndReturnArgs} args - Arguments to create many ReportAddenda.
+     * @example
+     * // Create many ReportAddenda
+     * const reportAddendum = await prisma.reportAddendum.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReportAddenda and only return the `id`
+     * const reportAddendumWithIdOnly = await prisma.reportAddendum.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReportAddendumCreateManyAndReturnArgs>(args?: SelectSubset<T, ReportAddendumCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReportAddendum.
+     * @param {ReportAddendumDeleteArgs} args - Arguments to delete one ReportAddendum.
+     * @example
+     * // Delete one ReportAddendum
+     * const ReportAddendum = await prisma.reportAddendum.delete({
+     *   where: {
+     *     // ... filter to delete one ReportAddendum
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReportAddendumDeleteArgs>(args: SelectSubset<T, ReportAddendumDeleteArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReportAddendum.
+     * @param {ReportAddendumUpdateArgs} args - Arguments to update one ReportAddendum.
+     * @example
+     * // Update one ReportAddendum
+     * const reportAddendum = await prisma.reportAddendum.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReportAddendumUpdateArgs>(args: SelectSubset<T, ReportAddendumUpdateArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReportAddenda.
+     * @param {ReportAddendumDeleteManyArgs} args - Arguments to filter ReportAddenda to delete.
+     * @example
+     * // Delete a few ReportAddenda
+     * const { count } = await prisma.reportAddendum.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReportAddendumDeleteManyArgs>(args?: SelectSubset<T, ReportAddendumDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportAddenda.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReportAddenda
+     * const reportAddendum = await prisma.reportAddendum.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReportAddendumUpdateManyArgs>(args: SelectSubset<T, ReportAddendumUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportAddenda and returns the data updated in the database.
+     * @param {ReportAddendumUpdateManyAndReturnArgs} args - Arguments to update many ReportAddenda.
+     * @example
+     * // Update many ReportAddenda
+     * const reportAddendum = await prisma.reportAddendum.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReportAddenda and only return the `id`
+     * const reportAddendumWithIdOnly = await prisma.reportAddendum.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReportAddendumUpdateManyAndReturnArgs>(args: SelectSubset<T, ReportAddendumUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReportAddendum.
+     * @param {ReportAddendumUpsertArgs} args - Arguments to update or create a ReportAddendum.
+     * @example
+     * // Update or create a ReportAddendum
+     * const reportAddendum = await prisma.reportAddendum.upsert({
+     *   create: {
+     *     // ... data to create a ReportAddendum
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReportAddendum we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReportAddendumUpsertArgs>(args: SelectSubset<T, ReportAddendumUpsertArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReportAddenda.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumCountArgs} args - Arguments to filter ReportAddenda to count.
+     * @example
+     * // Count the number of ReportAddenda
+     * const count = await prisma.reportAddendum.count({
+     *   where: {
+     *     // ... the filter for the ReportAddenda we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReportAddendumCountArgs>(
+      args?: Subset<T, ReportAddendumCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReportAddendumCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReportAddendum.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReportAddendumAggregateArgs>(args: Subset<T, ReportAddendumAggregateArgs>): Prisma.PrismaPromise<GetReportAddendumAggregateType<T>>
+
+    /**
+     * Group by ReportAddendum.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReportAddendumGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReportAddendumGroupByArgs['orderBy'] }
+        : { orderBy?: ReportAddendumGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReportAddendumGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReportAddendumGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReportAddendum model
+   */
+  readonly fields: ReportAddendumFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReportAddendum.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReportAddendumClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    createdBy<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    publishedBy<T extends ReportAddendum$publishedByArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$publishedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    entries<T extends ReportAddendum$entriesArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    acknowledgements<T extends ReportAddendum$acknowledgementsArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$acknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReportAddendum model
+   */
+  interface ReportAddendumFieldRefs {
+    readonly id: FieldRef<"ReportAddendum", 'String'>
+    readonly inspectionId: FieldRef<"ReportAddendum", 'String'>
+    readonly number: FieldRef<"ReportAddendum", 'Int'>
+    readonly title: FieldRef<"ReportAddendum", 'String'>
+    readonly reason: FieldRef<"ReportAddendum", 'String'>
+    readonly effectiveDate: FieldRef<"ReportAddendum", 'DateTime'>
+    readonly createdById: FieldRef<"ReportAddendum", 'String'>
+    readonly createdAt: FieldRef<"ReportAddendum", 'DateTime'>
+    readonly updatedAt: FieldRef<"ReportAddendum", 'DateTime'>
+    readonly publishedAt: FieldRef<"ReportAddendum", 'DateTime'>
+    readonly publishedById: FieldRef<"ReportAddendum", 'String'>
+    readonly snapshot: FieldRef<"ReportAddendum", 'Json'>
+    readonly contentHash: FieldRef<"ReportAddendum", 'String'>
+    readonly acknowledgedAt: FieldRef<"ReportAddendum", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReportAddendum findUnique
+   */
+  export type ReportAddendumFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendum to fetch.
+     */
+    where: ReportAddendumWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendum findUniqueOrThrow
+   */
+  export type ReportAddendumFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendum to fetch.
+     */
+    where: ReportAddendumWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendum findFirst
+   */
+  export type ReportAddendumFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendum to fetch.
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddenda to fetch.
+     */
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportAddenda.
+     */
+    cursor?: ReportAddendumWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddenda from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddenda.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddenda.
+     */
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendum findFirstOrThrow
+   */
+  export type ReportAddendumFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendum to fetch.
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddenda to fetch.
+     */
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportAddenda.
+     */
+    cursor?: ReportAddendumWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddenda from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddenda.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddenda.
+     */
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendum findMany
+   */
+  export type ReportAddendumFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddenda to fetch.
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddenda to fetch.
+     */
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReportAddenda.
+     */
+    cursor?: ReportAddendumWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddenda from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddenda.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddenda.
+     */
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendum create
+   */
+  export type ReportAddendumCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReportAddendum.
+     */
+    data: XOR<ReportAddendumCreateInput, ReportAddendumUncheckedCreateInput>
+  }
+
+  /**
+   * ReportAddendum createMany
+   */
+  export type ReportAddendumCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReportAddenda.
+     */
+    data: ReportAddendumCreateManyInput | ReportAddendumCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReportAddendum createManyAndReturn
+   */
+  export type ReportAddendumCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReportAddenda.
+     */
+    data: ReportAddendumCreateManyInput | ReportAddendumCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendum update
+   */
+  export type ReportAddendumUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReportAddendum.
+     */
+    data: XOR<ReportAddendumUpdateInput, ReportAddendumUncheckedUpdateInput>
+    /**
+     * Choose, which ReportAddendum to update.
+     */
+    where: ReportAddendumWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendum updateMany
+   */
+  export type ReportAddendumUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReportAddenda.
+     */
+    data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportAddenda to update
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * Limit how many ReportAddenda to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportAddendum updateManyAndReturn
+   */
+  export type ReportAddendumUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * The data used to update ReportAddenda.
+     */
+    data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportAddenda to update
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * Limit how many ReportAddenda to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendum upsert
+   */
+  export type ReportAddendumUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReportAddendum to update in case it exists.
+     */
+    where: ReportAddendumWhereUniqueInput
+    /**
+     * In case the ReportAddendum found by the `where` argument doesn't exist, create a new ReportAddendum with this data.
+     */
+    create: XOR<ReportAddendumCreateInput, ReportAddendumUncheckedCreateInput>
+    /**
+     * In case the ReportAddendum was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReportAddendumUpdateInput, ReportAddendumUncheckedUpdateInput>
+  }
+
+  /**
+   * ReportAddendum delete
+   */
+  export type ReportAddendumDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    /**
+     * Filter which ReportAddendum to delete.
+     */
+    where: ReportAddendumWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendum deleteMany
+   */
+  export type ReportAddendumDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportAddenda to delete
+     */
+    where?: ReportAddendumWhereInput
+    /**
+     * Limit how many ReportAddenda to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportAddendum.publishedBy
+   */
+  export type ReportAddendum$publishedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
+  }
+
+  /**
+   * ReportAddendum.entries
+   */
+  export type ReportAddendum$entriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    where?: ReportAddendumEntryWhereInput
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendum.acknowledgements
+   */
+  export type ReportAddendum$acknowledgementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    where?: AddendumAcknowledgementWhereInput
+    orderBy?: AddendumAcknowledgementOrderByWithRelationInput | AddendumAcknowledgementOrderByWithRelationInput[]
+    cursor?: AddendumAcknowledgementWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendum without action
+   */
+  export type ReportAddendumDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReportAddendumEntry
+   */
+
+  export type AggregateReportAddendumEntry = {
+    _count: ReportAddendumEntryCountAggregateOutputType | null
+    _avg: ReportAddendumEntryAvgAggregateOutputType | null
+    _sum: ReportAddendumEntrySumAggregateOutputType | null
+    _min: ReportAddendumEntryMinAggregateOutputType | null
+    _max: ReportAddendumEntryMaxAggregateOutputType | null
+  }
+
+  export type ReportAddendumEntryAvgAggregateOutputType = {
+    quantity: number | null
+  }
+
+  export type ReportAddendumEntrySumAggregateOutputType = {
+    quantity: number | null
+  }
+
+  export type ReportAddendumEntryMinAggregateOutputType = {
+    id: string | null
+    addendumId: string | null
+    change: $Enums.AddendumChange | null
+    roomName: string | null
+    targetKey: string | null
+    name: string | null
+    category: $Enums.ItemCategory | null
+    condition: $Enums.ItemCondition | null
+    quantity: number | null
+    identifier: string | null
+    notes: string | null
+    maintenanceCaseId: string | null
+    propertyAssetId: string | null
+    createdAt: Date | null
+  }
+
+  export type ReportAddendumEntryMaxAggregateOutputType = {
+    id: string | null
+    addendumId: string | null
+    change: $Enums.AddendumChange | null
+    roomName: string | null
+    targetKey: string | null
+    name: string | null
+    category: $Enums.ItemCategory | null
+    condition: $Enums.ItemCondition | null
+    quantity: number | null
+    identifier: string | null
+    notes: string | null
+    maintenanceCaseId: string | null
+    propertyAssetId: string | null
+    createdAt: Date | null
+  }
+
+  export type ReportAddendumEntryCountAggregateOutputType = {
+    id: number
+    addendumId: number
+    change: number
+    roomName: number
+    targetKey: number
+    name: number
+    category: number
+    condition: number
+    quantity: number
+    identifier: number
+    notes: number
+    maintenanceCaseId: number
+    propertyAssetId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ReportAddendumEntryAvgAggregateInputType = {
+    quantity?: true
+  }
+
+  export type ReportAddendumEntrySumAggregateInputType = {
+    quantity?: true
+  }
+
+  export type ReportAddendumEntryMinAggregateInputType = {
+    id?: true
+    addendumId?: true
+    change?: true
+    roomName?: true
+    targetKey?: true
+    name?: true
+    category?: true
+    condition?: true
+    quantity?: true
+    identifier?: true
+    notes?: true
+    maintenanceCaseId?: true
+    propertyAssetId?: true
+    createdAt?: true
+  }
+
+  export type ReportAddendumEntryMaxAggregateInputType = {
+    id?: true
+    addendumId?: true
+    change?: true
+    roomName?: true
+    targetKey?: true
+    name?: true
+    category?: true
+    condition?: true
+    quantity?: true
+    identifier?: true
+    notes?: true
+    maintenanceCaseId?: true
+    propertyAssetId?: true
+    createdAt?: true
+  }
+
+  export type ReportAddendumEntryCountAggregateInputType = {
+    id?: true
+    addendumId?: true
+    change?: true
+    roomName?: true
+    targetKey?: true
+    name?: true
+    category?: true
+    condition?: true
+    quantity?: true
+    identifier?: true
+    notes?: true
+    maintenanceCaseId?: true
+    propertyAssetId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ReportAddendumEntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportAddendumEntry to aggregate.
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumEntries to fetch.
+     */
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReportAddendumEntries
+    **/
+    _count?: true | ReportAddendumEntryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReportAddendumEntryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReportAddendumEntrySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReportAddendumEntryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReportAddendumEntryMaxAggregateInputType
+  }
+
+  export type GetReportAddendumEntryAggregateType<T extends ReportAddendumEntryAggregateArgs> = {
+        [P in keyof T & keyof AggregateReportAddendumEntry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReportAddendumEntry[P]>
+      : GetScalarType<T[P], AggregateReportAddendumEntry[P]>
+  }
+
+
+
+
+  export type ReportAddendumEntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumEntryWhereInput
+    orderBy?: ReportAddendumEntryOrderByWithAggregationInput | ReportAddendumEntryOrderByWithAggregationInput[]
+    by: ReportAddendumEntryScalarFieldEnum[] | ReportAddendumEntryScalarFieldEnum
+    having?: ReportAddendumEntryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReportAddendumEntryCountAggregateInputType | true
+    _avg?: ReportAddendumEntryAvgAggregateInputType
+    _sum?: ReportAddendumEntrySumAggregateInputType
+    _min?: ReportAddendumEntryMinAggregateInputType
+    _max?: ReportAddendumEntryMaxAggregateInputType
+  }
+
+  export type ReportAddendumEntryGroupByOutputType = {
+    id: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey: string | null
+    name: string | null
+    category: $Enums.ItemCategory | null
+    condition: $Enums.ItemCondition | null
+    quantity: number
+    identifier: string | null
+    notes: string | null
+    maintenanceCaseId: string | null
+    propertyAssetId: string | null
+    createdAt: Date
+    _count: ReportAddendumEntryCountAggregateOutputType | null
+    _avg: ReportAddendumEntryAvgAggregateOutputType | null
+    _sum: ReportAddendumEntrySumAggregateOutputType | null
+    _min: ReportAddendumEntryMinAggregateOutputType | null
+    _max: ReportAddendumEntryMaxAggregateOutputType | null
+  }
+
+  type GetReportAddendumEntryGroupByPayload<T extends ReportAddendumEntryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReportAddendumEntryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReportAddendumEntryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReportAddendumEntryGroupByOutputType[P]>
+            : GetScalarType<T[P], ReportAddendumEntryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReportAddendumEntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    addendumId?: boolean
+    change?: boolean
+    roomName?: boolean
+    targetKey?: boolean
+    name?: boolean
+    category?: boolean
+    condition?: boolean
+    quantity?: boolean
+    identifier?: boolean
+    notes?: boolean
+    maintenanceCaseId?: boolean
+    propertyAssetId?: boolean
+    createdAt?: boolean
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
+    propertyAsset?: boolean | ReportAddendumEntry$propertyAssetArgs<ExtArgs>
+    photos?: boolean | ReportAddendumEntry$photosArgs<ExtArgs>
+    _count?: boolean | ReportAddendumEntryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendumEntry"]>
+
+  export type ReportAddendumEntrySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    addendumId?: boolean
+    change?: boolean
+    roomName?: boolean
+    targetKey?: boolean
+    name?: boolean
+    category?: boolean
+    condition?: boolean
+    quantity?: boolean
+    identifier?: boolean
+    notes?: boolean
+    maintenanceCaseId?: boolean
+    propertyAssetId?: boolean
+    createdAt?: boolean
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
+    propertyAsset?: boolean | ReportAddendumEntry$propertyAssetArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendumEntry"]>
+
+  export type ReportAddendumEntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    addendumId?: boolean
+    change?: boolean
+    roomName?: boolean
+    targetKey?: boolean
+    name?: boolean
+    category?: boolean
+    condition?: boolean
+    quantity?: boolean
+    identifier?: boolean
+    notes?: boolean
+    maintenanceCaseId?: boolean
+    propertyAssetId?: boolean
+    createdAt?: boolean
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
+    propertyAsset?: boolean | ReportAddendumEntry$propertyAssetArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendumEntry"]>
+
+  export type ReportAddendumEntrySelectScalar = {
+    id?: boolean
+    addendumId?: boolean
+    change?: boolean
+    roomName?: boolean
+    targetKey?: boolean
+    name?: boolean
+    category?: boolean
+    condition?: boolean
+    quantity?: boolean
+    identifier?: boolean
+    notes?: boolean
+    maintenanceCaseId?: boolean
+    propertyAssetId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ReportAddendumEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "addendumId" | "change" | "roomName" | "targetKey" | "name" | "category" | "condition" | "quantity" | "identifier" | "notes" | "maintenanceCaseId" | "propertyAssetId" | "createdAt", ExtArgs["result"]["reportAddendumEntry"]>
+  export type ReportAddendumEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
+    propertyAsset?: boolean | ReportAddendumEntry$propertyAssetArgs<ExtArgs>
+    photos?: boolean | ReportAddendumEntry$photosArgs<ExtArgs>
+    _count?: boolean | ReportAddendumEntryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ReportAddendumEntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
+    propertyAsset?: boolean | ReportAddendumEntry$propertyAssetArgs<ExtArgs>
+  }
+  export type ReportAddendumEntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
+    propertyAsset?: boolean | ReportAddendumEntry$propertyAssetArgs<ExtArgs>
+  }
+
+  export type $ReportAddendumEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReportAddendumEntry"
+    objects: {
+      addendum: Prisma.$ReportAddendumPayload<ExtArgs>
+      maintenanceCase: Prisma.$MaintenanceCasePayload<ExtArgs> | null
+      propertyAsset: Prisma.$PropertyAssetPayload<ExtArgs> | null
+      photos: Prisma.$ReportAddendumPhotoPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      addendumId: string
+      change: $Enums.AddendumChange
+      roomName: string
+      /**
+       * The line a REPLACED or REMOVED entry changes: `item:<InspectionItem id>` for a signed
+       * check-in item, `entry:<entry id>` for a line an earlier addendum added.
+       */
+      targetKey: string | null
+      /**
+       * The new line, for ADDED and REPLACED.
+       */
+      name: string | null
+      category: $Enums.ItemCategory | null
+      condition: $Enums.ItemCondition | null
+      quantity: number
+      identifier: string | null
+      notes: string | null
+      /**
+       * The resolved repair this entry was started from.
+       */
+      maintenanceCaseId: string | null
+      /**
+       * The asset publishing created for this line, so a check-out copies the link.
+       */
+      propertyAssetId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["reportAddendumEntry"]>
+    composites: {}
+  }
+
+  type ReportAddendumEntryGetPayload<S extends boolean | null | undefined | ReportAddendumEntryDefaultArgs> = $Result.GetResult<Prisma.$ReportAddendumEntryPayload, S>
+
+  type ReportAddendumEntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReportAddendumEntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReportAddendumEntryCountAggregateInputType | true
+    }
+
+  export interface ReportAddendumEntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReportAddendumEntry'], meta: { name: 'ReportAddendumEntry' } }
+    /**
+     * Find zero or one ReportAddendumEntry that matches the filter.
+     * @param {ReportAddendumEntryFindUniqueArgs} args - Arguments to find a ReportAddendumEntry
+     * @example
+     * // Get one ReportAddendumEntry
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReportAddendumEntryFindUniqueArgs>(args: SelectSubset<T, ReportAddendumEntryFindUniqueArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReportAddendumEntry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReportAddendumEntryFindUniqueOrThrowArgs} args - Arguments to find a ReportAddendumEntry
+     * @example
+     * // Get one ReportAddendumEntry
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReportAddendumEntryFindUniqueOrThrowArgs>(args: SelectSubset<T, ReportAddendumEntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportAddendumEntry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryFindFirstArgs} args - Arguments to find a ReportAddendumEntry
+     * @example
+     * // Get one ReportAddendumEntry
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReportAddendumEntryFindFirstArgs>(args?: SelectSubset<T, ReportAddendumEntryFindFirstArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportAddendumEntry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryFindFirstOrThrowArgs} args - Arguments to find a ReportAddendumEntry
+     * @example
+     * // Get one ReportAddendumEntry
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReportAddendumEntryFindFirstOrThrowArgs>(args?: SelectSubset<T, ReportAddendumEntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReportAddendumEntries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReportAddendumEntries
+     * const reportAddendumEntries = await prisma.reportAddendumEntry.findMany()
+     * 
+     * // Get first 10 ReportAddendumEntries
+     * const reportAddendumEntries = await prisma.reportAddendumEntry.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reportAddendumEntryWithIdOnly = await prisma.reportAddendumEntry.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReportAddendumEntryFindManyArgs>(args?: SelectSubset<T, ReportAddendumEntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReportAddendumEntry.
+     * @param {ReportAddendumEntryCreateArgs} args - Arguments to create a ReportAddendumEntry.
+     * @example
+     * // Create one ReportAddendumEntry
+     * const ReportAddendumEntry = await prisma.reportAddendumEntry.create({
+     *   data: {
+     *     // ... data to create a ReportAddendumEntry
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReportAddendumEntryCreateArgs>(args: SelectSubset<T, ReportAddendumEntryCreateArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReportAddendumEntries.
+     * @param {ReportAddendumEntryCreateManyArgs} args - Arguments to create many ReportAddendumEntries.
+     * @example
+     * // Create many ReportAddendumEntries
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReportAddendumEntryCreateManyArgs>(args?: SelectSubset<T, ReportAddendumEntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReportAddendumEntries and returns the data saved in the database.
+     * @param {ReportAddendumEntryCreateManyAndReturnArgs} args - Arguments to create many ReportAddendumEntries.
+     * @example
+     * // Create many ReportAddendumEntries
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReportAddendumEntries and only return the `id`
+     * const reportAddendumEntryWithIdOnly = await prisma.reportAddendumEntry.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReportAddendumEntryCreateManyAndReturnArgs>(args?: SelectSubset<T, ReportAddendumEntryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReportAddendumEntry.
+     * @param {ReportAddendumEntryDeleteArgs} args - Arguments to delete one ReportAddendumEntry.
+     * @example
+     * // Delete one ReportAddendumEntry
+     * const ReportAddendumEntry = await prisma.reportAddendumEntry.delete({
+     *   where: {
+     *     // ... filter to delete one ReportAddendumEntry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReportAddendumEntryDeleteArgs>(args: SelectSubset<T, ReportAddendumEntryDeleteArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReportAddendumEntry.
+     * @param {ReportAddendumEntryUpdateArgs} args - Arguments to update one ReportAddendumEntry.
+     * @example
+     * // Update one ReportAddendumEntry
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReportAddendumEntryUpdateArgs>(args: SelectSubset<T, ReportAddendumEntryUpdateArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReportAddendumEntries.
+     * @param {ReportAddendumEntryDeleteManyArgs} args - Arguments to filter ReportAddendumEntries to delete.
+     * @example
+     * // Delete a few ReportAddendumEntries
+     * const { count } = await prisma.reportAddendumEntry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReportAddendumEntryDeleteManyArgs>(args?: SelectSubset<T, ReportAddendumEntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportAddendumEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReportAddendumEntries
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReportAddendumEntryUpdateManyArgs>(args: SelectSubset<T, ReportAddendumEntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportAddendumEntries and returns the data updated in the database.
+     * @param {ReportAddendumEntryUpdateManyAndReturnArgs} args - Arguments to update many ReportAddendumEntries.
+     * @example
+     * // Update many ReportAddendumEntries
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReportAddendumEntries and only return the `id`
+     * const reportAddendumEntryWithIdOnly = await prisma.reportAddendumEntry.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReportAddendumEntryUpdateManyAndReturnArgs>(args: SelectSubset<T, ReportAddendumEntryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReportAddendumEntry.
+     * @param {ReportAddendumEntryUpsertArgs} args - Arguments to update or create a ReportAddendumEntry.
+     * @example
+     * // Update or create a ReportAddendumEntry
+     * const reportAddendumEntry = await prisma.reportAddendumEntry.upsert({
+     *   create: {
+     *     // ... data to create a ReportAddendumEntry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReportAddendumEntry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReportAddendumEntryUpsertArgs>(args: SelectSubset<T, ReportAddendumEntryUpsertArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReportAddendumEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryCountArgs} args - Arguments to filter ReportAddendumEntries to count.
+     * @example
+     * // Count the number of ReportAddendumEntries
+     * const count = await prisma.reportAddendumEntry.count({
+     *   where: {
+     *     // ... the filter for the ReportAddendumEntries we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReportAddendumEntryCountArgs>(
+      args?: Subset<T, ReportAddendumEntryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReportAddendumEntryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReportAddendumEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReportAddendumEntryAggregateArgs>(args: Subset<T, ReportAddendumEntryAggregateArgs>): Prisma.PrismaPromise<GetReportAddendumEntryAggregateType<T>>
+
+    /**
+     * Group by ReportAddendumEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumEntryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReportAddendumEntryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReportAddendumEntryGroupByArgs['orderBy'] }
+        : { orderBy?: ReportAddendumEntryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReportAddendumEntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReportAddendumEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReportAddendumEntry model
+   */
+  readonly fields: ReportAddendumEntryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReportAddendumEntry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReportAddendumEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    addendum<T extends ReportAddendumDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendumDefaultArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    maintenanceCase<T extends ReportAddendumEntry$maintenanceCaseArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>>): Prisma__MaintenanceCaseClient<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    propertyAsset<T extends ReportAddendumEntry$propertyAssetArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendumEntry$propertyAssetArgs<ExtArgs>>): Prisma__PropertyAssetClient<$Result.GetResult<Prisma.$PropertyAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    photos<T extends ReportAddendumEntry$photosArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendumEntry$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReportAddendumEntry model
+   */
+  interface ReportAddendumEntryFieldRefs {
+    readonly id: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly addendumId: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly change: FieldRef<"ReportAddendumEntry", 'AddendumChange'>
+    readonly roomName: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly targetKey: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly name: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly category: FieldRef<"ReportAddendumEntry", 'ItemCategory'>
+    readonly condition: FieldRef<"ReportAddendumEntry", 'ItemCondition'>
+    readonly quantity: FieldRef<"ReportAddendumEntry", 'Int'>
+    readonly identifier: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly notes: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly maintenanceCaseId: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly propertyAssetId: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly createdAt: FieldRef<"ReportAddendumEntry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReportAddendumEntry findUnique
+   */
+  export type ReportAddendumEntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumEntry to fetch.
+     */
+    where: ReportAddendumEntryWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumEntry findUniqueOrThrow
+   */
+  export type ReportAddendumEntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumEntry to fetch.
+     */
+    where: ReportAddendumEntryWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumEntry findFirst
+   */
+  export type ReportAddendumEntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumEntry to fetch.
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumEntries to fetch.
+     */
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportAddendumEntries.
+     */
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddendumEntries.
+     */
+    distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumEntry findFirstOrThrow
+   */
+  export type ReportAddendumEntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumEntry to fetch.
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumEntries to fetch.
+     */
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportAddendumEntries.
+     */
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddendumEntries.
+     */
+    distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumEntry findMany
+   */
+  export type ReportAddendumEntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumEntries to fetch.
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumEntries to fetch.
+     */
+    orderBy?: ReportAddendumEntryOrderByWithRelationInput | ReportAddendumEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReportAddendumEntries.
+     */
+    cursor?: ReportAddendumEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddendumEntries.
+     */
+    distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumEntry create
+   */
+  export type ReportAddendumEntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReportAddendumEntry.
+     */
+    data: XOR<ReportAddendumEntryCreateInput, ReportAddendumEntryUncheckedCreateInput>
+  }
+
+  /**
+   * ReportAddendumEntry createMany
+   */
+  export type ReportAddendumEntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReportAddendumEntries.
+     */
+    data: ReportAddendumEntryCreateManyInput | ReportAddendumEntryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReportAddendumEntry createManyAndReturn
+   */
+  export type ReportAddendumEntryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReportAddendumEntries.
+     */
+    data: ReportAddendumEntryCreateManyInput | ReportAddendumEntryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendumEntry update
+   */
+  export type ReportAddendumEntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReportAddendumEntry.
+     */
+    data: XOR<ReportAddendumEntryUpdateInput, ReportAddendumEntryUncheckedUpdateInput>
+    /**
+     * Choose, which ReportAddendumEntry to update.
+     */
+    where: ReportAddendumEntryWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumEntry updateMany
+   */
+  export type ReportAddendumEntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReportAddendumEntries.
+     */
+    data: XOR<ReportAddendumEntryUpdateManyMutationInput, ReportAddendumEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportAddendumEntries to update
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * Limit how many ReportAddendumEntries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportAddendumEntry updateManyAndReturn
+   */
+  export type ReportAddendumEntryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * The data used to update ReportAddendumEntries.
+     */
+    data: XOR<ReportAddendumEntryUpdateManyMutationInput, ReportAddendumEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportAddendumEntries to update
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * Limit how many ReportAddendumEntries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendumEntry upsert
+   */
+  export type ReportAddendumEntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReportAddendumEntry to update in case it exists.
+     */
+    where: ReportAddendumEntryWhereUniqueInput
+    /**
+     * In case the ReportAddendumEntry found by the `where` argument doesn't exist, create a new ReportAddendumEntry with this data.
+     */
+    create: XOR<ReportAddendumEntryCreateInput, ReportAddendumEntryUncheckedCreateInput>
+    /**
+     * In case the ReportAddendumEntry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReportAddendumEntryUpdateInput, ReportAddendumEntryUncheckedUpdateInput>
+  }
+
+  /**
+   * ReportAddendumEntry delete
+   */
+  export type ReportAddendumEntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+    /**
+     * Filter which ReportAddendumEntry to delete.
+     */
+    where: ReportAddendumEntryWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumEntry deleteMany
+   */
+  export type ReportAddendumEntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportAddendumEntries to delete
+     */
+    where?: ReportAddendumEntryWhereInput
+    /**
+     * Limit how many ReportAddendumEntries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportAddendumEntry.maintenanceCase
+   */
+  export type ReportAddendumEntry$maintenanceCaseArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MaintenanceCase
+     */
+    select?: MaintenanceCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MaintenanceCase
+     */
+    omit?: MaintenanceCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MaintenanceCaseInclude<ExtArgs> | null
+    where?: MaintenanceCaseWhereInput
+  }
+
+  /**
+   * ReportAddendumEntry.propertyAsset
+   */
+  export type ReportAddendumEntry$propertyAssetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyAsset
+     */
+    select?: PropertyAssetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyAsset
+     */
+    omit?: PropertyAssetOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyAssetInclude<ExtArgs> | null
+    where?: PropertyAssetWhereInput
+  }
+
+  /**
+   * ReportAddendumEntry.photos
+   */
+  export type ReportAddendumEntry$photosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    where?: ReportAddendumPhotoWhereInput
+    orderBy?: ReportAddendumPhotoOrderByWithRelationInput | ReportAddendumPhotoOrderByWithRelationInput[]
+    cursor?: ReportAddendumPhotoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumPhotoScalarFieldEnum | ReportAddendumPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumEntry without action
+   */
+  export type ReportAddendumEntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumEntry
+     */
+    select?: ReportAddendumEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumEntry
+     */
+    omit?: ReportAddendumEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumEntryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReportAddendumPhoto
+   */
+
+  export type AggregateReportAddendumPhoto = {
+    _count: ReportAddendumPhotoCountAggregateOutputType | null
+    _avg: ReportAddendumPhotoAvgAggregateOutputType | null
+    _sum: ReportAddendumPhotoSumAggregateOutputType | null
+    _min: ReportAddendumPhotoMinAggregateOutputType | null
+    _max: ReportAddendumPhotoMaxAggregateOutputType | null
+  }
+
+  export type ReportAddendumPhotoAvgAggregateOutputType = {
+    sizeBytes: number | null
+  }
+
+  export type ReportAddendumPhotoSumAggregateOutputType = {
+    sizeBytes: number | null
+  }
+
+  export type ReportAddendumPhotoMinAggregateOutputType = {
+    id: string | null
+    entryId: string | null
+    storagePath: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    note: string | null
+    label: string | null
+    maintenanceEvidenceId: string | null
+    createdAt: Date | null
+  }
+
+  export type ReportAddendumPhotoMaxAggregateOutputType = {
+    id: string | null
+    entryId: string | null
+    storagePath: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    note: string | null
+    label: string | null
+    maintenanceEvidenceId: string | null
+    createdAt: Date | null
+  }
+
+  export type ReportAddendumPhotoCountAggregateOutputType = {
+    id: number
+    entryId: number
+    storagePath: number
+    mimeType: number
+    sizeBytes: number
+    note: number
+    label: number
+    maintenanceEvidenceId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ReportAddendumPhotoAvgAggregateInputType = {
+    sizeBytes?: true
+  }
+
+  export type ReportAddendumPhotoSumAggregateInputType = {
+    sizeBytes?: true
+  }
+
+  export type ReportAddendumPhotoMinAggregateInputType = {
+    id?: true
+    entryId?: true
+    storagePath?: true
+    mimeType?: true
+    sizeBytes?: true
+    note?: true
+    label?: true
+    maintenanceEvidenceId?: true
+    createdAt?: true
+  }
+
+  export type ReportAddendumPhotoMaxAggregateInputType = {
+    id?: true
+    entryId?: true
+    storagePath?: true
+    mimeType?: true
+    sizeBytes?: true
+    note?: true
+    label?: true
+    maintenanceEvidenceId?: true
+    createdAt?: true
+  }
+
+  export type ReportAddendumPhotoCountAggregateInputType = {
+    id?: true
+    entryId?: true
+    storagePath?: true
+    mimeType?: true
+    sizeBytes?: true
+    note?: true
+    label?: true
+    maintenanceEvidenceId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ReportAddendumPhotoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportAddendumPhoto to aggregate.
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumPhotos to fetch.
+     */
+    orderBy?: ReportAddendumPhotoOrderByWithRelationInput | ReportAddendumPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReportAddendumPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReportAddendumPhotos
+    **/
+    _count?: true | ReportAddendumPhotoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReportAddendumPhotoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReportAddendumPhotoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReportAddendumPhotoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReportAddendumPhotoMaxAggregateInputType
+  }
+
+  export type GetReportAddendumPhotoAggregateType<T extends ReportAddendumPhotoAggregateArgs> = {
+        [P in keyof T & keyof AggregateReportAddendumPhoto]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReportAddendumPhoto[P]>
+      : GetScalarType<T[P], AggregateReportAddendumPhoto[P]>
+  }
+
+
+
+
+  export type ReportAddendumPhotoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumPhotoWhereInput
+    orderBy?: ReportAddendumPhotoOrderByWithAggregationInput | ReportAddendumPhotoOrderByWithAggregationInput[]
+    by: ReportAddendumPhotoScalarFieldEnum[] | ReportAddendumPhotoScalarFieldEnum
+    having?: ReportAddendumPhotoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReportAddendumPhotoCountAggregateInputType | true
+    _avg?: ReportAddendumPhotoAvgAggregateInputType
+    _sum?: ReportAddendumPhotoSumAggregateInputType
+    _min?: ReportAddendumPhotoMinAggregateInputType
+    _max?: ReportAddendumPhotoMaxAggregateInputType
+  }
+
+  export type ReportAddendumPhotoGroupByOutputType = {
+    id: string
+    entryId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number | null
+    note: string | null
+    label: string | null
+    maintenanceEvidenceId: string | null
+    createdAt: Date
+    _count: ReportAddendumPhotoCountAggregateOutputType | null
+    _avg: ReportAddendumPhotoAvgAggregateOutputType | null
+    _sum: ReportAddendumPhotoSumAggregateOutputType | null
+    _min: ReportAddendumPhotoMinAggregateOutputType | null
+    _max: ReportAddendumPhotoMaxAggregateOutputType | null
+  }
+
+  type GetReportAddendumPhotoGroupByPayload<T extends ReportAddendumPhotoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReportAddendumPhotoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReportAddendumPhotoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReportAddendumPhotoGroupByOutputType[P]>
+            : GetScalarType<T[P], ReportAddendumPhotoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReportAddendumPhotoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    entryId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    label?: boolean
+    maintenanceEvidenceId?: boolean
+    createdAt?: boolean
+    entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendumPhoto"]>
+
+  export type ReportAddendumPhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    entryId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    label?: boolean
+    maintenanceEvidenceId?: boolean
+    createdAt?: boolean
+    entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendumPhoto"]>
+
+  export type ReportAddendumPhotoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    entryId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    label?: boolean
+    maintenanceEvidenceId?: boolean
+    createdAt?: boolean
+    entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportAddendumPhoto"]>
+
+  export type ReportAddendumPhotoSelectScalar = {
+    id?: boolean
+    entryId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    label?: boolean
+    maintenanceEvidenceId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ReportAddendumPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "entryId" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "label" | "maintenanceEvidenceId" | "createdAt", ExtArgs["result"]["reportAddendumPhoto"]>
+  export type ReportAddendumPhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
+  }
+  export type ReportAddendumPhotoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
+  }
+  export type ReportAddendumPhotoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
+  }
+
+  export type $ReportAddendumPhotoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReportAddendumPhoto"
+    objects: {
+      entry: Prisma.$ReportAddendumEntryPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      entryId: string
+      storagePath: string
+      mimeType: string
+      sizeBytes: number | null
+      note: string | null
+      /**
+       * "Before" or "After" for a repair's evidence.
+       */
+      label: string | null
+      /**
+       * Provenance only, so the same evidence is not attached twice.
+       */
+      maintenanceEvidenceId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["reportAddendumPhoto"]>
+    composites: {}
+  }
+
+  type ReportAddendumPhotoGetPayload<S extends boolean | null | undefined | ReportAddendumPhotoDefaultArgs> = $Result.GetResult<Prisma.$ReportAddendumPhotoPayload, S>
+
+  type ReportAddendumPhotoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReportAddendumPhotoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReportAddendumPhotoCountAggregateInputType | true
+    }
+
+  export interface ReportAddendumPhotoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReportAddendumPhoto'], meta: { name: 'ReportAddendumPhoto' } }
+    /**
+     * Find zero or one ReportAddendumPhoto that matches the filter.
+     * @param {ReportAddendumPhotoFindUniqueArgs} args - Arguments to find a ReportAddendumPhoto
+     * @example
+     * // Get one ReportAddendumPhoto
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReportAddendumPhotoFindUniqueArgs>(args: SelectSubset<T, ReportAddendumPhotoFindUniqueArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReportAddendumPhoto that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReportAddendumPhotoFindUniqueOrThrowArgs} args - Arguments to find a ReportAddendumPhoto
+     * @example
+     * // Get one ReportAddendumPhoto
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReportAddendumPhotoFindUniqueOrThrowArgs>(args: SelectSubset<T, ReportAddendumPhotoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportAddendumPhoto that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoFindFirstArgs} args - Arguments to find a ReportAddendumPhoto
+     * @example
+     * // Get one ReportAddendumPhoto
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReportAddendumPhotoFindFirstArgs>(args?: SelectSubset<T, ReportAddendumPhotoFindFirstArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportAddendumPhoto that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoFindFirstOrThrowArgs} args - Arguments to find a ReportAddendumPhoto
+     * @example
+     * // Get one ReportAddendumPhoto
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReportAddendumPhotoFindFirstOrThrowArgs>(args?: SelectSubset<T, ReportAddendumPhotoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReportAddendumPhotos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReportAddendumPhotos
+     * const reportAddendumPhotos = await prisma.reportAddendumPhoto.findMany()
+     * 
+     * // Get first 10 ReportAddendumPhotos
+     * const reportAddendumPhotos = await prisma.reportAddendumPhoto.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reportAddendumPhotoWithIdOnly = await prisma.reportAddendumPhoto.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReportAddendumPhotoFindManyArgs>(args?: SelectSubset<T, ReportAddendumPhotoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReportAddendumPhoto.
+     * @param {ReportAddendumPhotoCreateArgs} args - Arguments to create a ReportAddendumPhoto.
+     * @example
+     * // Create one ReportAddendumPhoto
+     * const ReportAddendumPhoto = await prisma.reportAddendumPhoto.create({
+     *   data: {
+     *     // ... data to create a ReportAddendumPhoto
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReportAddendumPhotoCreateArgs>(args: SelectSubset<T, ReportAddendumPhotoCreateArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReportAddendumPhotos.
+     * @param {ReportAddendumPhotoCreateManyArgs} args - Arguments to create many ReportAddendumPhotos.
+     * @example
+     * // Create many ReportAddendumPhotos
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReportAddendumPhotoCreateManyArgs>(args?: SelectSubset<T, ReportAddendumPhotoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReportAddendumPhotos and returns the data saved in the database.
+     * @param {ReportAddendumPhotoCreateManyAndReturnArgs} args - Arguments to create many ReportAddendumPhotos.
+     * @example
+     * // Create many ReportAddendumPhotos
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReportAddendumPhotos and only return the `id`
+     * const reportAddendumPhotoWithIdOnly = await prisma.reportAddendumPhoto.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReportAddendumPhotoCreateManyAndReturnArgs>(args?: SelectSubset<T, ReportAddendumPhotoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReportAddendumPhoto.
+     * @param {ReportAddendumPhotoDeleteArgs} args - Arguments to delete one ReportAddendumPhoto.
+     * @example
+     * // Delete one ReportAddendumPhoto
+     * const ReportAddendumPhoto = await prisma.reportAddendumPhoto.delete({
+     *   where: {
+     *     // ... filter to delete one ReportAddendumPhoto
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReportAddendumPhotoDeleteArgs>(args: SelectSubset<T, ReportAddendumPhotoDeleteArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReportAddendumPhoto.
+     * @param {ReportAddendumPhotoUpdateArgs} args - Arguments to update one ReportAddendumPhoto.
+     * @example
+     * // Update one ReportAddendumPhoto
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReportAddendumPhotoUpdateArgs>(args: SelectSubset<T, ReportAddendumPhotoUpdateArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReportAddendumPhotos.
+     * @param {ReportAddendumPhotoDeleteManyArgs} args - Arguments to filter ReportAddendumPhotos to delete.
+     * @example
+     * // Delete a few ReportAddendumPhotos
+     * const { count } = await prisma.reportAddendumPhoto.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReportAddendumPhotoDeleteManyArgs>(args?: SelectSubset<T, ReportAddendumPhotoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportAddendumPhotos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReportAddendumPhotos
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReportAddendumPhotoUpdateManyArgs>(args: SelectSubset<T, ReportAddendumPhotoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportAddendumPhotos and returns the data updated in the database.
+     * @param {ReportAddendumPhotoUpdateManyAndReturnArgs} args - Arguments to update many ReportAddendumPhotos.
+     * @example
+     * // Update many ReportAddendumPhotos
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReportAddendumPhotos and only return the `id`
+     * const reportAddendumPhotoWithIdOnly = await prisma.reportAddendumPhoto.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReportAddendumPhotoUpdateManyAndReturnArgs>(args: SelectSubset<T, ReportAddendumPhotoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReportAddendumPhoto.
+     * @param {ReportAddendumPhotoUpsertArgs} args - Arguments to update or create a ReportAddendumPhoto.
+     * @example
+     * // Update or create a ReportAddendumPhoto
+     * const reportAddendumPhoto = await prisma.reportAddendumPhoto.upsert({
+     *   create: {
+     *     // ... data to create a ReportAddendumPhoto
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReportAddendumPhoto we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReportAddendumPhotoUpsertArgs>(args: SelectSubset<T, ReportAddendumPhotoUpsertArgs<ExtArgs>>): Prisma__ReportAddendumPhotoClient<$Result.GetResult<Prisma.$ReportAddendumPhotoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReportAddendumPhotos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoCountArgs} args - Arguments to filter ReportAddendumPhotos to count.
+     * @example
+     * // Count the number of ReportAddendumPhotos
+     * const count = await prisma.reportAddendumPhoto.count({
+     *   where: {
+     *     // ... the filter for the ReportAddendumPhotos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReportAddendumPhotoCountArgs>(
+      args?: Subset<T, ReportAddendumPhotoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReportAddendumPhotoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReportAddendumPhoto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReportAddendumPhotoAggregateArgs>(args: Subset<T, ReportAddendumPhotoAggregateArgs>): Prisma.PrismaPromise<GetReportAddendumPhotoAggregateType<T>>
+
+    /**
+     * Group by ReportAddendumPhoto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportAddendumPhotoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReportAddendumPhotoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReportAddendumPhotoGroupByArgs['orderBy'] }
+        : { orderBy?: ReportAddendumPhotoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReportAddendumPhotoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReportAddendumPhotoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReportAddendumPhoto model
+   */
+  readonly fields: ReportAddendumPhotoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReportAddendumPhoto.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReportAddendumPhotoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    entry<T extends ReportAddendumEntryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendumEntryDefaultArgs<ExtArgs>>): Prisma__ReportAddendumEntryClient<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReportAddendumPhoto model
+   */
+  interface ReportAddendumPhotoFieldRefs {
+    readonly id: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly entryId: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly storagePath: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly mimeType: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly sizeBytes: FieldRef<"ReportAddendumPhoto", 'Int'>
+    readonly note: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly label: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly maintenanceEvidenceId: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly createdAt: FieldRef<"ReportAddendumPhoto", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReportAddendumPhoto findUnique
+   */
+  export type ReportAddendumPhotoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumPhoto to fetch.
+     */
+    where: ReportAddendumPhotoWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumPhoto findUniqueOrThrow
+   */
+  export type ReportAddendumPhotoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumPhoto to fetch.
+     */
+    where: ReportAddendumPhotoWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumPhoto findFirst
+   */
+  export type ReportAddendumPhotoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumPhoto to fetch.
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumPhotos to fetch.
+     */
+    orderBy?: ReportAddendumPhotoOrderByWithRelationInput | ReportAddendumPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportAddendumPhotos.
+     */
+    cursor?: ReportAddendumPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddendumPhotos.
+     */
+    distinct?: ReportAddendumPhotoScalarFieldEnum | ReportAddendumPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumPhoto findFirstOrThrow
+   */
+  export type ReportAddendumPhotoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumPhoto to fetch.
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumPhotos to fetch.
+     */
+    orderBy?: ReportAddendumPhotoOrderByWithRelationInput | ReportAddendumPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportAddendumPhotos.
+     */
+    cursor?: ReportAddendumPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddendumPhotos.
+     */
+    distinct?: ReportAddendumPhotoScalarFieldEnum | ReportAddendumPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumPhoto findMany
+   */
+  export type ReportAddendumPhotoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportAddendumPhotos to fetch.
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportAddendumPhotos to fetch.
+     */
+    orderBy?: ReportAddendumPhotoOrderByWithRelationInput | ReportAddendumPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReportAddendumPhotos.
+     */
+    cursor?: ReportAddendumPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportAddendumPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportAddendumPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportAddendumPhotos.
+     */
+    distinct?: ReportAddendumPhotoScalarFieldEnum | ReportAddendumPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendumPhoto create
+   */
+  export type ReportAddendumPhotoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReportAddendumPhoto.
+     */
+    data: XOR<ReportAddendumPhotoCreateInput, ReportAddendumPhotoUncheckedCreateInput>
+  }
+
+  /**
+   * ReportAddendumPhoto createMany
+   */
+  export type ReportAddendumPhotoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReportAddendumPhotos.
+     */
+    data: ReportAddendumPhotoCreateManyInput | ReportAddendumPhotoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReportAddendumPhoto createManyAndReturn
+   */
+  export type ReportAddendumPhotoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReportAddendumPhotos.
+     */
+    data: ReportAddendumPhotoCreateManyInput | ReportAddendumPhotoCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendumPhoto update
+   */
+  export type ReportAddendumPhotoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReportAddendumPhoto.
+     */
+    data: XOR<ReportAddendumPhotoUpdateInput, ReportAddendumPhotoUncheckedUpdateInput>
+    /**
+     * Choose, which ReportAddendumPhoto to update.
+     */
+    where: ReportAddendumPhotoWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumPhoto updateMany
+   */
+  export type ReportAddendumPhotoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReportAddendumPhotos.
+     */
+    data: XOR<ReportAddendumPhotoUpdateManyMutationInput, ReportAddendumPhotoUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportAddendumPhotos to update
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * Limit how many ReportAddendumPhotos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportAddendumPhoto updateManyAndReturn
+   */
+  export type ReportAddendumPhotoUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * The data used to update ReportAddendumPhotos.
+     */
+    data: XOR<ReportAddendumPhotoUpdateManyMutationInput, ReportAddendumPhotoUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportAddendumPhotos to update
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * Limit how many ReportAddendumPhotos to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportAddendumPhoto upsert
+   */
+  export type ReportAddendumPhotoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReportAddendumPhoto to update in case it exists.
+     */
+    where: ReportAddendumPhotoWhereUniqueInput
+    /**
+     * In case the ReportAddendumPhoto found by the `where` argument doesn't exist, create a new ReportAddendumPhoto with this data.
+     */
+    create: XOR<ReportAddendumPhotoCreateInput, ReportAddendumPhotoUncheckedCreateInput>
+    /**
+     * In case the ReportAddendumPhoto was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReportAddendumPhotoUpdateInput, ReportAddendumPhotoUncheckedUpdateInput>
+  }
+
+  /**
+   * ReportAddendumPhoto delete
+   */
+  export type ReportAddendumPhotoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+    /**
+     * Filter which ReportAddendumPhoto to delete.
+     */
+    where: ReportAddendumPhotoWhereUniqueInput
+  }
+
+  /**
+   * ReportAddendumPhoto deleteMany
+   */
+  export type ReportAddendumPhotoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportAddendumPhotos to delete
+     */
+    where?: ReportAddendumPhotoWhereInput
+    /**
+     * Limit how many ReportAddendumPhotos to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportAddendumPhoto without action
+   */
+  export type ReportAddendumPhotoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendumPhoto
+     */
+    select?: ReportAddendumPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendumPhoto
+     */
+    omit?: ReportAddendumPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumPhotoInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AddendumAcknowledgement
+   */
+
+  export type AggregateAddendumAcknowledgement = {
+    _count: AddendumAcknowledgementCountAggregateOutputType | null
+    _min: AddendumAcknowledgementMinAggregateOutputType | null
+    _max: AddendumAcknowledgementMaxAggregateOutputType | null
+  }
+
+  export type AddendumAcknowledgementMinAggregateOutputType = {
+    id: string | null
+    addendumId: string | null
+    stakeholderId: string | null
+    acknowledgedAt: Date | null
+    ipAddress: string | null
+    contentHash: string | null
+  }
+
+  export type AddendumAcknowledgementMaxAggregateOutputType = {
+    id: string | null
+    addendumId: string | null
+    stakeholderId: string | null
+    acknowledgedAt: Date | null
+    ipAddress: string | null
+    contentHash: string | null
+  }
+
+  export type AddendumAcknowledgementCountAggregateOutputType = {
+    id: number
+    addendumId: number
+    stakeholderId: number
+    acknowledgedAt: number
+    ipAddress: number
+    contentHash: number
+    _all: number
+  }
+
+
+  export type AddendumAcknowledgementMinAggregateInputType = {
+    id?: true
+    addendumId?: true
+    stakeholderId?: true
+    acknowledgedAt?: true
+    ipAddress?: true
+    contentHash?: true
+  }
+
+  export type AddendumAcknowledgementMaxAggregateInputType = {
+    id?: true
+    addendumId?: true
+    stakeholderId?: true
+    acknowledgedAt?: true
+    ipAddress?: true
+    contentHash?: true
+  }
+
+  export type AddendumAcknowledgementCountAggregateInputType = {
+    id?: true
+    addendumId?: true
+    stakeholderId?: true
+    acknowledgedAt?: true
+    ipAddress?: true
+    contentHash?: true
+    _all?: true
+  }
+
+  export type AddendumAcknowledgementAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AddendumAcknowledgement to aggregate.
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AddendumAcknowledgements to fetch.
+     */
+    orderBy?: AddendumAcknowledgementOrderByWithRelationInput | AddendumAcknowledgementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AddendumAcknowledgementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AddendumAcknowledgements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AddendumAcknowledgements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AddendumAcknowledgements
+    **/
+    _count?: true | AddendumAcknowledgementCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AddendumAcknowledgementMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AddendumAcknowledgementMaxAggregateInputType
+  }
+
+  export type GetAddendumAcknowledgementAggregateType<T extends AddendumAcknowledgementAggregateArgs> = {
+        [P in keyof T & keyof AggregateAddendumAcknowledgement]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAddendumAcknowledgement[P]>
+      : GetScalarType<T[P], AggregateAddendumAcknowledgement[P]>
+  }
+
+
+
+
+  export type AddendumAcknowledgementGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AddendumAcknowledgementWhereInput
+    orderBy?: AddendumAcknowledgementOrderByWithAggregationInput | AddendumAcknowledgementOrderByWithAggregationInput[]
+    by: AddendumAcknowledgementScalarFieldEnum[] | AddendumAcknowledgementScalarFieldEnum
+    having?: AddendumAcknowledgementScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AddendumAcknowledgementCountAggregateInputType | true
+    _min?: AddendumAcknowledgementMinAggregateInputType
+    _max?: AddendumAcknowledgementMaxAggregateInputType
+  }
+
+  export type AddendumAcknowledgementGroupByOutputType = {
+    id: string
+    addendumId: string
+    stakeholderId: string
+    acknowledgedAt: Date
+    ipAddress: string | null
+    contentHash: string
+    _count: AddendumAcknowledgementCountAggregateOutputType | null
+    _min: AddendumAcknowledgementMinAggregateOutputType | null
+    _max: AddendumAcknowledgementMaxAggregateOutputType | null
+  }
+
+  type GetAddendumAcknowledgementGroupByPayload<T extends AddendumAcknowledgementGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AddendumAcknowledgementGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AddendumAcknowledgementGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AddendumAcknowledgementGroupByOutputType[P]>
+            : GetScalarType<T[P], AddendumAcknowledgementGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AddendumAcknowledgementSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    addendumId?: boolean
+    stakeholderId?: boolean
+    acknowledgedAt?: boolean
+    ipAddress?: boolean
+    contentHash?: boolean
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["addendumAcknowledgement"]>
+
+  export type AddendumAcknowledgementSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    addendumId?: boolean
+    stakeholderId?: boolean
+    acknowledgedAt?: boolean
+    ipAddress?: boolean
+    contentHash?: boolean
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["addendumAcknowledgement"]>
+
+  export type AddendumAcknowledgementSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    addendumId?: boolean
+    stakeholderId?: boolean
+    acknowledgedAt?: boolean
+    ipAddress?: boolean
+    contentHash?: boolean
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["addendumAcknowledgement"]>
+
+  export type AddendumAcknowledgementSelectScalar = {
+    id?: boolean
+    addendumId?: boolean
+    stakeholderId?: boolean
+    acknowledgedAt?: boolean
+    ipAddress?: boolean
+    contentHash?: boolean
+  }
+
+  export type AddendumAcknowledgementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "addendumId" | "stakeholderId" | "acknowledgedAt" | "ipAddress" | "contentHash", ExtArgs["result"]["addendumAcknowledgement"]>
+  export type AddendumAcknowledgementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AddendumAcknowledgementIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AddendumAcknowledgementIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $AddendumAcknowledgementPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AddendumAcknowledgement"
+    objects: {
+      addendum: Prisma.$ReportAddendumPayload<ExtArgs>
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      addendumId: string
+      stakeholderId: string
+      acknowledgedAt: Date
+      ipAddress: string | null
+      contentHash: string
+    }, ExtArgs["result"]["addendumAcknowledgement"]>
+    composites: {}
+  }
+
+  type AddendumAcknowledgementGetPayload<S extends boolean | null | undefined | AddendumAcknowledgementDefaultArgs> = $Result.GetResult<Prisma.$AddendumAcknowledgementPayload, S>
+
+  type AddendumAcknowledgementCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AddendumAcknowledgementFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AddendumAcknowledgementCountAggregateInputType | true
+    }
+
+  export interface AddendumAcknowledgementDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AddendumAcknowledgement'], meta: { name: 'AddendumAcknowledgement' } }
+    /**
+     * Find zero or one AddendumAcknowledgement that matches the filter.
+     * @param {AddendumAcknowledgementFindUniqueArgs} args - Arguments to find a AddendumAcknowledgement
+     * @example
+     * // Get one AddendumAcknowledgement
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AddendumAcknowledgementFindUniqueArgs>(args: SelectSubset<T, AddendumAcknowledgementFindUniqueArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AddendumAcknowledgement that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AddendumAcknowledgementFindUniqueOrThrowArgs} args - Arguments to find a AddendumAcknowledgement
+     * @example
+     * // Get one AddendumAcknowledgement
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AddendumAcknowledgementFindUniqueOrThrowArgs>(args: SelectSubset<T, AddendumAcknowledgementFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AddendumAcknowledgement that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementFindFirstArgs} args - Arguments to find a AddendumAcknowledgement
+     * @example
+     * // Get one AddendumAcknowledgement
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AddendumAcknowledgementFindFirstArgs>(args?: SelectSubset<T, AddendumAcknowledgementFindFirstArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AddendumAcknowledgement that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementFindFirstOrThrowArgs} args - Arguments to find a AddendumAcknowledgement
+     * @example
+     * // Get one AddendumAcknowledgement
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AddendumAcknowledgementFindFirstOrThrowArgs>(args?: SelectSubset<T, AddendumAcknowledgementFindFirstOrThrowArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AddendumAcknowledgements that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AddendumAcknowledgements
+     * const addendumAcknowledgements = await prisma.addendumAcknowledgement.findMany()
+     * 
+     * // Get first 10 AddendumAcknowledgements
+     * const addendumAcknowledgements = await prisma.addendumAcknowledgement.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const addendumAcknowledgementWithIdOnly = await prisma.addendumAcknowledgement.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AddendumAcknowledgementFindManyArgs>(args?: SelectSubset<T, AddendumAcknowledgementFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AddendumAcknowledgement.
+     * @param {AddendumAcknowledgementCreateArgs} args - Arguments to create a AddendumAcknowledgement.
+     * @example
+     * // Create one AddendumAcknowledgement
+     * const AddendumAcknowledgement = await prisma.addendumAcknowledgement.create({
+     *   data: {
+     *     // ... data to create a AddendumAcknowledgement
+     *   }
+     * })
+     * 
+     */
+    create<T extends AddendumAcknowledgementCreateArgs>(args: SelectSubset<T, AddendumAcknowledgementCreateArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AddendumAcknowledgements.
+     * @param {AddendumAcknowledgementCreateManyArgs} args - Arguments to create many AddendumAcknowledgements.
+     * @example
+     * // Create many AddendumAcknowledgements
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AddendumAcknowledgementCreateManyArgs>(args?: SelectSubset<T, AddendumAcknowledgementCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AddendumAcknowledgements and returns the data saved in the database.
+     * @param {AddendumAcknowledgementCreateManyAndReturnArgs} args - Arguments to create many AddendumAcknowledgements.
+     * @example
+     * // Create many AddendumAcknowledgements
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AddendumAcknowledgements and only return the `id`
+     * const addendumAcknowledgementWithIdOnly = await prisma.addendumAcknowledgement.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AddendumAcknowledgementCreateManyAndReturnArgs>(args?: SelectSubset<T, AddendumAcknowledgementCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AddendumAcknowledgement.
+     * @param {AddendumAcknowledgementDeleteArgs} args - Arguments to delete one AddendumAcknowledgement.
+     * @example
+     * // Delete one AddendumAcknowledgement
+     * const AddendumAcknowledgement = await prisma.addendumAcknowledgement.delete({
+     *   where: {
+     *     // ... filter to delete one AddendumAcknowledgement
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AddendumAcknowledgementDeleteArgs>(args: SelectSubset<T, AddendumAcknowledgementDeleteArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AddendumAcknowledgement.
+     * @param {AddendumAcknowledgementUpdateArgs} args - Arguments to update one AddendumAcknowledgement.
+     * @example
+     * // Update one AddendumAcknowledgement
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AddendumAcknowledgementUpdateArgs>(args: SelectSubset<T, AddendumAcknowledgementUpdateArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AddendumAcknowledgements.
+     * @param {AddendumAcknowledgementDeleteManyArgs} args - Arguments to filter AddendumAcknowledgements to delete.
+     * @example
+     * // Delete a few AddendumAcknowledgements
+     * const { count } = await prisma.addendumAcknowledgement.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AddendumAcknowledgementDeleteManyArgs>(args?: SelectSubset<T, AddendumAcknowledgementDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AddendumAcknowledgements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AddendumAcknowledgements
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AddendumAcknowledgementUpdateManyArgs>(args: SelectSubset<T, AddendumAcknowledgementUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AddendumAcknowledgements and returns the data updated in the database.
+     * @param {AddendumAcknowledgementUpdateManyAndReturnArgs} args - Arguments to update many AddendumAcknowledgements.
+     * @example
+     * // Update many AddendumAcknowledgements
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AddendumAcknowledgements and only return the `id`
+     * const addendumAcknowledgementWithIdOnly = await prisma.addendumAcknowledgement.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AddendumAcknowledgementUpdateManyAndReturnArgs>(args: SelectSubset<T, AddendumAcknowledgementUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AddendumAcknowledgement.
+     * @param {AddendumAcknowledgementUpsertArgs} args - Arguments to update or create a AddendumAcknowledgement.
+     * @example
+     * // Update or create a AddendumAcknowledgement
+     * const addendumAcknowledgement = await prisma.addendumAcknowledgement.upsert({
+     *   create: {
+     *     // ... data to create a AddendumAcknowledgement
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AddendumAcknowledgement we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AddendumAcknowledgementUpsertArgs>(args: SelectSubset<T, AddendumAcknowledgementUpsertArgs<ExtArgs>>): Prisma__AddendumAcknowledgementClient<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AddendumAcknowledgements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementCountArgs} args - Arguments to filter AddendumAcknowledgements to count.
+     * @example
+     * // Count the number of AddendumAcknowledgements
+     * const count = await prisma.addendumAcknowledgement.count({
+     *   where: {
+     *     // ... the filter for the AddendumAcknowledgements we want to count
+     *   }
+     * })
+    **/
+    count<T extends AddendumAcknowledgementCountArgs>(
+      args?: Subset<T, AddendumAcknowledgementCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AddendumAcknowledgementCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AddendumAcknowledgement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AddendumAcknowledgementAggregateArgs>(args: Subset<T, AddendumAcknowledgementAggregateArgs>): Prisma.PrismaPromise<GetAddendumAcknowledgementAggregateType<T>>
+
+    /**
+     * Group by AddendumAcknowledgement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddendumAcknowledgementGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AddendumAcknowledgementGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AddendumAcknowledgementGroupByArgs['orderBy'] }
+        : { orderBy?: AddendumAcknowledgementGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AddendumAcknowledgementGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAddendumAcknowledgementGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AddendumAcknowledgement model
+   */
+  readonly fields: AddendumAcknowledgementFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AddendumAcknowledgement.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AddendumAcknowledgementClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    addendum<T extends ReportAddendumDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendumDefaultArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AddendumAcknowledgement model
+   */
+  interface AddendumAcknowledgementFieldRefs {
+    readonly id: FieldRef<"AddendumAcknowledgement", 'String'>
+    readonly addendumId: FieldRef<"AddendumAcknowledgement", 'String'>
+    readonly stakeholderId: FieldRef<"AddendumAcknowledgement", 'String'>
+    readonly acknowledgedAt: FieldRef<"AddendumAcknowledgement", 'DateTime'>
+    readonly ipAddress: FieldRef<"AddendumAcknowledgement", 'String'>
+    readonly contentHash: FieldRef<"AddendumAcknowledgement", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AddendumAcknowledgement findUnique
+   */
+  export type AddendumAcknowledgementFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * Filter, which AddendumAcknowledgement to fetch.
+     */
+    where: AddendumAcknowledgementWhereUniqueInput
+  }
+
+  /**
+   * AddendumAcknowledgement findUniqueOrThrow
+   */
+  export type AddendumAcknowledgementFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * Filter, which AddendumAcknowledgement to fetch.
+     */
+    where: AddendumAcknowledgementWhereUniqueInput
+  }
+
+  /**
+   * AddendumAcknowledgement findFirst
+   */
+  export type AddendumAcknowledgementFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * Filter, which AddendumAcknowledgement to fetch.
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AddendumAcknowledgements to fetch.
+     */
+    orderBy?: AddendumAcknowledgementOrderByWithRelationInput | AddendumAcknowledgementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AddendumAcknowledgements.
+     */
+    cursor?: AddendumAcknowledgementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AddendumAcknowledgements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AddendumAcknowledgements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AddendumAcknowledgements.
+     */
+    distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
+  }
+
+  /**
+   * AddendumAcknowledgement findFirstOrThrow
+   */
+  export type AddendumAcknowledgementFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * Filter, which AddendumAcknowledgement to fetch.
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AddendumAcknowledgements to fetch.
+     */
+    orderBy?: AddendumAcknowledgementOrderByWithRelationInput | AddendumAcknowledgementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AddendumAcknowledgements.
+     */
+    cursor?: AddendumAcknowledgementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AddendumAcknowledgements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AddendumAcknowledgements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AddendumAcknowledgements.
+     */
+    distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
+  }
+
+  /**
+   * AddendumAcknowledgement findMany
+   */
+  export type AddendumAcknowledgementFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * Filter, which AddendumAcknowledgements to fetch.
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AddendumAcknowledgements to fetch.
+     */
+    orderBy?: AddendumAcknowledgementOrderByWithRelationInput | AddendumAcknowledgementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AddendumAcknowledgements.
+     */
+    cursor?: AddendumAcknowledgementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AddendumAcknowledgements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AddendumAcknowledgements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AddendumAcknowledgements.
+     */
+    distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
+  }
+
+  /**
+   * AddendumAcknowledgement create
+   */
+  export type AddendumAcknowledgementCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AddendumAcknowledgement.
+     */
+    data: XOR<AddendumAcknowledgementCreateInput, AddendumAcknowledgementUncheckedCreateInput>
+  }
+
+  /**
+   * AddendumAcknowledgement createMany
+   */
+  export type AddendumAcknowledgementCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AddendumAcknowledgements.
+     */
+    data: AddendumAcknowledgementCreateManyInput | AddendumAcknowledgementCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AddendumAcknowledgement createManyAndReturn
+   */
+  export type AddendumAcknowledgementCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * The data used to create many AddendumAcknowledgements.
+     */
+    data: AddendumAcknowledgementCreateManyInput | AddendumAcknowledgementCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AddendumAcknowledgement update
+   */
+  export type AddendumAcknowledgementUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AddendumAcknowledgement.
+     */
+    data: XOR<AddendumAcknowledgementUpdateInput, AddendumAcknowledgementUncheckedUpdateInput>
+    /**
+     * Choose, which AddendumAcknowledgement to update.
+     */
+    where: AddendumAcknowledgementWhereUniqueInput
+  }
+
+  /**
+   * AddendumAcknowledgement updateMany
+   */
+  export type AddendumAcknowledgementUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AddendumAcknowledgements.
+     */
+    data: XOR<AddendumAcknowledgementUpdateManyMutationInput, AddendumAcknowledgementUncheckedUpdateManyInput>
+    /**
+     * Filter which AddendumAcknowledgements to update
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * Limit how many AddendumAcknowledgements to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AddendumAcknowledgement updateManyAndReturn
+   */
+  export type AddendumAcknowledgementUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * The data used to update AddendumAcknowledgements.
+     */
+    data: XOR<AddendumAcknowledgementUpdateManyMutationInput, AddendumAcknowledgementUncheckedUpdateManyInput>
+    /**
+     * Filter which AddendumAcknowledgements to update
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * Limit how many AddendumAcknowledgements to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AddendumAcknowledgement upsert
+   */
+  export type AddendumAcknowledgementUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AddendumAcknowledgement to update in case it exists.
+     */
+    where: AddendumAcknowledgementWhereUniqueInput
+    /**
+     * In case the AddendumAcknowledgement found by the `where` argument doesn't exist, create a new AddendumAcknowledgement with this data.
+     */
+    create: XOR<AddendumAcknowledgementCreateInput, AddendumAcknowledgementUncheckedCreateInput>
+    /**
+     * In case the AddendumAcknowledgement was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AddendumAcknowledgementUpdateInput, AddendumAcknowledgementUncheckedUpdateInput>
+  }
+
+  /**
+   * AddendumAcknowledgement delete
+   */
+  export type AddendumAcknowledgementDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+    /**
+     * Filter which AddendumAcknowledgement to delete.
+     */
+    where: AddendumAcknowledgementWhereUniqueInput
+  }
+
+  /**
+   * AddendumAcknowledgement deleteMany
+   */
+  export type AddendumAcknowledgementDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AddendumAcknowledgements to delete
+     */
+    where?: AddendumAcknowledgementWhereInput
+    /**
+     * Limit how many AddendumAcknowledgements to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AddendumAcknowledgement without action
+   */
+  export type AddendumAcknowledgementDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AddendumAcknowledgement
+     */
+    select?: AddendumAcknowledgementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AddendumAcknowledgement
+     */
+    omit?: AddendumAcknowledgementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddendumAcknowledgementInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model AccountDeletionRequest
    */
 
@@ -41434,6 +46971,73 @@ export namespace Prisma {
   export type AssessmentVersionScalarFieldEnum = (typeof AssessmentVersionScalarFieldEnum)[keyof typeof AssessmentVersionScalarFieldEnum]
 
 
+  export const ReportAddendumScalarFieldEnum: {
+    id: 'id',
+    inspectionId: 'inspectionId',
+    number: 'number',
+    title: 'title',
+    reason: 'reason',
+    effectiveDate: 'effectiveDate',
+    createdById: 'createdById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    publishedAt: 'publishedAt',
+    publishedById: 'publishedById',
+    snapshot: 'snapshot',
+    contentHash: 'contentHash',
+    acknowledgedAt: 'acknowledgedAt'
+  };
+
+  export type ReportAddendumScalarFieldEnum = (typeof ReportAddendumScalarFieldEnum)[keyof typeof ReportAddendumScalarFieldEnum]
+
+
+  export const ReportAddendumEntryScalarFieldEnum: {
+    id: 'id',
+    addendumId: 'addendumId',
+    change: 'change',
+    roomName: 'roomName',
+    targetKey: 'targetKey',
+    name: 'name',
+    category: 'category',
+    condition: 'condition',
+    quantity: 'quantity',
+    identifier: 'identifier',
+    notes: 'notes',
+    maintenanceCaseId: 'maintenanceCaseId',
+    propertyAssetId: 'propertyAssetId',
+    createdAt: 'createdAt'
+  };
+
+  export type ReportAddendumEntryScalarFieldEnum = (typeof ReportAddendumEntryScalarFieldEnum)[keyof typeof ReportAddendumEntryScalarFieldEnum]
+
+
+  export const ReportAddendumPhotoScalarFieldEnum: {
+    id: 'id',
+    entryId: 'entryId',
+    storagePath: 'storagePath',
+    mimeType: 'mimeType',
+    sizeBytes: 'sizeBytes',
+    note: 'note',
+    label: 'label',
+    maintenanceEvidenceId: 'maintenanceEvidenceId',
+    createdAt: 'createdAt'
+  };
+
+  export type ReportAddendumPhotoScalarFieldEnum = (typeof ReportAddendumPhotoScalarFieldEnum)[keyof typeof ReportAddendumPhotoScalarFieldEnum]
+
+
+  export const AddendumAcknowledgementScalarFieldEnum: {
+    id: 'id',
+    addendumId: 'addendumId',
+    stakeholderId: 'stakeholderId',
+    acknowledgedAt: 'acknowledgedAt',
+    ipAddress: 'ipAddress',
+    contentHash: 'contentHash'
+  };
+
+  export type AddendumAcknowledgementScalarFieldEnum = (typeof AddendumAcknowledgementScalarFieldEnum)[keyof typeof AddendumAcknowledgementScalarFieldEnum]
+
+
   export const AccountDeletionRequestScalarFieldEnum: {
     id: 'id',
     stakeholderId: 'stakeholderId',
@@ -42003,6 +47607,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'AddendumChange'
+   */
+  export type EnumAddendumChangeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AddendumChange'>
+    
+
+
+  /**
+   * Reference to a field of type 'AddendumChange[]'
+   */
+  export type ListEnumAddendumChangeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AddendumChange[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DeletionRequestStatus'
    */
   export type EnumDeletionRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeletionRequestStatus'>
@@ -42065,6 +47683,9 @@ export namespace Prisma {
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
+    addendaCreated?: ReportAddendumListRelationFilter
+    addendaPublished?: ReportAddendumListRelationFilter
+    addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }
@@ -42098,6 +47719,9 @@ export namespace Prisma {
     branding?: AgentBrandingOrderByWithRelationInput
     errorEvents?: ErrorEventOrderByRelationAggregateInput
     reportEmails?: ReportEmailOrderByRelationAggregateInput
+    addendaCreated?: ReportAddendumOrderByRelationAggregateInput
+    addendaPublished?: ReportAddendumOrderByRelationAggregateInput
+    addendumAcknowledgements?: AddendumAcknowledgementOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
   }
@@ -42134,6 +47758,9 @@ export namespace Prisma {
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
+    addendaCreated?: ReportAddendumListRelationFilter
+    addendaPublished?: ReportAddendumListRelationFilter
+    addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }, "id" | "email" | "authUserId">
@@ -42600,6 +48227,7 @@ export namespace Prisma {
     signatures?: SignatureListRelationFilter
     assessments?: AssessmentVersionListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
+    addenda?: ReportAddendumListRelationFilter
   }
 
   export type InspectionOrderByWithRelationInput = {
@@ -42628,6 +48256,7 @@ export namespace Prisma {
     signatures?: SignatureOrderByRelationAggregateInput
     assessments?: AssessmentVersionOrderByRelationAggregateInput
     reportEmails?: ReportEmailOrderByRelationAggregateInput
+    addenda?: ReportAddendumOrderByRelationAggregateInput
   }
 
   export type InspectionWhereUniqueInput = Prisma.AtLeast<{
@@ -42659,6 +48288,7 @@ export namespace Prisma {
     signatures?: SignatureListRelationFilter
     assessments?: AssessmentVersionListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
+    addenda?: ReportAddendumListRelationFilter
   }, "id" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
@@ -43098,6 +48728,7 @@ export namespace Prisma {
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
     inspectionItems?: InspectionItemListRelationFilter
     maintenanceCases?: MaintenanceCaseListRelationFilter
+    addendumEntries?: ReportAddendumEntryListRelationFilter
   }
 
   export type PropertyAssetOrderByWithRelationInput = {
@@ -43113,6 +48744,7 @@ export namespace Prisma {
     property?: PropertyOrderByWithRelationInput
     inspectionItems?: InspectionItemOrderByRelationAggregateInput
     maintenanceCases?: MaintenanceCaseOrderByRelationAggregateInput
+    addendumEntries?: ReportAddendumEntryOrderByRelationAggregateInput
   }
 
   export type PropertyAssetWhereUniqueInput = Prisma.AtLeast<{
@@ -43131,6 +48763,7 @@ export namespace Prisma {
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
     inspectionItems?: InspectionItemListRelationFilter
     maintenanceCases?: MaintenanceCaseListRelationFilter
+    addendumEntries?: ReportAddendumEntryListRelationFilter
   }, "id">
 
   export type PropertyAssetOrderByWithAggregationInput = {
@@ -43190,6 +48823,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceListRelationFilter
     findings?: FindingListRelationFilter
     responsibilityProposals?: ResponsibilityProposalListRelationFilter
+    addendumEntries?: ReportAddendumEntryListRelationFilter
   }
 
   export type MaintenanceCaseOrderByWithRelationInput = {
@@ -43216,6 +48850,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceOrderByRelationAggregateInput
     findings?: FindingOrderByRelationAggregateInput
     responsibilityProposals?: ResponsibilityProposalOrderByRelationAggregateInput
+    addendumEntries?: ReportAddendumEntryOrderByRelationAggregateInput
   }
 
   export type MaintenanceCaseWhereUniqueInput = Prisma.AtLeast<{
@@ -43245,6 +48880,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceListRelationFilter
     findings?: FindingListRelationFilter
     responsibilityProposals?: ResponsibilityProposalListRelationFilter
+    addendumEntries?: ReportAddendumEntryListRelationFilter
   }, "id" | "clientId">
 
   export type MaintenanceCaseOrderByWithAggregationInput = {
@@ -44385,6 +50021,373 @@ export namespace Prisma {
     publishedById?: StringWithAggregatesFilter<"AssessmentVersion"> | string
   }
 
+  export type ReportAddendumWhereInput = {
+    AND?: ReportAddendumWhereInput | ReportAddendumWhereInput[]
+    OR?: ReportAddendumWhereInput[]
+    NOT?: ReportAddendumWhereInput | ReportAddendumWhereInput[]
+    id?: StringFilter<"ReportAddendum"> | string
+    inspectionId?: StringFilter<"ReportAddendum"> | string
+    number?: IntNullableFilter<"ReportAddendum"> | number | null
+    title?: StringFilter<"ReportAddendum"> | string
+    reason?: StringNullableFilter<"ReportAddendum"> | string | null
+    effectiveDate?: DateTimeFilter<"ReportAddendum"> | Date | string
+    createdById?: StringFilter<"ReportAddendum"> | string
+    createdAt?: DateTimeFilter<"ReportAddendum"> | Date | string
+    updatedAt?: DateTimeFilter<"ReportAddendum"> | Date | string
+    publishedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    publishedById?: StringNullableFilter<"ReportAddendum"> | string | null
+    snapshot?: JsonNullableFilter<"ReportAddendum">
+    contentHash?: StringNullableFilter<"ReportAddendum"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    createdBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    publishedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    entries?: ReportAddendumEntryListRelationFilter
+    acknowledgements?: AddendumAcknowledgementListRelationFilter
+  }
+
+  export type ReportAddendumOrderByWithRelationInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    number?: SortOrderInput | SortOrder
+    title?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    effectiveDate?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    publishedById?: SortOrderInput | SortOrder
+    snapshot?: SortOrderInput | SortOrder
+    contentHash?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    inspection?: InspectionOrderByWithRelationInput
+    createdBy?: StakeholderOrderByWithRelationInput
+    publishedBy?: StakeholderOrderByWithRelationInput
+    entries?: ReportAddendumEntryOrderByRelationAggregateInput
+    acknowledgements?: AddendumAcknowledgementOrderByRelationAggregateInput
+  }
+
+  export type ReportAddendumWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    inspectionId_number?: ReportAddendumInspectionIdNumberCompoundUniqueInput
+    AND?: ReportAddendumWhereInput | ReportAddendumWhereInput[]
+    OR?: ReportAddendumWhereInput[]
+    NOT?: ReportAddendumWhereInput | ReportAddendumWhereInput[]
+    inspectionId?: StringFilter<"ReportAddendum"> | string
+    number?: IntNullableFilter<"ReportAddendum"> | number | null
+    title?: StringFilter<"ReportAddendum"> | string
+    reason?: StringNullableFilter<"ReportAddendum"> | string | null
+    effectiveDate?: DateTimeFilter<"ReportAddendum"> | Date | string
+    createdById?: StringFilter<"ReportAddendum"> | string
+    createdAt?: DateTimeFilter<"ReportAddendum"> | Date | string
+    updatedAt?: DateTimeFilter<"ReportAddendum"> | Date | string
+    publishedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    publishedById?: StringNullableFilter<"ReportAddendum"> | string | null
+    snapshot?: JsonNullableFilter<"ReportAddendum">
+    contentHash?: StringNullableFilter<"ReportAddendum"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    createdBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    publishedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    entries?: ReportAddendumEntryListRelationFilter
+    acknowledgements?: AddendumAcknowledgementListRelationFilter
+  }, "id" | "inspectionId_number">
+
+  export type ReportAddendumOrderByWithAggregationInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    number?: SortOrderInput | SortOrder
+    title?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    effectiveDate?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    publishedById?: SortOrderInput | SortOrder
+    snapshot?: SortOrderInput | SortOrder
+    contentHash?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    _count?: ReportAddendumCountOrderByAggregateInput
+    _avg?: ReportAddendumAvgOrderByAggregateInput
+    _max?: ReportAddendumMaxOrderByAggregateInput
+    _min?: ReportAddendumMinOrderByAggregateInput
+    _sum?: ReportAddendumSumOrderByAggregateInput
+  }
+
+  export type ReportAddendumScalarWhereWithAggregatesInput = {
+    AND?: ReportAddendumScalarWhereWithAggregatesInput | ReportAddendumScalarWhereWithAggregatesInput[]
+    OR?: ReportAddendumScalarWhereWithAggregatesInput[]
+    NOT?: ReportAddendumScalarWhereWithAggregatesInput | ReportAddendumScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReportAddendum"> | string
+    inspectionId?: StringWithAggregatesFilter<"ReportAddendum"> | string
+    number?: IntNullableWithAggregatesFilter<"ReportAddendum"> | number | null
+    title?: StringWithAggregatesFilter<"ReportAddendum"> | string
+    reason?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
+    effectiveDate?: DateTimeWithAggregatesFilter<"ReportAddendum"> | Date | string
+    createdById?: StringWithAggregatesFilter<"ReportAddendum"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ReportAddendum"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ReportAddendum"> | Date | string
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"ReportAddendum"> | Date | string | null
+    publishedById?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
+    snapshot?: JsonNullableWithAggregatesFilter<"ReportAddendum">
+    contentHash?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
+    acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"ReportAddendum"> | Date | string | null
+  }
+
+  export type ReportAddendumEntryWhereInput = {
+    AND?: ReportAddendumEntryWhereInput | ReportAddendumEntryWhereInput[]
+    OR?: ReportAddendumEntryWhereInput[]
+    NOT?: ReportAddendumEntryWhereInput | ReportAddendumEntryWhereInput[]
+    id?: StringFilter<"ReportAddendumEntry"> | string
+    addendumId?: StringFilter<"ReportAddendumEntry"> | string
+    change?: EnumAddendumChangeFilter<"ReportAddendumEntry"> | $Enums.AddendumChange
+    roomName?: StringFilter<"ReportAddendumEntry"> | string
+    targetKey?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    name?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    category?: EnumItemCategoryNullableFilter<"ReportAddendumEntry"> | $Enums.ItemCategory | null
+    condition?: EnumItemConditionNullableFilter<"ReportAddendumEntry"> | $Enums.ItemCondition | null
+    quantity?: IntFilter<"ReportAddendumEntry"> | number
+    identifier?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    notes?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    maintenanceCaseId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    propertyAssetId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    createdAt?: DateTimeFilter<"ReportAddendumEntry"> | Date | string
+    addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
+    maintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
+    propertyAsset?: XOR<PropertyAssetNullableScalarRelationFilter, PropertyAssetWhereInput> | null
+    photos?: ReportAddendumPhotoListRelationFilter
+  }
+
+  export type ReportAddendumEntryOrderByWithRelationInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    change?: SortOrder
+    roomName?: SortOrder
+    targetKey?: SortOrderInput | SortOrder
+    name?: SortOrderInput | SortOrder
+    category?: SortOrderInput | SortOrder
+    condition?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    identifier?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    maintenanceCaseId?: SortOrderInput | SortOrder
+    propertyAssetId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    addendum?: ReportAddendumOrderByWithRelationInput
+    maintenanceCase?: MaintenanceCaseOrderByWithRelationInput
+    propertyAsset?: PropertyAssetOrderByWithRelationInput
+    photos?: ReportAddendumPhotoOrderByRelationAggregateInput
+  }
+
+  export type ReportAddendumEntryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ReportAddendumEntryWhereInput | ReportAddendumEntryWhereInput[]
+    OR?: ReportAddendumEntryWhereInput[]
+    NOT?: ReportAddendumEntryWhereInput | ReportAddendumEntryWhereInput[]
+    addendumId?: StringFilter<"ReportAddendumEntry"> | string
+    change?: EnumAddendumChangeFilter<"ReportAddendumEntry"> | $Enums.AddendumChange
+    roomName?: StringFilter<"ReportAddendumEntry"> | string
+    targetKey?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    name?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    category?: EnumItemCategoryNullableFilter<"ReportAddendumEntry"> | $Enums.ItemCategory | null
+    condition?: EnumItemConditionNullableFilter<"ReportAddendumEntry"> | $Enums.ItemCondition | null
+    quantity?: IntFilter<"ReportAddendumEntry"> | number
+    identifier?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    notes?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    maintenanceCaseId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    propertyAssetId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    createdAt?: DateTimeFilter<"ReportAddendumEntry"> | Date | string
+    addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
+    maintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
+    propertyAsset?: XOR<PropertyAssetNullableScalarRelationFilter, PropertyAssetWhereInput> | null
+    photos?: ReportAddendumPhotoListRelationFilter
+  }, "id">
+
+  export type ReportAddendumEntryOrderByWithAggregationInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    change?: SortOrder
+    roomName?: SortOrder
+    targetKey?: SortOrderInput | SortOrder
+    name?: SortOrderInput | SortOrder
+    category?: SortOrderInput | SortOrder
+    condition?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    identifier?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    maintenanceCaseId?: SortOrderInput | SortOrder
+    propertyAssetId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ReportAddendumEntryCountOrderByAggregateInput
+    _avg?: ReportAddendumEntryAvgOrderByAggregateInput
+    _max?: ReportAddendumEntryMaxOrderByAggregateInput
+    _min?: ReportAddendumEntryMinOrderByAggregateInput
+    _sum?: ReportAddendumEntrySumOrderByAggregateInput
+  }
+
+  export type ReportAddendumEntryScalarWhereWithAggregatesInput = {
+    AND?: ReportAddendumEntryScalarWhereWithAggregatesInput | ReportAddendumEntryScalarWhereWithAggregatesInput[]
+    OR?: ReportAddendumEntryScalarWhereWithAggregatesInput[]
+    NOT?: ReportAddendumEntryScalarWhereWithAggregatesInput | ReportAddendumEntryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReportAddendumEntry"> | string
+    addendumId?: StringWithAggregatesFilter<"ReportAddendumEntry"> | string
+    change?: EnumAddendumChangeWithAggregatesFilter<"ReportAddendumEntry"> | $Enums.AddendumChange
+    roomName?: StringWithAggregatesFilter<"ReportAddendumEntry"> | string
+    targetKey?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    name?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    category?: EnumItemCategoryNullableWithAggregatesFilter<"ReportAddendumEntry"> | $Enums.ItemCategory | null
+    condition?: EnumItemConditionNullableWithAggregatesFilter<"ReportAddendumEntry"> | $Enums.ItemCondition | null
+    quantity?: IntWithAggregatesFilter<"ReportAddendumEntry"> | number
+    identifier?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    maintenanceCaseId?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    propertyAssetId?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ReportAddendumEntry"> | Date | string
+  }
+
+  export type ReportAddendumPhotoWhereInput = {
+    AND?: ReportAddendumPhotoWhereInput | ReportAddendumPhotoWhereInput[]
+    OR?: ReportAddendumPhotoWhereInput[]
+    NOT?: ReportAddendumPhotoWhereInput | ReportAddendumPhotoWhereInput[]
+    id?: StringFilter<"ReportAddendumPhoto"> | string
+    entryId?: StringFilter<"ReportAddendumPhoto"> | string
+    storagePath?: StringFilter<"ReportAddendumPhoto"> | string
+    mimeType?: StringFilter<"ReportAddendumPhoto"> | string
+    sizeBytes?: IntNullableFilter<"ReportAddendumPhoto"> | number | null
+    note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
+    entry?: XOR<ReportAddendumEntryScalarRelationFilter, ReportAddendumEntryWhereInput>
+  }
+
+  export type ReportAddendumPhotoOrderByWithRelationInput = {
+    id?: SortOrder
+    entryId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    label?: SortOrderInput | SortOrder
+    maintenanceEvidenceId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    entry?: ReportAddendumEntryOrderByWithRelationInput
+  }
+
+  export type ReportAddendumPhotoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ReportAddendumPhotoWhereInput | ReportAddendumPhotoWhereInput[]
+    OR?: ReportAddendumPhotoWhereInput[]
+    NOT?: ReportAddendumPhotoWhereInput | ReportAddendumPhotoWhereInput[]
+    entryId?: StringFilter<"ReportAddendumPhoto"> | string
+    storagePath?: StringFilter<"ReportAddendumPhoto"> | string
+    mimeType?: StringFilter<"ReportAddendumPhoto"> | string
+    sizeBytes?: IntNullableFilter<"ReportAddendumPhoto"> | number | null
+    note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
+    entry?: XOR<ReportAddendumEntryScalarRelationFilter, ReportAddendumEntryWhereInput>
+  }, "id">
+
+  export type ReportAddendumPhotoOrderByWithAggregationInput = {
+    id?: SortOrder
+    entryId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    label?: SortOrderInput | SortOrder
+    maintenanceEvidenceId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ReportAddendumPhotoCountOrderByAggregateInput
+    _avg?: ReportAddendumPhotoAvgOrderByAggregateInput
+    _max?: ReportAddendumPhotoMaxOrderByAggregateInput
+    _min?: ReportAddendumPhotoMinOrderByAggregateInput
+    _sum?: ReportAddendumPhotoSumOrderByAggregateInput
+  }
+
+  export type ReportAddendumPhotoScalarWhereWithAggregatesInput = {
+    AND?: ReportAddendumPhotoScalarWhereWithAggregatesInput | ReportAddendumPhotoScalarWhereWithAggregatesInput[]
+    OR?: ReportAddendumPhotoScalarWhereWithAggregatesInput[]
+    NOT?: ReportAddendumPhotoScalarWhereWithAggregatesInput | ReportAddendumPhotoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReportAddendumPhoto"> | string
+    entryId?: StringWithAggregatesFilter<"ReportAddendumPhoto"> | string
+    storagePath?: StringWithAggregatesFilter<"ReportAddendumPhoto"> | string
+    mimeType?: StringWithAggregatesFilter<"ReportAddendumPhoto"> | string
+    sizeBytes?: IntNullableWithAggregatesFilter<"ReportAddendumPhoto"> | number | null
+    note?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
+    label?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
+    maintenanceEvidenceId?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ReportAddendumPhoto"> | Date | string
+  }
+
+  export type AddendumAcknowledgementWhereInput = {
+    AND?: AddendumAcknowledgementWhereInput | AddendumAcknowledgementWhereInput[]
+    OR?: AddendumAcknowledgementWhereInput[]
+    NOT?: AddendumAcknowledgementWhereInput | AddendumAcknowledgementWhereInput[]
+    id?: StringFilter<"AddendumAcknowledgement"> | string
+    addendumId?: StringFilter<"AddendumAcknowledgement"> | string
+    stakeholderId?: StringFilter<"AddendumAcknowledgement"> | string
+    acknowledgedAt?: DateTimeFilter<"AddendumAcknowledgement"> | Date | string
+    ipAddress?: StringNullableFilter<"AddendumAcknowledgement"> | string | null
+    contentHash?: StringFilter<"AddendumAcknowledgement"> | string
+    addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type AddendumAcknowledgementOrderByWithRelationInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    stakeholderId?: SortOrder
+    acknowledgedAt?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    contentHash?: SortOrder
+    addendum?: ReportAddendumOrderByWithRelationInput
+    stakeholder?: StakeholderOrderByWithRelationInput
+  }
+
+  export type AddendumAcknowledgementWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    addendumId_stakeholderId?: AddendumAcknowledgementAddendumIdStakeholderIdCompoundUniqueInput
+    AND?: AddendumAcknowledgementWhereInput | AddendumAcknowledgementWhereInput[]
+    OR?: AddendumAcknowledgementWhereInput[]
+    NOT?: AddendumAcknowledgementWhereInput | AddendumAcknowledgementWhereInput[]
+    addendumId?: StringFilter<"AddendumAcknowledgement"> | string
+    stakeholderId?: StringFilter<"AddendumAcknowledgement"> | string
+    acknowledgedAt?: DateTimeFilter<"AddendumAcknowledgement"> | Date | string
+    ipAddress?: StringNullableFilter<"AddendumAcknowledgement"> | string | null
+    contentHash?: StringFilter<"AddendumAcknowledgement"> | string
+    addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "id" | "addendumId_stakeholderId">
+
+  export type AddendumAcknowledgementOrderByWithAggregationInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    stakeholderId?: SortOrder
+    acknowledgedAt?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    contentHash?: SortOrder
+    _count?: AddendumAcknowledgementCountOrderByAggregateInput
+    _max?: AddendumAcknowledgementMaxOrderByAggregateInput
+    _min?: AddendumAcknowledgementMinOrderByAggregateInput
+  }
+
+  export type AddendumAcknowledgementScalarWhereWithAggregatesInput = {
+    AND?: AddendumAcknowledgementScalarWhereWithAggregatesInput | AddendumAcknowledgementScalarWhereWithAggregatesInput[]
+    OR?: AddendumAcknowledgementScalarWhereWithAggregatesInput[]
+    NOT?: AddendumAcknowledgementScalarWhereWithAggregatesInput | AddendumAcknowledgementScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AddendumAcknowledgement"> | string
+    addendumId?: StringWithAggregatesFilter<"AddendumAcknowledgement"> | string
+    stakeholderId?: StringWithAggregatesFilter<"AddendumAcknowledgement"> | string
+    acknowledgedAt?: DateTimeWithAggregatesFilter<"AddendumAcknowledgement"> | Date | string
+    ipAddress?: StringNullableWithAggregatesFilter<"AddendumAcknowledgement"> | string | null
+    contentHash?: StringWithAggregatesFilter<"AddendumAcknowledgement"> | string
+  }
+
   export type AccountDeletionRequestWhereInput = {
     AND?: AccountDeletionRequestWhereInput | AccountDeletionRequestWhereInput[]
     OR?: AccountDeletionRequestWhereInput[]
@@ -44713,6 +50716,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -44745,6 +50751,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -44777,6 +50786,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -44809,6 +50821,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -45303,6 +51318,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateInput = {
@@ -45328,6 +51344,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUpdateInput = {
@@ -45353,6 +51370,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateInput = {
@@ -45378,6 +51396,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionCreateManyInput = {
@@ -45859,6 +51878,7 @@ export namespace Prisma {
     property: PropertyCreateNestedOneWithoutAssetsInput
     inspectionItems?: InspectionItemCreateNestedManyWithoutPropertyAssetInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetUncheckedCreateInput = {
@@ -45873,6 +51893,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     inspectionItems?: InspectionItemUncheckedCreateNestedManyWithoutPropertyAssetInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetUpdateInput = {
@@ -45887,6 +51908,7 @@ export namespace Prisma {
     property?: PropertyUpdateOneRequiredWithoutAssetsNestedInput
     inspectionItems?: InspectionItemUpdateManyWithoutPropertyAssetNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type PropertyAssetUncheckedUpdateInput = {
@@ -45901,6 +51923,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspectionItems?: InspectionItemUncheckedUpdateManyWithoutPropertyAssetNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type PropertyAssetCreateManyInput = {
@@ -45959,6 +51982,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateInput = {
@@ -45982,6 +52006,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUpdateInput = {
@@ -46005,6 +52030,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateInput = {
@@ -46028,6 +52054,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseCreateManyInput = {
@@ -47238,6 +53265,394 @@ export namespace Prisma {
     publishedById?: StringFieldUpdateOperationsInput | string
   }
 
+  export type ReportAddendumCreateInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumCreateManyInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+  }
+
+  export type ReportAddendumUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ReportAddendumUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ReportAddendumEntryCreateInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
+    maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutAddendumEntriesInput
+    photos?: ReportAddendumPhotoCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryUncheckedCreateInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+    photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
+    maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput
+    photos?: ReportAddendumPhotoUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryCreateManyInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumEntryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumPhotoCreateInput = {
+    id?: string
+    storagePath: string
+    mimeType: string
+    sizeBytes?: number | null
+    note?: string | null
+    label?: string | null
+    maintenanceEvidenceId?: string | null
+    createdAt?: Date | string
+    entry: ReportAddendumEntryCreateNestedOneWithoutPhotosInput
+  }
+
+  export type ReportAddendumPhotoUncheckedCreateInput = {
+    id?: string
+    entryId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes?: number | null
+    note?: string | null
+    label?: string | null
+    maintenanceEvidenceId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumPhotoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    entry?: ReportAddendumEntryUpdateOneRequiredWithoutPhotosNestedInput
+  }
+
+  export type ReportAddendumPhotoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    entryId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumPhotoCreateManyInput = {
+    id?: string
+    entryId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes?: number | null
+    note?: string | null
+    label?: string | null
+    maintenanceEvidenceId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumPhotoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumPhotoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    entryId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AddendumAcknowledgementCreateInput = {
+    id?: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+    addendum: ReportAddendumCreateNestedOneWithoutAcknowledgementsInput
+    stakeholder: StakeholderCreateNestedOneWithoutAddendumAcknowledgementsInput
+  }
+
+  export type AddendumAcknowledgementUncheckedCreateInput = {
+    id?: string
+    addendumId: string
+    stakeholderId: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+  }
+
+  export type AddendumAcknowledgementUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+    addendum?: ReportAddendumUpdateOneRequiredWithoutAcknowledgementsNestedInput
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAddendumAcknowledgementsNestedInput
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AddendumAcknowledgementCreateManyInput = {
+    id?: string
+    addendumId: string
+    stakeholderId: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+  }
+
+  export type AddendumAcknowledgementUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
   export type AccountDeletionRequestCreateInput = {
     id?: string
     status?: $Enums.DeletionRequestStatus
@@ -47711,6 +54126,18 @@ export namespace Prisma {
     none?: ReportEmailWhereInput
   }
 
+  export type ReportAddendumListRelationFilter = {
+    every?: ReportAddendumWhereInput
+    some?: ReportAddendumWhereInput
+    none?: ReportAddendumWhereInput
+  }
+
+  export type AddendumAcknowledgementListRelationFilter = {
+    every?: AddendumAcknowledgementWhereInput
+    some?: AddendumAcknowledgementWhereInput
+    none?: AddendumAcknowledgementWhereInput
+  }
+
   export type SubscriptionNullableScalarRelationFilter = {
     is?: SubscriptionWhereInput | null
     isNot?: SubscriptionWhereInput | null
@@ -47776,6 +54203,14 @@ export namespace Prisma {
   }
 
   export type ReportEmailOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReportAddendumOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AddendumAcknowledgementOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -48837,6 +55272,16 @@ export namespace Prisma {
     in?: $Enums.PropertyAssetCategory[] | ListEnumPropertyAssetCategoryFieldRefInput<$PrismaModel>
     notIn?: $Enums.PropertyAssetCategory[] | ListEnumPropertyAssetCategoryFieldRefInput<$PrismaModel>
     not?: NestedEnumPropertyAssetCategoryFilter<$PrismaModel> | $Enums.PropertyAssetCategory
+  }
+
+  export type ReportAddendumEntryListRelationFilter = {
+    every?: ReportAddendumEntryWhereInput
+    some?: ReportAddendumEntryWhereInput
+    none?: ReportAddendumEntryWhereInput
+  }
+
+  export type ReportAddendumEntryOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type PropertyAssetCountOrderByAggregateInput = {
@@ -49911,6 +56356,274 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type ReportAddendumInspectionIdNumberCompoundUniqueInput = {
+    inspectionId: string
+    number: number
+  }
+
+  export type ReportAddendumCountOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    number?: SortOrder
+    title?: SortOrder
+    reason?: SortOrder
+    effectiveDate?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    snapshot?: SortOrder
+    contentHash?: SortOrder
+    acknowledgedAt?: SortOrder
+  }
+
+  export type ReportAddendumAvgOrderByAggregateInput = {
+    number?: SortOrder
+  }
+
+  export type ReportAddendumMaxOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    number?: SortOrder
+    title?: SortOrder
+    reason?: SortOrder
+    effectiveDate?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    contentHash?: SortOrder
+    acknowledgedAt?: SortOrder
+  }
+
+  export type ReportAddendumMinOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    number?: SortOrder
+    title?: SortOrder
+    reason?: SortOrder
+    effectiveDate?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    publishedAt?: SortOrder
+    publishedById?: SortOrder
+    contentHash?: SortOrder
+    acknowledgedAt?: SortOrder
+  }
+
+  export type ReportAddendumSumOrderByAggregateInput = {
+    number?: SortOrder
+  }
+
+  export type EnumAddendumChangeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AddendumChange | EnumAddendumChangeFieldRefInput<$PrismaModel>
+    in?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAddendumChangeFilter<$PrismaModel> | $Enums.AddendumChange
+  }
+
+  export type EnumItemCategoryNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCategory | EnumItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemCategoryNullableFilter<$PrismaModel> | $Enums.ItemCategory | null
+  }
+
+  export type EnumItemConditionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCondition | EnumItemConditionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemConditionNullableFilter<$PrismaModel> | $Enums.ItemCondition | null
+  }
+
+  export type ReportAddendumScalarRelationFilter = {
+    is?: ReportAddendumWhereInput
+    isNot?: ReportAddendumWhereInput
+  }
+
+  export type ReportAddendumPhotoListRelationFilter = {
+    every?: ReportAddendumPhotoWhereInput
+    some?: ReportAddendumPhotoWhereInput
+    none?: ReportAddendumPhotoWhereInput
+  }
+
+  export type ReportAddendumPhotoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReportAddendumEntryCountOrderByAggregateInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    change?: SortOrder
+    roomName?: SortOrder
+    targetKey?: SortOrder
+    name?: SortOrder
+    category?: SortOrder
+    condition?: SortOrder
+    quantity?: SortOrder
+    identifier?: SortOrder
+    notes?: SortOrder
+    maintenanceCaseId?: SortOrder
+    propertyAssetId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportAddendumEntryAvgOrderByAggregateInput = {
+    quantity?: SortOrder
+  }
+
+  export type ReportAddendumEntryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    change?: SortOrder
+    roomName?: SortOrder
+    targetKey?: SortOrder
+    name?: SortOrder
+    category?: SortOrder
+    condition?: SortOrder
+    quantity?: SortOrder
+    identifier?: SortOrder
+    notes?: SortOrder
+    maintenanceCaseId?: SortOrder
+    propertyAssetId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportAddendumEntryMinOrderByAggregateInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    change?: SortOrder
+    roomName?: SortOrder
+    targetKey?: SortOrder
+    name?: SortOrder
+    category?: SortOrder
+    condition?: SortOrder
+    quantity?: SortOrder
+    identifier?: SortOrder
+    notes?: SortOrder
+    maintenanceCaseId?: SortOrder
+    propertyAssetId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportAddendumEntrySumOrderByAggregateInput = {
+    quantity?: SortOrder
+  }
+
+  export type EnumAddendumChangeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AddendumChange | EnumAddendumChangeFieldRefInput<$PrismaModel>
+    in?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAddendumChangeWithAggregatesFilter<$PrismaModel> | $Enums.AddendumChange
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAddendumChangeFilter<$PrismaModel>
+    _max?: NestedEnumAddendumChangeFilter<$PrismaModel>
+  }
+
+  export type EnumItemCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCategory | EnumItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.ItemCategory | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumItemCategoryNullableFilter<$PrismaModel>
+    _max?: NestedEnumItemCategoryNullableFilter<$PrismaModel>
+  }
+
+  export type EnumItemConditionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCondition | EnumItemConditionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemConditionNullableWithAggregatesFilter<$PrismaModel> | $Enums.ItemCondition | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumItemConditionNullableFilter<$PrismaModel>
+    _max?: NestedEnumItemConditionNullableFilter<$PrismaModel>
+  }
+
+  export type ReportAddendumEntryScalarRelationFilter = {
+    is?: ReportAddendumEntryWhereInput
+    isNot?: ReportAddendumEntryWhereInput
+  }
+
+  export type ReportAddendumPhotoCountOrderByAggregateInput = {
+    id?: SortOrder
+    entryId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrder
+    label?: SortOrder
+    maintenanceEvidenceId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportAddendumPhotoAvgOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+  }
+
+  export type ReportAddendumPhotoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    entryId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrder
+    label?: SortOrder
+    maintenanceEvidenceId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportAddendumPhotoMinOrderByAggregateInput = {
+    id?: SortOrder
+    entryId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrder
+    label?: SortOrder
+    maintenanceEvidenceId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportAddendumPhotoSumOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+  }
+
+  export type AddendumAcknowledgementAddendumIdStakeholderIdCompoundUniqueInput = {
+    addendumId: string
+    stakeholderId: string
+  }
+
+  export type AddendumAcknowledgementCountOrderByAggregateInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    stakeholderId?: SortOrder
+    acknowledgedAt?: SortOrder
+    ipAddress?: SortOrder
+    contentHash?: SortOrder
+  }
+
+  export type AddendumAcknowledgementMaxOrderByAggregateInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    stakeholderId?: SortOrder
+    acknowledgedAt?: SortOrder
+    ipAddress?: SortOrder
+    contentHash?: SortOrder
+  }
+
+  export type AddendumAcknowledgementMinOrderByAggregateInput = {
+    id?: SortOrder
+    addendumId?: SortOrder
+    stakeholderId?: SortOrder
+    acknowledgedAt?: SortOrder
+    ipAddress?: SortOrder
+    contentHash?: SortOrder
+  }
+
   export type EnumDeletionRequestStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
     in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
@@ -50228,6 +56941,27 @@ export namespace Prisma {
     connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
   }
 
+  export type ReportAddendumCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<ReportAddendumCreateWithoutCreatedByInput, ReportAddendumUncheckedCreateWithoutCreatedByInput> | ReportAddendumCreateWithoutCreatedByInput[] | ReportAddendumUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutCreatedByInput | ReportAddendumCreateOrConnectWithoutCreatedByInput[]
+    createMany?: ReportAddendumCreateManyCreatedByInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
+  export type ReportAddendumCreateNestedManyWithoutPublishedByInput = {
+    create?: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput> | ReportAddendumCreateWithoutPublishedByInput[] | ReportAddendumUncheckedCreateWithoutPublishedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutPublishedByInput | ReportAddendumCreateOrConnectWithoutPublishedByInput[]
+    createMany?: ReportAddendumCreateManyPublishedByInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
+  export type AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput> | AddendumAcknowledgementCreateWithoutStakeholderInput[] | AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AddendumAcknowledgementCreateManyStakeholderInputEnvelope
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+  }
+
   export type SubscriptionCreateNestedOneWithoutStakeholderInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -50357,6 +57091,27 @@ export namespace Prisma {
     connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
     createMany?: ReportEmailCreateManyRecipientInputEnvelope
     connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+  }
+
+  export type ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<ReportAddendumCreateWithoutCreatedByInput, ReportAddendumUncheckedCreateWithoutCreatedByInput> | ReportAddendumCreateWithoutCreatedByInput[] | ReportAddendumUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutCreatedByInput | ReportAddendumCreateOrConnectWithoutCreatedByInput[]
+    createMany?: ReportAddendumCreateManyCreatedByInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
+  export type ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput = {
+    create?: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput> | ReportAddendumCreateWithoutPublishedByInput[] | ReportAddendumUncheckedCreateWithoutPublishedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutPublishedByInput | ReportAddendumCreateOrConnectWithoutPublishedByInput[]
+    createMany?: ReportAddendumCreateManyPublishedByInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
+  export type AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput> | AddendumAcknowledgementCreateWithoutStakeholderInput[] | AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AddendumAcknowledgementCreateManyStakeholderInputEnvelope
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
   }
 
   export type SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput = {
@@ -50632,6 +57387,48 @@ export namespace Prisma {
     deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
   }
 
+  export type ReportAddendumUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutCreatedByInput, ReportAddendumUncheckedCreateWithoutCreatedByInput> | ReportAddendumCreateWithoutCreatedByInput[] | ReportAddendumUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutCreatedByInput | ReportAddendumCreateOrConnectWithoutCreatedByInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutCreatedByInput | ReportAddendumUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: ReportAddendumCreateManyCreatedByInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutCreatedByInput | ReportAddendumUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutCreatedByInput | ReportAddendumUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
+  export type ReportAddendumUpdateManyWithoutPublishedByNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput> | ReportAddendumCreateWithoutPublishedByInput[] | ReportAddendumUncheckedCreateWithoutPublishedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutPublishedByInput | ReportAddendumCreateOrConnectWithoutPublishedByInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutPublishedByInput | ReportAddendumUpsertWithWhereUniqueWithoutPublishedByInput[]
+    createMany?: ReportAddendumCreateManyPublishedByInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput | ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutPublishedByInput | ReportAddendumUpdateManyWithWhereWithoutPublishedByInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
+  export type AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput> | AddendumAcknowledgementCreateWithoutStakeholderInput[] | AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AddendumAcknowledgementUpsertWithWhereUniqueWithoutStakeholderInput | AddendumAcknowledgementUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AddendumAcknowledgementCreateManyStakeholderInputEnvelope
+    set?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    disconnect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    delete?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    update?: AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput | AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput | AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+  }
+
   export type SubscriptionUpdateOneWithoutStakeholderNestedInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -50888,6 +57685,48 @@ export namespace Prisma {
     update?: ReportEmailUpdateWithWhereUniqueWithoutRecipientInput | ReportEmailUpdateWithWhereUniqueWithoutRecipientInput[]
     updateMany?: ReportEmailUpdateManyWithWhereWithoutRecipientInput | ReportEmailUpdateManyWithWhereWithoutRecipientInput[]
     deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutCreatedByInput, ReportAddendumUncheckedCreateWithoutCreatedByInput> | ReportAddendumCreateWithoutCreatedByInput[] | ReportAddendumUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutCreatedByInput | ReportAddendumCreateOrConnectWithoutCreatedByInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutCreatedByInput | ReportAddendumUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: ReportAddendumCreateManyCreatedByInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutCreatedByInput | ReportAddendumUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutCreatedByInput | ReportAddendumUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput> | ReportAddendumCreateWithoutPublishedByInput[] | ReportAddendumUncheckedCreateWithoutPublishedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutPublishedByInput | ReportAddendumCreateOrConnectWithoutPublishedByInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutPublishedByInput | ReportAddendumUpsertWithWhereUniqueWithoutPublishedByInput[]
+    createMany?: ReportAddendumCreateManyPublishedByInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput | ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutPublishedByInput | ReportAddendumUpdateManyWithWhereWithoutPublishedByInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput> | AddendumAcknowledgementCreateWithoutStakeholderInput[] | AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AddendumAcknowledgementUpsertWithWhereUniqueWithoutStakeholderInput | AddendumAcknowledgementUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AddendumAcknowledgementCreateManyStakeholderInputEnvelope
+    set?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    disconnect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    delete?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    update?: AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput | AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput | AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
   }
 
   export type SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput = {
@@ -51375,6 +58214,13 @@ export namespace Prisma {
     connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
   }
 
+  export type ReportAddendumCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<ReportAddendumCreateWithoutInspectionInput, ReportAddendumUncheckedCreateWithoutInspectionInput> | ReportAddendumCreateWithoutInspectionInput[] | ReportAddendumUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutInspectionInput | ReportAddendumCreateOrConnectWithoutInspectionInput[]
+    createMany?: ReportAddendumCreateManyInspectionInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
   export type InspectionUncheckedCreateNestedOneWithoutBaselineInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -51414,6 +58260,13 @@ export namespace Prisma {
     connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
     createMany?: ReportEmailCreateManyInspectionInputEnvelope
     connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+  }
+
+  export type ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<ReportAddendumCreateWithoutInspectionInput, ReportAddendumUncheckedCreateWithoutInspectionInput> | ReportAddendumCreateWithoutInspectionInput[] | ReportAddendumUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutInspectionInput | ReportAddendumCreateOrConnectWithoutInspectionInput[]
+    createMany?: ReportAddendumCreateManyInspectionInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
   }
 
   export type EnumInspectionKindFieldUpdateOperationsInput = {
@@ -51532,6 +58385,20 @@ export namespace Prisma {
     deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
   }
 
+  export type ReportAddendumUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutInspectionInput, ReportAddendumUncheckedCreateWithoutInspectionInput> | ReportAddendumCreateWithoutInspectionInput[] | ReportAddendumUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutInspectionInput | ReportAddendumCreateOrConnectWithoutInspectionInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutInspectionInput | ReportAddendumUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: ReportAddendumCreateManyInspectionInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput | ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutInspectionInput | ReportAddendumUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
   export type InspectionUncheckedUpdateOneWithoutBaselineNestedInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -51610,6 +58477,20 @@ export namespace Prisma {
     update?: ReportEmailUpdateWithWhereUniqueWithoutInspectionInput | ReportEmailUpdateWithWhereUniqueWithoutInspectionInput[]
     updateMany?: ReportEmailUpdateManyWithWhereWithoutInspectionInput | ReportEmailUpdateManyWithWhereWithoutInspectionInput[]
     deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutInspectionInput, ReportAddendumUncheckedCreateWithoutInspectionInput> | ReportAddendumCreateWithoutInspectionInput[] | ReportAddendumUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutInspectionInput | ReportAddendumCreateOrConnectWithoutInspectionInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutInspectionInput | ReportAddendumUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: ReportAddendumCreateManyInspectionInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput | ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutInspectionInput | ReportAddendumUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
   }
 
   export type RoomCreateNestedOneWithoutCapturesInput = {
@@ -52060,6 +58941,13 @@ export namespace Prisma {
     connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
   }
 
+  export type ReportAddendumEntryCreateNestedManyWithoutPropertyAssetInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput> | ReportAddendumEntryCreateWithoutPropertyAssetInput[] | ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput | ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput[]
+    createMany?: ReportAddendumEntryCreateManyPropertyAssetInputEnvelope
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+  }
+
   export type InspectionItemUncheckedCreateNestedManyWithoutPropertyAssetInput = {
     create?: XOR<InspectionItemCreateWithoutPropertyAssetInput, InspectionItemUncheckedCreateWithoutPropertyAssetInput> | InspectionItemCreateWithoutPropertyAssetInput[] | InspectionItemUncheckedCreateWithoutPropertyAssetInput[]
     connectOrCreate?: InspectionItemCreateOrConnectWithoutPropertyAssetInput | InspectionItemCreateOrConnectWithoutPropertyAssetInput[]
@@ -52072,6 +58960,13 @@ export namespace Prisma {
     connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutPropertyAssetInput | MaintenanceCaseCreateOrConnectWithoutPropertyAssetInput[]
     createMany?: MaintenanceCaseCreateManyPropertyAssetInputEnvelope
     connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+  }
+
+  export type ReportAddendumEntryUncheckedCreateNestedManyWithoutPropertyAssetInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput> | ReportAddendumEntryCreateWithoutPropertyAssetInput[] | ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput | ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput[]
+    createMany?: ReportAddendumEntryCreateManyPropertyAssetInputEnvelope
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
   }
 
   export type EnumPropertyAssetCategoryFieldUpdateOperationsInput = {
@@ -52114,6 +59009,20 @@ export namespace Prisma {
     deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
   }
 
+  export type ReportAddendumEntryUpdateManyWithoutPropertyAssetNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput> | ReportAddendumEntryCreateWithoutPropertyAssetInput[] | ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput | ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput[]
+    upsert?: ReportAddendumEntryUpsertWithWhereUniqueWithoutPropertyAssetInput | ReportAddendumEntryUpsertWithWhereUniqueWithoutPropertyAssetInput[]
+    createMany?: ReportAddendumEntryCreateManyPropertyAssetInputEnvelope
+    set?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    disconnect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    delete?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutPropertyAssetInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutPropertyAssetInput[]
+    updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutPropertyAssetInput | ReportAddendumEntryUpdateManyWithWhereWithoutPropertyAssetInput[]
+    deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+  }
+
   export type InspectionItemUncheckedUpdateManyWithoutPropertyAssetNestedInput = {
     create?: XOR<InspectionItemCreateWithoutPropertyAssetInput, InspectionItemUncheckedCreateWithoutPropertyAssetInput> | InspectionItemCreateWithoutPropertyAssetInput[] | InspectionItemUncheckedCreateWithoutPropertyAssetInput[]
     connectOrCreate?: InspectionItemCreateOrConnectWithoutPropertyAssetInput | InspectionItemCreateOrConnectWithoutPropertyAssetInput[]
@@ -52140,6 +59049,20 @@ export namespace Prisma {
     update?: MaintenanceCaseUpdateWithWhereUniqueWithoutPropertyAssetInput | MaintenanceCaseUpdateWithWhereUniqueWithoutPropertyAssetInput[]
     updateMany?: MaintenanceCaseUpdateManyWithWhereWithoutPropertyAssetInput | MaintenanceCaseUpdateManyWithWhereWithoutPropertyAssetInput[]
     deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput> | ReportAddendumEntryCreateWithoutPropertyAssetInput[] | ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput | ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput[]
+    upsert?: ReportAddendumEntryUpsertWithWhereUniqueWithoutPropertyAssetInput | ReportAddendumEntryUpsertWithWhereUniqueWithoutPropertyAssetInput[]
+    createMany?: ReportAddendumEntryCreateManyPropertyAssetInputEnvelope
+    set?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    disconnect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    delete?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutPropertyAssetInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutPropertyAssetInput[]
+    updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutPropertyAssetInput | ReportAddendumEntryUpdateManyWithWhereWithoutPropertyAssetInput[]
+    deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
   }
 
   export type TenancyCreateNestedOneWithoutMaintenanceCasesInput = {
@@ -52195,6 +59118,13 @@ export namespace Prisma {
     connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
   }
 
+  export type ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput> | ReportAddendumEntryCreateWithoutMaintenanceCaseInput[] | ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput | ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput[]
+    createMany?: ReportAddendumEntryCreateManyMaintenanceCaseInputEnvelope
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+  }
+
   export type MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput = {
     create?: XOR<MaintenanceEventCreateWithoutMaintenanceCaseInput, MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput> | MaintenanceEventCreateWithoutMaintenanceCaseInput[] | MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput[]
     connectOrCreate?: MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput | MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput[]
@@ -52228,6 +59158,13 @@ export namespace Prisma {
     connectOrCreate?: ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput | ResponsibilityProposalCreateOrConnectWithoutMaintenanceCaseInput[]
     createMany?: ResponsibilityProposalCreateManyMaintenanceCaseInputEnvelope
     connect?: ResponsibilityProposalWhereUniqueInput | ResponsibilityProposalWhereUniqueInput[]
+  }
+
+  export type ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput> | ReportAddendumEntryCreateWithoutMaintenanceCaseInput[] | ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput | ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput[]
+    createMany?: ReportAddendumEntryCreateManyMaintenanceCaseInputEnvelope
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
   }
 
   export type EnumMaintenanceCategoryFieldUpdateOperationsInput = {
@@ -52338,6 +59275,20 @@ export namespace Prisma {
     deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
   }
 
+  export type ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput> | ReportAddendumEntryCreateWithoutMaintenanceCaseInput[] | ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput | ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput[]
+    upsert?: ReportAddendumEntryUpsertWithWhereUniqueWithoutMaintenanceCaseInput | ReportAddendumEntryUpsertWithWhereUniqueWithoutMaintenanceCaseInput[]
+    createMany?: ReportAddendumEntryCreateManyMaintenanceCaseInputEnvelope
+    set?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    disconnect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    delete?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
+    updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput | ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput[]
+    deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+  }
+
   export type MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput = {
     create?: XOR<MaintenanceEventCreateWithoutMaintenanceCaseInput, MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput> | MaintenanceEventCreateWithoutMaintenanceCaseInput[] | MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput[]
     connectOrCreate?: MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput | MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput[]
@@ -52406,6 +59357,20 @@ export namespace Prisma {
     update?: ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput | ResponsibilityProposalUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
     updateMany?: ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput | ResponsibilityProposalUpdateManyWithWhereWithoutMaintenanceCaseInput[]
     deleteMany?: ResponsibilityProposalScalarWhereInput | ResponsibilityProposalScalarWhereInput[]
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput> | ReportAddendumEntryCreateWithoutMaintenanceCaseInput[] | ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput | ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput[]
+    upsert?: ReportAddendumEntryUpsertWithWhereUniqueWithoutMaintenanceCaseInput | ReportAddendumEntryUpsertWithWhereUniqueWithoutMaintenanceCaseInput[]
+    createMany?: ReportAddendumEntryCreateManyMaintenanceCaseInputEnvelope
+    set?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    disconnect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    delete?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
+    updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput | ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput[]
+    deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
   }
 
   export type MaintenanceCaseCreateNestedOneWithoutEventsInput = {
@@ -53031,6 +59996,276 @@ export namespace Prisma {
     upsert?: InspectionUpsertWithoutAssessmentsInput
     connect?: InspectionWhereUniqueInput
     update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutAssessmentsInput, InspectionUpdateWithoutAssessmentsInput>, InspectionUncheckedUpdateWithoutAssessmentsInput>
+  }
+
+  export type InspectionCreateNestedOneWithoutAddendaInput = {
+    create?: XOR<InspectionCreateWithoutAddendaInput, InspectionUncheckedCreateWithoutAddendaInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutAddendaInput
+    connect?: InspectionWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutAddendaCreatedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendaCreatedInput, StakeholderUncheckedCreateWithoutAddendaCreatedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendaCreatedInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutAddendaPublishedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendaPublishedInput, StakeholderUncheckedCreateWithoutAddendaPublishedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendaPublishedInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type ReportAddendumEntryCreateNestedManyWithoutAddendumInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput> | ReportAddendumEntryCreateWithoutAddendumInput[] | ReportAddendumEntryUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutAddendumInput | ReportAddendumEntryCreateOrConnectWithoutAddendumInput[]
+    createMany?: ReportAddendumEntryCreateManyAddendumInputEnvelope
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+  }
+
+  export type AddendumAcknowledgementCreateNestedManyWithoutAddendumInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutAddendumInput, AddendumAcknowledgementUncheckedCreateWithoutAddendumInput> | AddendumAcknowledgementCreateWithoutAddendumInput[] | AddendumAcknowledgementUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutAddendumInput | AddendumAcknowledgementCreateOrConnectWithoutAddendumInput[]
+    createMany?: AddendumAcknowledgementCreateManyAddendumInputEnvelope
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+  }
+
+  export type ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput> | ReportAddendumEntryCreateWithoutAddendumInput[] | ReportAddendumEntryUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutAddendumInput | ReportAddendumEntryCreateOrConnectWithoutAddendumInput[]
+    createMany?: ReportAddendumEntryCreateManyAddendumInputEnvelope
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+  }
+
+  export type AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutAddendumInput, AddendumAcknowledgementUncheckedCreateWithoutAddendumInput> | AddendumAcknowledgementCreateWithoutAddendumInput[] | AddendumAcknowledgementUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutAddendumInput | AddendumAcknowledgementCreateOrConnectWithoutAddendumInput[]
+    createMany?: AddendumAcknowledgementCreateManyAddendumInputEnvelope
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+  }
+
+  export type InspectionUpdateOneRequiredWithoutAddendaNestedInput = {
+    create?: XOR<InspectionCreateWithoutAddendaInput, InspectionUncheckedCreateWithoutAddendaInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutAddendaInput
+    upsert?: InspectionUpsertWithoutAddendaInput
+    connect?: InspectionWhereUniqueInput
+    update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutAddendaInput, InspectionUpdateWithoutAddendaInput>, InspectionUncheckedUpdateWithoutAddendaInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendaCreatedInput, StakeholderUncheckedCreateWithoutAddendaCreatedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendaCreatedInput
+    upsert?: StakeholderUpsertWithoutAddendaCreatedInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAddendaCreatedInput, StakeholderUpdateWithoutAddendaCreatedInput>, StakeholderUncheckedUpdateWithoutAddendaCreatedInput>
+  }
+
+  export type StakeholderUpdateOneWithoutAddendaPublishedNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendaPublishedInput, StakeholderUncheckedCreateWithoutAddendaPublishedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendaPublishedInput
+    upsert?: StakeholderUpsertWithoutAddendaPublishedInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAddendaPublishedInput, StakeholderUpdateWithoutAddendaPublishedInput>, StakeholderUncheckedUpdateWithoutAddendaPublishedInput>
+  }
+
+  export type ReportAddendumEntryUpdateManyWithoutAddendumNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput> | ReportAddendumEntryCreateWithoutAddendumInput[] | ReportAddendumEntryUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutAddendumInput | ReportAddendumEntryCreateOrConnectWithoutAddendumInput[]
+    upsert?: ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput | ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput[]
+    createMany?: ReportAddendumEntryCreateManyAddendumInputEnvelope
+    set?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    disconnect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    delete?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutAddendumInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutAddendumInput[]
+    updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutAddendumInput | ReportAddendumEntryUpdateManyWithWhereWithoutAddendumInput[]
+    deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+  }
+
+  export type AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutAddendumInput, AddendumAcknowledgementUncheckedCreateWithoutAddendumInput> | AddendumAcknowledgementCreateWithoutAddendumInput[] | AddendumAcknowledgementUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutAddendumInput | AddendumAcknowledgementCreateOrConnectWithoutAddendumInput[]
+    upsert?: AddendumAcknowledgementUpsertWithWhereUniqueWithoutAddendumInput | AddendumAcknowledgementUpsertWithWhereUniqueWithoutAddendumInput[]
+    createMany?: AddendumAcknowledgementCreateManyAddendumInputEnvelope
+    set?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    disconnect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    delete?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    update?: AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput | AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput[]
+    updateMany?: AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput | AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput[]
+    deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput> | ReportAddendumEntryCreateWithoutAddendumInput[] | ReportAddendumEntryUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutAddendumInput | ReportAddendumEntryCreateOrConnectWithoutAddendumInput[]
+    upsert?: ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput | ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput[]
+    createMany?: ReportAddendumEntryCreateManyAddendumInputEnvelope
+    set?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    disconnect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    delete?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+    update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutAddendumInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutAddendumInput[]
+    updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutAddendumInput | ReportAddendumEntryUpdateManyWithWhereWithoutAddendumInput[]
+    deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput = {
+    create?: XOR<AddendumAcknowledgementCreateWithoutAddendumInput, AddendumAcknowledgementUncheckedCreateWithoutAddendumInput> | AddendumAcknowledgementCreateWithoutAddendumInput[] | AddendumAcknowledgementUncheckedCreateWithoutAddendumInput[]
+    connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutAddendumInput | AddendumAcknowledgementCreateOrConnectWithoutAddendumInput[]
+    upsert?: AddendumAcknowledgementUpsertWithWhereUniqueWithoutAddendumInput | AddendumAcknowledgementUpsertWithWhereUniqueWithoutAddendumInput[]
+    createMany?: AddendumAcknowledgementCreateManyAddendumInputEnvelope
+    set?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    disconnect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    delete?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+    update?: AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput | AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput[]
+    updateMany?: AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput | AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput[]
+    deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+  }
+
+  export type ReportAddendumCreateNestedOneWithoutEntriesInput = {
+    create?: XOR<ReportAddendumCreateWithoutEntriesInput, ReportAddendumUncheckedCreateWithoutEntriesInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutEntriesInput
+    connect?: ReportAddendumWhereUniqueInput
+  }
+
+  export type MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutAddendumEntriesInput, MaintenanceCaseUncheckedCreateWithoutAddendumEntriesInput>
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutAddendumEntriesInput
+    connect?: MaintenanceCaseWhereUniqueInput
+  }
+
+  export type PropertyAssetCreateNestedOneWithoutAddendumEntriesInput = {
+    create?: XOR<PropertyAssetCreateWithoutAddendumEntriesInput, PropertyAssetUncheckedCreateWithoutAddendumEntriesInput>
+    connectOrCreate?: PropertyAssetCreateOrConnectWithoutAddendumEntriesInput
+    connect?: PropertyAssetWhereUniqueInput
+  }
+
+  export type ReportAddendumPhotoCreateNestedManyWithoutEntryInput = {
+    create?: XOR<ReportAddendumPhotoCreateWithoutEntryInput, ReportAddendumPhotoUncheckedCreateWithoutEntryInput> | ReportAddendumPhotoCreateWithoutEntryInput[] | ReportAddendumPhotoUncheckedCreateWithoutEntryInput[]
+    connectOrCreate?: ReportAddendumPhotoCreateOrConnectWithoutEntryInput | ReportAddendumPhotoCreateOrConnectWithoutEntryInput[]
+    createMany?: ReportAddendumPhotoCreateManyEntryInputEnvelope
+    connect?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+  }
+
+  export type ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput = {
+    create?: XOR<ReportAddendumPhotoCreateWithoutEntryInput, ReportAddendumPhotoUncheckedCreateWithoutEntryInput> | ReportAddendumPhotoCreateWithoutEntryInput[] | ReportAddendumPhotoUncheckedCreateWithoutEntryInput[]
+    connectOrCreate?: ReportAddendumPhotoCreateOrConnectWithoutEntryInput | ReportAddendumPhotoCreateOrConnectWithoutEntryInput[]
+    createMany?: ReportAddendumPhotoCreateManyEntryInputEnvelope
+    connect?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+  }
+
+  export type EnumAddendumChangeFieldUpdateOperationsInput = {
+    set?: $Enums.AddendumChange
+  }
+
+  export type NullableEnumItemCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.ItemCategory | null
+  }
+
+  export type NullableEnumItemConditionFieldUpdateOperationsInput = {
+    set?: $Enums.ItemCondition | null
+  }
+
+  export type ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutEntriesInput, ReportAddendumUncheckedCreateWithoutEntriesInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutEntriesInput
+    upsert?: ReportAddendumUpsertWithoutEntriesInput
+    connect?: ReportAddendumWhereUniqueInput
+    update?: XOR<XOR<ReportAddendumUpdateToOneWithWhereWithoutEntriesInput, ReportAddendumUpdateWithoutEntriesInput>, ReportAddendumUncheckedUpdateWithoutEntriesInput>
+  }
+
+  export type MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutAddendumEntriesInput, MaintenanceCaseUncheckedCreateWithoutAddendumEntriesInput>
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutAddendumEntriesInput
+    upsert?: MaintenanceCaseUpsertWithoutAddendumEntriesInput
+    disconnect?: MaintenanceCaseWhereInput | boolean
+    delete?: MaintenanceCaseWhereInput | boolean
+    connect?: MaintenanceCaseWhereUniqueInput
+    update?: XOR<XOR<MaintenanceCaseUpdateToOneWithWhereWithoutAddendumEntriesInput, MaintenanceCaseUpdateWithoutAddendumEntriesInput>, MaintenanceCaseUncheckedUpdateWithoutAddendumEntriesInput>
+  }
+
+  export type PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput = {
+    create?: XOR<PropertyAssetCreateWithoutAddendumEntriesInput, PropertyAssetUncheckedCreateWithoutAddendumEntriesInput>
+    connectOrCreate?: PropertyAssetCreateOrConnectWithoutAddendumEntriesInput
+    upsert?: PropertyAssetUpsertWithoutAddendumEntriesInput
+    disconnect?: PropertyAssetWhereInput | boolean
+    delete?: PropertyAssetWhereInput | boolean
+    connect?: PropertyAssetWhereUniqueInput
+    update?: XOR<XOR<PropertyAssetUpdateToOneWithWhereWithoutAddendumEntriesInput, PropertyAssetUpdateWithoutAddendumEntriesInput>, PropertyAssetUncheckedUpdateWithoutAddendumEntriesInput>
+  }
+
+  export type ReportAddendumPhotoUpdateManyWithoutEntryNestedInput = {
+    create?: XOR<ReportAddendumPhotoCreateWithoutEntryInput, ReportAddendumPhotoUncheckedCreateWithoutEntryInput> | ReportAddendumPhotoCreateWithoutEntryInput[] | ReportAddendumPhotoUncheckedCreateWithoutEntryInput[]
+    connectOrCreate?: ReportAddendumPhotoCreateOrConnectWithoutEntryInput | ReportAddendumPhotoCreateOrConnectWithoutEntryInput[]
+    upsert?: ReportAddendumPhotoUpsertWithWhereUniqueWithoutEntryInput | ReportAddendumPhotoUpsertWithWhereUniqueWithoutEntryInput[]
+    createMany?: ReportAddendumPhotoCreateManyEntryInputEnvelope
+    set?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    disconnect?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    delete?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    connect?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    update?: ReportAddendumPhotoUpdateWithWhereUniqueWithoutEntryInput | ReportAddendumPhotoUpdateWithWhereUniqueWithoutEntryInput[]
+    updateMany?: ReportAddendumPhotoUpdateManyWithWhereWithoutEntryInput | ReportAddendumPhotoUpdateManyWithWhereWithoutEntryInput[]
+    deleteMany?: ReportAddendumPhotoScalarWhereInput | ReportAddendumPhotoScalarWhereInput[]
+  }
+
+  export type ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput = {
+    create?: XOR<ReportAddendumPhotoCreateWithoutEntryInput, ReportAddendumPhotoUncheckedCreateWithoutEntryInput> | ReportAddendumPhotoCreateWithoutEntryInput[] | ReportAddendumPhotoUncheckedCreateWithoutEntryInput[]
+    connectOrCreate?: ReportAddendumPhotoCreateOrConnectWithoutEntryInput | ReportAddendumPhotoCreateOrConnectWithoutEntryInput[]
+    upsert?: ReportAddendumPhotoUpsertWithWhereUniqueWithoutEntryInput | ReportAddendumPhotoUpsertWithWhereUniqueWithoutEntryInput[]
+    createMany?: ReportAddendumPhotoCreateManyEntryInputEnvelope
+    set?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    disconnect?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    delete?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    connect?: ReportAddendumPhotoWhereUniqueInput | ReportAddendumPhotoWhereUniqueInput[]
+    update?: ReportAddendumPhotoUpdateWithWhereUniqueWithoutEntryInput | ReportAddendumPhotoUpdateWithWhereUniqueWithoutEntryInput[]
+    updateMany?: ReportAddendumPhotoUpdateManyWithWhereWithoutEntryInput | ReportAddendumPhotoUpdateManyWithWhereWithoutEntryInput[]
+    deleteMany?: ReportAddendumPhotoScalarWhereInput | ReportAddendumPhotoScalarWhereInput[]
+  }
+
+  export type ReportAddendumEntryCreateNestedOneWithoutPhotosInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutPhotosInput, ReportAddendumEntryUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutPhotosInput
+    connect?: ReportAddendumEntryWhereUniqueInput
+  }
+
+  export type ReportAddendumEntryUpdateOneRequiredWithoutPhotosNestedInput = {
+    create?: XOR<ReportAddendumEntryCreateWithoutPhotosInput, ReportAddendumEntryUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutPhotosInput
+    upsert?: ReportAddendumEntryUpsertWithoutPhotosInput
+    connect?: ReportAddendumEntryWhereUniqueInput
+    update?: XOR<XOR<ReportAddendumEntryUpdateToOneWithWhereWithoutPhotosInput, ReportAddendumEntryUpdateWithoutPhotosInput>, ReportAddendumEntryUncheckedUpdateWithoutPhotosInput>
+  }
+
+  export type ReportAddendumCreateNestedOneWithoutAcknowledgementsInput = {
+    create?: XOR<ReportAddendumCreateWithoutAcknowledgementsInput, ReportAddendumUncheckedCreateWithoutAcknowledgementsInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutAcknowledgementsInput
+    connect?: ReportAddendumWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutAddendumAcknowledgementsInput = {
+    create?: XOR<StakeholderCreateWithoutAddendumAcknowledgementsInput, StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendumAcknowledgementsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type ReportAddendumUpdateOneRequiredWithoutAcknowledgementsNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutAcknowledgementsInput, ReportAddendumUncheckedCreateWithoutAcknowledgementsInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutAcknowledgementsInput
+    upsert?: ReportAddendumUpsertWithoutAcknowledgementsInput
+    connect?: ReportAddendumWhereUniqueInput
+    update?: XOR<XOR<ReportAddendumUpdateToOneWithWhereWithoutAcknowledgementsInput, ReportAddendumUpdateWithoutAcknowledgementsInput>, ReportAddendumUncheckedUpdateWithoutAcknowledgementsInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutAddendumAcknowledgementsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendumAcknowledgementsInput, StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendumAcknowledgementsInput
+    upsert?: StakeholderUpsertWithoutAddendumAcknowledgementsInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAddendumAcknowledgementsInput, StakeholderUpdateWithoutAddendumAcknowledgementsInput>, StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput>
   }
 
   export type StakeholderCreateNestedOneWithoutDeletionRequestsInput = {
@@ -53886,6 +61121,57 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumAddendumChangeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AddendumChange | EnumAddendumChangeFieldRefInput<$PrismaModel>
+    in?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAddendumChangeFilter<$PrismaModel> | $Enums.AddendumChange
+  }
+
+  export type NestedEnumItemCategoryNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCategory | EnumItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemCategoryNullableFilter<$PrismaModel> | $Enums.ItemCategory | null
+  }
+
+  export type NestedEnumItemConditionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCondition | EnumItemConditionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemConditionNullableFilter<$PrismaModel> | $Enums.ItemCondition | null
+  }
+
+  export type NestedEnumAddendumChangeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AddendumChange | EnumAddendumChangeFieldRefInput<$PrismaModel>
+    in?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AddendumChange[] | ListEnumAddendumChangeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAddendumChangeWithAggregatesFilter<$PrismaModel> | $Enums.AddendumChange
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAddendumChangeFilter<$PrismaModel>
+    _max?: NestedEnumAddendumChangeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumItemCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCategory | EnumItemCategoryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCategory[] | ListEnumItemCategoryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.ItemCategory | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumItemCategoryNullableFilter<$PrismaModel>
+    _max?: NestedEnumItemCategoryNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumItemConditionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ItemCondition | EnumItemConditionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ItemCondition[] | ListEnumItemConditionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumItemConditionNullableWithAggregatesFilter<$PrismaModel> | $Enums.ItemCondition | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumItemConditionNullableFilter<$PrismaModel>
+    _max?: NestedEnumItemConditionNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumDeletionRequestStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
     in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
@@ -54095,6 +61381,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutConductedByInput = {
@@ -54119,6 +61406,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutConductedByInput = {
@@ -54215,6 +61503,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutReportedByInput = {
@@ -54237,6 +61526,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutReportedByInput = {
@@ -54599,6 +61889,124 @@ export namespace Prisma {
 
   export type ReportEmailCreateManyRecipientInputEnvelope = {
     data: ReportEmailCreateManyRecipientInput | ReportEmailCreateManyRecipientInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportAddendumCreateWithoutCreatedByInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutCreatedByInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutCreatedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutCreatedByInput, ReportAddendumUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type ReportAddendumCreateManyCreatedByInputEnvelope = {
+    data: ReportAddendumCreateManyCreatedByInput | ReportAddendumCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportAddendumCreateWithoutPublishedByInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutPublishedByInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutPublishedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput>
+  }
+
+  export type ReportAddendumCreateManyPublishedByInputEnvelope = {
+    data: ReportAddendumCreateManyPublishedByInput | ReportAddendumCreateManyPublishedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AddendumAcknowledgementCreateWithoutStakeholderInput = {
+    id?: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+    addendum: ReportAddendumCreateNestedOneWithoutAcknowledgementsInput
+  }
+
+  export type AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    addendumId: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+  }
+
+  export type AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput = {
+    where: AddendumAcknowledgementWhereUniqueInput
+    create: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AddendumAcknowledgementCreateManyStakeholderInputEnvelope = {
+    data: AddendumAcknowledgementCreateManyStakeholderInput | AddendumAcknowledgementCreateManyStakeholderInput[]
     skipDuplicates?: boolean
   }
 
@@ -55214,6 +62622,86 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ReportEmail"> | Date | string
   }
 
+  export type ReportAddendumUpsertWithWhereUniqueWithoutCreatedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    update: XOR<ReportAddendumUpdateWithoutCreatedByInput, ReportAddendumUncheckedUpdateWithoutCreatedByInput>
+    create: XOR<ReportAddendumCreateWithoutCreatedByInput, ReportAddendumUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type ReportAddendumUpdateWithWhereUniqueWithoutCreatedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    data: XOR<ReportAddendumUpdateWithoutCreatedByInput, ReportAddendumUncheckedUpdateWithoutCreatedByInput>
+  }
+
+  export type ReportAddendumUpdateManyWithWhereWithoutCreatedByInput = {
+    where: ReportAddendumScalarWhereInput
+    data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
+  export type ReportAddendumScalarWhereInput = {
+    AND?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+    OR?: ReportAddendumScalarWhereInput[]
+    NOT?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+    id?: StringFilter<"ReportAddendum"> | string
+    inspectionId?: StringFilter<"ReportAddendum"> | string
+    number?: IntNullableFilter<"ReportAddendum"> | number | null
+    title?: StringFilter<"ReportAddendum"> | string
+    reason?: StringNullableFilter<"ReportAddendum"> | string | null
+    effectiveDate?: DateTimeFilter<"ReportAddendum"> | Date | string
+    createdById?: StringFilter<"ReportAddendum"> | string
+    createdAt?: DateTimeFilter<"ReportAddendum"> | Date | string
+    updatedAt?: DateTimeFilter<"ReportAddendum"> | Date | string
+    publishedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    publishedById?: StringNullableFilter<"ReportAddendum"> | string | null
+    snapshot?: JsonNullableFilter<"ReportAddendum">
+    contentHash?: StringNullableFilter<"ReportAddendum"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+  }
+
+  export type ReportAddendumUpsertWithWhereUniqueWithoutPublishedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    update: XOR<ReportAddendumUpdateWithoutPublishedByInput, ReportAddendumUncheckedUpdateWithoutPublishedByInput>
+    create: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput>
+  }
+
+  export type ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    data: XOR<ReportAddendumUpdateWithoutPublishedByInput, ReportAddendumUncheckedUpdateWithoutPublishedByInput>
+  }
+
+  export type ReportAddendumUpdateManyWithWhereWithoutPublishedByInput = {
+    where: ReportAddendumScalarWhereInput
+    data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyWithoutPublishedByInput>
+  }
+
+  export type AddendumAcknowledgementUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: AddendumAcknowledgementWhereUniqueInput
+    update: XOR<AddendumAcknowledgementUpdateWithoutStakeholderInput, AddendumAcknowledgementUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: AddendumAcknowledgementWhereUniqueInput
+    data: XOR<AddendumAcknowledgementUpdateWithoutStakeholderInput, AddendumAcknowledgementUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput = {
+    where: AddendumAcknowledgementScalarWhereInput
+    data: XOR<AddendumAcknowledgementUpdateManyMutationInput, AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type AddendumAcknowledgementScalarWhereInput = {
+    AND?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+    OR?: AddendumAcknowledgementScalarWhereInput[]
+    NOT?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+    id?: StringFilter<"AddendumAcknowledgement"> | string
+    addendumId?: StringFilter<"AddendumAcknowledgement"> | string
+    stakeholderId?: StringFilter<"AddendumAcknowledgement"> | string
+    acknowledgedAt?: DateTimeFilter<"AddendumAcknowledgement"> | Date | string
+    ipAddress?: StringNullableFilter<"AddendumAcknowledgement"> | string | null
+    contentHash?: StringFilter<"AddendumAcknowledgement"> | string
+  }
+
   export type SubscriptionUpsertWithoutStakeholderInput = {
     update: XOR<SubscriptionUpdateWithoutStakeholderInput, SubscriptionUncheckedUpdateWithoutStakeholderInput>
     create: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
@@ -55317,6 +62805,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -55348,6 +62839,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -55519,6 +63013,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
 
@@ -55550,6 +63047,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
 
@@ -55586,6 +63086,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
   }
 
@@ -55617,6 +63120,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
@@ -55691,6 +63197,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
 
@@ -55722,6 +63231,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
@@ -55764,6 +63276,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -55795,6 +63310,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -55825,6 +63343,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -55856,6 +63377,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -55903,6 +63427,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -55934,6 +63461,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -55993,6 +63523,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     inspectionItems?: InspectionItemCreateNestedManyWithoutPropertyAssetInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetUncheckedCreateWithoutPropertyInput = {
@@ -56006,6 +63537,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     inspectionItems?: InspectionItemUncheckedCreateNestedManyWithoutPropertyAssetInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetCreateOrConnectWithoutPropertyInput = {
@@ -56119,6 +63651,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -56150,6 +63685,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -56186,6 +63724,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -56217,6 +63758,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -56253,6 +63797,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -56284,6 +63831,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -56315,6 +63865,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutTenancyInput = {
@@ -56339,6 +63890,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutTenancyInput = {
@@ -56371,6 +63923,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutTenancyInput = {
@@ -56393,6 +63946,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutTenancyInput = {
@@ -56476,6 +64030,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -56507,6 +64064,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -56549,6 +64109,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -56580,6 +64143,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -56622,6 +64188,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -56653,6 +64222,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -56755,6 +64327,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -56786,6 +64361,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -56817,6 +64395,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutCheckOutInput = {
@@ -56841,6 +64420,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutCheckOutInput = {
@@ -56870,6 +64450,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutBaselineInput = {
@@ -56894,6 +64475,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutBaselineInput = {
@@ -57071,6 +64653,52 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ReportAddendumCreateWithoutInspectionInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutInspectionInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutInspectionInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutInspectionInput, ReportAddendumUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type ReportAddendumCreateManyInspectionInputEnvelope = {
+    data: ReportAddendumCreateManyInspectionInput | ReportAddendumCreateManyInspectionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithoutInspectionsInput = {
     update: XOR<TenancyUpdateWithoutInspectionsInput, TenancyUncheckedUpdateWithoutInspectionsInput>
     create: XOR<TenancyCreateWithoutInspectionsInput, TenancyUncheckedCreateWithoutInspectionsInput>
@@ -57154,6 +64782,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -57185,6 +64816,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -57222,6 +64856,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutCheckOutInput = {
@@ -57246,6 +64881,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUpsertWithoutBaselineInput = {
@@ -57281,6 +64917,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutBaselineInput = {
@@ -57305,6 +64942,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type RoomUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -57433,6 +65071,22 @@ export namespace Prisma {
   export type ReportEmailUpdateManyWithWhereWithoutInspectionInput = {
     where: ReportEmailScalarWhereInput
     data: XOR<ReportEmailUpdateManyMutationInput, ReportEmailUncheckedUpdateManyWithoutInspectionInput>
+  }
+
+  export type ReportAddendumUpsertWithWhereUniqueWithoutInspectionInput = {
+    where: ReportAddendumWhereUniqueInput
+    update: XOR<ReportAddendumUpdateWithoutInspectionInput, ReportAddendumUncheckedUpdateWithoutInspectionInput>
+    create: XOR<ReportAddendumCreateWithoutInspectionInput, ReportAddendumUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput = {
+    where: ReportAddendumWhereUniqueInput
+    data: XOR<ReportAddendumUpdateWithoutInspectionInput, ReportAddendumUncheckedUpdateWithoutInspectionInput>
+  }
+
+  export type ReportAddendumUpdateManyWithWhereWithoutInspectionInput = {
+    where: ReportAddendumScalarWhereInput
+    data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyWithoutInspectionInput>
   }
 
   export type RoomCreateWithoutCapturesInput = {
@@ -57664,6 +65318,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutRoomsInput = {
@@ -57688,6 +65343,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutRoomsInput = {
@@ -57828,6 +65484,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutRoomsInput = {
@@ -57852,6 +65509,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type CaptureUpsertWithWhereUniqueWithoutRoomInput = {
@@ -57994,6 +65652,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutAssetsInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetUncheckedCreateWithoutInspectionItemsInput = {
@@ -58007,6 +65666,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetCreateOrConnectWithoutInspectionItemsInput = {
@@ -58224,6 +65884,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutAssetsNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type PropertyAssetUncheckedUpdateWithoutInspectionItemsInput = {
@@ -58237,6 +65898,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type ItemEvidenceUpsertWithWhereUniqueWithoutItemInput = {
@@ -58578,6 +66240,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutPropertyAssetInput = {
@@ -58600,6 +66263,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutPropertyAssetInput = {
@@ -58609,6 +66273,50 @@ export namespace Prisma {
 
   export type MaintenanceCaseCreateManyPropertyAssetInputEnvelope = {
     data: MaintenanceCaseCreateManyPropertyAssetInput | MaintenanceCaseCreateManyPropertyAssetInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportAddendumEntryCreateWithoutPropertyAssetInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
+    maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
+    photos?: ReportAddendumPhotoCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    createdAt?: Date | string
+    photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryCreateOrConnectWithoutPropertyAssetInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    create: XOR<ReportAddendumEntryCreateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput>
+  }
+
+  export type ReportAddendumEntryCreateManyPropertyAssetInputEnvelope = {
+    data: ReportAddendumEntryCreateManyPropertyAssetInput | ReportAddendumEntryCreateManyPropertyAssetInput[]
     skipDuplicates?: boolean
   }
 
@@ -58677,6 +66385,42 @@ export namespace Prisma {
     data: XOR<MaintenanceCaseUpdateManyMutationInput, MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetInput>
   }
 
+  export type ReportAddendumEntryUpsertWithWhereUniqueWithoutPropertyAssetInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    update: XOR<ReportAddendumEntryUpdateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedUpdateWithoutPropertyAssetInput>
+    create: XOR<ReportAddendumEntryCreateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedCreateWithoutPropertyAssetInput>
+  }
+
+  export type ReportAddendumEntryUpdateWithWhereUniqueWithoutPropertyAssetInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    data: XOR<ReportAddendumEntryUpdateWithoutPropertyAssetInput, ReportAddendumEntryUncheckedUpdateWithoutPropertyAssetInput>
+  }
+
+  export type ReportAddendumEntryUpdateManyWithWhereWithoutPropertyAssetInput = {
+    where: ReportAddendumEntryScalarWhereInput
+    data: XOR<ReportAddendumEntryUpdateManyMutationInput, ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetInput>
+  }
+
+  export type ReportAddendumEntryScalarWhereInput = {
+    AND?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+    OR?: ReportAddendumEntryScalarWhereInput[]
+    NOT?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+    id?: StringFilter<"ReportAddendumEntry"> | string
+    addendumId?: StringFilter<"ReportAddendumEntry"> | string
+    change?: EnumAddendumChangeFilter<"ReportAddendumEntry"> | $Enums.AddendumChange
+    roomName?: StringFilter<"ReportAddendumEntry"> | string
+    targetKey?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    name?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    category?: EnumItemCategoryNullableFilter<"ReportAddendumEntry"> | $Enums.ItemCategory | null
+    condition?: EnumItemConditionNullableFilter<"ReportAddendumEntry"> | $Enums.ItemCondition | null
+    quantity?: IntFilter<"ReportAddendumEntry"> | number
+    identifier?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    notes?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    maintenanceCaseId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    propertyAssetId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    createdAt?: DateTimeFilter<"ReportAddendumEntry"> | Date | string
+  }
+
   export type TenancyCreateWithoutMaintenanceCasesInput = {
     id?: string
     startDate: Date | string
@@ -58727,6 +66471,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutAssetsInput
     inspectionItems?: InspectionItemCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetUncheckedCreateWithoutMaintenanceCasesInput = {
@@ -58740,6 +66485,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     inspectionItems?: InspectionItemUncheckedCreateNestedManyWithoutPropertyAssetInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutPropertyAssetInput
   }
 
   export type PropertyAssetCreateOrConnectWithoutMaintenanceCasesInput = {
@@ -58774,6 +66520,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -58805,6 +66554,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -58996,6 +66748,50 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ReportAddendumEntryCreateWithoutMaintenanceCaseInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutAddendumEntriesInput
+    photos?: ReportAddendumPhotoCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+    photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    create: XOR<ReportAddendumEntryCreateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput>
+  }
+
+  export type ReportAddendumEntryCreateManyMaintenanceCaseInputEnvelope = {
+    data: ReportAddendumEntryCreateManyMaintenanceCaseInput | ReportAddendumEntryCreateManyMaintenanceCaseInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithoutMaintenanceCasesInput = {
     update: XOR<TenancyUpdateWithoutMaintenanceCasesInput, TenancyUncheckedUpdateWithoutMaintenanceCasesInput>
     create: XOR<TenancyCreateWithoutMaintenanceCasesInput, TenancyUncheckedCreateWithoutMaintenanceCasesInput>
@@ -59063,6 +66859,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutAssetsNestedInput
     inspectionItems?: InspectionItemUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type PropertyAssetUncheckedUpdateWithoutMaintenanceCasesInput = {
@@ -59076,6 +66873,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspectionItems?: InspectionItemUncheckedUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type StakeholderUpsertWithoutMaintenanceCasesReportedInput = {
@@ -59116,6 +66914,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -59147,6 +66948,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -59246,6 +67050,22 @@ export namespace Prisma {
     data: XOR<ResponsibilityProposalUpdateManyMutationInput, ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseInput>
   }
 
+  export type ReportAddendumEntryUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    update: XOR<ReportAddendumEntryUpdateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedUpdateWithoutMaintenanceCaseInput>
+    create: XOR<ReportAddendumEntryCreateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedCreateWithoutMaintenanceCaseInput>
+  }
+
+  export type ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    data: XOR<ReportAddendumEntryUpdateWithoutMaintenanceCaseInput, ReportAddendumEntryUncheckedUpdateWithoutMaintenanceCaseInput>
+  }
+
+  export type ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput = {
+    where: ReportAddendumEntryScalarWhereInput
+    data: XOR<ReportAddendumEntryUpdateManyMutationInput, ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseInput>
+  }
+
   export type MaintenanceCaseCreateWithoutEventsInput = {
     id?: string
     clientId?: string | null
@@ -59266,6 +67086,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutEventsInput = {
@@ -59288,6 +67109,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutEventsInput = {
@@ -59322,6 +67144,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -59353,6 +67178,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -59393,6 +67221,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutEventsInput = {
@@ -59415,6 +67244,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type StakeholderUpsertWithoutMaintenanceEventsInput = {
@@ -59455,6 +67285,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -59486,6 +67319,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -59510,6 +67346,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutVisitsInput = {
@@ -59532,6 +67369,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutVisitsInput = {
@@ -59660,6 +67498,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutVisitsInput = {
@@ -59682,6 +67521,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type ServiceProviderUpsertWithoutVisitsInput = {
@@ -59786,6 +67626,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutEvidenceInput = {
@@ -59808,6 +67649,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutEvidenceInput = {
@@ -59873,6 +67715,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -59904,6 +67749,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -59944,6 +67792,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutEvidenceInput = {
@@ -59966,6 +67815,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceVisitUpsertWithoutEvidenceInput = {
@@ -60043,6 +67893,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60074,6 +67927,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60136,6 +67992,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60167,6 +68026,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -60251,6 +68113,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60282,6 +68147,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60306,6 +68174,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput = {
@@ -60328,6 +68197,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutResponsibilityProposalsInput = {
@@ -60362,6 +68232,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60393,6 +68266,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -60429,6 +68305,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60460,6 +68339,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -60500,6 +68382,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutResponsibilityProposalsInput = {
@@ -60522,6 +68405,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityProposedInput = {
@@ -60562,6 +68446,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60593,6 +68480,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60635,6 +68525,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60666,6 +68559,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60749,6 +68645,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60780,6 +68679,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -60859,6 +68761,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60890,6 +68795,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60952,6 +68860,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60983,6 +68894,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -61062,6 +68976,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -61093,6 +69010,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -61279,6 +69199,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutFindingsInput = {
@@ -61303,6 +69224,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutFindingsInput = {
@@ -61424,6 +69346,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutFindingsInput = {
@@ -61446,6 +69369,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutFindingsInput = {
@@ -61486,6 +69410,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutFindingsInput = {
@@ -61510,6 +69435,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionItemUpsertWithoutFindingsAsSubjectInput = {
@@ -61649,6 +69575,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutFindingsInput = {
@@ -61671,6 +69598,7 @@ export namespace Prisma {
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type InspectionCreateWithoutSignaturesInput = {
@@ -61695,6 +69623,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutSignaturesInput = {
@@ -61719,6 +69648,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutSignaturesInput = {
@@ -61753,6 +69683,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -61784,6 +69717,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -61826,6 +69762,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutSignaturesInput = {
@@ -61850,6 +69787,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutSignaturesInput = {
@@ -61890,6 +69828,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -61921,6 +69862,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -61947,6 +69891,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutReportEmailsInput = {
@@ -61971,6 +69916,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutReportEmailsInput = {
@@ -62005,6 +69951,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -62036,6 +69985,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -62078,6 +70030,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutReportEmailsInput = {
@@ -62102,6 +70055,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutReportEmailsInput = {
@@ -62142,6 +70096,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -62173,6 +70130,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -62199,6 +70159,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutAssessmentsInput = {
@@ -62223,6 +70184,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutAssessmentsInput = {
@@ -62263,6 +70225,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutAssessmentsInput = {
@@ -62287,6 +70250,1184 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type InspectionCreateWithoutAddendaInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutAddendaInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutAddendaInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutAddendaInput, InspectionUncheckedCreateWithoutAddendaInput>
+  }
+
+  export type StakeholderCreateWithoutAddendaCreatedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAddendaCreatedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAddendaCreatedInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAddendaCreatedInput, StakeholderUncheckedCreateWithoutAddendaCreatedInput>
+  }
+
+  export type StakeholderCreateWithoutAddendaPublishedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAddendaPublishedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAddendaPublishedInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAddendaPublishedInput, StakeholderUncheckedCreateWithoutAddendaPublishedInput>
+  }
+
+  export type ReportAddendumEntryCreateWithoutAddendumInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutAddendumEntriesInput
+    photos?: ReportAddendumPhotoCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryUncheckedCreateWithoutAddendumInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+    photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
+  }
+
+  export type ReportAddendumEntryCreateOrConnectWithoutAddendumInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    create: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput>
+  }
+
+  export type ReportAddendumEntryCreateManyAddendumInputEnvelope = {
+    data: ReportAddendumEntryCreateManyAddendumInput | ReportAddendumEntryCreateManyAddendumInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AddendumAcknowledgementCreateWithoutAddendumInput = {
+    id?: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+    stakeholder: StakeholderCreateNestedOneWithoutAddendumAcknowledgementsInput
+  }
+
+  export type AddendumAcknowledgementUncheckedCreateWithoutAddendumInput = {
+    id?: string
+    stakeholderId: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+  }
+
+  export type AddendumAcknowledgementCreateOrConnectWithoutAddendumInput = {
+    where: AddendumAcknowledgementWhereUniqueInput
+    create: XOR<AddendumAcknowledgementCreateWithoutAddendumInput, AddendumAcknowledgementUncheckedCreateWithoutAddendumInput>
+  }
+
+  export type AddendumAcknowledgementCreateManyAddendumInputEnvelope = {
+    data: AddendumAcknowledgementCreateManyAddendumInput | AddendumAcknowledgementCreateManyAddendumInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InspectionUpsertWithoutAddendaInput = {
+    update: XOR<InspectionUpdateWithoutAddendaInput, InspectionUncheckedUpdateWithoutAddendaInput>
+    create: XOR<InspectionCreateWithoutAddendaInput, InspectionUncheckedCreateWithoutAddendaInput>
+    where?: InspectionWhereInput
+  }
+
+  export type InspectionUpdateToOneWithWhereWithoutAddendaInput = {
+    where?: InspectionWhereInput
+    data: XOR<InspectionUpdateWithoutAddendaInput, InspectionUncheckedUpdateWithoutAddendaInput>
+  }
+
+  export type InspectionUpdateWithoutAddendaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutAddendaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type StakeholderUpsertWithoutAddendaCreatedInput = {
+    update: XOR<StakeholderUpdateWithoutAddendaCreatedInput, StakeholderUncheckedUpdateWithoutAddendaCreatedInput>
+    create: XOR<StakeholderCreateWithoutAddendaCreatedInput, StakeholderUncheckedCreateWithoutAddendaCreatedInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAddendaCreatedInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAddendaCreatedInput, StakeholderUncheckedUpdateWithoutAddendaCreatedInput>
+  }
+
+  export type StakeholderUpdateWithoutAddendaCreatedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAddendaCreatedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUpsertWithoutAddendaPublishedInput = {
+    update: XOR<StakeholderUpdateWithoutAddendaPublishedInput, StakeholderUncheckedUpdateWithoutAddendaPublishedInput>
+    create: XOR<StakeholderCreateWithoutAddendaPublishedInput, StakeholderUncheckedCreateWithoutAddendaPublishedInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAddendaPublishedInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAddendaPublishedInput, StakeholderUncheckedUpdateWithoutAddendaPublishedInput>
+  }
+
+  export type StakeholderUpdateWithoutAddendaPublishedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAddendaPublishedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    update: XOR<ReportAddendumEntryUpdateWithoutAddendumInput, ReportAddendumEntryUncheckedUpdateWithoutAddendumInput>
+    create: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput>
+  }
+
+  export type ReportAddendumEntryUpdateWithWhereUniqueWithoutAddendumInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    data: XOR<ReportAddendumEntryUpdateWithoutAddendumInput, ReportAddendumEntryUncheckedUpdateWithoutAddendumInput>
+  }
+
+  export type ReportAddendumEntryUpdateManyWithWhereWithoutAddendumInput = {
+    where: ReportAddendumEntryScalarWhereInput
+    data: XOR<ReportAddendumEntryUpdateManyMutationInput, ReportAddendumEntryUncheckedUpdateManyWithoutAddendumInput>
+  }
+
+  export type AddendumAcknowledgementUpsertWithWhereUniqueWithoutAddendumInput = {
+    where: AddendumAcknowledgementWhereUniqueInput
+    update: XOR<AddendumAcknowledgementUpdateWithoutAddendumInput, AddendumAcknowledgementUncheckedUpdateWithoutAddendumInput>
+    create: XOR<AddendumAcknowledgementCreateWithoutAddendumInput, AddendumAcknowledgementUncheckedCreateWithoutAddendumInput>
+  }
+
+  export type AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput = {
+    where: AddendumAcknowledgementWhereUniqueInput
+    data: XOR<AddendumAcknowledgementUpdateWithoutAddendumInput, AddendumAcknowledgementUncheckedUpdateWithoutAddendumInput>
+  }
+
+  export type AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput = {
+    where: AddendumAcknowledgementScalarWhereInput
+    data: XOR<AddendumAcknowledgementUpdateManyMutationInput, AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumInput>
+  }
+
+  export type ReportAddendumCreateWithoutEntriesInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutEntriesInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutEntriesInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutEntriesInput, ReportAddendumUncheckedCreateWithoutEntriesInput>
+  }
+
+  export type MaintenanceCaseCreateWithoutAddendumEntriesInput = {
+    id?: string
+    clientId?: string | null
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutMaintenanceCasesInput
+    reportedBy: StakeholderCreateNestedOneWithoutMaintenanceCasesReportedInput
+    events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseUncheckedCreateWithoutAddendumEntriesInput = {
+    id?: string
+    clientId?: string | null
+    tenancyId: string
+    propertyAssetId?: string | null
+    reportedById: string
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseCreateOrConnectWithoutAddendumEntriesInput = {
+    where: MaintenanceCaseWhereUniqueInput
+    create: XOR<MaintenanceCaseCreateWithoutAddendumEntriesInput, MaintenanceCaseUncheckedCreateWithoutAddendumEntriesInput>
+  }
+
+  export type PropertyAssetCreateWithoutAddendumEntriesInput = {
+    id?: string
+    name: string
+    category: $Enums.PropertyAssetCategory
+    roomLabel?: string | null
+    identifier?: string | null
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutAssetsInput
+    inspectionItems?: InspectionItemCreateNestedManyWithoutPropertyAssetInput
+    maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutPropertyAssetInput
+  }
+
+  export type PropertyAssetUncheckedCreateWithoutAddendumEntriesInput = {
+    id?: string
+    propertyId: string
+    name: string
+    category: $Enums.PropertyAssetCategory
+    roomLabel?: string | null
+    identifier?: string | null
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspectionItems?: InspectionItemUncheckedCreateNestedManyWithoutPropertyAssetInput
+    maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutPropertyAssetInput
+  }
+
+  export type PropertyAssetCreateOrConnectWithoutAddendumEntriesInput = {
+    where: PropertyAssetWhereUniqueInput
+    create: XOR<PropertyAssetCreateWithoutAddendumEntriesInput, PropertyAssetUncheckedCreateWithoutAddendumEntriesInput>
+  }
+
+  export type ReportAddendumPhotoCreateWithoutEntryInput = {
+    id?: string
+    storagePath: string
+    mimeType: string
+    sizeBytes?: number | null
+    note?: string | null
+    label?: string | null
+    maintenanceEvidenceId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumPhotoUncheckedCreateWithoutEntryInput = {
+    id?: string
+    storagePath: string
+    mimeType: string
+    sizeBytes?: number | null
+    note?: string | null
+    label?: string | null
+    maintenanceEvidenceId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumPhotoCreateOrConnectWithoutEntryInput = {
+    where: ReportAddendumPhotoWhereUniqueInput
+    create: XOR<ReportAddendumPhotoCreateWithoutEntryInput, ReportAddendumPhotoUncheckedCreateWithoutEntryInput>
+  }
+
+  export type ReportAddendumPhotoCreateManyEntryInputEnvelope = {
+    data: ReportAddendumPhotoCreateManyEntryInput | ReportAddendumPhotoCreateManyEntryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportAddendumUpsertWithoutEntriesInput = {
+    update: XOR<ReportAddendumUpdateWithoutEntriesInput, ReportAddendumUncheckedUpdateWithoutEntriesInput>
+    create: XOR<ReportAddendumCreateWithoutEntriesInput, ReportAddendumUncheckedCreateWithoutEntriesInput>
+    where?: ReportAddendumWhereInput
+  }
+
+  export type ReportAddendumUpdateToOneWithWhereWithoutEntriesInput = {
+    where?: ReportAddendumWhereInput
+    data: XOR<ReportAddendumUpdateWithoutEntriesInput, ReportAddendumUncheckedUpdateWithoutEntriesInput>
+  }
+
+  export type ReportAddendumUpdateWithoutEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type MaintenanceCaseUpsertWithoutAddendumEntriesInput = {
+    update: XOR<MaintenanceCaseUpdateWithoutAddendumEntriesInput, MaintenanceCaseUncheckedUpdateWithoutAddendumEntriesInput>
+    create: XOR<MaintenanceCaseCreateWithoutAddendumEntriesInput, MaintenanceCaseUncheckedCreateWithoutAddendumEntriesInput>
+    where?: MaintenanceCaseWhereInput
+  }
+
+  export type MaintenanceCaseUpdateToOneWithWhereWithoutAddendumEntriesInput = {
+    where?: MaintenanceCaseWhereInput
+    data: XOR<MaintenanceCaseUpdateWithoutAddendumEntriesInput, MaintenanceCaseUncheckedUpdateWithoutAddendumEntriesInput>
+  }
+
+  export type MaintenanceCaseUpdateWithoutAddendumEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutMaintenanceCasesNestedInput
+    reportedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceCasesReportedNestedInput
+    events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+  }
+
+  export type MaintenanceCaseUncheckedUpdateWithoutAddendumEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedById?: StringFieldUpdateOperationsInput | string
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+  }
+
+  export type PropertyAssetUpsertWithoutAddendumEntriesInput = {
+    update: XOR<PropertyAssetUpdateWithoutAddendumEntriesInput, PropertyAssetUncheckedUpdateWithoutAddendumEntriesInput>
+    create: XOR<PropertyAssetCreateWithoutAddendumEntriesInput, PropertyAssetUncheckedCreateWithoutAddendumEntriesInput>
+    where?: PropertyAssetWhereInput
+  }
+
+  export type PropertyAssetUpdateToOneWithWhereWithoutAddendumEntriesInput = {
+    where?: PropertyAssetWhereInput
+    data: XOR<PropertyAssetUpdateWithoutAddendumEntriesInput, PropertyAssetUncheckedUpdateWithoutAddendumEntriesInput>
+  }
+
+  export type PropertyAssetUpdateWithoutAddendumEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumPropertyAssetCategoryFieldUpdateOperationsInput | $Enums.PropertyAssetCategory
+    roomLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutAssetsNestedInput
+    inspectionItems?: InspectionItemUpdateManyWithoutPropertyAssetNestedInput
+    maintenanceCases?: MaintenanceCaseUpdateManyWithoutPropertyAssetNestedInput
+  }
+
+  export type PropertyAssetUncheckedUpdateWithoutAddendumEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    category?: EnumPropertyAssetCategoryFieldUpdateOperationsInput | $Enums.PropertyAssetCategory
+    roomLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspectionItems?: InspectionItemUncheckedUpdateManyWithoutPropertyAssetNestedInput
+    maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetNestedInput
+  }
+
+  export type ReportAddendumPhotoUpsertWithWhereUniqueWithoutEntryInput = {
+    where: ReportAddendumPhotoWhereUniqueInput
+    update: XOR<ReportAddendumPhotoUpdateWithoutEntryInput, ReportAddendumPhotoUncheckedUpdateWithoutEntryInput>
+    create: XOR<ReportAddendumPhotoCreateWithoutEntryInput, ReportAddendumPhotoUncheckedCreateWithoutEntryInput>
+  }
+
+  export type ReportAddendumPhotoUpdateWithWhereUniqueWithoutEntryInput = {
+    where: ReportAddendumPhotoWhereUniqueInput
+    data: XOR<ReportAddendumPhotoUpdateWithoutEntryInput, ReportAddendumPhotoUncheckedUpdateWithoutEntryInput>
+  }
+
+  export type ReportAddendumPhotoUpdateManyWithWhereWithoutEntryInput = {
+    where: ReportAddendumPhotoScalarWhereInput
+    data: XOR<ReportAddendumPhotoUpdateManyMutationInput, ReportAddendumPhotoUncheckedUpdateManyWithoutEntryInput>
+  }
+
+  export type ReportAddendumPhotoScalarWhereInput = {
+    AND?: ReportAddendumPhotoScalarWhereInput | ReportAddendumPhotoScalarWhereInput[]
+    OR?: ReportAddendumPhotoScalarWhereInput[]
+    NOT?: ReportAddendumPhotoScalarWhereInput | ReportAddendumPhotoScalarWhereInput[]
+    id?: StringFilter<"ReportAddendumPhoto"> | string
+    entryId?: StringFilter<"ReportAddendumPhoto"> | string
+    storagePath?: StringFilter<"ReportAddendumPhoto"> | string
+    mimeType?: StringFilter<"ReportAddendumPhoto"> | string
+    sizeBytes?: IntNullableFilter<"ReportAddendumPhoto"> | number | null
+    note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
+  }
+
+  export type ReportAddendumEntryCreateWithoutPhotosInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
+    maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutAddendumEntriesInput
+  }
+
+  export type ReportAddendumEntryUncheckedCreateWithoutPhotosInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumEntryCreateOrConnectWithoutPhotosInput = {
+    where: ReportAddendumEntryWhereUniqueInput
+    create: XOR<ReportAddendumEntryCreateWithoutPhotosInput, ReportAddendumEntryUncheckedCreateWithoutPhotosInput>
+  }
+
+  export type ReportAddendumEntryUpsertWithoutPhotosInput = {
+    update: XOR<ReportAddendumEntryUpdateWithoutPhotosInput, ReportAddendumEntryUncheckedUpdateWithoutPhotosInput>
+    create: XOR<ReportAddendumEntryCreateWithoutPhotosInput, ReportAddendumEntryUncheckedCreateWithoutPhotosInput>
+    where?: ReportAddendumEntryWhereInput
+  }
+
+  export type ReportAddendumEntryUpdateToOneWithWhereWithoutPhotosInput = {
+    where?: ReportAddendumEntryWhereInput
+    data: XOR<ReportAddendumEntryUpdateWithoutPhotosInput, ReportAddendumEntryUncheckedUpdateWithoutPhotosInput>
+  }
+
+  export type ReportAddendumEntryUpdateWithoutPhotosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
+    maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateWithoutPhotosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumCreateWithoutAcknowledgementsInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutAcknowledgementsInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutAcknowledgementsInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutAcknowledgementsInput, ReportAddendumUncheckedCreateWithoutAcknowledgementsInput>
+  }
+
+  export type StakeholderCreateWithoutAddendumAcknowledgementsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAddendumAcknowledgementsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAddendumAcknowledgementsInput, StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput>
+  }
+
+  export type ReportAddendumUpsertWithoutAcknowledgementsInput = {
+    update: XOR<ReportAddendumUpdateWithoutAcknowledgementsInput, ReportAddendumUncheckedUpdateWithoutAcknowledgementsInput>
+    create: XOR<ReportAddendumCreateWithoutAcknowledgementsInput, ReportAddendumUncheckedCreateWithoutAcknowledgementsInput>
+    where?: ReportAddendumWhereInput
+  }
+
+  export type ReportAddendumUpdateToOneWithWhereWithoutAcknowledgementsInput = {
+    where?: ReportAddendumWhereInput
+    data: XOR<ReportAddendumUpdateWithoutAcknowledgementsInput, ReportAddendumUncheckedUpdateWithoutAcknowledgementsInput>
+  }
+
+  export type ReportAddendumUpdateWithoutAcknowledgementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutAcknowledgementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type StakeholderUpsertWithoutAddendumAcknowledgementsInput = {
+    update: XOR<StakeholderUpdateWithoutAddendumAcknowledgementsInput, StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput>
+    create: XOR<StakeholderCreateWithoutAddendumAcknowledgementsInput, StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAddendumAcknowledgementsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAddendumAcknowledgementsInput, StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput>
+  }
+
+  export type StakeholderUpdateWithoutAddendumAcknowledgementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
   export type StakeholderCreateWithoutDeletionRequestsInput = {
@@ -62316,6 +71457,9 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -62347,6 +71491,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -62418,6 +71565,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -62449,6 +71599,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -62575,6 +71728,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -62606,6 +71762,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -62653,6 +71812,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -62684,6 +71846,9 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -62907,6 +72072,46 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ReportAddendumCreateManyCreatedByInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+  }
+
+  export type ReportAddendumCreateManyPublishedByInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+  }
+
+  export type AddendumAcknowledgementCreateManyStakeholderInput = {
+    id?: string
+    addendumId: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+  }
+
   export type SubscriptionCreateManyManagedByInput = {
     id?: string
     teamId?: string | null
@@ -63091,6 +72296,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutConductedByInput = {
@@ -63115,6 +72321,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutConductedByInput = {
@@ -63220,6 +72427,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutReportedByInput = {
@@ -63242,6 +72450,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutReportedByInput = {
@@ -63619,6 +72828,134 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ReportAddendumUpdateWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ReportAddendumUpdateWithoutPublishedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutPublishedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutPublishedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AddendumAcknowledgementUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+    addendum?: ReportAddendumUpdateOneRequiredWithoutAcknowledgementsNestedInput
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
   export type SubscriptionUpdateWithoutManagedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -63703,6 +73040,9 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -63734,6 +73074,9 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -63836,6 +73179,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspectionItems?: InspectionItemUpdateManyWithoutPropertyAssetNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type PropertyAssetUncheckedUpdateWithoutPropertyInput = {
@@ -63849,6 +73193,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspectionItems?: InspectionItemUncheckedUpdateManyWithoutPropertyAssetNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetNestedInput
   }
 
   export type PropertyAssetUncheckedUpdateManyWithoutPropertyInput = {
@@ -63919,6 +73264,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutTenancyInput = {
@@ -63943,6 +73289,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutTenancyInput = {
@@ -63983,6 +73330,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutTenancyInput = {
@@ -64005,6 +73353,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutTenancyInput = {
@@ -64080,6 +73429,22 @@ export namespace Prisma {
     sentAt?: Date | string | null
     error?: string | null
     createdAt?: Date | string
+  }
+
+  export type ReportAddendumCreateManyInspectionInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
   }
 
   export type RoomUpdateWithoutInspectionInput = {
@@ -64258,6 +73623,58 @@ export namespace Prisma {
     sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     error?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumUpdateWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type InspectionItemCreateManySourceCaptureInput = {
@@ -64683,6 +74100,22 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ReportAddendumEntryCreateManyPropertyAssetInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    createdAt?: Date | string
+  }
+
   export type InspectionItemUpdateWithoutPropertyAssetInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -64763,6 +74196,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutPropertyAssetInput = {
@@ -64785,6 +74219,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetInput = {
@@ -64802,6 +74237,56 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumEntryUpdateWithoutPropertyAssetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
+    maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
+    photos?: ReportAddendumPhotoUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateWithoutPropertyAssetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyWithoutPropertyAssetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MaintenanceEventCreateManyMaintenanceCaseInput = {
@@ -64865,6 +74350,22 @@ export namespace Prisma {
     respondedById?: string | null
     respondedAt?: Date | string | null
     responseNote?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumEntryCreateManyMaintenanceCaseInput = {
+    id?: string
+    addendumId: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    propertyAssetId?: string | null
     createdAt?: Date | string
   }
 
@@ -65064,6 +74565,56 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ReportAddendumEntryUpdateWithoutMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput
+    photos?: ReportAddendumPhotoUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateWithoutMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    addendumId?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MaintenanceEvidenceCreateManyVisitInput = {
     id?: string
     clientId: string
@@ -65250,6 +74801,148 @@ export namespace Prisma {
     error?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumEntryCreateManyAddendumInput = {
+    id?: string
+    change: $Enums.AddendumChange
+    roomName: string
+    targetKey?: string | null
+    name?: string | null
+    category?: $Enums.ItemCategory | null
+    condition?: $Enums.ItemCondition | null
+    quantity?: number
+    identifier?: string | null
+    notes?: string | null
+    maintenanceCaseId?: string | null
+    propertyAssetId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AddendumAcknowledgementCreateManyAddendumInput = {
+    id?: string
+    stakeholderId: string
+    acknowledgedAt?: Date | string
+    ipAddress?: string | null
+    contentHash: string
+  }
+
+  export type ReportAddendumEntryUpdateWithoutAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput
+    photos?: ReportAddendumPhotoUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateWithoutAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
+  }
+
+  export type ReportAddendumEntryUncheckedUpdateManyWithoutAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    change?: EnumAddendumChangeFieldUpdateOperationsInput | $Enums.AddendumChange
+    roomName?: StringFieldUpdateOperationsInput | string
+    targetKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableEnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory | null
+    condition?: NullableEnumItemConditionFieldUpdateOperationsInput | $Enums.ItemCondition | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    identifier?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AddendumAcknowledgementUpdateWithoutAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAddendumAcknowledgementsNestedInput
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateWithoutAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHash?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReportAddendumPhotoCreateManyEntryInput = {
+    id?: string
+    storagePath: string
+    mimeType: string
+    sizeBytes?: number | null
+    note?: string | null
+    label?: string | null
+    maintenanceEvidenceId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportAddendumPhotoUpdateWithoutEntryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumPhotoUncheckedUpdateWithoutEntryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportAddendumPhotoUncheckedUpdateManyWithoutEntryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AccountDeletionStoragePurgeCreateManyRequestInput = {

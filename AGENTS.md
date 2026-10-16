@@ -227,6 +227,29 @@ a `/reports/` URL, since the share token is a credential that may not exist. The
 origin is `KIVILO_APP_URL`. Pinned by `src/lib/email-signing.integration.test.ts` and
 `e2e/sign-by-email.spec.ts`.
 
+## Updating a signed report
+
+A countersigned check-in still changes: a dishwasher is replaced, a fixture removed. That
+is an addendum (`ReportAddendum`, plan in `plans/report-addenda.md`), a dated, numbered
+record beside the signed report, never an edit to it; the freeze guards above are
+untouched. The agent (or a teammate, through `authorizeAddendum`) drafts entries that add,
+replace or remove a line, with photos uploaded straight to storage under
+`addenda/<addendumId>/` or reused from a resolved repair's evidence by reference.
+Publishing (`src/lib/addendum-actions.ts`) freezes the draft into `snapshot` with
+`contentHash` (SHA-256 of the key-sorted JSON, so it is recomputable from the stored
+row), registers or retires appliances in the asset register, and queues a
+`REPORT_UPDATED` notification whose email links to `/updates/[addendumId]`, built from
+`KIVILO_APP_URL`.
+
+It counts only once both parties acknowledge it, as themselves (`acknowledgeAddendum`,
+the same rule as `signOwnReport`: the party is the session, never an id from the
+request), on `/updates/[addendumId]` or `POST /api/v1/addenda/[id]/acknowledgement`.
+That stamps `acknowledgedAt`, which is what `startCheckOut` and the property timeline
+read. A replacement or removal names its line by key (`item:<id>` or `entry:<id>`);
+`applyAddenda` in `src/lib/addenda-state.ts` is the one place the current state is
+computed. The report page and the PDF draw published addenda after the signatures,
+pending ones marked so.
+
 ## Marking up a photo
 
 The inspector can circle a chip or point an arrow at a crack, on the phone, in the

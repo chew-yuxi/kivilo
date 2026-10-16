@@ -42,8 +42,12 @@ export async function storedReportPdf(inspectionId: string) {
 
 async function fetchAssets(model: ReportModel): Promise<ReportAssets> {
   const photos = model.rooms.flatMap((room) => room.photos)
-  const evidence = (model.assessment?.findings ?? [])
-    .flatMap((finding) => finding.maintenanceEvidence?.evidence ?? [])
+  // Pictures outside the room grid: a repair's evidence in the assessment, and the
+  // photos of updates since signing.
+  const evidence = [
+    ...(model.assessment?.findings ?? []).flatMap((finding) => finding.maintenanceEvidence?.evidence ?? []),
+    ...model.addenda.flatMap((addendum) => addendum.entries.flatMap((entry) => entry.photos)),
+  ]
     .filter((item) => /^image\/(jpeg|png|webp)$/.test(item.mimeType))
 
   const [photoBitmaps, evidenceBitmaps, logo] = await Promise.all([

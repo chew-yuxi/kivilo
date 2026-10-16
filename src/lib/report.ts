@@ -4,6 +4,7 @@ import { createDownloadUrl } from '@/lib/storage'
 import { propertyLabel } from '@/lib/format'
 import { toAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
+import { addendumView, publishedAddenda } from '@/lib/addenda'
 import type { Prisma } from '@/generated/prisma'
 
 /// What a report contains, shared by the link page and the app so the two can never show
@@ -23,6 +24,7 @@ export const reportInclude = {
   },
   signatures: { include: { stakeholder: true } },
   assessments: { orderBy: { version: 'desc' }, take: 1 },
+  addenda: publishedAddenda,
 } satisfies Prisma.InspectionInclude
 
 /// The signed report as the app renders it. Signed URLs last an hour, like every other
@@ -80,6 +82,23 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
       signedAt: signature.signedAt.toISOString(),
       imageData: signature.imageData,
       contentHash: signature.contentHash,
+    })),
+    // Updates since signing, oldest first. A party sees `acknowledgeAs` on each one still
+    // waiting for them.
+    addenda: await Promise.all(inspection.addenda.map(async (row) => {
+      const view = addendumView(row, tenancy)
+      const mine = view.acknowledgements.find((ack) => ack.role.toUpperCase() === party)
+      return {
+        ...view,
+        acknowledgeAs: party && mine && !mine.acknowledgedAt ? party : null,
+        entries: await Promise.all(view.entries.map(async (entry) => ({
+          ...entry,
+          photos: await Promise.all(entry.photos.map(async ({ storagePath, ...photo }) => ({
+            ...photo,
+            url: await createDownloadUrl(storagePath),
+          }))),
+        }))),
+      }
     })),
     assessment: assessment && published && {
       version: published.version,

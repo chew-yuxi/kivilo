@@ -12,6 +12,7 @@ import { templateRows } from '@/lib/room-templates'
 import { assertCanAddProperty } from '@/lib/plan'
 import { reportFingerprint } from '@/lib/report-fingerprint'
 import { queueSignatureRequests, queueSignedCopies, signingParties } from '@/lib/report-email'
+import { currentState } from '@/lib/addenda'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -977,16 +978,15 @@ export async function startCheckOut(baselineId: string) {
 
   const baseline = await db.inspection.findUniqueOrThrow({
     where: { id: baselineId },
-    include: {
-      rooms: {
-        orderBy: { order: 'asc' },
-        include: { items: { orderBy: { createdAt: 'asc' } } },
-      },
-    },
+    select: { tenancyId: true, fullyFurnished: true },
   })
 
   const existing = await db.inspection.findUnique({ where: { baselineId }, select: { id: true } })
   if (existing) return existing.id
+
+  // The signed inventory, with every update both parties have acknowledged since. A
+  // dishwasher replaced mid-tenancy is then the one the inspector expects to find.
+  const rooms = await currentState(baselineId, { acknowledgedOnly: true })
 
   try {
     const checkOut = await db.inspection.create({
@@ -997,24 +997,24 @@ export async function startCheckOut(baselineId: string) {
         fullyFurnished: baseline.fullyFurnished,
         baselineId,
         conductedById: agent.id,
-        // Begin with the signed inventory as the state the inspector expects to find.
+        // Begin with the agreed inventory as the state the inspector expects to find.
         // Captures stay on the check-in: check-out evidence must come from this visit.
         rooms: {
-          create: baseline.rooms.map((room) => ({
+          create: rooms.map((room, order) => ({
             name: room.name,
-            order: room.order,
+            order,
             items: {
-              create: room.items.map((item) => ({
-                name: item.name,
-                category: item.category,
-                condition: item.condition,
-                quantity: item.quantity,
-                notes: item.notes,
-                identifier: item.identifier,
-                meterReading: item.meterReading,
+              create: room.lines.map((line) => ({
+                name: line.name,
+                category: line.category,
+                condition: line.condition,
+                quantity: line.quantity,
+                notes: line.notes,
+                identifier: line.identifier,
+                meterReading: line.meterReading,
                 editedByHuman: true,
-                propertyAssetId: item.propertyAssetId,
-                createdAt: item.createdAt,
+                propertyAssetId: line.propertyAssetId,
+                createdAt: line.createdAt,
               })),
             },
           })),
