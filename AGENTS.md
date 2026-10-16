@@ -383,7 +383,7 @@ is made, calls its guard; the API answers 403 `plan_limit`. An active property i
 whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so
 there is still one rule for who an agent is. Nothing is locked over the limit. The app
 shows the plan and never a price or a way to buy, because store rules forbid steering to
-an outside purchase. Comps go through `pnpm plan:set`. Stripe checkout is not wired yet.
+an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing" above.
 
 ## Lessons
 
