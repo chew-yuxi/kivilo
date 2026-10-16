@@ -64,7 +64,9 @@ export default function PrivacyPage() {
           in other countries. Resend carries sign-in and service emails and stores
           their content and delivery logs in the United States. Firebase Cloud
           Messaging and Apple Push Notification service route optional mobile
-          notifications; Firebase may process data globally.
+          notifications; Firebase may process data globally. Stripe processes
+          payment for Pro plans bought on our website and keeps the card details; we
+          never see or store a card number.
         </p>
         <p>
           We keep report media in a private bucket. Anyone who holds a
@@ -115,7 +117,9 @@ export default function PrivacyPage() {
           fields, our push-device registration, account-specific notification
           history, and error reports recorded while you were signed in. We remove
           unsigned drafts that belong solely to the requesting account and verify that
-          their stored media is removed after outstanding upload links expire.
+          their stored media is removed after outstanding upload links expire. We
+          cancel a Pro plan you pay for; Stripe keeps its payment records as the law
+          requires.
         </p>
         <p>
           Signed reports and unsigned work involving another party may retain your

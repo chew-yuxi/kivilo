@@ -12,6 +12,7 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "setup:storage": "tsx scripts/setup-storage.ts",
+    "billing:setup": "tsx scripts/setup-billing.ts",
     "provider:upsert": "tsx scripts/upsert-service-provider.ts",
     "team:set": "tsx scripts/set-team.ts",
     "plan:set": "tsx scripts/set-plan.ts",
@@ -35,6 +36,7 @@
     "resend": "^6.22.0",
     "sharp": "0.35.3",
     "standardwebhooks": "^1.0.0",
+    "stripe": "^23.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

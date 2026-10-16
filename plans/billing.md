@@ -37,23 +37,43 @@ Agents buy on the web only. The app never shows a price, an upgrade button, or w
 buy (Apple 3.1.1 / 3.1.3 forbid steering to an outside purchase on the Singapore
 storefront). This lowers review risk; it does not remove it.
 
-## Not built yet: Stripe (waiting on Yuxi's go-ahead to provision)
+## Stripe (built 2026-10-16)
 
-Until then, `/account` asks Free agents to email us and we comp them with `plan:set`.
+Stripe is the truth about what a workspace paid for; the `Subscription` row is a copy that
+`plan.ts` reads without a network call. Comps (`status: comped`) have nothing in Stripe.
 
-1. `vercel integration add stripe` (sandbox, development + preview), `vercel env pull`,
-   then the provider skill for the SDK.
-2. `scripts/setup-billing.ts`: product + SGD 39/month per-unit price (lookup key
-   `kivilo_pro_seat_monthly`), Customer Portal config (seat changes, cancel at period end,
-   card, invoices). Idempotent, like `setup-storage`.
-3. `src/lib/billing.ts`: `startCheckout` (subscription mode, quantity = team size,
-   workspace key + `managedById` in `subscription_data.metadata`), `openBillingPortal`
-   (manager only), `syncSubscription(id)` that always re-retrieves from Stripe and upserts,
-   so replayed or out-of-order events are harmless. The return page syncs too, so the plan
-   flips before the webhook lands. Refuse to overwrite a workspace's different live
-   subscription (two members checking out at once) and let the error alert us.
-4. `src/app/api/stripe/webhook/route.ts`: verify the signature on the raw body before
-   reading it; `customer.subscription.{created,updated,deleted}` → `syncSubscription`.
-5. `set-team.ts` must refuse to move an agent whose own live Stripe subscription would
-   be orphaned by joining a team; account deletion must cancel a subscription they pay.
-6. Replace the mailto lines on `/account` with "Upgrade to Pro" and "Manage billing".
+- `pnpm billing:setup [base URL]` (`scripts/setup-billing.ts`): idempotent. Product
+  `kivilo_pro`, the SGD 39/month per-seat price (lookup key `kivilo_pro_seat_monthly`), the
+  Customer Portal configuration (seat quantity, cancel at period end, card, invoices;
+  found again by its `kivilo: pro_portal` metadata), and with a base URL the webhook
+  endpoint at `<base>/api/stripe/webhook`, whose signing secret is printed only when it
+  is created. Nothing account-specific lives in env except the keys.
+- `src/lib/billing-actions.ts`: `startCheckout` (subscription mode, one seat per team
+  member or 1, `teamId`/`stakeholderId` + `managedById` in `subscription_data.metadata`,
+  reuses the agent's own customer only) and `openBillingPortal` (strictly the member who
+  manages the plan, since the portal shows their card and invoices; anyone else gets
+  "Not found"). Checkout is open to the manager, or to anyone when nobody manages it.
+- `src/lib/billing.ts`: `syncSubscription(id)` always re-retrieves the subscription and
+  writes the workspace row its metadata names, so replayed or out-of-order events are
+  harmless. It refuses to replace a different live Stripe subscription (two members
+  checking out at once); the throw is recorded by error tracking and alerts us, and one
+  of the two must be refunded and canceled in Stripe by hand. A non-live subscription
+  that is not the row's is ignored. `managedById` is set when a subscription first lands
+  and is ours after that.
+- `/account` syncs on the way back from Checkout (`?checkout={CHECKOUT_SESSION_ID}`) and
+  from the portal (`?billing=returned`), so the plan is current before the webhook lands.
+- `src/app/api/stripe/webhook/route.ts`: verifies the signature on the raw body, then
+  `checkout.session.completed` and `customer.subscription.{created,updated,deleted}` all
+  go through `syncSubscription`. A failure is a 500 that Stripe retries.
+- `pnpm team:set` refuses to put an agent paying on their own onto a team while that
+  subscription is live. Fulfilling an account deletion cancels, immediately, any live
+  subscription the person manages and clears them as manager, so a teammate can
+  subscribe again on a customer of their own.
+
+Local: `stripe listen --api-key <sandbox key> --forward-to localhost:3000/api/stripe/webhook`
+and put the secret it prints in `.env.local` as `STRIPE_WEBHOOK_SECRET`. Checkout works
+without it, because the return page syncs. `e2e/billing.spec.ts` pays with a test card.
+
+Not handled: GST (no `automatic_tax`; needs a registration first), disputes, refunds and
+early fraud warnings (watch them in the Stripe dashboard), and a manager who leaves a team
+while still paying for it.

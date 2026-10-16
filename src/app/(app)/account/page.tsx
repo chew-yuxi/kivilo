@@ -1,17 +1,32 @@
 import Link from 'next/link'
 import { requireAgent } from '@/lib/auth'
+import { syncCheckoutSession, syncSubscription } from '@/lib/billing'
+import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
 import { PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Account' }
 
-const SUPPORT = 'hello@nottoosweetlabs.com'
-
-export default async function AccountPage() {
+/// Prices appear here, on the web, and never in the app: the stores forbid pointing a
+/// buyer at an outside purchase. Stripe Checkout and the portal both return here, and
+/// this page syncs from Stripe on the way in, so the plan shown is current even when the
+/// webhook has not landed yet.
+export default async function AccountPage({ searchParams }: PageProps<'/account'>) {
   const agent = await requireAgent()
+  const { checkout, billing } = await searchParams
+  if (typeof checkout === 'string') {
+    await syncCheckoutSession(checkout)
+  } else if (billing === 'returned') {
+    const { subscription } = await workspacePlan(agent)
+    if (subscription?.stripeSubscriptionId) await syncSubscription(subscription.stripeSubscriptionId)
+  }
+
   const workspace = await workspacePlan(agent)
   const { subscription } = workspace
   const pro = workspace.plan === 'PRO'
+  const comped = subscription?.status === 'comped'
+  // Strictly the payer: the portal shows their card and invoices.
+  const managesBilling = !!subscription?.stripeCustomerId && subscription.managedById === agent.id
   const date = (value: Date) => value.toLocaleDateString('en-SG', { dateStyle: 'long' })
 
   return (
@@ -48,7 +63,7 @@ export default async function AccountPage() {
           <div className="mt-4 space-y-1 text-sm text-gray-600">
             <p>
               {subscription.seats} {subscription.seats === 1 ? 'seat' : 'seats'}
-              {subscription.status === 'comped' && ' · complimentary'}
+              {comped && ' · complimentary'}
             </p>
             {subscription.status === 'past_due' && (
               <p className="text-red-600">The last payment failed. We are retrying the card.</p>
@@ -59,31 +74,35 @@ export default async function AccountPage() {
                 {date(subscription.currentPeriodEnd)}
               </p>
             )}
-            {subscription.managedBy && !workspace.isManager && (
-              <p>Billing is managed by {subscription.managedBy.name}.</p>
-            )}
           </div>
+        )}
+        {subscription?.managedBy && subscription.managedById !== agent.id && (
+          <p className="mt-4 text-sm text-gray-600">Billing is managed by {subscription.managedBy.name}.</p>
         )}
 
         {!pro && (
           <p className="mt-4 text-sm leading-relaxed text-gray-600">
             Pro is S$39 per agent each month and includes {PRO_ACTIVE_PROPERTIES_PER_SEAT}{' '}
-            active properties for each agent, shared across your team. To move to Pro,
-            email{' '}
-            <a href={`mailto:${SUPPORT}?subject=Kivilo%20Pro`} className="text-brand-600 underline">
-              {SUPPORT}
-            </a>
-            .
+            active properties for each agent, shared across your team.
           </p>
         )}
-        {pro && workspace.isManager && subscription?.status !== 'comped' && (
-          <p className="mt-4 text-sm text-gray-600">
-            To change seats or cancel, email{' '}
-            <a href={`mailto:${SUPPORT}?subject=Kivilo%20billing`} className="text-brand-600 underline">
-              {SUPPORT}
-            </a>
-            .
-          </p>
+        {(managesBilling || (!pro && workspace.isManager)) && (
+          <div className="mt-4 flex flex-wrap gap-3">
+            {!pro && workspace.isManager && (
+              <form action={startCheckout}>
+                <button className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                  Upgrade to Pro
+                </button>
+              </form>
+            )}
+            {managesBilling && (
+              <form action={openBillingPortal}>
+                <button className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  Manage billing
+                </button>
+              </form>
+            )}
+          </div>
         )}
       </section>
 

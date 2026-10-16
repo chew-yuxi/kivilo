@@ -3,6 +3,9 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
 import { sendAccountDeletionComplete } from '@/lib/email'
+import { syncSubscription } from '@/lib/billing'
+import { isLive } from '@/lib/plan'
+import { stripe } from '@/lib/stripe'
 import { CAPTURE_BUCKET, serviceClient } from '@/lib/storage'
 import type { InspectionStatus } from '@/generated/prisma'
 
@@ -122,6 +125,20 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       db.notification.deleteMany({ where: { recipientId: person.id } }),
       db.errorEvent.deleteMany({ where: { stakeholderId: person.id } }),
     ])
+
+    // A plan this person pays for would keep charging their card after they are gone,
+    // so it is canceled now and the workspace drops to Free. Clearing the manager lets a
+    // teammate subscribe again, on a customer of their own: the portal only ever opens
+    // for the member who manages the plan, so nobody reaches the deleted payer's invoices.
+    // Stripe is re-read first, so a rerun after a partial failure never cancels twice.
+    const managed = await db.subscription.findMany({ where: { managedById: person.id } })
+    for (const { stripeSubscriptionId, status } of managed) {
+      if (!stripeSubscriptionId || !isLive(status)) continue
+      const current = await stripe().subscriptions.retrieve(stripeSubscriptionId)
+      if (current.status !== 'canceled') await stripe().subscriptions.cancel(stripeSubscriptionId)
+      await syncSubscription(stripeSubscriptionId)
+    }
+    await db.subscription.updateMany({ where: { managedById: person.id }, data: { managedById: null } })
 
     // An inspection can be this agent's work while also being a landlord's or
     // tenant's record. Keep that shared work under the explicit retention choice.
