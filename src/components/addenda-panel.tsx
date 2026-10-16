@@ -8,6 +8,7 @@ import {
   addendumFromMaintenanceCase,
   deleteAddendumEntry,
   deleteAddendumPhoto,
+  discardAddendum,
   publishAddendum,
   registerAddendumPhoto,
   requestAddendumPhotoUpload,
@@ -15,43 +16,20 @@ import {
   updateAddendum,
   updateAddendumEntry,
 } from '@/lib/addendum-actions'
-import type { AcknowledgementStatus } from '@/lib/addenda'
-import type { AddendumChange, ItemCategory, ItemCondition } from '@/generated/prisma'
+import { downscale } from '@/lib/downscale'
+import type { AddendaWorkspace } from '@/lib/addenda-workspace'
+import type { AddendumChange } from '@/generated/prisma'
 
-export type PublishedRow = {
-  id: string
-  number: number
-  title: string
-  effectiveDate: string
-  acknowledgements: AcknowledgementStatus[]
-}
-
-export type EntryRow = {
-  id: string
-  change: AddendumChange
-  roomName: string
-  targetKey: string | null
-  name: string | null
-  category: ItemCategory | null
-  condition: ItemCondition | null
-  quantity: number
-  identifier: string | null
-  notes: string | null
-  maintenanceCaseTitle: string | null
-  photos: { id: string; url: string; note: string | null; label: string | null }[]
-}
-
-export type DraftRow = {
-  id: string
-  title: string
-  reason: string | null
-  effectiveDate: string
-  entries: EntryRow[]
-}
+type DraftRow = NonNullable<AddendaWorkspace['draft']>
+type EntryRow = DraftRow['entries'][number]
 
 /// A line of the report as it stands after every published update, which is what a
 /// replacement or removal can name.
-export type TargetOption = { key: string; label: string }
+type TargetOption = AddendaWorkspace['targets'][number]
+
+/// What storage accepts for an update photo. Anything else (an iPhone's HEIC) is
+/// re-encoded as JPEG in this browser first.
+const STORED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 const CHANGE_LABEL: Record<AddendumChange, string> = {
   ADDED: 'Added',
@@ -75,14 +53,7 @@ export function AddendaPanel({
   rooms,
   targets,
   resolvedCases,
-}: {
-  inspectionId: string
-  published: PublishedRow[]
-  draft: DraftRow | null
-  rooms: string[]
-  targets: TargetOption[]
-  resolvedCases: { id: string; title: string }[]
-}) {
+}: AddendaWorkspace & { inspectionId: string }) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const run = (work: () => Promise<unknown>) => startTransition(async () => {
@@ -100,7 +71,8 @@ export function AddendaPanel({
       <p className="text-sm text-gray-500">
         Record a change after signing, such as a replaced appliance, as a dated update. The
         signed report stays as it was; the update is added after the signatures and counts
-        once the landlord and tenant have both acknowledged it.
+        once the landlord and tenant have both acknowledged it. A party who is with you, or
+        who has no email, can acknowledge in person on this device from the update&apos;s page.
       </p>
 
       {published.length > 0 && (
@@ -112,7 +84,7 @@ export function AddendaPanel({
               </a>
               <span className="text-xs text-gray-500">
                 {row.acknowledgements.map((ack) =>
-                  `${ack.role} ${ack.acknowledgedAt ? 'acknowledged' : 'pending'}`).join(' · ')}
+                  `${ack.role} ${ack.acknowledgedAt ? `acknowledged${ack.inPerson ? ' in person' : ''}` : 'pending'}`).join(' · ')}
               </span>
             </li>
           ))}
@@ -232,6 +204,17 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
           className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
           {pending ? 'Working…' : 'Publish update'}
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            if (!window.confirm('Discard this draft update? Its changes and the photos uploaded to it are deleted.')) return
+            run(() => discardAddendum(draft.id))
+          }}
+          className="ml-3 text-sm text-gray-500 hover:text-red-600 disabled:opacity-50"
+        >
+          Discard draft
         </button>
         {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
       </div>
@@ -396,13 +379,19 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
     setError(null)
     try {
       for (const file of files) {
-        const input = { clientId: crypto.randomUUID(), mimeType: file.type }
+        // Shrunk as captures are, and re-encoded whatever its size when storage would
+        // refuse its format. A HEIC this browser cannot read is refused here, by name.
+        const stored = STORED_TYPES.includes(file.type)
+        const shrunk = await downscale(file, { always: !stored })
+        if (!shrunk && !stored) throw new Error(`${file.name} is not a photo this browser can read. Choose a JPEG or PNG.`)
+        const photo = shrunk ?? file
+        const input = { clientId: crypto.randomUUID(), mimeType: photo.type }
         const { storagePath, signedUrl, token } = await requestAddendumPhotoUpload(entry.id, addendumId, input)
         if (signedUrl && token) {
-          const { error: uploadError } = await storage().uploadToSignedUrl(storagePath, token, file, { contentType: file.type })
+          const { error: uploadError } = await storage().uploadToSignedUrl(storagePath, token, photo, { contentType: photo.type })
           if (uploadError) throw uploadError
         }
-        await registerAddendumPhoto(entry.id, addendumId, { ...input, storagePath, sizeBytes: file.size, note: null })
+        await registerAddendumPhoto(entry.id, addendumId, { ...input, storagePath, sizeBytes: photo.size, note: null })
       }
     } catch (e) {
       setError(message(e))
@@ -442,7 +431,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
         {pending ? 'Uploading…' : 'Add photos'}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           multiple
           disabled={pending}
           aria-label={`Photos for ${entry.name ?? entry.roomName}`}

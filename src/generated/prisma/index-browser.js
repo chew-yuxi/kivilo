@@ -515,7 +515,8 @@ exports.Prisma.AddendumAcknowledgementScalarFieldEnum = {
   stakeholderId: 'stakeholderId',
   acknowledgedAt: 'acknowledgedAt',
   ipAddress: 'ipAddress',
-  contentHash: 'contentHash'
+  contentHash: 'contentHash',
+  method: 'method'
 };
 
 exports.Prisma.AccountDeletionRequestScalarFieldEnum = {
@@ -786,6 +787,11 @@ exports.AddendumChange = exports.$Enums.AddendumChange = {
   ADDED: 'ADDED',
   REPLACED: 'REPLACED',
   REMOVED: 'REMOVED'
+};
+
+exports.AcknowledgementMethod = exports.$Enums.AcknowledgementMethod = {
+  OWN_ACCOUNT: 'OWN_ACCOUNT',
+  IN_PERSON: 'IN_PERSON'
 };
 
 exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {

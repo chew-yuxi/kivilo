@@ -145,7 +145,7 @@ describe('report PDF', () => {
     expect(text.match(/Content fingerprint/g)).toHaveLength(1)
   })
 
-  it('draws each update after the signatures with its date, and says who has not acknowledged it', async () => {
+  it('draws each update after the signatures with its date, and says who has not acknowledged it and who did so in person', async () => {
     const report = model([room(1, 'Kitchen', 1)])
     report.addenda = [{
       id: 'addendum-1',
@@ -160,8 +160,8 @@ describe('report PDF', () => {
       contentHash: 'hash',
       acknowledgedAt: null,
       acknowledgements: [
-        { role: 'Landlord', name: 'Tan Wei Ming', acknowledgedAt: '2025-09-11T03:00:00.000Z' },
-        { role: 'Tenant', name: 'Priya Raman', acknowledgedAt: null },
+        { role: 'Landlord', name: 'Tan Wei Ming', stakeholderId: 'landlord-1', acknowledgedAt: '2025-09-11T03:00:00.000Z', inPerson: true },
+        { role: 'Tenant', name: 'Priya Raman', stakeholderId: 'tenant-1', acknowledgedAt: null, inPerson: false },
       ],
       entries: [{
         id: 'entry-1',
@@ -187,7 +187,7 @@ describe('report PDF', () => {
     expect(update).toContain('Miele G7100 SN 123')
     expect(update).toContain('Rating plate')
     expect(update).toContain('Pending acknowledgement')
-    expect(update).toContain('Landlord, acknowledged')
+    expect(update).toContain('Landlord, acknowledged in person')
     expect(update).toContain('Tenant, pending acknowledgement')
     expect(update).toContain(`Page ${pages.length} of ${pages.length}`)
     expect(pages.findIndex((text) => text.includes('Agreement') && text.includes('signed by the'))).toBeLessThan(pages.length - 1)

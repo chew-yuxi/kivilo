@@ -124,7 +124,11 @@ export async function currentState(
 export type AcknowledgementStatus = {
   role: 'Landlord' | 'Tenant'
   name: string
+  /// Who acknowledges, which the agent's phone names when it records one in person.
+  stakeholderId: string
   acknowledgedAt: string | null
+  /// Given on the agent's phone rather than on the party's own account.
+  inPerson: boolean
 }
 
 /// One published addendum as every reader draws it, with each party's acknowledgement.
@@ -133,11 +137,19 @@ export function addendumView(
   tenancy: { landlordId: string; tenantId: string; landlord: { name: string }; tenant: { name: string } },
 ) {
   const snapshot = addendumSnapshotSchema.parse(row.snapshot)
-  const at = (stakeholderId: string) =>
-    row.acknowledgements.find((ack) => ack.stakeholderId === stakeholderId)?.acknowledgedAt.toISOString() ?? null
-  const acknowledgements: AcknowledgementStatus[] = [
-    { role: 'Landlord', name: tenancy.landlord.name, acknowledgedAt: at(tenancy.landlordId) },
-    { role: 'Tenant', name: tenancy.tenant.name, acknowledgedAt: at(tenancy.tenantId) },
+  const status = (role: AcknowledgementStatus['role'], stakeholderId: string, name: string): AcknowledgementStatus => {
+    const ack = row.acknowledgements.find((each) => each.stakeholderId === stakeholderId)
+    return {
+      role,
+      name,
+      stakeholderId,
+      acknowledgedAt: ack?.acknowledgedAt.toISOString() ?? null,
+      inPerson: ack?.method === 'IN_PERSON',
+    }
+  }
+  const acknowledgements = [
+    status('Landlord', tenancy.landlordId, tenancy.landlord.name),
+    status('Tenant', tenancy.tenantId, tenancy.tenant.name),
   ]
   return {
     id: row.id,

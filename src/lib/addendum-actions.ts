@@ -19,7 +19,7 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { ADDENDUM_PHOTO_TYPES, addendumHash, currentState, type AddendumSnapshot } from '@/lib/addenda'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import type { StateLine } from '@/lib/addenda-state'
-import type { ItemCategory, Prisma } from '@/generated/prisma'
+import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
 
 // Addenda: dated updates to a countersigned check-in, written and published by the agent
 // and acknowledged by both parties. They never touch the signed rooms, items, captures
@@ -174,6 +174,19 @@ export async function deleteAddendumEntry(entryId: string, addendumId: string) {
     const photos = await tx.reportAddendumPhoto.findMany({ where: { entryId }, select: { storagePath: true } })
     await purgeUploads(tx, photos.map((photo) => photo.storagePath))
     await tx.reportAddendumEntry.delete({ where: { id: entryId } })
+  })
+  revalidate(addendum.inspectionId)
+}
+
+/// Throws the draft away: its entries, its photo rows, and the photos it uploaded. Only a
+/// draft; a published update is what the parties acknowledge and stays for good.
+export async function discardAddendum(addendumId: string) {
+  const agent = await requireAgent()
+  const addendum = await authorizeAddendum(addendumId, agent.id)
+  await editDraft(addendumId, async (tx) => {
+    const photos = await tx.reportAddendumPhoto.findMany({ where: { entry: { addendumId } }, select: { storagePath: true } })
+    await purgeUploads(tx, photos.map((photo) => photo.storagePath))
+    await tx.reportAddendum.delete({ where: { id: addendumId } })
   })
   revalidate(addendum.inspectionId)
 }
@@ -481,8 +494,28 @@ export async function publishAddendum(addendumId: string) {
 export async function acknowledgeAddendum(addendumId: string) {
   const party = await requireStakeholder()
   const authorized = await authorizeOwnAcknowledgement(addendumId, party.id)
-  const ip = (await headers()).get('x-forwarded-for')
+  await recordAcknowledgement(addendumId, party.id, 'OWN_ACCOUNT')
+  revalidatePath(`/updates/${addendumId}`)
+  revalidate(authorized.inspectionId)
+}
 
+/// The landlord or tenant acknowledges on the agent's phone, for a party with no email
+/// or who is simply there, as `signInspection` takes a signature. The agent's session
+/// authorizes the addendum; the party id comes from the request, so it is checked
+/// against the tenancy under the lock, and anyone else reads like a missing addendum.
+export async function acknowledgeAddendumInPerson(addendumId: string, stakeholderId: string) {
+  const agent = await requireAgent()
+  const authorized = await authorizeAddendum(addendumId, agent.id)
+  if (!authorized.publishedAt) throw new Error('Addendum not found')
+  await recordAcknowledgement(addendumId, z.string().min(1).parse(stakeholderId), 'IN_PERSON')
+  revalidatePath(`/updates/${addendumId}`)
+  revalidate(authorized.inspectionId)
+}
+
+/// Both ways of acknowledging end here, so both record the same row and the second
+/// party's acknowledgement completes the addendum whichever way it came.
+async function recordAcknowledgement(addendumId: string, stakeholderId: string, method: AcknowledgementMethod) {
+  const ip = (await headers()).get('x-forwarded-for')
   await db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT "id" FROM "ReportAddendum" WHERE "id" = ${addendumId} FOR UPDATE`
     const addendum = await tx.reportAddendum.findUniqueOrThrow({
@@ -494,19 +527,17 @@ export async function acknowledgeAddendum(addendumId: string) {
         inspection: { select: { tenancy: { select: { landlordId: true, tenantId: true } } } },
       },
     })
-    const done = new Set(addendum.acknowledgements.map((ack) => ack.stakeholderId))
-    if (!done.has(party.id)) {
-      await tx.addendumAcknowledgement.create({
-        data: { addendumId, stakeholderId: party.id, ipAddress: ip, contentHash: addendum.contentHash! },
-      })
-      done.add(party.id)
-    }
     const { landlordId, tenantId } = addendum.inspection.tenancy
+    if (stakeholderId !== landlordId && stakeholderId !== tenantId) throw new Error('Addendum not found')
+    const done = new Set(addendum.acknowledgements.map((ack) => ack.stakeholderId))
+    if (!done.has(stakeholderId)) {
+      await tx.addendumAcknowledgement.create({
+        data: { addendumId, stakeholderId, ipAddress: ip, contentHash: addendum.contentHash!, method },
+      })
+      done.add(stakeholderId)
+    }
     if (!addendum.acknowledgedAt && done.has(landlordId) && done.has(tenantId)) {
       await tx.reportAddendum.update({ where: { id: addendumId }, data: { acknowledgedAt: new Date() } })
     }
   })
-
-  revalidatePath(`/updates/${addendumId}`)
-  revalidate(authorized.inspectionId)
 }

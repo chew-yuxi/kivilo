@@ -185,8 +185,8 @@ export type ReportAddendumEntry = $Result.DefaultSelection<Prisma.$ReportAddendu
 export type ReportAddendumPhoto = $Result.DefaultSelection<Prisma.$ReportAddendumPhotoPayload>
 /**
  * Model AddendumAcknowledgement
- * A landlord or tenant saying "I acknowledge this update", as themselves, against the
- * exact content they were shown.
+ * A landlord or tenant saying "I acknowledge this update", against the exact content
+ * they were shown: signed in as themselves, or in person on the agent's phone.
  */
 export type AddendumAcknowledgement = $Result.DefaultSelection<Prisma.$AddendumAcknowledgementPayload>
 /**
@@ -496,6 +496,14 @@ export const AddendumChange: {
 export type AddendumChange = (typeof AddendumChange)[keyof typeof AddendumChange]
 
 
+export const AcknowledgementMethod: {
+  OWN_ACCOUNT: 'OWN_ACCOUNT',
+  IN_PERSON: 'IN_PERSON'
+};
+
+export type AcknowledgementMethod = (typeof AcknowledgementMethod)[keyof typeof AcknowledgementMethod]
+
+
 export const DeletionRequestStatus: {
   REQUESTED: 'REQUESTED',
   PROCESSING: 'PROCESSING',
@@ -623,6 +631,10 @@ export const ReportEmailKind: typeof $Enums.ReportEmailKind
 export type AddendumChange = $Enums.AddendumChange
 
 export const AddendumChange: typeof $Enums.AddendumChange
+
+export type AcknowledgementMethod = $Enums.AcknowledgementMethod
+
+export const AcknowledgementMethod: typeof $Enums.AcknowledgementMethod
 
 export type DeletionRequestStatus = $Enums.DeletionRequestStatus
 
@@ -41012,6 +41024,7 @@ export namespace Prisma {
     acknowledgedAt: Date | null
     ipAddress: string | null
     contentHash: string | null
+    method: $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementMaxAggregateOutputType = {
@@ -41021,6 +41034,7 @@ export namespace Prisma {
     acknowledgedAt: Date | null
     ipAddress: string | null
     contentHash: string | null
+    method: $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementCountAggregateOutputType = {
@@ -41030,6 +41044,7 @@ export namespace Prisma {
     acknowledgedAt: number
     ipAddress: number
     contentHash: number
+    method: number
     _all: number
   }
 
@@ -41041,6 +41056,7 @@ export namespace Prisma {
     acknowledgedAt?: true
     ipAddress?: true
     contentHash?: true
+    method?: true
   }
 
   export type AddendumAcknowledgementMaxAggregateInputType = {
@@ -41050,6 +41066,7 @@ export namespace Prisma {
     acknowledgedAt?: true
     ipAddress?: true
     contentHash?: true
+    method?: true
   }
 
   export type AddendumAcknowledgementCountAggregateInputType = {
@@ -41059,6 +41076,7 @@ export namespace Prisma {
     acknowledgedAt?: true
     ipAddress?: true
     contentHash?: true
+    method?: true
     _all?: true
   }
 
@@ -41141,6 +41159,7 @@ export namespace Prisma {
     acknowledgedAt: Date
     ipAddress: string | null
     contentHash: string
+    method: $Enums.AcknowledgementMethod | null
     _count: AddendumAcknowledgementCountAggregateOutputType | null
     _min: AddendumAcknowledgementMinAggregateOutputType | null
     _max: AddendumAcknowledgementMaxAggregateOutputType | null
@@ -41167,6 +41186,7 @@ export namespace Prisma {
     acknowledgedAt?: boolean
     ipAddress?: boolean
     contentHash?: boolean
+    method?: boolean
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["addendumAcknowledgement"]>
@@ -41178,6 +41198,7 @@ export namespace Prisma {
     acknowledgedAt?: boolean
     ipAddress?: boolean
     contentHash?: boolean
+    method?: boolean
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["addendumAcknowledgement"]>
@@ -41189,6 +41210,7 @@ export namespace Prisma {
     acknowledgedAt?: boolean
     ipAddress?: boolean
     contentHash?: boolean
+    method?: boolean
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["addendumAcknowledgement"]>
@@ -41200,9 +41222,10 @@ export namespace Prisma {
     acknowledgedAt?: boolean
     ipAddress?: boolean
     contentHash?: boolean
+    method?: boolean
   }
 
-  export type AddendumAcknowledgementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "addendumId" | "stakeholderId" | "acknowledgedAt" | "ipAddress" | "contentHash", ExtArgs["result"]["addendumAcknowledgement"]>
+  export type AddendumAcknowledgementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "addendumId" | "stakeholderId" | "acknowledgedAt" | "ipAddress" | "contentHash" | "method", ExtArgs["result"]["addendumAcknowledgement"]>
   export type AddendumAcknowledgementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -41229,6 +41252,11 @@ export namespace Prisma {
       acknowledgedAt: Date
       ipAddress: string | null
       contentHash: string
+      /**
+       * How it was given: on the party's own account, or in person on the agent's phone.
+       * Null on acknowledgements from before the in-person path, which were all their own.
+       */
+      method: $Enums.AcknowledgementMethod | null
     }, ExtArgs["result"]["addendumAcknowledgement"]>
     composites: {}
   }
@@ -41660,6 +41688,7 @@ export namespace Prisma {
     readonly acknowledgedAt: FieldRef<"AddendumAcknowledgement", 'DateTime'>
     readonly ipAddress: FieldRef<"AddendumAcknowledgement", 'String'>
     readonly contentHash: FieldRef<"AddendumAcknowledgement", 'String'>
+    readonly method: FieldRef<"AddendumAcknowledgement", 'AcknowledgementMethod'>
   }
     
 
@@ -47032,7 +47061,8 @@ export namespace Prisma {
     stakeholderId: 'stakeholderId',
     acknowledgedAt: 'acknowledgedAt',
     ipAddress: 'ipAddress',
-    contentHash: 'contentHash'
+    contentHash: 'contentHash',
+    method: 'method'
   };
 
   export type AddendumAcknowledgementScalarFieldEnum = (typeof AddendumAcknowledgementScalarFieldEnum)[keyof typeof AddendumAcknowledgementScalarFieldEnum]
@@ -47617,6 +47647,20 @@ export namespace Prisma {
    * Reference to a field of type 'AddendumChange[]'
    */
   export type ListEnumAddendumChangeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AddendumChange[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AcknowledgementMethod'
+   */
+  export type EnumAcknowledgementMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AcknowledgementMethod'>
+    
+
+
+  /**
+   * Reference to a field of type 'AcknowledgementMethod[]'
+   */
+  export type ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AcknowledgementMethod[]'>
     
 
 
@@ -50334,6 +50378,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFilter<"AddendumAcknowledgement"> | Date | string
     ipAddress?: StringNullableFilter<"AddendumAcknowledgement"> | string | null
     contentHash?: StringFilter<"AddendumAcknowledgement"> | string
+    method?: EnumAcknowledgementMethodNullableFilter<"AddendumAcknowledgement"> | $Enums.AcknowledgementMethod | null
     addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
     stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
   }
@@ -50345,6 +50390,7 @@ export namespace Prisma {
     acknowledgedAt?: SortOrder
     ipAddress?: SortOrderInput | SortOrder
     contentHash?: SortOrder
+    method?: SortOrderInput | SortOrder
     addendum?: ReportAddendumOrderByWithRelationInput
     stakeholder?: StakeholderOrderByWithRelationInput
   }
@@ -50360,6 +50406,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFilter<"AddendumAcknowledgement"> | Date | string
     ipAddress?: StringNullableFilter<"AddendumAcknowledgement"> | string | null
     contentHash?: StringFilter<"AddendumAcknowledgement"> | string
+    method?: EnumAcknowledgementMethodNullableFilter<"AddendumAcknowledgement"> | $Enums.AcknowledgementMethod | null
     addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
     stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
   }, "id" | "addendumId_stakeholderId">
@@ -50371,6 +50418,7 @@ export namespace Prisma {
     acknowledgedAt?: SortOrder
     ipAddress?: SortOrderInput | SortOrder
     contentHash?: SortOrder
+    method?: SortOrderInput | SortOrder
     _count?: AddendumAcknowledgementCountOrderByAggregateInput
     _max?: AddendumAcknowledgementMaxOrderByAggregateInput
     _min?: AddendumAcknowledgementMinOrderByAggregateInput
@@ -50386,6 +50434,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeWithAggregatesFilter<"AddendumAcknowledgement"> | Date | string
     ipAddress?: StringNullableWithAggregatesFilter<"AddendumAcknowledgement"> | string | null
     contentHash?: StringWithAggregatesFilter<"AddendumAcknowledgement"> | string
+    method?: EnumAcknowledgementMethodNullableWithAggregatesFilter<"AddendumAcknowledgement"> | $Enums.AcknowledgementMethod | null
   }
 
   export type AccountDeletionRequestWhereInput = {
@@ -53597,6 +53646,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
     addendum: ReportAddendumCreateNestedOneWithoutAcknowledgementsInput
     stakeholder: StakeholderCreateNestedOneWithoutAddendumAcknowledgementsInput
   }
@@ -53608,6 +53658,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementUpdateInput = {
@@ -53615,6 +53666,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
     addendum?: ReportAddendumUpdateOneRequiredWithoutAcknowledgementsNestedInput
     stakeholder?: StakeholderUpdateOneRequiredWithoutAddendumAcknowledgementsNestedInput
   }
@@ -53626,6 +53678,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementCreateManyInput = {
@@ -53635,6 +53688,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementUpdateManyMutationInput = {
@@ -53642,6 +53696,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementUncheckedUpdateManyInput = {
@@ -53651,6 +53706,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type AccountDeletionRequestCreateInput = {
@@ -56592,6 +56648,13 @@ export namespace Prisma {
     sizeBytes?: SortOrder
   }
 
+  export type EnumAcknowledgementMethodNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel> | $Enums.AcknowledgementMethod | null
+  }
+
   export type AddendumAcknowledgementAddendumIdStakeholderIdCompoundUniqueInput = {
     addendumId: string
     stakeholderId: string
@@ -56604,6 +56667,7 @@ export namespace Prisma {
     acknowledgedAt?: SortOrder
     ipAddress?: SortOrder
     contentHash?: SortOrder
+    method?: SortOrder
   }
 
   export type AddendumAcknowledgementMaxOrderByAggregateInput = {
@@ -56613,6 +56677,7 @@ export namespace Prisma {
     acknowledgedAt?: SortOrder
     ipAddress?: SortOrder
     contentHash?: SortOrder
+    method?: SortOrder
   }
 
   export type AddendumAcknowledgementMinOrderByAggregateInput = {
@@ -56622,6 +56687,17 @@ export namespace Prisma {
     acknowledgedAt?: SortOrder
     ipAddress?: SortOrder
     contentHash?: SortOrder
+    method?: SortOrder
+  }
+
+  export type EnumAcknowledgementMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcknowledgementMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.AcknowledgementMethod | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel>
+    _max?: NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel>
   }
 
   export type EnumDeletionRequestStatusFilter<$PrismaModel = never> = {
@@ -60252,6 +60328,10 @@ export namespace Prisma {
     connect?: StakeholderWhereUniqueInput
   }
 
+  export type NullableEnumAcknowledgementMethodFieldUpdateOperationsInput = {
+    set?: $Enums.AcknowledgementMethod | null
+  }
+
   export type ReportAddendumUpdateOneRequiredWithoutAcknowledgementsNestedInput = {
     create?: XOR<ReportAddendumCreateWithoutAcknowledgementsInput, ReportAddendumUncheckedCreateWithoutAcknowledgementsInput>
     connectOrCreate?: ReportAddendumCreateOrConnectWithoutAcknowledgementsInput
@@ -61172,6 +61252,23 @@ export namespace Prisma {
     _max?: NestedEnumItemConditionNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel> | $Enums.AcknowledgementMethod | null
+  }
+
+  export type NestedEnumAcknowledgementMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcknowledgementMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.AcknowledgementMethod | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel>
+    _max?: NestedEnumAcknowledgementMethodNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumDeletionRequestStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.DeletionRequestStatus | EnumDeletionRequestStatusFieldRefInput<$PrismaModel>
     in?: $Enums.DeletionRequestStatus[] | ListEnumDeletionRequestStatusFieldRefInput<$PrismaModel>
@@ -61989,6 +62086,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
     addendum: ReportAddendumCreateNestedOneWithoutAcknowledgementsInput
   }
 
@@ -61998,6 +62096,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput = {
@@ -62700,6 +62799,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFilter<"AddendumAcknowledgement"> | Date | string
     ipAddress?: StringNullableFilter<"AddendumAcknowledgement"> | string | null
     contentHash?: StringFilter<"AddendumAcknowledgement"> | string
+    method?: EnumAcknowledgementMethodNullableFilter<"AddendumAcknowledgement"> | $Enums.AcknowledgementMethod | null
   }
 
   export type SubscriptionUpsertWithoutStakeholderInput = {
@@ -70503,6 +70603,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
     stakeholder: StakeholderCreateNestedOneWithoutAddendumAcknowledgementsInput
   }
 
@@ -70512,6 +70613,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementCreateOrConnectWithoutAddendumInput = {
@@ -72110,6 +72212,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
   }
 
   export type SubscriptionCreateManyManagedByInput = {
@@ -72937,6 +73040,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
     addendum?: ReportAddendumUpdateOneRequiredWithoutAcknowledgementsNestedInput
   }
 
@@ -72946,6 +73050,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderInput = {
@@ -72954,6 +73059,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type SubscriptionUpdateWithoutManagedByInput = {
@@ -74825,6 +74931,7 @@ export namespace Prisma {
     acknowledgedAt?: Date | string
     ipAddress?: string | null
     contentHash: string
+    method?: $Enums.AcknowledgementMethod | null
   }
 
   export type ReportAddendumEntryUpdateWithoutAddendumInput = {
@@ -74882,6 +74989,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
     stakeholder?: StakeholderUpdateOneRequiredWithoutAddendumAcknowledgementsNestedInput
   }
 
@@ -74891,6 +74999,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumInput = {
@@ -74899,6 +75008,7 @@ export namespace Prisma {
     acknowledgedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     contentHash?: StringFieldUpdateOperationsInput | string
+    method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
   export type ReportAddendumPhotoCreateManyEntryInput = {

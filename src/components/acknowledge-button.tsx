@@ -1,27 +1,48 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { acknowledgeAddendum } from '@/lib/addendum-actions'
+import { acknowledgeAddendum, acknowledgeAddendumInPerson } from '@/lib/addendum-actions'
 
-/// "I acknowledge this update", by the signed-in landlord or tenant. The server decides
-/// who that is from the session; nothing here names a party.
-export function AcknowledgeButton({ addendumId }: { addendumId: string }) {
+/// "I acknowledge this update". Without `inPerson`, by the signed-in landlord or tenant:
+/// the server decides who that is from the session and nothing here names a party. With
+/// it, the party taps it on the agent's device, as they would sign there, and the server
+/// checks the named party belongs to the tenancy.
+export function AcknowledgeButton({
+  addendumId,
+  inPerson,
+}: {
+  addendumId: string
+  inPerson?: { stakeholderId: string; name: string; role: string }
+}) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
   return (
     <div>
-      <p className="text-sm text-gray-700">
-        Acknowledging records that you have seen this update, with the time and the exact
-        content shown above. It is not a new signature on the report.
-      </p>
+      {inPerson ? (
+        <>
+          <h2 className="text-sm font-semibold">{inPerson.role}: {inPerson.name}</h2>
+          <p className="mt-1 text-sm text-gray-700">
+            If {inPerson.name} is with you, hand them this device to read the update above. Their
+            acknowledgement is recorded as given in person, with the time and the exact content
+            shown. It is not a new signature on the report.
+          </p>
+        </>
+      ) : (
+        <p className="text-sm text-gray-700">
+          Acknowledging records that you have seen this update, with the time and the exact
+          content shown above. It is not a new signature on the report.
+        </p>
+      )}
       <button
         type="button"
         disabled={pending}
+        aria-label={inPerson ? `I acknowledge this update, ${inPerson.name}` : undefined}
         onClick={() => startTransition(async () => {
           setError(null)
           try {
-            await acknowledgeAddendum(addendumId)
+            if (inPerson) await acknowledgeAddendumInPerson(addendumId, inPerson.stakeholderId)
+            else await acknowledgeAddendum(addendumId)
           } catch {
             setError('Could not record that. Try again in a moment.')
           }

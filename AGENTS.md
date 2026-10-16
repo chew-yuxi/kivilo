@@ -250,6 +250,31 @@ read. A replacement or removal names its line by key (`item:<id>` or `entry:<id>
 computed. The report page and the PDF draw published addenda after the signatures,
 pending ones marked so.
 
+A party who is with the agent, or has no email, acknowledges **in person** on the agent's
+device, as `signInspection` takes a signature: `acknowledgeAddendumInPerson(addendumId,
+stakeholderId)` behind `authorizeAddendum`, with the party id checked against the
+tenancy under the row lock (anyone else is the same "Addendum not found"). Web: the
+agent opens `/updates/[addendumId]`, which offers each pending party the button. App:
+the report screen (`acknowledgeInPerson` on each addendum in the report API). Both ways
+end in `recordAcknowledgement`, which stores `AddendumAcknowledgement.method`
+(`OWN_ACCOUNT` or `IN_PERSON`, null on older rows), and the report, `/updates` and the
+PDF say "acknowledged in person". `discardAddendum` deletes a draft and queues
+`StoragePurge` rows for the photos it uploaded (never a repair's evidence it references).
+
+The app authors updates with the same functions (`AddendaScreen`). `addendaWorkspace`
+(`src/lib/addenda-workspace.ts`) is what both the web panel and `GET
+/api/v1/inspections/[id]/addenda` read, and the routes under `/api/v1/addenda/[id]/`
+are thin delegations to `addendum-actions.ts`. App photos go through the shared durable
+capture queue with owner `addendum:<addendumId>` and the entry id as the room
+(`HttpAddendumPhotoBackend`), so a photo taken offline is kept and retried like a room
+capture; one whose draft was discarded or published meanwhile stays in the queue
+failing, by design, rather than being dropped. Storage takes JPEG, PNG and WebP only:
+the web re-encodes anything else (an iPhone's HEIC) with `downscale(file, { always:
+true })`, and the app relies on `image_picker`'s `imageQuality` re-encode and checks the
+file's magic bytes, not its name (Android keeps `.heic` on the JPEG it writes). A push
+for an update opens its report directly (`notificationScreen` in
+`mobile/lib/services/notification_route.dart`).
+
 ## Marking up a photo
 
 The inspector can circle a chip or point an arrow at a crack, on the phone, in the
@@ -476,3 +501,5 @@ an outside purchase. Comps go through `pnpm plan:set`. Stripe checkout is not wi
 - `prisma format` and `dart format` rewrite the whole file, so running either on a file
   with a small edit buries it in hundreds of lines of realignment nobody asked for. Format
   only the lines you wrote, or check `git diff --stat` and redo the edit on a clean copy.
+  Never `dart format lib test`: it rewrote 14 untouched files and split one-line `if`
+  returns into new `curly_braces_in_flow_control_structures` lints. Name the new files.

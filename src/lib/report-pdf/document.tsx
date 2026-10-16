@@ -603,7 +603,9 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
           <View key={ack.role} style={{ flex: 1, borderTopWidth: 0.75, borderTopColor: INK, paddingTop: 4 }}>
             <Text style={s.bold}>{ack.name}</Text>
             <Text style={{ fontSize: 8, color: ack.acknowledgedAt ? '#047857' : '#b45309' }}>
-              {ack.role}, {ack.acknowledgedAt ? `acknowledged ${dateTime.format(new Date(ack.acknowledgedAt))}` : 'pending acknowledgement'}
+              {ack.role}, {ack.acknowledgedAt
+                ? `acknowledged ${ack.inPerson ? 'in person ' : ''}${dateTime.format(new Date(ack.acknowledgedAt))}`
+                : 'pending acknowledgement'}
             </Text>
           </View>
         ))}
