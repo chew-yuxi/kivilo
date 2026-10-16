@@ -111,6 +111,8 @@ test('an update to a signed check-in is published on the web and acknowledged by
   const before = await (await request.get(`/api/v1/inspections/${id}/report`, { headers: tenant })).json()
   expect(before.addenda).toMatchObject([{ number: 1, title: 'New induction hob', acknowledgeAs: 'TENANT', acknowledgedAt: null }])
   expect(before.addenda[0].entries[0].photos[0].url).toContain('token=')
+  // A notification names only the update; the app finds its report from it.
+  expect(await (await request.get(`/api/v1/addenda/${addendumId}`, { headers: tenant })).json()).toEqual({ inspectionId: id })
   expect((await request.post(`/api/v1/addenda/${addendumId}/acknowledgement`, { headers: tenant })).status()).toBe(200)
   const after = await (await request.get(`/api/v1/inspections/${id}/report`, { headers: tenant })).json()
   expect(after.addenda[0].acknowledgedAt).not.toBeNull()
