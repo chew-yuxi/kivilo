@@ -10,10 +10,14 @@ import { randomUUID } from 'node:crypto'
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/storage', () => ({
+  // Every report PDF is already stored, so nothing is drawn.
+  captureExists: vi.fn(async () => true),
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}`),
   downloadCapture: vi.fn(async () => new Uint8Array([37, 80, 68, 70])),
 }))
-vi.mock('@/lib/report-pdf/render', () => ({
+vi.mock('@/lib/report-pdf/render', async (importActual) => ({
+  // The emails' copy is faked; `reportPdfUrl`, behind the signing page's download, is real.
+  ...(await importActual<typeof import('@/lib/report-pdf/render')>()),
   storedReportPdf: vi.fn(async () => ({ path: 'reports/x/y.pdf', filename: 'Check-in report.pdf' })),
 }))
 vi.mock('@/lib/email', () => ({
@@ -23,14 +27,16 @@ vi.mock('@/lib/email', () => ({
 vi.mock('@/lib/auth', async (importActual) => {
   // Only the session lookup is faked; the authorization rules are the real ones.
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireAgent: vi.fn(), requireStakeholder: vi.fn() }
+  return { ...actual, currentStakeholder: vi.fn(), requireAgent: vi.fn(), requireStakeholder: vi.fn() }
 })
 
 import { db } from '@/lib/db'
-import { requireAgent, requireStakeholder, signingRole } from '@/lib/auth'
+import { currentStakeholder, requireAgent, requireStakeholder, signingRole } from '@/lib/auth'
 import { completeReview, emailSigningLink, signInspection, signOwnReport } from '@/lib/actions'
-import { signingParties } from '@/lib/report-email'
-import { deliverReportEmails } from '@/lib/report-email-delivery'
+import { deliverReportEmails, MAX_ATTACHMENT_BYTES } from '@/lib/report-email-delivery'
+import { queueSignedCopies, signingParties } from '@/lib/report-email'
+import { downloadCapture } from '@/lib/storage'
+import { GET as signedPdf } from '@/app/sign/[inspectionId]/pdf/route'
 import { reportFingerprint } from '@/lib/report-fingerprint'
 import { sendSignatureRequest, sendSignedCopy } from '@/lib/email'
 import type { Stakeholder } from '@/generated/prisma'
@@ -264,5 +270,78 @@ describe('signing by email link', () => {
     expect(copies[0][2]).toMatchObject({ filename: 'Check-in report.pdf' })
     expect(copies[0][1].signatures.map((signature) => signature.role)).toEqual(['Tenant', 'Landlord'])
     expect((await emails(deal.inspection.id)).every((row) => row.sentAt)).toBe(true)
+  })
+
+  it('links a signed PDF too large to attach, to the signing page or the inspection, still once each', async () => {
+    const deal = await readyToSend()
+    await sent(deal)
+    asAgent(deal.agent)
+    await signInspection(deal.inspection.id, deal.tenant.id, png)
+    asSigner(deal.landlord)
+    await signOwnReport(deal.inspection.id, png)
+    await db.reportEmail.updateMany({
+      where: { OR: [{ inspectionId: { not: deal.inspection.id } }, { kind: 'SIGNATURE_REQUEST' }], sentAt: null },
+      data: { retryAt: new Date('2100-01-01') },
+    })
+
+    // One byte past the limit. The report is fetched once for all three recipients.
+    vi.mocked(downloadCapture).mockResolvedValueOnce(new Uint8Array(MAX_ATTACHMENT_BYTES + 1))
+    await deliverReportEmails(500)
+    const calls = vi.mocked(sendSignedCopy).mock.calls
+    expect(calls).toHaveLength(3)
+    const linkFor = (email: string | null) => {
+      const pdf = calls.find(([to]) => to === email)![2]
+      expect(pdf).not.toHaveProperty('content')
+      return new URL((pdf as { link: string }).link)
+    }
+    for (const party of [deal.landlord, deal.tenant]) {
+      const link = linkFor(party.email)
+      expect(link.origin).toBe('https://kivilo.test')
+      expect(link.pathname).toBe(`/sign/${deal.inspection.id}`)
+      expect(link.searchParams.get('email')).toBe(party.email)
+    }
+    expect(linkFor(deal.agent.email).pathname).toBe(`/inspections/${deal.inspection.id}`)
+
+    // Sent once each; completing again queues nothing new and a rerun sends nothing.
+    await db.$transaction((tx) => queueSignedCopies(tx, deal.inspection.id))
+    await deliverReportEmails(500)
+    const copies = (await emails(deal.inspection.id)).filter((row) => row.kind === 'SIGNED_COPY')
+    expect(copies).toHaveLength(3)
+    expect(copies.every((row) => row.sentAt && row.error === null)).toBe(true)
+    expect(vi.mocked(sendSignedCopy).mock.calls).toHaveLength(3)
+  })
+
+  it('hands the signed PDF from the signing page to the two parties only, once countersigned', async () => {
+    const deal = await readyToSend()
+    const outsider = await person('Stranger', 'pdf-stranger')
+    const download = async (inspectionId: string, as: Stakeholder | null) => {
+      vi.mocked(currentStakeholder).mockResolvedValueOnce(as)
+      return signedPdf(new Request(`https://kivilo.test/sign/${inspectionId}/pdf`), {
+        params: Promise.resolve({ inspectionId }),
+      })
+    }
+    const refusal = async (response: Response) => [response.status, await response.text()]
+    const missing = await refusal(await download('cmnope00000000000000000', deal.landlord))
+    expect(missing).toEqual([404, 'Not found'])
+
+    // Sent and half signed: nothing to download yet, even for a party.
+    await sent(deal)
+    asAgent(deal.agent)
+    await signInspection(deal.inspection.id, deal.tenant.id, png)
+    expect(await refusal(await download(deal.inspection.id, deal.tenant))).toEqual(missing)
+
+    asSigner(deal.landlord)
+    await signOwnReport(deal.inspection.id, png)
+    for (const party of [deal.landlord, deal.tenant]) {
+      const response = await download(deal.inspection.id, party)
+      expect(response.status).toBe(303)
+      expect(response.headers.get('location')).toMatch(
+        new RegExp(`^https://storage\\.test/reports/${deal.inspection.id}/[0-9a-f]+\\.pdf$`),
+      )
+    }
+    // The agent has their own way in; a stranger and the signed out are a missing report.
+    for (const someone of [deal.agent, outsider, null]) {
+      expect(await refusal(await download(deal.inspection.id, someone))).toEqual(missing)
+    }
   })
 })

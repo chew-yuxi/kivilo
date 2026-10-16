@@ -218,22 +218,34 @@ export type SignedCopy = {
   signatures: { name: string; role: string; signedAt: Date }[]
 }
 
-/// "Both parties have signed", with the PDF attached. Deliberately no link: the only web
-/// copy is `/reports/[token]`, and that token is a credential which exists only if and
-/// when the agent chooses to share it.
-export function signedCopyEmail(copy: SignedCopy) {
+/// The signed PDF itself, or, when it is too large to attach, the page the recipient
+/// downloads it from after signing in: `/sign/[inspectionId]` for a landlord or tenant,
+/// the inspection page for the agent. Never `/reports/[token]` and never a signed
+/// storage URL, since both are credentials.
+export type SignedCopyPdf = { filename: string; content: Buffer } | { link: string }
+
+/// "Both parties have signed", with the PDF attached, or linked when it is too large.
+export function signedCopyEmail(copy: SignedCopy, pdf: SignedCopyPdf) {
   const report = `${copy.reportKind.toLowerCase()} report for ${copy.address}`
   const when = new Intl.DateTimeFormat('en-SG', {
     dateStyle: 'long',
     timeStyle: 'short',
     timeZone: 'Asia/Singapore',
   })
+  const where = 'link' in pdf
+    ? [
+        `Both parties have signed the ${report}. The signed report is too large to attach, so download the PDF here and keep it with the tenancy documents:`,
+        pdf.link,
+        '',
+        'You will be asked to sign in with a code emailed to this address, so only you can open it.',
+      ]
+    : [`Both parties have signed the ${report}. The signed report is attached as a PDF; keep it with the tenancy documents.`]
   return {
     subject: `Signed: ${report}`,
     text: [
       `Hello ${copy.recipientName},`,
       '',
-      `Both parties have signed the ${report}. The signed report is attached as a PDF; keep it with the tenancy documents.`,
+      ...where,
       '',
       ...copy.signatures.map((signature) =>
         `${signature.role}: ${signature.name}, signed ${when.format(signature.signedAt)}`),
@@ -243,11 +255,13 @@ export function signedCopyEmail(copy: SignedCopy) {
   }
 }
 
-export async function sendSignedCopy(to: string, copy: SignedCopy, pdf: { filename: string; content: Buffer }) {
-  const { subject, text } = signedCopyEmail(copy)
+export async function sendSignedCopy(to: string, copy: SignedCopy, pdf: SignedCopyPdf) {
+  const { subject, text } = signedCopyEmail(copy, pdf)
   const { error } = await resend().emails.send(
-    { from: sender(), to, subject, text, attachments: [pdf] },
-    { idempotencyKey: `report-email-${copy.id}` },
+    { from: sender(), to, subject, text, ...('content' in pdf && { attachments: [pdf] }) },
+    // Its own key for the link, so a row whose attachment Resend refused as too large
+    // is not answered with that refusal again when it retries without one.
+    { idempotencyKey: `report-email-${copy.id}${'link' in pdf ? '-link' : ''}` },
   )
   if (error) throw new Error(`Resend refused the signed copy: ${error.message}`)
 }
