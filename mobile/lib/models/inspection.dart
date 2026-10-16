@@ -45,6 +45,7 @@ class InspectionDetail {
     required this.summary,
     required this.rooms,
     required this.signatures,
+    this.signingParties = const [],
     required this.findings,
     required this.baselineId,
     required this.checkOutId,
@@ -69,6 +70,10 @@ class InspectionDetail {
   final String? summary;
   final List<RoomSummary> rooms;
   final List<InspectionSignature> signatures;
+
+  /// Whether each party has been emailed the link to sign. Absent from servers older
+  /// than the signing email, which is why it defaults to empty.
+  final List<SigningParty> signingParties;
   final List<Finding> findings;
   final String? baselineId;
   final String? checkOutId;
@@ -104,6 +109,11 @@ class InspectionDetail {
                   InspectionSignature.fromJson(entry as Map<String, dynamic>),
             )
             .toList(),
+        signingParties: (json['signingParties'] as List<dynamic>? ?? const [])
+            .map(
+              (entry) => SigningParty.fromJson(entry as Map<String, dynamic>),
+            )
+            .toList(),
         findings: (json['findings'] as List<dynamic>)
             .map((entry) => Finding.fromJson(entry as Map<String, dynamic>))
             .toList(),
@@ -129,6 +139,9 @@ class InspectionDetail {
       rooms.isNotEmpty && rooms.every((room) => room.status == 'REVIEWED');
   bool signedBy(String stakeholderId) =>
       signatures.any((signature) => signature.stakeholderId == stakeholderId);
+  SigningParty? signingParty(String stakeholderId) => signingParties
+      .where((party) => party.stakeholderId == stakeholderId)
+      .firstOrNull;
 }
 
 class RoomSummary {
@@ -326,6 +339,33 @@ class InspectionSignature {
         stakeholderId: json['stakeholderId'] as String,
         signedAt: json['signedAt'] as String,
       );
+}
+
+/// A landlord or tenant, and the email that asks them to sign from their own phone.
+class SigningParty {
+  const SigningParty({
+    required this.stakeholderId,
+    required this.email,
+    required this.emailState,
+    required this.emailedAt,
+  });
+
+  final String stakeholderId;
+  final String? email;
+
+  /// QUEUED, SENT or FAILED; null when no signing email has been asked for.
+  final String? emailState;
+  final String? emailedAt;
+
+  factory SigningParty.fromJson(Map<String, dynamic> json) {
+    final signingEmail = json['signingEmail'] as Map<String, dynamic>?;
+    return SigningParty(
+      stakeholderId: json['stakeholderId'] as String,
+      email: json['email'] as String?,
+      emailState: signingEmail?['state'] as String?,
+      emailedAt: signingEmail?['at'] as String?,
+    );
+  }
 }
 
 class Finding {

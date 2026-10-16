@@ -507,6 +507,15 @@ class Api {
     );
   });
 
+  /// Emails the landlord or tenant the link to review and sign on their own phone.
+  Future<void> emailSigningLink(String inspectionId, String stakeholderId) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/inspections/$inspectionId/signing-email',
+          data: {'stakeholderId': stakeholderId},
+        );
+      });
+
   Future<String> share(String inspectionId) => _call(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/inspections/$inspectionId/share',
