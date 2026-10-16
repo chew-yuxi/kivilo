@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kivilo × Gingervale Consultancy</title>
+  <style>
+    :root { --ink:#111827; --navy:#14213d; --pink:#ec4899; --pink-dark:#be185d; --pink-soft:#fce7f3; --ginger:#d97706; --ginger-soft:#fff2dc; --blue-soft:#eaf2ff; --muted:#687386; --paper:#fffdfb; }
+    * { box-sizing:border-box; }
+    html { scroll-snap-type:y mandatory; background:#0d1426; }
+    body { margin:0; font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; color:var(--ink); background:#0d1426; }
+    .slide { width:100vw; height:100vh; min-height:0; scroll-snap-align:start; position:relative; overflow:hidden; background:var(--paper); padding:clamp(38px,8.6vh,62px) clamp(48px,5.95vw,76px) clamp(38px,7.2vh,52px); display:flex; flex-direction:column; }
+    .dark { background:var(--navy); color:white; }
+    .cream { background:#fff7ec; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:clamp(58px,6vw,88px); line-height:.98; letter-spacing:-.055em; margin-bottom:26px; }
+    h2 { font-size:clamp(40px,4vw,58px); line-height:1.04; letter-spacing:-.042em; margin-bottom:18px; max-width:1050px; }
+    h3 { font-size:26px; line-height:1.13; letter-spacing:-.025em; margin-bottom:10px; }
+    p { font-size:20px; line-height:1.42; color:#364153; }
+    .dark p { color:#d7dfed; }
+    .eyebrow { position:relative; z-index:3; font-size:14px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; color:var(--pink-dark); margin-bottom:18px; }
+    .dark .eyebrow { color:#f9a8d4; }
+    .lede { font-size:27px; line-height:1.35; max-width:920px; color:#364153; }
+    .accent { color:var(--pink); }
+    .muted { color:var(--muted); }
+    .brand { display:flex; align-items:center; gap:13px; font-size:23px; font-weight:800; letter-spacing:-.02em; }
+    .brand-copy { display:flex; flex-direction:column; gap:4px; }
+    .brand-copy small { color:#7b8495; font-size:11px; font-weight:700; letter-spacing:.05em; }
+    .brandmark { width:34px; height:34px; border-radius:10px; background:var(--pink); position:relative; }
+    .brandmark::after { content:""; width:13px; height:13px; border-radius:50%; background:white; position:absolute; left:10.5px; top:10.5px; }
+    .footer { position:absolute; left:76px; right:76px; bottom:22px; display:flex; justify-content:space-between; font-size:12px; color:#8b95a5; }
+    .footer strong { color:#455164; }
+    .dark .footer strong { color:#e4e9f2; }
+    .cover { justify-content:center; padding-right:48%; background:#fff7ec; color:var(--navy); }
+    .cover::after { display:none; }
+    .cover-visual { position:absolute; right:28px; top:42px; width:47%; height:82%; object-fit:contain; object-position:center; z-index:0; }
+    .cover .brand { position:absolute; z-index:2; top:62px; left:76px; }
+    .cover .meeting { position:absolute; z-index:2; left:76px; bottom:52px; color:#7b8495; font-size:15px; }
+    .cover h1,.cover .sub,.cover .eyebrow { position:relative; z-index:2; }
+    .cover h1 { max-width:780px; }
+    .cover .sub { font-size:27px; max-width:690px; }
+    .opportunity { display:grid; grid-template-columns:44% 56%; gap:74px; flex:1; align-items:center; }
+    .opportunity-slide { padding-left:clamp(64px,7.5vw,96px); padding-right:clamp(64px,7.5vw,96px); }
+    .opportunity-slide .opportunity { grid-template-columns:42% 58%; gap:54px; }
+    .big-question { font-size:42px; line-height:1.16; letter-spacing:-.035em; color:var(--navy); }
+    .roles { display:grid; gap:24px; }
+    .role { padding:22px 28px; border-radius:22px; }
+    .role:nth-child(1) { background:var(--ginger-soft); }
+    .role:nth-child(2) { background:var(--pink-soft); }
+    .role:nth-child(3) { background:var(--blue-soft); }
+    .role small { display:block; font-size:13px; text-transform:uppercase; letter-spacing:.11em; font-weight:800; color:var(--muted); margin-bottom:7px; }
+    .role strong { font-size:23px; display:block; margin-bottom:5px; }
+    .role span { font-size:17px; color:#4d596a; line-height:1.35; }
+    .feature-stage { flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:54px; align-items:start; padding:2px 54px 38px; min-height:0; }
+    .feature { text-align:center; }
+    .iphone { width:184px; height:398px; margin:0 auto 14px; padding:7px; border-radius:43px; position:relative; background:linear-gradient(145deg,#5f636a 0%,#141518 32%,#050506 70%,#777b82 100%); box-shadow:0 24px 48px rgba(20,33,61,.22),inset 0 0 0 1px rgba(255,255,255,.35); }
+    .iphone::before { content:""; position:absolute; inset:3px; border:2px solid #090a0c; border-radius:44px; pointer-events:none; z-index:4; }
+    .iphone-top { height:27px; border-radius:35px 35px 10px 10px; background:#030304; position:relative; z-index:2; }
+    .dynamic-island { width:68px; height:16px; position:absolute; left:50%; top:7px; transform:translateX(-50%); border-radius:14px; background:#000; box-shadow:inset -7px 0 11px rgba(35,45,66,.45); }
+    .iphone-screen { width:100%; height:357px; overflow:hidden; background:white; border-radius:9px 9px 34px 34px; }
+    .iphone-screen img { display:block; width:100%; height:100%; object-fit:cover; object-position:top center; }
+    .iphone-screen img.care-confirm { transform:scale(1.12); transform-origin:top center; }
+    .feature:nth-child(1) .iphone { transform:rotate(-1.4deg); }
+    .feature:nth-child(3) .iphone { transform:rotate(1.4deg); }
+    .feature h3 { font-size:22px; margin-bottom:4px; }
+    .feature p { font-size:14px; line-height:1.3; color:var(--muted); margin:0 auto; max-width:250px; }
+    .report-layout { position:relative; z-index:1; display:grid; grid-template-columns:68% 32%; gap:54px; flex:1; align-items:center; min-height:0; }
+    .report-crop { height:550px; overflow:hidden; border-radius:22px; background:white; box-shadow:0 22px 55px rgba(17,24,39,.14); }
+    .report-crop img { width:100%; height:auto; display:block; transform:translateY(-34px); }
+    .report-copy .number { font-size:78px; line-height:.9; color:var(--pink); font-weight:850; letter-spacing:-.06em; margin-bottom:18px; }
+    .report-copy p { font-size:18px; }
+    .workflow-icons { display:grid; grid-template-columns:1fr 1fr; gap:12px 18px; margin:24px 0; }
+    .workflow-icon { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:800; color:#344054; }
+    .workflow-icon img { width:52px; height:52px; object-fit:contain; }
+    .path { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; flex:1; align-items:stretch; margin-top:28px; }
+    .phase { border-radius:28px; padding:32px 30px; display:flex; flex-direction:column; }
+    .phase:nth-child(1) { background:var(--pink-soft); }
+    .phase:nth-child(2) { background:var(--ginger-soft); }
+    .phase:nth-child(3) { background:var(--blue-soft); }
+    .phase .when { font-size:13px; text-transform:uppercase; letter-spacing:.12em; font-weight:850; color:var(--muted); margin-bottom:52px; }
+    .phase h3 { font-size:30px; }
+    .phase p { font-size:18px; }
+    .phase .truth { margin-top:auto; padding-top:26px; font-size:14px; color:var(--muted); }
+    .pilot { display:grid; grid-template-columns:45% 55%; gap:62px; flex:1; align-items:center; }
+    .pilot-price { font-size:88px; line-height:.9; letter-spacing:-.06em; font-weight:850; color:var(--pink); margin:22px 0; }
+    .pilot-price span { display:block; margin-top:12px; font-size:22px; line-height:1.2; letter-spacing:0; color:var(--ink); }
+    .pilot p { font-size:18px; max-width:470px; }
+    .pilot-steps { display:grid; grid-template-rows:1fr 1fr; gap:18px; }
+    .pilot-step { border-radius:26px; padding:30px 32px; }
+    .pilot-step:first-child { background:var(--ginger-soft); }
+    .pilot-step:last-child { background:var(--pink-soft); }
+    .pilot-step small { font-size:13px; text-transform:uppercase; letter-spacing:.12em; font-weight:850; color:var(--muted); }
+    .pilot-step strong { display:block; font-size:27px; margin:10px 0 7px; }
+    .pilot-step span { font-size:17px; color:#4e596a; line-height:1.38; }
+    .economics { display:grid; grid-template-columns:44% 56%; gap:68px; flex:1; align-items:center; }
+    .price-block { background:var(--navy); color:white; border-radius:34px; padding:42px; }
+    .price-block small { color:#bac5d8; font-size:15px; }
+    .retail { font-size:90px; font-weight:850; line-height:.9; letter-spacing:-.06em; margin:22px 0 10px; }
+    .retail-note { color:#d6ddeb; font-size:17px; }
+    .split { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:34px; }
+    .split strong { font-size:35px; display:block; color:#f9a8d4; }
+    .split div:last-child strong { color:#fbbf74; }
+    .split span { font-size:14px; color:#c4cede; }
+    .economics-copy h3 { font-size:32px; }
+    .economics-copy .scale { font-size:26px; line-height:1.3; margin:26px 0; }
+    .economics-copy .scale strong { color:var(--ginger); }
+    .economics-copy .fine { font-size:14px; color:var(--muted); }
+    .close { justify-content:center; padding-right:38%; }
+    .close h2 { font-size:clamp(46px,4.7vw,68px); }
+    .close .principles { display:grid; grid-template-columns:1fr 1fr; gap:18px 40px; margin-top:28px; }
+    .close .principles strong { font-size:20px; display:block; margin-bottom:4px; }
+    .close .principles span { font-size:15px; line-height:1.35; color:#c6d0df; }
+    .close .ask { position:absolute; right:70px; top:50%; transform:translateY(-50%); width:31%; border-radius:30px; background:var(--pink); padding:42px 36px; color:white; }
+    .close .ask small { text-transform:uppercase; letter-spacing:.12em; font-weight:850; font-size:13px; }
+    .close .ask strong { display:block; font-size:32px; line-height:1.12; margin:18px 0; }
+    .close .ask span { font-size:17px; line-height:1.4; }
+    .commercial-compare { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:22px; }
+    .commercial-plan { border-radius:30px; padding:30px 34px; min-height:292px; }
+    .commercial-plan.standard { background:white; }
+    .commercial-plan.partner { background:var(--navy); color:white; }
+    .commercial-plan small { display:block; font-size:13px; text-transform:uppercase; letter-spacing:.12em; font-weight:850; color:var(--muted); }
+    .commercial-plan.partner small { color:#f9a8d4; }
+    .commercial-plan h3 { font-size:28px; margin:11px 0 18px; }
+    .plan-price { font-size:55px; line-height:.95; font-weight:850; letter-spacing:-.05em; margin-bottom:8px; }
+    .plan-price span { font-size:17px; letter-spacing:0; font-weight:500; color:var(--muted); }
+    .partner .plan-price span { color:#c9d2e0; }
+    .plan-points { margin-top:20px; display:grid; gap:9px; font-size:16px; color:#4c5768; }
+    .partner .plan-points { color:#d5dcea; }
+    .saving-band { margin-top:22px; display:grid; grid-template-columns:1fr auto; gap:28px; align-items:center; background:var(--pink); color:white; border-radius:22px; padding:20px 28px; }
+    .saving-band strong { font-size:23px; }
+    .saving-band span { display:block; margin-top:3px; color:#fff0f7; font-size:15px; }
+    .saving-band .next { text-align:right; font-size:15px; font-weight:750; max-width:320px; }
+    .pricing-head { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:2px 0 22px; }
+    .pricing-head > div { border-radius:22px; padding:19px 25px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .pricing-head .list { background:white; }
+    .pricing-head .founding { background:var(--navy); color:white; }
+    .pricing-head small { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.1em; font-weight:850; color:var(--muted); }
+    .pricing-head .founding small { color:#f9a8d4; }
+    .pricing-head strong { display:block; font-size:21px; margin-top:4px; }
+    .pricing-head .amount { font-size:42px; font-weight:900; letter-spacing:-.05em; white-space:nowrap; }
+    .pricing-head .amount span { font-size:14px; font-weight:500; letter-spacing:0; color:var(--muted); }
+    .pricing-head .founding .amount span { color:#cbd5e4; }
+    .tier-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; flex:1; min-height:0; }
+    .tier { border-radius:22px; padding:22px 22px 19px; display:flex; flex-direction:column; background:white; }
+    .tier:nth-child(1) { background:var(--pink-soft); }
+    .tier:nth-child(2) { background:var(--ginger-soft); }
+    .tier:nth-child(3) { background:var(--blue-soft); }
+    .tier:nth-child(4) { background:#f1ecff; }
+    .tier small { font-size:11px; text-transform:uppercase; letter-spacing:.11em; font-weight:850; color:var(--muted); }
+    .tier h3 { font-size:22px; margin:11px 0 8px; }
+    .tier .tier-price { font-size:27px; font-weight:900; letter-spacing:-.035em; color:var(--navy); margin-bottom:8px; }
+    .tier p { font-size:14px; line-height:1.32; color:#536075; margin:0; }
+    .tier .tier-note { margin-top:auto; padding-top:14px; font-size:11px; font-weight:800; color:#778398; }
+    .tier-grid.partner-tiers { grid-template-columns:repeat(3,1fr); gap:18px; margin-top:20px; }
+    .partner-tiers .tier { min-height:260px; padding:27px 28px 23px; }
+    .partner-tiers .tier h3 { font-size:25px; }
+    .partner-tiers .tier .tier-price { font-size:34px; margin:3px 0 12px; }
+    .partner-tiers .tier p { font-size:16px; }
+    .partner-value { margin-top:18px; border-radius:20px; background:var(--navy); color:white; padding:18px 25px; display:grid; grid-template-columns:auto 1fr; align-items:center; gap:28px; }
+    .partner-value strong { font-size:22px; white-space:nowrap; color:#f9a8d4; }
+    .partner-value span { font-size:15px; line-height:1.35; color:#d8dfeb; }
+    .demo-slide { justify-content:center; }
+    .demo-slide h2 { font-size:70px; max-width:920px; margin-bottom:18px; }
+    .demo-slide .demo-lede { font-size:25px; max-width:940px; margin-bottom:48px; color:#d7dfed; }
+    .demo-run { display:grid; grid-template-columns:repeat(3,1fr); gap:42px; }
+    .demo-beat { display:grid; grid-template-columns:64px 1fr; gap:17px; align-items:start; }
+    .demo-beat img { width:64px; height:64px; object-fit:contain; filter:drop-shadow(0 8px 18px rgba(0,0,0,.18)); }
+    .demo-beat small { display:block; color:#f9a8d4; font-size:12px; text-transform:uppercase; letter-spacing:.11em; font-weight:850; margin-bottom:7px; }
+    .demo-beat strong { display:block; color:white; font-size:22px; line-height:1.16; margin-bottom:7px; }
+    .demo-beat span { display:block; color:#bfc9da; font-size:15px; line-height:1.35; }
+    .module-map { flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; margin-top:6px; }
+    .module-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+    .module { min-height:282px; padding:25px 22px 22px; border-radius:24px; background:#f4f6f9; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+    .module:nth-child(1),.module:nth-child(5) { background:var(--blue-soft); }
+    .module:nth-child(2) { background:var(--ginger-soft); }
+    .module:nth-child(3) { background:#f1ecff; }
+    .module.live { background:var(--navy); color:white; transform:translateY(-10px); box-shadow:0 18px 38px rgba(20,33,61,.2); }
+    .module-code { font-size:38px; line-height:1; font-weight:900; letter-spacing:-.05em; color:#70809a; margin-bottom:34px; }
+    .module.live .module-code { color:#f9a8d4; }
+    .module h3 { font-size:24px; margin-bottom:11px; }
+    .module p { font-size:15px; line-height:1.35; color:#4c596c; margin:0; }
+    .module.live p { color:#d8dfeb; }
+    .module-status { margin-top:auto; padding-top:20px; font-size:11px; line-height:1.25; text-transform:uppercase; letter-spacing:.1em; font-weight:850; color:#778398; }
+    .module.live .module-status { color:#f9a8d4; }
+    .record-band { margin:14px 44px 0; min-height:70px; border-radius:20px; padding:15px 28px; background:var(--pink); color:white; display:flex; align-items:center; justify-content:space-between; gap:28px; }
+    .record-band strong { font-size:21px; }
+    .record-band span { font-size:14px; line-height:1.35; color:#fff0f7; max-width:700px; text-align:right; }
+    .module-journey { flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; margin-top:2px; }
+    .journey-row { display:grid; align-items:stretch; }
+    .journey-row.top { grid-template-columns:1fr 42px 1fr 42px 1fr; }
+    .journey-row.bottom { grid-template-columns:1fr 42px 1fr; width:68%; margin-top:20px; }
+    .journey-arrow { display:grid; place-items:center; color:var(--pink); font-size:31px; font-weight:800; }
+    .journey-module { min-height:126px; padding:21px 24px 18px; border-radius:20px; background:#f8fafc; display:grid; grid-template-columns:auto 1fr; column-gap:18px; align-content:start; position:relative; }
+    .journey-module .code { color:var(--pink-dark); font-size:18px; font-weight:900; letter-spacing:.03em; grid-row:1 / span 3; padding-top:2px; }
+    .journey-module h3 { font-size:24px; margin:0 0 5px; }
+    .journey-module p { font-size:15px; line-height:1.3; color:#536075; margin:0; }
+    .journey-module .state { align-self:end; margin-top:11px; font-size:10px; text-transform:uppercase; letter-spacing:.11em; font-weight:850; color:#7d889a; }
+    .journey-module.current { background:var(--navy); color:white; box-shadow:0 17px 36px rgba(20,33,61,.2); }
+    .journey-module.current .code,.journey-module.current .state { color:#f9a8d4; }
+    .journey-module.current p { color:#d5deec; }
+    .you-are-here { position:absolute; right:19px; top:-15px; border-radius:999px; padding:7px 13px; background:var(--pink); color:white; font-size:11px; line-height:1; text-transform:uppercase; letter-spacing:.1em; font-weight:900; }
+    .journey-loop { margin:17px 0 0 48px; width:82%; border-radius:18px; background:var(--pink-soft); padding:15px 21px; display:flex; align-items:center; gap:20px; }
+    .journey-loop strong { min-width:205px; font-size:17px; color:var(--pink-dark); }
+    .journey-loop span { font-size:14px; line-height:1.35; color:#505b6d; }
+    .speaker-notes { display:none; }
+    @media print { @page { size:13.333in 7.5in; margin:0; } html,body { background:white; } .slide { width:13.333in; height:7.5in; min-height:0; padding:62px 76px 52px; page-break-after:always; break-after:page; } .opportunity-slide { padding-left:96px; padding-right:96px; } }
+  </style>
+</head>
+<body>
+  <section class="slide cover">
+    <img class="cover-visual" src="deck-assets/cover-illustration-v2.png" alt="Whimsical line illustration of an inspector documenting a marked kitchen defect" />
+    <div class="brand"><span class="brandmark"></span><span class="brand-copy"><span>kivilo</span><small>by NotTooSweetLabs</small></span></div>
+    <div class="eyebrow">Partnership discussion</div>
+    <h1>Kivilo <span class="accent">×</span><br />Gingervale</h1>
+    <p class="sub">A practical starting point for recurring Owner Care</p>
+    <p class="meeting">Shelvin and Shermaine · 15 October 2026</p>
+    <div class="speaker-notes">TIME 0:30. Thanks for making the time. Today I want to show you one practical way Gingervale can stay useful after a property purchase completes, and turn that ongoing service into recurring Owner Care revenue. Kivilo is the software layer behind that idea. I will show you what works today, where the product goes next, and a low-risk way for us to test it together.</div>
+  </section>
+
+  <section class="slide cream opportunity-slide">
+    <div class="eyebrow">The opportunity and the model</div>
+    <div class="opportunity">
+      <div><h2>What happens after the property purchase completes?</h2><p class="big-question">Owner Care can give Gingervale a reason to remain useful throughout ownership.</p></div>
+      <div class="roles">
+        <div class="role"><small>Gingervale</small><strong>Owns the human relationship</strong><span>Advises the owner, coordinates the service, sets the retail price and remains the client’s point of contact.</span></div>
+        <div class="role"><small>Kivilo</small><strong>Runs the digital relationship</strong><span>Connects stakeholders around evidence, approvals, signatures and one shared property history.</span></div>
+        <div class="role"><small>UK operating partner</small><strong>Performs the work on site</strong><span>Managing agents or inventory professionals conduct inspections and local activity.</span></div>
+      </div>
+    </div>
+    <div class="footer"><span>Proposed model for validation · Source: Gingervale public company profile, accessed 14 Oct 2026</span><span>02</span></div>
+    <div class="speaker-notes">TIME 1:15. The commercial opportunity starts after completion. Owners still need inspections, records, repairs and coordination, but that work is usually fragmented across messages, documents and different providers. Our proposed split is simple. Gingervale owns the client, sets the Owner Care offer and remains the trusted human contact. Kivilo provides the shared digital record, evidence, approvals and signatures. A UK operating partner performs any work that needs somebody on site. Gingervale is not reselling anonymous software; it is offering a managed service supported by technology.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">Current product · actual build</div>
+    <h2>Three features available today</h2>
+    <div class="feature-stage">
+      <div class="feature">
+        <div class="iphone"><div class="iphone-top"><span class="dynamic-island"></span></div><div class="iphone-screen"><img src="deck-assets/app-screens/capture-v2.png" alt="Current Kivilo room capture screen with three property photos" /></div></div>
+        <h3>Capture the room</h3><p>Photos and walkthrough evidence stay together by room.</p>
+      </div>
+      <div class="feature">
+        <div class="iphone"><div class="iphone-top"><span class="dynamic-island"></span></div><div class="iphone-screen"><img src="deck-assets/app-screens/mark.png" alt="Current Kivilo photo marking screen showing a circled worktop chip" /></div></div>
+        <h3>Mark what matters</h3><p>The inspector points to damage while the original stays untouched.</p>
+      </div>
+      <div class="feature">
+        <div class="iphone"><div class="iphone-top"><span class="dynamic-island"></span></div><div class="iphone-screen"><img src="deck-assets/app-screens/report-signed-v2.png" alt="Current Kivilo signed report with marked evidence" /></div></div>
+        <h3>Sign and compare</h3><p>A dated record carries the evidence into check-out.</p>
+      </div>
+    </div>
+    <div class="footer"><strong>Captured from the current build</strong><span>03</span></div>
+    <div class="speaker-notes">TIME 1:00. This is the working core today, not a concept mock-up. First, the inspector captures each room with photos and a walkthrough. Second, they mark the exact detail that matters while the original photograph remains untouched. Third, the room inventory and evidence become a dated report that both parties sign and later compare at check-out. The product is still in private beta and iOS approval is pending, but this complete condition-report workflow is working now.</div>
+  </section>
+
+  <section class="slide dark demo-slide">
+    <div class="eyebrow">Live demo · switch to the phone</div>
+    <h2>One active property. One completed record.</h2>
+    <p class="demo-lede">Four minutes to show how Kivilo moves from work in progress to a signed property history.</p>
+    <div class="demo-run">
+      <div class="demo-beat"><img src="deck-assets/kivilo-icons/capture.png" alt="Capture icon" /><div><small>01 · Work in progress</small><strong>42 Cairnhill Rise</strong><span>Three rooms reviewed. The Bathroom is the one unfinished room.</span></div></div>
+      <div class="demo-beat"><img src="deck-assets/kivilo-icons/mark.png" alt="Photo marking icon" /><div><small>02 · Evidence becomes inventory</small><strong>Show the real report</strong><span>Scroll its written inventory, evidence photos and marked defect.</span></div></div>
+      <div class="demo-beat"><img src="deck-assets/kivilo-icons/sign.png" alt="Signature icon" /><div><small>03 · The finished record</small><strong>18 Ardmore Park</strong><span>Show both signatures, the condition report and resolved repair timeline.</span></div></div>
+    </div>
+    <div class="footer"><strong>Android · Version 1.0.0 (22) · Patch 10</strong><span>04</span></div>
+    <div class="speaker-notes">DEMO 2:30 TO 3:00 — NOT INCLUDED IN THE 10 MINUTES. Say: Let me show you the actual flow rather than describe it. Share the phone. Open Demo · 42 Cairnhill Rise and point out that three rooms are reviewed while the Bathroom is the only unfinished room. Do not open individual inventory chips; their fields are displayed inline. Then open Demo · 18 Ardmore Park and its completed report. Scroll through the room inventory and evidence photographs, pause on the marked kitchen worktop chip, then show both signatures. Finish on the resolved repair timeline. Say: That is the full loop—from work in progress to an agreed property record—and return to the deck.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">Current product · real output</div>
+    <div class="report-layout">
+      <div class="report-crop"><img src="deck-assets/app-screens/report-desktop-v2.png" alt="Current Kivilo condition report with seven inventory lines" /></div>
+      <div class="report-copy"><h2>A properly filled condition report</h2><p>The demo kitchen includes seven inventory lines, seven matched evidence photos, an appliance identifier, a marked defect and both signatures.</p><div class="workflow-icons"><div class="workflow-icon"><img src="deck-assets/kivilo-icons/capture.png" alt="Capture icon" /><span>Capture</span></div><div class="workflow-icon"><img src="deck-assets/kivilo-icons/mark.png" alt="Mark icon" /><span>Mark</span></div><div class="workflow-icon"><img src="deck-assets/kivilo-icons/sign.png" alt="Sign icon" /><span>Sign</span></div><div class="workflow-icon"><img src="deck-assets/kivilo-icons/compare.png" alt="Compare icon" /><span>Compare</span></div></div><p class="muted">This is the working module today. UK wording and operating details form part of the pilot.</p></div>
+    </div>
+    <div class="footer"><strong>Actual report generated by the current build</strong><span>05</span></div>
+    <div class="speaker-notes">TIME 0:50. What matters is the output, not just the capture interface. This kitchen has seven written inventory lines, seven matched photographs, an appliance identifier, a marked defect and both signatures. It gives the owner, tenant and agent one agreed point-in-time record. That makes later questions easier to resolve because the evidence and the written condition stay together. Some wording still needs localisation during the pilot; the underlying record is working.</div>
+  </section>
+
+  <section class="slide cream">
+    <div class="eyebrow">Current product · tenant repair flow</div>
+    <h2>Tenants log repairs from report to resolution</h2>
+    <div class="feature-stage">
+      <div class="feature">
+        <div class="iphone"><div class="iphone-top"><span class="dynamic-island"></span></div><div class="iphone-screen"><img src="deck-assets/app-screens/maintenance-report.png" alt="Current Kivilo tenant form for reporting a leaking kitchen tap" /></div></div>
+        <h3>Report the problem</h3><p>The tenant identifies the item, urgency and what happened.</p>
+      </div>
+      <div class="feature">
+        <div class="iphone"><div class="iphone-top"><span class="dynamic-island"></span></div><div class="iphone-screen"><img class="care-confirm" src="deck-assets/app-screens/maintenance-confirm.png" alt="Current Kivilo repair case asking the tenant to confirm whether the repair worked" /></div></div>
+        <h3>Confirm the outcome</h3><p>The repair, cost and tenant’s Fixed or Not fixed verdict stay together.</p>
+      </div>
+      <div class="feature">
+        <div class="iphone"><div class="iphone-top"><span class="dynamic-island"></span></div><div class="iphone-screen"><img src="deck-assets/app-screens/maintenance-timeline.png" alt="Current Kivilo property timeline showing the report, responsibility, repair and confirmation" /></div></div>
+        <h3>Keep the history</h3><p>Owners see a dated trail of reports, agreed responsibility and repairs.</p>
+      </div>
+    </div>
+    <div class="footer"><strong>Rendered from the current native app UI</strong><span>06</span></div>
+    <div class="speaker-notes">TIME 1:00. The signed report is the starting point for ongoing Owner Care. When something breaks, the tenant logs the problem and adds evidence. The parties record who will arrange the work and who is responsible for the cost. After the repair, the tenant confirms whether it is fixed, and the full sequence remains on the property timeline. This workflow is already built. It turns a one-off inspection into a continuing service Gingervale can manage for the owner.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">Product roadmap · five connected modules</div>
+    <h2>Five modules. We have started at M4.</h2>
+    <p class="lede">Condition and Care proves the shared property record. The same record expands into every transaction and tenancy workflow.</p>
+    <div class="module-journey">
+      <div class="journey-row top">
+        <div class="journey-module"><div class="code">M1</div><h3>Deal wizard</h3><p>Pre-filled agreements, tenancy documents and invoices.</p><div class="state">Planned</div></div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-module"><div class="code">M2</div><h3>Signing chains</h3><p>Sequenced signatures, reminders and a complete audit trail.</p><div class="state">Planned</div></div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-module"><div class="code">M3</div><h3>AML &amp; CDD</h3><p>Identity checks and screening from stakeholder data already held.</p><div class="state">Planned</div></div>
+      </div>
+      <div class="journey-row bottom">
+        <div class="journey-module current"><div class="you-are-here">You are seeing this today</div><div class="code">M4</div><h3>Condition &amp; care</h3><p>Check-in, check-out, signed evidence and repair history.</p><div class="state">Working private beta</div></div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-module"><div class="code">M5</div><h3>Portals &amp; intelligence</h3><p>Role-specific views, renewals and the property’s history.</p><div class="state">Repair workflow live · broader module planned</div></div>
+      </div>
+      <div class="journey-loop"><strong>The record compounds</strong><span>Check-out feeds the next deal. Existing stakeholders and the property history make every later module easier to start.</span></div>
+    </div>
+    <div class="footer"><strong>M4 is live now · M5 has begun · M1 to M3 are planned</strong><span>07</span></div>
+    <div class="speaker-notes">TIME 1:20. What you have just seen is M4: Condition and Care, currently in working private beta. The repair workflow is the first working slice of M5. M1 to M3—deal creation, signing chains, and AML and CDD—are planned, not being presented as finished. The strategic value is that these are not five disconnected tools. They reuse the same property, owner, tenant and agent record. Every completed workflow makes the next one easier to start. Today is the wedge; the larger opportunity is the shared operating layer around the full property relationship.</div>
+  </section>
+
+  <section class="slide cream">
+    <div class="eyebrow">Proposed Gingervale partner model</div>
+    <h2>Start free. Then pay for software as the portfolio grows.</h2>
+    <p class="lede">Gingervale earns from Owner Care. Kivilo charges a predictable software fee.</p>
+    <div class="tier-grid partner-tiers">
+      <div class="tier"><small>01 · Founding pilot</small><h3>Prove the service</h3><div class="tier-price">No fee</div><p>Eight weeks, guided setup and up to 10 active properties.</p><div class="tier-note">No commitment to continue</div></div>
+      <div class="tier"><small>02 · After the pilot</small><h3>Launch Owner Care</h3><div class="tier-price">S$39 / user</div><p>Each month, including the first 25 active properties.</p><div class="tier-note">Discounted founding rate</div></div>
+      <div class="tier"><small>03 · As it grows</small><h3>Add properties</h3><div class="tier-price">+S$2 / property</div><p>Only for active properties 26 through 100. Agree a lower volume tier above 100.</p><div class="tier-note">Usage grows only after the allowance</div></div>
+    </div>
+    <div class="partner-value"><strong>Gingervale keeps the owner fee</strong><span>Gingervale sets the retail price and leads the human relationship. Kivilo provides the shared stakeholder record and digital convenience. There is no percentage revenue share.</span></div>
+    <div class="footer"><span>Reference only: planned public Kivilo Pro price is S$49 per user each month · Proposed partner terms, subject to pilot agreement</span><span>08</span></div>
+    <div class="speaker-notes">TIME 1:30. The commercial structure protects the upside for Gingervale. The eight-week founding pilot has no software fee and covers up to 10 active properties. If the model works, the proposed founding rate is S$39 per user each month, including the first 25 active properties. Properties 26 to 100 cost S$2 each per month, with a lower volume tier to be agreed above that. Gingervale sets and keeps the Owner Care fee; Kivilo does not take a revenue percentage. The planned public Kivilo Pro price is S$49 per user, so this gives Gingervale a permanent founding discount and more margin per managed property.</div>
+  </section>
+
+  <section class="slide cream">
+    <div class="eyebrow">Why the model gets better with scale</div>
+    <div class="economics">
+      <div class="price-block"><small>Illustration at 100 active properties</small><div class="retail">RM9,900</div><div class="retail-note">monthly Owner Care revenue at RM99 per property</div><div class="split"><div><strong>S$189</strong><span>Kivilo software: S$39 base + 75 overages</span></div><div><strong>100%</strong><span>client revenue kept by Gingervale</span></div></div></div>
+      <div class="economics-copy"><h2>Gingervale keeps the service upside as the portfolio grows</h2><p class="scale">Kivilo participates through <strong>predictable usage pricing</strong>, while Gingervale retains the Owner Care revenue and controls the human service.</p><p class="fine">Illustration before fieldwork, staffing, tax and other operating costs. RM99 is an example retail price set by Gingervale. The volume tier above 100 remains to be agreed.</p></div>
+    </div>
+    <div class="footer"><strong>Kivilo supplies the digital layer · Gingervale monetises the human relationship</strong><span>09</span></div>
+    <div class="speaker-notes">TIME 1:10. Here is the model at a useful scale. If Gingervale chooses to charge RM99 per property, 100 active properties produce RM9,900 of monthly Owner Care revenue before fieldwork, staffing, tax and other delivery costs. Kivilo would charge S$189: the S$39 user fee plus 75 additional properties at S$2. Gingervale keeps all client revenue and controls the service. These currencies are deliberately shown separately; this is an illustration of the model, not a guaranteed margin or an exchange-rate claim.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The decision for today</div>
+    <div class="pilot">
+      <div><h2>A small test with a clear decision at the end</h2><div class="pilot-price">10 properties<span>across an eight-week, no-fee pilot</span></div><p>We learn how Owner Care works in practice before either side makes a longer commitment.</p></div>
+      <div class="pilot-steps">
+        <div class="pilot-step"><small>First</small><strong>Define the workflow</strong><span>Choose one owner journey, confirm who does what and agree what a successful pilot must prove.</span></div>
+        <div class="pilot-step"><small>Then</small><strong>Run, learn and decide</strong><span>Test up to 10 property records, collect feedback and continue on the partner terms only if it is useful.</span></div>
+      </div>
+    </div>
+    <div class="footer"><span>No software fee during pilot · Non-exclusive · No revenue share</span><span>10</span></div>
+    <div class="speaker-notes">TIME 1:25. Our proposal is to test this with up to 10 property records over eight weeks. There is no software fee, no exclusivity and no revenue share. Gingervale covers its own client operations and fieldwork; we provide the software, setup support and product iteration. The first working session should select one owner journey, assign responsibilities and agree two or three success measures—for example owner uptake, time required per property and whether the service creates a credible recurring offer. At the end of eight weeks, we make a clear continue-or-stop decision. Close with: Can we agree to scope that pilot together as the next step?</div>
+  </section>
+
+  <script>
+    const slides=[...document.querySelectorAll('.slide')];
+    const requested=new URLSearchParams(location.search).get('slide');
+    if(requested){const index=Math.max(1,Math.min(slides.length,Number(requested)))-1;slides.forEach((slide,i)=>{slide.style.display=i===index?'':'none'});document.documentElement.style.background='white';document.body.style.background='white'}
+    addEventListener('keydown',(event)=>{if(requested)return;const current=Math.round(scrollY/innerHeight);if(['ArrowRight','ArrowDown','PageDown',' '].includes(event.key)){event.preventDefault();slides[Math.min(slides.length-1,current+1)].scrollIntoView({behavior:'smooth'})}if(['ArrowLeft','ArrowUp','PageUp'].includes(event.key)){event.preventDefault();slides[Math.max(0,current-1)].scrollIntoView({behavior:'smooth'})}});
+  </script>
+</body>
+</html>
