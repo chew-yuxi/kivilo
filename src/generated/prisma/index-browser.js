@@ -181,6 +181,7 @@ exports.Prisma.InspectionScalarFieldEnum = {
   tenancyId: 'tenancyId',
   kind: 'kind',
   status: 'status',
+  fullyFurnished: 'fullyFurnished',
   conductedById: 'conductedById',
   conductedAt: 'conductedAt',
   baselineId: 'baselineId',

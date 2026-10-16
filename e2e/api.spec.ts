@@ -17,8 +17,9 @@ test('the native API serves its agent, refuses everyone else, and leaks nothing'
   await page.getByRole('link', { name: 'New check-in' }).first().click()
   await page.getByLabel('Address').fill('9 Battery Road')
   await page.getByLabel('Postal code').fill('049910')
-  await page.getByLabel('Landlord', { exact: true }).fill('Lim Boon Keng')
-  await page.getByLabel('Tenant', { exact: true }).fill('Aisha Rahman')
+  await page.getByLabel('Fully furnished', { exact: true }).check()
+  await page.getByLabel('Landlord (required)').fill('Lim Boon Keng')
+  await page.getByLabel('Tenant (required)').fill('Aisha Rahman')
   await page.getByLabel('Deposit (SGD)').fill('9000')
   await page.getByRole('button', { name: 'Create and start capturing' }).click()
   await expect(page).toHaveURL(/\/inspections\/c[a-z0-9]{20,}$/)
@@ -100,6 +101,7 @@ test('a native client takes a check-in from capture to both signatures, then ope
       line1: '1 Raffles Place',
       postalCode: '048616',
       propertyType: 'PRIVATE_NON_LANDED',
+      fullyFurnished: true,
       landlordName: 'Ng Wei Liang',
       landlordEmail,
       tenantName: 'Sofia Alvarez',
@@ -245,28 +247,20 @@ test('a native client takes a check-in from capture to both signatures, then ope
   const signed = await request.get(`/api/v1/inspections/${inspectionId}/report`, { headers: landlord })
   expect(await signed.json()).toMatchObject({ status: 'COMPLETED', signAs: null })
 
-  // The check-out walks the same rooms. They are the check-in's route, not new rooms, so
-  // they carry no template rows, and an empty one is reviewed only on the inspector's
-  // word that there is nothing to record. Installed builds post no body and are refused.
+  // The check-out begins with the signed check-in inventory. It is an editable current
+  // state for this visit; the old captures remain evidence on the baseline report.
   const checkOut = await request.post(`/api/v1/inspections/${inspectionId}/checkout`, { headers })
   expect(checkOut.status()).toBe(200)
   const checkOutId = (await checkOut.json()).id as string
   const opened = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
-  expect(opened.rooms).toMatchObject([{ name: 'Kitchen', items: 0 }])
-  const emptyRoom = `/api/v1/inspections/${checkOutId}/rooms/${opened.rooms[0].id}`
-  expect((await request.post(`${emptyRoom}/finish`, { headers })).status()).toBe(200)
-
-  const unconfirmed = await request.post(`${emptyRoom}/review`, { headers })
-  expect(unconfirmed.status()).toBe(409)
-  expect(await unconfirmed.json()).toEqual({ error: 'review_incomplete' })
-  const confirmed = await request.post(`${emptyRoom}/review`, {
-    headers,
-    data: { nothingToRecord: true },
-  })
-  expect(confirmed.status()).toBe(200)
-  expect(await confirmed.json()).toEqual({ ok: true })
+  expect(opened.rooms).toMatchObject([{ name: 'Kitchen', items: 9 }])
+  const copiedRoom = `/api/v1/inspections/${checkOutId}/rooms/${opened.rooms[0].id}`
+  expect((await request.post(`${copiedRoom}/finish`, { headers })).status()).toBe(200)
+  const reviewedCheckOut = await request.post(`${copiedRoom}/review`, { headers })
+  expect(reviewedCheckOut.status()).toBe(200)
+  expect(await reviewedCheckOut.json()).toEqual({ ok: true })
   const walked = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
-  expect(walked.rooms[0]).toMatchObject({ status: 'REVIEWED', items: 0 })
+  expect(walked.rooms[0]).toMatchObject({ status: 'REVIEWED', items: 9 })
 })
 
 test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {

@@ -29,6 +29,9 @@ export async function signIn(page: Page, email: string) {
   await page.getByLabel('Six digit code').fill(code)
   await page.getByRole('button', { name: 'Sign in' }).click()
   await expect(page.getByRole('heading', { name: 'Inspections' })).toBeVisible()
+  // Sign-in leaves with a full page load, so the heading is server-rendered before the
+  // page hydrates. Wait for it, or a test races the effects still to mount on this page.
+  await page.waitForLoadState('networkidle')
 }
 
 /// Signs in the way a native client does: no cookies, no browser, just the emailed code

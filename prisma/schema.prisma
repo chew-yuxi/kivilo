@@ -165,6 +165,9 @@ model Inspection {
   tenancyId     String
   kind          InspectionKind
   status        InspectionStatus @default(DRAFT)
+  /// Decides whether newly added check-in rooms start with the standard inventory rows.
+  /// Defaults to true for check-ins created by app builds released before this field.
+  fullyFurnished Boolean          @default(true)
   conductedById String?
   conductedAt   DateTime?
   /// A check-out points at the check-in it is measured against.

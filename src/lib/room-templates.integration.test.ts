@@ -2,8 +2,8 @@ import { afterAll, describe, expect, it, vi } from 'vitest'
 
 /// A new room arrives with the standard rows for its kind, made in the same write as the
 /// room and exactly as Add makes a line, so the web, the app and every installed build
-/// get them from the server. A check-out's rooms are the check-in's route walked again,
-/// not new rooms, and start with nothing on them.
+/// get them from the server. A check-out begins with the check-in's signed room and item
+/// state, ready for the inspector to record what changed.
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
@@ -109,23 +109,57 @@ describe('room templates', () => {
     ])
   })
 
-  it('gives a check-out the check-in rooms with no template rows on them', async () => {
+  it('starts rooms empty when the check-in is not fully furnished', async () => {
+    const inspection = await deal('TEMPLATE-UNFURNISHED')
+    await db.inspection.update({
+      where: { id: inspection.id },
+      data: { fullyFurnished: false },
+    })
+
+    const roomId = await addRoom(inspection.id, 'Kitchen')
+
+    expect(await items(roomId)).toEqual([])
+  })
+
+  it('starts a check-out from the check-in room and item state', async () => {
     const inspection = await deal('TEMPLATE-CHECKOUT')
     const kitchen = await addRoom(inspection.id, 'Kitchen')
     await addRoom(inspection.id, 'Master bathroom')
     expect(await db.inspectionItem.count({ where: { roomId: kitchen } })).toBe(9)
+    const hob = await db.inspectionItem.findFirstOrThrow({ where: { roomId: kitchen, name: 'Hob' } })
+    await db.inspectionItem.update({
+      where: { id: hob.id },
+      data: {
+        condition: 'FAIR',
+        quantity: 2,
+        notes: 'Light scratches',
+        identifier: 'HOB-42',
+        meterReading: '17.5 kWh',
+      },
+    })
     await db.inspection.update({ where: { id: inspection.id }, data: { status: 'COMPLETED' } })
 
     const checkOut = await startCheckOut(inspection.id)
     const rooms = await db.room.findMany({
       where: { inspectionId: checkOut },
       orderBy: { order: 'asc' },
-      include: { _count: { select: { items: true } } },
+      include: { items: { orderBy: { createdAt: 'asc' } } },
     })
-    expect(rooms).toMatchObject([
-      { name: 'Kitchen', _count: { items: 0 } },
-      { name: 'Master bathroom', _count: { items: 0 } },
+    expect(rooms.map((room) => [room.name, room.items.length])).toEqual([
+      ['Kitchen', 9],
+      ['Master bathroom', 9],
     ])
+    expect(rooms[0].items.find((item) => item.name === 'Hob')).toMatchObject({
+      category: 'APPLIANCE',
+      condition: 'FAIR',
+      quantity: 2,
+      notes: 'Light scratches',
+      identifier: 'HOB-42',
+      meterReading: '17.5 kWh',
+      sourceCaptureId: null,
+      confidence: null,
+      editedByHuman: true,
+    })
   })
 })
 

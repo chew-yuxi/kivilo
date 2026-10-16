@@ -34,7 +34,22 @@ if (!/^https?:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url) || !/@(127\.0\.0\.1|lo
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
 
 async function signature(name: string) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120"><path d="M20 80 C 80 10, 120 110, 180 60 S 280 20, 380 70" stroke="#1f2937" stroke-width="4" fill="none"/><text x="20" y="112" font-size="14" fill="#9ca3af">${name}</text></svg>`
+  const paths: Record<string, string[]> = {
+    'Tan Wei Ming': [
+      'M22 83 C38 28 53 28 61 75 C66 104 43 104 46 72 C51 38 90 31 105 61 C116 82 98 94 86 74 C77 58 102 47 128 58',
+      'M105 78 C137 43 151 45 141 78 C136 95 158 87 170 66 C176 56 172 83 184 83 C198 82 205 58 218 58 C229 58 220 88 234 86 C251 83 258 52 272 57 C281 62 265 92 284 87 C301 82 313 57 327 61 C340 65 326 90 347 84 C358 81 367 73 379 70',
+      'M112 99 C181 93 250 101 365 92',
+    ],
+    'Priya Raman': [
+      'M18 91 C27 24 54 10 76 31 C96 50 81 79 56 75 C34 72 38 44 72 37 C98 32 120 44 117 61 C114 78 96 83 88 68',
+      'M91 84 C113 57 129 49 139 59 C150 71 132 91 153 88 C171 85 178 55 192 57 C205 59 191 90 213 87 C231 85 241 62 253 65 C266 68 256 90 276 86 C296 82 307 58 321 64 C332 69 324 89 342 84 C358 80 368 69 383 73',
+      'M57 104 C145 96 260 104 382 91',
+    ],
+  }
+  const strokes = (paths[name] ?? paths['Tan Wei Ming'])
+    .map((d) => `<path d="${d}" stroke="#172033" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`)
+    .join('')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">${strokes}</svg>`
   const png = await sharp(Buffer.from(svg)).png().toBuffer()
   return `data:image/png;base64,${png.toString('base64')}`
 }

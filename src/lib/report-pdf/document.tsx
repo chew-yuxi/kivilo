@@ -151,11 +151,14 @@ function RunningFooter({ model }: { model: Pick<ReportModel, 'reference' | 'bran
 
 function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAssets; kind: string }) {
   const { branding, preparer } = model
+  const itemCount = model.rooms.reduce((n, room) => n + room.items.length, 0)
+  const photoCount = model.rooms.reduce((n, room) => n + room.photos.length, 0)
+  const notedCount = model.noted.reduce((n, group) => n + group.entries.length, 0)
   const counts = [
-    [model.rooms.length, 'Rooms'],
-    [model.rooms.reduce((n, room) => n + room.items.length, 0), 'Items'],
-    [model.rooms.reduce((n, room) => n + room.photos.length, 0), 'Photos'],
-    [model.noted.reduce((n, group) => n + group.entries.length, 0), 'Noted'],
+    [model.rooms.length, model.rooms.length === 1 ? 'Room' : 'Rooms'],
+    [itemCount, itemCount === 1 ? 'Item' : 'Items'],
+    [photoCount, photoCount === 1 ? 'Photo' : 'Photos'],
+    [notedCount, 'Noted'],
   ] as const
   const signedBy = model.signatures.map((signature) => `${signature.role}, ${longDate.format(new Date(signature.signedAt))}`)
 

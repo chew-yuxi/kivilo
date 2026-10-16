@@ -10685,6 +10685,7 @@ export namespace Prisma {
     tenancyId: string | null
     kind: $Enums.InspectionKind | null
     status: $Enums.InspectionStatus | null
+    fullyFurnished: boolean | null
     conductedById: string | null
     conductedAt: Date | null
     baselineId: string | null
@@ -10703,6 +10704,7 @@ export namespace Prisma {
     tenancyId: string | null
     kind: $Enums.InspectionKind | null
     status: $Enums.InspectionStatus | null
+    fullyFurnished: boolean | null
     conductedById: string | null
     conductedAt: Date | null
     baselineId: string | null
@@ -10721,6 +10723,7 @@ export namespace Prisma {
     tenancyId: number
     kind: number
     status: number
+    fullyFurnished: number
     conductedById: number
     conductedAt: number
     baselineId: number
@@ -10741,6 +10744,7 @@ export namespace Prisma {
     tenancyId?: true
     kind?: true
     status?: true
+    fullyFurnished?: true
     conductedById?: true
     conductedAt?: true
     baselineId?: true
@@ -10759,6 +10763,7 @@ export namespace Prisma {
     tenancyId?: true
     kind?: true
     status?: true
+    fullyFurnished?: true
     conductedById?: true
     conductedAt?: true
     baselineId?: true
@@ -10777,6 +10782,7 @@ export namespace Prisma {
     tenancyId?: true
     kind?: true
     status?: true
+    fullyFurnished?: true
     conductedById?: true
     conductedAt?: true
     baselineId?: true
@@ -10868,6 +10874,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status: $Enums.InspectionStatus
+    fullyFurnished: boolean
     conductedById: string | null
     conductedAt: Date | null
     baselineId: string | null
@@ -10903,6 +10910,7 @@ export namespace Prisma {
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
+    fullyFurnished?: boolean
     conductedById?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -10930,6 +10938,7 @@ export namespace Prisma {
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
+    fullyFurnished?: boolean
     conductedById?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -10951,6 +10960,7 @@ export namespace Prisma {
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
+    fullyFurnished?: boolean
     conductedById?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -10972,6 +10982,7 @@ export namespace Prisma {
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
+    fullyFurnished?: boolean
     conductedById?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -10985,7 +10996,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
@@ -11025,6 +11036,11 @@ export namespace Prisma {
       tenancyId: string
       kind: $Enums.InspectionKind
       status: $Enums.InspectionStatus
+      /**
+       * Decides whether newly added check-in rooms start with the standard inventory rows.
+       * Defaults to true for check-ins created by app builds released before this field.
+       */
+      fullyFurnished: boolean
       conductedById: string | null
       conductedAt: Date | null
       /**
@@ -11482,6 +11498,7 @@ export namespace Prisma {
     readonly tenancyId: FieldRef<"Inspection", 'String'>
     readonly kind: FieldRef<"Inspection", 'InspectionKind'>
     readonly status: FieldRef<"Inspection", 'InspectionStatus'>
+    readonly fullyFurnished: FieldRef<"Inspection", 'Boolean'>
     readonly conductedById: FieldRef<"Inspection", 'String'>
     readonly conductedAt: FieldRef<"Inspection", 'DateTime'>
     readonly baselineId: FieldRef<"Inspection", 'String'>
@@ -38209,6 +38226,7 @@ export namespace Prisma {
     tenancyId: 'tenancyId',
     kind: 'kind',
     status: 'status',
+    fullyFurnished: 'fullyFurnished',
     conductedById: 'conductedById',
     conductedAt: 'conductedAt',
     baselineId: 'baselineId',
@@ -39518,6 +39536,7 @@ export namespace Prisma {
     tenancyId?: StringFilter<"Inspection"> | string
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
+    fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableFilter<"Inspection"> | string | null
@@ -39544,6 +39563,7 @@ export namespace Prisma {
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
+    fullyFurnished?: SortOrder
     conductedById?: SortOrderInput | SortOrder
     conductedAt?: SortOrderInput | SortOrder
     baselineId?: SortOrderInput | SortOrder
@@ -39575,6 +39595,7 @@ export namespace Prisma {
     tenancyId?: StringFilter<"Inspection"> | string
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
+    fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
@@ -39599,6 +39620,7 @@ export namespace Prisma {
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
+    fullyFurnished?: SortOrder
     conductedById?: SortOrderInput | SortOrder
     conductedAt?: SortOrderInput | SortOrder
     baselineId?: SortOrderInput | SortOrder
@@ -39623,6 +39645,7 @@ export namespace Prisma {
     tenancyId?: StringWithAggregatesFilter<"Inspection"> | string
     kind?: EnumInspectionKindWithAggregatesFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusWithAggregatesFilter<"Inspection"> | $Enums.InspectionStatus
+    fullyFurnished?: BoolWithAggregatesFilter<"Inspection"> | boolean
     conductedById?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     conductedAt?: DateTimeNullableWithAggregatesFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
@@ -41995,6 +42018,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -42019,6 +42043,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -42041,6 +42066,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42065,6 +42091,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42088,6 +42115,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -42105,6 +42133,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42121,6 +42150,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44784,6 +44814,7 @@ export namespace Prisma {
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
+    fullyFurnished?: SortOrder
     conductedById?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
@@ -44802,6 +44833,7 @@ export namespace Prisma {
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
+    fullyFurnished?: SortOrder
     conductedById?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
@@ -44820,6 +44852,7 @@ export namespace Prisma {
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
+    fullyFurnished?: SortOrder
     conductedById?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
@@ -50193,6 +50226,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -50216,6 +50250,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -50792,6 +50827,7 @@ export namespace Prisma {
     tenancyId?: StringFilter<"Inspection"> | string
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
+    fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableFilter<"Inspection"> | string | null
@@ -51743,6 +51779,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -51765,6 +51802,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -52217,6 +52255,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -52240,6 +52279,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -52266,6 +52306,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -52289,6 +52330,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     summary?: string | null
@@ -52570,6 +52612,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52593,6 +52636,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52625,6 +52669,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52648,6 +52693,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52988,6 +53034,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -53011,6 +53058,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -53148,6 +53196,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53171,6 +53220,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56499,6 +56549,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -56522,6 +56573,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -56702,6 +56754,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56725,6 +56778,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56907,6 +56961,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -56930,6 +56985,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -57028,6 +57084,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57051,6 +57108,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57139,6 +57197,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -57162,6 +57221,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -57199,6 +57259,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57222,6 +57283,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57664,6 +57726,7 @@ export namespace Prisma {
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -57969,6 +58032,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57992,6 +58056,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58014,6 +58079,7 @@ export namespace Prisma {
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58664,6 +58730,7 @@ export namespace Prisma {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
     conductedById?: string | null
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -58698,6 +58765,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58720,6 +58788,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58742,6 +58811,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null

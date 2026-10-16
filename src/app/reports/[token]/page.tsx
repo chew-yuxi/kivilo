@@ -157,7 +157,8 @@ export default async function ReportPage({ params }: PageProps<'/reports/[token]
           <div>
             <dt className="text-xs uppercase tracking-wide text-gray-500">Scope</dt>
             <dd className="mt-0.5">
-              {inspection.rooms.length} rooms, {itemCount} items
+              {inspection.rooms.length} {inspection.rooms.length === 1 ? 'room' : 'rooms'},{' '}
+              {itemCount} {itemCount === 1 ? 'item' : 'items'}
             </dd>
           </div>
         </dl>

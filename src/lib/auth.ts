@@ -172,7 +172,7 @@ export function inspectionScope(agentId: string): Prisma.InspectionWhereInput {
 export async function authorizeInspection(inspectionId: string, agentId: string) {
   const inspection = await db.inspection.findFirst({
     where: { AND: [{ id: inspectionId }, inspectionScope(agentId)] },
-    select: { id: true, status: true, kind: true, tenancyId: true },
+    select: { id: true, status: true, kind: true, tenancyId: true, fullyFurnished: true },
   })
   if (!inspection) {
     // Same error whether it does not exist or belongs to someone else, so the API

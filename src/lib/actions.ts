@@ -110,6 +110,7 @@ export async function createInspection(input: {
   unit: string | null
   postalCode: string
   propertyType: PropertyType
+  fullyFurnished: boolean
   landlordName: string
   landlordEmail: string | null
   tenantName: string
@@ -148,6 +149,7 @@ export async function createInspection(input: {
   const inspection = await db.inspection.create({
     data: {
       kind: 'CHECK_IN',
+      fullyFurnished: input.fullyFurnished,
       // Same reason as the agent below: a scalar id cannot sit beside nested creates.
       conductedBy: { connect: { id: agent.id } },
       tenancy: {
@@ -184,7 +186,8 @@ export async function createInspection(input: {
 
 export async function addRoom(inspectionId: string, name: string) {
   const agent = await requireAgent()
-  assertOpen(await authorizeInspection(inspectionId, agent.id))
+  const inspection = await authorizeInspection(inspectionId, agent.id)
+  assertOpen(inspection)
 
   const room = await editOpenInspection(inspectionId, async (tx) => {
     const last = await tx.room.findFirst({
@@ -195,13 +198,14 @@ export async function addRoom(inspectionId: string, name: string) {
     // The room's standard rows, made as addItem makes a line. Items are listed by
     // createdAt, so each gets its own millisecond to keep the template's order.
     const now = Date.now()
+    const rows = inspection.fullyFurnished ? templateRows(name) : []
     return tx.room.create({
       data: {
         inspectionId,
         name,
         order: (last?.order ?? -1) + 1,
         items: {
-          create: templateRows(name).map((row, index) => ({
+          create: rows.map((row, index) => ({
             ...row,
             condition: 'GOOD',
             editedByHuman: true,
@@ -941,7 +945,12 @@ export async function startCheckOut(baselineId: string) {
 
   const baseline = await db.inspection.findUniqueOrThrow({
     where: { id: baselineId },
-    include: { rooms: { orderBy: { order: 'asc' } } },
+    include: {
+      rooms: {
+        orderBy: { order: 'asc' },
+        include: { items: { orderBy: { createdAt: 'asc' } } },
+      },
+    },
   })
 
   const existing = await db.inspection.findUnique({ where: { baselineId }, select: { id: true } })
@@ -950,16 +959,34 @@ export async function startCheckOut(baselineId: string) {
   try {
     const checkOut = await db.inspection.create({
       data: {
-      tenancyId: baseline.tenancyId,
-      kind: 'CHECK_OUT',
-      status: 'DRAFT',
-      baselineId,
-      conductedById: agent.id,
-      // Pre-create the same rooms so the inspector walks the same route, and the
-      // diff compares like with like rather than guessing at renamed rooms.
-      rooms: {
-        create: baseline.rooms.map((room) => ({ name: room.name, order: room.order })),
-      },
+        tenancyId: baseline.tenancyId,
+        kind: 'CHECK_OUT',
+        status: 'DRAFT',
+        fullyFurnished: baseline.fullyFurnished,
+        baselineId,
+        conductedById: agent.id,
+        // Begin with the signed inventory as the state the inspector expects to find.
+        // Captures stay on the check-in: check-out evidence must come from this visit.
+        rooms: {
+          create: baseline.rooms.map((room) => ({
+            name: room.name,
+            order: room.order,
+            items: {
+              create: room.items.map((item) => ({
+                name: item.name,
+                category: item.category,
+                condition: item.condition,
+                quantity: item.quantity,
+                notes: item.notes,
+                identifier: item.identifier,
+                meterReading: item.meterReading,
+                editedByHuman: true,
+                propertyAssetId: item.propertyAssetId,
+                createdAt: item.createdAt,
+              })),
+            },
+          })),
+        },
       },
     })
 

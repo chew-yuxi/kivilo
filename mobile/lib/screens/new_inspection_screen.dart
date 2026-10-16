@@ -29,6 +29,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       name: TextEditingController(),
   };
   String _propertyType = 'PRIVATE_NON_LANDED';
+  bool? _fullyFurnished;
   DateTime _startDate = DateTime.now();
   late DateTime _endDate = DateTime(
     _startDate.year + 2,
@@ -70,6 +71,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   Future<void> _create() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!_form.currentState!.validate()) return;
+    if (_fullyFurnished == null) {
+      setState(
+        () => _error = 'Choose whether the property is fully furnished.',
+      );
+      return;
+    }
     if (!_endDate.isAfter(_startDate)) {
       setState(() => _error = 'The tenancy must end after it starts.');
       return;
@@ -85,6 +92,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         'unit': value('unit').isEmpty ? null : value('unit'),
         'postalCode': value('postalCode'),
         'propertyType': _propertyType,
+        'fullyFurnished': _fullyFurnished,
         'landlordName': value('landlordName'),
         'landlordEmail': value('landlordEmail').isEmpty
             ? null
@@ -202,6 +210,37 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               ),
             ],
             onChanged: (value) => setState(() => _propertyType = value),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Furnishing (required)',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Fully furnished rooms start with standard inventory rows. Other rooms start empty.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          RadioGroup<bool>(
+            groupValue: _fullyFurnished,
+            onChanged: (value) => setState(() {
+              _fullyFurnished = value;
+              _error = null;
+            }),
+            child: const Column(
+              children: [
+                RadioListTile<bool>(
+                  value: true,
+                  title: Text('Fully furnished'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<bool>(
+                  value: false,
+                  title: Text('Not fully furnished'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 32),
           const Divider(),

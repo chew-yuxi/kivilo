@@ -31,7 +31,8 @@ when someone is ready to re-migrate and re-seed.
 **A person writes every line.** The timestamped video is the evidence, and the inventory
 is the inspector's reading of it. A new room starts with the standard rows in
 `src/lib/room-templates.ts`, made as `addItem` makes a line, which the inspector edits or
-removes like any other; a check-out's rooms copy only names and start empty. A room
+removes like any other; a check-out starts from the signed check-in's room and item state,
+which the inspector edits to record what they find on the new visit. A room
 reaches `REVIEWED` only through `markRoomReviewed`, which needs at least one item or the
 inspector's explicit confirmation that there is nothing to record (`{ nothingToRecord:
 true }`, which the report then states), and stamps `Capture.processedAt` on every capture

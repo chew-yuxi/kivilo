@@ -39,6 +39,7 @@ async function deal(by: { id: string }, parties: {
     unit: null,
     postalCode,
     propertyType: 'PRIVATE_NON_LANDED',
+    fullyFurnished: true,
     landlordName: parties.landlordName ?? 'Landlord',
     landlordEmail: parties.landlordEmail ?? null,
     tenantName: parties.tenantName ?? 'Tenant',

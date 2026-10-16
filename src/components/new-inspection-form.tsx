@@ -52,6 +52,7 @@ export function NewInspectionForm() {
           unit: value('unit') || null,
           postalCode: value('postalCode'),
           propertyType: value('propertyType') as PropertyType,
+          fullyFurnished: value('fullyFurnished') === 'true',
           landlordName: value('landlordName'),
           landlordEmail: value('landlordEmail') || null,
           tenantName: value('tenantName'),
@@ -111,6 +112,28 @@ export function NewInspectionForm() {
             </select>
           </label>
         </div>
+        <fieldset>
+          <legend className="text-xs font-medium text-gray-600">
+            Furnishing <span className={requirement}>(required)</span>
+          </legend>
+          <p className="mt-1 text-xs text-gray-500">
+            Fully furnished rooms start with standard inventory rows. Other rooms start empty.
+          </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {[
+              ['true', 'Fully furnished'],
+              ['false', 'Not fully furnished'],
+            ].map(([value, label]) => (
+              <label
+                key={value}
+                className="flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-normal text-gray-700"
+              >
+                <input name="fullyFurnished" type="radio" value={value} required />
+                {label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </fieldset>
 
       <fieldset className="space-y-4">
