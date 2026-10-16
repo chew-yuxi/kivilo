@@ -280,6 +280,27 @@ photo whose aspect does not match its container.
 Marks stop once the inspection is `AWAITING_SIGNATURE`: a red ring is a stronger claim
 than a caption, and the report is the artefact both parties are signing.
 
+## Billing
+
+Plans and limits are decided only in `src/lib/plan.ts` (`plans/billing.md`). Stripe is the
+truth about what was paid; the `Subscription` row is a copy, written only by
+`syncSubscription` in `src/lib/billing.ts`, which re-reads the subscription from Stripe
+every time, so a replayed or out-of-order event is harmless. It refuses to replace a
+workspace's different live subscription and throws, which error tracking alerts on.
+Checkout and the portal are server actions in `src/lib/billing-actions.ts`; the portal
+opens only for the member in `managedById`. `/account` syncs when Stripe sends the agent
+back, and `src/app/api/stripe/webhook/route.ts` verifies the signature on the raw body
+before reading anything.
+
+`pnpm billing:setup [base URL]` creates or updates the product, the price (lookup key
+`kivilo_pro_seat_monthly`), the portal configuration and, given a URL, the webhook
+endpoint, printing its secret only when it creates it. Env: `STRIPE_SECRET_KEY` and
+`STRIPE_WEBHOOK_SECRET` (server only). Locally, `stripe listen --forward-to` supplies the
+webhook secret. Comps (`pnpm plan:set`) never touch a Stripe-paid row.
+
+**Store rule:** agents buy on the web only. The Flutter app and `/api/v1` never show a
+price, an upgrade button, or where to buy.
+
 ## Error tracking
 
 Errors go to our own `ErrorEvent` table, not a third-party tool (`plans/telemetry.md`).
