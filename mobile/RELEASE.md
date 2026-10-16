@@ -40,6 +40,14 @@ resolved repair's "Add to the report as an update". The server was deployed firs
 (`ca0037a`, migrations `20261016100000_email_signing` and `20261016110000_report_addenda`).
 The icon check against `aff8443` printed nothing, and nothing outside `mobile/lib` changed.
 
+Patch `5` (Android) and patch `6` (iOS) on the staging track for `1.0.0+23`, built from
+`6204ed4` in a pinned worktree, superseding `3` and `4`: agents write, discard and publish
+updates to a signed report in the app (photos through the upload queue), a party present
+can acknowledge an update in person on the agent's phone, an update's push opens its
+report, and picked photos are checked to be JPEG by their bytes. The server was deployed
+first, with migration `20261017100000_acknowledgement_method`. The icon check against
+`aff8443` printed nothing, and nothing outside `mobile/lib` changed.
+
 ## Current store candidate: 2026-10-13 Singapore time
 
 Build `22` is the first build that can be patched over the air and the first that can be
