@@ -321,19 +321,23 @@ class HttpCaptureBackend implements CaptureBackend {
 }
 
 /// Routes the shared durable evidence queue without teaching it about product domains.
-/// Maintenance rows use a namespaced owner id and otherwise keep the exact same lease,
-/// retry and hand-over rules as inspection captures.
+/// Maintenance and report-update rows use a namespaced owner id and otherwise keep the
+/// exact same lease, retry and hand-over rules as inspection captures.
 class RoutingEvidenceBackend implements CaptureBackend {
   RoutingEvidenceBackend(Dio dio)
     : _captures = HttpCaptureBackend(dio),
-      _maintenance = HttpMaintenanceEvidenceBackend(dio);
+      _maintenance = HttpMaintenanceEvidenceBackend(dio),
+      _addenda = HttpAddendumPhotoBackend(dio);
 
   final HttpCaptureBackend _captures;
   final HttpMaintenanceEvidenceBackend _maintenance;
+  final HttpAddendumPhotoBackend _addenda;
 
-  bool _isMaintenance(String ownerId) => ownerId.startsWith('maintenance:');
-  CaptureBackend _for(String ownerId) =>
-      _isMaintenance(ownerId) ? _maintenance : _captures;
+  CaptureBackend _for(String ownerId) => ownerId.startsWith('maintenance:')
+      ? _maintenance
+      : ownerId.startsWith(addendumQueueOwnerPrefix)
+      ? _addenda
+      : _captures;
 
   @override
   Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
@@ -482,6 +486,114 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
   }
 
   Never _immutable() => throw StateError('Maintenance evidence is immutable.');
+  @override
+  Future<void> updateNote(
+    String inspectionId,
+    String captureId,
+    String? note,
+  ) async => _immutable();
+  @override
+  Future<void> annotate(
+    String inspectionId,
+    String captureId,
+    Map<String, dynamic>? annotations,
+  ) async => _immutable();
+  @override
+  Future<void> deleteCapture(String inspectionId, String captureId) async =>
+      _immutable();
+}
+
+/// Queue rows for a photo on a draft report update: `addendum:<addendumId>` as the owner,
+/// the entry id as the room.
+const addendumQueueOwnerPrefix = 'addendum:';
+
+/// The storage type of a queued update photo, from the file name the store gave it. The
+/// server accepts JPEG, PNG and WebP, and the app only queues those.
+String addendumPhotoMimeType(String filename) {
+  final name = filename.toLowerCase();
+  if (name.endsWith('.png')) return 'image/png';
+  if (name.endsWith('.webp')) return 'image/webp';
+  return 'image/jpeg';
+}
+
+/// Photos on a draft update to a signed report, through the same endpoints the web uses.
+/// Like maintenance evidence, a registered photo is not edited; it is removed from the
+/// draft through the API instead.
+class HttpAddendumPhotoBackend implements CaptureBackend {
+  HttpAddendumPhotoBackend(this._dio);
+  final Dio _dio;
+
+  String _addendumId(String ownerId) =>
+      ownerId.substring(addendumQueueOwnerPrefix.length);
+
+  @override
+  Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
+  uploadUrl(
+    String inspectionId,
+    String roomId,
+    String filename,
+    String clientId,
+  ) async {
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '/api/v1/addenda/${_addendumId(inspectionId)}/entries/$roomId/upload-url',
+        data: {
+          'clientId': clientId,
+          'mimeType': addendumPhotoMimeType(filename),
+        },
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
+    );
+    final signedUrl = response.data!['signedUrl'] as String?;
+    return (
+      storagePath: response.data!['storagePath'] as String,
+      signedUrl: signedUrl,
+      alreadyUploaded: signedUrl == null,
+    );
+  }
+
+  @override
+  Future<void> putBytes(
+    String signedUrl,
+    File file,
+    String mimeType,
+    String clientId,
+  ) => HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
+
+  @override
+  Future<({bool annotationsApplied, String id})> registerCapture({
+    required String inspectionId,
+    required String roomId,
+    required String kind,
+    required String storagePath,
+    required String clientId,
+    required String mimeType,
+    required int sizeBytes,
+    int? durationSec,
+    String? note,
+    Map<String, dynamic>? annotations,
+  }) async {
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '/api/v1/addenda/${_addendumId(inspectionId)}/entries/$roomId/photos',
+        data: {
+          'clientId': clientId,
+          'mimeType': mimeType,
+          'storagePath': storagePath,
+          'sizeBytes': sizeBytes,
+          'note': note,
+        },
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
+    );
+    return (id: response.data!['id'] as String, annotationsApplied: true);
+  }
+
+  Never _immutable() => throw StateError(
+    'An update photo is removed from the draft, not edited.',
+  );
   @override
   Future<void> updateNote(
     String inspectionId,

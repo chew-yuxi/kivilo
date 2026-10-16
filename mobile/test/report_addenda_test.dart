@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kivilo/models/addenda.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/report.dart';
 import 'package:kivilo/screens/maintenance_case_screen.dart';
@@ -108,8 +111,61 @@ class _FakeMaintenanceApi extends Api {
       MaintenanceCaseDetail.fromJson(detail);
 
   @override
-  Future<void> addendumFromMaintenanceCase(String caseId) async =>
-      added.add(caseId);
+  Future<String> addendumFromMaintenanceCase(String caseId) async {
+    added.add(caseId);
+    return 'inspection-1';
+  }
+
+  /// The draft it opens is the authoring screen's own test; here it only has to open.
+  final opened = <String>[];
+  @override
+  Future<AddendaWorkspace> addenda(String inspectionId) {
+    opened.add(inspectionId);
+    return Completer<AddendaWorkspace>().future;
+  }
+}
+
+/// The agent's view of a report with an update both parties still owe, recording one
+/// in person the way the server does.
+class _AgentApi extends Api {
+  _AgentApi() : super(attachAuth: false, cache: ReadCache());
+  final inPerson = <String>[];
+
+  @override
+  Future<SignedReport> report(String inspectionId) async =>
+      SignedReport.fromJson({
+        ...reportJson(status: 'COMPLETED'),
+        'addenda': [
+          {
+            ...addendumJson(),
+            'acknowledgeInPerson': true,
+            'acknowledgements': [
+              {
+                'role': 'Landlord',
+                'name': 'Tan Wei Ming',
+                'stakeholderId': 'landlord-1',
+                'acknowledgedAt': inPerson.isEmpty
+                    ? null
+                    : '2026-10-12T03:00:00.000Z',
+                'inPerson': inPerson.isNotEmpty,
+              },
+              {
+                'role': 'Tenant',
+                'name': 'Priya Raman',
+                'stakeholderId': 'tenant-1',
+                'acknowledgedAt': null,
+                'inPerson': false,
+              },
+            ],
+          },
+        ],
+      });
+
+  @override
+  Future<void> acknowledgeAddendumInPerson(
+    String addendumId,
+    String stakeholderId,
+  ) async => inPerson.add('$addendumId:$stakeholderId');
 }
 
 void main() {
@@ -202,11 +258,57 @@ void main() {
     await tester.ensureVisible(button);
     await tester.pumpAndSettle();
     await tester.tap(button);
-    await tester.pumpAndSettle();
+    // Not pumpAndSettle: the draft's loading spinner never settles.
+    for (var frame = 0; frame < 10; frame++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
     expect(api.added, ['case-1']);
-    expect(find.textContaining('Added to a draft update'), findsOneWidget);
+    // Straight into the draft, to finish and publish on the phone.
+    expect(find.text('Updates since signing'), findsOneWidget);
+    expect(api.opened, ['inspection-1']);
   });
+
+  testWidgets(
+    'the landlord acknowledges in person on the agent\'s phone, and it says so',
+    (tester) async {
+      final api = _AgentApi();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: ReportScreen(id: 'inspection-1', api: api),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final landlord = find.text('In person: Landlord Tan Wei Ming');
+      await tester.scrollUntilVisible(
+        landlord,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('In person: Tenant Priya Raman'), findsOneWidget);
+      // The agent is no party, so there is no button to acknowledge as themselves.
+      expect(find.text('I acknowledge this update'), findsNothing);
+
+      await tester.ensureVisible(landlord);
+      await tester.pumpAndSettle();
+      await tester.tap(landlord);
+      await tester.pumpAndSettle();
+      expect(find.text('Hand the phone to Tan Wei Ming'), findsOneWidget);
+      await tester.tap(find.text('I acknowledge this update'));
+      await tester.pumpAndSettle();
+
+      expect(api.inPerson, ['addendum-1:landlord-1']);
+      await tester.scrollUntilVisible(
+        find.text('Landlord Tan Wei Ming: acknowledged in person 12 Oct 2026'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('In person: Landlord Tan Wei Ming'), findsNothing);
+      expect(find.text('In person: Tenant Priya Raman'), findsOneWidget);
+    },
+  );
 
   testWidgets('a tenant is not offered to add a repair to the report', (
     tester,

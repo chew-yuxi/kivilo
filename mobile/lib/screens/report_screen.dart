@@ -54,6 +54,51 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
+  /// The landlord or tenant is with the agent, or has no email: they read the update on
+  /// this phone and tap to acknowledge it here, as they would sign here. The server
+  /// checks the party belongs to the tenancy and records it as given in person.
+  Future<void> _acknowledgeInPerson(
+    ReportAddendum addendum,
+    AddendumAcknowledgement party,
+  ) async {
+    final confirmed = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: Text('Hand the phone to ${party.name}'),
+        content: Text(
+          '${party.name}, the ${party.role.toLowerCase()}, has read Update '
+          '${addendum.number}: ${addendum.title}. Tapping below records that they '
+          'acknowledged it in person, with the time and the exact content shown. It '
+          'is not a new signature on the report.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('I acknowledge this update'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _acknowledging = addendum.id);
+    try {
+      await _api.acknowledgeAddendumInPerson(addendum.id, party.stakeholderId!);
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    } finally {
+      if (mounted) setState(() => _acknowledging = null);
+    }
+  }
+
   Future<void> _sign(SignedReport report) async {
     final landlord = report.signAs == 'LANDLORD';
     final signed = await Navigator.of(context).push<bool>(
@@ -545,17 +590,23 @@ class _ReportScreenState extends State<ReportScreen> {
                           : KiviloColors.green,
                     ),
                     const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        ack.acknowledgedAt == null
-                            ? '${ack.role} ${ack.name}: pending acknowledgement'
-                            : '${ack.role} ${ack.name}: acknowledged ${shortDate(ack.acknowledgedAt!)}',
-                        style: text.bodySmall,
-                      ),
-                    ),
+                    Expanded(child: Text(ack.status, style: text.bodySmall)),
                   ],
                 ),
               ),
+            if (addendum.acknowledgeInPerson)
+              for (final ack in addendum.acknowledgements)
+                if (ack.acknowledgedAt == null && ack.stakeholderId != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: OutlinedButton.icon(
+                      onPressed: _acknowledging == null
+                          ? () => _acknowledgeInPerson(addendum, ack)
+                          : null,
+                      icon: const Icon(Icons.handshake_outlined),
+                      label: Text('In person: ${ack.role} ${ack.name}'),
+                    ),
+                  ),
             if (addendum.acknowledgeAs != null) ...[
               const SizedBox(height: 8),
               FilledButton(

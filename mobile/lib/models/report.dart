@@ -1,3 +1,5 @@
+import '../ui/kivilo_format.dart';
+
 /// The report the landlord and tenant are signing or have signed: the same document the
 /// shared link shows. Read-only; the working inspection is the agent's.
 class SignedReport {
@@ -253,6 +255,7 @@ class ReportAddendum {
     required this.acknowledgements,
     this.acknowledgedAt,
     this.acknowledgeAs,
+    this.acknowledgeInPerson = false,
   });
   final String id;
   final int number;
@@ -270,6 +273,10 @@ class ReportAddendum {
   /// `LANDLORD` or `TENANT` while this viewer still has to acknowledge it.
   final String? acknowledgeAs;
 
+  /// For the agent, who is no party: a party still pending can acknowledge in person on
+  /// this phone.
+  final bool acknowledgeInPerson;
+
   factory ReportAddendum.fromJson(Map<String, dynamic> json) => ReportAddendum(
     id: json['id'] as String,
     number: json['number'] as int,
@@ -286,6 +293,7 @@ class ReportAddendum {
         .toList(),
     acknowledgedAt: json['acknowledgedAt'] as String?,
     acknowledgeAs: json['acknowledgeAs'] as String?,
+    acknowledgeInPerson: json['acknowledgeInPerson'] as bool? ?? false,
   );
 }
 
@@ -381,18 +389,34 @@ class AddendumAcknowledgement {
   const AddendumAcknowledgement({
     required this.role,
     required this.name,
+    this.stakeholderId,
     this.acknowledgedAt,
+    this.inPerson = false,
   });
 
   /// `Landlord` or `Tenant`.
   final String role;
   final String name;
+
+  /// The party, which the agent's phone names to take an acknowledgement in person.
+  /// Null in a copy cached before it was sent.
+  final String? stakeholderId;
   final String? acknowledgedAt;
+
+  /// Given on the agent's phone rather than on the party's own account.
+  final bool inPerson;
+
+  String get status => acknowledgedAt == null
+      ? '$role $name: pending acknowledgement'
+      : '$role $name: acknowledged ${inPerson ? 'in person ' : ''}'
+            '${shortDate(acknowledgedAt!)}';
 
   factory AddendumAcknowledgement.fromJson(Map<String, dynamic> json) =>
       AddendumAcknowledgement(
         role: json['role'] as String,
         name: json['name'] as String,
+        stakeholderId: json['stakeholderId'] as String?,
         acknowledgedAt: json['acknowledgedAt'] as String?,
+        inPerson: json['inPerson'] as bool? ?? false,
       );
 }
