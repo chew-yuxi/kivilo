@@ -3,6 +3,9 @@ import { requireAgent } from '@/lib/auth'
 import { syncCheckoutSession, syncSubscription } from '@/lib/billing'
 import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
 import { PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
+import { checkoutOpen } from '@/lib/stripe'
+
+const SUPPORT = 'hello@nottoosweetlabs.com'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Account' }
@@ -84,11 +87,20 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
           <p className="mt-4 text-sm leading-relaxed text-gray-600">
             Pro is S$39 per agent each month and includes {PRO_ACTIVE_PROPERTIES_PER_SEAT}{' '}
             active properties for each agent, shared across your team.
+            {!checkoutOpen() && (
+              <>
+                {' '}To move to Pro, email{' '}
+                <a href={`mailto:${SUPPORT}?subject=Kivilo%20Pro`} className="text-brand-600 underline">
+                  {SUPPORT}
+                </a>
+                .
+              </>
+            )}
           </p>
         )}
-        {(managesBilling || (!pro && workspace.isManager)) && (
+        {(managesBilling || (!pro && workspace.isManager && checkoutOpen())) && (
           <div className="mt-4 flex flex-wrap gap-3">
-            {!pro && workspace.isManager && (
+            {!pro && workspace.isManager && checkoutOpen() && (
               <form action={startCheckout}>
                 <button className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
                   Upgrade to Pro

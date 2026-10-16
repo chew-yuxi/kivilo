@@ -298,6 +298,15 @@ endpoint, printing its secret only when it creates it. Env: `STRIPE_SECRET_KEY` 
 `STRIPE_WEBHOOK_SECRET` (server only). Locally, `stripe listen --forward-to` supplies the
 webhook secret. Comps (`pnpm plan:set`) never touch a Stripe-paid row.
 
+**Production sells only on a live key.** The Vercel Marketplace provisioned a Stripe
+sandbox, and its test keys are in every environment, production included. A sandbox key
+in production would sell Pro to anyone holding Stripe's public test card, so
+`checkoutOpen()` in `src/lib/stripe.ts` hides Upgrade and refuses `startCheckout` there
+until `STRIPE_SECRET_KEY` is `sk_live_`/`rk_live_`; `/account` falls back to "email us".
+Going live: a Singapore Stripe account, its live key in Vercel production, then
+`pnpm billing:setup <production URL>` with that key and its `whsec_` as
+`STRIPE_WEBHOOK_SECRET`.
+
 **Store rule:** agents buy on the web only. The Flutter app and `/api/v1` never show a
 price, an upgrade button, or where to buy.
 

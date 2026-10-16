@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { workspacePlan } from '@/lib/plan'
-import { PORTAL_METADATA, PRO_PRICE_LOOKUP_KEY, stripe } from '@/lib/stripe'
+import { PORTAL_METADATA, PRO_PRICE_LOOKUP_KEY, checkoutOpen, stripe } from '@/lib/stripe'
 
 /// Web only. The app never links here: the stores forbid steering a buyer to an outside
 /// purchase, so nothing in `/api/v1` starts a checkout or opens the portal.
@@ -26,6 +26,7 @@ export async function startCheckout() {
   const workspace = await workspacePlan(agent)
   if (workspace.plan === 'PRO') throw new Error('This workspace is already on Pro')
   if (!workspace.isManager) throw new Error('Only the member who manages billing can subscribe')
+  if (!checkoutOpen()) throw new Error('Pro is not on sale yet')
 
   const client = stripe()
   const [price] = (await client.prices.list({ lookup_keys: [PRO_PRICE_LOOKUP_KEY], active: true })).data

@@ -196,6 +196,17 @@ describe('checkout and the billing portal', () => {
     expect(client.checkout.sessions.create.mock.calls[0]).not.toHaveProperty('0.payment_method_types')
   })
 
+  it('sells nothing in production on a sandbox key, where the public test card would buy Pro', async () => {
+    const solo = await agent('Sandbox')
+    vi.stubEnv('VERCEL_ENV', 'production')
+    vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_sandbox')
+
+    as(solo)
+    await expect(startCheckout()).rejects.toThrow('Pro is not on sale yet')
+    expect(client.checkout.sessions.create).not.toHaveBeenCalled()
+    vi.unstubAllEnvs()
+  })
+
   it('opens the portal for the member who pays and for nobody else on the team', async () => {
     const office = await team('Portal')
     const manager = await agent('Holder', office.id)
