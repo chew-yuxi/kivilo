@@ -224,6 +224,24 @@ export async function authorizeOwnSignature(inspectionId: string, stakeholderId:
   return inspection
 }
 
+/// The role someone signs a report as on the signing page (`/sign/[inspectionId]`): the
+/// landlord or tenant of its tenancy, from Send onwards, so they can sign it and then see
+/// where it stands. Null for anyone else, the agent included, and for an id that does not
+/// exist, which the page shows identically. The signature itself still goes through
+/// `authorizeOwnSignature`.
+export async function signingRole(inspectionId: string, stakeholderId: string) {
+  const inspection = await db.inspection.findFirst({
+    where: {
+      id: inspectionId,
+      status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] },
+      tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
+    },
+    select: { tenancy: { select: { landlordId: true } } },
+  })
+  if (!inspection) return null
+  return inspection.tenancy.landlordId === stakeholderId ? 'LANDLORD' as const : 'TENANT' as const
+}
+
 /// Resolves a room to its inspection and authorizes that, so a room id from the client
 /// cannot reach across into another agent's deal.
 export async function authorizeRoom(roomId: string, agentId: string) {

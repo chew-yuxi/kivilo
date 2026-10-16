@@ -3,6 +3,7 @@
   "crons": [
     { "path": "/api/internal/notifications", "schedule": "*/15 * * * *" },
     { "path": "/api/internal/posters", "schedule": "* * * * *" },
-    { "path": "/api/internal/errors", "schedule": "*/15 * * * *" }
+    { "path": "/api/internal/errors", "schedule": "*/15 * * * *" },
+    { "path": "/api/internal/report-emails", "schedule": "* * * * *" }
   ]
 }

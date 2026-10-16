@@ -35,6 +35,9 @@ export async function proxy(request: NextRequest) {
     const login = request.nextUrl.clone()
     login.pathname = '/login'
     login.searchParams.set('next', request.nextUrl.pathname)
+    // A signing link names the address it was sent to; carry it so the form is filled.
+    const email = request.nextUrl.searchParams.get('email')
+    if (email) login.searchParams.set('email', email)
     return NextResponse.redirect(login)
   }
 
@@ -42,7 +45,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  /// Only the inspector-facing app. Shared reports are deliberately outside it: the
-  /// token in the URL is the credential, and a landlord has no account.
-  matcher: ['/inspections/:path*', '/account'],
+  /// The inspector-facing app, and the signing page a landlord or tenant reaches from
+  /// their email, which needs the same session refresh and the same redirect when
+  /// signed out. Shared reports are deliberately outside it: the token in the URL is the
+  /// credential, and a landlord has no account.
+  matcher: ['/inspections/:path*', '/account', '/sign/:path*'],
 }

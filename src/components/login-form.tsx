@@ -8,10 +8,14 @@ import { supabaseBrowser } from '@/lib/supabase/client'
 /// which for an installed PWA means the agent lands in Safari instead of the app they
 /// were just using, with no session in the app itself. A code keeps them where they are.
 export function LoginForm() {
-  const next = useSearchParams().get('next') || '/inspections'
+  const params = useSearchParams()
+  const next = params.get('next') || '/inspections'
 
   const [stage, setStage] = useState<'email' | 'code'>('email')
-  const [email, setEmail] = useState('')
+  // A signing link carries the address it was sent to, so the landlord or tenant only
+  // has to ask for the code. Still just a suggestion: they can type any address, and
+  // the code is what proves it.
+  const [email, setEmail] = useState(params.get('email') ?? '')
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)

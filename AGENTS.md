@@ -128,8 +128,9 @@ and keep `src/proxy.ts` off `/api/**`: a webhook has no cookie and would be redi
 ## Layout split
 
 `src/app/(app)/` is everything an inspector sees and carries the header, the upload
-queue, and the service worker. `src/app/reports/[token]/` sits outside that group so a
-shared report renders as a clean document. A landlord following a link is not a user of
+queue, and the service worker. `src/app/reports/[token]/` and `src/app/sign/[inspectionId]/`
+sit outside that group so a report renders as a clean document; both draw it with
+`src/components/report-document.tsx`. A landlord following a link is not a user of
 this app and should never meet an install prompt. The root layout is deliberately bare
 for the same reason.
 
@@ -193,6 +194,38 @@ strand it there forever, which is exactly what the capture invariant forbids. So
 `requestUploadUrl` and `registerCapture` are allowed until countersignature and refused
 after it. Signing, findings and sharing are deliberately not guarded, since they are what
 happens *after* the freeze. Pinned by `src/lib/signature-freeze.integration.test.ts`.
+
+## Signing
+
+There are three ways to sign, and all of them end in `recordSignature`: on the agent's
+phone (`signInspection`), and as yourself (`signOwnReport`, behind
+`authorizeOwnSignature`) from the app or from the web page an email links to.
+
+**The emailed link is not a credential.** Send queues a "please review and sign" email to
+each party with an address, and the agent can send it again per party (`emailSigningLink`,
+`POST /api/v1/inspections/[id]/signing-email`). It links to `/sign/[inspectionId]?email=`,
+which sits outside `(app)` like a shared report. The `email` only fills in the login form;
+the visitor signs in with the emailed code, and since sign-in claims the Stakeholder
+holding that verified address, a landlord who already uses Kivilo or the app lands on the
+same account. The page answers only the landlord and tenant (`signingRole`); anyone else,
+the agent included, and an id that does not exist get one identical "Nothing to sign here"
+with a sign-out-and-switch button. `/sign` is in the proxy matcher for session refresh, and
+the proxy carries `email` on to `/login`.
+
+**Every signature records a content fingerprint.** `Signature.contentHash` is a sha256
+over the frozen content (`src/lib/report-fingerprint.ts`): tenancy, parties, rooms, items
+and the captures stamped `processedAt`. It is computed under the row lock inside
+`recordSignature`, so no signing path can skip it, and it is printed short beside each
+signature on the report page and the PDF. Null on signatures from before it existed.
+
+**Report emails go through an outbox.** `ReportEmail` rows are written in the same
+transaction as Send (requests) and as the second signature (the signed PDF, attached, to
+landlord, tenant and the conducting agent, once each by `dedupeKey`). The
+`/api/internal/report-emails` cron delivers them every minute and backs off on failure;
+a request whose party has signed meanwhile is withdrawn, not sent. No email ever carries
+a `/reports/` URL, since the share token is a credential that may not exist. The link's
+origin is `KIVILO_APP_URL`. Pinned by `src/lib/email-signing.integration.test.ts` and
+`e2e/sign-by-email.spec.ts`.
 
 ## Marking up a photo
 

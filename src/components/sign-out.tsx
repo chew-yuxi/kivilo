@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { supabaseBrowser } from '@/lib/supabase/client'
 
-export function SignOut({ email }: { email: string | null }) {
+/// `then` is where to go after: the login page by default, or the login page set up to
+/// come back, as when someone opens a signing link while signed in as someone else.
+export function SignOut({ email, then = '/login' }: { email: string | null; then?: string }) {
   const [busy, setBusy] = useState(false)
 
   return (
@@ -17,7 +19,7 @@ export function SignOut({ email }: { email: string | null }) {
           await supabaseBrowser().auth.signOut()
           // A full load, as sign-in does: the client router still holds signed-in pages,
           // and Back would show them from that cache.
-          window.location.replace('/login')
+          window.location.replace(then)
         }}
         className="text-xs text-gray-500 hover:text-gray-900 disabled:opacity-50"
       >

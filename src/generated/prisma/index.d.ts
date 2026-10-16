@@ -150,6 +150,14 @@ export type Finding = $Result.DefaultSelection<Prisma.$FindingPayload>
  */
 export type Signature = $Result.DefaultSelection<Prisma.$SignaturePayload>
 /**
+ * Model ReportEmail
+ * Outbox for report emails (`src/lib/report-email.ts`). A row is written in the same
+ * transaction as the change that calls for it (Send, or the second signature) and
+ * `/api/internal/report-emails` delivers it, so a Resend outage delays an email
+ * instead of failing a signature.
+ */
+export type ReportEmail = $Result.DefaultSelection<Prisma.$ReportEmailPayload>
+/**
  * Model AssessmentVersion
  * A human-published, immutable assessment. The signed inventory has its own lifecycle.
  */
@@ -443,6 +451,14 @@ export const Verdict: {
 export type Verdict = (typeof Verdict)[keyof typeof Verdict]
 
 
+export const ReportEmailKind: {
+  SIGNATURE_REQUEST: 'SIGNATURE_REQUEST',
+  SIGNED_COPY: 'SIGNED_COPY'
+};
+
+export type ReportEmailKind = (typeof ReportEmailKind)[keyof typeof ReportEmailKind]
+
+
 export const DeletionRequestStatus: {
   REQUESTED: 'REQUESTED',
   PROCESSING: 'PROCESSING',
@@ -562,6 +578,10 @@ export const ChangeType: typeof $Enums.ChangeType
 export type Verdict = $Enums.Verdict
 
 export const Verdict: typeof $Enums.Verdict
+
+export type ReportEmailKind = $Enums.ReportEmailKind
+
+export const ReportEmailKind: typeof $Enums.ReportEmailKind
 
 export type DeletionRequestStatus = $Enums.DeletionRequestStatus
 
@@ -931,6 +951,16 @@ export class PrismaClient<
     * ```
     */
   get signature(): Prisma.SignatureDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reportEmail`: Exposes CRUD operations for the **ReportEmail** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReportEmails
+    * const reportEmails = await prisma.reportEmail.findMany()
+    * ```
+    */
+  get reportEmail(): Prisma.ReportEmailDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.assessmentVersion`: Exposes CRUD operations for the **AssessmentVersion** model.
@@ -1452,6 +1482,7 @@ export namespace Prisma {
     NotificationPushDelivery: 'NotificationPushDelivery',
     Finding: 'Finding',
     Signature: 'Signature',
+    ReportEmail: 'ReportEmail',
     AssessmentVersion: 'AssessmentVersion',
     AccountDeletionRequest: 'AccountDeletionRequest',
     AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
@@ -1472,7 +1503,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent"
+      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3252,6 +3283,80 @@ export namespace Prisma {
           }
         }
       }
+      ReportEmail: {
+        payload: Prisma.$ReportEmailPayload<ExtArgs>
+        fields: Prisma.ReportEmailFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReportEmailFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReportEmailFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>
+          }
+          findFirst: {
+            args: Prisma.ReportEmailFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReportEmailFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>
+          }
+          findMany: {
+            args: Prisma.ReportEmailFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>[]
+          }
+          create: {
+            args: Prisma.ReportEmailCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>
+          }
+          createMany: {
+            args: Prisma.ReportEmailCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReportEmailCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>[]
+          }
+          delete: {
+            args: Prisma.ReportEmailDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>
+          }
+          update: {
+            args: Prisma.ReportEmailUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReportEmailDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReportEmailUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReportEmailUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReportEmailUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReportEmailPayload>
+          }
+          aggregate: {
+            args: Prisma.ReportEmailAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReportEmail>
+          }
+          groupBy: {
+            args: Prisma.ReportEmailGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReportEmailGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReportEmailCountArgs<ExtArgs>
+            result: $Utils.Optional<ReportEmailCountAggregateOutputType> | number
+          }
+        }
+      }
       AssessmentVersion: {
         payload: Prisma.$AssessmentVersionPayload<ExtArgs>
         fields: Prisma.AssessmentVersionFieldRefs
@@ -3769,6 +3874,7 @@ export namespace Prisma {
     notificationPushDelivery?: NotificationPushDeliveryOmit
     finding?: FindingOmit
     signature?: SignatureOmit
+    reportEmail?: ReportEmailOmit
     assessmentVersion?: AssessmentVersionOmit
     accountDeletionRequest?: AccountDeletionRequestOmit
     accountDeletionStoragePurge?: AccountDeletionStoragePurgeOmit
@@ -3869,6 +3975,7 @@ export namespace Prisma {
     notifications: number
     deviceInstallations: number
     errorEvents: number
+    reportEmails: number
     subscriptionsManaged: number
   }
 
@@ -3888,6 +3995,7 @@ export namespace Prisma {
     notifications?: boolean | StakeholderCountOutputTypeCountNotificationsArgs
     deviceInstallations?: boolean | StakeholderCountOutputTypeCountDeviceInstallationsArgs
     errorEvents?: boolean | StakeholderCountOutputTypeCountErrorEventsArgs
+    reportEmails?: boolean | StakeholderCountOutputTypeCountReportEmailsArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
   }
 
@@ -4005,6 +4113,13 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountErrorEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ErrorEventWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountReportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportEmailWhereInput
   }
 
   /**
@@ -4135,6 +4250,7 @@ export namespace Prisma {
     findings: number
     signatures: number
     assessments: number
+    reportEmails: number
   }
 
   export type InspectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4142,6 +4258,7 @@ export namespace Prisma {
     findings?: boolean | InspectionCountOutputTypeCountFindingsArgs
     signatures?: boolean | InspectionCountOutputTypeCountSignaturesArgs
     assessments?: boolean | InspectionCountOutputTypeCountAssessmentsArgs
+    reportEmails?: boolean | InspectionCountOutputTypeCountReportEmailsArgs
   }
 
   // Custom InputTypes
@@ -4181,6 +4298,13 @@ export namespace Prisma {
    */
   export type InspectionCountOutputTypeCountAssessmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssessmentVersionWhereInput
+  }
+
+  /**
+   * InspectionCountOutputType without action
+   */
+  export type InspectionCountOutputTypeCountReportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportEmailWhereInput
   }
 
 
@@ -4800,6 +4924,7 @@ export namespace Prisma {
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
+    reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -4865,6 +4990,7 @@ export namespace Prisma {
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
+    reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -4896,6 +5022,7 @@ export namespace Prisma {
       deviceInstallations: Prisma.$DeviceInstallationPayload<ExtArgs>[]
       branding: Prisma.$AgentBrandingPayload<ExtArgs> | null
       errorEvents: Prisma.$ErrorEventPayload<ExtArgs>[]
+      reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
       /**
        * The plan of an agent who is on no team. An agent on a team uses the team's.
        */
@@ -5336,6 +5463,7 @@ export namespace Prisma {
     deviceInstallations<T extends Stakeholder$deviceInstallationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deviceInstallationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceInstallationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     branding<T extends Stakeholder$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$brandingArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     errorEvents<T extends Stakeholder$errorEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$errorEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reportEmails<T extends Stakeholder$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -6173,6 +6301,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ErrorEventScalarFieldEnum | ErrorEventScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.reportEmails
+   */
+  export type Stakeholder$reportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    where?: ReportEmailWhereInput
+    orderBy?: ReportEmailOrderByWithRelationInput | ReportEmailOrderByWithRelationInput[]
+    cursor?: ReportEmailWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
   }
 
   /**
@@ -12403,6 +12555,7 @@ export namespace Prisma {
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
+    reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -12479,6 +12632,7 @@ export namespace Prisma {
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
+    reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InspectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12503,6 +12657,7 @@ export namespace Prisma {
       findings: Prisma.$FindingPayload<ExtArgs>[]
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
       assessments: Prisma.$AssessmentVersionPayload<ExtArgs>[]
+      reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12938,6 +13093,7 @@ export namespace Prisma {
     findings<T extends Inspection$findingsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatures<T extends Inspection$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assessments<T extends Inspection$assessmentsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reportEmails<T extends Inspection$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13534,6 +13690,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AssessmentVersionScalarFieldEnum | AssessmentVersionScalarFieldEnum[]
+  }
+
+  /**
+   * Inspection.reportEmails
+   */
+  export type Inspection$reportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    where?: ReportEmailWhereInput
+    orderBy?: ReportEmailOrderByWithRelationInput | ReportEmailOrderByWithRelationInput[]
+    cursor?: ReportEmailWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
   }
 
   /**
@@ -32963,6 +33143,7 @@ export namespace Prisma {
     signedAt: Date | null
     ipAddress: string | null
     imageData: string | null
+    contentHash: string | null
   }
 
   export type SignatureMaxAggregateOutputType = {
@@ -32972,6 +33153,7 @@ export namespace Prisma {
     signedAt: Date | null
     ipAddress: string | null
     imageData: string | null
+    contentHash: string | null
   }
 
   export type SignatureCountAggregateOutputType = {
@@ -32981,6 +33163,7 @@ export namespace Prisma {
     signedAt: number
     ipAddress: number
     imageData: number
+    contentHash: number
     _all: number
   }
 
@@ -32992,6 +33175,7 @@ export namespace Prisma {
     signedAt?: true
     ipAddress?: true
     imageData?: true
+    contentHash?: true
   }
 
   export type SignatureMaxAggregateInputType = {
@@ -33001,6 +33185,7 @@ export namespace Prisma {
     signedAt?: true
     ipAddress?: true
     imageData?: true
+    contentHash?: true
   }
 
   export type SignatureCountAggregateInputType = {
@@ -33010,6 +33195,7 @@ export namespace Prisma {
     signedAt?: true
     ipAddress?: true
     imageData?: true
+    contentHash?: true
     _all?: true
   }
 
@@ -33092,6 +33278,7 @@ export namespace Prisma {
     signedAt: Date
     ipAddress: string | null
     imageData: string
+    contentHash: string | null
     _count: SignatureCountAggregateOutputType | null
     _min: SignatureMinAggregateOutputType | null
     _max: SignatureMaxAggregateOutputType | null
@@ -33118,6 +33305,7 @@ export namespace Prisma {
     signedAt?: boolean
     ipAddress?: boolean
     imageData?: boolean
+    contentHash?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["signature"]>
@@ -33129,6 +33317,7 @@ export namespace Prisma {
     signedAt?: boolean
     ipAddress?: boolean
     imageData?: boolean
+    contentHash?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["signature"]>
@@ -33140,6 +33329,7 @@ export namespace Prisma {
     signedAt?: boolean
     ipAddress?: boolean
     imageData?: boolean
+    contentHash?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["signature"]>
@@ -33151,9 +33341,10 @@ export namespace Prisma {
     signedAt?: boolean
     ipAddress?: boolean
     imageData?: boolean
+    contentHash?: boolean
   }
 
-  export type SignatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "stakeholderId" | "signedAt" | "ipAddress" | "imageData", ExtArgs["result"]["signature"]>
+  export type SignatureOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "stakeholderId" | "signedAt" | "ipAddress" | "imageData" | "contentHash", ExtArgs["result"]["signature"]>
   export type SignatureInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -33183,6 +33374,11 @@ export namespace Prisma {
        * data: URL of the drawn signature.
        */
       imageData: string
+      /**
+       * sha256 of the report content this person signed (`src/lib/report-fingerprint.ts`).
+       * Null on signatures taken before it existed.
+       */
+      contentHash: string | null
     }, ExtArgs["result"]["signature"]>
     composites: {}
   }
@@ -33614,6 +33810,7 @@ export namespace Prisma {
     readonly signedAt: FieldRef<"Signature", 'DateTime'>
     readonly ipAddress: FieldRef<"Signature", 'String'>
     readonly imageData: FieldRef<"Signature", 'String'>
+    readonly contentHash: FieldRef<"Signature", 'String'>
   }
     
 
@@ -34030,6 +34227,1199 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SignatureInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ReportEmail
+   */
+
+  export type AggregateReportEmail = {
+    _count: ReportEmailCountAggregateOutputType | null
+    _avg: ReportEmailAvgAggregateOutputType | null
+    _sum: ReportEmailSumAggregateOutputType | null
+    _min: ReportEmailMinAggregateOutputType | null
+    _max: ReportEmailMaxAggregateOutputType | null
+  }
+
+  export type ReportEmailAvgAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type ReportEmailSumAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type ReportEmailMinAggregateOutputType = {
+    id: string | null
+    inspectionId: string | null
+    recipientId: string | null
+    kind: $Enums.ReportEmailKind | null
+    dedupeKey: string | null
+    emailTo: string | null
+    attempts: number | null
+    retryAt: Date | null
+    sentAt: Date | null
+    error: string | null
+    createdAt: Date | null
+  }
+
+  export type ReportEmailMaxAggregateOutputType = {
+    id: string | null
+    inspectionId: string | null
+    recipientId: string | null
+    kind: $Enums.ReportEmailKind | null
+    dedupeKey: string | null
+    emailTo: string | null
+    attempts: number | null
+    retryAt: Date | null
+    sentAt: Date | null
+    error: string | null
+    createdAt: Date | null
+  }
+
+  export type ReportEmailCountAggregateOutputType = {
+    id: number
+    inspectionId: number
+    recipientId: number
+    kind: number
+    dedupeKey: number
+    emailTo: number
+    attempts: number
+    retryAt: number
+    sentAt: number
+    error: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ReportEmailAvgAggregateInputType = {
+    attempts?: true
+  }
+
+  export type ReportEmailSumAggregateInputType = {
+    attempts?: true
+  }
+
+  export type ReportEmailMinAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    recipientId?: true
+    kind?: true
+    dedupeKey?: true
+    emailTo?: true
+    attempts?: true
+    retryAt?: true
+    sentAt?: true
+    error?: true
+    createdAt?: true
+  }
+
+  export type ReportEmailMaxAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    recipientId?: true
+    kind?: true
+    dedupeKey?: true
+    emailTo?: true
+    attempts?: true
+    retryAt?: true
+    sentAt?: true
+    error?: true
+    createdAt?: true
+  }
+
+  export type ReportEmailCountAggregateInputType = {
+    id?: true
+    inspectionId?: true
+    recipientId?: true
+    kind?: true
+    dedupeKey?: true
+    emailTo?: true
+    attempts?: true
+    retryAt?: true
+    sentAt?: true
+    error?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ReportEmailAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportEmail to aggregate.
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportEmails to fetch.
+     */
+    orderBy?: ReportEmailOrderByWithRelationInput | ReportEmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReportEmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportEmails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportEmails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReportEmails
+    **/
+    _count?: true | ReportEmailCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReportEmailAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReportEmailSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReportEmailMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReportEmailMaxAggregateInputType
+  }
+
+  export type GetReportEmailAggregateType<T extends ReportEmailAggregateArgs> = {
+        [P in keyof T & keyof AggregateReportEmail]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReportEmail[P]>
+      : GetScalarType<T[P], AggregateReportEmail[P]>
+  }
+
+
+
+
+  export type ReportEmailGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportEmailWhereInput
+    orderBy?: ReportEmailOrderByWithAggregationInput | ReportEmailOrderByWithAggregationInput[]
+    by: ReportEmailScalarFieldEnum[] | ReportEmailScalarFieldEnum
+    having?: ReportEmailScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReportEmailCountAggregateInputType | true
+    _avg?: ReportEmailAvgAggregateInputType
+    _sum?: ReportEmailSumAggregateInputType
+    _min?: ReportEmailMinAggregateInputType
+    _max?: ReportEmailMaxAggregateInputType
+  }
+
+  export type ReportEmailGroupByOutputType = {
+    id: string
+    inspectionId: string
+    recipientId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey: string | null
+    emailTo: string | null
+    attempts: number
+    retryAt: Date
+    sentAt: Date | null
+    error: string | null
+    createdAt: Date
+    _count: ReportEmailCountAggregateOutputType | null
+    _avg: ReportEmailAvgAggregateOutputType | null
+    _sum: ReportEmailSumAggregateOutputType | null
+    _min: ReportEmailMinAggregateOutputType | null
+    _max: ReportEmailMaxAggregateOutputType | null
+  }
+
+  type GetReportEmailGroupByPayload<T extends ReportEmailGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReportEmailGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReportEmailGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReportEmailGroupByOutputType[P]>
+            : GetScalarType<T[P], ReportEmailGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReportEmailSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    recipientId?: boolean
+    kind?: boolean
+    dedupeKey?: boolean
+    emailTo?: boolean
+    attempts?: boolean
+    retryAt?: boolean
+    sentAt?: boolean
+    error?: boolean
+    createdAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportEmail"]>
+
+  export type ReportEmailSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    recipientId?: boolean
+    kind?: boolean
+    dedupeKey?: boolean
+    emailTo?: boolean
+    attempts?: boolean
+    retryAt?: boolean
+    sentAt?: boolean
+    error?: boolean
+    createdAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportEmail"]>
+
+  export type ReportEmailSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    inspectionId?: boolean
+    recipientId?: boolean
+    kind?: boolean
+    dedupeKey?: boolean
+    emailTo?: boolean
+    attempts?: boolean
+    retryAt?: boolean
+    sentAt?: boolean
+    error?: boolean
+    createdAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reportEmail"]>
+
+  export type ReportEmailSelectScalar = {
+    id?: boolean
+    inspectionId?: boolean
+    recipientId?: boolean
+    kind?: boolean
+    dedupeKey?: boolean
+    emailTo?: boolean
+    attempts?: boolean
+    retryAt?: boolean
+    sentAt?: boolean
+    error?: boolean
+    createdAt?: boolean
+  }
+
+  export type ReportEmailOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "recipientId" | "kind" | "dedupeKey" | "emailTo" | "attempts" | "retryAt" | "sentAt" | "error" | "createdAt", ExtArgs["result"]["reportEmail"]>
+  export type ReportEmailInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type ReportEmailIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type ReportEmailIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $ReportEmailPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReportEmail"
+    objects: {
+      inspection: Prisma.$InspectionPayload<ExtArgs>
+      recipient: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      inspectionId: string
+      recipientId: string
+      kind: $Enums.ReportEmailKind
+      /**
+       * Makes the signed copy once only per recipient. Null for signature requests, which
+       * the agent may resend.
+       */
+      dedupeKey: string | null
+      /**
+       * The address it went to, read from the recipient at delivery.
+       */
+      emailTo: string | null
+      attempts: number
+      /**
+       * Not before this. Pushed back exponentially after each failure.
+       */
+      retryAt: Date
+      sentAt: Date | null
+      error: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["reportEmail"]>
+    composites: {}
+  }
+
+  type ReportEmailGetPayload<S extends boolean | null | undefined | ReportEmailDefaultArgs> = $Result.GetResult<Prisma.$ReportEmailPayload, S>
+
+  type ReportEmailCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReportEmailFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReportEmailCountAggregateInputType | true
+    }
+
+  export interface ReportEmailDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReportEmail'], meta: { name: 'ReportEmail' } }
+    /**
+     * Find zero or one ReportEmail that matches the filter.
+     * @param {ReportEmailFindUniqueArgs} args - Arguments to find a ReportEmail
+     * @example
+     * // Get one ReportEmail
+     * const reportEmail = await prisma.reportEmail.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReportEmailFindUniqueArgs>(args: SelectSubset<T, ReportEmailFindUniqueArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ReportEmail that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReportEmailFindUniqueOrThrowArgs} args - Arguments to find a ReportEmail
+     * @example
+     * // Get one ReportEmail
+     * const reportEmail = await prisma.reportEmail.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReportEmailFindUniqueOrThrowArgs>(args: SelectSubset<T, ReportEmailFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportEmail that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailFindFirstArgs} args - Arguments to find a ReportEmail
+     * @example
+     * // Get one ReportEmail
+     * const reportEmail = await prisma.reportEmail.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReportEmailFindFirstArgs>(args?: SelectSubset<T, ReportEmailFindFirstArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ReportEmail that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailFindFirstOrThrowArgs} args - Arguments to find a ReportEmail
+     * @example
+     * // Get one ReportEmail
+     * const reportEmail = await prisma.reportEmail.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReportEmailFindFirstOrThrowArgs>(args?: SelectSubset<T, ReportEmailFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ReportEmails that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReportEmails
+     * const reportEmails = await prisma.reportEmail.findMany()
+     * 
+     * // Get first 10 ReportEmails
+     * const reportEmails = await prisma.reportEmail.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reportEmailWithIdOnly = await prisma.reportEmail.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReportEmailFindManyArgs>(args?: SelectSubset<T, ReportEmailFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ReportEmail.
+     * @param {ReportEmailCreateArgs} args - Arguments to create a ReportEmail.
+     * @example
+     * // Create one ReportEmail
+     * const ReportEmail = await prisma.reportEmail.create({
+     *   data: {
+     *     // ... data to create a ReportEmail
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReportEmailCreateArgs>(args: SelectSubset<T, ReportEmailCreateArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ReportEmails.
+     * @param {ReportEmailCreateManyArgs} args - Arguments to create many ReportEmails.
+     * @example
+     * // Create many ReportEmails
+     * const reportEmail = await prisma.reportEmail.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReportEmailCreateManyArgs>(args?: SelectSubset<T, ReportEmailCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ReportEmails and returns the data saved in the database.
+     * @param {ReportEmailCreateManyAndReturnArgs} args - Arguments to create many ReportEmails.
+     * @example
+     * // Create many ReportEmails
+     * const reportEmail = await prisma.reportEmail.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ReportEmails and only return the `id`
+     * const reportEmailWithIdOnly = await prisma.reportEmail.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReportEmailCreateManyAndReturnArgs>(args?: SelectSubset<T, ReportEmailCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ReportEmail.
+     * @param {ReportEmailDeleteArgs} args - Arguments to delete one ReportEmail.
+     * @example
+     * // Delete one ReportEmail
+     * const ReportEmail = await prisma.reportEmail.delete({
+     *   where: {
+     *     // ... filter to delete one ReportEmail
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReportEmailDeleteArgs>(args: SelectSubset<T, ReportEmailDeleteArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ReportEmail.
+     * @param {ReportEmailUpdateArgs} args - Arguments to update one ReportEmail.
+     * @example
+     * // Update one ReportEmail
+     * const reportEmail = await prisma.reportEmail.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReportEmailUpdateArgs>(args: SelectSubset<T, ReportEmailUpdateArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ReportEmails.
+     * @param {ReportEmailDeleteManyArgs} args - Arguments to filter ReportEmails to delete.
+     * @example
+     * // Delete a few ReportEmails
+     * const { count } = await prisma.reportEmail.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReportEmailDeleteManyArgs>(args?: SelectSubset<T, ReportEmailDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportEmails.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReportEmails
+     * const reportEmail = await prisma.reportEmail.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReportEmailUpdateManyArgs>(args: SelectSubset<T, ReportEmailUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReportEmails and returns the data updated in the database.
+     * @param {ReportEmailUpdateManyAndReturnArgs} args - Arguments to update many ReportEmails.
+     * @example
+     * // Update many ReportEmails
+     * const reportEmail = await prisma.reportEmail.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ReportEmails and only return the `id`
+     * const reportEmailWithIdOnly = await prisma.reportEmail.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReportEmailUpdateManyAndReturnArgs>(args: SelectSubset<T, ReportEmailUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ReportEmail.
+     * @param {ReportEmailUpsertArgs} args - Arguments to update or create a ReportEmail.
+     * @example
+     * // Update or create a ReportEmail
+     * const reportEmail = await prisma.reportEmail.upsert({
+     *   create: {
+     *     // ... data to create a ReportEmail
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReportEmail we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReportEmailUpsertArgs>(args: SelectSubset<T, ReportEmailUpsertArgs<ExtArgs>>): Prisma__ReportEmailClient<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ReportEmails.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailCountArgs} args - Arguments to filter ReportEmails to count.
+     * @example
+     * // Count the number of ReportEmails
+     * const count = await prisma.reportEmail.count({
+     *   where: {
+     *     // ... the filter for the ReportEmails we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReportEmailCountArgs>(
+      args?: Subset<T, ReportEmailCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReportEmailCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReportEmail.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReportEmailAggregateArgs>(args: Subset<T, ReportEmailAggregateArgs>): Prisma.PrismaPromise<GetReportEmailAggregateType<T>>
+
+    /**
+     * Group by ReportEmail.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReportEmailGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReportEmailGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReportEmailGroupByArgs['orderBy'] }
+        : { orderBy?: ReportEmailGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReportEmailGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReportEmailGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ReportEmail model
+   */
+  readonly fields: ReportEmailFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReportEmail.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReportEmailClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    recipient<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ReportEmail model
+   */
+  interface ReportEmailFieldRefs {
+    readonly id: FieldRef<"ReportEmail", 'String'>
+    readonly inspectionId: FieldRef<"ReportEmail", 'String'>
+    readonly recipientId: FieldRef<"ReportEmail", 'String'>
+    readonly kind: FieldRef<"ReportEmail", 'ReportEmailKind'>
+    readonly dedupeKey: FieldRef<"ReportEmail", 'String'>
+    readonly emailTo: FieldRef<"ReportEmail", 'String'>
+    readonly attempts: FieldRef<"ReportEmail", 'Int'>
+    readonly retryAt: FieldRef<"ReportEmail", 'DateTime'>
+    readonly sentAt: FieldRef<"ReportEmail", 'DateTime'>
+    readonly error: FieldRef<"ReportEmail", 'String'>
+    readonly createdAt: FieldRef<"ReportEmail", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ReportEmail findUnique
+   */
+  export type ReportEmailFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportEmail to fetch.
+     */
+    where: ReportEmailWhereUniqueInput
+  }
+
+  /**
+   * ReportEmail findUniqueOrThrow
+   */
+  export type ReportEmailFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportEmail to fetch.
+     */
+    where: ReportEmailWhereUniqueInput
+  }
+
+  /**
+   * ReportEmail findFirst
+   */
+  export type ReportEmailFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportEmail to fetch.
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportEmails to fetch.
+     */
+    orderBy?: ReportEmailOrderByWithRelationInput | ReportEmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportEmails.
+     */
+    cursor?: ReportEmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportEmails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportEmails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportEmails.
+     */
+    distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
+  }
+
+  /**
+   * ReportEmail findFirstOrThrow
+   */
+  export type ReportEmailFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportEmail to fetch.
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportEmails to fetch.
+     */
+    orderBy?: ReportEmailOrderByWithRelationInput | ReportEmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReportEmails.
+     */
+    cursor?: ReportEmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportEmails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportEmails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportEmails.
+     */
+    distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
+  }
+
+  /**
+   * ReportEmail findMany
+   */
+  export type ReportEmailFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * Filter, which ReportEmails to fetch.
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReportEmails to fetch.
+     */
+    orderBy?: ReportEmailOrderByWithRelationInput | ReportEmailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReportEmails.
+     */
+    cursor?: ReportEmailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReportEmails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReportEmails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReportEmails.
+     */
+    distinct?: ReportEmailScalarFieldEnum | ReportEmailScalarFieldEnum[]
+  }
+
+  /**
+   * ReportEmail create
+   */
+  export type ReportEmailCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReportEmail.
+     */
+    data: XOR<ReportEmailCreateInput, ReportEmailUncheckedCreateInput>
+  }
+
+  /**
+   * ReportEmail createMany
+   */
+  export type ReportEmailCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReportEmails.
+     */
+    data: ReportEmailCreateManyInput | ReportEmailCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ReportEmail createManyAndReturn
+   */
+  export type ReportEmailCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * The data used to create many ReportEmails.
+     */
+    data: ReportEmailCreateManyInput | ReportEmailCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportEmail update
+   */
+  export type ReportEmailUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReportEmail.
+     */
+    data: XOR<ReportEmailUpdateInput, ReportEmailUncheckedUpdateInput>
+    /**
+     * Choose, which ReportEmail to update.
+     */
+    where: ReportEmailWhereUniqueInput
+  }
+
+  /**
+   * ReportEmail updateMany
+   */
+  export type ReportEmailUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReportEmails.
+     */
+    data: XOR<ReportEmailUpdateManyMutationInput, ReportEmailUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportEmails to update
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * Limit how many ReportEmails to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportEmail updateManyAndReturn
+   */
+  export type ReportEmailUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * The data used to update ReportEmails.
+     */
+    data: XOR<ReportEmailUpdateManyMutationInput, ReportEmailUncheckedUpdateManyInput>
+    /**
+     * Filter which ReportEmails to update
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * Limit how many ReportEmails to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ReportEmail upsert
+   */
+  export type ReportEmailUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReportEmail to update in case it exists.
+     */
+    where: ReportEmailWhereUniqueInput
+    /**
+     * In case the ReportEmail found by the `where` argument doesn't exist, create a new ReportEmail with this data.
+     */
+    create: XOR<ReportEmailCreateInput, ReportEmailUncheckedCreateInput>
+    /**
+     * In case the ReportEmail was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReportEmailUpdateInput, ReportEmailUncheckedUpdateInput>
+  }
+
+  /**
+   * ReportEmail delete
+   */
+  export type ReportEmailDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
+    /**
+     * Filter which ReportEmail to delete.
+     */
+    where: ReportEmailWhereUniqueInput
+  }
+
+  /**
+   * ReportEmail deleteMany
+   */
+  export type ReportEmailDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReportEmails to delete
+     */
+    where?: ReportEmailWhereInput
+    /**
+     * Limit how many ReportEmails to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ReportEmail without action
+   */
+  export type ReportEmailDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportEmail
+     */
+    select?: ReportEmailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportEmail
+     */
+    omit?: ReportEmailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportEmailInclude<ExtArgs> | null
   }
 
 
@@ -40007,10 +41397,28 @@ export namespace Prisma {
     stakeholderId: 'stakeholderId',
     signedAt: 'signedAt',
     ipAddress: 'ipAddress',
-    imageData: 'imageData'
+    imageData: 'imageData',
+    contentHash: 'contentHash'
   };
 
   export type SignatureScalarFieldEnum = (typeof SignatureScalarFieldEnum)[keyof typeof SignatureScalarFieldEnum]
+
+
+  export const ReportEmailScalarFieldEnum: {
+    id: 'id',
+    inspectionId: 'inspectionId',
+    recipientId: 'recipientId',
+    kind: 'kind',
+    dedupeKey: 'dedupeKey',
+    emailTo: 'emailTo',
+    attempts: 'attempts',
+    retryAt: 'retryAt',
+    sentAt: 'sentAt',
+    error: 'error',
+    createdAt: 'createdAt'
+  };
+
+  export type ReportEmailScalarFieldEnum = (typeof ReportEmailScalarFieldEnum)[keyof typeof ReportEmailScalarFieldEnum]
 
 
   export const AssessmentVersionScalarFieldEnum: {
@@ -40581,6 +41989,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ReportEmailKind'
+   */
+  export type EnumReportEmailKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportEmailKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReportEmailKind[]'
+   */
+  export type ListEnumReportEmailKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReportEmailKind[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DeletionRequestStatus'
    */
   export type EnumDeletionRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeletionRequestStatus'>
@@ -40642,6 +42064,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationListRelationFilter
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
+    reportEmails?: ReportEmailListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }
@@ -40674,6 +42097,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationOrderByRelationAggregateInput
     branding?: AgentBrandingOrderByWithRelationInput
     errorEvents?: ErrorEventOrderByRelationAggregateInput
+    reportEmails?: ReportEmailOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
   }
@@ -40709,6 +42133,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationListRelationFilter
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
+    reportEmails?: ReportEmailListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }, "id" | "email" | "authUserId">
@@ -41174,6 +42599,7 @@ export namespace Prisma {
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
     assessments?: AssessmentVersionListRelationFilter
+    reportEmails?: ReportEmailListRelationFilter
   }
 
   export type InspectionOrderByWithRelationInput = {
@@ -41201,6 +42627,7 @@ export namespace Prisma {
     findings?: FindingOrderByRelationAggregateInput
     signatures?: SignatureOrderByRelationAggregateInput
     assessments?: AssessmentVersionOrderByRelationAggregateInput
+    reportEmails?: ReportEmailOrderByRelationAggregateInput
   }
 
   export type InspectionWhereUniqueInput = Prisma.AtLeast<{
@@ -41231,6 +42658,7 @@ export namespace Prisma {
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
     assessments?: AssessmentVersionListRelationFilter
+    reportEmails?: ReportEmailListRelationFilter
   }, "id" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
@@ -42740,6 +44168,7 @@ export namespace Prisma {
     signedAt?: DateTimeFilter<"Signature"> | Date | string
     ipAddress?: StringNullableFilter<"Signature"> | string | null
     imageData?: StringFilter<"Signature"> | string
+    contentHash?: StringNullableFilter<"Signature"> | string | null
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
     stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
   }
@@ -42751,6 +44180,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     ipAddress?: SortOrderInput | SortOrder
     imageData?: SortOrder
+    contentHash?: SortOrderInput | SortOrder
     inspection?: InspectionOrderByWithRelationInput
     stakeholder?: StakeholderOrderByWithRelationInput
   }
@@ -42766,6 +44196,7 @@ export namespace Prisma {
     signedAt?: DateTimeFilter<"Signature"> | Date | string
     ipAddress?: StringNullableFilter<"Signature"> | string | null
     imageData?: StringFilter<"Signature"> | string
+    contentHash?: StringNullableFilter<"Signature"> | string | null
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
     stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
   }, "id" | "inspectionId_stakeholderId">
@@ -42777,6 +44208,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     ipAddress?: SortOrderInput | SortOrder
     imageData?: SortOrder
+    contentHash?: SortOrderInput | SortOrder
     _count?: SignatureCountOrderByAggregateInput
     _max?: SignatureMaxOrderByAggregateInput
     _min?: SignatureMinOrderByAggregateInput
@@ -42792,6 +44224,97 @@ export namespace Prisma {
     signedAt?: DateTimeWithAggregatesFilter<"Signature"> | Date | string
     ipAddress?: StringNullableWithAggregatesFilter<"Signature"> | string | null
     imageData?: StringWithAggregatesFilter<"Signature"> | string
+    contentHash?: StringNullableWithAggregatesFilter<"Signature"> | string | null
+  }
+
+  export type ReportEmailWhereInput = {
+    AND?: ReportEmailWhereInput | ReportEmailWhereInput[]
+    OR?: ReportEmailWhereInput[]
+    NOT?: ReportEmailWhereInput | ReportEmailWhereInput[]
+    id?: StringFilter<"ReportEmail"> | string
+    inspectionId?: StringFilter<"ReportEmail"> | string
+    recipientId?: StringFilter<"ReportEmail"> | string
+    kind?: EnumReportEmailKindFilter<"ReportEmail"> | $Enums.ReportEmailKind
+    dedupeKey?: StringNullableFilter<"ReportEmail"> | string | null
+    emailTo?: StringNullableFilter<"ReportEmail"> | string | null
+    attempts?: IntFilter<"ReportEmail"> | number
+    retryAt?: DateTimeFilter<"ReportEmail"> | Date | string
+    sentAt?: DateTimeNullableFilter<"ReportEmail"> | Date | string | null
+    error?: StringNullableFilter<"ReportEmail"> | string | null
+    createdAt?: DateTimeFilter<"ReportEmail"> | Date | string
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    recipient?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type ReportEmailOrderByWithRelationInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    recipientId?: SortOrder
+    kind?: SortOrder
+    dedupeKey?: SortOrderInput | SortOrder
+    emailTo?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    retryAt?: SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    inspection?: InspectionOrderByWithRelationInput
+    recipient?: StakeholderOrderByWithRelationInput
+  }
+
+  export type ReportEmailWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    dedupeKey?: string
+    AND?: ReportEmailWhereInput | ReportEmailWhereInput[]
+    OR?: ReportEmailWhereInput[]
+    NOT?: ReportEmailWhereInput | ReportEmailWhereInput[]
+    inspectionId?: StringFilter<"ReportEmail"> | string
+    recipientId?: StringFilter<"ReportEmail"> | string
+    kind?: EnumReportEmailKindFilter<"ReportEmail"> | $Enums.ReportEmailKind
+    emailTo?: StringNullableFilter<"ReportEmail"> | string | null
+    attempts?: IntFilter<"ReportEmail"> | number
+    retryAt?: DateTimeFilter<"ReportEmail"> | Date | string
+    sentAt?: DateTimeNullableFilter<"ReportEmail"> | Date | string | null
+    error?: StringNullableFilter<"ReportEmail"> | string | null
+    createdAt?: DateTimeFilter<"ReportEmail"> | Date | string
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    recipient?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "id" | "dedupeKey">
+
+  export type ReportEmailOrderByWithAggregationInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    recipientId?: SortOrder
+    kind?: SortOrder
+    dedupeKey?: SortOrderInput | SortOrder
+    emailTo?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    retryAt?: SortOrder
+    sentAt?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ReportEmailCountOrderByAggregateInput
+    _avg?: ReportEmailAvgOrderByAggregateInput
+    _max?: ReportEmailMaxOrderByAggregateInput
+    _min?: ReportEmailMinOrderByAggregateInput
+    _sum?: ReportEmailSumOrderByAggregateInput
+  }
+
+  export type ReportEmailScalarWhereWithAggregatesInput = {
+    AND?: ReportEmailScalarWhereWithAggregatesInput | ReportEmailScalarWhereWithAggregatesInput[]
+    OR?: ReportEmailScalarWhereWithAggregatesInput[]
+    NOT?: ReportEmailScalarWhereWithAggregatesInput | ReportEmailScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ReportEmail"> | string
+    inspectionId?: StringWithAggregatesFilter<"ReportEmail"> | string
+    recipientId?: StringWithAggregatesFilter<"ReportEmail"> | string
+    kind?: EnumReportEmailKindWithAggregatesFilter<"ReportEmail"> | $Enums.ReportEmailKind
+    dedupeKey?: StringNullableWithAggregatesFilter<"ReportEmail"> | string | null
+    emailTo?: StringNullableWithAggregatesFilter<"ReportEmail"> | string | null
+    attempts?: IntWithAggregatesFilter<"ReportEmail"> | number
+    retryAt?: DateTimeWithAggregatesFilter<"ReportEmail"> | Date | string
+    sentAt?: DateTimeNullableWithAggregatesFilter<"ReportEmail"> | Date | string | null
+    error?: StringNullableWithAggregatesFilter<"ReportEmail"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ReportEmail"> | Date | string
   }
 
   export type AssessmentVersionWhereInput = {
@@ -43189,6 +44712,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -43220,6 +44744,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -43251,6 +44776,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -43282,6 +44808,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -43775,6 +45302,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateInput = {
@@ -43799,6 +45327,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUpdateInput = {
@@ -43823,6 +45352,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateInput = {
@@ -43847,6 +45377,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionCreateManyInput = {
@@ -45479,6 +47010,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
     inspection: InspectionCreateNestedOneWithoutSignaturesInput
     stakeholder: StakeholderCreateNestedOneWithoutSignaturesInput
   }
@@ -45490,6 +47022,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
   }
 
   export type SignatureUpdateInput = {
@@ -45497,6 +47030,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutSignaturesNestedInput
     stakeholder?: StakeholderUpdateOneRequiredWithoutSignaturesNestedInput
   }
@@ -45508,6 +47042,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SignatureCreateManyInput = {
@@ -45517,6 +47052,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
   }
 
   export type SignatureUpdateManyMutationInput = {
@@ -45524,6 +47060,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SignatureUncheckedUpdateManyInput = {
@@ -45533,6 +47070,103 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ReportEmailCreateInput = {
+    id?: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+    inspection: InspectionCreateNestedOneWithoutReportEmailsInput
+    recipient: StakeholderCreateNestedOneWithoutReportEmailsInput
+  }
+
+  export type ReportEmailUncheckedCreateInput = {
+    id?: string
+    inspectionId: string
+    recipientId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportEmailUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspection?: InspectionUpdateOneRequiredWithoutReportEmailsNestedInput
+    recipient?: StakeholderUpdateOneRequiredWithoutReportEmailsNestedInput
+  }
+
+  export type ReportEmailUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    recipientId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportEmailCreateManyInput = {
+    id?: string
+    inspectionId: string
+    recipientId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportEmailUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportEmailUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    recipientId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AssessmentVersionCreateInput = {
@@ -46071,6 +47705,12 @@ export namespace Prisma {
     none?: ErrorEventWhereInput
   }
 
+  export type ReportEmailListRelationFilter = {
+    every?: ReportEmailWhereInput
+    some?: ReportEmailWhereInput
+    none?: ReportEmailWhereInput
+  }
+
   export type SubscriptionNullableScalarRelationFilter = {
     is?: SubscriptionWhereInput | null
     isNot?: SubscriptionWhereInput | null
@@ -46132,6 +47772,10 @@ export namespace Prisma {
   }
 
   export type ErrorEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReportEmailOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -48087,6 +49731,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     ipAddress?: SortOrder
     imageData?: SortOrder
+    contentHash?: SortOrder
   }
 
   export type SignatureMaxOrderByAggregateInput = {
@@ -48096,6 +49741,7 @@ export namespace Prisma {
     signedAt?: SortOrder
     ipAddress?: SortOrder
     imageData?: SortOrder
+    contentHash?: SortOrder
   }
 
   export type SignatureMinOrderByAggregateInput = {
@@ -48105,6 +49751,74 @@ export namespace Prisma {
     signedAt?: SortOrder
     ipAddress?: SortOrder
     imageData?: SortOrder
+    contentHash?: SortOrder
+  }
+
+  export type EnumReportEmailKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReportEmailKind | EnumReportEmailKindFieldRefInput<$PrismaModel>
+    in?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumReportEmailKindFilter<$PrismaModel> | $Enums.ReportEmailKind
+  }
+
+  export type ReportEmailCountOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    recipientId?: SortOrder
+    kind?: SortOrder
+    dedupeKey?: SortOrder
+    emailTo?: SortOrder
+    attempts?: SortOrder
+    retryAt?: SortOrder
+    sentAt?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportEmailAvgOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type ReportEmailMaxOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    recipientId?: SortOrder
+    kind?: SortOrder
+    dedupeKey?: SortOrder
+    emailTo?: SortOrder
+    attempts?: SortOrder
+    retryAt?: SortOrder
+    sentAt?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportEmailMinOrderByAggregateInput = {
+    id?: SortOrder
+    inspectionId?: SortOrder
+    recipientId?: SortOrder
+    kind?: SortOrder
+    dedupeKey?: SortOrder
+    emailTo?: SortOrder
+    attempts?: SortOrder
+    retryAt?: SortOrder
+    sentAt?: SortOrder
+    error?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ReportEmailSumOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type EnumReportEmailKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReportEmailKind | EnumReportEmailKindFieldRefInput<$PrismaModel>
+    in?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumReportEmailKindWithAggregatesFilter<$PrismaModel> | $Enums.ReportEmailKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReportEmailKindFilter<$PrismaModel>
+    _max?: NestedEnumReportEmailKindFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -48507,6 +50221,13 @@ export namespace Prisma {
     connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
   }
 
+  export type ReportEmailCreateNestedManyWithoutRecipientInput = {
+    create?: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput> | ReportEmailCreateWithoutRecipientInput[] | ReportEmailUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
+    createMany?: ReportEmailCreateManyRecipientInputEnvelope
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+  }
+
   export type SubscriptionCreateNestedOneWithoutStakeholderInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -48629,6 +50350,13 @@ export namespace Prisma {
     connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
     createMany?: ErrorEventCreateManyStakeholderInputEnvelope
     connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+  }
+
+  export type ReportEmailUncheckedCreateNestedManyWithoutRecipientInput = {
+    create?: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput> | ReportEmailCreateWithoutRecipientInput[] | ReportEmailUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
+    createMany?: ReportEmailCreateManyRecipientInputEnvelope
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
   }
 
   export type SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput = {
@@ -48890,6 +50618,20 @@ export namespace Prisma {
     deleteMany?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
   }
 
+  export type ReportEmailUpdateManyWithoutRecipientNestedInput = {
+    create?: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput> | ReportEmailCreateWithoutRecipientInput[] | ReportEmailUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
+    upsert?: ReportEmailUpsertWithWhereUniqueWithoutRecipientInput | ReportEmailUpsertWithWhereUniqueWithoutRecipientInput[]
+    createMany?: ReportEmailCreateManyRecipientInputEnvelope
+    set?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    disconnect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    delete?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    update?: ReportEmailUpdateWithWhereUniqueWithoutRecipientInput | ReportEmailUpdateWithWhereUniqueWithoutRecipientInput[]
+    updateMany?: ReportEmailUpdateManyWithWhereWithoutRecipientInput | ReportEmailUpdateManyWithWhereWithoutRecipientInput[]
+    deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
+  }
+
   export type SubscriptionUpdateOneWithoutStakeholderNestedInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -49132,6 +50874,20 @@ export namespace Prisma {
     update?: ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput | ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: ErrorEventUpdateManyWithWhereWithoutStakeholderInput | ErrorEventUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
+  }
+
+  export type ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput = {
+    create?: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput> | ReportEmailCreateWithoutRecipientInput[] | ReportEmailUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
+    upsert?: ReportEmailUpsertWithWhereUniqueWithoutRecipientInput | ReportEmailUpsertWithWhereUniqueWithoutRecipientInput[]
+    createMany?: ReportEmailCreateManyRecipientInputEnvelope
+    set?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    disconnect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    delete?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    update?: ReportEmailUpdateWithWhereUniqueWithoutRecipientInput | ReportEmailUpdateWithWhereUniqueWithoutRecipientInput[]
+    updateMany?: ReportEmailUpdateManyWithWhereWithoutRecipientInput | ReportEmailUpdateManyWithWhereWithoutRecipientInput[]
+    deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
   }
 
   export type SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput = {
@@ -49612,6 +51368,13 @@ export namespace Prisma {
     connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
   }
 
+  export type ReportEmailCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput> | ReportEmailCreateWithoutInspectionInput[] | ReportEmailUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
+    createMany?: ReportEmailCreateManyInspectionInputEnvelope
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+  }
+
   export type InspectionUncheckedCreateNestedOneWithoutBaselineInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -49644,6 +51407,13 @@ export namespace Prisma {
     connectOrCreate?: AssessmentVersionCreateOrConnectWithoutInspectionInput | AssessmentVersionCreateOrConnectWithoutInspectionInput[]
     createMany?: AssessmentVersionCreateManyInspectionInputEnvelope
     connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+  }
+
+  export type ReportEmailUncheckedCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput> | ReportEmailCreateWithoutInspectionInput[] | ReportEmailUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
+    createMany?: ReportEmailCreateManyInspectionInputEnvelope
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
   }
 
   export type EnumInspectionKindFieldUpdateOperationsInput = {
@@ -49748,6 +51518,20 @@ export namespace Prisma {
     deleteMany?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
   }
 
+  export type ReportEmailUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput> | ReportEmailCreateWithoutInspectionInput[] | ReportEmailUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
+    upsert?: ReportEmailUpsertWithWhereUniqueWithoutInspectionInput | ReportEmailUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: ReportEmailCreateManyInspectionInputEnvelope
+    set?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    disconnect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    delete?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    update?: ReportEmailUpdateWithWhereUniqueWithoutInspectionInput | ReportEmailUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: ReportEmailUpdateManyWithWhereWithoutInspectionInput | ReportEmailUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
+  }
+
   export type InspectionUncheckedUpdateOneWithoutBaselineNestedInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -49812,6 +51596,20 @@ export namespace Prisma {
     update?: AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput | AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput[]
     updateMany?: AssessmentVersionUpdateManyWithWhereWithoutInspectionInput | AssessmentVersionUpdateManyWithWhereWithoutInspectionInput[]
     deleteMany?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
+  }
+
+  export type ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput> | ReportEmailCreateWithoutInspectionInput[] | ReportEmailUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
+    upsert?: ReportEmailUpsertWithWhereUniqueWithoutInspectionInput | ReportEmailUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: ReportEmailCreateManyInspectionInputEnvelope
+    set?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    disconnect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    delete?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    connect?: ReportEmailWhereUniqueInput | ReportEmailWhereUniqueInput[]
+    update?: ReportEmailUpdateWithWhereUniqueWithoutInspectionInput | ReportEmailUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: ReportEmailUpdateManyWithWhereWithoutInspectionInput | ReportEmailUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
   }
 
   export type RoomCreateNestedOneWithoutCapturesInput = {
@@ -51189,6 +52987,38 @@ export namespace Prisma {
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutSignaturesInput, StakeholderUpdateWithoutSignaturesInput>, StakeholderUncheckedUpdateWithoutSignaturesInput>
   }
 
+  export type InspectionCreateNestedOneWithoutReportEmailsInput = {
+    create?: XOR<InspectionCreateWithoutReportEmailsInput, InspectionUncheckedCreateWithoutReportEmailsInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportEmailsInput
+    connect?: InspectionWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutReportEmailsInput = {
+    create?: XOR<StakeholderCreateWithoutReportEmailsInput, StakeholderUncheckedCreateWithoutReportEmailsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutReportEmailsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type EnumReportEmailKindFieldUpdateOperationsInput = {
+    set?: $Enums.ReportEmailKind
+  }
+
+  export type InspectionUpdateOneRequiredWithoutReportEmailsNestedInput = {
+    create?: XOR<InspectionCreateWithoutReportEmailsInput, InspectionUncheckedCreateWithoutReportEmailsInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportEmailsInput
+    upsert?: InspectionUpsertWithoutReportEmailsInput
+    connect?: InspectionWhereUniqueInput
+    update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutReportEmailsInput, InspectionUpdateWithoutReportEmailsInput>, InspectionUncheckedUpdateWithoutReportEmailsInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutReportEmailsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutReportEmailsInput, StakeholderUncheckedCreateWithoutReportEmailsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutReportEmailsInput
+    upsert?: StakeholderUpsertWithoutReportEmailsInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutReportEmailsInput, StakeholderUpdateWithoutReportEmailsInput>, StakeholderUncheckedUpdateWithoutReportEmailsInput>
+  }
+
   export type InspectionCreateNestedOneWithoutAssessmentsInput = {
     create?: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutAssessmentsInput
@@ -52015,6 +53845,23 @@ export namespace Prisma {
     _min?: NestedEnumVerdictFilter<$PrismaModel>
     _max?: NestedEnumVerdictFilter<$PrismaModel>
   }
+
+  export type NestedEnumReportEmailKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReportEmailKind | EnumReportEmailKindFieldRefInput<$PrismaModel>
+    in?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumReportEmailKindFilter<$PrismaModel> | $Enums.ReportEmailKind
+  }
+
+  export type NestedEnumReportEmailKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReportEmailKind | EnumReportEmailKindFieldRefInput<$PrismaModel>
+    in?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReportEmailKind[] | ListEnumReportEmailKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumReportEmailKindWithAggregatesFilter<$PrismaModel> | $Enums.ReportEmailKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReportEmailKindFilter<$PrismaModel>
+    _max?: NestedEnumReportEmailKindFilter<$PrismaModel>
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -52247,6 +54094,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutConductedByInput = {
@@ -52270,6 +54118,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutConductedByInput = {
@@ -52287,6 +54136,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
     inspection: InspectionCreateNestedOneWithoutSignaturesInput
   }
 
@@ -52296,6 +54146,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
   }
 
   export type SignatureCreateOrConnectWithoutStakeholderInput = {
@@ -52715,6 +54566,42 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ReportEmailCreateWithoutRecipientInput = {
+    id?: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+    inspection: InspectionCreateNestedOneWithoutReportEmailsInput
+  }
+
+  export type ReportEmailUncheckedCreateWithoutRecipientInput = {
+    id?: string
+    inspectionId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportEmailCreateOrConnectWithoutRecipientInput = {
+    where: ReportEmailWhereUniqueInput
+    create: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput>
+  }
+
+  export type ReportEmailCreateManyRecipientInputEnvelope = {
+    data: ReportEmailCreateManyRecipientInput | ReportEmailCreateManyRecipientInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SubscriptionCreateWithoutStakeholderInput = {
     id?: string
     plan: $Enums.Plan
@@ -52948,6 +54835,7 @@ export namespace Prisma {
     signedAt?: DateTimeFilter<"Signature"> | Date | string
     ipAddress?: StringNullableFilter<"Signature"> | string | null
     imageData?: StringFilter<"Signature"> | string
+    contentHash?: StringNullableFilter<"Signature"> | string | null
   }
 
   export type AccountDeletionRequestUpsertWithWhereUniqueWithoutStakeholderInput = {
@@ -53293,6 +55181,39 @@ export namespace Prisma {
     notifiedAt?: DateTimeNullableFilter<"ErrorEvent"> | Date | string | null
   }
 
+  export type ReportEmailUpsertWithWhereUniqueWithoutRecipientInput = {
+    where: ReportEmailWhereUniqueInput
+    update: XOR<ReportEmailUpdateWithoutRecipientInput, ReportEmailUncheckedUpdateWithoutRecipientInput>
+    create: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput>
+  }
+
+  export type ReportEmailUpdateWithWhereUniqueWithoutRecipientInput = {
+    where: ReportEmailWhereUniqueInput
+    data: XOR<ReportEmailUpdateWithoutRecipientInput, ReportEmailUncheckedUpdateWithoutRecipientInput>
+  }
+
+  export type ReportEmailUpdateManyWithWhereWithoutRecipientInput = {
+    where: ReportEmailScalarWhereInput
+    data: XOR<ReportEmailUpdateManyMutationInput, ReportEmailUncheckedUpdateManyWithoutRecipientInput>
+  }
+
+  export type ReportEmailScalarWhereInput = {
+    AND?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
+    OR?: ReportEmailScalarWhereInput[]
+    NOT?: ReportEmailScalarWhereInput | ReportEmailScalarWhereInput[]
+    id?: StringFilter<"ReportEmail"> | string
+    inspectionId?: StringFilter<"ReportEmail"> | string
+    recipientId?: StringFilter<"ReportEmail"> | string
+    kind?: EnumReportEmailKindFilter<"ReportEmail"> | $Enums.ReportEmailKind
+    dedupeKey?: StringNullableFilter<"ReportEmail"> | string | null
+    emailTo?: StringNullableFilter<"ReportEmail"> | string | null
+    attempts?: IntFilter<"ReportEmail"> | number
+    retryAt?: DateTimeFilter<"ReportEmail"> | Date | string
+    sentAt?: DateTimeNullableFilter<"ReportEmail"> | Date | string | null
+    error?: StringNullableFilter<"ReportEmail"> | string | null
+    createdAt?: DateTimeFilter<"ReportEmail"> | Date | string
+  }
+
   export type SubscriptionUpsertWithoutStakeholderInput = {
     update: XOR<SubscriptionUpdateWithoutStakeholderInput, SubscriptionUncheckedUpdateWithoutStakeholderInput>
     create: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
@@ -53395,6 +55316,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -53425,6 +55347,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -53595,6 +55518,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
 
@@ -53625,6 +55549,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
 
@@ -53660,6 +55585,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
   }
 
@@ -53690,6 +55616,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
@@ -53763,6 +55690,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
 
@@ -53793,6 +55721,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
@@ -53834,6 +55763,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -53864,6 +55794,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -53893,6 +55824,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -53923,6 +55855,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -53969,6 +55902,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -53999,6 +55933,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -54183,6 +56118,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -54213,6 +56149,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -54248,6 +56185,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -54278,6 +56216,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -54313,6 +56252,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -54343,6 +56283,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -54373,6 +56314,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutTenancyInput = {
@@ -54396,6 +56338,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutTenancyInput = {
@@ -54532,6 +56475,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -54562,6 +56506,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -54603,6 +56548,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -54633,6 +56579,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -54674,6 +56621,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -54704,6 +56652,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -54805,6 +56754,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -54835,6 +56785,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -54865,6 +56816,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutCheckOutInput = {
@@ -54888,6 +56840,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutCheckOutInput = {
@@ -54916,6 +56869,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutBaselineInput = {
@@ -54939,6 +56893,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutBaselineInput = {
@@ -55029,6 +56984,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
     stakeholder: StakeholderCreateNestedOneWithoutSignaturesInput
   }
 
@@ -55038,6 +56994,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
   }
 
   export type SignatureCreateOrConnectWithoutInspectionInput = {
@@ -55075,6 +57032,42 @@ export namespace Prisma {
 
   export type AssessmentVersionCreateManyInspectionInputEnvelope = {
     data: AssessmentVersionCreateManyInspectionInput | AssessmentVersionCreateManyInspectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportEmailCreateWithoutInspectionInput = {
+    id?: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+    recipient: StakeholderCreateNestedOneWithoutReportEmailsInput
+  }
+
+  export type ReportEmailUncheckedCreateWithoutInspectionInput = {
+    id?: string
+    recipientId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ReportEmailCreateOrConnectWithoutInspectionInput = {
+    where: ReportEmailWhereUniqueInput
+    create: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type ReportEmailCreateManyInspectionInputEnvelope = {
+    data: ReportEmailCreateManyInspectionInput | ReportEmailCreateManyInspectionInput[]
     skipDuplicates?: boolean
   }
 
@@ -55160,6 +57153,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -55190,6 +57184,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -55226,6 +57221,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutCheckOutInput = {
@@ -55249,6 +57245,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUpsertWithoutBaselineInput = {
@@ -55283,6 +57280,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutBaselineInput = {
@@ -55306,6 +57304,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type RoomUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -55418,6 +57417,22 @@ export namespace Prisma {
     contentHash?: StringFilter<"AssessmentVersion"> | string
     publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
     publishedById?: StringFilter<"AssessmentVersion"> | string
+  }
+
+  export type ReportEmailUpsertWithWhereUniqueWithoutInspectionInput = {
+    where: ReportEmailWhereUniqueInput
+    update: XOR<ReportEmailUpdateWithoutInspectionInput, ReportEmailUncheckedUpdateWithoutInspectionInput>
+    create: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type ReportEmailUpdateWithWhereUniqueWithoutInspectionInput = {
+    where: ReportEmailWhereUniqueInput
+    data: XOR<ReportEmailUpdateWithoutInspectionInput, ReportEmailUncheckedUpdateWithoutInspectionInput>
+  }
+
+  export type ReportEmailUpdateManyWithWhereWithoutInspectionInput = {
+    where: ReportEmailScalarWhereInput
+    data: XOR<ReportEmailUpdateManyMutationInput, ReportEmailUncheckedUpdateManyWithoutInspectionInput>
   }
 
   export type RoomCreateWithoutCapturesInput = {
@@ -55648,6 +57663,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutRoomsInput = {
@@ -55671,6 +57687,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutRoomsInput = {
@@ -55810,6 +57827,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutRoomsInput = {
@@ -55833,6 +57851,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type CaptureUpsertWithWhereUniqueWithoutRoomInput = {
@@ -56754,6 +58773,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -56784,6 +58804,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -57094,6 +59115,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -57124,6 +59146,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -57298,6 +59321,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -57328,6 +59352,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -57429,6 +59454,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -57459,6 +59485,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -57845,6 +59872,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -57875,6 +59903,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -58013,6 +60042,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -58043,6 +60073,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -58104,6 +60135,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -58134,6 +60166,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -58217,6 +60250,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -58247,6 +60281,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -58326,6 +60361,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -58356,6 +60392,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -58391,6 +60428,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -58421,6 +60459,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -58522,6 +60561,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -58552,6 +60592,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -58593,6 +60634,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -58623,6 +60665,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -58705,6 +60748,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -58735,6 +60779,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -58813,6 +60858,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -58843,6 +60889,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -58904,6 +60951,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -58934,6 +60982,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -59012,6 +61061,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -59042,6 +61092,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -59227,6 +61278,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutFindingsInput = {
@@ -59250,6 +61302,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutFindingsInput = {
@@ -59432,6 +61485,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutFindingsInput = {
@@ -59455,6 +61509,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionItemUpsertWithoutFindingsAsSubjectInput = {
@@ -59639,6 +61694,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutSignaturesInput = {
@@ -59662,6 +61718,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutSignaturesInput = {
@@ -59695,6 +61752,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -59725,6 +61783,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -59766,6 +61825,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutSignaturesInput = {
@@ -59789,6 +61849,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutSignaturesInput = {
@@ -59828,6 +61889,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -59847,6 +61909,259 @@ export namespace Prisma {
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type InspectionCreateWithoutReportEmailsInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutReportEmailsInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutReportEmailsInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutReportEmailsInput, InspectionUncheckedCreateWithoutReportEmailsInput>
+  }
+
+  export type StakeholderCreateWithoutReportEmailsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutReportEmailsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutReportEmailsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutReportEmailsInput, StakeholderUncheckedCreateWithoutReportEmailsInput>
+  }
+
+  export type InspectionUpsertWithoutReportEmailsInput = {
+    update: XOR<InspectionUpdateWithoutReportEmailsInput, InspectionUncheckedUpdateWithoutReportEmailsInput>
+    create: XOR<InspectionCreateWithoutReportEmailsInput, InspectionUncheckedCreateWithoutReportEmailsInput>
+    where?: InspectionWhereInput
+  }
+
+  export type InspectionUpdateToOneWithWhereWithoutReportEmailsInput = {
+    where?: InspectionWhereInput
+    data: XOR<InspectionUpdateWithoutReportEmailsInput, InspectionUncheckedUpdateWithoutReportEmailsInput>
+  }
+
+  export type InspectionUpdateWithoutReportEmailsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutReportEmailsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type StakeholderUpsertWithoutReportEmailsInput = {
+    update: XOR<StakeholderUpdateWithoutReportEmailsInput, StakeholderUncheckedUpdateWithoutReportEmailsInput>
+    create: XOR<StakeholderCreateWithoutReportEmailsInput, StakeholderUncheckedCreateWithoutReportEmailsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutReportEmailsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutReportEmailsInput, StakeholderUncheckedUpdateWithoutReportEmailsInput>
+  }
+
+  export type StakeholderUpdateWithoutReportEmailsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutReportEmailsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
     maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
@@ -59883,6 +62198,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutAssessmentsInput = {
@@ -59906,6 +62222,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutAssessmentsInput = {
@@ -59945,6 +62262,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutAssessmentsInput = {
@@ -59968,6 +62286,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type StakeholderCreateWithoutDeletionRequestsInput = {
@@ -59996,6 +62315,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60026,6 +62346,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -60096,6 +62417,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60126,6 +62448,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60251,6 +62574,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -60281,6 +62605,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -60327,6 +62652,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -60357,6 +62683,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -60430,6 +62757,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
   }
 
   export type AccountDeletionRequestCreateManyStakeholderInput = {
@@ -60564,6 +62892,19 @@ export namespace Prisma {
     occurredAt: Date | string
     createdAt?: Date | string
     notifiedAt?: Date | string | null
+  }
+
+  export type ReportEmailCreateManyRecipientInput = {
+    id?: string
+    inspectionId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
   }
 
   export type SubscriptionCreateManyManagedByInput = {
@@ -60749,6 +63090,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutConductedByInput = {
@@ -60772,6 +63114,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutConductedByInput = {
@@ -60797,6 +63140,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutSignaturesNestedInput
   }
 
@@ -60806,6 +63150,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SignatureUncheckedUpdateManyWithoutStakeholderInput = {
@@ -60814,6 +63159,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AccountDeletionRequestUpdateWithoutStakeholderInput = {
@@ -61234,6 +63580,45 @@ export namespace Prisma {
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type ReportEmailUpdateWithoutRecipientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspection?: InspectionUpdateOneRequiredWithoutReportEmailsNestedInput
+  }
+
+  export type ReportEmailUncheckedUpdateWithoutRecipientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportEmailUncheckedUpdateManyWithoutRecipientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SubscriptionUpdateWithoutManagedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -61317,6 +63702,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -61347,6 +63733,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -61531,6 +63918,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutTenancyInput = {
@@ -61554,6 +63942,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutTenancyInput = {
@@ -61668,6 +64057,7 @@ export namespace Prisma {
     signedAt?: Date | string
     ipAddress?: string | null
     imageData: string
+    contentHash?: string | null
   }
 
   export type AssessmentVersionCreateManyInspectionInput = {
@@ -61677,6 +64067,19 @@ export namespace Prisma {
     contentHash: string
     publishedAt?: Date | string
     publishedById: string
+  }
+
+  export type ReportEmailCreateManyInspectionInput = {
+    id?: string
+    recipientId: string
+    kind: $Enums.ReportEmailKind
+    dedupeKey?: string | null
+    emailTo?: string | null
+    attempts?: number
+    retryAt?: Date | string
+    sentAt?: Date | string | null
+    error?: string | null
+    createdAt?: Date | string
   }
 
   export type RoomUpdateWithoutInspectionInput = {
@@ -61769,6 +64172,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     stakeholder?: StakeholderUpdateOneRequiredWithoutSignaturesNestedInput
   }
 
@@ -61778,6 +64182,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SignatureUncheckedUpdateManyWithoutInspectionInput = {
@@ -61786,6 +64191,7 @@ export namespace Prisma {
     signedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     imageData?: StringFieldUpdateOperationsInput | string
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AssessmentVersionUpdateWithoutInspectionInput = {
@@ -61813,6 +64219,45 @@ export namespace Prisma {
     contentHash?: StringFieldUpdateOperationsInput | string
     publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ReportEmailUpdateWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recipient?: StakeholderUpdateOneRequiredWithoutReportEmailsNestedInput
+  }
+
+  export type ReportEmailUncheckedUpdateWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipientId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReportEmailUncheckedUpdateManyWithoutInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipientId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    retryAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InspectionItemCreateManySourceCaptureInput = {

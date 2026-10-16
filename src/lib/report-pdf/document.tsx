@@ -3,6 +3,7 @@ import { Document, Font, Image, Link, Page, Path, StyleSheet, Svg, Text, View } 
 import type { ItemCondition } from '@/generated/prisma'
 import { markPath } from '@/lib/annotations'
 import { sgd } from '@/lib/format'
+import { shortFingerprint } from '@/lib/report-fingerprint'
 import { markNotes, type ReportModel, type ReportPhoto, type ReportRoom } from './model'
 
 /// A serial number or meter reading split across lines with a hyphen reads as a
@@ -445,6 +446,9 @@ function Agreement({ model, assets }: { model: ReportModel; assets: ReportAssets
             <View style={{ borderTopWidth: 0.75, borderTopColor: INK, paddingTop: 4, marginTop: 4 }}>
               <Text style={s.bold}>{signature.name}</Text>
               <Text style={s.small}>{signature.role}, signed {dateTime.format(new Date(signature.signedAt))}</Text>
+              {signature.contentHash && (
+                <Text style={s.small}>Content fingerprint {shortFingerprint(signature.contentHash)}</Text>
+              )}
             </View>
           </View>
         ))}

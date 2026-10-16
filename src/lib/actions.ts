@@ -10,6 +10,8 @@ import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
 import { templateRows } from '@/lib/room-templates'
 import { assertCanAddProperty } from '@/lib/plan'
+import { reportFingerprint } from '@/lib/report-fingerprint'
+import { queueSignatureRequests, queueSignedCopies, signingParties } from '@/lib/report-email'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -690,11 +692,30 @@ export async function completeReview(inspectionId: string) {
       throw new Error('Review every room with new captures before sending for signature')
     }
 
-    await tx.inspection.update({
+    const { tenancy } = await tx.inspection.update({
       where: { id: inspectionId },
       data: { status: 'AWAITING_SIGNATURE' },
+      select: { tenancy: { select: { landlordId: true, tenantId: true } } },
     })
+    // In the same commit, so a report sent for signature always has its emails coming.
+    await queueSignatureRequests(tx, inspectionId, [tenancy.landlordId, tenancy.tenantId])
   })
+  revalidate(inspectionId)
+}
+
+/// The agent emails a party the signing link again, or for the first time if their
+/// address was added after Send. A request already waiting to go is not doubled.
+export async function emailSigningLink(inspectionId: string, stakeholderId: string) {
+  const agent = await requireAgent()
+  const authorized = await authorizeInspection(inspectionId, agent.id)
+  if (authorized.status !== 'AWAITING_SIGNATURE') throw new Error('Report is not awaiting signature')
+
+  const party = (await signingParties(inspectionId)).find((row) => row.stakeholderId === stakeholderId)
+  if (!party) throw new Error('Signature party not found')
+  if (party.signedAt) throw new Error('This party has already signed')
+  if (!party.email) throw new Error('This party has no email on file')
+
+  await db.$transaction((tx) => queueSignatureRequests(tx, inspectionId, [stakeholderId]))
   revalidate(inspectionId)
 }
 
@@ -752,8 +773,16 @@ async function recordSignature(
     })
     if (!existing) {
       if (current.status === 'COMPLETED') throw new Error('Report is already countersigned')
+      // Computed here, under the row lock, so every way of signing records it and it is
+      // the content as it stood at the moment of signing.
       await tx.signature.create({
-        data: { inspectionId, stakeholderId, imageData, ipAddress: ip },
+        data: {
+          inspectionId,
+          stakeholderId,
+          imageData,
+          ipAddress: ip,
+          contentHash: await reportFingerprint(tx, inspectionId),
+        },
       })
     }
 
@@ -764,6 +793,7 @@ async function recordSignature(
     const signed = new Set(signatures.map((signature) => signature.stakeholderId))
     if (required.every((id) => signed.has(id)) && current.status !== 'COMPLETED') {
       await tx.inspection.update({ where: { id: inspectionId }, data: { status: 'COMPLETED' } })
+      await queueSignedCopies(tx, inspectionId)
     }
   })
 }

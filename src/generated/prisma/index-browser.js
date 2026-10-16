@@ -435,7 +435,22 @@ exports.Prisma.SignatureScalarFieldEnum = {
   stakeholderId: 'stakeholderId',
   signedAt: 'signedAt',
   ipAddress: 'ipAddress',
-  imageData: 'imageData'
+  imageData: 'imageData',
+  contentHash: 'contentHash'
+};
+
+exports.Prisma.ReportEmailScalarFieldEnum = {
+  id: 'id',
+  inspectionId: 'inspectionId',
+  recipientId: 'recipientId',
+  kind: 'kind',
+  dedupeKey: 'dedupeKey',
+  emailTo: 'emailTo',
+  attempts: 'attempts',
+  retryAt: 'retryAt',
+  sentAt: 'sentAt',
+  error: 'error',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.AssessmentVersionScalarFieldEnum = {
@@ -706,6 +721,11 @@ exports.Verdict = exports.$Enums.Verdict = {
   UNDECIDED: 'UNDECIDED'
 };
 
+exports.ReportEmailKind = exports.$Enums.ReportEmailKind = {
+  SIGNATURE_REQUEST: 'SIGNATURE_REQUEST',
+  SIGNED_COPY: 'SIGNED_COPY'
+};
+
 exports.DeletionRequestStatus = exports.$Enums.DeletionRequestStatus = {
   REQUESTED: 'REQUESTED',
   PROCESSING: 'PROCESSING',
@@ -744,6 +764,7 @@ exports.Prisma.ModelName = {
   NotificationPushDelivery: 'NotificationPushDelivery',
   Finding: 'Finding',
   Signature: 'Signature',
+  ReportEmail: 'ReportEmail',
   AssessmentVersion: 'AssessmentVersion',
   AccountDeletionRequest: 'AccountDeletionRequest',
   AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',

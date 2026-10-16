@@ -19,6 +19,14 @@ const LINK_SECONDS = 10 * 60
 /// The PDF is far past the 4.5 MB a function may return, so it is written to the
 /// private bucket and handed out as a signed URL, never through the response body.
 export async function reportPdfUrl(inspectionId: string) {
+  const stored = await storedReportPdf(inspectionId)
+  return stored && createDownloadUrl(stored.path, LINK_SECONDS, stored.filename)
+}
+
+/// Where the inspection's current report PDF is stored, drawing it first if no stored
+/// copy matches its current inputs. Null when the inspection is not countersigned. The
+/// signed-copy email attaches the file from here.
+export async function storedReportPdf(inspectionId: string) {
   const row = await loadReportRow(inspectionId)
   if (!row) return null
   const model = buildReportModel(row)
@@ -29,7 +37,7 @@ export async function reportPdfUrl(inspectionId: string) {
     await uploadBytes(path, pdf, 'application/pdf')
     await removePrefix(reportPrefix(inspectionId), { keep: path })
   }
-  return createDownloadUrl(path, LINK_SECONDS, reportFilename(model))
+  return { path, filename: reportFilename(model) }
 }
 
 async function fetchAssets(model: ReportModel): Promise<ReportAssets> {
