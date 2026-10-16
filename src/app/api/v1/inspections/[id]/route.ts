@@ -6,6 +6,7 @@ import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { costStanding, describeProposal } from '@/lib/maintenance'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations } from '@/lib/annotations'
+import { signingParties } from '@/lib/report-email'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,6 +103,17 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     signatures: inspection.signatures.map((signature) => ({
       stakeholderId: signature.stakeholderId,
       signedAt: signature.signedAt.toISOString(),
+    })),
+    // Whether each party has been emailed the signing link. Older app builds ignore it.
+    signingParties: (await signingParties(id)).map((party) => ({
+      stakeholderId: party.stakeholderId,
+      role: party.role,
+      email: party.email,
+      signedAt: party.signedAt?.toISOString() ?? null,
+      signingEmail: party.signingEmail && {
+        state: party.signingEmail.state,
+        at: party.signingEmail.at.toISOString(),
+      },
     })),
     latestAssessment: inspection.assessments[0]
       ? {

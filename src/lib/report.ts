@@ -79,6 +79,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
       name: signature.stakeholder.name,
       signedAt: signature.signedAt.toISOString(),
       imageData: signature.imageData,
+      contentHash: signature.contentHash,
     })),
     assessment: assessment && published && {
       version: published.version,

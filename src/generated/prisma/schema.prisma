@@ -53,6 +53,7 @@ model Stakeholder {
   deviceInstallations         DeviceInstallation[]
   branding                    AgentBranding?
   errorEvents                 ErrorEvent[]
+  reportEmails                ReportEmail[]
   /// The plan of an agent who is on no team. An agent on a team uses the team's.
   subscription                Subscription?             @relation("OwnSubscription")
   subscriptionsManaged        Subscription[]            @relation("ManagedSubscriptions")
@@ -226,10 +227,11 @@ model Inspection {
   baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
   checkOut    Inspection?  @relation("Baseline")
 
-  rooms       Room[]
-  findings    Finding[]
-  signatures  Signature[]
-  assessments AssessmentVersion[]
+  rooms        Room[]
+  findings     Finding[]
+  signatures   Signature[]
+  assessments  AssessmentVersion[]
+  reportEmails ReportEmail[]
 
   @@index([tenancyId, kind])
 }
@@ -761,11 +763,49 @@ model Signature {
   ipAddress     String?
   /// data: URL of the drawn signature.
   imageData     String
+  /// sha256 of the report content this person signed (`src/lib/report-fingerprint.ts`).
+  /// Null on signatures taken before it existed.
+  contentHash   String?
 
   inspection  Inspection  @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
   stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id])
 
   @@unique([inspectionId, stakeholderId])
+}
+
+enum ReportEmailKind {
+  /// "Please review and sign", with a link to /sign/[inspectionId].
+  SIGNATURE_REQUEST
+  /// "Both parties have signed", with the signed PDF attached.
+  SIGNED_COPY
+}
+
+/// Outbox for report emails (`src/lib/report-email.ts`). A row is written in the same
+/// transaction as the change that calls for it (Send, or the second signature) and
+/// `/api/internal/report-emails` delivers it, so a Resend outage delays an email
+/// instead of failing a signature.
+model ReportEmail {
+  id           String          @id @default(cuid())
+  inspectionId String
+  recipientId  String
+  kind         ReportEmailKind
+  /// Makes the signed copy once only per recipient. Null for signature requests, which
+  /// the agent may resend.
+  dedupeKey    String?         @unique
+  /// The address it went to, read from the recipient at delivery.
+  emailTo      String?
+  attempts     Int             @default(0)
+  /// Not before this. Pushed back exponentially after each failure.
+  retryAt      DateTime        @default(now())
+  sentAt       DateTime?
+  error        String?
+  createdAt    DateTime        @default(now())
+
+  inspection Inspection  @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  recipient  Stakeholder @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([sentAt, attempts, retryAt])
+  @@index([inspectionId, recipientId])
 }
 
 /// A human-published, immutable assessment. The signed inventory has its own lifecycle.

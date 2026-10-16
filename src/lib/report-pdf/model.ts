@@ -6,7 +6,7 @@ import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 2
+export const RENDER_VERSION = 3
 
 const reportInclude = {
   tenancy: {
@@ -170,6 +170,7 @@ export function buildReportModel(row: ReportRow) {
         : signature.stakeholderId === tenancy.tenantId ? 'Tenant' : 'Signatory',
       signedAt: signature.signedAt.toISOString(),
       imageData: signature.imageData,
+      contentHash: signature.contentHash,
     })),
     assessment,
   }

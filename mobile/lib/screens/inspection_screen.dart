@@ -8,6 +8,7 @@ import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import 'room_screen.dart';
@@ -178,6 +179,18 @@ class _InspectionScreenState extends State<InspectionScreen> {
     );
     if (signed == true && mounted) await _refresh();
   }
+
+  /// For a party who is not at the handover: the server emails them a link to sign on
+  /// their own phone, after signing in as themselves.
+  Future<void> _emailSigningLink(String stakeholderId, String name) =>
+      _run(() async {
+        await _api.emailSigningLink(widget.id, stakeholderId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Signing link on its way to $name')),
+          );
+        }
+      });
 
   /// Printed on the server, then opened in the phone's viewer, which has its own share
   /// sheet for email and messaging.
@@ -938,35 +951,81 @@ class _InspectionScreenState extends State<InspectionScreen> {
     String role,
   ) {
     final signed = inspection.signedBy(id);
+    final awaiting = inspection.status == 'AWAITING_SIGNATURE';
+    final party = inspection.signingParty(id);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Card(
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 5,
-          ),
-          leading: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: signed ? KiviloColors.greenSoft : KiviloColors.amberSoft,
-              borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 5,
+              ),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: signed
+                      ? KiviloColors.greenSoft
+                      : KiviloColors.amberSoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  signed ? Icons.check_rounded : Icons.draw_outlined,
+                  color: signed ? KiviloColors.green : KiviloColors.amber,
+                ),
+              ),
+              title: Text(name, style: Theme.of(context).textTheme.titleMedium),
+              subtitle: Text(
+                '$role · ${signed ? 'Signed' : 'Awaiting signature'}',
+              ),
+              trailing: signed
+                  ? null
+                  : const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+              onTap: !signed && awaiting && !_busy
+                  ? () => _sign(id, name, role)
+                  : null,
             ),
-            child: Icon(
-              signed ? Icons.check_rounded : Icons.draw_outlined,
-              color: signed ? KiviloColors.green : KiviloColors.amber,
-            ),
-          ),
-          title: Text(name, style: Theme.of(context).textTheme.titleMedium),
-          subtitle: Text('$role · ${signed ? 'Signed' : 'Awaiting signature'}'),
-          trailing: signed
-              ? null
-              : const Icon(Icons.chevron_right, color: KiviloColors.subtle),
-          onTap: !signed && inspection.status == 'AWAITING_SIGNATURE' && !_busy
-              ? () => _sign(id, name, role)
-              : null,
+            if (!signed && awaiting && party != null)
+              _signingEmailRow(party, name),
+          ],
         ),
+      ),
+    );
+  }
+
+  /// Under an unsigned party: whether they have been emailed the link to sign on their
+  /// own phone, and a button to send it (again).
+  Widget _signingEmailRow(SigningParty party, String name) {
+    final status = party.email == null
+        ? 'No email on file'
+        : switch (party.emailState) {
+            'SENT' => 'Signing link emailed ${shortDate(party.emailedAt!)}',
+            'QUEUED' => 'Emailing the signing link',
+            'FAILED' => 'Could not email the signing link',
+            _ => 'Signing link not emailed',
+          };
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(status, style: Theme.of(context).textTheme.bodySmall),
+          ),
+          if (party.email != null)
+            TextButton.icon(
+              onPressed: _busy || party.emailState == 'QUEUED'
+                  ? null
+                  : () => _emailSigningLink(party.stakeholderId, name),
+              icon: const Icon(Icons.mail_outline, size: 18),
+              label: Text(
+                party.emailState == null ? 'Email signing link' : 'Resend',
+              ),
+            ),
+        ],
       ),
     );
   }

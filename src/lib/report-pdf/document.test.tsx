@@ -130,4 +130,17 @@ describe('report PDF', () => {
     expect(noted!.match(/Photo 1\.2/g)).toHaveLength(1)
     expect(pages.join(' ')).toContain('Laminate peels off')
   })
+
+  it('prints the content fingerprint beside each signature that recorded one', async () => {
+    const report = model([room(1, 'Entrance', 0)])
+    report.signatures = [
+      { name: 'Tan Wei Ming', role: 'Landlord', signedAt: '2025-08-22T02:00:00.000Z', imageData: '', contentHash: 'ab12cd34ef567890'.repeat(4) },
+      // Signed before fingerprints existed.
+      { name: 'Priya Raman', role: 'Tenant', signedAt: '2025-08-22T02:05:00.000Z', imageData: '', contentHash: null },
+    ]
+    const text = (await render(report)).join(' ')
+
+    expect(text).toContain('Content fingerprint AB12 CD34 EF56 7890')
+    expect(text.match(/Content fingerprint/g)).toHaveLength(1)
+  })
 })

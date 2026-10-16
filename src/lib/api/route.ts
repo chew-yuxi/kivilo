@@ -66,7 +66,7 @@ export function authed<P>(
       if (/Invalid maintenance status transition|Closing without action requires a reason|Only a completed visit can be verified|After evidence requires a completed visit|Only a human-reviewed inspection item can be linked/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
-      if (/not awaiting signature|already countersigned|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed|Save your agency name/i.test(message)) {
+      if (/not awaiting signature|already countersigned|already signed|no email on file|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed|Save your agency name/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       console.error('API route failed:', error)

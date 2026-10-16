@@ -12,6 +12,8 @@ import { CheckOutButton } from '@/components/check-out-button'
 import { DownloadPdf } from '@/components/download-pdf'
 import { CompleteReviewButton } from '@/components/complete-review-button'
 import { ShareReport } from '@/components/share-report'
+import { SigningEmail } from '@/components/signing-email'
+import { signingParties } from '@/lib/report-email'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,8 +66,9 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
   const allReviewed = rooms.length > 0 && rooms.every((room) => room.status === 'REVIEWED')
 
-  const signatureFor = (stakeholderId: string) =>
-    inspection.signatures.find((s) => s.stakeholderId === stakeholderId)?.signedAt ?? null
+  const parties = status === 'AWAITING_SIGNATURE' || status === 'COMPLETED'
+    ? await signingParties(id)
+    : []
 
   const findings: FindingRow[] = inspection.findings.map((finding) => ({
     id: finding.id,
@@ -172,24 +175,31 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             {status === 'AWAITING_SIGNATURE' && (
               <p className="text-sm text-gray-500">
                 Go through the inventory above with both parties, then hand the phone to
-                each of them to sign. The report freezes once both have.
+                each of them to sign. A party with an email on file is also sent a link to
+                sign from their own phone. The report freezes once both have.
               </p>
             )}
             <div className="grid gap-3 sm:grid-cols-2">
-              <SignaturePad
-                inspectionId={id}
-                stakeholderId={tenancy.landlordId}
-                stakeholderName={tenancy.landlord.name}
-                role="landlord"
-                signedAt={signatureFor(tenancy.landlordId)}
-              />
-              <SignaturePad
-                inspectionId={id}
-                stakeholderId={tenancy.tenantId}
-                stakeholderName={tenancy.tenant.name}
-                role="tenant"
-                signedAt={signatureFor(tenancy.tenantId)}
-              />
+              {parties.map((party) => (
+                <div key={party.stakeholderId}>
+                  <SignaturePad
+                    inspectionId={id}
+                    stakeholderId={party.stakeholderId}
+                    stakeholderName={party.name}
+                    role={party.role === 'LANDLORD' ? 'landlord' : 'tenant'}
+                    signedAt={party.signedAt}
+                  />
+                  {!party.signedAt && (
+                    <SigningEmail
+                      inspectionId={id}
+                      stakeholderId={party.stakeholderId}
+                      email={party.email}
+                      signingEmail={party.signingEmail}
+                      canSend={status === 'AWAITING_SIGNATURE'}
+                    />
+                  )}
+                </div>
+              ))}
             </div>
           </section>
         </>

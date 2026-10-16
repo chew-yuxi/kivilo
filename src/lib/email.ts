@@ -111,3 +111,122 @@ export async function sendErrorAlert(to: string, errors: { count: number; latest
   const { error } = await resend().emails.send({ from: sender(), to, subject, text })
   if (error) throw new Error(`Resend refused the error alert: ${error.message}`)
 }
+
+export type SignatureRequest = {
+  /// The ReportEmail row, as the idempotency key, so an overlapping cron run cannot send twice.
+  id: string
+  recipientName: string
+  role: 'landlord' | 'tenant'
+  reportKind: 'Check-in' | 'Check-out'
+  address: string
+  /// Who is asking: the agent, with their agency when they have set one.
+  from: string
+  /// `/sign/[inspectionId]?email=...` on the app's origin. Not a credential: the page
+  /// makes the reader sign in with a code sent to this same address before it shows
+  /// anything.
+  link: string
+}
+
+/// "Please review and sign". Unlike the sign-in email this one is a link, because its
+/// reader is a landlord or tenant who may have no app installed at all; the page it opens
+/// sits outside the installed PWA, so nobody is stranded in the wrong browser.
+export function signatureRequestEmail(request: SignatureRequest) {
+  const report = `${request.reportKind.toLowerCase()} report for ${request.address}`
+  const lines = {
+    intro: `${request.from} has sent the ${report} for your signature, as ${request.role}.`,
+    signIn: 'You will be asked to sign in with a code emailed to this address, so only you can sign it. If you already use Kivilo, it is the same account.',
+    app: 'Prefer the app? Open the Kivilo app and sign in with this address. The report is there, awaiting your signature.',
+    after: 'Once both parties have signed, we will email you the signed report as a PDF.',
+  }
+  return {
+    subject: `Please review and sign the ${report}`,
+    text: [
+      `Hello ${request.recipientName},`,
+      '',
+      lines.intro,
+      '',
+      'Review and sign it here:',
+      request.link,
+      '',
+      lines.signIn,
+      '',
+      lines.app,
+      '',
+      lines.after,
+    ].join('\n'),
+    html: `<!doctype html>
+<html>
+  <body style="margin:0;padding:24px;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827">
+    <div style="max-width:460px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:32px">
+      <h1 style="margin:0 0 8px;font-size:18px;font-weight:600">Please review and sign</h1>
+      <p style="margin:0 0 20px;font-size:14px;line-height:21px;color:#374151">
+        Hello ${escapeHtml(request.recipientName)}. ${escapeHtml(lines.intro)}
+      </p>
+      <a href="${escapeHtml(request.link)}" style="display:inline-block;background:#ec4899;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 18px;border-radius:8px">Review and sign</a>
+      <p style="margin:20px 0 0;font-size:13px;line-height:19px;color:#6b7280">${escapeHtml(lines.signIn)}</p>
+      <p style="margin:12px 0 0;font-size:13px;line-height:19px;color:#6b7280">${escapeHtml(lines.app)}</p>
+      <p style="margin:12px 0 0;font-size:13px;line-height:19px;color:#6b7280">${escapeHtml(lines.after)}</p>
+    </div>
+  </body>
+</html>`,
+  }
+}
+
+export async function sendSignatureRequest(to: string, request: SignatureRequest) {
+  const { subject, text, html } = signatureRequestEmail(request)
+  const { error } = await resend().emails.send(
+    { from: sender(), to, subject, text, html },
+    { idempotencyKey: `report-email-${request.id}` },
+  )
+  if (error) throw new Error(`Resend refused the signature request: ${error.message}`)
+}
+
+export type SignedCopy = {
+  id: string
+  recipientName: string
+  reportKind: 'Check-in' | 'Check-out'
+  address: string
+  signatures: { name: string; role: string; signedAt: Date }[]
+}
+
+/// "Both parties have signed", with the PDF attached. Deliberately no link: the only web
+/// copy is `/reports/[token]`, and that token is a credential which exists only if and
+/// when the agent chooses to share it.
+export function signedCopyEmail(copy: SignedCopy) {
+  const report = `${copy.reportKind.toLowerCase()} report for ${copy.address}`
+  const when = new Intl.DateTimeFormat('en-SG', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+    timeZone: 'Asia/Singapore',
+  })
+  return {
+    subject: `Signed: ${report}`,
+    text: [
+      `Hello ${copy.recipientName},`,
+      '',
+      `Both parties have signed the ${report}. The signed report is attached as a PDF; keep it with the tenancy documents.`,
+      '',
+      ...copy.signatures.map((signature) =>
+        `${signature.role}: ${signature.name}, signed ${when.format(signature.signedAt)}`),
+      '',
+      'Beside each signature the PDF prints a content fingerprint of the report that person signed, so any two copies can be compared.',
+    ].join('\n'),
+  }
+}
+
+export async function sendSignedCopy(to: string, copy: SignedCopy, pdf: { filename: string; content: Buffer }) {
+  const { subject, text } = signedCopyEmail(copy)
+  const { error } = await resend().emails.send(
+    { from: sender(), to, subject, text, attachments: [pdf] },
+    { idempotencyKey: `report-email-${copy.id}` },
+  )
+  if (error) throw new Error(`Resend refused the signed copy: ${error.message}`)
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}

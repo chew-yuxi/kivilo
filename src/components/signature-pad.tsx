@@ -5,6 +5,7 @@ import { signInspection } from '@/lib/actions'
 import { useUploadQueue } from '@/components/upload-queue'
 import { listPending } from '@/lib/offline-queue'
 
+/// A party signing on the agent's phone, at the handover.
 export function SignaturePad({
   inspectionId,
   stakeholderId,
@@ -18,29 +19,75 @@ export function SignaturePad({
   role: string
   signedAt: Date | null
 }) {
+  const { pending: captures, flush } = useUploadQueue()
+  const unsent = captures.filter((capture) => capture.inspectionId === inspectionId).length
+
+  if (signedAt) {
+    return (
+      <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+        <p className="text-sm font-medium text-emerald-900">
+          {stakeholderName} <span className="font-normal text-emerald-700">({role})</span>
+        </p>
+        <p className="mt-0.5 text-xs text-emerald-700">
+          Signed {signedAt.toLocaleString('en-SG')}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <SignatureCanvas
+      label={
+        <>
+          {stakeholderName} <span className="font-normal text-gray-500">({role})</span>
+        </>
+      }
+      blocked={unsent > 0}
+      note={unsent > 0 ? `${unsent} saved capture${unsent === 1 ? '' : 's'} must upload before signing.` : null}
+      onSign={async (imageData) => {
+        // A queued photograph may have been taken before Send but still be on this
+        // phone. Countersigning now would make the server refuse those bytes forever.
+        if ((await listPending()).some((capture) => capture.inspectionId === inspectionId)) {
+          flush()
+          throw new Error('Upload saved captures before signing this report.')
+        }
+        await signInspection(inspectionId, stakeholderId, imageData)
+      }}
+    />
+  )
+}
+
+/// The drawing surface, shared by the agent's phone and the signing page a landlord or
+/// tenant opens from their email. It only draws and hands over a PNG; who may sign, and
+/// as whom, is decided by the action `onSign` calls.
+export function SignatureCanvas({
+  label,
+  blocked = false,
+  note = null,
+  onSign,
+}: {
+  label: React.ReactNode
+  blocked?: boolean
+  note?: string | null
+  onSign: (imageData: string) => Promise<void>
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const drawing = useRef(false)
   const [hasInk, setHasInk] = useState(false)
   const [pending, startTransition] = useTransition()
-  const [queueError, setQueueError] = useState<string | null>(null)
-  const { pending: captures, flush } = useUploadQueue()
-  const unsent = captures.filter((capture) => capture.inspectionId === inspectionId).length
+  const [error, setError] = useState<string | null>(null)
 
-  async function sign() {
-    try {
-      // A queued photograph may have been taken before Send but still be on this
-      // phone. Countersigning now would make the server refuse those bytes forever.
-      if ((await listPending()).some((capture) => capture.inspectionId === inspectionId)) {
-        flush()
-        setQueueError('Upload saved captures before signing this report.')
-        return
+  function sign() {
+    const imageData = canvasRef.current?.toDataURL('image/png')
+    if (!imageData) return
+    setError(null)
+    startTransition(async () => {
+      try {
+        await onSign(imageData)
+      } catch (failure) {
+        setError(failure instanceof Error ? failure.message : String(failure))
       }
-      setQueueError(null)
-      const imageData = canvasRef.current?.toDataURL('image/png')
-      if (imageData) startTransition(() => void signInspection(inspectionId, stakeholderId, imageData))
-    } catch (error) {
-      setQueueError(`Could not check saved captures: ${error instanceof Error ? error.message : String(error)}`)
-    }
+    })
   }
 
   function position(event: React.PointerEvent<HTMLCanvasElement>) {
@@ -77,24 +124,9 @@ export function SignaturePad({
     setHasInk(false)
   }
 
-  if (signedAt) {
-    return (
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-        <p className="text-sm font-medium text-emerald-900">
-          {stakeholderName} <span className="font-normal text-emerald-700">({role})</span>
-        </p>
-        <p className="mt-0.5 text-xs text-emerald-700">
-          Signed {signedAt.toLocaleString('en-SG')}
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4">
-      <p className="text-sm font-medium">
-        {stakeholderName} <span className="font-normal text-gray-500">({role})</span>
-      </p>
+      <p className="text-sm font-medium">{label}</p>
       <canvas
         ref={canvasRef}
         width={520}
@@ -110,18 +142,14 @@ export function SignaturePad({
         </button>
         <button
           type="button"
-          disabled={!hasInk || pending || unsent > 0}
-          onClick={() => void sign()}
+          disabled={!hasInk || pending || blocked}
+          onClick={sign}
           className="rounded-md bg-brand-500 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-40"
         >
           Sign
         </button>
       </div>
-      {(unsent > 0 || queueError) && (
-        <p className="mt-2 text-xs text-amber-800">
-          {queueError ?? `${unsent} saved capture${unsent === 1 ? '' : 's'} must upload before signing.`}
-        </p>
-      )}
+      {(error || note) && <p className="mt-2 text-xs text-amber-800">{error ?? note}</p>}
     </div>
   )
 }
