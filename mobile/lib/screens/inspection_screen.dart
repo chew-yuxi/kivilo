@@ -13,6 +13,7 @@ import '../ui/marked_network_photo.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
+import 'report_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
   const InspectionScreen({super.key, required this.id, this.api});
@@ -701,6 +702,20 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           icon: const Icon(Icons.description_outlined),
                           label: const Text('Download PDF'),
                         ),
+                        // The report as the parties read it, with every update since
+                        // signing and who has acknowledged it.
+                        if (inspection.kind == 'CHECK_IN') ...[
+                          const SizedBox(height: 10),
+                          OutlinedButton.icon(
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => ReportScreen(id: widget.id),
+                              ),
+                            ),
+                            icon: const Icon(Icons.fact_check_outlined),
+                            label: const Text('Signed report and updates'),
+                          ),
+                        ],
                         if (inspection.shareToken != null)
                           TextButton(
                             onPressed: _busy ? null : _revoke,

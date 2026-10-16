@@ -496,6 +496,27 @@ class Api {
         );
       });
 
+  /// The signed-in landlord or tenant acknowledges an update to their report. Like
+  /// signing, the server takes the party from the token, not from the request.
+  Future<void> acknowledgeAddendum(String addendumId) => _call(() async {
+    await _dio.post('/api/v1/addenda/$addendumId/acknowledgement');
+  });
+
+  /// The report a published update belongs to, for a notification that names only the
+  /// update.
+  Future<String> addendumReport(String addendumId) => _call(() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/addenda/$addendumId',
+    );
+    return response.data!['inspectionId'] as String;
+  });
+
+  /// "Add to the report as an update" on a resolved repair. The agent finishes and
+  /// publishes the draft on the web.
+  Future<void> addendumFromMaintenanceCase(String caseId) => _call(() async {
+    await _dio.post('/api/v1/maintenance/$caseId/addendum');
+  });
+
   Future<void> sign(
     String inspectionId,
     String stakeholderId,

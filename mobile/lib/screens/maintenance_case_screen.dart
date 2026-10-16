@@ -50,6 +50,18 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     }
   }
 
+  Future<void> _addToReport(String caseId) async {
+    await _run(() => _api.addendumFromMaintenanceCase(caseId));
+    if (!mounted || _error != null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Added to a draft update of the check-in report. Check it and publish it from the inspection on the web.',
+        ),
+      ),
+    );
+  }
+
   Future<String?> _ask(String title, {String? hint}) async {
     final controller = TextEditingController();
     final result = await showKiviloDrawer<String>(
@@ -425,6 +437,18 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   onPressed: () =>
                       _addEvidence(item.id, 'AFTER', visitId: unverified.id),
                 ),
+              ),
+            ],
+            // A replaced appliance or fixture belongs in the signed check-in as an
+            // update, with this repair's before and after photos.
+            if (!_busy &&
+                item.role == 'AGENT' &&
+                item.status == 'RESOLVED') ...[
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.fact_check_outlined),
+                onPressed: () => _addToReport(item.id),
+                label: const Text('Add to the report as an update'),
               ),
             ],
             if (!_busy && item.canManage && open)
