@@ -223,8 +223,11 @@ transaction as Send (requests) and as the second signature (the signed PDF, atta
 landlord, tenant and the conducting agent, once each by `dedupeKey`). The
 `/api/internal/report-emails` cron delivers them every minute and backs off on failure;
 a request whose party has signed meanwhile is withdrawn, not sent. No email ever carries
-a `/reports/` URL, since the share token is a credential that may not exist. The link's
-origin is `KIVILO_APP_URL`. Pinned by `src/lib/email-signing.integration.test.ts` and
+a `/reports/` URL or a signed storage URL, since both are credentials. A PDF over
+`MAX_ATTACHMENT_BYTES` (25 MB; Resend caps a message at 40 MB after base64's third) is
+linked instead of attached: to `/sign/[inspectionId]` for a party, where a completed
+report has a Download PDF, and to `/inspections/[id]` for the agent, both behind sign-in.
+The link's origin is `KIVILO_APP_URL`. Pinned by `src/lib/email-signing.integration.test.ts` and
 `e2e/sign-by-email.spec.ts`.
 
 ## Updating a signed report
@@ -290,7 +293,9 @@ workspace's different live subscription and throws, which error tracking alerts 
 Checkout and the portal are server actions in `src/lib/billing-actions.ts`; the portal
 opens only for the member in `managedById`. `/account` syncs when Stripe sends the agent
 back, and `src/app/api/stripe/webhook/route.ts` verifies the signature on the raw body
-before reading anything.
+before reading anything. `pnpm team:set` refuses to move an agent paying for Pro on their
+own onto a team, or the `managedById` of their team's live subscription off it: there is
+no handing billing over, so they cancel in Manage billing and move once it has ended.
 
 `pnpm billing:setup [base URL]` creates or updates the product, the price (lookup key
 `kivilo_pro_seat_monthly`), the portal configuration and, given a URL, the webhook
@@ -360,9 +365,11 @@ covers everything drawn plus `RENDER_VERSION`, so a stored copy is correct by
 construction; **bump `RENDER_VERSION` whenever the layout changes**, or every report
 keeps serving its old drawing. Revoking a share link deletes the prefix.
 
-Two ways in: `GET /reports/[token]/pdf` for anyone holding the link, and `POST
+Three ways in: `GET /reports/[token]/pdf` for anyone holding the link, `POST
 /api/v1/inspections/[id]/pdf` for the agent, which needs no link to exist (the web
-inspection page and the app both use it). The header is the tenancy agent's
+inspection page and the app both use it), and `GET /sign/[inspectionId]/pdf` for the
+signed-in landlord or tenant (`signingRole`), refusing everyone else, and anything not yet
+`COMPLETED`, with the 404 of a missing id. Each is in `outputFileTracingIncludes`. The header is the tenancy agent's
 `AgentBranding` (agency name, licence, CEA number, phone, logo); with none set the report
 reads as Kivilo's. Logos are stored as PNG whatever arrives, since the PDF draws only PNG
 and JPEG, and the agent can set the name printed beside them.
