@@ -289,6 +289,28 @@ describe('leaving a paid plan behind', () => {
     expect(joined.team?.name).toBe(name)
   })
 
+  it('will not move the member managing their team\'s subscription off the team until it has ended', async () => {
+    const office = await team('Managed')
+    const manager = await agent('Treasurer', office.id)
+    const teammate = await agent('Colleague', office.id)
+    const subscription = paid(`sub_payer_${tag}`, { teamId: office.id }, manager.id, 2)
+    await syncSubscription(`sub_payer_${tag}`)
+
+    // Neither off the team nor onto another, whichever way it is asked.
+    const refusal = `manages ${office.name}'s Pro subscription (sub_payer_${tag})`
+    await expect(setTeam(manager.email!, '')).rejects.toThrow(refusal)
+    await expect(setTeam(manager.email!, `Billing Elsewhere ${tag}`)).rejects.toThrow(refusal)
+    expect((await db.stakeholder.findUniqueOrThrow({ where: { id: manager.id } })).teamId).toBe(office.id)
+    expect(await db.team.count({ where: { name: `Billing Elsewhere ${tag}` } })).toBe(0)
+    // Staying put is not a move, and a member who does not manage it may leave.
+    expect((await setTeam(manager.email!, office.name)).teamId).toBe(office.id)
+    expect((await setTeam(teammate.email!, '')).teamId).toBeNull()
+
+    subscription.status = 'canceled'
+    await syncSubscription(`sub_payer_${tag}`)
+    expect((await setTeam(manager.email!, '')).teamId).toBeNull()
+  })
+
   it('cancels the plan a deleted agent pays for, so a teammate can subscribe on their own card', async () => {
     vi.stubEnv('KIVILO_RETAIN_SIGNED_RECORDS', '1')
     vi.stubEnv('KIVILO_DELETE_SOLE_UNSIGNED_RECORDS', '1')
