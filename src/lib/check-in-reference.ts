@@ -46,7 +46,7 @@ export type CheckInReference = {
   baselineId: string
   conductedAt: string | null
   lines: CheckInLine[]
-  photos: { id: string; url: string; caption: string | null; update: boolean; annotations: StoredAnnotations | null }[]
+  photos: { id: string; caption: string | null; update: boolean; annotations: StoredAnnotations | null }[]
 }
 
 /// The baseline for each of `rooms`, the check-in's current state as `startCheckOut`
@@ -94,13 +94,11 @@ export async function roomBaselines(rooms: StateRoom[]) {
   }))
 }
 
-/// A check-out room as it was at check-in, for the inspector walking it again. Null on
-/// a check-in, on a room added during the check-out, and for an agent who may not see
-/// the check-in: conducting a check-out admits you to it (`inspectionScope`), not to the
+/// The frozen baseline of a check-out room and the check-in it came from. Null on a
+/// check-in, on a room added during the check-out, and for an agent who may not see the
+/// check-in: conducting a check-out admits you to it (`inspectionScope`), not to the
 /// check-in it was copied from. The caller has already authorized the room.
-///
-/// It reads only, and never writes a line: the inspector still writes every one.
-export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
+async function frozenBaseline(roomId: string, agentId: string) {
   // The check-in whose check-out holds this room, in one query with the room's baseline.
   const checkIn = await db.inspection.findFirst({
     where: { AND: [{ checkOut: { rooms: { some: { id: roomId } } } }, inspectionScope(agentId)] },
@@ -112,20 +110,39 @@ export async function checkInReference(roomId: string, agentId: string): Promise
   })
   const baseline = checkIn?.checkOut?.rooms[0]?.baseline
   if (!checkIn || baseline === undefined || baseline === null) return null
+  return { checkIn, baseline: roomBaselineSchema.parse(baseline) }
+}
 
-  const { lines, photos } = roomBaselineSchema.parse(baseline)
+/// A check-out room as it was at check-in, for the inspector walking it again, with
+/// `frozenBaseline`'s nulls. Photos carry no URL: a signed URL lasts an hour and the
+/// panel may be opened long after the page rendered, so they are minted when it opens
+/// (`checkInPhotoUrls`), and never on the renders every capture and edit cause.
+///
+/// It reads only, and never writes a line: the inspector still writes every one.
+export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
+  const frozen = await frozenBaseline(roomId, agentId)
+  if (!frozen) return null
   return {
-    baselineId: checkIn.id,
-    conductedAt: checkIn.conductedAt?.toISOString() ?? null,
-    lines,
-    photos: await Promise.all(
-      photos.map(async (photo) => ({
-        id: photo.id,
-        url: await createDownloadUrl(photo.storagePath),
-        caption: photo.caption,
-        update: photo.update,
-        annotations: toAnnotations(photo.annotations),
-      })),
-    ),
+    baselineId: frozen.checkIn.id,
+    conductedAt: frozen.checkIn.conductedAt?.toISOString() ?? null,
+    lines: frozen.baseline.lines,
+    photos: frozen.baseline.photos.map((photo) => ({
+      id: photo.id,
+      caption: photo.caption,
+      update: photo.update,
+      annotations: toAnnotations(photo.annotations),
+    })),
   }
+}
+
+/// A signed URL for each of a check-out room's check-in photos, by photo id. Empty
+/// wherever `checkInReference` is null.
+export async function checkInPhotoUrls(roomId: string, agentId: string): Promise<Record<string, string>> {
+  const frozen = await frozenBaseline(roomId, agentId)
+  if (!frozen) return {}
+  return Object.fromEntries(
+    await Promise.all(
+      frozen.baseline.photos.map(async (photo) => [photo.id, await createDownloadUrl(photo.storagePath)] as const),
+    ),
+  )
 }

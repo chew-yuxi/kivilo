@@ -34,6 +34,53 @@ class CheckInReferenceView extends StatelessWidget {
         ),
       );
 
+  Widget _photo(BuildContext context, int index, CheckInPhoto photo) {
+    final caption = [
+      [if (photo.update) 'Update', ?photo.caption].join(' · '),
+      // Numbered as the report numbers them, so a ring says what it points at.
+      for (final (number, mark)
+          in ((photo.annotations?['marks'] as List<dynamic>?) ?? const [])
+              .indexed)
+        if ((mark as Map<String, dynamic>)['note'] case final String note)
+          '${number + 1}. $note',
+    ].where((line) => line.isNotEmpty).join('\n');
+    return Semantics(
+      button: true,
+      label: 'Open check-in photo ${index + 1}',
+      child: InkWell(
+        onTap: () => _view(context, photo),
+        borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          width: 140,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  height: 110,
+                  width: 140,
+                  child: ColoredBox(
+                    color: KiviloColors.canvas,
+                    child: MarkedNetworkPhoto(
+                      url: photo.url,
+                      annotations: photo.annotations,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              if (caption.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(caption, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
@@ -41,64 +88,18 @@ class CheckInReferenceView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (reference.photos.isNotEmpty) ...[
-          SizedBox(
-            // Room for a two-line caption under each picture when there is one.
-            height:
-                reference.photos.any(
-                  (photo) => photo.caption != null || photo.update,
-                )
-                ? 150
-                : 110,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: reference.photos.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final photo = reference.photos[index];
-                return Semantics(
-                  button: true,
-                  label: 'Open check-in photo ${index + 1}',
-                  child: InkWell(
-                    onTap: () => _view(context, photo),
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      width: 140,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: SizedBox(
-                              height: 110,
-                              width: 140,
-                              child: ColoredBox(
-                                color: KiviloColors.canvas,
-                                child: MarkedNetworkPhoto(
-                                  url: photo.url,
-                                  annotations: photo.annotations,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (photo.caption != null || photo.update) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              [
-                                if (photo.update) 'Update',
-                                ?photo.caption,
-                              ].join(' · '),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: text.bodySmall,
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
+          // A row at its natural height rather than a fixed-height list, so captions
+          // under a larger system text size grow the strip instead of overflowing it.
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final (index, photo) in reference.photos.indexed) ...[
+                  if (index > 0) const SizedBox(width: 8),
+                  _photo(context, index, photo),
+                ],
+              ],
             ),
           ),
           const SizedBox(height: 12),

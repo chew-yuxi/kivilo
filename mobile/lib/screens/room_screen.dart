@@ -1031,6 +1031,12 @@ class _RoomScreenState extends State<RoomScreen> {
     ),
   );
 
+  /// Whether a check-out row no longer says what its check-in line did. Surrounding
+  /// whitespace is not a difference: this app trims every field it saves and the web
+  /// keeps what was typed, so either may have touched a field nobody changed.
+  static bool _differs(String? was, String? now) =>
+      (was ?? '').trim() != (now ?? '').trim();
+
   /// [baseline] is the check-in line a check-out row was copied from, so what it was
   /// stays in view once it is edited.
   Widget _inventoryCard(
@@ -1047,17 +1053,17 @@ class _RoomScreenState extends State<RoomScreen> {
         ? null
         : [
             baseline.condition,
-            if (baseline.name != item.name) 'name: ${baseline.name}',
+            if (_differs(baseline.name, item.name)) 'name: ${baseline.name}',
             if (baseline.quantity != item.quantity) '×${baseline.quantity}',
-            if (baseline.identifier != item.identifier)
+            if (_differs(baseline.identifier, item.identifier))
               baseline.identifier == null
                   ? 'no serial'
                   : 'serial: ${baseline.identifier}',
-            if (baseline.meterReading != item.meterReading)
+            if (_differs(baseline.meterReading, item.meterReading))
               baseline.meterReading == null
                   ? 'no reading'
                   : 'reading: ${baseline.meterReading}',
-            if (baseline.notes != item.notes)
+            if (_differs(baseline.notes, item.notes))
               baseline.notes == null ? 'no notes' : 'notes: ${baseline.notes}',
           ].join(' · ');
     return Card(

@@ -13,7 +13,7 @@ import { assertCanAddProperty } from '@/lib/plan'
 import { reportFingerprint } from '@/lib/report-fingerprint'
 import { queueSignatureRequests, queueSignedCopies, signingParties } from '@/lib/report-email'
 import { currentState } from '@/lib/addenda'
-import { roomBaselines } from '@/lib/check-in-reference'
+import { checkInPhotoUrls, roomBaselines } from '@/lib/check-in-reference'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -970,6 +970,14 @@ export async function revokeReportLink(inspectionId: string) {
 
 /// Opens the check-out against a completed check-in. Both reports then live on the
 /// same property record and the diff has a baseline to measure from.
+/// Signed URLs for a check-out room's check-in photos, minted when the inspector opens
+/// the reference panel rather than on every render (see `checkInReference`).
+export async function checkInPhotoLinks(roomId: string) {
+  const agent = await requireAgent()
+  await authorizeRoom(roomId, agent.id)
+  return checkInPhotoUrls(roomId, agent.id)
+}
+
 export async function startCheckOut(baselineId: string) {
   const agent = await requireAgent()
   const authorized = await authorizeInspection(baselineId, agent.id)

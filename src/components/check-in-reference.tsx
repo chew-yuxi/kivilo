@@ -1,5 +1,9 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { MarkOverlay } from '@/components/mark-overlay'
+import { checkInPhotoLinks } from '@/lib/actions'
 import type { CheckInReference } from '@/lib/check-in-reference'
 import type { ItemCondition } from '@/generated/prisma'
 
@@ -19,7 +23,11 @@ const isUpdate = (key: string) => key.startsWith('entry:')
 /// so they can compare without leaving it. Closed until asked for, so it never stands
 /// between the inspector and the camera or the inventory, which carries each copied
 /// row's check-in line itself. Reference only: nothing here writes a line.
-export function CheckInReferencePanel({ reference }: { reference: CheckInReference }) {
+export function CheckInReferencePanel({ roomId, reference }: { roomId: string; reference: CheckInReference }) {
+  // Signed URLs by photo id, fetched the first time the panel opens, so a panel opened
+  // an hour after the page rendered still gets live ones and a closed one costs nothing.
+  const [urls, setUrls] = useState<Record<string, string> | null>(null)
+  const [opened, setOpened] = useState(false)
   const date = reference.conductedAt
     ? new Date(reference.conductedAt).toLocaleDateString('en-SG', {
         dateStyle: 'long',
@@ -31,7 +39,18 @@ export function CheckInReferencePanel({ reference }: { reference: CheckInReferen
     reference.photos.some((photo) => photo.update) || reference.lines.some((line) => isUpdate(line.key))
 
   return (
-    <details className="rounded-lg border border-gray-200 bg-white">
+    <details
+      className="rounded-lg border border-gray-200 bg-white"
+      onToggle={(e) => {
+        if (!e.currentTarget.open || opened) return
+        setOpened(true)
+        // A failure lets the next open try again, and is rethrown for the error reporter.
+        void checkInPhotoLinks(roomId).then(setUrls, (error: unknown) => {
+          setOpened(false)
+          throw error
+        })
+      }}
+    >
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
         At check-in{date && <span className="font-normal text-gray-500"> · {date}</span>}
         {hasUpdates && <span className="font-normal text-gray-500">, with acknowledged updates</span>}
@@ -39,32 +58,46 @@ export function CheckInReferencePanel({ reference }: { reference: CheckInReferen
 
       {reference.photos.length > 0 && (
         <div className="flex snap-x gap-3 overflow-x-auto border-t border-gray-100 px-4 py-3">
-          {reference.photos.map((photo) => (
-            // The same rules as the review strip: the positioned box wraps the
-            // picture alone, never its caption, and w-fit so a caption wider than the
-            // picture cannot widen it; self-start so it never stretches; object-contain
-            // so a mark sits on what it points at. w-min wraps the caption to the
-            // picture's width.
-            <figure key={photo.id} className="w-min shrink-0 snap-start self-start">
-              <div className="relative w-fit overflow-hidden rounded-md border border-gray-200">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.url}
-                  alt="Check-in photo"
-                  // Nothing downloads unless the inspector opens the panel, so on the
-                  // capture screen the upload queue keeps the signal.
-                  loading="lazy"
-                  className="block h-32 w-auto max-w-[70vw] object-contain"
-                />
-                <MarkOverlay annotations={photo.annotations} />
-              </div>
-              {(photo.update || photo.caption) && (
-                <figcaption className="mt-1 text-xs text-gray-500">
-                  {[photo.update ? 'Update' : null, photo.caption].filter(Boolean).join(' · ')}
-                </figcaption>
-              )}
-            </figure>
-          ))}
+          {urls === null ? (
+            <p className="text-sm text-gray-500">Loading photos…</p>
+          ) : (
+            reference.photos.map((photo) => {
+              const caption = [photo.update ? 'Update' : null, photo.caption].filter(Boolean).join(' · ')
+              // Numbered as the report numbers them, so a ring says what it points at.
+              const markNotes =
+                photo.annotations?.marks.flatMap((mark, index) =>
+                  mark.note ? [`${index + 1}. ${mark.note}`] : [],
+                ) ?? []
+              return (
+                // The same rules as the review strip: the positioned box wraps the
+                // picture alone, never its caption, and w-fit so a caption wider than the
+                // picture cannot widen it; self-start so it never stretches; object-contain
+                // so a mark sits on what it points at. w-min wraps the caption to the
+                // picture's width.
+                <figure key={photo.id} className="w-min shrink-0 snap-start self-start">
+                  <div className="relative w-fit overflow-hidden rounded-md border border-gray-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={urls[photo.id]}
+                      alt="Check-in photo"
+                      className="block h-32 w-auto max-w-[70vw] object-contain"
+                    />
+                    <MarkOverlay annotations={photo.annotations} />
+                  </div>
+                  {(caption || markNotes.length > 0) && (
+                    <figcaption className="mt-1 text-xs text-gray-500">
+                      {caption}
+                      {markNotes.map((note) => (
+                        <span key={note} className="block">
+                          {note}
+                        </span>
+                      ))}
+                    </figcaption>
+                  )}
+                </figure>
+              )
+            })
+          )}
         </div>
       )}
 

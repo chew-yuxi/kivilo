@@ -37,6 +37,11 @@ export type EvidenceCapture = {
   annotations: StoredAnnotations | null
 }
 
+/// Whether a check-out row no longer says what its check-in line did. Surrounding
+/// whitespace is not a difference: the app trims every field it saves and the web
+/// keeps what was typed, so either may have touched a field nobody changed.
+const differs = (was: string | null, now: string | null) => (was ?? '').trim() !== (now ?? '').trim()
+
 function ItemRow({
   item,
   baseline,
@@ -154,15 +159,15 @@ function ItemRow({
           At check-in:{' '}
           {[
             baseline.condition,
-            baseline.name !== item.name ? `name: ${baseline.name}` : null,
+            differs(baseline.name, item.name) ? `name: ${baseline.name}` : null,
             baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
-            baseline.identifier !== item.identifier
+            differs(baseline.identifier, item.identifier)
               ? baseline.identifier ? `serial: ${baseline.identifier}` : 'no serial'
               : null,
-            baseline.meterReading !== item.meterReading
+            differs(baseline.meterReading, item.meterReading)
               ? baseline.meterReading ? `reading: ${baseline.meterReading}` : 'no reading'
               : null,
-            baseline.notes !== item.notes ? (baseline.notes ? `notes: ${baseline.notes}` : 'no notes') : null,
+            differs(baseline.notes, item.notes) ? (baseline.notes ? `notes: ${baseline.notes}` : 'no notes') : null,
           ]
             .filter(Boolean)
             .join(' · ')}
@@ -219,7 +224,7 @@ export function ReviewEditor({
 
   return (
     <div className="space-y-6">
-      {checkIn && <CheckInReferencePanel reference={checkIn} />}
+      {checkIn && <CheckInReferencePanel roomId={roomId} reference={checkIn} />}
 
       {captures.length > 0 && (
         // A swipeable strip on a phone so the first item is on screen without

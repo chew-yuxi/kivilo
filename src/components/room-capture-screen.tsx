@@ -673,7 +673,7 @@ export function RoomCaptureScreen({
         </p>
       </div>
 
-      {checkIn && <CheckInReferencePanel reference={checkIn} />}
+      {checkIn && <CheckInReferencePanel roomId={room.id} reference={checkIn} />}
 
       <div className="space-y-3">
         <input

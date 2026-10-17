@@ -17,7 +17,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { addRoom, renameRoom, startCheckOut } from '@/lib/actions'
-import { checkInReference } from '@/lib/check-in-reference'
+import { checkInPhotoUrls, checkInReference } from '@/lib/check-in-reference'
 
 const postalCode = '998812'
 
@@ -144,8 +144,11 @@ describe('check-in reference', () => {
     expect(await checkInReference(kitchen.id, checkIn.agentId)).toMatchObject({
       baselineId: checkIn.id,
       conductedAt: '2024-01-02T03:00:00.000Z',
-      photos: [{ url: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg', annotations: null }],
+      photos: [{ caption: 'Hob and worktop', update: false, annotations: null }],
     })
+    expect(Object.values(await checkInPhotoUrls(kitchen.id, checkIn.agentId))).toEqual([
+      'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg',
+    ])
     const { lines } = (await checkInReference(kitchen.id, checkIn.agentId))!
     expect(lines.map((line) => [line.name, line.condition, line.notes])).toEqual([
       ['Hob', 'GOOD', null],
@@ -180,14 +183,14 @@ describe('check-in reference', () => {
     await renameRoom(kitchen.id, checkOutId, 'Galley')
     expect((await checkInReference(kitchen.id, checkIn.agentId))!.lines.map((line) => line.name)).toEqual(['Hob', 'Worktop'])
 
-    expect(await checkInReference(first.id, checkIn.agentId)).toMatchObject({
-      lines: [{ name: 'Bed' }],
-      photos: [{ url: 'https://storage.test/REFERENCE-NAMES/bedroom-1.jpg' }],
-    })
-    expect(await checkInReference(second.id, checkIn.agentId)).toMatchObject({
-      lines: [{ name: 'Wardrobe' }],
-      photos: [{ url: 'https://storage.test/REFERENCE-NAMES/bedroom-2.jpg' }],
-    })
+    expect(await checkInReference(first.id, checkIn.agentId)).toMatchObject({ lines: [{ name: 'Bed' }] })
+    expect(Object.values(await checkInPhotoUrls(first.id, checkIn.agentId))).toEqual([
+      'https://storage.test/REFERENCE-NAMES/bedroom-1.jpg',
+    ])
+    expect(await checkInReference(second.id, checkIn.agentId)).toMatchObject({ lines: [{ name: 'Wardrobe' }] })
+    expect(Object.values(await checkInPhotoUrls(second.id, checkIn.agentId))).toEqual([
+      'https://storage.test/REFERENCE-NAMES/bedroom-2.jpg',
+    ])
   })
 
   it('is what the check-out started from, whatever happens to the check-in after', async () => {
@@ -256,7 +259,8 @@ describe('check-in reference', () => {
       ['entry:new-hob', 'BOSCH PKE611'],
       [expect.stringMatching(/^item:/), null],
     ])
-    expect(reference.photos.map((photo) => [photo.url, photo.caption, photo.update])).toEqual([
+    const urls = await checkInPhotoUrls(kitchen.id, checkIn.agentId)
+    expect(reference.photos.map((photo) => [urls[photo.id], photo.caption, photo.update])).toEqual([
       ['https://storage.test/REFERENCE-ADDENDUM/kitchen-agreed.jpg', 'Hob and worktop', false],
       ['https://storage.test/addenda/x/new-hob.jpg', 'After: New hob fitted', true],
     ])
@@ -272,6 +276,7 @@ describe('check-in reference', () => {
     await db.inspection.update({ where: { id: checkOutId }, data: { conductedById: conductor.id } })
 
     expect(await checkInReference(kitchen.id, conductor.id)).toBeNull()
+    expect(await checkInPhotoUrls(kitchen.id, conductor.id)).toEqual({})
     expect(await checkInReference(kitchen.id, checkIn.agentId)).not.toBeNull()
   })
 

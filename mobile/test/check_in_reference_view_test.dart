@@ -42,4 +42,47 @@ void main() {
     expect(find.text('GOOD · Light scratches'), findsOneWidget);
     expect(find.text('Open the full check-in'), findsOneWidget);
   });
+
+  testWidgets('captions a photo with its marks, and grows with the text size', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+        child: _host(
+          const CheckInReference(
+            baselineId: 'check-in-1',
+            conductedAt: null,
+            lines: [],
+            photos: [
+              CheckInPhoto(
+                id: 'photo-1',
+                url: 'https://example.test/basin.jpg',
+                caption: 'Basin',
+                update: true,
+                annotations: {
+                  'v': 1,
+                  'w': 640,
+                  'h': 480,
+                  'marks': [
+                    {
+                      'shape': 'ring',
+                      'cx': .5,
+                      'cy': .5,
+                      'rx': .1,
+                      'ry': .1,
+                      'note': 'chip in enamel',
+                    },
+                  ],
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Update · Basin\n1. chip in enamel'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

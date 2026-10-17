@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { authorizeInspection } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations } from '@/lib/annotations'
-import { checkInReference } from '@/lib/check-in-reference'
+import { checkInPhotoUrls, checkInReference } from '@/lib/check-in-reference'
 import { authed } from '@/lib/api/route'
 import { deleteRoom, renameRoom } from '@/lib/actions'
 
@@ -26,7 +26,7 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
   // that does not exist are one answer.
   if (index === -1) throw new Error('Room not found')
 
-  const [stored, items, checkIn] = await Promise.all([
+  const [stored, items, checkIn, checkInUrls] = await Promise.all([
     db.capture.findMany({ where: { roomId }, orderBy: { createdAt: 'asc' } }),
     db.inspectionItem.findMany({
       where: { roomId },
@@ -34,6 +34,8 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
       include: { evidence: { select: { captureId: true } } },
     }),
     checkInReference(roomId, agent.id),
+    // The app holds on to a URL per photo itself, so it is handed them up front.
+    checkInPhotoUrls(roomId, agent.id),
   ])
 
   return {
@@ -59,7 +61,10 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
     })),
     // On a check-out, the room as it was at check-in. Null on a check-in, and on a room
     // added during the check-out.
-    checkIn,
+    checkIn: checkIn && {
+      ...checkIn,
+      photos: checkIn.photos.map((photo) => ({ ...photo, url: checkInUrls[photo.id] })),
+    },
     captures: await Promise.all(
       stored.map(async (capture) => ({
         id: capture.id,
