@@ -218,6 +218,35 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   expect((await ownPdf.body()).subarray(0, 5).toString()).toBe('%PDF-')
   await outsider.close()
 
+  // End of tenancy. Walking the kitchen again, the inspector has its signed photos and
+  // lines one tap away while capturing, and open beside the inventory while writing it,
+  // with what each copied row said at check-in.
+  await page.goto(inspectionUrl)
+  await page.getByRole('button', { name: 'Start check-out' }).click()
+  await expect(page.getByRole('heading', { name: 'Check-out', exact: true })).toBeVisible()
+  await page.getByRole('link', { name: 'Start with Kitchen' }).click()
+  await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}\/capture$/)
+  const capturePanel = page.locator('details', { hasText: 'At check-in' })
+  await expect(capturePanel).not.toHaveAttribute('open')
+  await capturePanel.locator('summary').click()
+  await expect(capturePanel.getByText('Quartz worktop')).toBeVisible()
+
+  await page.goto(page.url().replace(/\/capture$/, ''))
+  const reviewPanel = page.locator('details', { hasText: 'At check-in' })
+  await expect(reviewPanel).toHaveAttribute('open')
+  await expect(reviewPanel.getByText('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')).toBeVisible()
+  // Only the two photos stamped at review, and the ring still on the 42.5 percent of
+  // the picture it was drawn against.
+  await expect(reviewPanel.getByRole('img', { name: 'Check-in photo' })).toHaveCount(2)
+  const panelPhoto = (await reviewPanel.locator('div:has(> svg[data-marks="1"]) > img').boundingBox())!
+  const panelRing = (await reviewPanel.locator('svg[data-marks="1"] path').first().boundingBox())!
+  expect((panelRing.x + panelRing.width / 2 - panelPhoto.x) / panelPhoto.width).toBeCloseTo(0.425, 2)
+  expect((panelRing.y + panelRing.height / 2 - panelPhoto.y) / panelPhoto.height).toBeCloseTo(
+    0.425,
+    2,
+  )
+  await expect(page.getByText(/^At check-in: /)).toHaveCount(13)
+
   // Authorization lives in the data layer: a second agent sees nothing of this deal.
   const other = await browser.newContext()
   const otherPage = await other.newPage()

@@ -32,7 +32,11 @@ when someone is ready to re-migrate and re-seed.
 is the inspector's reading of it. A new room starts with the standard rows in
 `src/lib/room-templates.ts`, made as `addItem` makes a line, which the inspector edits or
 removes like any other; a check-out starts from the signed check-in's room and item state,
-which the inspector edits to record what they find on the new visit. A room
+which the inspector edits to record what they find on the new visit. While they do,
+every check-out room shows its check-in photos and lines (`src/lib/check-in-reference.ts`,
+matched by room name), and each copied row names its check-in line in
+`InspectionItem.baselineKey`, so what it said stays in view after it is edited. That is
+for reading only: nothing is ever written from it. A room
 reaches `REVIEWED` only through `markRoomReviewed`, which needs at least one item or the
 inspector's explicit confirmation that there is nothing to record (`{ nothingToRecord:
 true }`, which the report then states), and stamps `Capture.processedAt` on every capture

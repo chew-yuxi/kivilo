@@ -161,6 +161,7 @@ describe('room templates', () => {
       sourceCaptureId: null,
       confidence: null,
       editedByHuman: true,
+      baselineKey: `item:${hob.id}`,
     })
   })
 })

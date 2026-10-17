@@ -97,8 +97,76 @@ void main() {
     });
 
     expect(room.items.single.condition, 'FAIR');
+    expect(room.items.single.baselineKey, isNull);
     expect(room.captures.single.posterUrl, isNull);
     expect(room.captures.single.annotations!['v'], 1);
+    // A check-in room, or a server older than the field.
+    expect(room.checkIn, isNull);
+  });
+
+  test('a check-out room carries the room as it was at check-in', () {
+    final room = RoomDetail.fromJson({
+      'room': {'id': 'room-out', 'name': 'Kitchen', 'status': 'REVIEW'},
+      'position': {'index': 1, 'total': 1},
+      'next': null,
+      'items': [
+        {
+          'id': 'item-out',
+          'name': 'Hob',
+          'category': 'APPLIANCE',
+          'condition': 'DAMAGED',
+          'quantity': 1,
+          'notes': 'Cracked glass',
+          'identifier': null,
+          'meterReading': null,
+          'baselineKey': 'item:item-in',
+        },
+        {
+          'id': 'item-new',
+          'name': 'Toaster',
+          'category': 'APPLIANCE',
+          'condition': 'GOOD',
+          'quantity': 1,
+          'notes': null,
+          'identifier': null,
+          'meterReading': null,
+          'baselineKey': null,
+        },
+      ],
+      'captures': [],
+      'checkIn': {
+        'baselineId': 'check-in-1',
+        'conductedAt': '2024-01-02T03:00:00.000Z',
+        'matched': true,
+        'lines': [
+          {
+            'key': 'item:item-in',
+            'name': 'Hob',
+            'condition': 'GOOD',
+            'quantity': 2,
+            'notes': 'Light scratches',
+            'identifier': 'HOB-42',
+            'meterReading': null,
+          },
+        ],
+        'photos': [
+          {
+            'id': 'capture-in',
+            'url': 'https://example.test/check-in',
+            'annotations': null,
+          },
+        ],
+      },
+    });
+
+    final checkIn = room.checkIn!;
+    expect(checkIn.baselineId, 'check-in-1');
+    expect(checkIn.photos.single.url, 'https://example.test/check-in');
+    expect(
+      checkIn.lineFor(room.items.first)!.summary,
+      'GOOD · ×2 · Light scratches',
+    );
+    expect(checkIn.lineFor(room.items.last), isNull);
   });
 
   test('a video capture carries its server-made poster when there is one', () {

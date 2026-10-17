@@ -370,6 +370,10 @@ model InspectionItem {
   /// A durable property asset selected by a human. Identifier similarity may be
   /// suggested in UI, but model output never links assets automatically.
   propertyAssetId    String?
+  /// On a check-out row, the key of the check-in line it was copied from (`item:<id>` or
+  /// `entry:<id>`, as `currentState` names lines), so the inspector can see what it was
+  /// at check-in after editing it. Null on check-ins and on rows added during check-out.
+  baselineKey        String?
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 

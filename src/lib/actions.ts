@@ -1014,6 +1014,7 @@ export async function startCheckOut(baselineId: string) {
                 meterReading: line.meterReading,
                 editedByHuman: true,
                 propertyAssetId: line.propertyAssetId,
+                baselineKey: line.key,
                 createdAt: line.createdAt,
               })),
             },

@@ -7,6 +7,8 @@ import { useUploadQueue } from '@/components/upload-queue'
 import { patch, take, type PendingCapture } from '@/lib/offline-queue'
 import { downscale } from '@/lib/downscale'
 import { MarkOverlay } from '@/components/mark-overlay'
+import { CheckInReferencePanel } from '@/components/check-in-reference'
+import type { CheckInReference } from '@/lib/check-in-reference'
 import { MarkEditor, type Tool } from '@/components/mark-editor'
 import { MAX_MARKS, type AnnotationInput, type Mark, type StoredAnnotations } from '@/lib/annotations'
 import {
@@ -530,10 +532,14 @@ export function RoomCaptureScreen({
   captures,
   position,
   next,
+  checkIn,
 }: {
   inspectionId: string
   room: { id: string; name: string; status: RoomStatus }
   captures: ServerCapture[]
+  /// On a check-out, the room as it was at check-in, closed until asked for so it is
+  /// never between the inspector and the camera button.
+  checkIn: CheckInReference | null
   position: { index: number; total: number }
   next: { href: string; name: string } | null
 }) {
@@ -667,6 +673,8 @@ export function RoomCaptureScreen({
             : `${tiles.length} capture${tiles.length === 1 ? '' : 's'}.`}
         </p>
       </div>
+
+      {checkIn && <CheckInReferencePanel reference={checkIn} roomName={room.name} open={false} />}
 
       <div className="space-y-3">
         <input

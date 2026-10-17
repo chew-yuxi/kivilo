@@ -260,6 +260,7 @@ exports.Prisma.InspectionItemScalarFieldEnum = {
   confidence: 'confidence',
   editedByHuman: 'editedByHuman',
   propertyAssetId: 'propertyAssetId',
+  baselineKey: 'baselineKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

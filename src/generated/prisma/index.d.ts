@@ -17191,6 +17191,7 @@ export namespace Prisma {
     confidence: number | null
     editedByHuman: boolean | null
     propertyAssetId: string | null
+    baselineKey: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -17210,6 +17211,7 @@ export namespace Prisma {
     confidence: number | null
     editedByHuman: boolean | null
     propertyAssetId: string | null
+    baselineKey: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -17229,6 +17231,7 @@ export namespace Prisma {
     confidence: number
     editedByHuman: number
     propertyAssetId: number
+    baselineKey: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -17262,6 +17265,7 @@ export namespace Prisma {
     confidence?: true
     editedByHuman?: true
     propertyAssetId?: true
+    baselineKey?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17281,6 +17285,7 @@ export namespace Prisma {
     confidence?: true
     editedByHuman?: true
     propertyAssetId?: true
+    baselineKey?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17300,6 +17305,7 @@ export namespace Prisma {
     confidence?: true
     editedByHuman?: true
     propertyAssetId?: true
+    baselineKey?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -17406,6 +17412,7 @@ export namespace Prisma {
     confidence: number | null
     editedByHuman: boolean
     propertyAssetId: string | null
+    baselineKey: string | null
     createdAt: Date
     updatedAt: Date
     _count: InspectionItemCountAggregateOutputType | null
@@ -17444,6 +17451,7 @@ export namespace Prisma {
     confidence?: boolean
     editedByHuman?: boolean
     propertyAssetId?: boolean
+    baselineKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
@@ -17470,6 +17478,7 @@ export namespace Prisma {
     confidence?: boolean
     editedByHuman?: boolean
     propertyAssetId?: boolean
+    baselineKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
@@ -17492,6 +17501,7 @@ export namespace Prisma {
     confidence?: boolean
     editedByHuman?: boolean
     propertyAssetId?: boolean
+    baselineKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
@@ -17514,11 +17524,12 @@ export namespace Prisma {
     confidence?: boolean
     editedByHuman?: boolean
     propertyAssetId?: boolean
+    baselineKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type InspectionItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "name" | "category" | "condition" | "quantity" | "notes" | "identifier" | "meterReading" | "sourceCaptureId" | "sourceTimestampSec" | "confidence" | "editedByHuman" | "propertyAssetId" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionItem"]>
+  export type InspectionItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "name" | "category" | "condition" | "quantity" | "notes" | "identifier" | "meterReading" | "sourceCaptureId" | "sourceTimestampSec" | "confidence" | "editedByHuman" | "propertyAssetId" | "baselineKey" | "createdAt" | "updatedAt", ExtArgs["result"]["inspectionItem"]>
   export type InspectionItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
     sourceCapture?: boolean | InspectionItem$sourceCaptureArgs<ExtArgs>
@@ -17585,6 +17596,12 @@ export namespace Prisma {
        * suggested in UI, but model output never links assets automatically.
        */
       propertyAssetId: string | null
+      /**
+       * On a check-out row, the key of the check-in line it was copied from (`item:<id>` or
+       * `entry:<id>`, as `currentState` names lines), so the inspector can see what it was
+       * at check-in after editing it. Null on check-ins and on rows added during check-out.
+       */
+      baselineKey: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["inspectionItem"]>
@@ -18030,6 +18047,7 @@ export namespace Prisma {
     readonly confidence: FieldRef<"InspectionItem", 'Float'>
     readonly editedByHuman: FieldRef<"InspectionItem", 'Boolean'>
     readonly propertyAssetId: FieldRef<"InspectionItem", 'String'>
+    readonly baselineKey: FieldRef<"InspectionItem", 'String'>
     readonly createdAt: FieldRef<"InspectionItem", 'DateTime'>
     readonly updatedAt: FieldRef<"InspectionItem", 'DateTime'>
   }
@@ -48107,6 +48125,7 @@ export namespace Prisma {
     confidence: 'confidence',
     editedByHuman: 'editedByHuman',
     propertyAssetId: 'propertyAssetId',
+    baselineKey: 'baselineKey',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -50029,6 +50048,7 @@ export namespace Prisma {
     confidence?: FloatNullableFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolFilter<"InspectionItem"> | boolean
     propertyAssetId?: StringNullableFilter<"InspectionItem"> | string | null
+    baselineKey?: StringNullableFilter<"InspectionItem"> | string | null
     createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
@@ -50054,6 +50074,7 @@ export namespace Prisma {
     confidence?: SortOrderInput | SortOrder
     editedByHuman?: SortOrder
     propertyAssetId?: SortOrderInput | SortOrder
+    baselineKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     room?: RoomOrderByWithRelationInput
@@ -50082,6 +50103,7 @@ export namespace Prisma {
     confidence?: FloatNullableFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolFilter<"InspectionItem"> | boolean
     propertyAssetId?: StringNullableFilter<"InspectionItem"> | string | null
+    baselineKey?: StringNullableFilter<"InspectionItem"> | string | null
     createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
@@ -50107,6 +50129,7 @@ export namespace Prisma {
     confidence?: SortOrderInput | SortOrder
     editedByHuman?: SortOrder
     propertyAssetId?: SortOrderInput | SortOrder
+    baselineKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: InspectionItemCountOrderByAggregateInput
@@ -50134,6 +50157,7 @@ export namespace Prisma {
     confidence?: FloatNullableWithAggregatesFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolWithAggregatesFilter<"InspectionItem"> | boolean
     propertyAssetId?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
+    baselineKey?: StringNullableWithAggregatesFilter<"InspectionItem"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"InspectionItem"> | Date | string
   }
@@ -53279,6 +53303,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
@@ -53304,6 +53329,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
@@ -53323,6 +53349,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
@@ -53348,6 +53375,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
@@ -53370,6 +53398,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -53386,6 +53415,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53405,6 +53435,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56858,6 +56889,7 @@ export namespace Prisma {
     confidence?: SortOrder
     editedByHuman?: SortOrder
     propertyAssetId?: SortOrder
+    baselineKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -56883,6 +56915,7 @@ export namespace Prisma {
     confidence?: SortOrder
     editedByHuman?: SortOrder
     propertyAssetId?: SortOrder
+    baselineKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -56902,6 +56935,7 @@ export namespace Prisma {
     confidence?: SortOrder
     editedByHuman?: SortOrder
     propertyAssetId?: SortOrder
+    baselineKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -67437,6 +67471,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
@@ -67460,6 +67495,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
@@ -67570,6 +67606,7 @@ export namespace Prisma {
     confidence?: FloatNullableFilter<"InspectionItem"> | number | null
     editedByHuman?: BoolFilter<"InspectionItem"> | boolean
     propertyAssetId?: StringNullableFilter<"InspectionItem"> | string | null
+    baselineKey?: StringNullableFilter<"InspectionItem"> | string | null
     createdAt?: DateTimeFilter<"InspectionItem"> | Date | string
     updatedAt?: DateTimeFilter<"InspectionItem"> | Date | string
   }
@@ -67714,6 +67751,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sourceCapture?: CaptureCreateNestedOneWithoutItemsInput
@@ -67737,6 +67775,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
@@ -68264,6 +68303,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
@@ -68288,6 +68328,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     findingsAsSubject?: FindingUncheckedCreateNestedManyWithoutItemInput
@@ -68365,6 +68406,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
@@ -68389,6 +68431,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     findingsAsSubject?: FindingUncheckedUpdateManyWithoutItemNestedInput
@@ -68483,6 +68526,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
@@ -68506,6 +68550,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
@@ -71600,6 +71645,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
@@ -71624,6 +71670,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
@@ -71647,6 +71694,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutItemsInput
@@ -71671,6 +71719,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     evidence?: ItemEvidenceUncheckedCreateNestedManyWithoutItemInput
@@ -71817,6 +71866,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
@@ -71841,6 +71891,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
@@ -71870,6 +71921,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
@@ -71894,6 +71946,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
@@ -76341,6 +76394,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -76362,6 +76416,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
@@ -76385,6 +76440,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
@@ -76406,6 +76462,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76456,6 +76513,7 @@ export namespace Prisma {
     confidence?: number | null
     editedByHuman?: boolean
     propertyAssetId?: string | null
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -76527,6 +76585,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sourceCapture?: CaptureUpdateOneWithoutItemsNestedInput
@@ -76550,6 +76609,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
@@ -76571,6 +76631,7 @@ export namespace Prisma {
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76729,6 +76790,7 @@ export namespace Prisma {
     sourceTimestampSec?: number | null
     confidence?: number | null
     editedByHuman?: boolean
+    baselineKey?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -76779,6 +76841,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutItemsNestedInput
@@ -76802,6 +76865,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evidence?: ItemEvidenceUncheckedUpdateManyWithoutItemNestedInput
@@ -76823,6 +76887,7 @@ export namespace Prisma {
     sourceTimestampSec?: NullableIntFieldUpdateOperationsInput | number | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    baselineKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -222,6 +222,7 @@ class RoomDetail {
     required this.status,
     required this.items,
     required this.captures,
+    this.checkIn,
   });
 
   final String id;
@@ -229,6 +230,10 @@ class RoomDetail {
   final String status;
   final List<InventoryItem> items;
   final List<EvidenceCapture> captures;
+
+  /// On a check-out, the room as it was at check-in. Null on a check-in, and from a
+  /// server older than the field.
+  final CheckInReference? checkIn;
 
   factory RoomDetail.fromJson(Map<String, dynamic> json) {
     final room = json['room'] as Map<String, dynamic>;
@@ -245,8 +250,105 @@ class RoomDetail {
                 EvidenceCapture.fromJson(capture as Map<String, dynamic>),
           )
           .toList(),
+      checkIn: json['checkIn'] == null
+          ? null
+          : CheckInReference.fromJson(json['checkIn'] as Map<String, dynamic>),
     );
   }
+}
+
+/// What a check-out room looked like at check-in: the lines the check-out started from
+/// and the photos both parties agreed to. Reference only; nothing writes a line from it.
+class CheckInReference {
+  const CheckInReference({
+    required this.baselineId,
+    required this.conductedAt,
+    required this.matched,
+    required this.lines,
+    required this.photos,
+  });
+
+  final String baselineId;
+  final String? conductedAt;
+
+  /// False when no check-in room has this room's name.
+  final bool matched;
+  final List<CheckInLine> lines;
+  final List<CheckInPhoto> photos;
+
+  CheckInLine? lineFor(InventoryItem item) {
+    for (final line in lines) {
+      if (line.key == item.baselineKey) return line;
+    }
+    return null;
+  }
+
+  factory CheckInReference.fromJson(Map<String, dynamic> json) =>
+      CheckInReference(
+        baselineId: json['baselineId'] as String,
+        conductedAt: json['conductedAt'] as String?,
+        matched: json['matched'] as bool,
+        lines: (json['lines'] as List<dynamic>)
+            .map((line) => CheckInLine.fromJson(line as Map<String, dynamic>))
+            .toList(),
+        photos: (json['photos'] as List<dynamic>)
+            .map(
+              (photo) => CheckInPhoto.fromJson(photo as Map<String, dynamic>),
+            )
+            .toList(),
+      );
+}
+
+class CheckInLine {
+  const CheckInLine({
+    required this.key,
+    required this.name,
+    required this.condition,
+    required this.quantity,
+    this.notes,
+    this.identifier,
+    this.meterReading,
+  });
+
+  final String key;
+  final String name;
+  final String condition;
+  final int quantity;
+  final String? notes;
+  final String? identifier;
+  final String? meterReading;
+
+  /// The line in a few words, for beside the check-out row copied from it.
+  String get summary => [
+    condition,
+    if (quantity > 1) '×$quantity',
+    ?meterReading,
+    ?notes,
+  ].join(' · ');
+
+  factory CheckInLine.fromJson(Map<String, dynamic> json) => CheckInLine(
+    key: json['key'] as String,
+    name: json['name'] as String,
+    condition: json['condition'] as String,
+    quantity: json['quantity'] as int,
+    notes: json['notes'] as String?,
+    identifier: json['identifier'] as String?,
+    meterReading: json['meterReading'] as String?,
+  );
+}
+
+class CheckInPhoto {
+  const CheckInPhoto({required this.id, required this.url, this.annotations});
+
+  final String id;
+  final String url;
+  final Map<String, dynamic>? annotations;
+
+  factory CheckInPhoto.fromJson(Map<String, dynamic> json) => CheckInPhoto(
+    id: json['id'] as String,
+    url: json['url'] as String,
+    annotations: json['annotations'] as Map<String, dynamic>?,
+  );
 }
 
 class InventoryItem {
@@ -262,6 +364,7 @@ class InventoryItem {
     this.sourceCaptureId,
     this.sourceTimestampSec,
     this.evidenceCaptureIds = const [],
+    this.baselineKey,
   });
 
   final String id;
@@ -275,6 +378,9 @@ class InventoryItem {
   final String? sourceCaptureId;
   final int? sourceTimestampSec;
   final List<String> evidenceCaptureIds;
+
+  /// On a check-out row, the check-in line it was copied from.
+  final String? baselineKey;
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) => InventoryItem(
     id: json['id'] as String,
@@ -290,6 +396,7 @@ class InventoryItem {
     evidenceCaptureIds:
         (json['evidenceCaptureIds'] as List<dynamic>? ?? const [])
             .cast<String>(),
+    baselineKey: json['baselineKey'] as String?,
   );
 }
 

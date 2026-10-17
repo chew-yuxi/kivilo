@@ -7,7 +7,9 @@ import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
+import '../ui/check_in_reference_view.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
@@ -537,7 +539,27 @@ class _RoomScreenState extends State<RoomScreen> {
                     .where((capture) => capture.kind == 'PHOTO')
                     .length;
                 final videos = room.captures.length - photos;
+                final checkIn = room.checkIn;
                 final inventory = <Widget>[
+                  if (checkIn != null) ...[
+                    KiviloSectionHeading(
+                      title: 'At check-in',
+                      subtitle: checkIn.conductedAt == null
+                          ? 'This room as it was signed'
+                          : 'This room as it was signed on ${shortDate(checkIn.conductedAt!)}',
+                    ),
+                    const SizedBox(height: 12),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+                        child: CheckInReferenceView(
+                          reference: checkIn,
+                          roomName: room.name,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                   KiviloSectionHeading(
                     title: 'Inventory',
                     subtitle:
@@ -588,7 +610,7 @@ class _RoomScreenState extends State<RoomScreen> {
                       ),
                     ),
                   for (final item in room.items) ...[
-                    _inventoryCard(item, room.captures),
+                    _inventoryCard(item, room.captures, checkIn?.lineFor(item)),
                     const SizedBox(height: 10),
                   ],
                 ];
@@ -977,7 +999,13 @@ class _RoomScreenState extends State<RoomScreen> {
     ),
   );
 
-  Widget _inventoryCard(InventoryItem item, List<EvidenceCapture> captures) {
+  /// [baseline] is the check-in line a check-out row was copied from, so what it was
+  /// stays in view once it is edited.
+  Widget _inventoryCard(
+    InventoryItem item,
+    List<EvidenceCapture> captures,
+    CheckInLine? baseline,
+  ) {
     final attached = captures
         .where((capture) => item.evidenceCaptureIds.contains(capture.id))
         .toList();
@@ -1039,6 +1067,13 @@ class _RoomScreenState extends State<RoomScreen> {
             if (item.notes != null) ...[
               const SizedBox(height: 9),
               Text(item.notes!, style: Theme.of(context).textTheme.bodyMedium),
+            ],
+            if (baseline != null) ...[
+              const SizedBox(height: 9),
+              Text(
+                'At check-in: ${baseline.summary}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ],
             if (attached.isNotEmpty) ...[
               const SizedBox(height: 12),

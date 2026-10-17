@@ -5,6 +5,7 @@ import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
+import { checkInReference } from '@/lib/check-in-reference'
 import { ReviewEditor, type EvidenceCapture } from '@/components/review-editor'
 
 export const dynamic = 'force-dynamic'
@@ -21,6 +22,7 @@ export default async function RoomReviewPage({
     include: {
       items: { orderBy: { createdAt: 'asc' } },
       captures: { orderBy: { createdAt: 'asc' } },
+      inspection: { select: { kind: true, baselineId: true } },
     },
   })
 
@@ -43,6 +45,8 @@ export default async function RoomReviewPage({
     })),
   )
 
+  const checkIn = await checkInReference(room)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between text-sm">
@@ -63,6 +67,7 @@ export default async function RoomReviewPage({
         roomName={room.name}
         items={room.items}
         captures={captures}
+        checkIn={checkIn}
         alreadyReviewed={room.status === 'REVIEWED'}
         nextHref={nextRoom ? roomHref(id, nextRoom) : `/inspections/${id}`}
       />

@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { timecode } from '@/lib/format'
 import { MarkOverlay } from '@/components/mark-overlay'
+import { CONDITION_TONE, CheckInReferencePanel, checkInSummary } from '@/components/check-in-reference'
+import type { CheckInLine, CheckInReference } from '@/lib/check-in-reference'
 import type { StoredAnnotations } from '@/lib/annotations'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import {
@@ -25,6 +27,7 @@ export type EditableItem = {
   meterReading: string | null
   sourceCaptureId: string | null
   sourceTimestampSec: number | null
+  baselineKey: string | null
 }
 
 export type EvidenceCapture = {
@@ -34,20 +37,16 @@ export type EvidenceCapture = {
   annotations: StoredAnnotations | null
 }
 
-const CONDITION_TONE: Record<ItemCondition, string> = {
-  NEW: 'text-emerald-700 bg-emerald-50',
-  GOOD: 'text-emerald-700 bg-emerald-50',
-  FAIR: 'text-amber-800 bg-amber-50',
-  POOR: 'text-orange-800 bg-orange-50',
-  DAMAGED: 'text-red-700 bg-red-50',
-}
-
 function ItemRow({
   item,
+  baseline,
   inspectionId,
   onShowEvidence,
 }: {
   item: EditableItem
+  /// The check-in line this check-out row was copied from, so what it was stays in view
+  /// once it is edited.
+  baseline: CheckInLine | undefined
   inspectionId: string
   onShowEvidence: (captureId: string, seconds: number | null) => void
 }) {
@@ -147,6 +146,12 @@ function ItemRow({
           Remove
         </button>
       </div>
+
+      {baseline && (
+        <p className="px-1.5 text-xs text-gray-500 sm:col-span-12">
+          At check-in: {checkInSummary(baseline)}
+        </p>
+      )}
     </div>
   )
 }
@@ -157,6 +162,7 @@ export function ReviewEditor({
   roomName,
   items,
   captures,
+  checkIn,
   alreadyReviewed,
   nextHref,
 }: {
@@ -165,6 +171,8 @@ export function ReviewEditor({
   roomName: string
   items: EditableItem[]
   captures: EvidenceCapture[]
+  /// On a check-out, the room as it was at check-in. Null on a check-in.
+  checkIn: CheckInReference | null
   alreadyReviewed: boolean
   /// Where "Mark room reviewed" goes: the next room still needing the inspector.
   nextHref: string
@@ -195,6 +203,8 @@ export function ReviewEditor({
 
   return (
     <div className="space-y-6">
+      {checkIn && <CheckInReferencePanel reference={checkIn} roomName={roomName} open />}
+
       {captures.length > 0 && (
         // A swipeable strip on a phone so the first item is on screen without
         // scrolling past every photo; a grid where there is room for one.
@@ -253,6 +263,7 @@ export function ReviewEditor({
           <ItemRow
             key={item.id}
             item={item}
+            baseline={checkIn?.lines.find((line) => line.key === item.baselineKey)}
             inspectionId={inspectionId}
             onShowEvidence={showEvidence}
           />

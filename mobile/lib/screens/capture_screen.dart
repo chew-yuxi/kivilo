@@ -14,7 +14,9 @@ import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../services/uploader.dart';
+import '../ui/check_in_reference_view.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'photo_mark_screen.dart';
@@ -836,11 +838,34 @@ class _CaptureScreenState extends State<CaptureScreen> {
         _unresolved.isNotEmpty;
     final hasMedia =
         pending?.isNotEmpty == true || _room?.captures.isNotEmpty == true;
+    final room = _room;
+    final checkIn = room?.checkIn;
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(_room?.name ?? 'Capture room'),
         leading: BackButton(onPressed: () => unawaited(_leaveAfterSaving())),
         actions: [
+          // On a check-out, the room as it was at check-in, one tap from the camera.
+          if (room != null && checkIn != null)
+            TextButton(
+              onPressed: () => unawaited(
+                showKiviloDrawer<void>(
+                  context: context,
+                  builder: (context) => KiviloDrawer(
+                    title: Text(
+                      checkIn.conductedAt == null
+                          ? 'At check-in'
+                          : 'At check-in · ${shortDate(checkIn.conductedAt!)}',
+                    ),
+                    content: CheckInReferenceView(
+                      reference: checkIn,
+                      roomName: room.name,
+                    ),
+                  ),
+                ),
+              ),
+              child: const Text('Check-in'),
+            ),
           IconButton(
             onPressed: () {
               unawaited(_drain());

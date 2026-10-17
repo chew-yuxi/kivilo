@@ -4,6 +4,7 @@ import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
+import { checkInReference } from '@/lib/check-in-reference'
 import { RoomCaptureScreen, type ServerCapture } from '@/components/room-capture-screen'
 
 export const dynamic = 'force-dynamic'
@@ -30,12 +31,17 @@ export default async function RoomCapturePage({
       },
     },
     orderBy: { order: 'asc' },
-    select: { id: true, name: true, status: true },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      inspection: { select: { kind: true, baselineId: true } },
+    },
   })
 
   const index = rooms.findIndex((room) => room.id === roomId)
   if (index === -1) notFound()
-  const room = rooms[index]
+  const { inspection, ...room } = rooms[index]
   const next = rooms[index + 1]
 
   const stored = await db.capture.findMany({
@@ -59,6 +65,7 @@ export default async function RoomCapturePage({
       room={room}
       captures={captures}
       position={{ index: index + 1, total: rooms.length }}
+      checkIn={await checkInReference({ name: room.name, inspection })}
       next={next ? { href: roomHref(id, next), name: next.name } : null}
     />
   )
