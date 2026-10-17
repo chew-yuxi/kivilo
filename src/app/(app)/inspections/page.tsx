@@ -3,11 +3,14 @@ import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { StatusBadge } from '@/components/status-badge'
+import { RenewalCards } from '@/components/renewal-cards'
+import { dueRenewals } from '@/lib/renewals'
 
 export const dynamic = 'force-dynamic'
 
 export default async function InspectionsPage() {
   const agent = await requireAgent()
+  const renewals = await dueRenewals(agent.id)
 
   const inspections = await db.inspection.findMany({
     where: inspectionScope(agent.id),
@@ -35,6 +38,8 @@ export default async function InspectionsPage() {
           New check-in
         </Link>
       </div>
+
+      <RenewalCards renewals={renewals} />
 
       {inspections.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">

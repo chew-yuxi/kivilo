@@ -49,5 +49,5 @@ export const config = {
   /// signing a report and acknowledging an update to it. Those need the same session
   /// refresh and the same redirect when signed out. Shared reports are deliberately
   /// outside it: the token in the URL is the credential there.
-  matcher: ['/inspections/:path*', '/account', '/sign/:path*', '/updates/:path*'],
+  matcher: ['/inspections/:path*', '/renewals/:path*', '/account', '/admin', '/sign/:path*', '/updates/:path*'],
 }

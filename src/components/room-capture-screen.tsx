@@ -629,15 +629,15 @@ export function RoomCaptureScreen({
       router.push(reviewHref)
     })
 
-  const canFinish = online && queued.length === 0 && captures.length > 0 && !finishing
-  const doneLabel =
+  const canFinish = online && queued.length === 0 && captures.length > 0 && !saving && !finishing
+  const uploadStatus =
     queued.length > 0
       ? online
         ? `Waiting for ${queued.length} upload${queued.length === 1 ? '' : 's'}`
         : `${queued.length} saved on this phone, waiting for signal`
       : !online
         ? 'Waiting for signal'
-        : `Done with ${room.name}`
+        : null
 
   return (
     <div className="space-y-5">
@@ -699,7 +699,7 @@ export function RoomCaptureScreen({
           onClick={() => photoInput.current?.click()}
           className="w-full rounded-lg bg-brand-500 px-4 py-4 text-base font-semibold text-white active:bg-brand-600 disabled:opacity-50"
         >
-          {saving ? 'Saving' : 'Take a photo'}
+          {saving ? 'Saving' : tiles.length > 0 ? 'Take another photo' : 'Take a photo'}
         </button>
         {lastShot ? (
           <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2">
@@ -796,22 +796,27 @@ export function RoomCaptureScreen({
       )}
 
       <div className="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:mx-0 sm:rounded-lg sm:border">
+        {uploadStatus && (
+          <p role="status" className="mb-2 text-sm text-gray-600">
+            {uploadStatus}. Review opens once this room&apos;s uploads finish.
+          </p>
+        )}
         <div className="flex items-center gap-3">
-          {finished && queued.length === 0 ? (
+          {finished && queued.length === 0 && !saving ? (
             <Link
               href={reviewHref}
-              className="flex-1 rounded-md bg-gray-900 px-4 py-3 text-center text-sm font-medium text-white active:bg-gray-800"
+              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-center text-sm font-medium active:bg-gray-100"
             >
-              Review {room.name}
+              Review room
             </Link>
           ) : (
             <button
               type="button"
               disabled={!canFinish}
               onClick={finish}
-              className="flex-1 rounded-md bg-gray-900 px-4 py-3 text-sm font-medium text-white active:bg-gray-800 disabled:opacity-50"
+              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium active:bg-gray-100 disabled:opacity-50"
             >
-              {doneLabel}
+              {finishing ? 'Opening room…' : 'Review room'}
             </button>
           )}
           {next && (

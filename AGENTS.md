@@ -261,8 +261,9 @@ agent opens `/updates/[addendumId]`, which offers each pending party the button.
 the report screen (`acknowledgeInPerson` on each addendum in the report API). Both ways
 end in `recordAcknowledgement`, which stores `AddendumAcknowledgement.method`
 (`OWN_ACCOUNT` or `IN_PERSON`, null on older rows), and the report, `/updates` and the
-PDF say "acknowledged in person". `discardAddendum` deletes a draft and queues
-`StoragePurge` rows for the photos it uploaded (never a repair's evidence it references).
+PDF say "acknowledged in person". `discardAddendum` deletes a draft and queues a delayed
+`StoragePurge` of its `addenda/<id>` prefix, including unfinished uploads. Entry deletion
+purges its durable upload intents. Neither ever purges repair evidence it references.
 
 The app authors updates with the same functions (`AddendaScreen`). `addendaWorkspace`
 (`src/lib/addenda-workspace.ts`) is what both the web panel and `GET
@@ -402,7 +403,7 @@ and JPEG, and the agent can set the name printed beside them.
 ## Plans and billing
 
 A plan belongs to a workspace: the agent's team, or the agent alone (`plans/billing.md`).
-Free holds 1 active property; Pro is per seat with 25 each, pooled. **`src/lib/plan.ts`
+Free holds 1 active property; Pro is per seat with 10 each, pooled. **`src/lib/plan.ts`
 is the only place a limit is decided**, and `createInspection`, the only place a property
 is made, calls its guard; the API answers 403 `plan_limit`. An active property is one
 whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so

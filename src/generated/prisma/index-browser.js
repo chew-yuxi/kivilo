@@ -188,6 +188,9 @@ exports.Prisma.TenancyScalarFieldEnum = {
   deposit: 'deposit',
   minorRepairCap: 'minorRepairCap',
   agentMayAgreeCosts: 'agentMayAgreeCosts',
+  renewalDecision: 'renewalDecision',
+  renewalSnoozedUntil: 'renewalSnoozedUntil',
+  renewedFromId: 'renewedFromId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -494,6 +497,7 @@ exports.Prisma.ReportAddendumEntryScalarFieldEnum = {
   notes: 'notes',
   maintenanceCaseId: 'maintenanceCaseId',
   propertyAssetId: 'propertyAssetId',
+  uploadPaths: 'uploadPaths',
   createdAt: 'createdAt'
 };
 
@@ -567,6 +571,17 @@ exports.Prisma.ErrorEventScalarFieldEnum = {
   notifiedAt: 'notifiedAt'
 };
 
+exports.Prisma.ProductEventScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  name: 'name',
+  properties: 'properties',
+  release: 'release',
+  stakeholderId: 'stakeholderId',
+  occurredAt: 'occurredAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -610,6 +625,11 @@ exports.PropertyType = exports.$Enums.PropertyType = {
   PRIVATE_NON_LANDED: 'PRIVATE_NON_LANDED',
   LANDED: 'LANDED',
   COMMERCIAL: 'COMMERCIAL'
+};
+
+exports.RenewalDecision = exports.$Enums.RenewalDecision = {
+  NOT_RENEWING: 'NOT_RENEWING',
+  DISMISSED: 'DISMISSED'
 };
 
 exports.InspectionKind = exports.$Enums.InspectionKind = {
@@ -760,7 +780,8 @@ exports.NotificationKind = exports.$Enums.NotificationKind = {
   MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
   MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
   REPEAT_REPAIR: 'REPEAT_REPAIR',
-  REPORT_UPDATED: 'REPORT_UPDATED'
+  REPORT_UPDATED: 'REPORT_UPDATED',
+  RENEWAL_DUE: 'RENEWAL_DUE'
 };
 
 exports.ChangeType = exports.$Enums.ChangeType = {
@@ -807,6 +828,12 @@ exports.ErrorSource = exports.$Enums.ErrorSource = {
   IOS: 'IOS'
 };
 
+exports.ProductEventSource = exports.$Enums.ProductEventSource = {
+  WEB: 'WEB',
+  ANDROID: 'ANDROID',
+  IOS: 'IOS'
+};
+
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Team: 'Team',
@@ -841,7 +868,8 @@ exports.Prisma.ModelName = {
   AccountDeletionRequest: 'AccountDeletionRequest',
   AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
   StoragePurge: 'StoragePurge',
-  ErrorEvent: 'ErrorEvent'
+  ErrorEvent: 'ErrorEvent',
+  ProductEvent: 'ProductEvent'
 };
 
 /**

@@ -5,7 +5,28 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
-## Next store build: 23
+## Next store build: 24
+
+Build `24` adds native PDF viewing and sharing (`open_filex` and `share_plus`). The
+signed report card offers View PDF, Share PDF and Share link; Share PDF downloads the
+actual document and gives the share sheet a local attachment. Signed storage URLs are
+never shared. The card no longer offers Revoke. These plugins require a new store
+binary; do not patch this source onto build `23`.
+
+Also included: Take another photo is the main capture action, Review room stays disabled
+until that room's queued uploads and changes finish, and renewal cards appear immediately
+three months before tenancy end, with Start renewal, Not renewing, a one-week snooze,
+and Dismiss. The server supplies room furniture rows and Pro's 10 properties per seat.
+
+Android debug and iOS simulator builds compile with both native plugins. Store-signed
+release artifacts and physical-device sharing remain part of the build-24 release
+check. Build `23` remains the current release; no minimum-build floor was raised.
+Flutter analysis and all 160 mobile tests pass. Server verification: typecheck, lint,
+production build, 89 unit tests, 120 integration tests, and 13 end-to-end tests against
+the production bundle. A corrupted `.next/dev` route cache was removed before the final
+production build; browser verification used `next start`.
+
+## Build 23
 
 Build `23` makes Shorebird updates user-controlled. At launch Kivilo checks for a patch,
 covers the app when one is available, and downloads it only after the inspector taps
@@ -40,13 +61,15 @@ resolved repair's "Add to the report as an update". The server was deployed firs
 (`ca0037a`, migrations `20261016100000_email_signing` and `20261016110000_report_addenda`).
 The icon check against `aff8443` printed nothing, and nothing outside `mobile/lib` changed.
 
-Patch `5` (Android) and patch `6` (iOS) on the staging track for `1.0.0+23`, built from
+Patch `5` (Android) and patch `6` (iOS) on the stable track for `1.0.0+23`, built from
 `6204ed4` in a pinned worktree, superseding `3` and `4`: agents write, discard and publish
 updates to a signed report in the app (photos through the upload queue), a party present
 can acknowledge an update in person on the agent's phone, an update's push opens its
 report, and picked photos are checked to be JPEG by their bytes. The server was deployed
 first, with migration `20261017100000_acknowledgement_method`. The icon check against
 `aff8443` printed nothing, and nothing outside `mobile/lib` changed.
+
+Both patches were promoted to stable on 17 October 2026 with the owner's approval.
 
 ## Current store candidate: 2026-10-13 Singapore time
 

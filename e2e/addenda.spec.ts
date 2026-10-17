@@ -1,5 +1,32 @@
 import { test, expect, devices, type APIRequestContext } from '@playwright/test'
 import { accessTokenFor, freshEmail, latestCodeFor, signIn, FIXTURES } from './helpers'
+import { db } from '../src/lib/db'
+import { CAPTURE_BUCKET, serviceClient } from '../src/lib/storage'
+
+const discardedDrafts: string[] = []
+
+test.afterAll(async () => {
+  try {
+    for (const id of discardedDrafts) {
+      const database = new URL(process.env.DATABASE_URL ?? '')
+      const supabase = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
+      if (database.hostname !== '127.0.0.1' || database.port !== '56322' ||
+          supabase.hostname !== '127.0.0.1' || supabase.port !== '56321') {
+        throw new Error('Addenda fixture cleanup may run only against local Supabase')
+      }
+      // Only this test's empty discarded draft. It never received an upload URL;
+      // verify it is gone and its folder is empty before removing the tombstone.
+      if (await db.reportAddendum.findUnique({ where: { id } })) continue
+      const path = `addenda/${id}`
+      const listing = await serviceClient().storage.from(CAPTURE_BUCKET).list(path)
+      if (listing.error) throw listing.error
+      expect(listing.data).toHaveLength(0)
+      await db.storagePurge.deleteMany({ where: { path, isPrefix: true } })
+    }
+  } finally {
+    await db.$disconnect()
+  }
+})
 
 /// A countersigned check-in, made through the API because the check-in itself is
 /// covered elsewhere, then updated on the web: the agent records a replaced hob with a
@@ -181,6 +208,9 @@ test('a party who is present acknowledges in person on the agent\'s phone, and a
   // A draft the agent no longer wants is thrown away.
   await page.getByRole('button', { name: 'Start an update' }).click()
   await expect(page.getByRole('button', { name: 'Discard draft' })).toBeVisible()
+  const emptyDraft = (await (await request.get(`/api/v1/inspections/${id}/addenda`, { headers })).json()).draft
+  expect(emptyDraft.entries).toEqual([])
+  discardedDrafts.push(emptyDraft.id)
   page.once('dialog', (dialog) => void dialog.accept())
   await page.getByRole('button', { name: 'Discard draft' }).click()
   await expect(page.getByRole('button', { name: 'Start an update' })).toBeVisible()

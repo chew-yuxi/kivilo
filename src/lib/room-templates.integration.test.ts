@@ -79,6 +79,8 @@ describe('room templates', () => {
       ['Sink and tap', 'FIXTURE'],
       ['Hob', 'APPLIANCE'],
       ['Cooker hood', 'APPLIANCE'],
+      ['Fridge', 'APPLIANCE'],
+      ['Washing machine', 'APPLIANCE'],
     ])
 
     const added = await db.inspectionItem.findUniqueOrThrow({ where: { id: await addItem(roomId, inspection.id) } })
@@ -105,7 +107,7 @@ describe('room templates', () => {
       'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches', 'Toilet', 'Basin and tap', 'Shower', 'Mirror',
     ])
     expect((await items(bedroom)).map((row) => row.name)).toEqual([
-      'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches',
+      'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches', 'Bed', 'Wardrobe',
     ])
   })
 
@@ -125,7 +127,7 @@ describe('room templates', () => {
     const inspection = await deal('TEMPLATE-CHECKOUT')
     const kitchen = await addRoom(inspection.id, 'Kitchen')
     await addRoom(inspection.id, 'Master bathroom')
-    expect(await db.inspectionItem.count({ where: { roomId: kitchen } })).toBe(9)
+    expect(await db.inspectionItem.count({ where: { roomId: kitchen } })).toBe(11)
     const hob = await db.inspectionItem.findFirstOrThrow({ where: { roomId: kitchen, name: 'Hob' } })
     await db.inspectionItem.update({
       where: { id: hob.id },
@@ -146,7 +148,7 @@ describe('room templates', () => {
       include: { items: { orderBy: { createdAt: 'asc' } } },
     })
     expect(rooms.map((room) => [room.name, room.items.length])).toEqual([
-      ['Kitchen', 9],
+      ['Kitchen', 11],
       ['Master bathroom', 9],
     ])
     expect(rooms[0].items.find((item) => item.name === 'Hob')).toMatchObject({

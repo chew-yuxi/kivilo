@@ -178,6 +178,34 @@ void main() {
   });
 
   test(
+    'an interrupted save in another room does not hold up this room',
+    () async {
+      final journal = File('${root.path}/capture-intake/bedroom-photo.json')
+        ..parent.createSync(recursive: true);
+      journal.writeAsStringSync(
+        jsonEncode({
+          'clientId': 'bedroom-photo',
+          'ownerId': 'owner-a',
+          'inspectionId': 'inspection-a',
+          'roomId': 'bedroom',
+          'relativePath': 'captures/owner-a/bedroom-photo.jpg',
+          'sourcePath': '${root.path}/missing.jpg',
+        }),
+      );
+      final store = CaptureStore(queue: queue, root: root);
+      expect(await store.reconcile('owner-a', roomId: 'kitchen'), isEmpty);
+      expect(await store.reconcile('owner-a', roomId: 'bedroom'), [
+        'bedroom-photo',
+      ]);
+      expect(
+        journal.existsSync(),
+        isTrue,
+        reason: 'interrupted media is retained',
+      );
+    },
+  );
+
+  test(
     'a full SQLite queue retains bytes and recovers after space is available',
     () async {
       final pages = (await queue.customSelect('PRAGMA page_count').getSingle())

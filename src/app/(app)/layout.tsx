@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { UploadQueueProvider, QueueStatus } from '@/components/upload-queue'
 import { ServiceWorker } from '@/components/service-worker'
 import { ErrorReporter } from '@/components/error-reporter'
+import { ProductEventReporter } from '@/components/product-event-reporter'
+import { isAdmin } from '@/lib/admin'
 import { SignOut } from '@/components/sign-out'
 import { requireAgent } from '@/lib/auth'
 
@@ -14,6 +16,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
   return (
     <UploadQueueProvider>
       <ErrorReporter />
+      <ProductEventReporter owner={agent.id} />
       <div className="flex min-h-full flex-col bg-gray-50">
         <header className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4 sm:px-6">
@@ -24,6 +27,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             <span className="hidden text-sm text-gray-400 sm:inline">Check-in / check-out</span>
             <div className="ml-auto flex items-center gap-3">
               <QueueStatus />
+              {isAdmin(agent.email) && <Link href="/admin" className="text-xs text-gray-500 hover:underline">Admin</Link>}
               <ServiceWorker />
               <Link href="/account" className="text-xs text-gray-500 hover:underline">
                 Account

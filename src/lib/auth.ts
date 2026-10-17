@@ -131,6 +131,21 @@ export function agentTenancies(stakeholderId: string, now = new Date()): Prisma.
   return { AND: [actsAsAgent(stakeholderId), { endDate: { gte: now } }] }
 }
 
+/// Renewal changes are for the tenancy's agent or their teammate. Being its landlord
+/// or tenant alone never grants access to the agent's reminder or the next deal.
+export async function authorizeAgentTenancy(tenancyId: string, stakeholderId: string) {
+  const tenancy = await db.tenancy.findFirst({
+    where: { AND: [{ id: tenancyId }, agentTenancies(stakeholderId)] },
+    include: {
+      property: true, landlord: true, tenant: true,
+      renewedAs: { include: { inspections: { select: { id: true }, take: 1 } } },
+      inspections: { where: { kind: 'CHECK_IN' }, orderBy: { createdAt: 'desc' }, take: 1 },
+    },
+  })
+  if (!tenancy) throw new Error('Tenancy not found')
+  return tenancy
+}
+
 /// A landlord owns the durable property history, a tenant sees their own tenancy, and
 /// an agent may manage maintenance only while the tenancy is active. The inspection
 /// scope remains separate because completed reports have their own retention rules.

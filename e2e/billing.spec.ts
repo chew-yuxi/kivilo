@@ -24,7 +24,7 @@ test('a Free agent upgrades to Pro through Stripe Checkout and can then manage b
 
   await page.waitForURL(/\/account\?checkout=cs_test_/, { timeout: 60_000 })
   await expect(page.getByText('Pro', { exact: true })).toBeVisible()
-  await expect(page.getByTestId('plan-usage')).toHaveText('0 of 25 active properties')
+  await expect(page.getByTestId('plan-usage')).toHaveText('0 of 10 active properties')
   await expect(page.getByRole('button', { name: 'Upgrade to Pro' })).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Manage billing' }).click()

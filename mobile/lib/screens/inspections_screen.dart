@@ -6,6 +6,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'new_inspection_screen.dart';
+import 'renewal_reminders.dart';
 
 class InspectionsScreen extends StatefulWidget {
   const InspectionsScreen({super.key});
@@ -17,11 +18,13 @@ class InspectionsScreen extends StatefulWidget {
 class _InspectionsScreenState extends State<InspectionsScreen> {
   final _api = Api();
   late Future<List<InspectionSummary>> _future = _api.inspections();
+  int _renewalsVersion = 0;
 
   Future<void> _refresh() async {
     final next = _api.inspections();
     setState(() {
       _future = next;
+      _renewalsVersion += 1;
     });
     await next;
   }
@@ -92,6 +95,10 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
               Text(
                 'Capture each room, write its inventory, then sign.',
                 style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              RenewalReminders(
+                key: ValueKey(_renewalsVersion),
+                onRenewed: _refresh,
               ),
               if (_api.offlineCopy) ...[
                 const SizedBox(height: 18),

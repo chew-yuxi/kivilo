@@ -24,21 +24,30 @@ class CaptureScreen extends StatefulWidget {
     super.key,
     required this.inspectionId,
     required this.roomId,
+    this.api,
+    this.queue,
+    this.ownerId,
+    this.supportDirectory,
   });
 
   final String inspectionId;
   final String roomId;
+  final Api? api;
+  final CaptureQueue? queue;
+  final String? ownerId;
+  final Future<Directory> Function()? supportDirectory;
 
   @override
   State<CaptureScreen> createState() => _CaptureScreenState();
 }
 
 class _CaptureScreenState extends State<CaptureScreen> {
-  final _api = Api();
-  final _queue = CaptureQueue();
+  late final _api = widget.api ?? Api();
+  late final _queue = widget.queue ?? CaptureQueue();
   final _picker = ImagePicker();
   late final _backend = RoutingEvidenceBackend(_api.dio);
-  late final String _ownerId = Supabase.instance.client.auth.currentUser!.id;
+  late final String _ownerId =
+      widget.ownerId ?? Supabase.instance.client.auth.currentUser!.id;
   Directory? _root;
   RoomDetail? _room;
   Future<void>? _uploading;
@@ -46,16 +55,33 @@ class _CaptureScreenState extends State<CaptureScreen> {
   bool _busy = false;
   bool _leaving = false;
   bool _finishing = false;
+  bool _loadingRoom = false;
   bool _offline = false;
   String? _error;
-  List<PendingRemoteEdit> _remoteEdits = const [];
+  List<PendingCapture>? _pendingCaptures;
+  List<PendingRemoteEdit>? _remoteEdits;
   List<String> _unresolved = const [];
+  StreamSubscription<List<PendingCapture>>? _captureSubscription;
+  StreamSubscription<List<PendingRemoteEdit>>? _editSubscription;
   StreamSubscription<EvidenceSyncUpdate>? _syncSubscription;
   final Map<String, EvidenceSyncUpdate> _syncUpdates = {};
 
   @override
   void initState() {
     super.initState();
+    _captureSubscription = _queue
+        .watch(widget.roomId, ownerId: _ownerId)
+        .listen((captures) {
+          final handedOver =
+              _pendingCaptures?.isNotEmpty == true && captures.isEmpty;
+          if (mounted) setState(() => _pendingCaptures = captures);
+          if (mounted && handedOver) unawaited(_loadRoom());
+        }, onError: _queueError);
+    _editSubscription = _queue
+        .watchRemoteEditsFor(_ownerId, widget.inspectionId)
+        .listen((edits) {
+          if (mounted) setState(() => _remoteEdits = edits);
+        }, onError: _queueError);
     _syncSubscription = evidenceSyncUpdates.listen((update) {
       if (!mounted) return;
       setState(() {
@@ -69,14 +95,35 @@ class _CaptureScreenState extends State<CaptureScreen> {
     unawaited(_initialize());
   }
 
+  void _queueError(Object error) {
+    if (mounted) {
+      setState(
+        () => _error = 'Could not check saved media. ${plainError(error)}',
+      );
+    }
+  }
+
+  List<PendingRemoteEdit> get _roomEdits {
+    final ids = {
+      for (final capture in _room?.captures ?? const <EvidenceCapture>[])
+        capture.id,
+      for (final capture in _pendingCaptures ?? const <PendingCapture>[])
+        if (capture.uploadedId != null) capture.uploadedId!,
+    };
+    return (_remoteEdits ?? const <PendingRemoteEdit>[])
+        .where((edit) => ids.contains(edit.captureId))
+        .toList();
+  }
+
   Future<void> _initialize() async {
     try {
-      final root = await getApplicationSupportDirectory();
+      final root =
+          await (widget.supportDirectory ?? getApplicationSupportDirectory)();
       _root = root;
       _unresolved = await CaptureStore(
         queue: _queue,
         root: root,
-      ).reconcile(_ownerId);
+      ).reconcile(_ownerId, roomId: widget.roomId);
       await _loadRoom();
       await _recoverLostPickerData();
       unawaited(_drain());
@@ -86,12 +133,15 @@ class _CaptureScreenState extends State<CaptureScreen> {
   }
 
   Future<void> _loadRoom() async {
+    if (mounted) setState(() => _loadingRoom = true);
     try {
-      if (Supabase.instance.client.auth.currentUser?.id != _ownerId) {
+      if ((widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id) !=
+          _ownerId) {
         throw const ApiFailure('Account changed. Open this room again.', 401);
       }
       final detail = await _api.room(widget.inspectionId, widget.roomId);
-      if (Supabase.instance.client.auth.currentUser?.id != _ownerId) {
+      if ((widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id) !=
+          _ownerId) {
         throw const ApiFailure('Account changed. Open this room again.', 401);
       }
       if (mounted) {
@@ -112,7 +162,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
         });
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not open this room. ${plainError(error)}');
+      if (mounted) {
+        setState(
+          () => _error = 'Could not open this room. ${plainError(error)}',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loadingRoom = false);
     }
   }
 
@@ -145,7 +201,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
       if (picked != null) await _savePickedFile(picked, video: _videoMode);
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not save that photo or video. ${plainError(error)}');
+        setState(
+          () => _error =
+              'Could not save that photo or video. ${plainError(error)}',
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -174,7 +233,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
         }
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not add that photo or video. ${plainError(error)}');
+      if (mounted) {
+        setState(
+          () => _error =
+              'Could not add that photo or video. ${plainError(error)}',
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -263,10 +327,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
     _uploading = future;
     try {
       await future;
-      final edits = await _queue.remoteEditsFor(_ownerId, widget.inspectionId);
-      if (mounted) setState(() => _remoteEdits = edits);
     } catch (error) {
-      if (mounted) setState(() => _error = 'Upload paused. ${plainError(error)}');
+      if (mounted) {
+        setState(() => _error = 'Upload paused. ${plainError(error)}');
+      }
     } finally {
       _uploading = null;
     }
@@ -575,30 +639,25 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
     setState(() => _finishing = true);
     try {
-      await _drain();
-      if (!mounted) return;
-      final pending = await _queue.forRoom(widget.roomId, _ownerId);
-      final pendingEdits = await _queue.remoteEditsFor(
-        _ownerId,
+      final pending = await _queue.pendingForRoom(
         widget.inspectionId,
+        widget.roomId,
+        _ownerId,
+        _room!.captures.map((capture) => capture.id),
       );
       if (!mounted) return;
-      if (pending.isNotEmpty ||
-          pendingEdits.isNotEmpty ||
-          _unresolved.isNotEmpty) {
+      if (pending.captures > 0 || pending.edits > 0 || _unresolved.isNotEmpty) {
         setState(
           () => _error =
               'Some photos, videos or changes have not uploaded yet. Try again when you have signal.',
         );
         return;
       }
-      try {
-        await _api.finishRoom(widget.inspectionId, widget.roomId);
-        if (mounted) Navigator.pop(context);
-      } catch (error) {
-        if (mounted) {
-          setState(() => _error = 'Could not finish this room. ${plainError(error)}');
-        }
+      await _api.finishRoom(widget.inspectionId, widget.roomId);
+      if (mounted) Navigator.pop(context);
+    } catch (error) {
+      if (mounted) {
+        setState(() => _error = 'Could not open review. ${plainError(error)}');
       }
     } finally {
       if (mounted) setState(() => _finishing = false);
@@ -627,7 +686,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
         ? null
         : _syncUpdates[capture.clientId!];
     final progress = (update?.progress ?? 0).clamp(0.0, 1.0);
-    final sent = _sizeIn((capture.sizeBytes * progress).round(), capture.sizeBytes);
+    final sent = _sizeIn(
+      (capture.sizeBytes * progress).round(),
+      capture.sizeBytes,
+    );
     final whole = _sizeIn(capture.sizeBytes, capture.sizeBytes);
     final annotationError =
         capture.uploadedId != null &&
@@ -745,17 +807,32 @@ class _CaptureScreenState extends State<CaptureScreen> {
   @override
   void dispose() {
     unawaited(_syncSubscription?.cancel());
-    final upload = _uploading;
-    if (upload == null) {
-      unawaited(_queue.close());
-    } else {
-      unawaited(upload.whenComplete(_queue.close));
+    unawaited(_captureSubscription?.cancel());
+    unawaited(_editSubscription?.cancel());
+    if (widget.queue == null) {
+      final upload = _uploading;
+      if (upload == null) {
+        unawaited(_queue.close());
+      } else {
+        unawaited(upload.whenComplete(_queue.close));
+      }
     }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final pending = _pendingCaptures;
+    final roomEdits = _roomEdits;
+    final waiting =
+        _loadingRoom ||
+        pending == null ||
+        _remoteEdits == null ||
+        pending.isNotEmpty ||
+        roomEdits.isNotEmpty ||
+        _unresolved.isNotEmpty;
+    final hasMedia =
+        pending?.isNotEmpty == true || _room?.captures.isNotEmpty == true;
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(_room?.name ?? 'Capture room'),
@@ -805,10 +882,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
               KiviloColors.amberSoft,
               KiviloColors.amber,
             ),
-          if (_remoteEdits.isNotEmpty)
+          if (roomEdits.isNotEmpty)
             _notice(
               Icons.sync,
-              '${_remoteEdits.length == 1 ? 'A change is' : '${_remoteEdits.length} changes are'} waiting to upload. Tap to try again.',
+              '${roomEdits.length == 1 ? 'A change is' : '${roomEdits.length} changes are'} waiting to upload. Tap to try again.',
               KiviloColors.amberSoft,
               KiviloColors.amber,
               onTap: () => unawaited(_drain()),
@@ -835,7 +912,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 ? null
                 : _openSystemCamera,
             icon: Icon(_videoMode ? Icons.videocam : Icons.photo_camera),
-            label: Text(_videoMode ? 'Record video' : 'Take photo'),
+            label: Text(
+              _videoMode
+                  ? 'Record video'
+                  : hasMedia
+                  ? 'Take another photo'
+                  : 'Take a photo',
+            ),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
@@ -851,18 +934,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
             subtitle: 'Saved on your phone first, then added to the report',
           ),
           const SizedBox(height: 12),
-          StreamBuilder<List<PendingCapture>>(
-            stream: _queue.watch(widget.roomId, ownerId: _ownerId),
-            builder: (context, snapshot) {
-              final pending = snapshot.data ?? const [];
-              return Column(
-                children: [
-                  for (final capture in pending.reversed)
-                    _pendingCaptureCard(capture),
-                ],
-              );
-            },
-          ),
+          for (final capture in (pending ?? const <PendingCapture>[]).reversed)
+            _pendingCaptureCard(capture),
           for (final capture
               in (_room?.captures ?? const <EvidenceCapture>[]).reversed)
             Card(
@@ -894,9 +967,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 title: Text(
                   capture.note?.isNotEmpty == true
                       ? capture.note!
-                      : (capture.kind == 'PHOTO'
-                            ? 'Photo'
-                            : 'Video'),
+                      : (capture.kind == 'PHOTO' ? 'Photo' : 'Video'),
                 ),
                 subtitle: const Text(
                   'In the report',
@@ -914,12 +985,26 @@ class _CaptureScreenState extends State<CaptureScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-          child: FilledButton.icon(
-            onPressed: _room == null || _busy || _leaving || _finishing
-                ? null
-                : _finishRoom,
-            icon: const Icon(Icons.check_rounded),
-            label: const Text('Done capturing'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (waiting) ...[
+                const Text(
+                  'Review opens once this room’s photos, videos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+              ],
+              OutlinedButton.icon(
+                onPressed:
+                    _room == null || _busy || _leaving || _finishing || waiting
+                    ? null
+                    : _finishRoom,
+                icon: const Icon(Icons.check_rounded),
+                label: const Text('Review room'),
+              ),
+            ],
           ),
         ),
       ),

@@ -217,6 +217,12 @@ export type StoragePurge = $Result.DefaultSelection<Prisma.$StoragePurgePayload>
  * time it is seen. Kept for 90 days, as the privacy policy says.
  */
 export type ErrorEvent = $Result.DefaultSelection<Prisma.$ErrorEventPayload>
+/**
+ * Model ProductEvent
+ * Allowlisted usage events, with identity stamped by the authenticated server.
+ * No addresses, report tokens, free text or IPs. Kept for 90 days.
+ */
+export type ProductEvent = $Result.DefaultSelection<Prisma.$ProductEventPayload>
 
 /**
  * Enums
@@ -245,6 +251,14 @@ export const PropertyType: {
 };
 
 export type PropertyType = (typeof PropertyType)[keyof typeof PropertyType]
+
+
+export const RenewalDecision: {
+  NOT_RENEWING: 'NOT_RENEWING',
+  DISMISSED: 'DISMISSED'
+};
+
+export type RenewalDecision = (typeof RenewalDecision)[keyof typeof RenewalDecision]
 
 
 export const InspectionKind: {
@@ -444,7 +458,8 @@ export const NotificationKind: {
   MAINTENANCE_VERIFICATION: 'MAINTENANCE_VERIFICATION',
   MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
   REPEAT_REPAIR: 'REPEAT_REPAIR',
-  REPORT_UPDATED: 'REPORT_UPDATED'
+  REPORT_UPDATED: 'REPORT_UPDATED',
+  RENEWAL_DUE: 'RENEWAL_DUE'
 };
 
 export type NotificationKind = (typeof NotificationKind)[keyof typeof NotificationKind]
@@ -522,6 +537,15 @@ export const ErrorSource: {
 
 export type ErrorSource = (typeof ErrorSource)[keyof typeof ErrorSource]
 
+
+export const ProductEventSource: {
+  WEB: 'WEB',
+  ANDROID: 'ANDROID',
+  IOS: 'IOS'
+};
+
+export type ProductEventSource = (typeof ProductEventSource)[keyof typeof ProductEventSource]
+
 }
 
 export type StakeholderKind = $Enums.StakeholderKind
@@ -535,6 +559,10 @@ export const Plan: typeof $Enums.Plan
 export type PropertyType = $Enums.PropertyType
 
 export const PropertyType: typeof $Enums.PropertyType
+
+export type RenewalDecision = $Enums.RenewalDecision
+
+export const RenewalDecision: typeof $Enums.RenewalDecision
 
 export type InspectionKind = $Enums.InspectionKind
 
@@ -643,6 +671,10 @@ export const DeletionRequestStatus: typeof $Enums.DeletionRequestStatus
 export type ErrorSource = $Enums.ErrorSource
 
 export const ErrorSource: typeof $Enums.ErrorSource
+
+export type ProductEventSource = $Enums.ProductEventSource
+
+export const ProductEventSource: typeof $Enums.ProductEventSource
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1104,6 +1136,16 @@ export class PrismaClient<
     * ```
     */
   get errorEvent(): Prisma.ErrorEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productEvent`: Exposes CRUD operations for the **ProductEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductEvents
+    * const productEvents = await prisma.productEvent.findMany()
+    * ```
+    */
+  get productEvent(): Prisma.ProductEventDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1584,7 +1626,8 @@ export namespace Prisma {
     AccountDeletionRequest: 'AccountDeletionRequest',
     AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
     StoragePurge: 'StoragePurge',
-    ErrorEvent: 'ErrorEvent'
+    ErrorEvent: 'ErrorEvent',
+    ProductEvent: 'ProductEvent'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1600,7 +1643,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent"
+      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4120,6 +4163,80 @@ export namespace Prisma {
           }
         }
       }
+      ProductEvent: {
+        payload: Prisma.$ProductEventPayload<ExtArgs>
+        fields: Prisma.ProductEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>
+          }
+          findMany: {
+            args: Prisma.ProductEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>[]
+          }
+          create: {
+            args: Prisma.ProductEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>
+          }
+          createMany: {
+            args: Prisma.ProductEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>
+          }
+          update: {
+            args: Prisma.ProductEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductEventPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductEvent>
+          }
+          groupBy: {
+            args: Prisma.ProductEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductEventCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductEventCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4277,6 +4394,7 @@ export namespace Prisma {
     accountDeletionStoragePurge?: AccountDeletionStoragePurgeOmit
     storagePurge?: StoragePurgeOmit
     errorEvent?: ErrorEventOmit
+    productEvent?: ProductEventOmit
   }
 
   /* Types for Logging */
@@ -4372,6 +4490,7 @@ export namespace Prisma {
     notifications: number
     deviceInstallations: number
     errorEvents: number
+    productEvents: number
     reportEmails: number
     addendaCreated: number
     addendaPublished: number
@@ -4395,6 +4514,7 @@ export namespace Prisma {
     notifications?: boolean | StakeholderCountOutputTypeCountNotificationsArgs
     deviceInstallations?: boolean | StakeholderCountOutputTypeCountDeviceInstallationsArgs
     errorEvents?: boolean | StakeholderCountOutputTypeCountErrorEventsArgs
+    productEvents?: boolean | StakeholderCountOutputTypeCountProductEventsArgs
     reportEmails?: boolean | StakeholderCountOutputTypeCountReportEmailsArgs
     addendaCreated?: boolean | StakeholderCountOutputTypeCountAddendaCreatedArgs
     addendaPublished?: boolean | StakeholderCountOutputTypeCountAddendaPublishedArgs
@@ -4516,6 +4636,13 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountErrorEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ErrorEventWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountProductEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductEventWhereInput
   }
 
   /**
@@ -5446,6 +5573,7 @@ export namespace Prisma {
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
+    productEvents?: boolean | Stakeholder$productEventsArgs<ExtArgs>
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
@@ -5515,6 +5643,7 @@ export namespace Prisma {
     deviceInstallations?: boolean | Stakeholder$deviceInstallationsArgs<ExtArgs>
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
+    productEvents?: boolean | Stakeholder$productEventsArgs<ExtArgs>
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
@@ -5550,6 +5679,7 @@ export namespace Prisma {
       deviceInstallations: Prisma.$DeviceInstallationPayload<ExtArgs>[]
       branding: Prisma.$AgentBrandingPayload<ExtArgs> | null
       errorEvents: Prisma.$ErrorEventPayload<ExtArgs>[]
+      productEvents: Prisma.$ProductEventPayload<ExtArgs>[]
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
       addendaCreated: Prisma.$ReportAddendumPayload<ExtArgs>[]
       addendaPublished: Prisma.$ReportAddendumPayload<ExtArgs>[]
@@ -5994,6 +6124,7 @@ export namespace Prisma {
     deviceInstallations<T extends Stakeholder$deviceInstallationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deviceInstallationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceInstallationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     branding<T extends Stakeholder$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$brandingArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     errorEvents<T extends Stakeholder$errorEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$errorEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    productEvents<T extends Stakeholder$productEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$productEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportEmails<T extends Stakeholder$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaCreated<T extends Stakeholder$addendaCreatedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaPublished<T extends Stakeholder$addendaPublishedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaPublishedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6835,6 +6966,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ErrorEventScalarFieldEnum | ErrorEventScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.productEvents
+   */
+  export type Stakeholder$productEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    where?: ProductEventWhereInput
+    orderBy?: ProductEventOrderByWithRelationInput | ProductEventOrderByWithRelationInput[]
+    cursor?: ProductEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductEventScalarFieldEnum | ProductEventScalarFieldEnum[]
   }
 
   /**
@@ -11619,6 +11774,9 @@ export namespace Prisma {
     deposit: Decimal | null
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean | null
+    renewalDecision: $Enums.RenewalDecision | null
+    renewalSnoozedUntil: Date | null
+    renewedFromId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11635,6 +11793,9 @@ export namespace Prisma {
     deposit: Decimal | null
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean | null
+    renewalDecision: $Enums.RenewalDecision | null
+    renewalSnoozedUntil: Date | null
+    renewedFromId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11651,6 +11812,9 @@ export namespace Prisma {
     deposit: number
     minorRepairCap: number
     agentMayAgreeCosts: number
+    renewalDecision: number
+    renewalSnoozedUntil: number
+    renewedFromId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -11681,6 +11845,9 @@ export namespace Prisma {
     deposit?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
+    renewalDecision?: true
+    renewalSnoozedUntil?: true
+    renewedFromId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11697,6 +11864,9 @@ export namespace Prisma {
     deposit?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
+    renewalDecision?: true
+    renewalSnoozedUntil?: true
+    renewedFromId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11713,6 +11883,9 @@ export namespace Prisma {
     deposit?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
+    renewalDecision?: true
+    renewalSnoozedUntil?: true
+    renewedFromId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -11816,6 +11989,9 @@ export namespace Prisma {
     deposit: Decimal
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean
+    renewalDecision: $Enums.RenewalDecision | null
+    renewalSnoozedUntil: Date | null
+    renewedFromId: string | null
     createdAt: Date
     updatedAt: Date
     _count: TenancyCountAggregateOutputType | null
@@ -11851,6 +12027,9 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    renewalDecision?: boolean
+    renewalSnoozedUntil?: boolean
+    renewedFromId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
@@ -11859,6 +12038,8 @@ export namespace Prisma {
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
     inspections?: boolean | Tenancy$inspectionsArgs<ExtArgs>
     maintenanceCases?: boolean | Tenancy$maintenanceCasesArgs<ExtArgs>
+    renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
+    renewedAs?: boolean | Tenancy$renewedAsArgs<ExtArgs>
     _count?: boolean | TenancyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenancy"]>
 
@@ -11874,12 +12055,16 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    renewalDecision?: boolean
+    renewalSnoozedUntil?: boolean
+    renewedFromId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }, ExtArgs["result"]["tenancy"]>
 
   export type TenancySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11894,12 +12079,16 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    renewalDecision?: boolean
+    renewalSnoozedUntil?: boolean
+    renewedFromId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }, ExtArgs["result"]["tenancy"]>
 
   export type TenancySelectScalar = {
@@ -11914,11 +12103,14 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    renewalDecision?: boolean
+    renewalSnoozedUntil?: boolean
+    renewedFromId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
+  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
   export type TenancyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -11926,6 +12118,8 @@ export namespace Prisma {
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
     inspections?: boolean | Tenancy$inspectionsArgs<ExtArgs>
     maintenanceCases?: boolean | Tenancy$maintenanceCasesArgs<ExtArgs>
+    renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
+    renewedAs?: boolean | Tenancy$renewedAsArgs<ExtArgs>
     _count?: boolean | TenancyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenancyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11933,12 +12127,14 @@ export namespace Prisma {
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }
   export type TenancyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }
 
   export type $TenancyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11950,6 +12146,8 @@ export namespace Prisma {
       agent: Prisma.$StakeholderPayload<ExtArgs> | null
       inspections: Prisma.$InspectionPayload<ExtArgs>[]
       maintenanceCases: Prisma.$MaintenanceCasePayload<ExtArgs>[]
+      renewedFrom: Prisma.$TenancyPayload<ExtArgs> | null
+      renewedAs: Prisma.$TenancyPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11971,6 +12169,15 @@ export namespace Prisma {
        * Only the landlord can change it.
        */
       agentMayAgreeCosts: boolean
+      /**
+       * Reminder choices belong to the tenancy, so teammates see the same decision.
+       */
+      renewalDecision: $Enums.RenewalDecision | null
+      renewalSnoozedUntil: Date | null
+      /**
+       * A renewal is a new term on the same property, never an edit to the signed term.
+       */
+      renewedFromId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["tenancy"]>
@@ -12373,6 +12580,8 @@ export namespace Prisma {
     agent<T extends Tenancy$agentArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$agentArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     inspections<T extends Tenancy$inspectionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$inspectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     maintenanceCases<T extends Tenancy$maintenanceCasesArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$maintenanceCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    renewedFrom<T extends Tenancy$renewedFromArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$renewedFromArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    renewedAs<T extends Tenancy$renewedAsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$renewedAsArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12413,6 +12622,9 @@ export namespace Prisma {
     readonly deposit: FieldRef<"Tenancy", 'Decimal'>
     readonly minorRepairCap: FieldRef<"Tenancy", 'Decimal'>
     readonly agentMayAgreeCosts: FieldRef<"Tenancy", 'Boolean'>
+    readonly renewalDecision: FieldRef<"Tenancy", 'RenewalDecision'>
+    readonly renewalSnoozedUntil: FieldRef<"Tenancy", 'DateTime'>
+    readonly renewedFromId: FieldRef<"Tenancy", 'String'>
     readonly createdAt: FieldRef<"Tenancy", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenancy", 'DateTime'>
   }
@@ -12880,6 +13092,44 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MaintenanceCaseScalarFieldEnum | MaintenanceCaseScalarFieldEnum[]
+  }
+
+  /**
+   * Tenancy.renewedFrom
+   */
+  export type Tenancy$renewedFromArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenancy
+     */
+    select?: TenancySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenancy
+     */
+    omit?: TenancyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenancyInclude<ExtArgs> | null
+    where?: TenancyWhereInput
+  }
+
+  /**
+   * Tenancy.renewedAs
+   */
+  export type Tenancy$renewedAsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenancy
+     */
+    select?: TenancySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenancy
+     */
+    omit?: TenancyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenancyInclude<ExtArgs> | null
+    where?: TenancyWhereInput
   }
 
   /**
@@ -38609,6 +38859,7 @@ export namespace Prisma {
     notes: number
     maintenanceCaseId: number
     propertyAssetId: number
+    uploadPaths: number
     createdAt: number
     _all: number
   }
@@ -38670,6 +38921,7 @@ export namespace Prisma {
     notes?: true
     maintenanceCaseId?: true
     propertyAssetId?: true
+    uploadPaths?: true
     createdAt?: true
     _all?: true
   }
@@ -38774,6 +39026,7 @@ export namespace Prisma {
     notes: string | null
     maintenanceCaseId: string | null
     propertyAssetId: string | null
+    uploadPaths: string[]
     createdAt: Date
     _count: ReportAddendumEntryCountAggregateOutputType | null
     _avg: ReportAddendumEntryAvgAggregateOutputType | null
@@ -38810,6 +39063,7 @@ export namespace Prisma {
     notes?: boolean
     maintenanceCaseId?: boolean
     propertyAssetId?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
@@ -38832,6 +39086,7 @@ export namespace Prisma {
     notes?: boolean
     maintenanceCaseId?: boolean
     propertyAssetId?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
@@ -38852,6 +39107,7 @@ export namespace Prisma {
     notes?: boolean
     maintenanceCaseId?: boolean
     propertyAssetId?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
@@ -38872,10 +39128,11 @@ export namespace Prisma {
     notes?: boolean
     maintenanceCaseId?: boolean
     propertyAssetId?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
   }
 
-  export type ReportAddendumEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "addendumId" | "change" | "roomName" | "targetKey" | "name" | "category" | "condition" | "quantity" | "identifier" | "notes" | "maintenanceCaseId" | "propertyAssetId" | "createdAt", ExtArgs["result"]["reportAddendumEntry"]>
+  export type ReportAddendumEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "addendumId" | "change" | "roomName" | "targetKey" | "name" | "category" | "condition" | "quantity" | "identifier" | "notes" | "maintenanceCaseId" | "propertyAssetId" | "uploadPaths" | "createdAt", ExtArgs["result"]["reportAddendumEntry"]>
   export type ReportAddendumEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     addendum?: boolean | ReportAddendumDefaultArgs<ExtArgs>
     maintenanceCase?: boolean | ReportAddendumEntry$maintenanceCaseArgs<ExtArgs>
@@ -38929,6 +39186,11 @@ export namespace Prisma {
        * The asset publishing created for this line, so a check-out copies the link.
        */
       propertyAssetId: string | null
+      /**
+       * Upload intents survive a missing photo registration, so deleting the entry
+       * can remove objects written by an outstanding signed upload URL.
+       */
+      uploadPaths: string[]
       createdAt: Date
     }, ExtArgs["result"]["reportAddendumEntry"]>
     composites: {}
@@ -39370,6 +39632,7 @@ export namespace Prisma {
     readonly notes: FieldRef<"ReportAddendumEntry", 'String'>
     readonly maintenanceCaseId: FieldRef<"ReportAddendumEntry", 'String'>
     readonly propertyAssetId: FieldRef<"ReportAddendumEntry", 'String'>
+    readonly uploadPaths: FieldRef<"ReportAddendumEntry", 'String[]'>
     readonly createdAt: FieldRef<"ReportAddendumEntry", 'DateTime'>
   }
     
@@ -46566,6 +46829,1104 @@ export namespace Prisma {
 
 
   /**
+   * Model ProductEvent
+   */
+
+  export type AggregateProductEvent = {
+    _count: ProductEventCountAggregateOutputType | null
+    _min: ProductEventMinAggregateOutputType | null
+    _max: ProductEventMaxAggregateOutputType | null
+  }
+
+  export type ProductEventMinAggregateOutputType = {
+    id: string | null
+    source: $Enums.ProductEventSource | null
+    name: string | null
+    release: string | null
+    stakeholderId: string | null
+    occurredAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ProductEventMaxAggregateOutputType = {
+    id: string | null
+    source: $Enums.ProductEventSource | null
+    name: string | null
+    release: string | null
+    stakeholderId: string | null
+    occurredAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ProductEventCountAggregateOutputType = {
+    id: number
+    source: number
+    name: number
+    properties: number
+    release: number
+    stakeholderId: number
+    occurredAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProductEventMinAggregateInputType = {
+    id?: true
+    source?: true
+    name?: true
+    release?: true
+    stakeholderId?: true
+    occurredAt?: true
+    createdAt?: true
+  }
+
+  export type ProductEventMaxAggregateInputType = {
+    id?: true
+    source?: true
+    name?: true
+    release?: true
+    stakeholderId?: true
+    occurredAt?: true
+    createdAt?: true
+  }
+
+  export type ProductEventCountAggregateInputType = {
+    id?: true
+    source?: true
+    name?: true
+    properties?: true
+    release?: true
+    stakeholderId?: true
+    occurredAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProductEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductEvent to aggregate.
+     */
+    where?: ProductEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductEvents to fetch.
+     */
+    orderBy?: ProductEventOrderByWithRelationInput | ProductEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductEvents
+    **/
+    _count?: true | ProductEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductEventMaxAggregateInputType
+  }
+
+  export type GetProductEventAggregateType<T extends ProductEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductEvent[P]>
+      : GetScalarType<T[P], AggregateProductEvent[P]>
+  }
+
+
+
+
+  export type ProductEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductEventWhereInput
+    orderBy?: ProductEventOrderByWithAggregationInput | ProductEventOrderByWithAggregationInput[]
+    by: ProductEventScalarFieldEnum[] | ProductEventScalarFieldEnum
+    having?: ProductEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductEventCountAggregateInputType | true
+    _min?: ProductEventMinAggregateInputType
+    _max?: ProductEventMaxAggregateInputType
+  }
+
+  export type ProductEventGroupByOutputType = {
+    id: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonValue
+    release: string | null
+    stakeholderId: string
+    occurredAt: Date
+    createdAt: Date
+    _count: ProductEventCountAggregateOutputType | null
+    _min: ProductEventMinAggregateOutputType | null
+    _max: ProductEventMaxAggregateOutputType | null
+  }
+
+  type GetProductEventGroupByPayload<T extends ProductEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductEventGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    name?: boolean
+    properties?: boolean
+    release?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productEvent"]>
+
+  export type ProductEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    name?: boolean
+    properties?: boolean
+    release?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productEvent"]>
+
+  export type ProductEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    name?: boolean
+    properties?: boolean
+    release?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productEvent"]>
+
+  export type ProductEventSelectScalar = {
+    id?: boolean
+    source?: boolean
+    name?: boolean
+    properties?: boolean
+    release?: boolean
+    stakeholderId?: boolean
+    occurredAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProductEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "source" | "name" | "properties" | "release" | "stakeholderId" | "occurredAt" | "createdAt", ExtArgs["result"]["productEvent"]>
+  export type ProductEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type ProductEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type ProductEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductEvent"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      source: $Enums.ProductEventSource
+      name: string
+      properties: Prisma.JsonValue
+      release: string | null
+      stakeholderId: string
+      occurredAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["productEvent"]>
+    composites: {}
+  }
+
+  type ProductEventGetPayload<S extends boolean | null | undefined | ProductEventDefaultArgs> = $Result.GetResult<Prisma.$ProductEventPayload, S>
+
+  type ProductEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductEventCountAggregateInputType | true
+    }
+
+  export interface ProductEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductEvent'], meta: { name: 'ProductEvent' } }
+    /**
+     * Find zero or one ProductEvent that matches the filter.
+     * @param {ProductEventFindUniqueArgs} args - Arguments to find a ProductEvent
+     * @example
+     * // Get one ProductEvent
+     * const productEvent = await prisma.productEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductEventFindUniqueArgs>(args: SelectSubset<T, ProductEventFindUniqueArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductEventFindUniqueOrThrowArgs} args - Arguments to find a ProductEvent
+     * @example
+     * // Get one ProductEvent
+     * const productEvent = await prisma.productEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductEventFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventFindFirstArgs} args - Arguments to find a ProductEvent
+     * @example
+     * // Get one ProductEvent
+     * const productEvent = await prisma.productEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductEventFindFirstArgs>(args?: SelectSubset<T, ProductEventFindFirstArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventFindFirstOrThrowArgs} args - Arguments to find a ProductEvent
+     * @example
+     * // Get one ProductEvent
+     * const productEvent = await prisma.productEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductEventFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductEvents
+     * const productEvents = await prisma.productEvent.findMany()
+     * 
+     * // Get first 10 ProductEvents
+     * const productEvents = await prisma.productEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productEventWithIdOnly = await prisma.productEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductEventFindManyArgs>(args?: SelectSubset<T, ProductEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductEvent.
+     * @param {ProductEventCreateArgs} args - Arguments to create a ProductEvent.
+     * @example
+     * // Create one ProductEvent
+     * const ProductEvent = await prisma.productEvent.create({
+     *   data: {
+     *     // ... data to create a ProductEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductEventCreateArgs>(args: SelectSubset<T, ProductEventCreateArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductEvents.
+     * @param {ProductEventCreateManyArgs} args - Arguments to create many ProductEvents.
+     * @example
+     * // Create many ProductEvents
+     * const productEvent = await prisma.productEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductEventCreateManyArgs>(args?: SelectSubset<T, ProductEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductEvents and returns the data saved in the database.
+     * @param {ProductEventCreateManyAndReturnArgs} args - Arguments to create many ProductEvents.
+     * @example
+     * // Create many ProductEvents
+     * const productEvent = await prisma.productEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductEvents and only return the `id`
+     * const productEventWithIdOnly = await prisma.productEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductEventCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductEvent.
+     * @param {ProductEventDeleteArgs} args - Arguments to delete one ProductEvent.
+     * @example
+     * // Delete one ProductEvent
+     * const ProductEvent = await prisma.productEvent.delete({
+     *   where: {
+     *     // ... filter to delete one ProductEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductEventDeleteArgs>(args: SelectSubset<T, ProductEventDeleteArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductEvent.
+     * @param {ProductEventUpdateArgs} args - Arguments to update one ProductEvent.
+     * @example
+     * // Update one ProductEvent
+     * const productEvent = await prisma.productEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductEventUpdateArgs>(args: SelectSubset<T, ProductEventUpdateArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductEvents.
+     * @param {ProductEventDeleteManyArgs} args - Arguments to filter ProductEvents to delete.
+     * @example
+     * // Delete a few ProductEvents
+     * const { count } = await prisma.productEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductEventDeleteManyArgs>(args?: SelectSubset<T, ProductEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductEvents
+     * const productEvent = await prisma.productEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductEventUpdateManyArgs>(args: SelectSubset<T, ProductEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductEvents and returns the data updated in the database.
+     * @param {ProductEventUpdateManyAndReturnArgs} args - Arguments to update many ProductEvents.
+     * @example
+     * // Update many ProductEvents
+     * const productEvent = await prisma.productEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductEvents and only return the `id`
+     * const productEventWithIdOnly = await prisma.productEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductEventUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductEvent.
+     * @param {ProductEventUpsertArgs} args - Arguments to update or create a ProductEvent.
+     * @example
+     * // Update or create a ProductEvent
+     * const productEvent = await prisma.productEvent.upsert({
+     *   create: {
+     *     // ... data to create a ProductEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductEventUpsertArgs>(args: SelectSubset<T, ProductEventUpsertArgs<ExtArgs>>): Prisma__ProductEventClient<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventCountArgs} args - Arguments to filter ProductEvents to count.
+     * @example
+     * // Count the number of ProductEvents
+     * const count = await prisma.productEvent.count({
+     *   where: {
+     *     // ... the filter for the ProductEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductEventCountArgs>(
+      args?: Subset<T, ProductEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductEventAggregateArgs>(args: Subset<T, ProductEventAggregateArgs>): Prisma.PrismaPromise<GetProductEventAggregateType<T>>
+
+    /**
+     * Group by ProductEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductEventGroupByArgs['orderBy'] }
+        : { orderBy?: ProductEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductEvent model
+   */
+  readonly fields: ProductEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductEvent model
+   */
+  interface ProductEventFieldRefs {
+    readonly id: FieldRef<"ProductEvent", 'String'>
+    readonly source: FieldRef<"ProductEvent", 'ProductEventSource'>
+    readonly name: FieldRef<"ProductEvent", 'String'>
+    readonly properties: FieldRef<"ProductEvent", 'Json'>
+    readonly release: FieldRef<"ProductEvent", 'String'>
+    readonly stakeholderId: FieldRef<"ProductEvent", 'String'>
+    readonly occurredAt: FieldRef<"ProductEvent", 'DateTime'>
+    readonly createdAt: FieldRef<"ProductEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductEvent findUnique
+   */
+  export type ProductEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductEvent to fetch.
+     */
+    where: ProductEventWhereUniqueInput
+  }
+
+  /**
+   * ProductEvent findUniqueOrThrow
+   */
+  export type ProductEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductEvent to fetch.
+     */
+    where: ProductEventWhereUniqueInput
+  }
+
+  /**
+   * ProductEvent findFirst
+   */
+  export type ProductEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductEvent to fetch.
+     */
+    where?: ProductEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductEvents to fetch.
+     */
+    orderBy?: ProductEventOrderByWithRelationInput | ProductEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductEvents.
+     */
+    cursor?: ProductEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductEvents.
+     */
+    distinct?: ProductEventScalarFieldEnum | ProductEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductEvent findFirstOrThrow
+   */
+  export type ProductEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductEvent to fetch.
+     */
+    where?: ProductEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductEvents to fetch.
+     */
+    orderBy?: ProductEventOrderByWithRelationInput | ProductEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductEvents.
+     */
+    cursor?: ProductEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductEvents.
+     */
+    distinct?: ProductEventScalarFieldEnum | ProductEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductEvent findMany
+   */
+  export type ProductEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductEvents to fetch.
+     */
+    where?: ProductEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductEvents to fetch.
+     */
+    orderBy?: ProductEventOrderByWithRelationInput | ProductEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductEvents.
+     */
+    cursor?: ProductEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductEvents.
+     */
+    distinct?: ProductEventScalarFieldEnum | ProductEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductEvent create
+   */
+  export type ProductEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductEvent.
+     */
+    data: XOR<ProductEventCreateInput, ProductEventUncheckedCreateInput>
+  }
+
+  /**
+   * ProductEvent createMany
+   */
+  export type ProductEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductEvents.
+     */
+    data: ProductEventCreateManyInput | ProductEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductEvent createManyAndReturn
+   */
+  export type ProductEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductEvents.
+     */
+    data: ProductEventCreateManyInput | ProductEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductEvent update
+   */
+  export type ProductEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductEvent.
+     */
+    data: XOR<ProductEventUpdateInput, ProductEventUncheckedUpdateInput>
+    /**
+     * Choose, which ProductEvent to update.
+     */
+    where: ProductEventWhereUniqueInput
+  }
+
+  /**
+   * ProductEvent updateMany
+   */
+  export type ProductEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductEvents.
+     */
+    data: XOR<ProductEventUpdateManyMutationInput, ProductEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductEvents to update
+     */
+    where?: ProductEventWhereInput
+    /**
+     * Limit how many ProductEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductEvent updateManyAndReturn
+   */
+  export type ProductEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductEvents.
+     */
+    data: XOR<ProductEventUpdateManyMutationInput, ProductEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductEvents to update
+     */
+    where?: ProductEventWhereInput
+    /**
+     * Limit how many ProductEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductEvent upsert
+   */
+  export type ProductEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductEvent to update in case it exists.
+     */
+    where: ProductEventWhereUniqueInput
+    /**
+     * In case the ProductEvent found by the `where` argument doesn't exist, create a new ProductEvent with this data.
+     */
+    create: XOR<ProductEventCreateInput, ProductEventUncheckedCreateInput>
+    /**
+     * In case the ProductEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductEventUpdateInput, ProductEventUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductEvent delete
+   */
+  export type ProductEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+    /**
+     * Filter which ProductEvent to delete.
+     */
+    where: ProductEventWhereUniqueInput
+  }
+
+  /**
+   * ProductEvent deleteMany
+   */
+  export type ProductEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductEvents to delete
+     */
+    where?: ProductEventWhereInput
+    /**
+     * Limit how many ProductEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductEvent without action
+   */
+  export type ProductEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductEvent
+     */
+    select?: ProductEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductEvent
+     */
+    omit?: ProductEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductEventInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -46662,6 +48023,9 @@ export namespace Prisma {
     deposit: 'deposit',
     minorRepairCap: 'minorRepairCap',
     agentMayAgreeCosts: 'agentMayAgreeCosts',
+    renewalDecision: 'renewalDecision',
+    renewalSnoozedUntil: 'renewalSnoozedUntil',
+    renewedFromId: 'renewedFromId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -47034,6 +48398,7 @@ export namespace Prisma {
     notes: 'notes',
     maintenanceCaseId: 'maintenanceCaseId',
     propertyAssetId: 'propertyAssetId',
+    uploadPaths: 'uploadPaths',
     createdAt: 'createdAt'
   };
 
@@ -47126,6 +48491,20 @@ export namespace Prisma {
   };
 
   export type ErrorEventScalarFieldEnum = (typeof ErrorEventScalarFieldEnum)[keyof typeof ErrorEventScalarFieldEnum]
+
+
+  export const ProductEventScalarFieldEnum: {
+    id: 'id',
+    source: 'source',
+    name: 'name',
+    properties: 'properties',
+    release: 'release',
+    stakeholderId: 'stakeholderId',
+    occurredAt: 'occurredAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ProductEventScalarFieldEnum = (typeof ProductEventScalarFieldEnum)[keyof typeof ProductEventScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -47283,6 +48662,20 @@ export namespace Prisma {
    * Reference to a field of type 'Decimal[]'
    */
   export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'RenewalDecision'
+   */
+  export type EnumRenewalDecisionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RenewalDecision'>
+    
+
+
+  /**
+   * Reference to a field of type 'RenewalDecision[]'
+   */
+  export type ListEnumRenewalDecisionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RenewalDecision[]'>
     
 
 
@@ -47690,6 +49083,20 @@ export namespace Prisma {
    */
   export type ListEnumErrorSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ErrorSource[]'>
     
+
+
+  /**
+   * Reference to a field of type 'ProductEventSource'
+   */
+  export type EnumProductEventSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductEventSource'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProductEventSource[]'
+   */
+  export type ListEnumProductEventSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductEventSource[]'>
+    
   /**
    * Deep Input Types
    */
@@ -47726,6 +49133,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationListRelationFilter
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
+    productEvents?: ProductEventListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
     addendaCreated?: ReportAddendumListRelationFilter
     addendaPublished?: ReportAddendumListRelationFilter
@@ -47762,6 +49170,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationOrderByRelationAggregateInput
     branding?: AgentBrandingOrderByWithRelationInput
     errorEvents?: ErrorEventOrderByRelationAggregateInput
+    productEvents?: ProductEventOrderByRelationAggregateInput
     reportEmails?: ReportEmailOrderByRelationAggregateInput
     addendaCreated?: ReportAddendumOrderByRelationAggregateInput
     addendaPublished?: ReportAddendumOrderByRelationAggregateInput
@@ -47801,6 +49210,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationListRelationFilter
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
+    productEvents?: ProductEventListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
     addendaCreated?: ReportAddendumListRelationFilter
     addendaPublished?: ReportAddendumListRelationFilter
@@ -48145,6 +49555,9 @@ export namespace Prisma {
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
+    renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: DateTimeNullableFilter<"Tenancy"> | Date | string | null
+    renewedFromId?: StringNullableFilter<"Tenancy"> | string | null
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeFilter<"Tenancy"> | Date | string
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
@@ -48153,6 +49566,8 @@ export namespace Prisma {
     agent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     inspections?: InspectionListRelationFilter
     maintenanceCases?: MaintenanceCaseListRelationFilter
+    renewedFrom?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    renewedAs?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
   }
 
   export type TenancyOrderByWithRelationInput = {
@@ -48167,6 +49582,9 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
+    renewalDecision?: SortOrderInput | SortOrder
+    renewalSnoozedUntil?: SortOrderInput | SortOrder
+    renewedFromId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     property?: PropertyOrderByWithRelationInput
@@ -48175,10 +49593,13 @@ export namespace Prisma {
     agent?: StakeholderOrderByWithRelationInput
     inspections?: InspectionOrderByRelationAggregateInput
     maintenanceCases?: MaintenanceCaseOrderByRelationAggregateInput
+    renewedFrom?: TenancyOrderByWithRelationInput
+    renewedAs?: TenancyOrderByWithRelationInput
   }
 
   export type TenancyWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    renewedFromId?: string
     AND?: TenancyWhereInput | TenancyWhereInput[]
     OR?: TenancyWhereInput[]
     NOT?: TenancyWhereInput | TenancyWhereInput[]
@@ -48192,6 +49613,8 @@ export namespace Prisma {
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
+    renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: DateTimeNullableFilter<"Tenancy"> | Date | string | null
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeFilter<"Tenancy"> | Date | string
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
@@ -48200,7 +49623,9 @@ export namespace Prisma {
     agent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     inspections?: InspectionListRelationFilter
     maintenanceCases?: MaintenanceCaseListRelationFilter
-  }, "id">
+    renewedFrom?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    renewedAs?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+  }, "id" | "renewedFromId">
 
   export type TenancyOrderByWithAggregationInput = {
     id?: SortOrder
@@ -48214,6 +49639,9 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
+    renewalDecision?: SortOrderInput | SortOrder
+    renewalSnoozedUntil?: SortOrderInput | SortOrder
+    renewedFromId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TenancyCountOrderByAggregateInput
@@ -48238,6 +49666,9 @@ export namespace Prisma {
     deposit?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolWithAggregatesFilter<"Tenancy"> | boolean
+    renewalDecision?: EnumRenewalDecisionNullableWithAggregatesFilter<"Tenancy"> | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: DateTimeNullableWithAggregatesFilter<"Tenancy"> | Date | string | null
+    renewedFromId?: StringNullableWithAggregatesFilter<"Tenancy"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
   }
@@ -50197,6 +51628,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"ReportAddendumEntry"> | string | null
     maintenanceCaseId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
     propertyAssetId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    uploadPaths?: StringNullableListFilter<"ReportAddendumEntry">
     createdAt?: DateTimeFilter<"ReportAddendumEntry"> | Date | string
     addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
     maintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
@@ -50218,6 +51650,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     maintenanceCaseId?: SortOrderInput | SortOrder
     propertyAssetId?: SortOrderInput | SortOrder
+    uploadPaths?: SortOrder
     createdAt?: SortOrder
     addendum?: ReportAddendumOrderByWithRelationInput
     maintenanceCase?: MaintenanceCaseOrderByWithRelationInput
@@ -50242,6 +51675,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"ReportAddendumEntry"> | string | null
     maintenanceCaseId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
     propertyAssetId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    uploadPaths?: StringNullableListFilter<"ReportAddendumEntry">
     createdAt?: DateTimeFilter<"ReportAddendumEntry"> | Date | string
     addendum?: XOR<ReportAddendumScalarRelationFilter, ReportAddendumWhereInput>
     maintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
@@ -50263,6 +51697,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     maintenanceCaseId?: SortOrderInput | SortOrder
     propertyAssetId?: SortOrderInput | SortOrder
+    uploadPaths?: SortOrder
     createdAt?: SortOrder
     _count?: ReportAddendumEntryCountOrderByAggregateInput
     _avg?: ReportAddendumEntryAvgOrderByAggregateInput
@@ -50288,6 +51723,7 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
     maintenanceCaseId?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
     propertyAssetId?: StringNullableWithAggregatesFilter<"ReportAddendumEntry"> | string | null
+    uploadPaths?: StringNullableListFilter<"ReportAddendumEntry">
     createdAt?: DateTimeWithAggregatesFilter<"ReportAddendumEntry"> | Date | string
   }
 
@@ -50737,6 +52173,76 @@ export namespace Prisma {
     notifiedAt?: DateTimeNullableWithAggregatesFilter<"ErrorEvent"> | Date | string | null
   }
 
+  export type ProductEventWhereInput = {
+    AND?: ProductEventWhereInput | ProductEventWhereInput[]
+    OR?: ProductEventWhereInput[]
+    NOT?: ProductEventWhereInput | ProductEventWhereInput[]
+    id?: StringFilter<"ProductEvent"> | string
+    source?: EnumProductEventSourceFilter<"ProductEvent"> | $Enums.ProductEventSource
+    name?: StringFilter<"ProductEvent"> | string
+    properties?: JsonFilter<"ProductEvent">
+    release?: StringNullableFilter<"ProductEvent"> | string | null
+    stakeholderId?: StringFilter<"ProductEvent"> | string
+    occurredAt?: DateTimeFilter<"ProductEvent"> | Date | string
+    createdAt?: DateTimeFilter<"ProductEvent"> | Date | string
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type ProductEventOrderByWithRelationInput = {
+    id?: SortOrder
+    source?: SortOrder
+    name?: SortOrder
+    properties?: SortOrder
+    release?: SortOrderInput | SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+  }
+
+  export type ProductEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProductEventWhereInput | ProductEventWhereInput[]
+    OR?: ProductEventWhereInput[]
+    NOT?: ProductEventWhereInput | ProductEventWhereInput[]
+    source?: EnumProductEventSourceFilter<"ProductEvent"> | $Enums.ProductEventSource
+    name?: StringFilter<"ProductEvent"> | string
+    properties?: JsonFilter<"ProductEvent">
+    release?: StringNullableFilter<"ProductEvent"> | string | null
+    stakeholderId?: StringFilter<"ProductEvent"> | string
+    occurredAt?: DateTimeFilter<"ProductEvent"> | Date | string
+    createdAt?: DateTimeFilter<"ProductEvent"> | Date | string
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "id">
+
+  export type ProductEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    source?: SortOrder
+    name?: SortOrder
+    properties?: SortOrder
+    release?: SortOrderInput | SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: ProductEventCountOrderByAggregateInput
+    _max?: ProductEventMaxOrderByAggregateInput
+    _min?: ProductEventMinOrderByAggregateInput
+  }
+
+  export type ProductEventScalarWhereWithAggregatesInput = {
+    AND?: ProductEventScalarWhereWithAggregatesInput | ProductEventScalarWhereWithAggregatesInput[]
+    OR?: ProductEventScalarWhereWithAggregatesInput[]
+    NOT?: ProductEventScalarWhereWithAggregatesInput | ProductEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductEvent"> | string
+    source?: EnumProductEventSourceWithAggregatesFilter<"ProductEvent"> | $Enums.ProductEventSource
+    name?: StringWithAggregatesFilter<"ProductEvent"> | string
+    properties?: JsonWithAggregatesFilter<"ProductEvent">
+    release?: StringNullableWithAggregatesFilter<"ProductEvent"> | string | null
+    stakeholderId?: StringWithAggregatesFilter<"ProductEvent"> | string
+    occurredAt?: DateTimeWithAggregatesFilter<"ProductEvent"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProductEvent"> | Date | string
+  }
+
   export type StakeholderCreateInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -50764,6 +52270,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -50799,6 +52306,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -50834,6 +52342,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -50869,6 +52378,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -51236,6 +52746,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -51244,6 +52756,8 @@ export namespace Prisma {
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateInput = {
@@ -51258,10 +52772,14 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUpdateInput = {
@@ -51272,6 +52790,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -51280,6 +52800,8 @@ export namespace Prisma {
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateInput = {
@@ -51294,10 +52816,14 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyCreateManyInput = {
@@ -51312,6 +52838,9 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -51324,6 +52853,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51340,6 +52871,9 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53449,6 +54983,7 @@ export namespace Prisma {
     quantity?: number
     identifier?: string | null
     notes?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
@@ -53470,6 +55005,7 @@ export namespace Prisma {
     notes?: string | null
     maintenanceCaseId?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
   }
@@ -53485,6 +55021,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
@@ -53506,6 +55043,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
   }
@@ -53524,6 +55062,7 @@ export namespace Prisma {
     notes?: string | null
     maintenanceCaseId?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
   }
 
@@ -53538,6 +55077,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -53555,6 +55095,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -54046,6 +55587,82 @@ export namespace Prisma {
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type ProductEventCreateInput = {
+    id?: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonNullValueInput | InputJsonValue
+    release?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+    stakeholder: StakeholderCreateNestedOneWithoutProductEventsInput
+  }
+
+  export type ProductEventUncheckedCreateInput = {
+    id?: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonNullValueInput | InputJsonValue
+    release?: string | null
+    stakeholderId: string
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProductEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneRequiredWithoutProductEventsNestedInput
+  }
+
+  export type ProductEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductEventCreateManyInput = {
+    id?: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonNullValueInput | InputJsonValue
+    release?: string | null
+    stakeholderId: string
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProductEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -54176,6 +55793,12 @@ export namespace Prisma {
     none?: ErrorEventWhereInput
   }
 
+  export type ProductEventListRelationFilter = {
+    every?: ProductEventWhereInput
+    some?: ProductEventWhereInput
+    none?: ProductEventWhereInput
+  }
+
   export type ReportEmailListRelationFilter = {
     every?: ReportEmailWhereInput
     some?: ReportEmailWhereInput
@@ -54255,6 +55878,10 @@ export namespace Prisma {
   }
 
   export type ErrorEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductEventOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -54661,9 +56288,21 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
+  export type EnumRenewalDecisionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.RenewalDecision | EnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel> | $Enums.RenewalDecision | null
+  }
+
   export type PropertyScalarRelationFilter = {
     is?: PropertyWhereInput
     isNot?: PropertyWhereInput
+  }
+
+  export type TenancyNullableScalarRelationFilter = {
+    is?: TenancyWhereInput | null
+    isNot?: TenancyWhereInput | null
   }
 
   export type TenancyCountOrderByAggregateInput = {
@@ -54678,6 +56317,9 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
+    renewalDecision?: SortOrder
+    renewalSnoozedUntil?: SortOrder
+    renewedFromId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -54700,6 +56342,9 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
+    renewalDecision?: SortOrder
+    renewalSnoozedUntil?: SortOrder
+    renewedFromId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -54716,6 +56361,9 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
+    renewalDecision?: SortOrder
+    renewalSnoozedUntil?: SortOrder
+    renewedFromId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -54756,6 +56404,16 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type EnumRenewalDecisionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RenewalDecision | EnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumRenewalDecisionNullableWithAggregatesFilter<$PrismaModel> | $Enums.RenewalDecision | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel>
+    _max?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel>
   }
 
   export type EnumInspectionKindFilter<$PrismaModel = never> = {
@@ -56524,6 +58182,7 @@ export namespace Prisma {
     notes?: SortOrder
     maintenanceCaseId?: SortOrder
     propertyAssetId?: SortOrder
+    uploadPaths?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -56893,6 +58552,54 @@ export namespace Prisma {
     _max?: NestedEnumErrorSourceFilter<$PrismaModel>
   }
 
+  export type EnumProductEventSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductEventSource | EnumProductEventSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductEventSourceFilter<$PrismaModel> | $Enums.ProductEventSource
+  }
+
+  export type ProductEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    name?: SortOrder
+    properties?: SortOrder
+    release?: SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    name?: SortOrder
+    release?: SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    name?: SortOrder
+    release?: SortOrder
+    stakeholderId?: SortOrder
+    occurredAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumProductEventSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductEventSource | EnumProductEventSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductEventSourceWithAggregatesFilter<$PrismaModel> | $Enums.ProductEventSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductEventSourceFilter<$PrismaModel>
+    _max?: NestedEnumProductEventSourceFilter<$PrismaModel>
+  }
+
   export type TeamCreateNestedOneWithoutMembersInput = {
     create?: XOR<TeamCreateWithoutMembersInput, TeamUncheckedCreateWithoutMembersInput>
     connectOrCreate?: TeamCreateOrConnectWithoutMembersInput
@@ -57008,6 +58715,13 @@ export namespace Prisma {
     connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
     createMany?: ErrorEventCreateManyStakeholderInputEnvelope
     connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+  }
+
+  export type ProductEventCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<ProductEventCreateWithoutStakeholderInput, ProductEventUncheckedCreateWithoutStakeholderInput> | ProductEventCreateWithoutStakeholderInput[] | ProductEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ProductEventCreateOrConnectWithoutStakeholderInput | ProductEventCreateOrConnectWithoutStakeholderInput[]
+    createMany?: ProductEventCreateManyStakeholderInputEnvelope
+    connect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
   }
 
   export type ReportEmailCreateNestedManyWithoutRecipientInput = {
@@ -57160,6 +58874,13 @@ export namespace Prisma {
     connectOrCreate?: ErrorEventCreateOrConnectWithoutStakeholderInput | ErrorEventCreateOrConnectWithoutStakeholderInput[]
     createMany?: ErrorEventCreateManyStakeholderInputEnvelope
     connect?: ErrorEventWhereUniqueInput | ErrorEventWhereUniqueInput[]
+  }
+
+  export type ProductEventUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<ProductEventCreateWithoutStakeholderInput, ProductEventUncheckedCreateWithoutStakeholderInput> | ProductEventCreateWithoutStakeholderInput[] | ProductEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ProductEventCreateOrConnectWithoutStakeholderInput | ProductEventCreateOrConnectWithoutStakeholderInput[]
+    createMany?: ProductEventCreateManyStakeholderInputEnvelope
+    connect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
   }
 
   export type ReportEmailUncheckedCreateNestedManyWithoutRecipientInput = {
@@ -57447,6 +59168,20 @@ export namespace Prisma {
     update?: ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput | ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: ErrorEventUpdateManyWithWhereWithoutStakeholderInput | ErrorEventUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
+  }
+
+  export type ProductEventUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<ProductEventCreateWithoutStakeholderInput, ProductEventUncheckedCreateWithoutStakeholderInput> | ProductEventCreateWithoutStakeholderInput[] | ProductEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ProductEventCreateOrConnectWithoutStakeholderInput | ProductEventCreateOrConnectWithoutStakeholderInput[]
+    upsert?: ProductEventUpsertWithWhereUniqueWithoutStakeholderInput | ProductEventUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: ProductEventCreateManyStakeholderInputEnvelope
+    set?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    disconnect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    delete?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    connect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    update?: ProductEventUpdateWithWhereUniqueWithoutStakeholderInput | ProductEventUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: ProductEventUpdateManyWithWhereWithoutStakeholderInput | ProductEventUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: ProductEventScalarWhereInput | ProductEventScalarWhereInput[]
   }
 
   export type ReportEmailUpdateManyWithoutRecipientNestedInput = {
@@ -57747,6 +59482,20 @@ export namespace Prisma {
     update?: ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput | ErrorEventUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: ErrorEventUpdateManyWithWhereWithoutStakeholderInput | ErrorEventUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: ErrorEventScalarWhereInput | ErrorEventScalarWhereInput[]
+  }
+
+  export type ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<ProductEventCreateWithoutStakeholderInput, ProductEventUncheckedCreateWithoutStakeholderInput> | ProductEventCreateWithoutStakeholderInput[] | ProductEventUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: ProductEventCreateOrConnectWithoutStakeholderInput | ProductEventCreateOrConnectWithoutStakeholderInput[]
+    upsert?: ProductEventUpsertWithWhereUniqueWithoutStakeholderInput | ProductEventUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: ProductEventCreateManyStakeholderInputEnvelope
+    set?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    disconnect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    delete?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    connect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+    update?: ProductEventUpdateWithWhereUniqueWithoutStakeholderInput | ProductEventUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: ProductEventUpdateManyWithWhereWithoutStakeholderInput | ProductEventUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: ProductEventScalarWhereInput | ProductEventScalarWhereInput[]
   }
 
   export type ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput = {
@@ -58111,6 +59860,18 @@ export namespace Prisma {
     connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
   }
 
+  export type TenancyCreateNestedOneWithoutRenewedAsInput = {
+    create?: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutRenewedAsInput
+    connect?: TenancyWhereUniqueInput
+  }
+
+  export type TenancyCreateNestedOneWithoutRenewedFromInput = {
+    create?: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutRenewedFromInput
+    connect?: TenancyWhereUniqueInput
+  }
+
   export type InspectionUncheckedCreateNestedManyWithoutTenancyInput = {
     create?: XOR<InspectionCreateWithoutTenancyInput, InspectionUncheckedCreateWithoutTenancyInput> | InspectionCreateWithoutTenancyInput[] | InspectionUncheckedCreateWithoutTenancyInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutTenancyInput | InspectionCreateOrConnectWithoutTenancyInput[]
@@ -58123,6 +59884,12 @@ export namespace Prisma {
     connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutTenancyInput | MaintenanceCaseCreateOrConnectWithoutTenancyInput[]
     createMany?: MaintenanceCaseCreateManyTenancyInputEnvelope
     connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+  }
+
+  export type TenancyUncheckedCreateNestedOneWithoutRenewedFromInput = {
+    create?: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutRenewedFromInput
+    connect?: TenancyWhereUniqueInput
   }
 
   export type DecimalFieldUpdateOperationsInput = {
@@ -58139,6 +59906,10 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableEnumRenewalDecisionFieldUpdateOperationsInput = {
+    set?: $Enums.RenewalDecision | null
   }
 
   export type PropertyUpdateOneRequiredWithoutTenanciesNestedInput = {
@@ -58203,6 +59974,26 @@ export namespace Prisma {
     deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
   }
 
+  export type TenancyUpdateOneWithoutRenewedAsNestedInput = {
+    create?: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutRenewedAsInput
+    upsert?: TenancyUpsertWithoutRenewedAsInput
+    disconnect?: TenancyWhereInput | boolean
+    delete?: TenancyWhereInput | boolean
+    connect?: TenancyWhereUniqueInput
+    update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutRenewedAsInput, TenancyUpdateWithoutRenewedAsInput>, TenancyUncheckedUpdateWithoutRenewedAsInput>
+  }
+
+  export type TenancyUpdateOneWithoutRenewedFromNestedInput = {
+    create?: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutRenewedFromInput
+    upsert?: TenancyUpsertWithoutRenewedFromInput
+    disconnect?: TenancyWhereInput | boolean
+    delete?: TenancyWhereInput | boolean
+    connect?: TenancyWhereUniqueInput
+    update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutRenewedFromInput, TenancyUpdateWithoutRenewedFromInput>, TenancyUncheckedUpdateWithoutRenewedFromInput>
+  }
+
   export type InspectionUncheckedUpdateManyWithoutTenancyNestedInput = {
     create?: XOR<InspectionCreateWithoutTenancyInput, InspectionUncheckedCreateWithoutTenancyInput> | InspectionCreateWithoutTenancyInput[] | InspectionUncheckedCreateWithoutTenancyInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutTenancyInput | InspectionCreateOrConnectWithoutTenancyInput[]
@@ -58229,6 +60020,16 @@ export namespace Prisma {
     update?: MaintenanceCaseUpdateWithWhereUniqueWithoutTenancyInput | MaintenanceCaseUpdateWithWhereUniqueWithoutTenancyInput[]
     updateMany?: MaintenanceCaseUpdateManyWithWhereWithoutTenancyInput | MaintenanceCaseUpdateManyWithWhereWithoutTenancyInput[]
     deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
+  }
+
+  export type TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput = {
+    create?: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutRenewedFromInput
+    upsert?: TenancyUpsertWithoutRenewedFromInput
+    disconnect?: TenancyWhereInput | boolean
+    delete?: TenancyWhereInput | boolean
+    connect?: TenancyWhereUniqueInput
+    update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutRenewedFromInput, TenancyUpdateWithoutRenewedFromInput>, TenancyUncheckedUpdateWithoutRenewedFromInput>
   }
 
   export type TenancyCreateNestedOneWithoutInspectionsInput = {
@@ -60202,6 +62003,10 @@ export namespace Prisma {
     deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
   }
 
+  export type ReportAddendumEntryCreateuploadPathsInput = {
+    set: string[]
+  }
+
   export type ReportAddendumCreateNestedOneWithoutEntriesInput = {
     create?: XOR<ReportAddendumCreateWithoutEntriesInput, ReportAddendumUncheckedCreateWithoutEntriesInput>
     connectOrCreate?: ReportAddendumCreateOrConnectWithoutEntriesInput
@@ -60244,6 +62049,11 @@ export namespace Prisma {
 
   export type NullableEnumItemConditionFieldUpdateOperationsInput = {
     set?: $Enums.ItemCondition | null
+  }
+
+  export type ReportAddendumEntryUpdateuploadPathsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput = {
@@ -60440,6 +62250,24 @@ export namespace Prisma {
     delete?: StakeholderWhereInput | boolean
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutErrorEventsInput, StakeholderUpdateWithoutErrorEventsInput>, StakeholderUncheckedUpdateWithoutErrorEventsInput>
+  }
+
+  export type StakeholderCreateNestedOneWithoutProductEventsInput = {
+    create?: XOR<StakeholderCreateWithoutProductEventsInput, StakeholderUncheckedCreateWithoutProductEventsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutProductEventsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type EnumProductEventSourceFieldUpdateOperationsInput = {
+    set?: $Enums.ProductEventSource
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutProductEventsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutProductEventsInput, StakeholderUncheckedCreateWithoutProductEventsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutProductEventsInput
+    upsert?: StakeholderUpsertWithoutProductEventsInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutProductEventsInput, StakeholderUpdateWithoutProductEventsInput>, StakeholderUncheckedUpdateWithoutProductEventsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -60689,6 +62517,13 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
+  export type NestedEnumRenewalDecisionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.RenewalDecision | EnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel> | $Enums.RenewalDecision | null
+  }
+
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -60719,6 +62554,16 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRenewalDecisionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RenewalDecision | EnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumRenewalDecisionNullableWithAggregatesFilter<$PrismaModel> | $Enums.RenewalDecision | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel>
+    _max?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumInspectionKindFilter<$PrismaModel = never> = {
@@ -61303,6 +63148,23 @@ export namespace Prisma {
     _max?: NestedEnumErrorSourceFilter<$PrismaModel>
   }
 
+  export type NestedEnumProductEventSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductEventSource | EnumProductEventSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductEventSourceFilter<$PrismaModel> | $Enums.ProductEventSource
+  }
+
+  export type NestedEnumProductEventSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductEventSource | EnumProductEventSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductEventSource[] | ListEnumProductEventSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductEventSourceWithAggregatesFilter<$PrismaModel> | $Enums.ProductEventSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductEventSourceFilter<$PrismaModel>
+    _max?: NestedEnumProductEventSourceFilter<$PrismaModel>
+  }
+
   export type TeamCreateWithoutMembersInput = {
     id?: string
     name: string
@@ -61332,6 +63194,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -61339,6 +63203,8 @@ export namespace Prisma {
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateWithoutLandlordInput = {
@@ -61352,10 +63218,14 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyCreateOrConnectWithoutLandlordInput = {
@@ -61376,6 +63246,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -61383,6 +63255,8 @@ export namespace Prisma {
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateWithoutTenantInput = {
@@ -61396,10 +63270,14 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyCreateOrConnectWithoutTenantInput = {
@@ -61420,6 +63298,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -61427,6 +63307,8 @@ export namespace Prisma {
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateWithoutAgentInput = {
@@ -61440,10 +63322,14 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyCreateOrConnectWithoutAgentInput = {
@@ -61953,6 +63839,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProductEventCreateWithoutStakeholderInput = {
+    id?: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonNullValueInput | InputJsonValue
+    release?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProductEventUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonNullValueInput | InputJsonValue
+    release?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProductEventCreateOrConnectWithoutStakeholderInput = {
+    where: ProductEventWhereUniqueInput
+    create: XOR<ProductEventCreateWithoutStakeholderInput, ProductEventUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type ProductEventCreateManyStakeholderInputEnvelope = {
+    data: ProductEventCreateManyStakeholderInput | ProductEventCreateManyStakeholderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ReportEmailCreateWithoutRecipientInput = {
     id?: string
     kind: $Enums.ReportEmailKind
@@ -62242,6 +64158,9 @@ export namespace Prisma {
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
+    renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: DateTimeNullableFilter<"Tenancy"> | Date | string | null
+    renewedFromId?: StringNullableFilter<"Tenancy"> | string | null
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
     updatedAt?: DateTimeFilter<"Tenancy"> | Date | string
   }
@@ -62688,6 +64607,36 @@ export namespace Prisma {
     notifiedAt?: DateTimeNullableFilter<"ErrorEvent"> | Date | string | null
   }
 
+  export type ProductEventUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: ProductEventWhereUniqueInput
+    update: XOR<ProductEventUpdateWithoutStakeholderInput, ProductEventUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<ProductEventCreateWithoutStakeholderInput, ProductEventUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type ProductEventUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: ProductEventWhereUniqueInput
+    data: XOR<ProductEventUpdateWithoutStakeholderInput, ProductEventUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type ProductEventUpdateManyWithWhereWithoutStakeholderInput = {
+    where: ProductEventScalarWhereInput
+    data: XOR<ProductEventUpdateManyMutationInput, ProductEventUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type ProductEventScalarWhereInput = {
+    AND?: ProductEventScalarWhereInput | ProductEventScalarWhereInput[]
+    OR?: ProductEventScalarWhereInput[]
+    NOT?: ProductEventScalarWhereInput | ProductEventScalarWhereInput[]
+    id?: StringFilter<"ProductEvent"> | string
+    source?: EnumProductEventSourceFilter<"ProductEvent"> | $Enums.ProductEventSource
+    name?: StringFilter<"ProductEvent"> | string
+    properties?: JsonFilter<"ProductEvent">
+    release?: StringNullableFilter<"ProductEvent"> | string | null
+    stakeholderId?: StringFilter<"ProductEvent"> | string
+    occurredAt?: DateTimeFilter<"ProductEvent"> | Date | string
+    createdAt?: DateTimeFilter<"ProductEvent"> | Date | string
+  }
+
   export type ReportEmailUpsertWithWhereUniqueWithoutRecipientInput = {
     where: ReportEmailWhereUniqueInput
     update: XOR<ReportEmailUpdateWithoutRecipientInput, ReportEmailUncheckedUpdateWithoutRecipientInput>
@@ -62904,6 +64853,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -62938,6 +64888,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -63112,6 +65063,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -63146,6 +65098,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -63185,6 +65138,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -63219,6 +65173,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -63296,6 +65251,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -63330,6 +65286,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -63375,6 +65332,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -63409,6 +65367,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -63442,6 +65401,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -63476,6 +65436,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -63526,6 +65487,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -63560,6 +65522,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -63576,6 +65539,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
@@ -63583,6 +65548,8 @@ export namespace Prisma {
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateWithoutPropertyInput = {
@@ -63596,10 +65563,14 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyCreateOrConnectWithoutPropertyInput = {
@@ -63750,6 +65721,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -63784,6 +65756,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -63823,6 +65796,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -63857,6 +65831,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -63896,6 +65871,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -63930,6 +65906,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -64059,6 +66036,100 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TenancyCreateWithoutRenewedAsInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutTenanciesInput
+    landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
+    tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
+    agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    inspections?: InspectionCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+  }
+
+  export type TenancyUncheckedCreateWithoutRenewedAsInput = {
+    id?: string
+    propertyId: string
+    landlordId: string
+    tenantId: string
+    agentId?: string | null
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+  }
+
+  export type TenancyCreateOrConnectWithoutRenewedAsInput = {
+    where: TenancyWhereUniqueInput
+    create: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
+  }
+
+  export type TenancyCreateWithoutRenewedFromInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutTenanciesInput
+    landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
+    tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
+    agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    inspections?: InspectionCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyUncheckedCreateWithoutRenewedFromInput = {
+    id?: string
+    propertyId: string
+    landlordId: string
+    tenantId: string
+    agentId?: string | null
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyCreateOrConnectWithoutRenewedFromInput = {
+    where: TenancyWhereUniqueInput
+    create: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+  }
+
   export type PropertyUpsertWithoutTenanciesInput = {
     update: XOR<PropertyUpdateWithoutTenanciesInput, PropertyUncheckedUpdateWithoutTenanciesInput>
     create: XOR<PropertyCreateWithoutTenanciesInput, PropertyUncheckedCreateWithoutTenanciesInput>
@@ -64129,6 +66200,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -64163,6 +66235,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -64208,6 +66281,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -64242,6 +66316,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -64287,6 +66362,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -64321,6 +66397,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -64361,6 +66438,112 @@ export namespace Prisma {
     data: XOR<MaintenanceCaseUpdateManyMutationInput, MaintenanceCaseUncheckedUpdateManyWithoutTenancyInput>
   }
 
+  export type TenancyUpsertWithoutRenewedAsInput = {
+    update: XOR<TenancyUpdateWithoutRenewedAsInput, TenancyUncheckedUpdateWithoutRenewedAsInput>
+    create: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
+    where?: TenancyWhereInput
+  }
+
+  export type TenancyUpdateToOneWithWhereWithoutRenewedAsInput = {
+    where?: TenancyWhereInput
+    data: XOR<TenancyUpdateWithoutRenewedAsInput, TenancyUncheckedUpdateWithoutRenewedAsInput>
+  }
+
+  export type TenancyUpdateWithoutRenewedAsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
+    landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
+    tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
+    agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    inspections?: InspectionUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+  }
+
+  export type TenancyUncheckedUpdateWithoutRenewedAsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    landlordId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+  }
+
+  export type TenancyUpsertWithoutRenewedFromInput = {
+    update: XOR<TenancyUpdateWithoutRenewedFromInput, TenancyUncheckedUpdateWithoutRenewedFromInput>
+    create: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+    where?: TenancyWhereInput
+  }
+
+  export type TenancyUpdateToOneWithWhereWithoutRenewedFromInput = {
+    where?: TenancyWhereInput
+    data: XOR<TenancyUpdateWithoutRenewedFromInput, TenancyUncheckedUpdateWithoutRenewedFromInput>
+  }
+
+  export type TenancyUpdateWithoutRenewedFromInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
+    landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
+    tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
+    agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    inspections?: InspectionUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type TenancyUncheckedUpdateWithoutRenewedFromInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    landlordId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+  }
+
   export type TenancyCreateWithoutInspectionsInput = {
     id?: string
     startDate: Date | string
@@ -64369,6 +66552,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -64376,6 +66561,8 @@ export namespace Prisma {
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateWithoutInspectionsInput = {
@@ -64390,9 +66577,13 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyCreateOrConnectWithoutInspectionsInput = {
@@ -64426,6 +66617,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -64460,6 +66652,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -64818,6 +67011,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -64825,6 +67020,8 @@ export namespace Prisma {
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutInspectionsInput = {
@@ -64839,9 +67036,13 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type StakeholderUpsertWithoutInspectionsRunInput = {
@@ -64881,6 +67082,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -64915,6 +67117,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -66387,6 +68590,7 @@ export namespace Prisma {
     quantity?: number
     identifier?: string | null
     notes?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
@@ -66406,6 +68610,7 @@ export namespace Prisma {
     identifier?: string | null
     notes?: string | null
     maintenanceCaseId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
   }
@@ -66518,6 +68723,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"ReportAddendumEntry"> | string | null
     maintenanceCaseId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
     propertyAssetId?: StringNullableFilter<"ReportAddendumEntry"> | string | null
+    uploadPaths?: StringNullableListFilter<"ReportAddendumEntry">
     createdAt?: DateTimeFilter<"ReportAddendumEntry"> | Date | string
   }
 
@@ -66529,6 +68735,8 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     property: PropertyCreateNestedOneWithoutTenanciesInput
@@ -66536,6 +68744,8 @@ export namespace Prisma {
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyUncheckedCreateWithoutMaintenanceCasesInput = {
@@ -66550,9 +68760,13 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
   export type TenancyCreateOrConnectWithoutMaintenanceCasesInput = {
@@ -66619,6 +68833,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -66653,6 +68868,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -66859,6 +69075,7 @@ export namespace Prisma {
     quantity?: number
     identifier?: string | null
     notes?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutAddendumEntriesInput
@@ -66878,6 +69095,7 @@ export namespace Prisma {
     identifier?: string | null
     notes?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
   }
@@ -66911,6 +69129,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -66918,6 +69138,8 @@ export namespace Prisma {
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutMaintenanceCasesInput = {
@@ -66932,9 +69154,13 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type PropertyAssetUpsertWithoutMaintenanceCasesInput = {
@@ -67013,6 +69239,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -67047,6 +69274,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -67243,6 +69471,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -67277,6 +69506,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -67384,6 +69614,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -67418,6 +69649,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -67814,6 +70046,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -67848,6 +70081,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -67992,6 +70226,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -68026,6 +70261,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -68091,6 +70327,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -68125,6 +70362,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -68212,6 +70450,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -68246,6 +70485,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -68331,6 +70571,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -68365,6 +70606,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -68404,6 +70646,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -68438,6 +70681,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -68545,6 +70789,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -68579,6 +70824,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -68624,6 +70870,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -68658,6 +70905,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -68744,6 +70992,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -68778,6 +71027,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -68860,6 +71110,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -68894,6 +71145,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -68959,6 +71211,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -68993,6 +71246,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -69075,6 +71329,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -69109,6 +71364,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -69782,6 +72038,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -69816,6 +72073,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -69927,6 +72185,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -69961,6 +72220,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -70051,6 +72311,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
@@ -70085,6 +72346,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
@@ -70196,6 +72458,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
@@ -70230,6 +72493,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -70435,6 +72699,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
@@ -70469,6 +72734,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
@@ -70508,6 +72774,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
@@ -70542,6 +72809,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
@@ -70565,6 +72833,7 @@ export namespace Prisma {
     quantity?: number
     identifier?: string | null
     notes?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
     propertyAsset?: PropertyAssetCreateNestedOneWithoutAddendumEntriesInput
@@ -70584,6 +72853,7 @@ export namespace Prisma {
     notes?: string | null
     maintenanceCaseId?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     photos?: ReportAddendumPhotoUncheckedCreateNestedManyWithoutEntryInput
   }
@@ -70725,6 +72995,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
@@ -70759,6 +73030,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -70804,6 +73076,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
@@ -70838,6 +73111,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -71219,6 +73493,7 @@ export namespace Prisma {
     quantity?: number
     identifier?: string | null
     notes?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
     addendum: ReportAddendumCreateNestedOneWithoutEntriesInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutAddendumEntriesInput
@@ -71239,6 +73514,7 @@ export namespace Prisma {
     notes?: string | null
     maintenanceCaseId?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
   }
 
@@ -71269,6 +73545,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
@@ -71289,6 +73566,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -71360,6 +73638,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -71394,6 +73673,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -71491,6 +73771,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -71525,6 +73806,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -71558,6 +73840,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -71592,6 +73875,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -71666,6 +73950,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -71700,6 +73985,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -71829,6 +74115,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -71863,6 +74150,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -71913,6 +74201,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -71947,6 +74236,163 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderCreateWithoutProductEventsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutProductEventsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutProductEventsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutProductEventsInput, StakeholderUncheckedCreateWithoutProductEventsInput>
+  }
+
+  export type StakeholderUpsertWithoutProductEventsInput = {
+    update: XOR<StakeholderUpdateWithoutProductEventsInput, StakeholderUncheckedUpdateWithoutProductEventsInput>
+    create: XOR<StakeholderCreateWithoutProductEventsInput, StakeholderUncheckedCreateWithoutProductEventsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutProductEventsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutProductEventsInput, StakeholderUncheckedUpdateWithoutProductEventsInput>
+  }
+
+  export type StakeholderUpdateWithoutProductEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutProductEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -71966,6 +74412,9 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -71981,6 +74430,9 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -71996,6 +74448,9 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -72161,6 +74616,16 @@ export namespace Prisma {
     notifiedAt?: Date | string | null
   }
 
+  export type ProductEventCreateManyStakeholderInput = {
+    id?: string
+    source: $Enums.ProductEventSource
+    name: string
+    properties: JsonNullValueInput | InputJsonValue
+    release?: string | null
+    occurredAt: Date | string
+    createdAt?: Date | string
+  }
+
   export type ReportEmailCreateManyRecipientInput = {
     id?: string
     inspectionId: string
@@ -72238,6 +74703,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -72245,6 +74712,8 @@ export namespace Prisma {
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutLandlordInput = {
@@ -72258,10 +74727,14 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutLandlordInput = {
@@ -72275,6 +74748,9 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -72287,6 +74763,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -72294,6 +74772,8 @@ export namespace Prisma {
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutTenantInput = {
@@ -72307,10 +74787,14 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutTenantInput = {
@@ -72324,6 +74808,9 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -72336,6 +74823,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
@@ -72343,6 +74832,8 @@ export namespace Prisma {
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutAgentInput = {
@@ -72356,10 +74847,14 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutAgentInput = {
@@ -72373,6 +74868,9 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -72892,6 +75390,36 @@ export namespace Prisma {
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type ProductEventUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductEventUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductEventUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumProductEventSourceFieldUpdateOperationsInput | $Enums.ProductEventSource
+    name?: StringFieldUpdateOperationsInput | string
+    properties?: JsonNullValueInput | InputJsonValue
+    release?: NullableStringFieldUpdateOperationsInput | string | null
+    occurredAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ReportEmailUpdateWithoutRecipientInput = {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumReportEmailKindFieldUpdateOperationsInput | $Enums.ReportEmailKind
@@ -73145,6 +75673,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -73179,6 +75708,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -73210,6 +75740,9 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73233,6 +75766,8 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
@@ -73240,6 +75775,8 @@ export namespace Prisma {
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutPropertyInput = {
@@ -73253,10 +75790,14 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutPropertyInput = {
@@ -73270,6 +75811,9 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -74219,6 +76763,7 @@ export namespace Prisma {
     identifier?: string | null
     notes?: string | null
     maintenanceCaseId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
   }
 
@@ -74356,6 +76901,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
@@ -74375,6 +76921,7 @@ export namespace Prisma {
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
   }
@@ -74392,6 +76939,7 @@ export namespace Prisma {
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -74472,6 +77020,7 @@ export namespace Prisma {
     identifier?: string | null
     notes?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
   }
 
@@ -74682,6 +77231,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addendum?: ReportAddendumUpdateOneRequiredWithoutEntriesNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput
@@ -74701,6 +77251,7 @@ export namespace Prisma {
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
   }
@@ -74718,6 +77269,7 @@ export namespace Prisma {
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -74922,6 +77474,7 @@ export namespace Prisma {
     notes?: string | null
     maintenanceCaseId?: string | null
     propertyAssetId?: string | null
+    uploadPaths?: ReportAddendumEntryCreateuploadPathsInput | string[]
     createdAt?: Date | string
   }
 
@@ -74945,6 +77498,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutAddendumEntriesNestedInput
     propertyAsset?: PropertyAssetUpdateOneWithoutAddendumEntriesNestedInput
@@ -74964,6 +77518,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     photos?: ReportAddendumPhotoUncheckedUpdateManyWithoutEntryNestedInput
   }
@@ -74981,6 +77536,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    uploadPaths?: ReportAddendumEntryUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

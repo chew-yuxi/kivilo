@@ -451,7 +451,7 @@ describe('report addenda', () => {
     expect(view.acknowledgeInPerson).toBe(false)
   })
 
-  it('discards a draft and queues only the photos it uploaded for deletion, never a published update', async () => {
+  it('discards a draft and queues its upload folder for deletion, never a published update or repair evidence', async () => {
     const { agent, stranger, inspection } = await deal()
     as(agent)
     const id = await startAddendum(inspection.id)
@@ -459,7 +459,7 @@ describe('report addenda', () => {
     const clientId = randomUUID()
     const { storagePath } = await requestAddendumPhotoUpload(entryId, id, { clientId, mimeType: 'image/jpeg' })
     await registerAddendumPhoto(entryId, id, { clientId, mimeType: 'image/jpeg', storagePath, sizeBytes: 900 })
-    purged.push(storagePath)
+    purged.push(`addenda/${id}`)
     // A repair's photo, used by reference, belongs to the repair.
     const evidencePath = `maintenance/${randomUUID()}/before.jpg`
     await db.reportAddendumPhoto.create({ data: { entryId, storagePath: evidencePath, mimeType: 'image/jpeg', label: 'Before' } })
@@ -471,7 +471,7 @@ describe('report addenda', () => {
 
     expect(await db.reportAddendum.findUnique({ where: { id } })).toBeNull()
     expect(await db.reportAddendumEntry.count({ where: { addendumId: id } })).toBe(0)
-    expect(await db.storagePurge.findUnique({ where: { path: storagePath } })).toMatchObject({ isPrefix: false, completedAt: null })
+    expect(await db.storagePurge.findUnique({ where: { path: `addenda/${id}` } })).toMatchObject({ isPrefix: true, completedAt: null })
     expect(await db.storagePurge.findUnique({ where: { path: evidencePath } })).toBeNull()
     await expect(discardAddendum(id)).rejects.toThrow('Addendum not found')
     // The next update starts afresh.
@@ -547,6 +547,7 @@ describe('report addenda', () => {
     ])
     // A new draft can be thrown away through the API.
     const { body: next } = await call(workspaceRoute.POST, { id: inspection.id })
+    purged.push(`addenda/${next.id}`)
     expect((await call(addendumRoute.DELETE, { id: next.id }, { method: 'DELETE' })).status).toBe(200)
     expect(await db.reportAddendum.findUnique({ where: { id: next.id } })).toBeNull()
   })

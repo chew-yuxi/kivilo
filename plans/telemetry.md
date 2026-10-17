@@ -34,12 +34,23 @@ Not covered in phase 1: errors on `/login`, `/` and `/reports/[token]` in the br
 Deploy needs: migration `20261013190000_error_events`, `ERROR_ALERT_TO` in Vercel
 production env, then push (the cron is in `vercel.json`).
 
-## Phase 2: usage
+## Phase 2: usage (built 2026-10-17)
 
-`ProductEvent` table with an allowlist of event names and property keys (Teasa's
-`packages/contracts/src/product-event-keys.ts` is the model), the funnel read from
-existing timestamps (inspection created, captured, reviewed, sent, countersigned) rather
-than duplicated into events, and an `/admin` page behind an `ADMIN_EMAILS` allowlist.
+`ProductEvent` stores strictly allowlisted `screen_viewed` events with a screen category,
+client UUID, source, release and server-stamped account. No paths, free text, query
+strings or report tokens. The web reporter bounds its per-account offline queue at 20;
+unavailable browser storage falls back to memory. `POST /api/v1/events` accepts the same
+batch from web and native clients, and checks the web queue's owner precondition against
+the verified session to prevent a stale tab attributing events to a different account.
+
+`/admin` is guarded in the data layer by a comma-separated `ADMIN_EMAILS` allowlist
+(empty denies everyone). It shows 30-day active web accounts, screen views, frequent
+errors, and the saved inspection funnel across both clients, using inspection, room and
+capture state rather than duplicating workflow transitions as events. Native screen
+instrumentation is not included yet. Events expire after 90 days through the existing
+errors cron and are removed on account deletion. The privacy page describes this.
+
+Deploy: migration `20261017120000_product_events`, set `ADMIN_EMAILS`, then deploy.
 
 ## Phase 3: Flutter errors (built 2026-10-14)
 

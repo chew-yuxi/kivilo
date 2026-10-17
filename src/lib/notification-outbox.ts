@@ -1,11 +1,13 @@
 import { db } from '@/lib/db'
-import { sendMaintenanceNotification, sendReportUpdateNotification } from '@/lib/email'
+import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder } from '@/lib/email'
+import { queueRenewalReminders } from '@/lib/renewals'
 import { deliverPushOutbox } from '@/lib/push'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 
 /// Creates reminders and delivers the durable email and push outboxes. In-app
 /// notifications are already committed with the domain change; transports retry alone.
 export async function deliverNotificationOutbox(limit = 25) {
+  await queueRenewalReminders()
   const overdue = await db.maintenanceCase.findMany({
     where: {
       status: 'REPORTED',
@@ -56,6 +58,8 @@ export async function deliverNotificationOutbox(limit = 25) {
     try {
       if (notification.kind === 'REPORT_UPDATED') {
         await sendReportUpdateNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+      } else if (notification.kind === 'RENEWAL_DUE') {
+        await sendRenewalReminder(notification.recipient.email!, notification)
       } else {
         await sendMaintenanceNotification(notification.recipient.email!, notification)
       }

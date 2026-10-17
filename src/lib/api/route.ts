@@ -63,7 +63,7 @@ export function authed<P>(
       if (/Maintenance .* conflict|already verified/i.test(message)) {
         return Response.json({ error: 'maintenance_conflict' }, { status: 409 })
       }
-      if (/Invalid maintenance status transition|Closing without action requires a reason|Only a completed visit can be verified|After evidence requires a completed visit|Only a human-reviewed inspection item can be linked/i.test(message)) {
+      if (/Renewal dates must follow|Invalid maintenance status transition|Closing without action requires a reason|Only a completed visit can be verified|After evidence requires a completed visit|Only a human-reviewed inspection item can be linked/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       if (/Only a countersigned check-in can be updated|Only a resolved repair|Give the update a title|Add at least one change|Each item can change only once|no longer in the report/i.test(message)) {

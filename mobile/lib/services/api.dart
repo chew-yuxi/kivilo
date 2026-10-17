@@ -7,6 +7,7 @@ import '../models/addenda.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../models/report.dart';
+import '../models/renewal.dart';
 import 'api_failure.dart';
 import 'read_cache.dart';
 
@@ -118,6 +119,33 @@ class Api {
         .map((json) => InspectionSummary.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+
+  Future<List<RenewalReminder>> renewals() async {
+    final data = await _read('/api/v1/renewals', 'renewals');
+    return (data as List<dynamic>)
+        .map((json) => RenewalReminder.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Map<String, dynamic>> renewal(String tenancyId) async =>
+      (await _get<Map<String, dynamic>>('/api/v1/renewals/$tenancyId')).data!;
+
+  Future<void> respondToRenewal(String tenancyId, String choice) =>
+      _call(() async {
+        await _dio.patch<Object>(
+          '/api/v1/renewals/$tenancyId',
+          data: {'choice': choice},
+        );
+      });
+
+  Future<String> createRenewal(String tenancyId, Map<String, dynamic> data) =>
+      _call(() async {
+        final response = await _dio.post<Map<String, dynamic>>(
+          '/api/v1/renewals/$tenancyId',
+          data: data,
+        );
+        return response.data!['id'] as String;
+      });
 
   Future<UserProfile> me() async {
     final data = await _read('/api/v1/me', 'me');

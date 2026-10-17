@@ -6,9 +6,9 @@ const EVERY_ROOM = ['Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches']
 
 describe('templateRows', () => {
   it('gives every room its surfaces, door and lights', () => {
-    expect(names('Bedroom 2')).toEqual(EVERY_ROOM)
     expect(names('Balcony')).toEqual(EVERY_ROOM)
-    expect(templateRows('Living room').map((row) => row.category)).toEqual([
+    expect(names('Hallway')).toEqual(EVERY_ROOM)
+    expect(templateRows('Store room').map((row) => row.category)).toEqual([
       'SURFACE',
       'SURFACE',
       'SURFACE',
@@ -18,10 +18,18 @@ describe('templateRows', () => {
   })
 
   it('adds the kitchen fittings to a room named as a kitchen, in any case', () => {
-    const kitchen = [...EVERY_ROOM, 'Cabinets', 'Sink and tap', 'Hob', 'Cooker hood']
+    const kitchen = [...EVERY_ROOM, 'Cabinets', 'Sink and tap', 'Hob', 'Cooker hood', 'Fridge', 'Washing machine']
     expect(names('Kitchen')).toEqual(kitchen)
     expect(names('DRY KITCHEN')).toEqual(kitchen)
     expect(templateRows('Kitchen').slice(-2).map((row) => row.category)).toEqual(['APPLIANCE', 'APPLIANCE'])
+  })
+
+  it('adds furniture to the rooms where it belongs without duplicate combined-room rows', () => {
+    expect(names('Bedroom 2')).toEqual([...EVERY_ROOM, 'Bed', 'Wardrobe'])
+    expect(names('Living / dining room')).toEqual([...EVERY_ROOM, 'Sofa', 'Table'])
+    expect(names('Lounge / dining room')).toEqual([...EVERY_ROOM, 'Sofa', 'Table'])
+    expect(names('Dining room')).toEqual([...EVERY_ROOM, 'Table'])
+    expect(templateRows('Bedroom').slice(-2).map((row) => row.category)).toEqual(['FURNITURE', 'FURNITURE'])
   })
 
   it('adds the sanitary fittings to a bathroom, toilet, shower room or WC', () => {

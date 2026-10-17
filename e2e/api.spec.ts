@@ -190,7 +190,7 @@ test('a native client takes a check-in from capture to both signatures, then ope
   // is what every installed build sees too.
   const detail = await request.get(`/api/v1/inspections/${inspectionId}`, { headers })
   const detailBody = await detail.json()
-  expect(detailBody.rooms[0]).toMatchObject({ status: 'REVIEW', items: 9 })
+  expect(detailBody.rooms[0]).toMatchObject({ status: 'REVIEW', items: 11 })
   expect(detailBody.rooms[0].previewUrl).toContain('token=')
   expect(detailBody.rooms[0].previewUrls).toHaveLength(1)
   expect(detailBody.rooms[0].previewUrls[0]).toContain('token=')
@@ -205,7 +205,7 @@ test('a native client takes a check-in from capture to both signatures, then ope
   const rows = (await kitchen.json()).items as { name: string }[]
   expect(rows.map((row) => row.name)).toEqual([
     'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches',
-    'Cabinets', 'Sink and tap', 'Hob', 'Cooker hood',
+    'Cabinets', 'Sink and tap', 'Hob', 'Cooker hood', 'Fridge', 'Washing machine',
   ])
   // editedByHuman is a required field in installed app builds up to 19.
   expect(rows[0]).toMatchObject({ condition: 'GOOD', quantity: 1, editedByHuman: true })
@@ -219,7 +219,7 @@ test('a native client takes a check-in from capture to both signatures, then ope
   // newSinceDraft is a required field in installed app builds up to 19.
   expect((await after.json()).rooms[0]).toMatchObject({
     status: 'REVIEWED',
-    items: 9,
+    items: 11,
     newSinceDraft: 0,
   })
 
@@ -253,14 +253,14 @@ test('a native client takes a check-in from capture to both signatures, then ope
   expect(checkOut.status()).toBe(200)
   const checkOutId = (await checkOut.json()).id as string
   const opened = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
-  expect(opened.rooms).toMatchObject([{ name: 'Kitchen', items: 9 }])
+  expect(opened.rooms).toMatchObject([{ name: 'Kitchen', items: 11 }])
   const copiedRoom = `/api/v1/inspections/${checkOutId}/rooms/${opened.rooms[0].id}`
   expect((await request.post(`${copiedRoom}/finish`, { headers })).status()).toBe(200)
   const reviewedCheckOut = await request.post(`${copiedRoom}/review`, { headers })
   expect(reviewedCheckOut.status()).toBe(200)
   expect(await reviewedCheckOut.json()).toEqual({ ok: true })
   const walked = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
-  expect(walked.rooms[0]).toMatchObject({ status: 'REVIEWED', items: 9 })
+  expect(walked.rooms[0]).toMatchObject({ status: 'REVIEWED', items: 11 })
 })
 
 test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {

@@ -544,6 +544,17 @@ class CaptureQueue extends _$CaptureQueue {
           ))
           .get();
 
+  Stream<List<PendingRemoteEdit>> watchRemoteEditsFor(
+    String ownerId,
+    String inspectionId,
+  ) =>
+      (select(pendingRemoteEdits)..where(
+            (row) =>
+                row.ownerId.equals(ownerId) &
+                row.inspectionId.equals(inspectionId),
+          ))
+          .watch();
+
   Future<PendingRemoteEdit?> claimNextRemoteEdit(
     DateTime now,
     String ownerId, {

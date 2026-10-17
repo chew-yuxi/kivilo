@@ -124,6 +124,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       db.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } }),
       db.notification.deleteMany({ where: { recipientId: person.id } }),
       db.errorEvent.deleteMany({ where: { stakeholderId: person.id } }),
+      db.productEvent.deleteMany({ where: { stakeholderId: person.id } }),
     ])
 
     // A plan this person pays for would keep charging their card after they are gone,

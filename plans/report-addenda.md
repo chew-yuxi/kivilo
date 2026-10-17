@@ -140,9 +140,16 @@ App: the report screen, from `acknowledgeInPerson` in the report API.
 ### Discarding a draft
 
 `discardAddendum` deletes the draft, its entries and photo rows, and queues a delayed
-`StoragePurge` for each photo it uploaded under `addenda/`, never for a repair's
-evidence it referenced. An upload whose URL was issued but never registered is not
-known to the database and is not purged, as with a deleted entry.
+`StoragePurge` for its entire `addenda/<addendumId>/` prefix, never for a repair's
+evidence it referenced. The purge worker waits three hours for outstanding signed
+upload URLs to expire, refuses while the addendum still exists, and verifies that
+the folder is empty before marking cleanup complete. This also catches uploads
+whose URL was issued before discard but whose photo was never registered.
+
+Each entry also records its requested upload paths before a signed URL is issued.
+Deleting one entry queues those paths as well as its registered photos, so an
+unfinished upload is cleaned up even when the rest of the draft remains. The
+worker refuses to remove an object still referenced by a report photo.
 
 ### Photo formats
 

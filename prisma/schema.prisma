@@ -53,6 +53,7 @@ model Stakeholder {
   deviceInstallations DeviceInstallation[]
   branding AgentBranding?
   errorEvents ErrorEvent[]
+  productEvents ProductEvent[]
   reportEmails ReportEmail[]
   addendaCreated   ReportAddendum[] @relation("AddendumCreator")
   addendaPublished ReportAddendum[] @relation("AddendumPublisher")
@@ -167,6 +168,11 @@ model Tenancy {
   /// Whether the agent may accept or reject a tenant's cost proposal for the landlord.
   /// Only the landlord can change it.
   agentMayAgreeCosts Boolean  @default(true)
+  /// Reminder choices belong to the tenancy, so teammates see the same decision.
+  renewalDecision RenewalDecision?
+  renewalSnoozedUntil DateTime?
+  /// A renewal is a new term on the same property, never an edit to the signed term.
+  renewedFromId String? @unique
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -177,8 +183,15 @@ model Tenancy {
 
   inspections Inspection[]
   maintenanceCases MaintenanceCase[]
+  renewedFrom Tenancy? @relation("TenancyRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
+  renewedAs Tenancy? @relation("TenancyRenewal")
 
   @@index([propertyId])
+}
+
+enum RenewalDecision {
+  NOT_RENEWING
+  DISMISSED
 }
 
 // ---------------------------------------------------------------------------
@@ -657,6 +670,7 @@ enum NotificationKind {
   REPEAT_REPAIR
   /// An addendum to a signed report was published and waits for this party.
   REPORT_UPDATED
+  RENEWAL_DUE
 }
 
 enum DevicePlatform {
@@ -892,6 +906,9 @@ model ReportAddendumEntry {
   maintenanceCaseId String?
   /// The asset publishing created for this line, so a check-out copies the link.
   propertyAssetId   String?
+  /// Upload intents survive a missing photo registration, so deleting the entry
+  /// can remove objects written by an outstanding signed upload URL.
+  uploadPaths       String[] @default([])
   createdAt  DateTime       @default(now())
 
   addendum        ReportAddendum        @relation(fields: [addendumId], references: [id], onDelete: Cascade)
@@ -1041,4 +1058,29 @@ model ErrorEvent {
   @@index([notifiedAt])
   @@index([createdAt])
   @@index([stakeholderId])
+}
+
+enum ProductEventSource {
+  WEB
+  ANDROID
+  IOS
+}
+
+/// Allowlisted usage events, with identity stamped by the authenticated server.
+/// No addresses, report tokens, free text or IPs. Kept for 90 days.
+model ProductEvent {
+  id            String             @id @default(uuid())
+  source        ProductEventSource
+  name          String
+  properties    Json
+  release       String?
+  stakeholderId String
+  occurredAt    DateTime
+  createdAt     DateTime           @default(now())
+
+  stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([name, createdAt])
+  @@index([stakeholderId, createdAt])
 }

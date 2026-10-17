@@ -171,8 +171,9 @@ export async function deleteAddendumEntry(entryId: string, addendumId: string) {
   const agent = await requireAgent()
   const addendum = await authorizeEntry(entryId, addendumId, agent.id)
   await editDraft(addendumId, async (tx) => {
+    const entry = await tx.reportAddendumEntry.findUniqueOrThrow({ where: { id: entryId }, select: { uploadPaths: true } })
     const photos = await tx.reportAddendumPhoto.findMany({ where: { entryId }, select: { storagePath: true } })
-    await purgeUploads(tx, photos.map((photo) => photo.storagePath))
+    await purgeUploads(tx, [...entry.uploadPaths, ...photos.map((photo) => photo.storagePath)])
     await tx.reportAddendumEntry.delete({ where: { id: entryId } })
   })
   revalidate(addendum.inspectionId)
@@ -184,8 +185,12 @@ export async function discardAddendum(addendumId: string) {
   const agent = await requireAgent()
   const addendum = await authorizeAddendum(addendumId, agent.id)
   await editDraft(addendumId, async (tx) => {
-    const photos = await tx.reportAddendumPhoto.findMany({ where: { entry: { addendumId } }, select: { storagePath: true } })
-    await purgeUploads(tx, photos.map((photo) => photo.storagePath))
+    // A signed URL can outlive this draft without ever producing a photo row.
+    // Sweep its whole upload folder after those URLs expire; repair evidence
+    // lives under maintenance/ and is never part of this prefix.
+    await tx.storagePurge.create({
+      data: { path: `addenda/${addendumId}`, isPrefix: true, readyAt: new Date(Date.now() + 3 * 60 * 60 * 1000) },
+    })
     await tx.reportAddendum.delete({ where: { id: addendumId } })
   })
   revalidate(addendum.inspectionId)
@@ -220,7 +225,17 @@ export async function requestAddendumPhotoUpload(entryId: string, addendumId: st
   await authorizeEntry(entryId, addendumId, agent.id)
   const input = uploadInput.parse(raw)
   const storagePath = photoPath(addendumId, input.clientId, input.mimeType)
-  return editDraft(addendumId, async () => {
+  return editDraft(addendumId, async (tx) => {
+    const entry = await tx.reportAddendumEntry.findFirst({
+      where: { id: entryId, addendumId }, select: { uploadPaths: true },
+    })
+    if (!entry) throw new Error('Entry not found')
+    if (await tx.storagePurge.findUnique({ where: { path: storagePath }, select: { id: true } })) {
+      throw new Error('Photo not found')
+    }
+    if (!entry.uploadPaths.includes(storagePath)) {
+      await tx.reportAddendumEntry.update({ where: { id: entryId }, data: { uploadPaths: { push: storagePath } } })
+    }
     if (await captureExists(storagePath)) return { storagePath, signedUrl: null, token: null }
     const { signedUrl, token } = await createUploadUrl(storagePath)
     return { storagePath, signedUrl, token }
@@ -242,6 +257,9 @@ export async function registerAddendumPhoto(entryId: string, addendumId: string,
   }
   if (!await captureExists(input.storagePath)) throw new Error('Photo has not reached storage')
   const photo = await editDraft(addendumId, async (tx) => {
+    if (await tx.storagePurge.findUnique({ where: { path: input.storagePath }, select: { id: true } })) {
+      throw new Error('Photo not found')
+    }
     const existing = await tx.reportAddendumPhoto.findFirst({
       where: { entryId, storagePath: input.storagePath },
       select: { id: true },

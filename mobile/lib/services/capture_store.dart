@@ -61,7 +61,7 @@ class CaptureStore {
 
   /// Returns journals whose camera bytes cannot currently be found. The journal stays
   /// on disk so the missing evidence is visible rather than silently discarded.
-  Future<List<String>> reconcile(String ownerId) async {
+  Future<List<String>> reconcile(String ownerId, {String? roomId}) async {
     final directory = Directory('${root.path}/capture-intake');
     if (!await directory.exists()) return [];
     final unresolved = <String>[];
@@ -71,6 +71,7 @@ class CaptureStore {
         final metadata =
             jsonDecode(await entity.readAsString()) as Map<String, dynamic>;
         if (metadata['ownerId'] != ownerId) continue;
+        if (roomId != null && metadata['roomId'] != roomId) continue;
         final handedOver = await queue.serverIdForClient(
           ownerId,
           metadata['inspectionId'] as String,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:number_flow_flutter/number_flow_flutter.dart';
-import 'package:flutter/services.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
+import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
@@ -18,9 +19,15 @@ import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
-  const InspectionScreen({super.key, required this.id, this.api});
+  const InspectionScreen({
+    super.key,
+    required this.id,
+    this.api,
+    this.reportPdf,
+  });
   final String id;
   final Api? api;
+  final ReportPdfFile? reportPdf;
 
   @override
   State<InspectionScreen> createState() => _InspectionScreenState();
@@ -194,55 +201,53 @@ class _InspectionScreenState extends State<InspectionScreen> {
         }
       });
 
-  /// Printed on the server, then opened in the phone's viewer, which has its own share
-  /// sheet for email and messaging.
-  Future<void> _downloadPdf() => _run(() async {
+  Future<void> _pdf(
+    InspectionDetail inspection, {
+    Rect? shareOrigin,
+  }) => _run(() async {
     final url = await _api.reportPdf(widget.id);
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    final file = await (widget.reportPdf ?? ReportPdfFile()).download(
+      url,
+      'Kivilo ${inspection.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'} ${inspection.property}',
+    );
+    if (!mounted) return;
+    if (shareOrigin != null) {
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'application/pdf')],
+          subject: 'Kivilo report · ${inspection.property}',
+          sharePositionOrigin: shareOrigin,
+        ),
+      );
+    } else {
+      final result = await OpenFilex.open(
+        file.path,
+        type: 'application/pdf',
+        uti: 'com.adobe.pdf',
+      );
+      if (result.type != ResultType.done) {
+        throw ApiFailure(
+          result.type == ResultType.noAppToOpen
+              ? 'Install a PDF viewer to open this report, or use Share PDF to send it.'
+              : 'Could not open this PDF. Please try again, or use Share PDF.',
+          null,
+        );
+      }
+    }
   });
 
-  Future<void> _share(InspectionDetail inspection) async {
-    if (inspection.shareToken == null) {
-      await _run(() async {
-        final url = await _api.share(widget.id);
-        await Clipboard.setData(ClipboardData(text: url));
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Report link copied')));
-        }
+  Future<void> _share(InspectionDetail inspection, Rect origin) =>
+      _run(() async {
+        final url = inspection.shareUrl ?? await _api.share(widget.id);
+        if (!mounted) return;
+        await SharePlus.instance.share(
+          ShareParams(
+            text: url,
+            subject: 'Kivilo report · ${inspection.property}',
+            sharePositionOrigin: origin,
+          ),
+        );
       });
-      return;
-    }
-    final url = inspection.shareUrl!;
-    await Clipboard.setData(ClipboardData(text: url));
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Report link copied')));
-    }
-  }
-
-  Future<void> _revoke() async {
-    final confirmed = await showKiviloDrawer<bool>(
-      context: context,
-      builder: (context) => KiviloDrawer(
-        title: const Text('Revoke report link?'),
-        content: const Text('The current link will stop working immediately.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Revoke'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) await _run(() => _api.revokeShare(widget.id));
-  }
 
   Future<void> _startCheckOut(InspectionDetail inspection) async {
     if (inspection.checkOutId != null) {
@@ -692,9 +697,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                inspection.shareToken == null
-                                    ? 'No active link'
-                                    : 'Report link is active',
+                                'View or send the signed report',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
@@ -702,19 +705,51 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         ),
                         const SizedBox(height: 14),
                         FilledButton.icon(
-                          onPressed: _busy ? null : () => _share(inspection),
-                          icon: const Icon(Icons.content_copy_outlined),
-                          label: Text(
-                            inspection.shareToken == null
-                                ? 'Create and copy link'
-                                : 'Copy report link',
+                          onPressed: _busy ? null : () => _pdf(inspection),
+                          icon: const Icon(Icons.description_outlined),
+                          label: const Text('View PDF'),
+                        ),
+                        const SizedBox(height: 10),
+                        Builder(
+                          builder: (context) => OutlinedButton.icon(
+                            onPressed: _busy
+                                ? null
+                                : () {
+                                    final box =
+                                        context.findRenderObject()!
+                                            as RenderBox;
+                                    _pdf(
+                                      inspection,
+                                      shareOrigin:
+                                          box.localToGlobal(Offset.zero) &
+                                          box.size,
+                                    );
+                                  },
+                            icon: const Icon(Icons.share_outlined),
+                            label: const Text('Share PDF'),
                           ),
                         ),
                         const SizedBox(height: 10),
-                        OutlinedButton.icon(
-                          onPressed: _busy ? null : _downloadPdf,
-                          icon: const Icon(Icons.description_outlined),
-                          label: const Text('Download PDF'),
+                        Builder(
+                          builder: (context) => OutlinedButton.icon(
+                            onPressed: _busy
+                                ? null
+                                : () {
+                                    final box =
+                                        context.findRenderObject()!
+                                            as RenderBox;
+                                    _share(
+                                      inspection,
+                                      box.localToGlobal(Offset.zero) & box.size,
+                                    );
+                                  },
+                            icon: const Icon(Icons.link_outlined),
+                            label: const Text('Share link'),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Anyone with the link can read this report.',
                         ),
                         // The report as the parties read it, with every update since
                         // signing and who has acknowledged it.
@@ -741,11 +776,6 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             label: const Text('Write an update'),
                           ),
                         ],
-                        if (inspection.shareToken != null)
-                          TextButton(
-                            onPressed: _busy ? null : _revoke,
-                            child: const Text('Revoke link'),
-                          ),
                       ],
                     ),
                   ),
