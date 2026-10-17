@@ -256,9 +256,9 @@ describe('check-in reference', () => {
       ['entry:new-hob', 'BOSCH PKE611'],
       [expect.stringMatching(/^item:/), null],
     ])
-    expect(reference.photos.map((photo) => [photo.url, photo.caption])).toEqual([
-      ['https://storage.test/REFERENCE-ADDENDUM/kitchen-agreed.jpg', 'Hob and worktop'],
-      ['https://storage.test/addenda/x/new-hob.jpg', 'After: New hob fitted'],
+    expect(reference.photos.map((photo) => [photo.url, photo.caption, photo.update])).toEqual([
+      ['https://storage.test/REFERENCE-ADDENDUM/kitchen-agreed.jpg', 'Hob and worktop', false],
+      ['https://storage.test/addenda/x/new-hob.jpg', 'After: New hob fitted', true],
     ])
     expect(kitchen.items.find((item) => item.identifier === 'BOSCH PKE611')!.baselineKey).toBe('entry:new-hob')
     expect(await checkInReference(bathroom.id, checkIn.agentId)).toMatchObject({ photos: [] })

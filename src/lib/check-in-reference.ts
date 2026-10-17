@@ -30,6 +30,8 @@ export const roomBaselineSchema = z.object({
       /// What the photo is of, as the report captions it: the inspector's note on a
       /// check-in capture, or an addendum photo's label and note ("Before: cracked basin").
       caption: z.string().nullable(),
+      /// From an addendum acknowledged after the check-in, not the check-in itself.
+      update: z.boolean(),
       /// Read back through `toAnnotations` like every other stored copy, so marks of an
       /// older shape are dropped rather than breaking the room.
       annotations: z.unknown(),
@@ -44,7 +46,7 @@ export type CheckInReference = {
   baselineId: string
   conductedAt: string | null
   lines: CheckInLine[]
-  photos: { id: string; url: string; caption: string | null; annotations: StoredAnnotations | null }[]
+  photos: { id: string; url: string; caption: string | null; update: boolean; annotations: StoredAnnotations | null }[]
 }
 
 /// The baseline for each of `rooms`, the check-in's current state as `startCheckOut`
@@ -78,12 +80,14 @@ export async function roomBaselines(rooms: StateRoom[]) {
           id: capture.id,
           storagePath: capture.storagePath,
           caption: capture.note,
+          update: false,
           annotations: toAnnotations(capture.annotations),
         })),
       ...room.addendumPhotos.map((photo) => ({
         id: photo.id,
         storagePath: photo.storagePath,
         caption: [photo.label, photo.note].filter(Boolean).join(': ') || null,
+        update: true,
         annotations: null,
       })),
     ],
@@ -119,6 +123,7 @@ export async function checkInReference(roomId: string, agentId: string): Promise
         id: photo.id,
         url: await createDownloadUrl(photo.storagePath),
         caption: photo.caption,
+        update: photo.update,
         annotations: toAnnotations(photo.annotations),
       })),
     ),

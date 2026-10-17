@@ -152,6 +152,8 @@ void main() {
           {
             'id': 'capture-in',
             'url': 'https://example.test/check-in',
+            'caption': 'Fridge rating plate',
+            'update': false,
             'annotations': null,
           },
         ],

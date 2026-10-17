@@ -307,6 +307,10 @@ class CheckInLine {
   final String? identifier;
   final String? meterReading;
 
+  /// Added or replaced by an acknowledged addendum rather than signed at check-in:
+  /// the server names those lines `entry:<id>`.
+  bool get update => key.startsWith('entry:');
+
   factory CheckInLine.fromJson(Map<String, dynamic> json) => CheckInLine(
     key: json['key'] as String,
     name: json['name'] as String,
@@ -323,6 +327,7 @@ class CheckInPhoto {
     required this.id,
     required this.url,
     this.caption,
+    this.update = false,
     this.annotations,
   });
 
@@ -331,12 +336,16 @@ class CheckInPhoto {
 
   /// What the photo is of, as the report captions it ("Before: cracked basin").
   final String? caption;
+
+  /// From an addendum acknowledged after the check-in, not the check-in itself.
+  final bool update;
   final Map<String, dynamic>? annotations;
 
   factory CheckInPhoto.fromJson(Map<String, dynamic> json) => CheckInPhoto(
     id: json['id'] as String,
     url: json['url'] as String,
     caption: json['caption'] as String?,
+    update: json['update'] as bool,
     annotations: json['annotations'] as Map<String, dynamic>?,
   );
 }

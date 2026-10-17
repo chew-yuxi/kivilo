@@ -97,6 +97,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     id: photo.id,
                     url: _stable(photo.id, photo.url),
                     caption: photo.caption,
+                    update: photo.update,
                     annotations: photo.annotations,
                   ),
               ],
@@ -1041,17 +1042,23 @@ class _RoomScreenState extends State<RoomScreen> {
         .where((capture) => item.evidenceCaptureIds.contains(capture.id))
         .toList();
     // The condition, which is the comparison, and anything else only where this row
-    // no longer says the same, so what changed is all there is to read.
+    // no longer says the same, each named, so "no serial" says the serial is new.
     final atCheckIn = baseline == null
         ? null
         : [
-            if (baseline.name != item.name) baseline.name,
-            if (baseline.identifier != item.identifier) ?baseline.identifier,
             baseline.condition,
+            if (baseline.name != item.name) 'name: ${baseline.name}',
             if (baseline.quantity != item.quantity) '×${baseline.quantity}',
+            if (baseline.identifier != item.identifier)
+              baseline.identifier == null
+                  ? 'no serial'
+                  : 'serial: ${baseline.identifier}',
             if (baseline.meterReading != item.meterReading)
-              ?baseline.meterReading,
-            if (baseline.notes != item.notes) ?baseline.notes,
+              baseline.meterReading == null
+                  ? 'no reading'
+                  : 'reading: ${baseline.meterReading}',
+            if (baseline.notes != item.notes)
+              baseline.notes == null ? 'no notes' : 'notes: ${baseline.notes}',
           ].join(' · ');
     return Card(
       child: Padding(

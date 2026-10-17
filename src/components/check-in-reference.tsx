@@ -11,6 +11,10 @@ export const CONDITION_TONE: Record<ItemCondition, string> = {
   DAMAGED: 'text-red-700 bg-red-50',
 }
 
+/// A line an acknowledged addendum added or replaced, rather than one signed at
+/// check-in: `currentState` names those `entry:<id>`.
+const isUpdate = (key: string) => key.startsWith('entry:')
+
 /// The check-in's photos and lines for the room a check-out inspector is standing in,
 /// so they can compare without leaving it. Closed until asked for, so it never stands
 /// between the inspector and the camera or the inventory, which carries each copied
@@ -23,11 +27,14 @@ export function CheckInReferencePanel({ reference }: { reference: CheckInReferen
         timeZone: 'Asia/Singapore',
       })
     : null
+  const hasUpdates =
+    reference.photos.some((photo) => photo.update) || reference.lines.some((line) => isUpdate(line.key))
 
   return (
     <details className="rounded-lg border border-gray-200 bg-white">
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
         At check-in{date && <span className="font-normal text-gray-500"> · {date}</span>}
+        {hasUpdates && <span className="font-normal text-gray-500">, with acknowledged updates</span>}
       </summary>
 
       {reference.photos.length > 0 && (
@@ -51,7 +58,11 @@ export function CheckInReferencePanel({ reference }: { reference: CheckInReferen
                 />
                 <MarkOverlay annotations={photo.annotations} />
               </div>
-              {photo.caption && <figcaption className="mt-1 text-xs text-gray-500">{photo.caption}</figcaption>}
+              {(photo.update || photo.caption) && (
+                <figcaption className="mt-1 text-xs text-gray-500">
+                  {[photo.update ? 'Update' : null, photo.caption].filter(Boolean).join(' · ')}
+                </figcaption>
+              )}
             </figure>
           ))}
         </div>
@@ -75,6 +86,7 @@ export function CheckInReferencePanel({ reference }: { reference: CheckInReferen
                   {line.name}
                   {line.quantity > 1 && ` ×${line.quantity}`}
                 </span>
+                {isUpdate(line.key) && <span className="ml-2 text-xs text-gray-500">Update</span>}
                 {line.identifier && (
                   <span className="block font-mono text-xs text-gray-500">{line.identifier}</span>
                 )}

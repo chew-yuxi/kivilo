@@ -43,7 +43,10 @@ class CheckInReferenceView extends StatelessWidget {
         if (reference.photos.isNotEmpty) ...[
           SizedBox(
             // Room for a two-line caption under each picture when there is one.
-            height: reference.photos.any((photo) => photo.caption != null)
+            height:
+                reference.photos.any(
+                  (photo) => photo.caption != null || photo.update,
+                )
                 ? 150
                 : 110,
             child: ListView.separated(
@@ -78,10 +81,13 @@ class CheckInReferenceView extends StatelessWidget {
                               ),
                             ),
                           ),
-                          if (photo.caption != null) ...[
+                          if (photo.caption != null || photo.update) ...[
                             const SizedBox(height: 4),
                             Text(
-                              photo.caption!,
+                              [
+                                if (photo.update) 'Update',
+                                ?photo.caption,
+                              ].join(' · '),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: text.bodySmall,
@@ -109,9 +115,12 @@ class CheckInReferenceView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  line.quantity > 1
-                      ? '${line.name} ×${line.quantity}'
-                      : line.name,
+                  [
+                    line.quantity > 1
+                        ? '${line.name} ×${line.quantity}'
+                        : line.name,
+                    if (line.update) 'Update',
+                  ].join(' · '),
                   style: text.titleSmall,
                 ),
                 if (line.identifier != null)

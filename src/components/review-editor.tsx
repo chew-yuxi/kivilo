@@ -149,16 +149,20 @@ function ItemRow({
 
       {baseline && (
         // The condition, which is the comparison, and anything else only where this
-        // row no longer says the same, so what changed is all there is to read.
+        // row no longer says the same, each named, so "no serial" says the serial is new.
         <p className="px-1.5 text-xs text-gray-500 sm:col-span-12">
           At check-in:{' '}
           {[
-            baseline.name !== item.name ? baseline.name : null,
-            baseline.identifier !== item.identifier ? baseline.identifier : null,
             baseline.condition,
+            baseline.name !== item.name ? `name: ${baseline.name}` : null,
             baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
-            baseline.meterReading !== item.meterReading ? baseline.meterReading : null,
-            baseline.notes !== item.notes ? baseline.notes : null,
+            baseline.identifier !== item.identifier
+              ? baseline.identifier ? `serial: ${baseline.identifier}` : 'no serial'
+              : null,
+            baseline.meterReading !== item.meterReading
+              ? baseline.meterReading ? `reading: ${baseline.meterReading}` : 'no reading'
+              : null,
+            baseline.notes !== item.notes ? (baseline.notes ? `notes: ${baseline.notes}` : 'no notes') : null,
           ]
             .filter(Boolean)
             .join(' · ')}
