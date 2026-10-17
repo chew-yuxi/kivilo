@@ -125,10 +125,16 @@ class CheckInReferenceView extends StatelessWidget {
                   ].join(' · '),
                   style: text.titleSmall,
                 ),
-                if (line.identifier != null)
-                  Text(line.identifier!, style: text.bodySmall),
+                // Empty fields are left out, as the web leaves them out.
+                if (line.identifier?.trim() case final String identifier
+                    when identifier.isNotEmpty)
+                  Text(identifier, style: text.bodySmall),
                 Text(
-                  [line.condition, ?line.meterReading, ?line.notes].join(' · '),
+                  [
+                    line.condition,
+                    ?line.meterReading,
+                    ?line.notes,
+                  ].where((part) => part.trim().isNotEmpty).join(' · '),
                   style: text.bodyMedium,
                 ),
               ],

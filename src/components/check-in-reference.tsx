@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { checkInPhotoLinks } from '@/lib/actions'
@@ -25,6 +25,8 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
   // nothing.
   const [urls, setUrls] = useState<Record<string, string> | null>(null)
   const [unreachable, setUnreachable] = useState(false)
+  // Only the latest open's answer counts, so a slow earlier one cannot overwrite it.
+  const latest = useRef(0)
   const date = reference.conductedAt
     ? new Date(reference.conductedAt).toLocaleDateString('en-SG', {
         dateStyle: 'long',
@@ -44,9 +46,13 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
         // them up as broken pictures instead of saying so.
         setUrls(null)
         setUnreachable(false)
+        const request = ++latest.current
         // The server records its own failures, so what reaches here is no signal, which
         // is said on screen rather than reported as a bug; opening again retries.
-        checkInPhotoLinks(roomId).then(setUrls, () => setUnreachable(true))
+        checkInPhotoLinks(roomId).then(
+          (fresh) => request === latest.current && setUrls(fresh),
+          () => request === latest.current && setUnreachable(true),
+        )
       }}
     >
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
