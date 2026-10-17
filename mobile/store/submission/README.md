@@ -44,8 +44,10 @@ Island medium screenshot](https://developer.apple.com/help/app-store-connect/ref
 and lists 1206×2622 as an accepted portrait size; no iPad screenshot is required
 for this iPhone-only build.
 
-iOS build `24` (`7161f53`) adds native iPad support. The existing public submission
-above has not been replaced. Before submitting the universal build for public review,
+iOS build `24` (`7161f53`) adds native iPad support and is on internal TestFlight.
+On 18 October, live read-back showed public version `1.0.0` selecting build `23` in
+`WAITING_FOR_REVIEW`; the build-12 details above describe the earlier submission.
+Before submitting the universal build for public review,
 add at least one actual 13-inch iPad screenshot at `2064×2752` or `2048×2732` (or the
 landscape equivalents), as required by [Apple's screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
 The widget-test previews are not store screenshots.

@@ -44,8 +44,9 @@ The IPA is `build/release-artifacts/ios/build24/kivilo.ipa`, SHA-256
 `ae9a28ca5646273b003c6939e9539ed9f330e1d83d07814d2d80a2ae69f59ca9`; matching dSYMs
 and upload evidence are archived beside it. Android build `24` has not been released.
 The existing build-23 stable patches and both minimum-build floors are unchanged.
-The current public Apple review submission has not been replaced. A future public
-submission of this universal build needs a 13-inch iPad screenshot.
+Public version `1.0.0` still selects build `23` in `WAITING_FOR_REVIEW`; build `24`
+is internal only. A future public submission of this universal build needs a 13-inch
+iPad screenshot.
 
 Backend verification at `85a17e4`: typecheck, lint, production build, 89 unit tests,
 120 integration tests, and 13 end-to-end tests against the production bundle. A corrupted
