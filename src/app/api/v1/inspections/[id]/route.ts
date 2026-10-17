@@ -22,6 +22,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       tenancy: { include: { property: true, landlord: true, tenant: true } },
       rooms: {
         orderBy: { order: 'asc' },
+        // The frozen check-in reference only `check-in-reference.ts` reads.
+        omit: { baseline: true },
         include: {
           captures: {
             orderBy: { createdAt: 'desc' },

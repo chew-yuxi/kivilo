@@ -17,6 +17,8 @@ export const reportInclude = {
   conductedBy: true,
   rooms: {
     orderBy: { order: 'asc' },
+    // The frozen check-in reference only `check-in-reference.ts` reads.
+    omit: { baseline: true },
     include: {
       items: { orderBy: { createdAt: 'asc' } },
       captures: { where: { kind: 'PHOTO', processedAt: { not: null } }, orderBy: { createdAt: 'asc' } },

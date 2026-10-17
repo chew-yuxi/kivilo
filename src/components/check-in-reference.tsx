@@ -50,7 +50,13 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
         // The server records its own failures, so what reaches here is no signal, which
         // is said on screen rather than reported as a bug; opening again retries.
         checkInPhotoLinks(roomId).then(
-          (fresh) => request === latest.current && setUrls(fresh),
+          (fresh) => {
+            if (request !== latest.current) return
+            // Nothing back for photos that exist means the check-in is out of reach
+            // now, say through a team change since the page rendered.
+            if (Object.keys(fresh).length === 0) setUnreachable(true)
+            else setUrls(fresh)
+          },
           () => request === latest.current && setUnreachable(true),
         )
       }}

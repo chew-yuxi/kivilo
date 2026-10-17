@@ -21,6 +21,8 @@ const reportInclude = {
   conductedBy: { include: { branding: true } },
   rooms: {
     orderBy: { order: 'asc' },
+    // The frozen check-in reference only `check-in-reference.ts` reads.
+    omit: { baseline: true },
     include: {
       items: { orderBy: { createdAt: 'asc' }, include: { evidence: { select: { captureId: true } } } },
       // The same filter as the shared page: a capture that landed after Send was never

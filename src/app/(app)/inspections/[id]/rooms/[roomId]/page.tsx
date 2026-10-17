@@ -19,6 +19,8 @@ export default async function RoomReviewPage({
 
   const room = await db.room.findFirst({
     where: { id: roomId, inspection: inspectionScope(agent.id) },
+    // Read through `checkInReference`, which checks the agent may see the check-in.
+    omit: { baseline: true },
     include: {
       items: { orderBy: { createdAt: 'asc' } },
       captures: { orderBy: { createdAt: 'asc' } },

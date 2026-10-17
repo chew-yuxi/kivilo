@@ -32,6 +32,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       tenancy: { include: { property: true, landlord: true, tenant: true, agent: true } },
       rooms: {
         orderBy: { order: 'asc' },
+        // The frozen check-in reference only `check-in-reference.ts` reads.
+        omit: { baseline: true },
         include: {
           captures: { orderBy: { createdAt: 'asc' } },
           _count: { select: { items: true } },
