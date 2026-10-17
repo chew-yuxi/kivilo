@@ -16255,10 +16255,10 @@ export namespace Prisma {
       processingAttemptId: string | null
       processingStartedAt: Date | null
       /**
-       * On a check-out room, the check-in room it was copied from, frozen when the
-       * check-out started (`RoomBaseline` in `src/lib/check-in-reference.ts`): its lines and
-       * the ids of its agreed photos. Null on check-ins, on rooms added during a check-out,
-       * and on check-outs started before it existed.
+       * On a check-out room, the room as the check-out began from it, frozen when it
+       * started (`RoomBaseline` in `src/lib/check-in-reference.ts`): its lines and the photos
+       * agreed of it, the check-in's and any acknowledged addendum's. Null on check-ins, on
+       * rooms added during a check-out, and on check-outs started before it existed.
        */
       baseline: Prisma.JsonValue | null
       createdAt: Date

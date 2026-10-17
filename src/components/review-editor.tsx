@@ -159,7 +159,8 @@ function ItemRow({
         // The condition, which is the comparison, and anything else only where this
         // row no longer says the same, each named, so "no serial" says the serial is new.
         <p className="px-1.5 text-xs text-gray-500 sm:col-span-12">
-          At check-in:{' '}
+          {/* An addendum's line is marked as the reference panel marks it. */}
+          {baseline.update ? 'At check-in, updated:' : 'At check-in:'}{' '}
           {[
             baseline.condition,
             differs(baseline.name, item.name) ? `name: ${baseline.name}` : null,

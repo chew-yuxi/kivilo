@@ -1055,19 +1055,23 @@ class _RoomScreenState extends State<RoomScreen> {
         .toList();
     // The condition, which is the comparison, and anything else only where this row
     // no longer says the same, each named, so "no serial" says the serial is new.
+    // An addendum's line is marked as the reference marks it.
     final atCheckIn = baseline == null
         ? null
         : [
-            baseline.condition,
-            if (_differs(baseline.name, item.name)) 'name: ${baseline.name}',
-            if (baseline.quantity != item.quantity) '×${baseline.quantity}',
-            if (_differs(baseline.identifier, item.identifier))
-              _quoted('serial', baseline.identifier),
-            if (_differs(baseline.meterReading, item.meterReading))
-              _quoted('reading', baseline.meterReading),
-            if (_differs(baseline.notes, item.notes))
-              _quoted('notes', baseline.notes),
-          ].join(' · ');
+            baseline.update ? 'At check-in, updated:' : 'At check-in:',
+            [
+              baseline.condition,
+              if (_differs(baseline.name, item.name)) 'name: ${baseline.name}',
+              if (baseline.quantity != item.quantity) '×${baseline.quantity}',
+              if (_differs(baseline.identifier, item.identifier))
+                _quoted('serial', baseline.identifier),
+              if (_differs(baseline.meterReading, item.meterReading))
+                _quoted('reading', baseline.meterReading),
+              if (_differs(baseline.notes, item.notes))
+                _quoted('notes', baseline.notes),
+            ].join(' · '),
+          ].join(' ');
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1129,10 +1133,7 @@ class _RoomScreenState extends State<RoomScreen> {
             ],
             if (atCheckIn != null) ...[
               const SizedBox(height: 9),
-              Text(
-                'At check-in: $atCheckIn',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(atCheckIn, style: Theme.of(context).textTheme.bodySmall),
             ],
             if (attached.isNotEmpty) ...[
               const SizedBox(height: 12),
