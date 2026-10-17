@@ -45,8 +45,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       findings: {
         orderBy: { createdAt: 'asc' },
         include: {
-          item: { include: { room: true } },
-          baselineItem: { include: { room: true } },
+          item: { include: { room: { select: { name: true } } } },
+          baselineItem: { include: { room: { select: { name: true } } } },
           maintenanceCase: { select: { id: true, title: true } },
         },
       },

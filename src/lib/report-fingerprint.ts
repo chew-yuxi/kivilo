@@ -18,6 +18,8 @@ export async function reportFingerprint(client: Prisma.TransactionClient, inspec
       conductedBy: true,
       rooms: {
         orderBy: [{ order: 'asc' }, { id: 'asc' }],
+        // The frozen check-in reference is no part of what is signed.
+        omit: { baseline: true },
         include: {
           items: {
             orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],

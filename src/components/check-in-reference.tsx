@@ -132,13 +132,13 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
                   {line.quantity > 1 && ` ×${line.quantity}`}
                 </span>
                 {line.update && <span className="ml-2 text-xs text-gray-500">Update</span>}
-                {line.identifier && (
+                {line.identifier?.trim() && (
                   <span className="block font-mono text-xs text-gray-500">{line.identifier}</span>
                 )}
-                {line.meterReading && (
+                {line.meterReading?.trim() && (
                   <span className="block font-mono text-xs text-gray-500">{line.meterReading}</span>
                 )}
-                {line.notes && <span className="block text-gray-600">{line.notes}</span>}
+                {line.notes?.trim() && <span className="block text-gray-600">{line.notes}</span>}
               </span>
             </li>
           ))}
