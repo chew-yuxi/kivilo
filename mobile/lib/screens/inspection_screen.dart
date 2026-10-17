@@ -10,6 +10,7 @@ import '../services/capture_queue.dart';
 import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import 'addenda_screen.dart';
@@ -351,7 +352,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Inspection')),
-    body: RefreshIndicator(
+    body: KiviloContent(maxWidth: 1120, child: RefreshIndicator(
       onRefresh: _refresh,
       child: FutureBuilder<InspectionDetail>(
         future: _future,
@@ -619,10 +620,25 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     ),
                   ),
                 ),
-              for (final room in inspection.rooms) ...[
-                _roomCard(room, inspection.isOpen),
-                const SizedBox(height: 10),
-              ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = constraints.maxWidth >= 760 ? 2 : 1;
+                  final width =
+                      (constraints.maxWidth - (columns - 1) * 12) / columns;
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 10,
+                    children: [
+                      for (final room in inspection.rooms)
+                        SizedBox(
+                          width: width,
+                          child: _roomCard(room, inspection.isOpen),
+                        ),
+                    ],
+                  );
+                },
+              ),
+              if (inspection.rooms.isNotEmpty) const SizedBox(height: 10),
               if (inspection.isOpen && inspection.allRoomsReviewed) ...[
                 const SizedBox(height: 8),
                 Card(
@@ -872,7 +888,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           );
         },
       ),
-    ),
+    )),
   );
 
   bool _costOpen(Map<String, dynamic> record) => const [

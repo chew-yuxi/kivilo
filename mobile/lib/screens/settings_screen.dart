@@ -12,6 +12,7 @@ import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
+import '../ui/kivilo_layout.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key, this.onStartCheckIn});
@@ -245,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Account')),
-    body: FutureBuilder<Map<String, dynamic>>(
+    body: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
       future: _request,
       builder: (context, snapshot) {
         if (!snapshot.hasData && !snapshot.hasError) {
@@ -445,7 +446,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         );
       },
-    ),
+    )),
   );
 
   Widget _linkCard({

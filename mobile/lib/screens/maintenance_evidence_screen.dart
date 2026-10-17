@@ -12,6 +12,7 @@ import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../services/uploader.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_layout.dart';
 
 class MaintenanceEvidenceScreen extends StatefulWidget {
   const MaintenanceEvidenceScreen({
@@ -154,7 +155,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
         widget.purpose == 'BEFORE' ? 'Before photos' : 'After photos',
       ),
     ),
-    body: ListView(
+    body: KiviloContent(maxWidth: 720, child: ListView(
       padding: const EdgeInsets.all(20),
       children: [
         Container(
@@ -211,6 +212,6 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
           Text(_message!, textAlign: TextAlign.center),
         ],
       ],
-    ),
+    )),
   );
 }

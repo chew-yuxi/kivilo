@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/saved_signature.dart';
+import '../ui/kivilo_layout.dart';
 
 class SignatureScreen extends StatefulWidget {
   /// The agent's phone, handed to the landlord or tenant at handover.
@@ -152,7 +153,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text('${widget.role} signature')),
-    body: ListView(
+    body: KiviloContent(maxWidth: 720, child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(widget.name, style: Theme.of(context).textTheme.titleLarge),
@@ -171,18 +172,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
             child: Center(child: CircularProgressIndicator()),
           )
         else if (_saved case final saved?) ...[
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              width: 320,
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey),
-              ),
-              child: Image.memory(saved, fit: BoxFit.contain),
-            ),
-          ),
+          _SignatureFrame(child: Image.memory(saved, fit: BoxFit.contain)),
           const SizedBox(height: 16),
           if (_error != null)
             Text(_error!, style: const TextStyle(color: Colors.red)),
@@ -200,44 +190,35 @@ class _SignatureScreenState extends State<SignatureScreen> {
             child: const Text('Draw a new one'),
           ),
         ] else ...[
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              width: 320,
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey),
-              ),
-              child: RawGestureDetector(
+          _SignatureFrame(
+            child: RawGestureDetector(
+              behavior: HitTestBehavior.opaque,
+              gestures: {
+                EagerGestureRecognizer:
+                    GestureRecognizerFactoryWithHandlers<
+                      EagerGestureRecognizer
+                    >(() => EagerGestureRecognizer(), (_) {}),
+              },
+              child: Listener(
                 behavior: HitTestBehavior.opaque,
-                gestures: {
-                  EagerGestureRecognizer:
-                      GestureRecognizerFactoryWithHandlers<
-                        EagerGestureRecognizer
-                      >(() => EagerGestureRecognizer(), (_) {}),
+                onPointerDown: (event) {
+                  if (_activePointer != null) return;
+                  _activePointer = event.pointer;
+                  setState(() => _strokes.add([event.localPosition]));
                 },
-                child: Listener(
-                  behavior: HitTestBehavior.opaque,
-                  onPointerDown: (event) {
-                    if (_activePointer != null) return;
-                    _activePointer = event.pointer;
-                    setState(() => _strokes.add([event.localPosition]));
-                  },
-                  onPointerMove: (event) {
-                    if (_activePointer != event.pointer) return;
-                    setState(() => _strokes.last.add(event.localPosition));
-                  },
-                  onPointerUp: (event) {
-                    if (_activePointer == event.pointer) _activePointer = null;
-                  },
-                  onPointerCancel: (event) {
-                    if (_activePointer == event.pointer) _activePointer = null;
-                  },
-                  child: CustomPaint(
-                    painter: _SignaturePainter(_strokes),
-                    size: const Size(320, 180),
-                  ),
+                onPointerMove: (event) {
+                  if (_activePointer != event.pointer) return;
+                  setState(() => _strokes.last.add(event.localPosition));
+                },
+                onPointerUp: (event) {
+                  if (_activePointer == event.pointer) _activePointer = null;
+                },
+                onPointerCancel: (event) {
+                  if (_activePointer == event.pointer) _activePointer = null;
+                },
+                child: CustomPaint(
+                  painter: _SignaturePainter(_strokes),
+                  size: const Size(320, 180),
                 ),
               ),
             ),
@@ -272,6 +253,40 @@ class _SignatureScreenState extends State<SignatureScreen> {
           ),
         ],
       ],
+    )),
+  );
+}
+
+/// Scale the whole pad, including hit testing, so strokes keep their original
+/// coordinates when the window is resized and when the 640×360 PNG is rendered.
+class _SignatureFrame extends StatelessWidget {
+  const _SignatureFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.center,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.sizeOf(context).shortestSide >= kiviloTabletBreakpoint
+            ? 560
+            : 320,
+      ),
+      child: AspectRatio(
+        aspectRatio: 320 / 180,
+        child: FittedBox(
+          child: Container(
+            width: 320,
+            height: 180,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.grey),
+            ),
+            child: child,
+          ),
+        ),
+      ),
     ),
   );
 }

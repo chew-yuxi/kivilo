@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
@@ -199,7 +200,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(widget.tenancy.property)),
-    body: FutureBuilder<_TenancyData>(
+    body: KiviloContent(maxWidth: 840, child: FutureBuilder<_TenancyData>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -351,7 +352,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
           ),
         );
       },
-    ),
+    )),
   );
 
   Widget _repairTerms(TenancyDetail terms) => Card(

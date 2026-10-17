@@ -4,6 +4,7 @@ import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'inspections_screen.dart';
@@ -15,14 +16,15 @@ import 'settings_screen.dart';
 import 'tenancy_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.api});
+  final Api? api;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _future = _load();
   int _tab = 0;
@@ -87,198 +89,265 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) await _refresh();
   }
 
+  void _selectTab(int index) {
+    if (index == _tab) return;
+    setState(() => _tab = index);
+    if (index == 0) _refresh();
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: _tab == 0
-        ? AppBar(
-            centerTitle: false,
-            titleSpacing: 16,
-            title: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [KiviloMark(), SizedBox(width: 10), Text('Kivilo')],
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final tablet = constraints.maxWidth >= kiviloTabletBreakpoint;
+      return Scaffold(
+        appBar: _tab == 0
+            ? AppBar(
+                centerTitle: false,
+                titleSpacing: 16,
+                title: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [KiviloMark(), SizedBox(width: 10), Text('Kivilo')],
+                ),
+                actions: [
+                  IconButton(
+                    tooltip: 'Notifications',
+                    icon: const Icon(Icons.notifications_none_outlined),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Urgent services',
+                    icon: const Icon(Icons.home_repair_service_outlined),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ServiceDirectoryScreen(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              )
+            : null,
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Keep the content in the same slot when an iPad window is resized.
+            SafeArea(
+              top: _tab != 0,
+              child: tablet
+                  ? NavigationRail(
+                      selectedIndex: _tab,
+                      onDestinationSelected: _selectTab,
+                      labelType: NavigationRailLabelType.all,
+                      destinations: [
+                        for (final tab in _tabs)
+                          switch (tab) {
+                            'inspections' => const NavigationRailDestination(
+                              icon: Icon(Icons.fact_check_outlined),
+                              selectedIcon: Icon(Icons.fact_check),
+                              label: Text('Inspections'),
+                            ),
+                            'account' => const NavigationRailDestination(
+                              icon: Icon(Icons.person_outline),
+                              selectedIcon: Icon(Icons.person),
+                              label: Text('Account'),
+                            ),
+                            _ => const NavigationRailDestination(
+                              icon: Icon(Icons.home_outlined),
+                              selectedIcon: Icon(Icons.home),
+                              label: Text('Home'),
+                            ),
+                          },
+                      ],
+                    )
+                  : const SizedBox.shrink(),
             ),
-            actions: [
-              IconButton(
-                tooltip: 'Notifications',
-                icon: const Icon(Icons.notifications_none_outlined),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const NotificationsScreen(),
-                  ),
+            Expanded(
+              child: switch (_tabs[_tab]) {
+                'inspections' => InspectionsScreen(api: widget.api),
+                'account' => SettingsScreen(
+                  onStartCheckIn: _partyOnly ? _create : null,
                 ),
+                _ => _overview(),
+              },
+            ),
+          ],
+        ),
+        bottomNavigationBar: tablet
+            ? null
+            : BottomNavigationBar(
+                currentIndex: _tab,
+                onTap: _selectTab,
+                items: [
+                  for (final tab in _tabs)
+                    switch (tab) {
+                      'inspections' => const BottomNavigationBarItem(
+                        icon: Icon(Icons.fact_check_outlined),
+                        activeIcon: Icon(Icons.fact_check),
+                        label: 'Inspections',
+                      ),
+                      'account' => const BottomNavigationBarItem(
+                        icon: Icon(Icons.person_outline),
+                        activeIcon: Icon(Icons.person),
+                        label: 'Account',
+                      ),
+                      _ => const BottomNavigationBarItem(
+                        icon: Icon(Icons.home_outlined),
+                        activeIcon: Icon(Icons.home),
+                        label: 'Home',
+                      ),
+                    },
+                ],
               ),
-              IconButton(
-                tooltip: 'Urgent services',
-                icon: const Icon(Icons.home_repair_service_outlined),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const ServiceDirectoryScreen(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-          )
-        : null,
-    body: switch (_tabs[_tab]) {
-      'inspections' => const InspectionsScreen(),
-      'account' => SettingsScreen(onStartCheckIn: _partyOnly ? _create : null),
-      _ => _overview(),
+      );
     },
-    bottomNavigationBar: BottomNavigationBar(
-      currentIndex: _tab,
-      onTap: (index) {
-        if (index == _tab) return;
-        setState(() => _tab = index);
-        if (index == 0) _refresh();
-      },
-      items: [
-        for (final tab in _tabs)
-          switch (tab) {
-            'inspections' => const BottomNavigationBarItem(
-              icon: Icon(Icons.fact_check_outlined),
-              activeIcon: Icon(Icons.fact_check),
-              label: 'Inspections',
-            ),
-            'account' => const BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Account',
-            ),
-            _ => const BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-          },
-      ],
-    ),
   );
 
-  Widget _overview() => RefreshIndicator(
-    onRefresh: _refresh,
-    child:
-        FutureBuilder<
-          (UserProfile, List<TenancySummary>, List<InspectionSummary>)
-        >(
-          future: _future,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData && !snapshot.hasError) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  const SizedBox(height: 80),
-                  const Icon(
-                    Icons.cloud_off_outlined,
-                    size: 40,
-                    color: KiviloColors.muted,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Could not load your workspace',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    plainError(snapshot.error!),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: _refresh,
-                    child: const Text('Try again'),
-                  ),
-                ],
-              );
-            }
-
-            final (profile, tenancies, inspections) = snapshot.data!;
-            final active = inspections.where(
-              (item) => item.status != 'COMPLETED',
-            );
-            final current = active.isEmpty ? null : active.first;
-            final firstName = profile.name.trim().split(RegExp(r'\s+')).first;
-            final hour = DateTime.now().hour;
-            final greeting = hour < 12
-                ? 'Good morning'
-                : hour < 18
-                ? 'Good afternoon'
-                : 'Good evening';
-
-            if (_partyOnly) {
-              return ListView(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-                children: [
-                  Text(
-                    '$greeting, $firstName',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Your reports, repairs and history, in one place.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  for (final tenancy in tenancies) ...[
-                    _partyCard(tenancy),
-                    const SizedBox(height: 12),
-                  ],
-                ],
-              );
-            }
-
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-              children: [
-                Text(
-                  '$greeting, $firstName',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Your handovers, all in one place.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                _workCard(current),
-                const SizedBox(height: 12),
-                _quickAction(
-                  icon: Icons.add_home_work_outlined,
-                  title: 'New check-in',
-                  subtitle: 'Start a room-by-room property report',
-                  onTap: _create,
-                ),
-                const SizedBox(height: 28),
-                KiviloSectionHeading(
-                  title: 'Your properties',
-                  subtitle: tenancies.isEmpty
-                      ? null
-                      : '${tenancies.length} active ${tenancies.length == 1 ? 'tenancy' : 'tenancies'}',
-                ),
-                const SizedBox(height: 12),
-                if (tenancies.isEmpty)
-                  _emptyProperties()
-                else
-                  for (final tenancy in tenancies) ...[
-                    _propertyCard(
-                      tenancy,
-                      inspections
-                          .where(
-                            (inspection) => inspection.tenancyId == tenancy.id,
-                          )
-                          .toList(),
+  Widget _overview() => KiviloContent(
+    maxWidth: 1200,
+    child: RefreshIndicator(
+      onRefresh: _refresh,
+      child:
+          FutureBuilder<
+            (UserProfile, List<TenancySummary>, List<InspectionSummary>)
+          >(
+            future: _future,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData && !snapshot.hasError) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    const SizedBox(height: 80),
+                    const Icon(
+                      Icons.cloud_off_outlined,
+                      size: 40,
+                      color: KiviloColors.muted,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Could not load your workspace',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      plainError(snapshot.error!),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: _refresh,
+                      child: const Text('Try again'),
+                    ),
                   ],
-              ],
-            );
-          },
-        ),
+                );
+              }
+
+              final (profile, tenancies, inspections) = snapshot.data!;
+              final active = inspections.where(
+                (item) => item.status != 'COMPLETED',
+              );
+              final current = active.isEmpty ? null : active.first;
+              final firstName = profile.name.trim().split(RegExp(r'\s+')).first;
+              final hour = DateTime.now().hour;
+              final greeting = hour < 12
+                  ? 'Good morning'
+                  : hour < 18
+                  ? 'Good afternoon'
+                  : 'Good evening';
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final available = constraints.maxWidth - 32;
+                  final columns = available >= 680 ? 2 : 1;
+                  final cardWidth = (available - (columns - 1) * 16) / columns;
+                  final workCard = _workCard(current);
+                  final newCheckIn = _quickAction(
+                    icon: Icons.add_home_work_outlined,
+                    title: 'New check-in',
+                    subtitle: 'Start a room-by-room property report',
+                    onTap: _create,
+                  );
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+                    children: [
+                      Text(
+                        '$greeting, $firstName',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _partyOnly
+                            ? 'Your reports, repairs and history, in one place.'
+                            : 'Your handovers, all in one place.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 24),
+                      if (!_partyOnly) ...[
+                        if (columns == 2)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: workCard),
+                              const SizedBox(width: 16),
+                              Expanded(child: newCheckIn),
+                            ],
+                          )
+                        else ...[
+                          workCard,
+                          const SizedBox(height: 12),
+                          newCheckIn,
+                        ],
+                        const SizedBox(height: 28),
+                        KiviloSectionHeading(
+                          title: 'Your properties',
+                          subtitle: tenancies.isEmpty
+                              ? null
+                              : '${tenancies.length} active ${tenancies.length == 1 ? 'tenancy' : 'tenancies'}',
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      if (tenancies.isEmpty && !_partyOnly)
+                        _emptyProperties()
+                      else
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 12,
+                          children: [
+                            for (final tenancy in tenancies)
+                              SizedBox(
+                                width: cardWidth,
+                                child: _partyOnly
+                                    ? _partyCard(tenancy)
+                                    : _propertyCard(
+                                        tenancy,
+                                        inspections
+                                            .where(
+                                              (inspection) =>
+                                                  inspection.tenancyId ==
+                                                  tenancy.id,
+                                            )
+                                            .toList(),
+                                      ),
+                              ),
+                          ],
+                        ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+    ),
   );
 
   Widget _workCard(InspectionSummary? current) => Card(

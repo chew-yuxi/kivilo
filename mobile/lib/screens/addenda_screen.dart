@@ -11,6 +11,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'addendum_entry_screen.dart';
 import 'report_screen.dart';
+import '../ui/kivilo_layout.dart';
 
 /// Updates since signing, on a countersigned check-in: what has been published and who
 /// has acknowledged it, the draft the agent is writing, and resolved repairs that can
@@ -226,7 +227,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Updates since signing')),
-    body: FutureBuilder<AddendaWorkspace>(
+    body: KiviloContent(maxWidth: 840, child: FutureBuilder<AddendaWorkspace>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -246,7 +247,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
         }
         return RefreshIndicator(onRefresh: _refresh, child: _body(workspace));
       },
-    ),
+    )),
   );
 
   Widget _body(AddendaWorkspace workspace) {

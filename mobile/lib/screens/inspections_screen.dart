@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'new_inspection_screen.dart';
 import 'renewal_reminders.dart';
 
 class InspectionsScreen extends StatefulWidget {
-  const InspectionsScreen({super.key});
+  const InspectionsScreen({super.key, this.api});
+  final Api? api;
 
   @override
   State<InspectionsScreen> createState() => _InspectionsScreenState();
 }
 
 class _InspectionsScreenState extends State<InspectionsScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late Future<List<InspectionSummary>> _future = _api.inspections();
   int _renewalsVersion = 0;
 
@@ -57,106 +59,132 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       icon: const Icon(Icons.add),
       label: const Text('New check-in'),
     ),
-    body: RefreshIndicator(
-      onRefresh: _refresh,
-      child: FutureBuilder<List<InspectionSummary>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData && !snapshot.hasError) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _message(
-              icon: Icons.cloud_off_outlined,
-              title: 'Could not load inspections',
-              body: plainError(snapshot.error!),
-              action: OutlinedButton(
-                onPressed: _refresh,
-                child: const Text('Try again'),
-              ),
-            );
-          }
+    body: KiviloContent(
+      maxWidth: 1200,
+      child: RefreshIndicator(
+        onRefresh: _refresh,
+        child: FutureBuilder<List<InspectionSummary>>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData && !snapshot.hasError) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return _message(
+                icon: Icons.cloud_off_outlined,
+                title: 'Could not load inspections',
+                body: plainError(snapshot.error!),
+                action: OutlinedButton(
+                  onPressed: _refresh,
+                  child: const Text('Try again'),
+                ),
+              );
+            }
 
-          final inspections = snapshot.data!;
-          final active = inspections
-              .where((inspection) => inspection.status != 'COMPLETED')
-              .toList();
-          final completed = inspections
-              .where((inspection) => inspection.status == 'COMPLETED')
-              .toList();
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 112),
-            children: [
-              Text(
-                'Property handovers',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Capture each room, write its inventory, then sign.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              RenewalReminders(
-                key: ValueKey(_renewalsVersion),
-                onRenewed: _refresh,
-              ),
-              if (_api.offlineCopy) ...[
-                const SizedBox(height: 18),
-                Card(
-                  color: KiviloColors.amberSoft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.cloud_off_outlined,
-                          color: KiviloColors.amber,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Offline. Showing what was last loaded; you can keep taking photos.',
-                            style: Theme.of(context).textTheme.bodyMedium,
+            final inspections = snapshot.data!;
+            final active = inspections
+                .where((inspection) => inspection.status != 'COMPLETED')
+                .toList();
+            final completed = inspections
+                .where((inspection) => inspection.status == 'COMPLETED')
+                .toList();
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final available = constraints.maxWidth - 32;
+                final columns = available >= 680 ? 2 : 1;
+                final cardWidth = (available - (columns - 1) * 16) / columns;
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 112),
+                  children: [
+                    Text(
+                      'Property handovers',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Capture each room, write its inventory, then sign.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    RenewalReminders(
+                      key: ValueKey(_renewalsVersion),
+                      api: _api,
+                      onRenewed: _refresh,
+                    ),
+                    if (_api.offlineCopy) ...[
+                      const SizedBox(height: 18),
+                      Card(
+                        color: KiviloColors.amberSoft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.cloud_off_outlined,
+                                color: KiviloColors.amber,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Offline. Showing what was last loaded; you can keep taking photos.',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                    ],
+                    const SizedBox(height: 28),
+                    if (inspections.isEmpty)
+                      _messageCard()
+                    else ...[
+                      if (active.isNotEmpty) ...[
+                        KiviloSectionHeading(
+                          title: 'In progress',
+                          subtitle:
+                              '${active.length} ${active.length == 1 ? 'handover' : 'handovers'}',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 12,
+                          children: [
+                            for (final inspection in active)
+                              SizedBox(
+                                width: cardWidth,
+                                child: _inspectionCard(inspection),
+                              ),
+                          ],
+                        ),
                       ],
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 28),
-              if (inspections.isEmpty)
-                _messageCard()
-              else ...[
-                if (active.isNotEmpty) ...[
-                  KiviloSectionHeading(
-                    title: 'In progress',
-                    subtitle:
-                        '${active.length} ${active.length == 1 ? 'handover' : 'handovers'}',
-                  ),
-                  const SizedBox(height: 12),
-                  for (final inspection in active) ...[
-                    _inspectionCard(inspection),
-                    const SizedBox(height: 10),
+                      if (completed.isNotEmpty) ...[
+                        if (active.isNotEmpty) const SizedBox(height: 18),
+                        KiviloSectionHeading(
+                          title: 'Completed',
+                          subtitle:
+                              '${completed.length} signed ${completed.length == 1 ? 'report' : 'reports'}',
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 12,
+                          children: [
+                            for (final inspection in completed)
+                              SizedBox(
+                                width: cardWidth,
+                                child: _inspectionCard(inspection),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ],
-                ],
-                if (completed.isNotEmpty) ...[
-                  if (active.isNotEmpty) const SizedBox(height: 18),
-                  KiviloSectionHeading(
-                    title: 'Completed',
-                    subtitle:
-                        '${completed.length} signed ${completed.length == 1 ? 'report' : 'reports'}',
-                  ),
-                  const SizedBox(height: 12),
-                  for (final inspection in completed) ...[
-                    _inspectionCard(inspection),
-                    const SizedBox(height: 10),
-                  ],
-                ],
-              ],
-            ],
-          );
-        },
+                );
+              },
+            );
+          },
+        ),
       ),
     ),
   );

@@ -7,6 +7,7 @@ import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/read_cache.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 
 class NewMaintenanceCaseScreen extends StatefulWidget {
   const NewMaintenanceCaseScreen({
@@ -137,7 +138,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Report a problem')),
-    body: ListView(
+    body: KiviloContent(maxWidth: 720, child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         KiviloSelectField<String?>(
@@ -240,6 +241,6 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
           child: Text(_saving ? 'Saving…' : 'Submit report'),
         ),
       ],
-    ),
+    )),
   );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api.dart';
+import '../ui/kivilo_layout.dart';
 
 class RenewalScreen extends StatefulWidget {
   const RenewalScreen({super.key, required this.tenancyId});
@@ -98,7 +99,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Renew tenancy')),
-    body: FutureBuilder<Map<String, dynamic>>(
+    body: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -152,6 +153,6 @@ class _RenewalScreenState extends State<RenewalScreen> {
           ),
         );
       },
-    ),
+    )),
   );
 }

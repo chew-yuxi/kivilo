@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 
 // Placeholder partners until real ones are signed. They carry no phone number on
 // purpose: a made-up number could ring a stranger.
@@ -38,7 +39,7 @@ class ServiceDirectoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Urgent services')),
-    body: ListView(
+    body: KiviloContent(maxWidth: 840, child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Card(
@@ -90,6 +91,6 @@ class ServiceDirectoryScreen extends StatelessWidget {
           ),
         ],
       ],
-    ),
+    )),
   );
 }

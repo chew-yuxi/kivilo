@@ -7,6 +7,7 @@ import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
+import '../ui/kivilo_layout.dart';
 
 /// Everything settled at one address, newest first. The server decides which tenancies
 /// this viewer may see; the screen only lays them out.
@@ -50,7 +51,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Timeline')),
-    body: FutureBuilder<PropertyTimeline>(
+    body: KiviloContent(maxWidth: 840, child: FutureBuilder<PropertyTimeline>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -127,7 +128,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
           ),
         );
       },
-    ),
+    )),
   );
 }
 

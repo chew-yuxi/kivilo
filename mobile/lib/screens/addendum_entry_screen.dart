@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/addenda.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_layout.dart';
 
 const _categories = [
   KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
@@ -107,7 +108,7 @@ class _AddendumEntryScreenState extends State<AddendumEntryScreen> {
       appBar: AppBar(
         title: Text(widget.entry == null ? 'Add a change' : 'Edit change'),
       ),
-      body: ListView(
+      body: KiviloContent(maxWidth: 720, child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
         children: [
           KiviloSelectField<String>(
@@ -204,7 +205,7 @@ class _AddendumEntryScreenState extends State<AddendumEntryScreen> {
             child: Text(widget.entry == null ? 'Add change' : 'Save change'),
           ),
         ],
-      ),
+      )),
     );
   }
 }

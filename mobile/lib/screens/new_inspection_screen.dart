@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 
 class NewInspectionScreen extends StatefulWidget {
@@ -148,7 +149,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('New check-in')),
-    body: Form(
+    body: KiviloContent(maxWidth: 720, child: Form(
       key: _form,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
@@ -319,8 +320,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             ),
         ],
       ),
-    ),
-    bottomNavigationBar: AnimatedPadding(
+    )),
+    bottomNavigationBar: KiviloContent(maxWidth: 720, child: AnimatedPadding(
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
@@ -333,7 +334,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
         ),
       ),
-    ),
+    )),
   );
 
   Widget _dateCard(String label, DateTime date, VoidCallback onTap) => Card(

@@ -10,6 +10,7 @@ import 'addenda_screen.dart';
 import 'maintenance_evidence_screen.dart';
 import 'responsibility_card.dart';
 import 'video_screen.dart';
+import '../ui/kivilo_layout.dart';
 
 class MaintenanceCaseScreen extends StatefulWidget {
   const MaintenanceCaseScreen({super.key, required this.caseId, this.api});
@@ -216,7 +217,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Maintenance')),
-    body: FutureBuilder<MaintenanceCaseDetail>(
+    body: KiviloContent(maxWidth: 840, child: FutureBuilder<MaintenanceCaseDetail>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -341,7 +342,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
           ),
         );
       },
-    ),
+    )),
   );
 
   /// The one thing to do next on the repair itself, for whoever has to do it.

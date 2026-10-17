@@ -15,6 +15,7 @@ import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../services/uploader.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'photo_mark_screen.dart';
 import 'video_screen.dart';
@@ -733,6 +734,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
                       File('${_root!.path}/${capture.relativePath}'),
                       width: 56,
                       height: 56,
+                      cacheWidth: (56 * MediaQuery.devicePixelRatioOf(context))
+                          .ceil(),
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
                     ),
@@ -847,164 +850,186 @@ class _CaptureScreenState extends State<CaptureScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: [
-          Text(
-            'Capture this room',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Narrate a walkthrough, then photograph labels and details.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
-          if (_offline)
-            _notice(
-              Icons.cloud_off_outlined,
-              'Offline. Photos and videos stay on this phone and upload when you have signal.',
-              KiviloColors.amberSoft,
-              KiviloColors.amber,
-            ),
-          if (_error != null)
-            _notice(
-              Icons.error_outline,
-              _error!,
-              KiviloColors.redSoft,
-              KiviloColors.red,
-              onTap: () => setState(() => _error = null),
-            ),
-          if (_unresolved.isNotEmpty)
-            _notice(
-              Icons.warning_amber_outlined,
-              '${_unresolved.length == 1 ? 'A photo or video was' : '${_unresolved.length} photos or videos were'} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.',
-              KiviloColors.amberSoft,
-              KiviloColors.amber,
-            ),
-          if (roomEdits.isNotEmpty)
-            _notice(
-              Icons.sync,
-              '${roomEdits.length == 1 ? 'A change is' : '${roomEdits.length} changes are'} waiting to upload. Tap to try again.',
-              KiviloColors.amberSoft,
-              KiviloColors.amber,
-              onTap: () => unawaited(_drain()),
-            ),
-          KiviloSegmentedControl<bool>(
-            options: const [
-              KiviloSegmentOption(
-                value: false,
-                label: 'Photos',
-                icon: Icons.photo_camera,
+      body: KiviloContent(
+        maxWidth: 1200,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 840;
+            final controls = <Widget>[
+              Text(
+                'Capture this room',
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              KiviloSegmentOption(
-                value: true,
-                label: 'Video',
-                icon: Icons.videocam,
+              const SizedBox(height: 6),
+              Text(
+                'Narrate a walkthrough, then photograph labels and details.',
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-            ],
-            value: _videoMode,
-            onChanged: (selected) => unawaited(_switchMode(selected!)),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _busy || _leaving || _finishing || _room == null
-                ? null
-                : _openSystemCamera,
-            icon: Icon(_videoMode ? Icons.videocam : Icons.photo_camera),
-            label: Text(
-              _videoMode
-                  ? 'Record video'
-                  : hasMedia
-                  ? 'Take another photo'
-                  : 'Take a photo',
-            ),
-          ),
-          const SizedBox(height: 10),
-          OutlinedButton.icon(
-            onPressed: _busy || _leaving || _finishing || _room == null
-                ? null
-                : _chooseFromLibrary,
-            icon: const Icon(Icons.add_photo_alternate_outlined),
-            label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
-          ),
-          const SizedBox(height: 24),
-          const KiviloSectionHeading(
-            title: 'Media',
-            subtitle: 'Saved on your phone first, then added to the report',
-          ),
-          const SizedBox(height: 12),
-          for (final capture in (pending ?? const <PendingCapture>[]).reversed)
-            _pendingCaptureCard(capture),
-          for (final capture
-              in (_room?.captures ?? const <EvidenceCapture>[]).reversed)
-            Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
-                leading: capture.kind == 'PHOTO'
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          capture.url,
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => const Icon(Icons.image),
-                        ),
-                      )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: VideoPoster(
-                            posterUrl: capture.posterUrl,
-                            iconSize: 24,
+              const SizedBox(height: 20),
+              if (_offline)
+                _notice(
+                  Icons.cloud_off_outlined,
+                  'Offline. Photos and videos stay on this phone and upload when you have signal.',
+                  KiviloColors.amberSoft,
+                  KiviloColors.amber,
+                ),
+              if (_error != null)
+                _notice(
+                  Icons.error_outline,
+                  _error!,
+                  KiviloColors.redSoft,
+                  KiviloColors.red,
+                  onTap: () => setState(() => _error = null),
+                ),
+              if (_unresolved.isNotEmpty)
+                _notice(
+                  Icons.warning_amber_outlined,
+                  '${_unresolved.length == 1 ? 'A photo or video was' : '${_unresolved.length} photos or videos were'} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.',
+                  KiviloColors.amberSoft,
+                  KiviloColors.amber,
+                ),
+              if (roomEdits.isNotEmpty)
+                _notice(
+                  Icons.sync,
+                  '${roomEdits.length == 1 ? 'A change is' : '${roomEdits.length} changes are'} waiting to upload. Tap to try again.',
+                  KiviloColors.amberSoft,
+                  KiviloColors.amber,
+                  onTap: () => unawaited(_drain()),
+                ),
+              KiviloSegmentedControl<bool>(
+                options: const [
+                  KiviloSegmentOption(
+                    value: false,
+                    label: 'Photos',
+                    icon: Icons.photo_camera,
+                  ),
+                  KiviloSegmentOption(
+                    value: true,
+                    label: 'Video',
+                    icon: Icons.videocam,
+                  ),
+                ],
+                value: _videoMode,
+                onChanged: (selected) => unawaited(_switchMode(selected!)),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _busy || _leaving || _finishing || _room == null
+                    ? null
+                    : _openSystemCamera,
+                icon: Icon(_videoMode ? Icons.videocam : Icons.photo_camera),
+                label: Text(
+                  _videoMode
+                      ? 'Record video'
+                      : hasMedia
+                      ? 'Take another photo'
+                      : 'Take a photo',
+                ),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: _busy || _leaving || _finishing || _room == null
+                    ? null
+                    : _chooseFromLibrary,
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+                label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
+              ),
+            ];
+            final queued = (pending ?? const <PendingCapture>[]).reversed
+                .toList();
+            final uploaded = (_room?.captures ?? const <EvidenceCapture>[])
+                .reversed
+                .toList();
+            final media = <Widget>[
+              const KiviloSectionHeading(
+                title: 'Media',
+                subtitle: 'Saved on your phone first, then added to the report',
+              ),
+              const SizedBox(height: 12),
+              if (wide)
+                SizedBox(
+                  height: (constraints.maxHeight - 100).clamp(360, 600),
+                  child: ListView.builder(
+                    key: PageStorageKey('capture-media-${widget.roomId}'),
+                    primary: false,
+                    itemCount: queued.length + uploaded.length,
+                    itemBuilder: (_, index) => index < queued.length
+                        ? _pendingCaptureCard(queued[index])
+                        : _serverCaptureCard(
+                            uploaded[index - queued.length],
+                            wide: true,
                           ),
+                  ),
+                )
+              else ...[
+                for (final capture in queued) _pendingCaptureCard(capture),
+                for (final capture in uploaded)
+                  _serverCaptureCard(capture, wide: false),
+              ],
+            ];
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              children: [
+                if (wide)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 320,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: controls,
                         ),
                       ),
-                title: Text(
-                  capture.note?.isNotEmpty == true
-                      ? capture.note!
-                      : (capture.kind == 'PHOTO' ? 'Photo' : 'Video'),
-                ),
-                subtitle: const Text(
-                  'In the report',
-                  style: TextStyle(color: KiviloColors.green),
-                ),
-                trailing: IconButton(
-                  onPressed: () => unawaited(_openServerActions(capture)),
-                  icon: const Icon(Icons.more_horiz),
-                  tooltip: 'Media actions',
-                ),
-              ),
-            ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (waiting) ...[
-                const Text(
-                  'Review opens once this room’s photos, videos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: media,
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  ...controls,
+                  const SizedBox(height: 24),
+                  ...media,
+                ],
               ],
-              OutlinedButton.icon(
-                onPressed:
-                    _room == null || _busy || _leaving || _finishing || waiting
-                    ? null
-                    : _finishRoom,
-                icon: const Icon(Icons.check_rounded),
-                label: const Text('Review room'),
-              ),
-            ],
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: KiviloContent(
+        maxWidth: 720,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (waiting) ...[
+                  const Text(
+                    'Review opens once this room’s photos, videos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                OutlinedButton.icon(
+                  onPressed:
+                      _room == null ||
+                          _busy ||
+                          _leaving ||
+                          _finishing ||
+                          waiting
+                      ? null
+                      : _finishRoom,
+                  icon: const Icon(Icons.check_rounded),
+                  label: const Text('Review room'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1015,6 +1040,74 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (!didPop) unawaited(_leaveAfterSaving());
       },
       child: scaffold,
+    );
+  }
+
+  Widget _serverCaptureCard(EvidenceCapture capture, {required bool wide}) {
+    final preview = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: wide ? 112 : 56,
+        height: wide ? 84 : 56,
+        child: capture.kind == 'PHOTO'
+            ? Image.network(
+                capture.url,
+                cacheWidth:
+                    ((wide ? 112 : 56) * MediaQuery.devicePixelRatioOf(context))
+                        .ceil(),
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const Icon(Icons.image),
+              )
+            : VideoPoster(posterUrl: capture.posterUrl, iconSize: 24),
+      ),
+    );
+    final title = Text(
+      capture.note?.isNotEmpty == true
+          ? capture.note!
+          : (capture.kind == 'PHOTO' ? 'Photo' : 'Video'),
+    );
+    const status = Text(
+      'In the report',
+      style: TextStyle(color: KiviloColors.green),
+    );
+    final actions = IconButton(
+      onPressed: () => unawaited(_openServerActions(capture)),
+      icon: const Icon(Icons.more_horiz),
+      tooltip: 'Media actions',
+    );
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: wide
+          ? Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+              child: Row(
+                children: [
+                  preview,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DefaultTextStyle.merge(
+                          style: Theme.of(context).textTheme.titleMedium,
+                          child: title,
+                        ),
+                        const SizedBox(height: 6),
+                        status,
+                      ],
+                    ),
+                  ),
+                  actions,
+                ],
+              ),
+            )
+          : ListTile(
+              contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
+              leading: preview,
+              title: title,
+              subtitle: status,
+              trailing: actions,
+            ),
     );
   }
 

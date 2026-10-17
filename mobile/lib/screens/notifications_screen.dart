@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/notification_route.dart';
+import '../ui/kivilo_layout.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -32,7 +33,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Notifications')),
-    body: FutureBuilder<List<NotificationModel>>(
+    body: KiviloContent(maxWidth: 840, child: FutureBuilder<List<NotificationModel>>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -58,6 +59,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           },
         );
       },
-    ),
+    )),
   );
 }

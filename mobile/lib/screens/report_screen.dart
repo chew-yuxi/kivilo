@@ -5,6 +5,7 @@ import '../models/report.dart';
 import '../services/api.dart';
 import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'photo_mark_screen.dart';
@@ -131,7 +132,7 @@ class _ReportScreenState extends State<ReportScreen> {
                 : 'Check-in report',
           ),
         ),
-        body: snapshot.hasError
+        body: KiviloContent(maxWidth: 960, child: snapshot.hasError
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -140,9 +141,9 @@ class _ReportScreenState extends State<ReportScreen> {
               )
             : report == null
             ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(onRefresh: _refresh, child: _body(report)),
+            : RefreshIndicator(onRefresh: _refresh, child: _body(report))),
         bottomNavigationBar: report != null && report.signAs != null
-            ? SafeArea(
+            ? KiviloContent(maxWidth: 720, child: SafeArea(
                 minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: FilledButton(
                   onPressed: () => _sign(report),
@@ -152,7 +153,7 @@ class _ReportScreenState extends State<ReportScreen> {
                         : 'Sign as tenant',
                   ),
                 ),
-              )
+              ))
             : null,
       );
     },
