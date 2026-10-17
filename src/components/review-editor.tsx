@@ -148,17 +148,17 @@ function ItemRow({
       </div>
 
       {baseline && (
-        // The name and serial only when this row no longer says the same, since a
-        // swapped appliance shows up as exactly that difference.
+        // The condition, which is the comparison, and anything else only where this
+        // row no longer says the same, so what changed is all there is to read.
         <p className="px-1.5 text-xs text-gray-500 sm:col-span-12">
           At check-in:{' '}
           {[
             baseline.name !== item.name ? baseline.name : null,
             baseline.identifier !== item.identifier ? baseline.identifier : null,
             baseline.condition,
-            baseline.quantity > 1 || baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
-            baseline.meterReading,
-            baseline.notes,
+            baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
+            baseline.meterReading !== item.meterReading ? baseline.meterReading : null,
+            baseline.notes !== item.notes ? baseline.notes : null,
           ]
             .filter(Boolean)
             .join(' · ')}

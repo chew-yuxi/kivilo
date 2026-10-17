@@ -989,7 +989,7 @@ export async function startCheckOut(baselineId: string) {
   // dishwasher replaced mid-tenancy is then the one the inspector expects to find.
   const rooms = await currentState(baselineId, { acknowledgedOnly: true })
   // And each room as it was, frozen beside the copy for the inspector to compare against.
-  const baselines = await roomBaselines(baselineId, rooms)
+  const baselines = await roomBaselines(rooms)
 
   try {
     const checkOut = await db.inspection.create({

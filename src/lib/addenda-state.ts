@@ -15,8 +15,13 @@ export type StateLine = {
   createdAt: Date
 }
 
+/// A photo an addendum entry was published with.
+export type StatePhoto = { id: string; storagePath: string }
+
 /// `roomId` is the signed check-in room this is, absent on a room only an addendum added.
-export type StateRoom = { name: string; lines: StateLine[]; roomId?: string }
+/// `addendumPhotos` are the photos of the entries that changed it, in the order applied;
+/// the check-in's own captures are not here.
+export type StateRoom = { name: string; lines: StateLine[]; addendumPhotos: StatePhoto[]; roomId?: string }
 
 /// What an addendum entry does to the state, as its snapshot records it.
 export type StateChange = {
@@ -24,6 +29,7 @@ export type StateChange = {
   roomName: string
   targetKey: string | null
   line: Omit<StateLine, 'meterReading' | 'createdAt'> | null
+  photos: StatePhoto[]
 }
 
 /// The signed check-in with addenda applied in the order given. Pure, so the draft
@@ -36,11 +42,15 @@ export function applyAddenda(
   rooms: StateRoom[],
   addenda: { at: Date; changes: StateChange[] }[],
 ): StateRoom[] {
-  const state: StateRoom[] = rooms.map((room) => ({ ...room, lines: [...room.lines] }))
+  const state: StateRoom[] = rooms.map((room) => ({
+    ...room,
+    lines: [...room.lines],
+    addendumPhotos: [...room.addendumPhotos],
+  }))
   const roomFor = (name: string) => {
     const found = state.find((room) => room.name.toLowerCase() === name.trim().toLowerCase())
     if (found) return found
-    const created = { name: name.trim(), lines: [] as StateLine[] }
+    const created: StateRoom = { name: name.trim(), lines: [], addendumPhotos: [] }
     state.push(created)
     return created
   }
@@ -62,13 +72,21 @@ export function applyAddenda(
         meterReading: null,
         createdAt: new Date(addendum.at.getTime() + order),
       }
+      // An entry's photos go to the room its change lands in, which for a targeted
+      // change is the room holding the target, whatever name the entry carries.
       if (change.change === 'REMOVED') {
-        if (target) target.room.lines.splice(target.index, 1)
+        if (target) {
+          target.room.lines.splice(target.index, 1)
+          target.room.addendumPhotos.push(...change.photos)
+        }
       } else if (change.change === 'REPLACED' && target && line) {
         // Takes the old line's place, and its position in the room.
         target.room.lines[target.index] = { ...line, createdAt: target.room.lines[target.index].createdAt }
+        target.room.addendumPhotos.push(...change.photos)
       } else if (line) {
-        roomFor(change.roomName).lines.push(line)
+        const room = roomFor(change.roomName)
+        room.lines.push(line)
+        room.addendumPhotos.push(...change.photos)
       }
     })
   }

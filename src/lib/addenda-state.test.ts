@@ -13,20 +13,20 @@ function added(key: string, name: string): StateChange['line'] {
 }
 
 const signed: StateRoom[] = [
-  { name: 'Kitchen', lines: [line('item:hob', 'Hob'), line('item:dishwasher', 'Dishwasher', { identifier: 'Bosch SMS2' })] },
-  { name: 'Utility', lines: [line('item:dryer', 'Dryer')] },
+  { name: 'Kitchen', lines: [line('item:hob', 'Hob'), line('item:dishwasher', 'Dishwasher', { identifier: 'Bosch SMS2' })], addendumPhotos: [] },
+  { name: 'Utility', lines: [line('item:dryer', 'Dryer')], addendumPhotos: [] },
 ]
 
 describe('applyAddenda', () => {
   it('adds, replaces in place and removes, in order', () => {
     const state = applyAddenda(signed, [
       { at: new Date('2026-03-01'), changes: [
-        { change: 'REPLACED', roomName: 'Kitchen', targetKey: 'item:dishwasher', line: added('entry:dw2', 'Dishwasher') },
-        { change: 'ADDED', roomName: 'helper room', targetKey: null, line: added('entry:fan', 'Ceiling fan') },
+        { change: 'REPLACED', roomName: 'Kitchen', targetKey: 'item:dishwasher', line: added('entry:dw2', 'Dishwasher'), photos: [] },
+        { change: 'ADDED', roomName: 'helper room', targetKey: null, line: added('entry:fan', 'Ceiling fan'), photos: [] },
       ] },
       { at: new Date('2026-04-01'), changes: [
-        { change: 'REMOVED', roomName: 'Utility', targetKey: 'item:dryer', line: null },
-        { change: 'ADDED', roomName: 'kitchen', targetKey: null, line: added('entry:oven', 'Oven') },
+        { change: 'REMOVED', roomName: 'Utility', targetKey: 'item:dryer', line: null, photos: [] },
+        { change: 'ADDED', roomName: 'kitchen', targetKey: null, line: added('entry:oven', 'Oven'), photos: [] },
       ] },
     ])
 
@@ -45,10 +45,27 @@ describe('applyAddenda', () => {
   it('still adds a replacement whose target never arrived, and ignores a removal of one', () => {
     const state = applyAddenda(signed, [
       { at: new Date('2026-03-01'), changes: [
-        { change: 'REPLACED', roomName: 'Kitchen', targetKey: 'entry:missing', line: added('entry:new', 'New hob') },
-        { change: 'REMOVED', roomName: 'Kitchen', targetKey: 'entry:gone', line: null },
+        { change: 'REPLACED', roomName: 'Kitchen', targetKey: 'entry:missing', line: added('entry:new', 'New hob'), photos: [] },
+        { change: 'REMOVED', roomName: 'Kitchen', targetKey: 'entry:gone', line: null, photos: [] },
       ] },
     ])
     expect(state[0].lines.map((l) => l.key)).toEqual(['item:hob', 'item:dishwasher', 'entry:new'])
+  })
+
+  it('puts each entry\'s photos in the room its change lands in, by target before name', () => {
+    const photo = (id: string) => ({ id, storagePath: `addenda/a/${id}.jpg` })
+    const bedrooms: StateRoom[] = [
+      { name: 'Bedroom', lines: [line('item:bed', 'Bed')], addendumPhotos: [] },
+      { name: 'Bedroom', lines: [line('item:wardrobe', 'Wardrobe')], addendumPhotos: [] },
+    ]
+    const state = applyAddenda(bedrooms, [
+      { at: new Date('2026-03-01'), changes: [
+        { change: 'REPLACED', roomName: 'Bedroom', targetKey: 'item:wardrobe', line: added('entry:w2', 'Wardrobe'), photos: [photo('new-wardrobe')] },
+        { change: 'ADDED', roomName: 'bedroom', targetKey: null, line: added('entry:lamp', 'Lamp'), photos: [photo('lamp')] },
+        { change: 'REMOVED', roomName: 'Bedroom', targetKey: 'entry:gone', line: null, photos: [photo('nothing')] },
+      ] },
+    ])
+    expect(state.map((room) => room.addendumPhotos.map((each) => each.id))).toEqual([['lamp'], ['new-wardrobe']])
+    expect(bedrooms[1].addendumPhotos).toEqual([])
   })
 })

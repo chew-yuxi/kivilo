@@ -80,6 +80,7 @@ export function snapshotChanges(snapshot: AddendumSnapshot): StateChange[] {
     roomName: entry.roomName,
     targetKey: entry.target?.key ?? null,
     line: entry.line,
+    photos: entry.photos.map(({ id, storagePath }) => ({ id, storagePath })),
   }))
 }
 
@@ -103,6 +104,7 @@ export async function currentState(
   const signed: StateRoom[] = inspection.rooms.map((room) => ({
     name: room.name,
     roomId: room.id,
+    addendumPhotos: [],
     lines: room.items.map((item) => ({
       key: `item:${item.id}`,
       name: item.name,

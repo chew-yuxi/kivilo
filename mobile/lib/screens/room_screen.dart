@@ -56,6 +56,10 @@ class _RoomScreenState extends State<RoomScreen> {
   late Future<RoomDetail> _future = _load();
   bool _busy = false;
   bool _newestFirst = true;
+
+  /// The check-in reference starts closed, as on the web, so the inventory is what the
+  /// inspector lands on; each copied row carries its own check-in line anyway.
+  bool _showCheckIn = false;
   String? _error;
 
   Future<RoomDetail> _load() async {
@@ -563,14 +567,21 @@ class _RoomScreenState extends State<RoomScreen> {
                       subtitle: checkIn.conductedAt == null
                           ? 'This room as it was signed'
                           : 'This room as it was signed on ${shortDate(checkIn.conductedAt!)}',
-                    ),
-                    const SizedBox(height: 12),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-                        child: CheckInReferenceView(reference: checkIn),
+                      action: TextButton(
+                        onPressed: () =>
+                            setState(() => _showCheckIn = !_showCheckIn),
+                        child: Text(_showCheckIn ? 'Hide' : 'Show'),
                       ),
                     ),
+                    if (_showCheckIn) ...[
+                      const SizedBox(height: 12),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+                          child: CheckInReferenceView(reference: checkIn),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                   ],
                   KiviloSectionHeading(
@@ -1028,18 +1039,18 @@ class _RoomScreenState extends State<RoomScreen> {
     final attached = captures
         .where((capture) => item.evidenceCaptureIds.contains(capture.id))
         .toList();
-    // The name and serial only when this row no longer says the same, since a swapped
-    // appliance shows up as exactly that difference.
+    // The condition, which is the comparison, and anything else only where this row
+    // no longer says the same, so what changed is all there is to read.
     final atCheckIn = baseline == null
         ? null
         : [
             if (baseline.name != item.name) baseline.name,
             if (baseline.identifier != item.identifier) ?baseline.identifier,
             baseline.condition,
-            if (baseline.quantity > 1 || baseline.quantity != item.quantity)
-              '×${baseline.quantity}',
-            ?baseline.meterReading,
-            ?baseline.notes,
+            if (baseline.quantity != item.quantity) '×${baseline.quantity}',
+            if (baseline.meterReading != item.meterReading)
+              ?baseline.meterReading,
+            if (baseline.notes != item.notes) ?baseline.notes,
           ].join(' · ');
     return Card(
       child: Padding(

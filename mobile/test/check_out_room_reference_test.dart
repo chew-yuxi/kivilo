@@ -95,5 +95,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('At check-in: '), findsNWidgets(2));
+
+    // The reference itself is closed until asked for.
+    expect(find.text('Hob ×2'), findsNothing);
+    await tester.tap(find.text('Show'));
+    await tester.pumpAndSettle();
+    expect(find.text('Hob ×2'), findsOneWidget);
   });
 }

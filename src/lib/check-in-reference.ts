@@ -2,8 +2,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
-import { storedAnnotationsSchema, toAnnotations, type StoredAnnotations } from '@/lib/annotations'
-import { addendumSnapshotSchema } from '@/lib/addenda'
+import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import type { StateRoom } from '@/lib/addenda-state'
 import { CONDITIONS } from '@/lib/inspection/schema'
 
@@ -28,7 +27,9 @@ export const roomBaselineSchema = z.object({
     z.object({
       id: z.string(),
       storagePath: z.string(),
-      annotations: storedAnnotationsSchema.nullable(),
+      /// Read back through `toAnnotations` like every other stored copy, so marks of an
+      /// older shape are dropped rather than breaking the room.
+      annotations: z.unknown(),
     }),
   ),
 })
@@ -45,28 +46,17 @@ export type CheckInReference = {
 
 /// The baseline for each of `rooms`, the check-in's current state as `startCheckOut`
 /// copies it. Photos follow the report's rules: the check-in room's captures stamped at
-/// review, then the photos of each acknowledged addendum entry, placed in the room the
-/// entry applies to as `applyAddenda` places it, so a replaced appliance's new picture
-/// sits beside its new line.
-export async function roomBaselines(checkInId: string, rooms: StateRoom[]): Promise<RoomBaseline[]> {
-  const [captures, addenda] = await Promise.all([
-    db.capture.findMany({
-      where: {
-        roomId: { in: rooms.flatMap((room) => (room.roomId ? [room.roomId] : [])) },
-        kind: 'PHOTO',
-        processedAt: { not: null },
-      },
-      orderBy: { createdAt: 'asc' },
-    }),
-    db.reportAddendum.findMany({
-      where: { inspectionId: checkInId, acknowledgedAt: { not: null } },
-      orderBy: { number: 'asc' },
-      select: { snapshot: true },
-    }),
-  ])
-  const entries = addenda.flatMap((addendum) => addendumSnapshotSchema.parse(addendum.snapshot).entries)
-  const roomOf = (name: string) =>
-    rooms.find((room) => room.name.toLowerCase() === name.trim().toLowerCase())
+/// review, then the photos of the addendum entries `applyAddenda` applied to the room,
+/// so a replaced appliance's new picture sits beside its new line.
+export async function roomBaselines(rooms: StateRoom[]) {
+  const captures = await db.capture.findMany({
+    where: {
+      roomId: { in: rooms.flatMap((room) => (room.roomId ? [room.roomId] : [])) },
+      kind: 'PHOTO',
+      processedAt: { not: null },
+    },
+    orderBy: { createdAt: 'asc' },
+  })
 
   return rooms.map((room) => ({
     lines: room.lines.map((line) => ({
@@ -86,11 +76,7 @@ export async function roomBaselines(checkInId: string, rooms: StateRoom[]): Prom
           storagePath: capture.storagePath,
           annotations: toAnnotations(capture.annotations),
         })),
-      ...entries
-        .filter((entry) => roomOf(entry.roomName) === room)
-        .flatMap((entry) =>
-          entry.photos.map((photo) => ({ id: photo.id, storagePath: photo.storagePath, annotations: null })),
-        ),
+      ...room.addendumPhotos.map((photo) => ({ ...photo, annotations: null })),
     ],
   }))
 }
@@ -120,7 +106,7 @@ export async function checkInReference(roomId: string, agentId: string): Promise
       photos.map(async (photo) => ({
         id: photo.id,
         url: await createDownloadUrl(photo.storagePath),
-        annotations: photo.annotations,
+        annotations: toAnnotations(photo.annotations),
       })),
     ),
   }
