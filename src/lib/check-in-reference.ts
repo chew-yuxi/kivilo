@@ -121,12 +121,32 @@ async function frozenBaseline(roomId: string, agentId: string) {
 /// It reads only, and never writes a line: the inspector still writes every one.
 export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
   const frozen = await frozenBaseline(roomId, agentId)
+  return frozen && referenceOf(frozen)
+}
+
+/// The same, with a signed URL on each photo, for the app, which keeps a URL per photo
+/// itself and so is handed them up front.
+export async function signedCheckInReference(roomId: string, agentId: string) {
+  const frozen = await frozenBaseline(roomId, agentId)
   if (!frozen) return null
+  const urls = await signPhotos(frozen.baseline.photos)
+  const reference = referenceOf(frozen)
+  return { ...reference, photos: reference.photos.map((photo) => ({ ...photo, url: urls[photo.id] })) }
+}
+
+/// A signed URL for each of a check-out room's check-in photos, by photo id. Empty
+/// wherever `checkInReference` is null.
+export async function checkInPhotoUrls(roomId: string, agentId: string): Promise<Record<string, string>> {
+  const frozen = await frozenBaseline(roomId, agentId)
+  return frozen ? signPhotos(frozen.baseline.photos) : {}
+}
+
+function referenceOf({ checkIn, baseline }: NonNullable<Awaited<ReturnType<typeof frozenBaseline>>>): CheckInReference {
   return {
-    baselineId: frozen.checkIn.id,
-    conductedAt: frozen.checkIn.conductedAt?.toISOString() ?? null,
-    lines: frozen.baseline.lines,
-    photos: frozen.baseline.photos.map((photo) => ({
+    baselineId: checkIn.id,
+    conductedAt: checkIn.conductedAt?.toISOString() ?? null,
+    lines: baseline.lines,
+    photos: baseline.photos.map((photo) => ({
       id: photo.id,
       caption: photo.caption,
       update: photo.update,
@@ -135,14 +155,8 @@ export async function checkInReference(roomId: string, agentId: string): Promise
   }
 }
 
-/// A signed URL for each of a check-out room's check-in photos, by photo id. Empty
-/// wherever `checkInReference` is null.
-export async function checkInPhotoUrls(roomId: string, agentId: string): Promise<Record<string, string>> {
-  const frozen = await frozenBaseline(roomId, agentId)
-  if (!frozen) return {}
+async function signPhotos(photos: RoomBaseline['photos']) {
   return Object.fromEntries(
-    await Promise.all(
-      frozen.baseline.photos.map(async (photo) => [photo.id, await createDownloadUrl(photo.storagePath)] as const),
-    ),
+    await Promise.all(photos.map(async (photo) => [photo.id, await createDownloadUrl(photo.storagePath)] as const)),
   )
 }

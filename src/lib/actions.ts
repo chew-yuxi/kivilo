@@ -968,8 +968,6 @@ export async function revokeReportLink(inspectionId: string) {
   revalidate(inspectionId)
 }
 
-/// Opens the check-out against a completed check-in. Both reports then live on the
-/// same property record and the diff has a baseline to measure from.
 /// Signed URLs for a check-out room's check-in photos, minted when the inspector opens
 /// the reference panel rather than on every render (see `checkInReference`).
 export async function checkInPhotoLinks(roomId: string) {
@@ -978,6 +976,8 @@ export async function checkInPhotoLinks(roomId: string) {
   return checkInPhotoUrls(roomId, agent.id)
 }
 
+/// Opens the check-out against a completed check-in. Both reports then live on the
+/// same property record and the diff has a baseline to measure from.
 export async function startCheckOut(baselineId: string) {
   const agent = await requireAgent()
   const authorized = await authorizeInspection(baselineId, agent.id)

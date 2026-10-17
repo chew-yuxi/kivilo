@@ -24,10 +24,11 @@ const isUpdate = (key: string) => key.startsWith('entry:')
 /// between the inspector and the camera or the inventory, which carries each copied
 /// row's check-in line itself. Reference only: nothing here writes a line.
 export function CheckInReferencePanel({ roomId, reference }: { roomId: string; reference: CheckInReference }) {
-  // Signed URLs by photo id, fetched the first time the panel opens, so a panel opened
-  // an hour after the page rendered still gets live ones and a closed one costs nothing.
+  // Signed URLs by photo id, fetched each time the panel opens, so a panel opened (or
+  // reopened) an hour after the last fetch still gets live ones and a closed one costs
+  // nothing. The last set stays on screen while the next arrives.
   const [urls, setUrls] = useState<Record<string, string> | null>(null)
-  const [opened, setOpened] = useState(false)
+  const [unreachable, setUnreachable] = useState(false)
   const date = reference.conductedAt
     ? new Date(reference.conductedAt).toLocaleDateString('en-SG', {
         dateStyle: 'long',
@@ -42,13 +43,11 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
     <details
       className="rounded-lg border border-gray-200 bg-white"
       onToggle={(e) => {
-        if (!e.currentTarget.open || opened) return
-        setOpened(true)
-        // A failure lets the next open try again, and is rethrown for the error reporter.
-        void checkInPhotoLinks(roomId).then(setUrls, (error: unknown) => {
-          setOpened(false)
-          throw error
-        })
+        if (!e.currentTarget.open || reference.photos.length === 0) return
+        setUnreachable(false)
+        // The server records its own failures, so what reaches here is no signal, which
+        // is said on screen rather than reported as a bug; opening again retries.
+        checkInPhotoLinks(roomId).then(setUrls, () => setUnreachable(true))
       }}
     >
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
@@ -59,7 +58,9 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
       {reference.photos.length > 0 && (
         <div className="flex snap-x gap-3 overflow-x-auto border-t border-gray-100 px-4 py-3">
           {urls === null ? (
-            <p className="text-sm text-gray-500">Loading photos…</p>
+            <p className="text-sm text-gray-500">
+              {unreachable ? 'Could not load the photos. Close and open this again to retry.' : 'Loading photos…'}
+            </p>
           ) : (
             reference.photos.map((photo) => {
               const caption = [photo.update ? 'Update' : null, photo.caption].filter(Boolean).join(' · ')

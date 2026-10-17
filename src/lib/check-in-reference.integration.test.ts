@@ -17,7 +17,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { addRoom, renameRoom, startCheckOut } from '@/lib/actions'
-import { checkInPhotoUrls, checkInReference } from '@/lib/check-in-reference'
+import { checkInPhotoUrls, checkInReference, signedCheckInReference } from '@/lib/check-in-reference'
 
 const postalCode = '998812'
 
@@ -149,6 +149,10 @@ describe('check-in reference', () => {
     expect(Object.values(await checkInPhotoUrls(kitchen.id, checkIn.agentId))).toEqual([
       'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg',
     ])
+    // The app is handed the URL on the photo itself.
+    expect((await signedCheckInReference(kitchen.id, checkIn.agentId))!.photos).toMatchObject([
+      { caption: 'Hob and worktop', url: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg' },
+    ])
     const { lines } = (await checkInReference(kitchen.id, checkIn.agentId))!
     expect(lines.map((line) => [line.name, line.condition, line.notes])).toEqual([
       ['Hob', 'GOOD', null],
@@ -277,6 +281,7 @@ describe('check-in reference', () => {
 
     expect(await checkInReference(kitchen.id, conductor.id)).toBeNull()
     expect(await checkInPhotoUrls(kitchen.id, conductor.id)).toEqual({})
+    expect(await signedCheckInReference(kitchen.id, conductor.id)).toBeNull()
     expect(await checkInReference(kitchen.id, checkIn.agentId)).not.toBeNull()
   })
 
