@@ -802,8 +802,9 @@ async function recordSignature(
 
 /// Findings are written by the agent, one per change they find between the signed
 /// check-in and the signed check-out. A finding names a check-out item, a check-in item,
-/// or both; given only the check-out item, the check-in item with the same room and name
-/// is matched to it, so the report can show the condition at both ends.
+/// or both; given only the check-out item, the check-in item it was copied from is
+/// matched to it (by room and name for a row with no `baselineKey`), so the report can
+/// show the condition at both ends.
 export async function createFinding(
   inspectionId: string,
   data: {
@@ -844,11 +845,17 @@ export async function createFinding(
       : null
     if (!baselineItem) throw new Error('Item not found')
   } else if (item && baselineId) {
-    const match = await db.inspectionItem.findFirst({
-      where: {
-        name: { equals: item.name, mode: 'insensitive' },
-        room: { inspectionId: baselineId, name: { equals: item.room.name, mode: 'insensitive' } },
-      },
+    // A row copied from the check-in names its line, which survives a rename and two
+    // rooms sharing a name; one an addendum brought has no check-in item. Only rows
+    // without one (added during the check-out, or from before it existed) are matched
+    // by name.
+    const match = item.baselineKey?.startsWith('entry:') ? null : await db.inspectionItem.findFirst({
+      where: item.baselineKey
+        ? { id: item.baselineKey.slice('item:'.length), room: { inspectionId: baselineId } }
+        : {
+            name: { equals: item.name, mode: 'insensitive' },
+            room: { inspectionId: baselineId, name: { equals: item.room.name, mode: 'insensitive' } },
+          },
       orderBy: { createdAt: 'asc' },
       select: { id: true },
     })

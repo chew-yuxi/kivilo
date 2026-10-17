@@ -16,7 +16,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
-import { addRoom, renameRoom, startCheckOut } from '@/lib/actions'
+import { addRoom, createFinding, renameRoom, startCheckOut } from '@/lib/actions'
 import { checkInPhotoUrls, checkInReference, signedCheckInReference } from '@/lib/check-in-reference'
 
 const postalCode = '998812'
@@ -195,6 +195,34 @@ describe('check-in reference', () => {
     expect(Object.values(await checkInPhotoUrls(second.id, checkIn.agentId))).toEqual([
       'https://storage.test/REFERENCE-NAMES/bedroom-2.jpg',
     ])
+  })
+
+  it('ties a finding to the check-in item its row was copied from, renamed or sharing a name', async () => {
+    const checkIn = await signedCheckIn('REFERENCE-FINDING')
+    const checkOutId = await startCheckOut(checkIn.id)
+    const [kitchen, , , second] = await checkOutRooms(checkOutId)
+    await renameRoom(kitchen.id, checkOutId, 'Galley')
+    await db.inspection.update({ where: { id: checkOutId }, data: { status: 'AWAITING_SIGNATURE' } })
+    const finding = (itemId: string) =>
+      createFinding(checkOutId, {
+        itemId,
+        baselineItemId: null,
+        changeType: 'DAMAGE',
+        verdict: 'TENANT_LIABLE',
+        rationale: 'Cracked',
+        estimatedCost: null,
+      })
+
+    const hob = kitchen.items.find((item) => item.name === 'Hob')!
+    const wardrobe = second.items[0]
+    const linked = await db.finding.findMany({
+      where: { id: { in: [await finding(hob.id), await finding(wardrobe.id)] } },
+      select: { itemId: true, baselineItemId: true },
+    })
+    expect(Object.fromEntries(linked.map((row) => [row.itemId, `item:${row.baselineItemId}`]))).toEqual({
+      [hob.id]: hob.baselineKey,
+      [wardrobe.id]: wardrobe.baselineKey,
+    })
   })
 
   it('is what the check-out started from, whatever happens to the check-in after', async () => {
