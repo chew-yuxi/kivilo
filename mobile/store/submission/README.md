@@ -44,6 +44,12 @@ Island medium screenshot](https://developer.apple.com/help/app-store-connect/ref
 and lists 1206×2622 as an accepted portrait size; no iPad screenshot is required
 for this iPhone-only build.
 
+iOS build `24` (`7161f53`) adds native iPad support. The existing public submission
+above has not been replaced. Before submitting the universal build for public review,
+add at least one actual 13-inch iPad screenshot at `2064×2752` or `2048×2732` (or the
+landscape equivalents), as required by [Apple's screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
+The widget-test previews are not store screenshots.
+
 Use the existing App Store Connect JWT helper at
 `/Users/liguro/.appstoreconnect/asc_check.py` without printing its token:
 

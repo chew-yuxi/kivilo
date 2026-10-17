@@ -5,26 +5,52 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
-## Next store build: 24
+## iOS build 24: native iPad support
 
-Build `24` adds native PDF viewing and sharing (`open_filex` and `share_plus`). The
-signed report card offers View PDF, Share PDF and Share link; Share PDF downloads the
-actual document and gives the share sheet a local attachment. Signed storage URLs are
-never shared. The card no longer offers Revoke. These plugins require a new store
-binary; do not patch this source onto build `23`.
+On 18 October 2026 Singapore time, iOS `1.0.0+24` was built from `7161f53` in a pinned
+worktree with the production client configuration and Shorebird's Flutter `3.47.2`.
+Shorebird release `905978` is active for iOS. Apple validation and upload passed with
+no errors. App Store Connect build `4609e2e1-a6d9-490c-980e-537401caf84a` is `VALID`,
+declares `usesNonExemptEncryption: false`, and is attached only to the existing
+`Kivilo Internal` TestFlight group, with auto-notify enabled and internal state
+`IN_BETA_TESTING`.
+
+This build supports iPhone and iPad natively (`UIDeviceFamily=1,2`). Tablet
+windows use sidebar navigation, property and room grids, and room inventory beside a
+bounded, lazy evidence grid. Capture controls sit beside a lazy media list. Forms and
+reports have readable widths, signature pads grow while retaining their original
+drawing coordinates, and narrow Split View windows retain the phone layout. Resizing
+preserves loaded data, entered details, the selected tab, capture mode and signatures.
+
+Build `24` also adds native PDF viewing and sharing (`open_filex` and `share_plus`).
+The signed report card offers View PDF, Share PDF and Share link; Share PDF downloads
+the actual document and gives the share sheet a local attachment. Signed storage URLs
+are never shared. The card no longer offers Revoke. These plugins and the iPad target
+require a new store binary; do not patch this source onto build `23`.
 
 Also included: Take another photo is the main capture action, Review room stays disabled
 until that room's queued uploads and changes finish, and renewal cards appear immediately
 three months before tenancy end, with Start renewal, Not renewing, a one-week snooze,
 and Dismiss. The server supplies room furniture rows and Pro's 10 properties per seat.
 
-Android debug and iOS simulator builds compile with both native plugins. Store-signed
-release artifacts and physical-device sharing remain part of the build-24 release
-check. Build `23` remains the current release; no minimum-build floor was raised.
-Flutter analysis and all 160 mobile tests pass. Server verification: typecheck, lint,
-production build, 89 unit tests, 120 integration tests, and 13 end-to-end tests against
-the production bundle. A corrupted `.next/dev` route cache was removed before the final
-production build; browser verification used `next start`.
+Flutter analysis is clean and all 178 mobile tests pass, including 18 tablet regressions
+for resizing, larger text, keyboard handling, signature PNG coordinates, queue guards
+and lazy loading of 100-photo rooms. The iOS simulator build compiles. The store IPA
+passes strict code-sign verification: Apple Distribution for team `4N9TA3WSYM`,
+`aps-environment=production`, `get-task-allow=false`, and all four iPad orientations.
+Physical iPad use and on-device PDF sharing still need testing through TestFlight.
+
+The IPA is `build/release-artifacts/ios/build24/kivilo.ipa`, SHA-256
+`ae9a28ca5646273b003c6939e9539ed9f330e1d83d07814d2d80a2ae69f59ca9`; matching dSYMs
+and upload evidence are archived beside it. Android build `24` has not been released.
+The existing build-23 stable patches and both minimum-build floors are unchanged.
+The current public Apple review submission has not been replaced. A future public
+submission of this universal build needs a 13-inch iPad screenshot.
+
+Backend verification at `85a17e4`: typecheck, lint, production build, 89 unit tests,
+120 integration tests, and 13 end-to-end tests against the production bundle. A corrupted
+`.next/dev` route cache was removed before that production build; browser verification
+used `next start`.
 
 ## Build 23
 
