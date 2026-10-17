@@ -13,7 +13,7 @@ import { assertCanAddProperty } from '@/lib/plan'
 import { reportFingerprint } from '@/lib/report-fingerprint'
 import { queueSignatureRequests, queueSignedCopies, signingParties } from '@/lib/report-email'
 import { currentState } from '@/lib/addenda'
-import type { RoomBaseline } from '@/lib/check-in-reference'
+import { roomBaselines } from '@/lib/check-in-reference'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -988,16 +988,8 @@ export async function startCheckOut(baselineId: string) {
   // The signed inventory, with every update both parties have acknowledged since. A
   // dishwasher replaced mid-tenancy is then the one the inspector expects to find.
   const rooms = await currentState(baselineId, { acknowledgedOnly: true })
-  // The photos both parties agreed to, by the report's rule, for each room's reference.
-  const photos = await db.capture.findMany({
-    where: {
-      roomId: { in: rooms.flatMap((room) => (room.roomId ? [room.roomId] : [])) },
-      kind: 'PHOTO',
-      processedAt: { not: null },
-    },
-    orderBy: { createdAt: 'asc' },
-    select: { id: true, roomId: true },
-  })
+  // And each room as it was, frozen beside the copy for the inspector to compare against.
+  const baselines = await roomBaselines(baselineId, rooms)
 
   try {
     const checkOut = await db.inspection.create({
@@ -1014,18 +1006,7 @@ export async function startCheckOut(baselineId: string) {
           create: rooms.map((room, order) => ({
             name: room.name,
             order,
-            baseline: {
-              lines: room.lines.map((line) => ({
-                key: line.key,
-                name: line.name,
-                condition: line.condition,
-                quantity: line.quantity,
-                notes: line.notes,
-                identifier: line.identifier,
-                meterReading: line.meterReading,
-              })),
-              photoIds: photos.filter((photo) => photo.roomId === room.roomId).map((photo) => photo.id),
-            } satisfies RoomBaseline,
+            baseline: baselines[order],
             items: {
               create: room.lines.map((line) => ({
                 name: line.name,

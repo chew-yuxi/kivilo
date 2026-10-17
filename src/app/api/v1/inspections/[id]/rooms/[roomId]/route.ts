@@ -58,7 +58,7 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
       editedByHuman: item.editedByHuman,
     })),
     // On a check-out, the room as it was at check-in. Null on a check-in, and on a room
-    // the check-in never had.
+    // added during the check-out.
     checkIn,
     captures: await Promise.all(
       stored.map(async (capture) => ({

@@ -537,8 +537,7 @@ export function RoomCaptureScreen({
   inspectionId: string
   room: { id: string; name: string; status: RoomStatus }
   captures: ServerCapture[]
-  /// On a check-out, the room as it was at check-in, closed until asked for so it is
-  /// never between the inspector and the camera button.
+  /// On a check-out, the room as it was at check-in.
   checkIn: CheckInReference | null
   position: { index: number; total: number }
   next: { href: string; name: string } | null
@@ -674,7 +673,7 @@ export function RoomCaptureScreen({
         </p>
       </div>
 
-      {checkIn && <CheckInReferencePanel reference={checkIn} open={false} />}
+      {checkIn && <CheckInReferencePanel reference={checkIn} />}
 
       <div className="space-y-3">
         <input

@@ -12,14 +12,10 @@ export const CONDITION_TONE: Record<ItemCondition, string> = {
 }
 
 /// The check-in's photos and lines for the room a check-out inspector is standing in,
-/// so they can compare without leaving it. Reference only: nothing here writes a line.
-export function CheckInReferencePanel({
-  reference,
-  open,
-}: {
-  reference: CheckInReference
-  open: boolean
-}) {
+/// so they can compare without leaving it. Closed until asked for, so it never stands
+/// between the inspector and the camera or the inventory, which carries each copied
+/// row's check-in line itself. Reference only: nothing here writes a line.
+export function CheckInReferencePanel({ reference }: { reference: CheckInReference }) {
   const date = reference.conductedAt
     ? new Date(reference.conductedAt).toLocaleDateString('en-SG', {
         dateStyle: 'long',
@@ -29,7 +25,7 @@ export function CheckInReferencePanel({
     : null
 
   return (
-    <details open={open} className="rounded-lg border border-gray-200 bg-white">
+    <details className="rounded-lg border border-gray-200 bg-white">
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
         At check-in{date && <span className="font-normal text-gray-500"> · {date}</span>}
       </summary>
@@ -48,8 +44,8 @@ export function CheckInReferencePanel({
               <img
                 src={photo.url}
                 alt="Check-in photo"
-                // Closed on the capture screen, so nothing downloads there unless the
-                // inspector opens it, and the upload queue keeps the signal.
+                // Nothing downloads unless the inspector opens the panel, so on the
+                // capture screen the upload queue keeps the signal.
                 loading="lazy"
                 className="block h-32 w-auto max-w-[70vw] object-contain"
               />

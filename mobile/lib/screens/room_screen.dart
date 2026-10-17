@@ -1036,7 +1036,8 @@ class _RoomScreenState extends State<RoomScreen> {
             if (baseline.name != item.name) baseline.name,
             if (baseline.identifier != item.identifier) ?baseline.identifier,
             baseline.condition,
-            if (baseline.quantity > 1) '×${baseline.quantity}',
+            if (baseline.quantity > 1 || baseline.quantity != item.quantity)
+              '×${baseline.quantity}',
             ?baseline.meterReading,
             ?baseline.notes,
           ].join(' · ');

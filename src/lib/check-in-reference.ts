@@ -2,14 +2,16 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
-import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
+import { storedAnnotationsSchema, toAnnotations, type StoredAnnotations } from '@/lib/annotations'
+import { addendumSnapshotSchema } from '@/lib/addenda'
+import type { StateRoom } from '@/lib/addenda-state'
 import { CONDITIONS } from '@/lib/inspection/schema'
 
 /// What `startCheckOut` freezes on each check-out room it copies, in `Room.baseline`:
-/// the check-in room's lines as the check-out began from them (the signed check-in with
-/// every acknowledged addendum), and its photos stamped at review, by the report's rule.
-/// Frozen, so renaming the room, two rooms sharing a name, or an addendum acknowledged
-/// later can never change what the inspector compares against.
+/// the room as the check-out began from it (the signed check-in with every acknowledged
+/// addendum), its lines and every photo both parties agreed to of it. Frozen, so
+/// renaming the room, two rooms sharing a name, or an addendum acknowledged later can
+/// never change what the inspector compares against.
 export const roomBaselineSchema = z.object({
   lines: z.array(
     z.object({
@@ -22,7 +24,13 @@ export const roomBaselineSchema = z.object({
       meterReading: z.string().nullable(),
     }),
   ),
-  photoIds: z.array(z.string()),
+  photos: z.array(
+    z.object({
+      id: z.string(),
+      storagePath: z.string(),
+      annotations: storedAnnotationsSchema.nullable(),
+    }),
+  ),
 })
 
 export type RoomBaseline = z.infer<typeof roomBaselineSchema>
@@ -35,27 +43,75 @@ export type CheckInReference = {
   photos: { id: string; url: string; annotations: StoredAnnotations | null }[]
 }
 
+/// The baseline for each of `rooms`, the check-in's current state as `startCheckOut`
+/// copies it. Photos follow the report's rules: the check-in room's captures stamped at
+/// review, then the photos of each acknowledged addendum entry, placed in the room the
+/// entry applies to as `applyAddenda` places it, so a replaced appliance's new picture
+/// sits beside its new line.
+export async function roomBaselines(checkInId: string, rooms: StateRoom[]): Promise<RoomBaseline[]> {
+  const [captures, addenda] = await Promise.all([
+    db.capture.findMany({
+      where: {
+        roomId: { in: rooms.flatMap((room) => (room.roomId ? [room.roomId] : [])) },
+        kind: 'PHOTO',
+        processedAt: { not: null },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
+    db.reportAddendum.findMany({
+      where: { inspectionId: checkInId, acknowledgedAt: { not: null } },
+      orderBy: { number: 'asc' },
+      select: { snapshot: true },
+    }),
+  ])
+  const entries = addenda.flatMap((addendum) => addendumSnapshotSchema.parse(addendum.snapshot).entries)
+  const roomOf = (name: string) =>
+    rooms.find((room) => room.name.toLowerCase() === name.trim().toLowerCase())
+
+  return rooms.map((room) => ({
+    lines: room.lines.map((line) => ({
+      key: line.key,
+      name: line.name,
+      condition: line.condition,
+      quantity: line.quantity,
+      notes: line.notes,
+      identifier: line.identifier,
+      meterReading: line.meterReading,
+    })),
+    photos: [
+      ...captures
+        .filter((capture) => capture.roomId === room.roomId)
+        .map((capture) => ({
+          id: capture.id,
+          storagePath: capture.storagePath,
+          annotations: toAnnotations(capture.annotations),
+        })),
+      ...entries
+        .filter((entry) => roomOf(entry.roomName) === room)
+        .flatMap((entry) =>
+          entry.photos.map((photo) => ({ id: photo.id, storagePath: photo.storagePath, annotations: null })),
+        ),
+    ],
+  }))
+}
+
 /// A check-out room as it was at check-in, for the inspector walking it again. Null on
-/// a check-in, on a room the check-in never had, and for an agent who may not see the
-/// check-in: conducting a check-out admits you to it (`inspectionScope`), not to the
+/// a check-in, on a room added during the check-out, and for an agent who may not see
+/// the check-in: conducting a check-out admits you to it (`inspectionScope`), not to the
 /// check-in it was copied from. The caller has already authorized the room.
 ///
 /// It reads only, and never writes a line: the inspector still writes every one.
 export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
-  const [room, checkIn] = await Promise.all([
-    db.room.findUniqueOrThrow({ where: { id: roomId }, select: { baseline: true } }),
-    db.inspection.findFirst({
-      where: { AND: [{ checkOut: { rooms: { some: { id: roomId } } } }, inspectionScope(agentId)] },
-      select: { id: true, conductedAt: true },
-    }),
-  ])
-  if (room.baseline === null || !checkIn) return null
+  const room = await db.room.findUnique({ where: { id: roomId }, select: { baseline: true } })
+  if (!room || room.baseline === null) return null
 
-  const { lines, photoIds } = roomBaselineSchema.parse(room.baseline)
-  const photos = await db.capture.findMany({
-    where: { id: { in: photoIds } },
-    orderBy: { createdAt: 'asc' },
+  const checkIn = await db.inspection.findFirst({
+    where: { AND: [{ checkOut: { rooms: { some: { id: roomId } } } }, inspectionScope(agentId)] },
+    select: { id: true, conductedAt: true },
   })
+  if (!checkIn) return null
+
+  const { lines, photos } = roomBaselineSchema.parse(room.baseline)
   return {
     baselineId: checkIn.id,
     conductedAt: checkIn.conductedAt?.toISOString() ?? null,
@@ -64,7 +120,7 @@ export async function checkInReference(roomId: string, agentId: string): Promise
       photos.map(async (photo) => ({
         id: photo.id,
         url: await createDownloadUrl(photo.storagePath),
-        annotations: toAnnotations(photo.annotations),
+        annotations: photo.annotations,
       })),
     ),
   }

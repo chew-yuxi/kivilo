@@ -33,8 +33,9 @@ is the inspector's reading of it. A new room starts with the standard rows in
 `src/lib/room-templates.ts`, made as `addItem` makes a line, which the inspector edits or
 removes like any other; a check-out starts from the signed check-in's room and item state,
 which the inspector edits to record what they find on the new visit. While they do,
-each room copied from the check-in shows its check-in lines and agreed photos, frozen in
-`Room.baseline` when the check-out started, so renaming a room or a later addendum never
+each room copied from the check-in shows its check-in lines and agreed photos (the
+check-in's and any acknowledged addendum's), frozen in `Room.baseline` when the check-out
+started, so renaming a room or a later addendum never
 changes them (`src/lib/check-in-reference.ts`). Each copied row names its check-in line in
 `InspectionItem.baselineKey`, so what it said stays in view after it is edited. The
 reference checks `inspectionScope` on the check-in itself, since conducting a check-out

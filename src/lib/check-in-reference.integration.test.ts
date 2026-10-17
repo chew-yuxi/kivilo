@@ -198,6 +198,71 @@ describe('check-in reference', () => {
     expect((await checkInReference(kitchen.id, checkIn.agentId))!.lines[0]).toMatchObject({ name: 'Hob', condition: 'GOOD' })
   })
 
+  it('carries an acknowledged replacement, with its photo beside the new line', async () => {
+    const checkIn = await signedCheckIn('REFERENCE-ADDENDUM')
+    const hob = checkIn.rooms.find((room) => room.name === 'Kitchen')!.items.find((item) => item.name === 'Hob')!
+    const line = {
+      key: 'entry:new-hob',
+      name: 'Hob',
+      category: 'APPLIANCE' as const,
+      condition: 'NEW' as const,
+      quantity: 1,
+      identifier: 'BOSCH PKE611',
+      notes: null,
+      propertyAssetId: null,
+    }
+    await db.reportAddendum.create({
+      data: {
+        inspectionId: checkIn.id,
+        number: 1,
+        title: 'New hob',
+        effectiveDate: new Date('2025-01-01'),
+        createdById: checkIn.agentId,
+        publishedAt: new Date('2025-01-01'),
+        acknowledgedAt: new Date('2025-01-02'),
+        snapshot: {
+          schemaVersion: 1,
+          number: 1,
+          title: 'New hob',
+          reason: null,
+          effectiveDate: '2025-01-01',
+          publishedAt: '2025-01-01T00:00:00.000Z',
+          publishedBy: 'Agent',
+          entries: [{
+            id: 'entry-1',
+            change: 'REPLACED',
+            // As the agent typed it; it applies to the Kitchen all the same.
+            roomName: ' kitchen ',
+            notes: null,
+            target: { key: `item:${hob.id}`, name: 'Hob', condition: 'GOOD', quantity: 1, identifier: null, notes: null },
+            line,
+            maintenanceCase: null,
+            photos: [{
+              id: 'addendum-photo-1',
+              storagePath: 'addenda/x/new-hob.jpg',
+              mimeType: 'image/jpeg',
+              note: null,
+              label: null,
+            }],
+          }],
+        },
+      },
+    })
+
+    const [kitchen, bathroom] = await checkOutRooms(await startCheckOut(checkIn.id))
+    const reference = (await checkInReference(kitchen.id, checkIn.agentId))!
+    expect(reference.lines.map((each) => [each.key, each.identifier])).toEqual([
+      ['entry:new-hob', 'BOSCH PKE611'],
+      [expect.stringMatching(/^item:/), null],
+    ])
+    expect(reference.photos.map((photo) => photo.url)).toEqual([
+      'https://storage.test/REFERENCE-ADDENDUM/kitchen-agreed.jpg',
+      'https://storage.test/addenda/x/new-hob.jpg',
+    ])
+    expect(kitchen.items.find((item) => item.identifier === 'BOSCH PKE611')!.baselineKey).toBe('entry:new-hob')
+    expect(await checkInReference(bathroom.id, checkIn.agentId)).toMatchObject({ photos: [] })
+  })
+
   it('shows nothing to an agent who conducts the check-out but may not see the check-in', async () => {
     const checkIn = await signedCheckIn('REFERENCE-CONDUCTOR')
     const checkOutId = await startCheckOut(checkIn.id)

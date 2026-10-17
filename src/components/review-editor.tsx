@@ -156,7 +156,7 @@ function ItemRow({
             baseline.name !== item.name ? baseline.name : null,
             baseline.identifier !== item.identifier ? baseline.identifier : null,
             baseline.condition,
-            baseline.quantity > 1 ? `×${baseline.quantity}` : null,
+            baseline.quantity > 1 || baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
             baseline.meterReading,
             baseline.notes,
           ]
@@ -215,7 +215,7 @@ export function ReviewEditor({
 
   return (
     <div className="space-y-6">
-      {checkIn && <CheckInReferencePanel reference={checkIn} open />}
+      {checkIn && <CheckInReferencePanel reference={checkIn} />}
 
       {captures.length > 0 && (
         // A swipeable strip on a phone so the first item is on screen without
