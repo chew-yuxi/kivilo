@@ -1,78 +1,74 @@
+import { z } from 'zod'
 import { db } from '@/lib/db'
-import { currentState } from '@/lib/addenda'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
-import type { InspectionKind, ItemCondition } from '@/generated/prisma'
+import { CONDITIONS } from '@/lib/inspection/schema'
+import type { Prisma } from '@/generated/prisma'
 
-export type CheckInLine = {
-  key: string
-  name: string
-  condition: ItemCondition
-  quantity: number
-  notes: string | null
-  identifier: string | null
-  meterReading: string | null
-}
+/// What `startCheckOut` freezes on each check-out room it copies, in `Room.baseline`:
+/// the check-in room's lines as the check-out began from them (the signed check-in with
+/// every acknowledged addendum), and its photos stamped at review, by the report's rule.
+/// Frozen, so renaming the room, two rooms sharing a name, or an addendum acknowledged
+/// later can never change what the inspector compares against.
+export const roomBaselineSchema = z.object({
+  lines: z.array(
+    z.object({
+      key: z.string(),
+      name: z.string(),
+      condition: z.enum(CONDITIONS),
+      quantity: z.number().int(),
+      notes: z.string().nullable(),
+      identifier: z.string().nullable(),
+      meterReading: z.string().nullable(),
+    }),
+  ),
+  photoIds: z.array(z.string()),
+})
+
+export type RoomBaseline = z.infer<typeof roomBaselineSchema>
+export type CheckInLine = RoomBaseline['lines'][number]
 
 export type CheckInReference = {
   baselineId: string
   conductedAt: string | null
-  /// False when no check-in room has this name, because the inspector renamed the
-  /// check-out room or added one the check-in never had.
-  matched: boolean
   lines: CheckInLine[]
   photos: { id: string; url: string; annotations: StoredAnnotations | null }[]
 }
 
-/// What a check-out room looked like at check-in, for the inspector walking it again:
-/// the state the check-out was started from (`startCheckOut` copies the same
-/// `currentState`), and the check-in room's photos with the report's rule, stamped at
-/// review, so it shows what was agreed and nothing that arrived late. Rooms match by
-/// name, case-insensitively, as they did when the check-out was made from it.
+/// A check-out room as it was at check-in, for the inspector walking it again. Null on
+/// a check-in, and on a room the check-in never had.
 ///
 /// It reads only, and never writes a line: the inspector still writes every one.
 /// Callers have already authorized the check-out room; its baseline is the check-in of
 /// the same tenancy, so whoever may work the one may read the other.
 export async function checkInReference(room: {
-  name: string
-  inspection: { kind: InspectionKind; baselineId: string | null }
+  baseline: Prisma.JsonValue | null
+  inspection: { baseline: { id: string; conductedAt: Date | null } | null }
 }): Promise<CheckInReference | null> {
-  const { baselineId } = room.inspection
-  if (room.inspection.kind !== 'CHECK_OUT' || !baselineId) return null
+  const checkIn = room.inspection.baseline
+  if (room.baseline === null || !checkIn) return null
 
-  const name = room.name.trim().toLowerCase()
-  const [baseline, state, checkInRoom] = await Promise.all([
-    db.inspection.findUniqueOrThrow({ where: { id: baselineId }, select: { conductedAt: true } }),
-    currentState(baselineId, { acknowledgedOnly: true }),
-    db.room.findFirst({
-      where: { inspectionId: baselineId, name: { equals: room.name.trim(), mode: 'insensitive' } },
-      orderBy: { order: 'asc' },
-      include: {
-        captures: { where: { kind: 'PHOTO', processedAt: { not: null } }, orderBy: { createdAt: 'asc' } },
-      },
-    }),
-  ])
-  const stateRoom = state.find((each) => each.name.toLowerCase() === name)
-
+  const { lines, photoIds } = roomBaselineSchema.parse(room.baseline)
+  const photos = await db.capture.findMany({
+    where: { id: { in: photoIds } },
+    orderBy: { createdAt: 'asc' },
+  })
   return {
-    baselineId,
-    conductedAt: baseline.conductedAt?.toISOString() ?? null,
-    matched: stateRoom !== undefined,
-    lines: (stateRoom?.lines ?? []).map((line) => ({
-      key: line.key,
-      name: line.name,
-      condition: line.condition,
-      quantity: line.quantity,
-      notes: line.notes,
-      identifier: line.identifier,
-      meterReading: line.meterReading,
-    })),
+    baselineId: checkIn.id,
+    conductedAt: checkIn.conductedAt?.toISOString() ?? null,
+    lines,
     photos: await Promise.all(
-      (checkInRoom?.captures ?? []).map(async (capture) => ({
-        id: capture.id,
-        url: await createDownloadUrl(capture.storagePath),
-        annotations: toAnnotations(capture.annotations),
+      photos.map(async (photo) => ({
+        id: photo.id,
+        url: await createDownloadUrl(photo.storagePath),
+        annotations: toAnnotations(photo.annotations),
       })),
     ),
   }
 }
+
+/// What a caller selects to hand `checkInReference` a room.
+export const checkInReferenceSelect = {
+  baseline: true,
+  inspection: { select: { baseline: { select: { id: true, conductedAt: true } } } },
+} satisfies Prisma.RoomSelect

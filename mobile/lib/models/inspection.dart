@@ -231,8 +231,8 @@ class RoomDetail {
   final List<InventoryItem> items;
   final List<EvidenceCapture> captures;
 
-  /// On a check-out, the room as it was at check-in. Null on a check-in, and from a
-  /// server older than the field.
+  /// On a check-out, the room as it was at check-in. Null on a check-in, on a room the
+  /// check-in never had, and from a server older than the field.
   final CheckInReference? checkIn;
 
   factory RoomDetail.fromJson(Map<String, dynamic> json) {
@@ -257,37 +257,26 @@ class RoomDetail {
   }
 }
 
-/// What a check-out room looked like at check-in: the lines the check-out started from
-/// and the photos both parties agreed to. Reference only; nothing writes a line from it.
+/// What a check-out room looked like at check-in, frozen when the check-out started: the
+/// lines it began from and the photos both parties agreed to. Reference only; nothing
+/// writes a line from it.
 class CheckInReference {
   const CheckInReference({
     required this.baselineId,
     required this.conductedAt,
-    required this.matched,
     required this.lines,
     required this.photos,
   });
 
   final String baselineId;
   final String? conductedAt;
-
-  /// False when no check-in room has this room's name.
-  final bool matched;
   final List<CheckInLine> lines;
   final List<CheckInPhoto> photos;
-
-  CheckInLine? lineFor(InventoryItem item) {
-    for (final line in lines) {
-      if (line.key == item.baselineKey) return line;
-    }
-    return null;
-  }
 
   factory CheckInReference.fromJson(Map<String, dynamic> json) =>
       CheckInReference(
         baselineId: json['baselineId'] as String,
         conductedAt: json['conductedAt'] as String?,
-        matched: json['matched'] as bool,
         lines: (json['lines'] as List<dynamic>)
             .map((line) => CheckInLine.fromJson(line as Map<String, dynamic>))
             .toList(),
@@ -317,14 +306,6 @@ class CheckInLine {
   final String? notes;
   final String? identifier;
   final String? meterReading;
-
-  /// The line in a few words, for beside the check-out row copied from it.
-  String get summary => [
-    condition,
-    if (quantity > 1) '×$quantity',
-    ?meterReading,
-    ?notes,
-  ].join(' · ');
 
   factory CheckInLine.fromJson(Map<String, dynamic> json) => CheckInLine(
     key: json['key'] as String,

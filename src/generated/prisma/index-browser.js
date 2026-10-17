@@ -241,6 +241,7 @@ exports.Prisma.RoomScalarFieldEnum = {
   processingError: 'processingError',
   processingAttemptId: 'processingAttemptId',
   processingStartedAt: 'processingStartedAt',
+  baseline: 'baseline',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

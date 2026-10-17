@@ -74,12 +74,28 @@ class _RoomScreenState extends State<RoomScreen> {
           annotations: capture.annotations,
         ),
     ];
+    final checkIn = fresh.checkIn;
     return RoomDetail(
       id: fresh.id,
       name: fresh.name,
       status: fresh.status,
       items: fresh.items,
       captures: captures,
+      checkIn: checkIn == null
+          ? null
+          : CheckInReference(
+              baselineId: checkIn.baselineId,
+              conductedAt: checkIn.conductedAt,
+              lines: checkIn.lines,
+              photos: [
+                for (final photo in checkIn.photos)
+                  CheckInPhoto(
+                    id: photo.id,
+                    url: _stable(photo.id, photo.url),
+                    annotations: photo.annotations,
+                  ),
+              ],
+            ),
     );
   }
 
@@ -552,10 +568,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-                        child: CheckInReferenceView(
-                          reference: checkIn,
-                          roomName: room.name,
-                        ),
+                        child: CheckInReferenceView(reference: checkIn),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -610,7 +623,13 @@ class _RoomScreenState extends State<RoomScreen> {
                       ),
                     ),
                   for (final item in room.items) ...[
-                    _inventoryCard(item, room.captures, checkIn?.lineFor(item)),
+                    _inventoryCard(
+                      item,
+                      room.captures,
+                      checkIn?.lines
+                          .where((line) => line.key == item.baselineKey)
+                          .firstOrNull,
+                    ),
                     const SizedBox(height: 10),
                   ],
                 ];
@@ -1009,6 +1028,18 @@ class _RoomScreenState extends State<RoomScreen> {
     final attached = captures
         .where((capture) => item.evidenceCaptureIds.contains(capture.id))
         .toList();
+    // The name and serial only when this row no longer says the same, since a swapped
+    // appliance shows up as exactly that difference.
+    final atCheckIn = baseline == null
+        ? null
+        : [
+            if (baseline.name != item.name) baseline.name,
+            if (baseline.identifier != item.identifier) ?baseline.identifier,
+            baseline.condition,
+            if (baseline.quantity > 1) '×${baseline.quantity}',
+            ?baseline.meterReading,
+            ?baseline.notes,
+          ].join(' · ');
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1068,10 +1099,10 @@ class _RoomScreenState extends State<RoomScreen> {
               const SizedBox(height: 9),
               Text(item.notes!, style: Theme.of(context).textTheme.bodyMedium),
             ],
-            if (baseline != null) ...[
+            if (atCheckIn != null) ...[
               const SizedBox(height: 9),
               Text(
-                'At check-in: ${baseline.summary}',
+                'At check-in: $atCheckIn',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

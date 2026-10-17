@@ -102,6 +102,7 @@ export async function currentState(
   })
   const signed: StateRoom[] = inspection.rooms.map((room) => ({
     name: room.name,
+    roomId: room.id,
     lines: room.items.map((item) => ({
       key: `item:${item.id}`,
       name: item.name,

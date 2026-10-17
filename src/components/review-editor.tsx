@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { timecode } from '@/lib/format'
 import { MarkOverlay } from '@/components/mark-overlay'
-import { CONDITION_TONE, CheckInReferencePanel, checkInSummary } from '@/components/check-in-reference'
+import { CONDITION_TONE, CheckInReferencePanel } from '@/components/check-in-reference'
 import type { CheckInLine, CheckInReference } from '@/lib/check-in-reference'
 import type { StoredAnnotations } from '@/lib/annotations'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
@@ -148,8 +148,20 @@ function ItemRow({
       </div>
 
       {baseline && (
+        // The name and serial only when this row no longer says the same, since a
+        // swapped appliance shows up as exactly that difference.
         <p className="px-1.5 text-xs text-gray-500 sm:col-span-12">
-          At check-in: {checkInSummary(baseline)}
+          At check-in:{' '}
+          {[
+            baseline.name !== item.name ? baseline.name : null,
+            baseline.identifier !== item.identifier ? baseline.identifier : null,
+            baseline.condition,
+            baseline.quantity > 1 ? `×${baseline.quantity}` : null,
+            baseline.meterReading,
+            baseline.notes,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
         </p>
       )}
     </div>
@@ -203,7 +215,7 @@ export function ReviewEditor({
 
   return (
     <div className="space-y-6">
-      {checkIn && <CheckInReferencePanel reference={checkIn} roomName={roomName} open />}
+      {checkIn && <CheckInReferencePanel reference={checkIn} open />}
 
       {captures.length > 0 && (
         // A swipeable strip on a phone so the first item is on screen without

@@ -15987,6 +15987,7 @@ export namespace Prisma {
     processingError: number
     processingAttemptId: number
     processingStartedAt: number
+    baseline: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -16036,6 +16037,7 @@ export namespace Prisma {
     processingError?: true
     processingAttemptId?: true
     processingStartedAt?: true
+    baseline?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -16136,6 +16138,7 @@ export namespace Prisma {
     processingError: string | null
     processingAttemptId: string | null
     processingStartedAt: Date | null
+    baseline: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: RoomCountAggregateOutputType | null
@@ -16168,6 +16171,7 @@ export namespace Prisma {
     processingError?: boolean
     processingAttemptId?: boolean
     processingStartedAt?: boolean
+    baseline?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -16185,6 +16189,7 @@ export namespace Prisma {
     processingError?: boolean
     processingAttemptId?: boolean
     processingStartedAt?: boolean
+    baseline?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -16199,6 +16204,7 @@ export namespace Prisma {
     processingError?: boolean
     processingAttemptId?: boolean
     processingStartedAt?: boolean
+    baseline?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -16213,11 +16219,12 @@ export namespace Prisma {
     processingError?: boolean
     processingAttemptId?: boolean
     processingStartedAt?: boolean
+    baseline?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "processingAttemptId" | "processingStartedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
+  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "processingAttemptId" | "processingStartedAt" | "baseline" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
   export type RoomInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     captures?: boolean | Room$capturesArgs<ExtArgs>
@@ -16247,6 +16254,13 @@ export namespace Prisma {
       processingError: string | null
       processingAttemptId: string | null
       processingStartedAt: Date | null
+      /**
+       * On a check-out room, the check-in room it was copied from, frozen when the
+       * check-out started (`RoomBaseline` in `src/lib/check-in-reference.ts`): its lines and
+       * the ids of its agreed photos. Null on check-ins, on rooms added during a check-out,
+       * and on check-outs started before it existed.
+       */
+      baseline: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["room"]>
@@ -16683,6 +16697,7 @@ export namespace Prisma {
     readonly processingError: FieldRef<"Room", 'String'>
     readonly processingAttemptId: FieldRef<"Room", 'String'>
     readonly processingStartedAt: FieldRef<"Room", 'DateTime'>
+    readonly baseline: FieldRef<"Room", 'Json'>
     readonly createdAt: FieldRef<"Room", 'DateTime'>
     readonly updatedAt: FieldRef<"Room", 'DateTime'>
   }
@@ -48103,6 +48118,7 @@ export namespace Prisma {
     processingError: 'processingError',
     processingAttemptId: 'processingAttemptId',
     processingStartedAt: 'processingStartedAt',
+    baseline: 'baseline',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -49954,6 +49970,7 @@ export namespace Prisma {
     processingError?: StringNullableFilter<"Room"> | string | null
     processingAttemptId?: StringNullableFilter<"Room"> | string | null
     processingStartedAt?: DateTimeNullableFilter<"Room"> | Date | string | null
+    baseline?: JsonNullableFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
@@ -49970,6 +49987,7 @@ export namespace Prisma {
     processingError?: SortOrderInput | SortOrder
     processingAttemptId?: SortOrderInput | SortOrder
     processingStartedAt?: SortOrderInput | SortOrder
+    baseline?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inspection?: InspectionOrderByWithRelationInput
@@ -49989,6 +50007,7 @@ export namespace Prisma {
     processingError?: StringNullableFilter<"Room"> | string | null
     processingAttemptId?: StringNullableFilter<"Room"> | string | null
     processingStartedAt?: DateTimeNullableFilter<"Room"> | Date | string | null
+    baseline?: JsonNullableFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
@@ -50005,6 +50024,7 @@ export namespace Prisma {
     processingError?: SortOrderInput | SortOrder
     processingAttemptId?: SortOrderInput | SortOrder
     processingStartedAt?: SortOrderInput | SortOrder
+    baseline?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: RoomCountOrderByAggregateInput
@@ -50026,6 +50046,7 @@ export namespace Prisma {
     processingError?: StringNullableWithAggregatesFilter<"Room"> | string | null
     processingAttemptId?: StringNullableWithAggregatesFilter<"Room"> | string | null
     processingStartedAt?: DateTimeNullableWithAggregatesFilter<"Room"> | Date | string | null
+    baseline?: JsonNullableWithAggregatesFilter<"Room">
     createdAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
   }
@@ -53201,6 +53222,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
@@ -53217,6 +53239,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
@@ -53231,6 +53254,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
@@ -53247,6 +53271,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
@@ -53262,6 +53287,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -53274,6 +53300,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53287,6 +53314,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56791,6 +56819,7 @@ export namespace Prisma {
     processingError?: SortOrder
     processingAttemptId?: SortOrder
     processingStartedAt?: SortOrder
+    baseline?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -66818,6 +66847,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureCreateNestedManyWithoutRoomInput
@@ -66832,6 +66862,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
@@ -67310,6 +67341,7 @@ export namespace Prisma {
     processingError?: StringNullableFilter<"Room"> | string | null
     processingAttemptId?: StringNullableFilter<"Room"> | string | null
     processingStartedAt?: DateTimeNullableFilter<"Room"> | Date | string | null
+    baseline?: JsonNullableFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
   }
@@ -67434,6 +67466,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
@@ -67449,6 +67482,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     items?: InspectionItemUncheckedCreateNestedManyWithoutRoomInput
@@ -67552,6 +67586,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
@@ -67567,6 +67602,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: InspectionItemUncheckedUpdateManyWithoutRoomNestedInput
@@ -67915,6 +67951,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutRoomsInput
@@ -67930,6 +67967,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     captures?: CaptureUncheckedCreateNestedManyWithoutRoomInput
@@ -68135,6 +68173,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutRoomsNestedInput
@@ -68150,6 +68189,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
@@ -76084,6 +76124,7 @@ export namespace Prisma {
     processingError?: string | null
     processingAttemptId?: string | null
     processingStartedAt?: Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -76158,6 +76199,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUpdateManyWithoutRoomNestedInput
@@ -76172,6 +76214,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     captures?: CaptureUncheckedUpdateManyWithoutRoomNestedInput
@@ -76186,6 +76229,7 @@ export namespace Prisma {
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
     processingAttemptId?: NullableStringFieldUpdateOperationsInput | string | null
     processingStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baseline?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -320,6 +320,11 @@ model Room {
   processingError String?
   processingAttemptId String?
   processingStartedAt DateTime?
+  /// On a check-out room, the check-in room it was copied from, frozen when the
+  /// check-out started (`RoomBaseline` in `src/lib/check-in-reference.ts`): its lines and
+  /// the ids of its agreed photos. Null on check-ins, on rooms added during a check-out,
+  /// and on check-outs started before it existed.
+  baseline        Json?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 

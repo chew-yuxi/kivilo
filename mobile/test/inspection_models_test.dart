@@ -137,7 +137,6 @@ void main() {
       'checkIn': {
         'baselineId': 'check-in-1',
         'conductedAt': '2024-01-02T03:00:00.000Z',
-        'matched': true,
         'lines': [
           {
             'key': 'item:item-in',
@@ -162,11 +161,9 @@ void main() {
     final checkIn = room.checkIn!;
     expect(checkIn.baselineId, 'check-in-1');
     expect(checkIn.photos.single.url, 'https://example.test/check-in');
-    expect(
-      checkIn.lineFor(room.items.first)!.summary,
-      'GOOD · ×2 · Light scratches',
-    );
-    expect(checkIn.lineFor(room.items.last), isNull);
+    expect(checkIn.lines.single.key, room.items.first.baselineKey);
+    expect(checkIn.lines.single.identifier, 'HOB-42');
+    expect(room.items.last.baselineKey, isNull);
   });
 
   test('a video capture carries its server-made poster when there is one', () {

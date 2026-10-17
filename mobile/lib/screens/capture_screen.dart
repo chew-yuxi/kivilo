@@ -838,15 +838,14 @@ class _CaptureScreenState extends State<CaptureScreen> {
         _unresolved.isNotEmpty;
     final hasMedia =
         pending?.isNotEmpty == true || _room?.captures.isNotEmpty == true;
-    final room = _room;
-    final checkIn = room?.checkIn;
+    final checkIn = _room?.checkIn;
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(_room?.name ?? 'Capture room'),
         leading: BackButton(onPressed: () => unawaited(_leaveAfterSaving())),
         actions: [
           // On a check-out, the room as it was at check-in, one tap from the camera.
-          if (room != null && checkIn != null)
+          if (checkIn != null)
             TextButton(
               onPressed: () => unawaited(
                 showKiviloDrawer<void>(
@@ -857,10 +856,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           ? 'At check-in'
                           : 'At check-in · ${shortDate(checkIn.conductedAt!)}',
                     ),
-                    content: CheckInReferenceView(
-                      reference: checkIn,
-                      roomName: room.name,
-                    ),
+                    content: CheckInReferenceView(reference: checkIn),
                   ),
                 ),
               ),

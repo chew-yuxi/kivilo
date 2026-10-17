@@ -15,7 +15,8 @@ export type StateLine = {
   createdAt: Date
 }
 
-export type StateRoom = { name: string; lines: StateLine[] }
+/// `roomId` is the signed check-in room this is, absent on a room only an addendum added.
+export type StateRoom = { name: string; lines: StateLine[]; roomId?: string }
 
 /// What an addendum entry does to the state, as its snapshot records it.
 export type StateChange = {
@@ -35,7 +36,7 @@ export function applyAddenda(
   rooms: StateRoom[],
   addenda: { at: Date; changes: StateChange[] }[],
 ): StateRoom[] {
-  const state = rooms.map((room) => ({ name: room.name, lines: [...room.lines] }))
+  const state: StateRoom[] = rooms.map((room) => ({ ...room, lines: [...room.lines] }))
   const roomFor = (name: string) => {
     const found = state.find((room) => room.name.toLowerCase() === name.trim().toLowerCase())
     if (found) return found

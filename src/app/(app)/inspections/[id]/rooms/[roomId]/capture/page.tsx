@@ -4,7 +4,7 @@ import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
-import { checkInReference } from '@/lib/check-in-reference'
+import { checkInReference, checkInReferenceSelect } from '@/lib/check-in-reference'
 import { RoomCaptureScreen, type ServerCapture } from '@/components/room-capture-screen'
 
 export const dynamic = 'force-dynamic'
@@ -31,23 +31,21 @@ export default async function RoomCapturePage({
       },
     },
     orderBy: { order: 'asc' },
-    select: {
-      id: true,
-      name: true,
-      status: true,
-      inspection: { select: { kind: true, baselineId: true } },
-    },
+    select: { id: true, name: true, status: true },
   })
 
   const index = rooms.findIndex((room) => room.id === roomId)
   if (index === -1) notFound()
-  const { inspection, ...room } = rooms[index]
+  const room = rooms[index]
   const next = rooms[index + 1]
 
-  const stored = await db.capture.findMany({
-    where: { roomId },
-    orderBy: { createdAt: 'asc' },
-  })
+  const [stored, checkIn] = await Promise.all([
+    db.capture.findMany({
+      where: { roomId },
+      orderBy: { createdAt: 'asc' },
+    }),
+    db.room.findUniqueOrThrow({ where: { id: roomId }, select: checkInReferenceSelect }).then(checkInReference),
+  ])
   const captures: ServerCapture[] = await Promise.all(
     stored.map(async (capture) => ({
       id: capture.id,
@@ -65,7 +63,7 @@ export default async function RoomCapturePage({
       room={room}
       captures={captures}
       position={{ index: index + 1, total: rooms.length }}
-      checkIn={await checkInReference({ name: room.name, inspection })}
+      checkIn={checkIn}
       next={next ? { href: roomHref(id, next), name: next.name } : null}
     />
   )

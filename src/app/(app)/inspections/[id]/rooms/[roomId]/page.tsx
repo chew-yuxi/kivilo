@@ -5,7 +5,7 @@ import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
-import { checkInReference } from '@/lib/check-in-reference'
+import { checkInReference, checkInReferenceSelect } from '@/lib/check-in-reference'
 import { ReviewEditor, type EvidenceCapture } from '@/components/review-editor'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +22,7 @@ export default async function RoomReviewPage({
     include: {
       items: { orderBy: { createdAt: 'asc' } },
       captures: { orderBy: { createdAt: 'asc' } },
-      inspection: { select: { kind: true, baselineId: true } },
+      inspection: checkInReferenceSelect.inspection,
     },
   })
 
@@ -36,16 +36,19 @@ export default async function RoomReviewPage({
     select: { id: true, status: true },
   })
 
-  const captures: EvidenceCapture[] = await Promise.all(
-    room.captures.map(async (capture) => ({
-      id: capture.id,
-      kind: capture.kind,
-      url: await createDownloadUrl(capture.storagePath),
-      annotations: toAnnotations(capture.annotations),
-    })),
-  )
-
-  const checkIn = await checkInReference(room)
+  const [captures, checkIn] = await Promise.all([
+    Promise.all(
+      room.captures.map(
+        async (capture): Promise<EvidenceCapture> => ({
+          id: capture.id,
+          kind: capture.kind,
+          url: await createDownloadUrl(capture.storagePath),
+          annotations: toAnnotations(capture.annotations),
+        }),
+      ),
+    ),
+    checkInReference(room),
+  ])
 
   return (
     <div className="space-y-6">
