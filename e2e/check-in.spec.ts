@@ -239,6 +239,7 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   // Only the two photos stamped at review, and the ring still on the 42.5 percent of
   // the picture it was drawn against.
   await expect(reviewPanel.getByRole('img', { name: 'Check-in photo' })).toHaveCount(2)
+  await expect(reviewPanel.getByText('Fridge rating plate')).toBeVisible()
   const panelPhoto = (await reviewPanel.locator('div:has(> svg[data-marks="1"]) > img').boundingBox())!
   const panelRing = (await reviewPanel.locator('svg[data-marks="1"] path').first().boundingBox())!
   expect((panelRing.x + panelRing.width / 2 - panelPhoto.x) / panelPhoto.width).toBeCloseTo(0.425, 2)

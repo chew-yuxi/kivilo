@@ -17,7 +17,7 @@ class CheckInReferenceView extends StatelessWidget {
       Navigator.of(context).push<void>(
         MaterialPageRoute(
           builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('At check-in')),
+            appBar: AppBar(title: Text(photo.caption ?? 'At check-in')),
             backgroundColor: Colors.black,
             body: Center(
               child: InteractiveViewer(
@@ -42,7 +42,10 @@ class CheckInReferenceView extends StatelessWidget {
       children: [
         if (reference.photos.isNotEmpty) ...[
           SizedBox(
-            height: 110,
+            // Room for a two-line caption under each picture when there is one.
+            height: reference.photos.any((photo) => photo.caption != null)
+                ? 150
+                : 110,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: reference.photos.length,
@@ -55,18 +58,36 @@ class CheckInReferenceView extends StatelessWidget {
                   child: InkWell(
                     onTap: () => _view(context, photo),
                     borderRadius: BorderRadius.circular(8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: SizedBox(
-                        width: 140,
-                        child: ColoredBox(
-                          color: KiviloColors.canvas,
-                          child: MarkedNetworkPhoto(
-                            url: photo.url,
-                            annotations: photo.annotations,
-                            fit: BoxFit.contain,
+                    child: SizedBox(
+                      width: 140,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: SizedBox(
+                              height: 110,
+                              width: 140,
+                              child: ColoredBox(
+                                color: KiviloColors.canvas,
+                                child: MarkedNetworkPhoto(
+                                  url: photo.url,
+                                  annotations: photo.annotations,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          if (photo.caption != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              photo.caption!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: text.bodySmall,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ),

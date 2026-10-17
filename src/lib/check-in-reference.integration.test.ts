@@ -71,6 +71,7 @@ async function signedCheckIn(label: string) {
                   storagePath: `${label}/kitchen-agreed.jpg`,
                   mimeType: 'image/jpeg',
                   sizeBytes: 1,
+                  note: 'Hob and worktop',
                   processedAt: new Date('2024-01-02T04:00:00Z'),
                 },
                 // Landed after Send, so never part of what was agreed.
@@ -241,8 +242,8 @@ describe('check-in reference', () => {
               id: 'addendum-photo-1',
               storagePath: 'addenda/x/new-hob.jpg',
               mimeType: 'image/jpeg',
-              note: null,
-              label: null,
+              note: 'New hob fitted',
+              label: 'After',
             }],
           }],
         },
@@ -255,9 +256,9 @@ describe('check-in reference', () => {
       ['entry:new-hob', 'BOSCH PKE611'],
       [expect.stringMatching(/^item:/), null],
     ])
-    expect(reference.photos.map((photo) => photo.url)).toEqual([
-      'https://storage.test/REFERENCE-ADDENDUM/kitchen-agreed.jpg',
-      'https://storage.test/addenda/x/new-hob.jpg',
+    expect(reference.photos.map((photo) => [photo.url, photo.caption])).toEqual([
+      ['https://storage.test/REFERENCE-ADDENDUM/kitchen-agreed.jpg', 'Hob and worktop'],
+      ['https://storage.test/addenda/x/new-hob.jpg', 'After: New hob fitted'],
     ])
     expect(kitchen.items.find((item) => item.identifier === 'BOSCH PKE611')!.baselineKey).toBe('entry:new-hob')
     expect(await checkInReference(bathroom.id, checkIn.agentId)).toMatchObject({ photos: [] })

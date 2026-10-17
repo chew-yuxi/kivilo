@@ -27,6 +27,9 @@ export const roomBaselineSchema = z.object({
     z.object({
       id: z.string(),
       storagePath: z.string(),
+      /// What the photo is of, as the report captions it: the inspector's note on a
+      /// check-in capture, or an addendum photo's label and note ("Before: cracked basin").
+      caption: z.string().nullable(),
       /// Read back through `toAnnotations` like every other stored copy, so marks of an
       /// older shape are dropped rather than breaking the room.
       annotations: z.unknown(),
@@ -41,7 +44,7 @@ export type CheckInReference = {
   baselineId: string
   conductedAt: string | null
   lines: CheckInLine[]
-  photos: { id: string; url: string; annotations: StoredAnnotations | null }[]
+  photos: { id: string; url: string; caption: string | null; annotations: StoredAnnotations | null }[]
 }
 
 /// The baseline for each of `rooms`, the check-in's current state as `startCheckOut`
@@ -74,9 +77,15 @@ export async function roomBaselines(rooms: StateRoom[]) {
         .map((capture) => ({
           id: capture.id,
           storagePath: capture.storagePath,
+          caption: capture.note,
           annotations: toAnnotations(capture.annotations),
         })),
-      ...room.addendumPhotos.map((photo) => ({ ...photo, annotations: null })),
+      ...room.addendumPhotos.map((photo) => ({
+        id: photo.id,
+        storagePath: photo.storagePath,
+        caption: [photo.label, photo.note].filter(Boolean).join(': ') || null,
+        annotations: null,
+      })),
     ],
   }))
 }
@@ -88,16 +97,19 @@ export async function roomBaselines(rooms: StateRoom[]) {
 ///
 /// It reads only, and never writes a line: the inspector still writes every one.
 export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
-  const room = await db.room.findUnique({ where: { id: roomId }, select: { baseline: true } })
-  if (!room || room.baseline === null) return null
-
+  // The check-in whose check-out holds this room, in one query with the room's baseline.
   const checkIn = await db.inspection.findFirst({
     where: { AND: [{ checkOut: { rooms: { some: { id: roomId } } } }, inspectionScope(agentId)] },
-    select: { id: true, conductedAt: true },
+    select: {
+      id: true,
+      conductedAt: true,
+      checkOut: { select: { rooms: { where: { id: roomId }, select: { baseline: true } } } },
+    },
   })
-  if (!checkIn) return null
+  const baseline = checkIn?.checkOut?.rooms[0]?.baseline
+  if (!checkIn || baseline === undefined || baseline === null) return null
 
-  const { lines, photos } = roomBaselineSchema.parse(room.baseline)
+  const { lines, photos } = roomBaselineSchema.parse(baseline)
   return {
     baselineId: checkIn.id,
     conductedAt: checkIn.conductedAt?.toISOString() ?? null,
@@ -106,6 +118,7 @@ export async function checkInReference(roomId: string, agentId: string): Promise
       photos.map(async (photo) => ({
         id: photo.id,
         url: await createDownloadUrl(photo.storagePath),
+        caption: photo.caption,
         annotations: toAnnotations(photo.annotations),
       })),
     ),

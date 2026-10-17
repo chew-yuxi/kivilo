@@ -319,15 +319,24 @@ class CheckInLine {
 }
 
 class CheckInPhoto {
-  const CheckInPhoto({required this.id, required this.url, this.annotations});
+  const CheckInPhoto({
+    required this.id,
+    required this.url,
+    this.caption,
+    this.annotations,
+  });
 
   final String id;
   final String url;
+
+  /// What the photo is of, as the report captions it ("Before: cracked basin").
+  final String? caption;
   final Map<String, dynamic>? annotations;
 
   factory CheckInPhoto.fromJson(Map<String, dynamic> json) => CheckInPhoto(
     id: json['id'] as String,
     url: json['url'] as String,
+    caption: json['caption'] as String?,
     annotations: json['annotations'] as Map<String, dynamic>?,
   );
 }

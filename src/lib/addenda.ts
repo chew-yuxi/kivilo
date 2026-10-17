@@ -80,7 +80,7 @@ export function snapshotChanges(snapshot: AddendumSnapshot): StateChange[] {
     roomName: entry.roomName,
     targetKey: entry.target?.key ?? null,
     line: entry.line,
-    photos: entry.photos.map(({ id, storagePath }) => ({ id, storagePath })),
+    photos: entry.photos.map(({ id, storagePath, label, note }) => ({ id, storagePath, label, note })),
   }))
 }
 

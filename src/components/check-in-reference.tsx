@@ -34,23 +34,25 @@ export function CheckInReferencePanel({ reference }: { reference: CheckInReferen
         <div className="flex snap-x gap-3 overflow-x-auto border-t border-gray-100 px-4 py-3">
           {reference.photos.map((photo) => (
             // The same rules as the review strip: the positioned box wraps the
-            // picture alone, self-start so it never stretches, and object-contain
-            // so a mark sits on what it points at.
-            <div
-              key={photo.id}
-              className="relative shrink-0 snap-start self-start overflow-hidden rounded-md border border-gray-200"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo.url}
-                alt="Check-in photo"
-                // Nothing downloads unless the inspector opens the panel, so on the
-                // capture screen the upload queue keeps the signal.
-                loading="lazy"
-                className="block h-32 w-auto max-w-[70vw] object-contain"
-              />
-              <MarkOverlay annotations={photo.annotations} />
-            </div>
+            // picture alone, never its caption, and w-fit so a caption wider than the
+            // picture cannot widen it; self-start so it never stretches; object-contain
+            // so a mark sits on what it points at. w-min wraps the caption to the
+            // picture's width.
+            <figure key={photo.id} className="w-min shrink-0 snap-start self-start">
+              <div className="relative w-fit overflow-hidden rounded-md border border-gray-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo.url}
+                  alt="Check-in photo"
+                  // Nothing downloads unless the inspector opens the panel, so on the
+                  // capture screen the upload queue keeps the signal.
+                  loading="lazy"
+                  className="block h-32 w-auto max-w-[70vw] object-contain"
+                />
+                <MarkOverlay annotations={photo.annotations} />
+              </div>
+              {photo.caption && <figcaption className="mt-1 text-xs text-gray-500">{photo.caption}</figcaption>}
+            </figure>
           ))}
         </div>
       )}

@@ -53,7 +53,7 @@ describe('applyAddenda', () => {
   })
 
   it('puts each entry\'s photos in the room its change lands in, by target before name', () => {
-    const photo = (id: string) => ({ id, storagePath: `addenda/a/${id}.jpg` })
+    const photo = (id: string) => ({ id, storagePath: `addenda/a/${id}.jpg`, label: null, note: null })
     const bedrooms: StateRoom[] = [
       { name: 'Bedroom', lines: [line('item:bed', 'Bed')], addendumPhotos: [] },
       { name: 'Bedroom', lines: [line('item:wardrobe', 'Wardrobe')], addendumPhotos: [] },

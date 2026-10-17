@@ -15,8 +15,8 @@ export type StateLine = {
   createdAt: Date
 }
 
-/// A photo an addendum entry was published with.
-export type StatePhoto = { id: string; storagePath: string }
+/// A photo an addendum entry was published with, with its label ("Before") and note.
+export type StatePhoto = { id: string; storagePath: string; label: string | null; note: string | null }
 
 /// `roomId` is the signed check-in room this is, absent on a room only an addendum added.
 /// `addendumPhotos` are the photos of the entries that changed it, in the order applied;

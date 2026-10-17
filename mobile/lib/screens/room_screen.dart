@@ -96,6 +96,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   CheckInPhoto(
                     id: photo.id,
                     url: _stable(photo.id, photo.url),
+                    caption: photo.caption,
                     annotations: photo.annotations,
                   ),
               ],

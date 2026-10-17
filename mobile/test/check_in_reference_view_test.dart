@@ -25,11 +25,18 @@ void main() {
               notes: 'Light scratches',
             ),
           ],
-          photos: [],
+          photos: [
+            CheckInPhoto(
+              id: 'photo-1',
+              url: 'https://example.test/before.jpg',
+              caption: 'Before: cracked basin',
+            ),
+          ],
         ),
       ),
     );
 
+    expect(find.text('Before: cracked basin'), findsOneWidget);
     expect(find.text('Hob ×2'), findsOneWidget);
     expect(find.text('GOOD · Light scratches'), findsOneWidget);
     expect(find.text('Open the full check-in'), findsOneWidget);
