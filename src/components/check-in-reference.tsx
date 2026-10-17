@@ -48,6 +48,9 @@ export function CheckInReferencePanel({
               <img
                 src={photo.url}
                 alt="Check-in photo"
+                // Closed on the capture screen, so nothing downloads there unless the
+                // inspector opens it, and the upload queue keeps the signal.
+                loading="lazy"
                 className="block h-32 w-auto max-w-[70vw] object-contain"
               />
               <MarkOverlay annotations={photo.annotations} />

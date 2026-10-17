@@ -17,7 +17,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { addRoom, renameRoom, startCheckOut } from '@/lib/actions'
-import { checkInReference, checkInReferenceSelect } from '@/lib/check-in-reference'
+import { checkInReference } from '@/lib/check-in-reference'
 
 const postalCode = '998812'
 
@@ -40,7 +40,7 @@ async function signedCheckIn(label: string) {
     },
   })
   vi.mocked(requireAgent).mockResolvedValue(agent)
-  return db.inspection.create({
+  const checkIn = await db.inspection.create({
     data: {
       tenancyId: tenancy.id,
       kind: 'CHECK_IN',
@@ -115,17 +115,11 @@ async function signedCheckIn(label: string) {
     },
     include: { rooms: { include: { items: true } } },
   })
+  return { ...checkIn, agentId: agent.id }
 }
 
 const checkOutRooms = (checkOutId: string) =>
-  db.room.findMany({
-    where: { inspectionId: checkOutId },
-    orderBy: { order: 'asc' },
-    select: { id: true, name: true, items: true, ...checkInReferenceSelect },
-  })
-
-const reference = async (roomId: string) =>
-  checkInReference(await db.room.findUniqueOrThrow({ where: { id: roomId }, select: checkInReferenceSelect }))
+  db.room.findMany({ where: { inspectionId: checkOutId }, orderBy: { order: 'asc' }, include: { items: true } })
 
 afterAll(async () => {
   await db.property.deleteMany({ where: { postalCode } })
@@ -146,16 +140,17 @@ describe('check-in reference', () => {
     const checkIn = await signedCheckIn('REFERENCE-KITCHEN')
     const [kitchen, bathroom] = await checkOutRooms(await startCheckOut(checkIn.id))
 
-    expect(await checkInReference(kitchen)).toMatchObject({
+    expect(await checkInReference(kitchen.id, checkIn.agentId)).toMatchObject({
       baselineId: checkIn.id,
       conductedAt: '2024-01-02T03:00:00.000Z',
       photos: [{ url: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg', annotations: null }],
     })
-    expect((await checkInReference(kitchen))!.lines.map((line) => [line.name, line.condition, line.notes])).toEqual([
+    const { lines } = (await checkInReference(kitchen.id, checkIn.agentId))!
+    expect(lines.map((line) => [line.name, line.condition, line.notes])).toEqual([
       ['Hob', 'GOOD', null],
       ['Worktop', 'FAIR', 'Burn mark by the sink'],
     ])
-    expect(await checkInReference(bathroom)).toMatchObject({ lines: [], photos: [] })
+    expect(await checkInReference(bathroom.id, checkIn.agentId)).toMatchObject({ lines: [], photos: [] })
   })
 
   it('names each copied row by the check-in line it came from, which survives an edit', async () => {
@@ -169,7 +164,8 @@ describe('check-in reference', () => {
 
     const hob = kitchen.items.find((item) => item.name === 'Hob')!
     await db.inspectionItem.update({ where: { id: hob.id }, data: { condition: 'DAMAGED' } })
-    expect((await reference(kitchen.id))!.lines.find((line) => line.key === hob.baselineKey)).toMatchObject({
+    const { lines } = (await checkInReference(kitchen.id, checkIn.agentId))!
+    expect(lines.find((line) => line.key === hob.baselineKey)).toMatchObject({
       name: 'Hob',
       condition: 'GOOD',
     })
@@ -181,13 +177,13 @@ describe('check-in reference', () => {
     const [kitchen, , first, second] = await checkOutRooms(checkOutId)
 
     await renameRoom(kitchen.id, checkOutId, 'Galley')
-    expect((await reference(kitchen.id))!.lines.map((line) => line.name)).toEqual(['Hob', 'Worktop'])
+    expect((await checkInReference(kitchen.id, checkIn.agentId))!.lines.map((line) => line.name)).toEqual(['Hob', 'Worktop'])
 
-    expect(await checkInReference(first)).toMatchObject({
+    expect(await checkInReference(first.id, checkIn.agentId)).toMatchObject({
       lines: [{ name: 'Bed' }],
       photos: [{ url: 'https://storage.test/REFERENCE-NAMES/bedroom-1.jpg' }],
     })
-    expect(await checkInReference(second)).toMatchObject({
+    expect(await checkInReference(second.id, checkIn.agentId)).toMatchObject({
       lines: [{ name: 'Wardrobe' }],
       photos: [{ url: 'https://storage.test/REFERENCE-NAMES/bedroom-2.jpg' }],
     })
@@ -199,14 +195,26 @@ describe('check-in reference', () => {
     const hob = checkIn.rooms.find((room) => room.name === 'Kitchen')!.items.find((item) => item.name === 'Hob')!
     await db.inspectionItem.update({ where: { id: hob.id }, data: { condition: 'POOR' } })
 
-    expect((await reference(kitchen.id))!.lines[0]).toMatchObject({ name: 'Hob', condition: 'GOOD' })
+    expect((await checkInReference(kitchen.id, checkIn.agentId))!.lines[0]).toMatchObject({ name: 'Hob', condition: 'GOOD' })
+  })
+
+  it('shows nothing to an agent who conducts the check-out but may not see the check-in', async () => {
+    const checkIn = await signedCheckIn('REFERENCE-CONDUCTOR')
+    const checkOutId = await startCheckOut(checkIn.id)
+    const [kitchen] = await checkOutRooms(checkOutId)
+    const conductor = await db.stakeholder.create({ data: { name: 'Conductor REFERENCE-CONDUCTOR' } })
+    await db.inspection.update({ where: { id: checkOutId }, data: { conductedById: conductor.id } })
+
+    expect(await checkInReference(kitchen.id, conductor.id)).toBeNull()
+    expect(await checkInReference(kitchen.id, checkIn.agentId)).not.toBeNull()
   })
 
   it('has nothing to show on a check-in, or on a room the check-in never had', async () => {
     const checkIn = await signedCheckIn('REFERENCE-NONE')
-    expect(await reference(checkIn.rooms.find((room) => room.name === 'Kitchen')!.id)).toBeNull()
+    const kitchen = checkIn.rooms.find((room) => room.name === 'Kitchen')!
+    expect(await checkInReference(kitchen.id, checkIn.agentId)).toBeNull()
 
     const checkOutId = await startCheckOut(checkIn.id)
-    expect(await reference(await addRoom(checkOutId, 'Study'))).toBeNull()
+    expect(await checkInReference(await addRoom(checkOutId, 'Study'), checkIn.agentId)).toBeNull()
   })
 })

@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { db } from '@/lib/db'
+import { inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { CONDITIONS } from '@/lib/inspection/schema'
-import type { Prisma } from '@/generated/prisma'
 
 /// What `startCheckOut` freezes on each check-out room it copies, in `Room.baseline`:
 /// the check-in room's lines as the check-out began from them (the signed check-in with
@@ -36,16 +36,19 @@ export type CheckInReference = {
 }
 
 /// A check-out room as it was at check-in, for the inspector walking it again. Null on
-/// a check-in, and on a room the check-in never had.
+/// a check-in, on a room the check-in never had, and for an agent who may not see the
+/// check-in: conducting a check-out admits you to it (`inspectionScope`), not to the
+/// check-in it was copied from. The caller has already authorized the room.
 ///
 /// It reads only, and never writes a line: the inspector still writes every one.
-/// Callers have already authorized the check-out room; its baseline is the check-in of
-/// the same tenancy, so whoever may work the one may read the other.
-export async function checkInReference(room: {
-  baseline: Prisma.JsonValue | null
-  inspection: { baseline: { id: string; conductedAt: Date | null } | null }
-}): Promise<CheckInReference | null> {
-  const checkIn = room.inspection.baseline
+export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
+  const [room, checkIn] = await Promise.all([
+    db.room.findUniqueOrThrow({ where: { id: roomId }, select: { baseline: true } }),
+    db.inspection.findFirst({
+      where: { AND: [{ checkOut: { rooms: { some: { id: roomId } } } }, inspectionScope(agentId)] },
+      select: { id: true, conductedAt: true },
+    }),
+  ])
   if (room.baseline === null || !checkIn) return null
 
   const { lines, photoIds } = roomBaselineSchema.parse(room.baseline)
@@ -66,9 +69,3 @@ export async function checkInReference(room: {
     ),
   }
 }
-
-/// What a caller selects to hand `checkInReference` a room.
-export const checkInReferenceSelect = {
-  baseline: true,
-  inspection: { select: { baseline: { select: { id: true, conductedAt: true } } } },
-} satisfies Prisma.RoomSelect

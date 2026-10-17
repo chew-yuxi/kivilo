@@ -4,7 +4,7 @@ import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
-import { checkInReference, checkInReferenceSelect } from '@/lib/check-in-reference'
+import { checkInReference } from '@/lib/check-in-reference'
 import { RoomCaptureScreen, type ServerCapture } from '@/components/room-capture-screen'
 
 export const dynamic = 'force-dynamic'
@@ -44,7 +44,7 @@ export default async function RoomCapturePage({
       where: { roomId },
       orderBy: { createdAt: 'asc' },
     }),
-    db.room.findUniqueOrThrow({ where: { id: roomId }, select: checkInReferenceSelect }).then(checkInReference),
+    checkInReference(roomId, agent.id),
   ])
   const captures: ServerCapture[] = await Promise.all(
     stored.map(async (capture) => ({

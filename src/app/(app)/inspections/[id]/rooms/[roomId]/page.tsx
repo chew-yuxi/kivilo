@@ -5,7 +5,7 @@ import { requireAgent, inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
-import { checkInReference, checkInReferenceSelect } from '@/lib/check-in-reference'
+import { checkInReference } from '@/lib/check-in-reference'
 import { ReviewEditor, type EvidenceCapture } from '@/components/review-editor'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +22,6 @@ export default async function RoomReviewPage({
     include: {
       items: { orderBy: { createdAt: 'asc' } },
       captures: { orderBy: { createdAt: 'asc' } },
-      inspection: checkInReferenceSelect.inspection,
     },
   })
 
@@ -47,7 +46,7 @@ export default async function RoomReviewPage({
         }),
       ),
     ),
-    checkInReference(room),
+    checkInReference(room.id, agent.id),
   ])
 
   return (

@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { authorizeInspection } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations } from '@/lib/annotations'
-import { checkInReference, checkInReferenceSelect } from '@/lib/check-in-reference'
+import { checkInReference } from '@/lib/check-in-reference'
 import { authed } from '@/lib/api/route'
 import { deleteRoom, renameRoom } from '@/lib/actions'
 
@@ -26,15 +26,15 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
   // that does not exist are one answer.
   if (index === -1) throw new Error('Room not found')
 
-  const stored = await db.capture.findMany({ where: { roomId }, orderBy: { createdAt: 'asc' } })
-  const items = await db.inspectionItem.findMany({
-    where: { roomId },
-    orderBy: { createdAt: 'asc' },
-    include: { evidence: { select: { captureId: true } } },
-  })
-  const checkIn = await checkInReference(
-    await db.room.findUniqueOrThrow({ where: { id: roomId }, select: checkInReferenceSelect }),
-  )
+  const [stored, items, checkIn] = await Promise.all([
+    db.capture.findMany({ where: { roomId }, orderBy: { createdAt: 'asc' } }),
+    db.inspectionItem.findMany({
+      where: { roomId },
+      orderBy: { createdAt: 'asc' },
+      include: { evidence: { select: { captureId: true } } },
+    }),
+    checkInReference(roomId, agent.id),
+  ])
 
   return {
     room: rooms[index],
