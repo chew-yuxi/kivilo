@@ -42,6 +42,9 @@ export type EvidenceCapture = {
 /// keeps what was typed, so either may have touched a field nobody changed.
 const differs = (was: string | null, now: string | null) => (was ?? '').trim() !== (now ?? '').trim()
 
+/// "serial: ABC123", or "no serial" when the check-in left it empty.
+const quoted = (field: string, value: string | null) => (value?.trim() ? `${field}: ${value.trim()}` : `no ${field}`)
+
 function ItemRow({
   item,
   baseline,
@@ -161,13 +164,9 @@ function ItemRow({
             baseline.condition,
             differs(baseline.name, item.name) ? `name: ${baseline.name}` : null,
             baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
-            differs(baseline.identifier, item.identifier)
-              ? baseline.identifier ? `serial: ${baseline.identifier}` : 'no serial'
-              : null,
-            differs(baseline.meterReading, item.meterReading)
-              ? baseline.meterReading ? `reading: ${baseline.meterReading}` : 'no reading'
-              : null,
-            differs(baseline.notes, item.notes) ? (baseline.notes ? `notes: ${baseline.notes}` : 'no notes') : null,
+            differs(baseline.identifier, item.identifier) ? quoted('serial', baseline.identifier) : null,
+            differs(baseline.meterReading, item.meterReading) ? quoted('reading', baseline.meterReading) : null,
+            differs(baseline.notes, item.notes) ? quoted('notes', baseline.notes) : null,
           ]
             .filter(Boolean)
             .join(' · ')}

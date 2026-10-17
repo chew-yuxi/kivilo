@@ -15,10 +15,6 @@ export const CONDITION_TONE: Record<ItemCondition, string> = {
   DAMAGED: 'text-red-700 bg-red-50',
 }
 
-/// A line an acknowledged addendum added or replaced, rather than one signed at
-/// check-in: `currentState` names those `entry:<id>`.
-const isUpdate = (key: string) => key.startsWith('entry:')
-
 /// The check-in's photos and lines for the room a check-out inspector is standing in,
 /// so they can compare without leaving it. Closed until asked for, so it never stands
 /// between the inspector and the camera or the inventory, which carries each copied
@@ -26,7 +22,7 @@ const isUpdate = (key: string) => key.startsWith('entry:')
 export function CheckInReferencePanel({ roomId, reference }: { roomId: string; reference: CheckInReference }) {
   // Signed URLs by photo id, fetched each time the panel opens, so a panel opened (or
   // reopened) an hour after the last fetch still gets live ones and a closed one costs
-  // nothing. The last set stays on screen while the next arrives.
+  // nothing.
   const [urls, setUrls] = useState<Record<string, string> | null>(null)
   const [unreachable, setUnreachable] = useState(false)
   const date = reference.conductedAt
@@ -37,13 +33,16 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
       })
     : null
   const hasUpdates =
-    reference.photos.some((photo) => photo.update) || reference.lines.some((line) => isUpdate(line.key))
+    reference.photos.some((photo) => photo.update) || reference.lines.some((line) => line.update)
 
   return (
     <details
       className="rounded-lg border border-gray-200 bg-white"
       onToggle={(e) => {
         if (!e.currentTarget.open || reference.photos.length === 0) return
+        // Never the last set: those may have expired, and a failure must not leave
+        // them up as broken pictures instead of saying so.
+        setUrls(null)
         setUnreachable(false)
         // The server records its own failures, so what reaches here is no signal, which
         // is said on screen rather than reported as a bug; opening again retries.
@@ -120,7 +119,7 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
                   {line.name}
                   {line.quantity > 1 && ` ×${line.quantity}`}
                 </span>
-                {isUpdate(line.key) && <span className="ml-2 text-xs text-gray-500">Update</span>}
+                {line.update && <span className="ml-2 text-xs text-gray-500">Update</span>}
                 {line.identifier && (
                   <span className="block font-mono text-xs text-gray-500">{line.identifier}</span>
                 )}

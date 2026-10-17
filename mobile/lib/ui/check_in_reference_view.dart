@@ -41,7 +41,8 @@ class CheckInReferenceView extends StatelessWidget {
       for (final (number, mark)
           in ((photo.annotations?['marks'] as List<dynamic>?) ?? const [])
               .indexed)
-        if ((mark as Map<String, dynamic>)['note'] case final String note)
+        if ((mark as Map<String, dynamic>)['note'] case final String note
+            when note.isNotEmpty)
           '${number + 1}. $note',
     ].where((line) => line.isNotEmpty).join('\n');
     return Semantics(

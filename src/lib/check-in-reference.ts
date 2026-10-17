@@ -10,7 +10,8 @@ import { CONDITIONS } from '@/lib/inspection/schema'
 /// the room as the check-out began from it (the signed check-in with every acknowledged
 /// addendum), its lines and every photo both parties agreed to of it. Frozen, so
 /// renaming the room, two rooms sharing a name, or an addendum acknowledged later can
-/// never change what the inspector compares against.
+/// never change what the inspector compares against. Rows are read strictly, so changing
+/// this shape means migrating the rows already stored.
 export const roomBaselineSchema = z.object({
   lines: z.array(
     z.object({
@@ -21,6 +22,8 @@ export const roomBaselineSchema = z.object({
       notes: z.string().nullable(),
       identifier: z.string().nullable(),
       meterReading: z.string().nullable(),
+      /// Added or replaced by an acknowledged addendum, not signed at check-in.
+      update: z.boolean(),
     }),
   ),
   photos: z.array(
@@ -72,6 +75,8 @@ export async function roomBaselines(rooms: StateRoom[]) {
       notes: line.notes,
       identifier: line.identifier,
       meterReading: line.meterReading,
+      // `currentState` names the lines addenda bring `entry:<id>`.
+      update: line.key.startsWith('entry:'),
     })),
     photos: [
       ...captures

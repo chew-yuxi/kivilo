@@ -259,9 +259,9 @@ describe('check-in reference', () => {
 
     const [kitchen, bathroom] = await checkOutRooms(await startCheckOut(checkIn.id))
     const reference = (await checkInReference(kitchen.id, checkIn.agentId))!
-    expect(reference.lines.map((each) => [each.key, each.identifier])).toEqual([
-      ['entry:new-hob', 'BOSCH PKE611'],
-      [expect.stringMatching(/^item:/), null],
+    expect(reference.lines.map((each) => [each.key, each.identifier, each.update])).toEqual([
+      ['entry:new-hob', 'BOSCH PKE611', true],
+      [expect.stringMatching(/^item:/), null, false],
     ])
     const urls = await checkInPhotoUrls(kitchen.id, checkIn.agentId)
     expect(reference.photos.map((photo) => [urls[photo.id], photo.caption, photo.update])).toEqual([

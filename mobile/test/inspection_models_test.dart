@@ -146,6 +146,7 @@ void main() {
             'notes': 'Light scratches',
             'identifier': 'HOB-42',
             'meterReading': null,
+            'update': false,
           },
         ],
         'photos': [

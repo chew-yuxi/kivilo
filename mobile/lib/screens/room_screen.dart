@@ -1037,6 +1037,12 @@ class _RoomScreenState extends State<RoomScreen> {
   static bool _differs(String? was, String? now) =>
       (was ?? '').trim() != (now ?? '').trim();
 
+  /// "serial: ABC123", or "no serial" when the check-in left it empty.
+  static String _quoted(String field, String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? 'no $field' : '$field: $trimmed';
+  }
+
   /// [baseline] is the check-in line a check-out row was copied from, so what it was
   /// stays in view once it is edited.
   Widget _inventoryCard(
@@ -1056,15 +1062,11 @@ class _RoomScreenState extends State<RoomScreen> {
             if (_differs(baseline.name, item.name)) 'name: ${baseline.name}',
             if (baseline.quantity != item.quantity) '×${baseline.quantity}',
             if (_differs(baseline.identifier, item.identifier))
-              baseline.identifier == null
-                  ? 'no serial'
-                  : 'serial: ${baseline.identifier}',
+              _quoted('serial', baseline.identifier),
             if (_differs(baseline.meterReading, item.meterReading))
-              baseline.meterReading == null
-                  ? 'no reading'
-                  : 'reading: ${baseline.meterReading}',
+              _quoted('reading', baseline.meterReading),
             if (_differs(baseline.notes, item.notes))
-              baseline.notes == null ? 'no notes' : 'notes: ${baseline.notes}',
+              _quoted('notes', baseline.notes),
           ].join(' · ');
     return Card(
       child: Padding(

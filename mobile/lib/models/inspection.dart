@@ -231,8 +231,9 @@ class RoomDetail {
   final List<InventoryItem> items;
   final List<EvidenceCapture> captures;
 
-  /// On a check-out, the room as it was at check-in. Null on a check-in, on a room the
-  /// check-in never had, and from a server older than the field.
+  /// On a check-out, the room as it was at check-in. Null on a check-in, on a room added
+  /// during the check-out, for an agent who conducts the check-out but may not see the
+  /// check-in, and from a server older than the field.
   final CheckInReference? checkIn;
 
   factory RoomDetail.fromJson(Map<String, dynamic> json) {
@@ -297,6 +298,7 @@ class CheckInLine {
     this.notes,
     this.identifier,
     this.meterReading,
+    this.update = false,
   });
 
   final String key;
@@ -307,9 +309,8 @@ class CheckInLine {
   final String? identifier;
   final String? meterReading;
 
-  /// Added or replaced by an acknowledged addendum rather than signed at check-in:
-  /// the server names those lines `entry:<id>`.
-  bool get update => key.startsWith('entry:');
+  /// Added or replaced by an acknowledged addendum rather than signed at check-in.
+  final bool update;
 
   factory CheckInLine.fromJson(Map<String, dynamic> json) => CheckInLine(
     key: json['key'] as String,
@@ -319,6 +320,7 @@ class CheckInLine {
     notes: json['notes'] as String?,
     identifier: json['identifier'] as String?,
     meterReading: json['meterReading'] as String?,
+    update: json['update'] as bool,
   );
 }
 
