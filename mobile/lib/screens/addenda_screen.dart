@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/addenda.dart';
 import '../services/addendum_photos.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
@@ -225,7 +226,9 @@ class _AddendaScreenState extends State<AddendaScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.addenda,
+    child: Scaffold(
     appBar: AppBar(title: const Text('Updates since signing')),
     body: KiviloContent(maxWidth: 840, child: FutureBuilder<AddendaWorkspace>(
       future: _future,
@@ -248,6 +251,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
         return RefreshIndicator(onRefresh: _refresh, child: _body(workspace));
       },
     )),
+  ),
   );
 
   Widget _body(AddendaWorkspace workspace) {

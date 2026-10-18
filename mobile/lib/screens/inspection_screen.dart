@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../services/capture_queue.dart';
 import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
@@ -13,6 +14,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
+import '../ui/tenant_handover.dart';
 import 'addenda_screen.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
@@ -184,10 +186,17 @@ class _InspectionScreenState extends State<InspectionScreen> {
           stakeholderId: stakeholderId,
           name: name,
           role: role,
+          api: _api,
         ),
       ),
     );
-    if (signed == true && mounted) await _refresh();
+    if (signed == true && mounted) {
+      await _refresh();
+      final inspection = await _future;
+      if (mounted && role == 'Tenant' && inspection.kind == 'CHECK_IN') {
+        await showTenantHandover(context, inspectionId: widget.id, api: _api);
+      }
+    }
   }
 
   /// For a party who is not at the handover: the server emails them a link to sign on
@@ -350,7 +359,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.inspection,
+    child: Scaffold(
     appBar: AppBar(title: const Text('Inspection')),
     body: KiviloContent(maxWidth: 1120, child: RefreshIndicator(
       onRefresh: _refresh,
@@ -526,6 +537,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       ],
                     ),
                   ),
+                ),
+              ],
+              if (isCheckIn &&
+                    inspection.signatures.any(
+                      (signature) =>
+                          signature.stakeholderId == inspection.tenantId,
+                    )) ...[
+                  const SizedBox(height: 16),
+                  OutlinedButton(
+                    onPressed: () => showTenantHandover(
+                      context,
+                      inspectionId: widget.id,
+                      api: _api,
+                    ),
+                    child: const Text('Tenant handover'),
                 ),
               ],
               if (inspection.baselineId != null) ...[
@@ -887,8 +913,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
             ],
           );
         },
-      ),
-    )),
+      )),
+    ),
+  ),
   );
 
   bool _costOpen(Map<String, dynamic> record) => const [
@@ -1013,8 +1040,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
             ],
           ],
         ),
-      ),
-    ),
+      )),
   );
 
   Widget _signatureTile(
@@ -1500,7 +1526,6 @@ class _FindingEditorState extends State<FindingEditor> {
             ),
           ],
         ],
-      ),
-    ),
+      )),
   );
 }

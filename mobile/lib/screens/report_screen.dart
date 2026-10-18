@@ -3,11 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/report.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/tenant_handover.dart';
 import 'photo_mark_screen.dart';
 import 'signature_screen.dart';
 
@@ -43,6 +45,55 @@ class _ReportScreenState extends State<ReportScreen> {
     setState(() => _acknowledging = addendum.id);
     try {
       await _api.acknowledgeAddendum(addendum.id);
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    } finally {
+      if (mounted) setState(() => _acknowledging = null);
+    }
+  }
+
+  Future<void> _dispute(ReportAddendum addendum) async {
+    var reason = '';
+    final result = await showKiviloDrawer<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDrawerState) => KiviloDrawer(
+          title: const Text('Dispute move-in condition'),
+          content: TextField(
+            autofocus: true,
+            minLines: 3,
+            maxLines: 6,
+            maxLength: 2000,
+            decoration: const InputDecoration(
+              labelText: 'What do you disagree with?',
+              helperText: 'Your reason stays on the dated notice.',
+            ),
+            onChanged: (value) => setDrawerState(() => reason = value),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: reason.trim().isEmpty
+                  ? null
+                  : () => Navigator.pop(context, reason.trim()),
+              child: const Text('Record dispute'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    setState(() => _acknowledging = addendum.id);
+    try {
+      await _api.disputeAddendum(addendum.id, result);
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
@@ -111,14 +162,22 @@ class _ReportScreenState extends State<ReportScreen> {
           savedSignature: SavedSignature(
             Supabase.instance.client.auth.currentUser!.id,
           ),
+          api: _api,
         ),
       ),
     );
-    if (signed == true && mounted) await _refresh();
+    if (signed == true && mounted) {
+      await _refresh();
+      if (mounted && !landlord && !report.isCheckOut) {
+        await showTenantHandover(context, inspectionId: report.id, api: _api);
+      }
+    }
   }
 
   @override
-  Widget build(BuildContext context) => FutureBuilder<SignedReport>(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.report,
+    child: FutureBuilder<SignedReport>(
     future: _future,
     builder: (context, snapshot) {
       final report = snapshot.data;
@@ -157,6 +216,7 @@ class _ReportScreenState extends State<ReportScreen> {
             : null,
       );
     },
+  ),
   );
 
   Widget _body(SignedReport report) {
@@ -191,6 +251,17 @@ class _ReportScreenState extends State<ReportScreen> {
               : KiviloStatusPill(status: report.status),
         ),
         const SizedBox(height: 16),
+        if (!report.isCheckOut &&
+            report.signatures.any(
+              (signature) => signature.name == report.tenant,
+            )) ...[
+          OutlinedButton(
+            onPressed: () =>
+                showTenantHandover(context, inspectionId: report.id, api: _api),
+            child: const Text('Tenant handover'),
+          ),
+          const SizedBox(height: 16),
+        ],
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -260,7 +331,7 @@ class _ReportScreenState extends State<ReportScreen> {
             title: 'Updates since signing',
             subtitle:
                 'Recorded beside the signed report, which they do not change. '
-                'Each counts once the landlord and tenant have both acknowledged it.',
+                'Updates count once acknowledged. A move-in condition notice counts once the landlord accepts it.',
           ),
           for (final addendum in report.addenda) ...[
             const SizedBox(height: 10),
@@ -480,7 +551,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Widget _addendum(ReportAddendum addendum) {
     final text = Theme.of(context).textTheme;
-    final pending = addendum.acknowledgedAt == null;
+    final pending = addendum.acknowledgedAt == null && addendum.dispute == null;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -495,7 +566,11 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
               child: Text(
                 'Updated ${shortDate(addendum.effectiveDate)} · Update ${addendum.number}'
-                '${pending ? ' · Pending acknowledgement' : ''}',
+                '${addendum.dispute != null
+                    ? ' · Disputed'
+                    : pending
+                    ? ' · Pending acknowledgement'
+                    : ''}',
                 style: const TextStyle(
                   color: KiviloColors.amber,
                   fontSize: 12,
@@ -505,6 +580,24 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             const SizedBox(height: 10),
             Text(addendum.title, style: text.titleMedium),
+            if (addendum.moveInDefect case final claim?) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Tenant move-in condition · Reported ${shortDate(claim.reportedAt)} · Deadline ${calendarDate(claim.deadline)}',
+                style: text.bodySmall,
+              ),
+            ],
+            if (addendum.dispute case final dispute?) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Disputed by ${dispute.disputedBy} on ${shortDate(dispute.disputedAt)}',
+                style: text.titleSmall,
+              ),
+              Text(dispute.reason),
+              const Text(
+                'This notice is kept on the report and excluded from the agreed condition for check-out.',
+              ),
+            ],
             if (addendum.reason != null) ...[
               const SizedBox(height: 4),
               Text(addendum.reason!, style: text.bodyMedium),
@@ -516,12 +609,17 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             for (final entry in addendum.entries) ...[
               const Divider(height: 24),
-              Text(entry.heading, style: text.titleSmall),
+              Text(
+                addendum.isMoveInDefect
+                    ? 'Condition reported: ${entry.name ?? entry.targetName ?? 'Item'}'
+                    : entry.heading,
+                style: text.titleSmall,
+              ),
               Text(
                 entry.roomName,
                 style: text.bodySmall?.copyWith(color: KiviloColors.muted),
               ),
-              if (entry.change == 'REPLACED' && entry.targetIdentifier != null)
+              if (!addendum.isMoveInDefect && entry.change == 'REPLACED' && entry.targetIdentifier != null)
                 Text(
                   'Was: ${entry.targetIdentifier}',
                   style: text.bodySmall?.copyWith(fontFamily: 'monospace'),
@@ -595,7 +693,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   ],
                 ),
               ),
-            if (addendum.acknowledgeInPerson)
+            if (addendum.acknowledgeInPerson && !addendum.isMoveInDefect)
               for (final ack in addendum.acknowledgements)
                 if (ack.acknowledgedAt == null && ack.stakeholderId != null)
                   Padding(
@@ -617,8 +715,19 @@ class _ReportScreenState extends State<ReportScreen> {
                 child: Text(
                   _acknowledging == addendum.id
                       ? 'Recording…'
+                      : addendum.isMoveInDefect
+                      ? 'I agree this was present at move-in'
                       : 'I acknowledge this update',
                 ),
+              ),
+            ],
+            if (addendum.disputeAs == 'LANDLORD') ...[
+              const SizedBox(height: 8),
+              OutlinedButton(
+                onPressed: _acknowledging == null
+                    ? () => _dispute(addendum)
+                    : null,
+                child: const Text('Dispute move-in condition'),
               ),
             ],
           ],

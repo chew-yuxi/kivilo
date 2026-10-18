@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { signInEmail, signatureRequestEmail, signedCopyEmail } from './email'
+import { signInEmail, signatureRequestEmail, signedCopyEmail, tenantHandoverEmail } from './email'
 import { shortFingerprint } from './report-fingerprint'
 
 describe('signInEmail', () => {
@@ -90,5 +90,35 @@ describe('signedCopyEmail', () => {
 describe('shortFingerprint', () => {
   it('prints the first sixteen hex digits in groups of four', () => {
     expect(shortFingerprint('0123456789abcdef'.repeat(4))).toBe('0123 4567 89AB CDEF')
+  })
+})
+
+describe('tenantHandoverEmail', () => {
+  const handover = {
+    id: 'handover-email', recipientName: 'Marcus Lee', address: '8 Shenton Way, Singapore 068811',
+    link: 'https://kivilo.test/handover/checkin?email=marcus%40example.com',
+    windowDays: 30, deadline: new Date('2026-06-30T15:59:59.999Z'), countersigned: false,
+  }
+
+  it('gives the Singapore deadline and authenticated handover link without calling an unsigned copy completed', () => {
+    const { subject, text } = tenantHandoverEmail(handover)
+    expect(subject).toBe('Your handover for 8 Shenton Way, Singapore 068811')
+    expect(text).toContain('30-day move-in defect period ends on 30 June 2026')
+    expect(text).toContain('end of the day in Singapore')
+    expect(text).toContain(handover.link)
+    expect(text).toContain('Once the landlord has also signed')
+    expect(text).toContain('Sign in with a code emailed to this address')
+    expect(text).toContain('signed check-in report stays unchanged')
+    expect(text).not.toContain('/reports/')
+    expect(text).not.toContain('Both parties have signed')
+  })
+
+  it('keeps repairs available when the tenancy has no early defect period', () => {
+    const { text } = tenantHandoverEmail({ ...handover, deadline: null, windowDays: 0, countersigned: true })
+    expect(text).toContain('Both parties have signed')
+    expect(text).toContain('not enabled for this tenancy')
+    expect(text).toContain('still report repairs')
+    expect(text).not.toContain('ends on')
+    expect(text).not.toContain('0-day')
   })
 })

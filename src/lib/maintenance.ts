@@ -4,6 +4,8 @@ import { agentTenancies, authorizeTenancy, tenancyScope, type TenancyRole } from
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { Prisma } from '@/generated/prisma'
+import { moveInDefectIntent, moveInDefectOptions } from '@/lib/move-in-defects'
+import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
 
 const category = z.enum([
   'APPLIANCE', 'PLUMBING', 'LOCKSMITH', 'ELECTRICAL',
@@ -31,6 +33,7 @@ export const createCaseInput = z.object({
   priority: priority.default('ROUTINE'),
   title: z.string().trim().min(1).max(120),
   description: z.string().trim().min(1).max(4000),
+  wasPresentAtMoveIn: z.boolean().default(false),
 })
 
 export const updateCaseInput = z.object({
@@ -87,6 +90,7 @@ export const proposalAnswerInput = z.discriminatedUnion('decision', [
 export const tenancyTermsInput = z.object({
   minorRepairCap: money.nullable().optional(),
   agentMayAgreeCosts: z.boolean().optional(),
+  defectWindowDays: z.number().int().min(0).max(365).optional(),
 })
 
 const allowedTransitions: Record<string, readonly string[]> = {
@@ -196,7 +200,7 @@ function caseInclude() {
   return {
     propertyAsset: true,
     reportedBy: { select: { id: true, name: true } },
-    tenancy: { include: { property: true } },
+    tenancy: { include: { property: true, landlord: { select: { name: true } } } },
     events: {
       orderBy: { createdAt: 'asc' as const },
       include: { actor: { select: { id: true, name: true } } },
@@ -206,6 +210,7 @@ function caseInclude() {
       include: { provider: true, verification: true },
     },
     evidence: { orderBy: { createdAt: 'asc' as const } },
+    moveInDefectAddendum: true,
     responsibilityProposals: {
       orderBy: { createdAt: 'asc' as const },
       include: {
@@ -309,6 +314,7 @@ export async function listTenancies(stakeholderId: string) {
 
 export async function tenancyDetail(tenancyId: string, stakeholderId: string) {
   const { tenancy, role } = await authorizeTenancy(tenancyId, stakeholderId)
+  const moveInDefects = await moveInDefectOptions(tenancy, role)
   return {
     id: tenancy.id,
     role,
@@ -322,6 +328,7 @@ export async function tenancyDetail(tenancyId: string, stakeholderId: string) {
     endDate: tenancy.endDate.toISOString(),
     minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
     agentMayAgreeCosts: tenancy.agentMayAgreeCosts,
+    moveInDefects,
     capabilities: {
       report: true,
       manage: canManage(role),
@@ -392,6 +399,9 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     new Prisma.Decimal(0),
   )
   const repair = repairRoles(role, maintenanceCase.responsibilityProposals)
+  const moveInOptions = await moveInDefectOptions(tenancy, role, maintenanceCase.moveInDefectInspectionId)
+  const notice = maintenanceCase.moveInDefectAddendum
+  const window = moveInDefectWindow(tenancy, maintenanceCase.createdAt)
   return {
     id: maintenanceCase.id,
     tenancyId: maintenanceCase.tenancyId,
@@ -399,6 +409,22 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     canManage: canManage(role),
     canLogVisit: repair.canLogVisit,
     canVerify: repair.canVerify,
+    moveInDefect: {
+      wasPresentAtMoveIn: maintenanceCase.wasPresentAtMoveIn,
+      canSubmit: role === 'TENANT' && maintenanceCase.reportedById === stakeholderId &&
+        maintenanceCase.wasPresentAtMoveIn && window.open && Boolean(moveInOptions.checkInId) && !notice && !moveInOptions.checkOutSigned,
+      addendumId: notice?.id ?? null,
+      inspectionId: maintenanceCase.moveInDefectInspectionId,
+      status: notice ? notice.disputedAt ? 'DISPUTED' : notice.acknowledgedAt ? 'ACKNOWLEDGED' : 'PENDING' : null,
+      canRespond: role === 'LANDLORD' && Boolean(notice) && !notice?.disputedAt && !notice?.acknowledgedAt && !moveInOptions.checkOutSigned,
+      reportedAt: maintenanceCase.wasPresentAtMoveIn ? maintenanceCase.createdAt.toISOString() : null,
+      deadline: window.deadline ? singaporeCalendarDate(window.deadline) : null,
+      dispute: notice?.disputedAt ? {
+        disputedAt: notice.disputedAt.toISOString(), disputedById: notice.disputedById!,
+        disputedBy: tenancy.landlord.name, reason: notice.disputeReason!,
+      } : null,
+      targets: moveInOptions.targets,
+    },
     responsibility: {
       arrangedBy: repair.arrangedBy,
       minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
@@ -461,8 +487,14 @@ export async function createMaintenanceCase(tenancyId: string, stakeholderId: st
     if (!asset) throw new Error('Property asset not found')
   }
   const created = await db.$transaction(async (tx) => {
+    const moveInDefectInspectionId = input.wasPresentAtMoveIn
+      ? await moveInDefectIntent(tx, tenancy, stakeholderId)
+      : null
     const item = await tx.maintenanceCase.create({
-      data: { ...input, tenancyId, reportedById: stakeholderId },
+      data: {
+        ...input, tenancyId, reportedById: stakeholderId, moveInDefectInspectionId,
+        createdAt: input.wasPresentAtMoveIn ? new Date() : undefined,
+      },
     })
     await tx.maintenanceEvent.create({
       data: { caseId: item.id, actorId: stakeholderId, kind: 'REPORTED', body: input.description },
@@ -760,7 +792,22 @@ export async function updateTenancyTerms(tenancyId: string, stakeholderId: strin
   const { role } = await authorizeTenancy(tenancyId, stakeholderId)
   if (input.minorRepairCap !== undefined && !canManage(role)) throw new Error('Tenancy not found')
   if (input.agentMayAgreeCosts !== undefined && role !== 'LANDLORD') throw new Error('Tenancy not found')
-  await db.tenancy.update({ where: { id: tenancyId }, data: input })
+  if (input.defectWindowDays !== undefined && !canManage(role)) throw new Error('Tenancy not found')
+  await db.$transaction(async (tx) => {
+    if (input.defectWindowDays !== undefined) {
+      await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "tenancyId" = ${tenancyId} AND "kind" = 'CHECK_IN' ORDER BY "id" FOR UPDATE`
+      await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
+      const tenancy = await tx.tenancy.findUniqueOrThrow({ where: { id: tenancyId }, select: { tenantId: true, defectWindowDays: true } })
+      const tenantSignature = await tx.signature.findFirst({
+        where: { stakeholderId: tenancy.tenantId, inspection: { tenancyId, kind: 'CHECK_IN' } },
+        select: { id: true },
+      })
+      if (tenantSignature && input.defectWindowDays !== tenancy.defectWindowDays) {
+        throw new Error('The move-in defect window is fixed after the tenant signs')
+      }
+    }
+    await tx.tenancy.update({ where: { id: tenancyId }, data: input })
+  })
 }
 
 function evidenceExtension(mimeType: string) {

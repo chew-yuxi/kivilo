@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
 import '../models/addenda.dart';
+import '../models/handover.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../models/report.dart';
@@ -216,6 +217,21 @@ class Api {
     return TenancyDetail.fromJson(data as Map<String, dynamic>);
   }
 
+  Future<TenantHandover?> handover(String inspectionId) async {
+    try {
+      final response = await _get<Map<String, dynamic>>(
+        '/api/v1/inspections/$inspectionId/handover',
+      );
+      return response.data == null
+          ? null
+          : TenantHandover.fromJson(response.data!);
+    } on ApiFailure catch (error) {
+      // Unsigned, missing and inaccessible handovers share the same absence.
+      if (error.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
   Future<void> updateTenancyTerms(
     String tenancyId,
     Map<String, dynamic> body,
@@ -306,6 +322,22 @@ class Api {
       data: {'status': status, 'resolutionReason': resolutionReason},
     );
   });
+
+  Future<void> recordMoveInDefect(String caseId, Map<String, dynamic> body) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/maintenance/$caseId/move-in-defect',
+          data: body,
+        );
+      });
+
+  Future<void> disputeAddendum(String addendumId, String reason) =>
+      _call(() async {
+        await _dio.post(
+          '/api/v1/addenda/$addendumId/dispute',
+          data: {'reason': reason},
+        );
+      });
 
   Future<void> addMaintenanceComment(String caseId, String body) =>
       _call(() async {

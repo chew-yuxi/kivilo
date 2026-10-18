@@ -286,6 +286,28 @@ file's magic bytes, not its name (Android keeps `.heic` on the JPEG it writes). 
 for an update opens its report directly (`notificationScreen` in
 `mobile/lib/services/notification_route.dart`).
 
+## Tenant handover and move-in defects
+
+After the tenant's first check-in signature, `queueTenantHandover` queues their deadline
+email and `/api/v1/inspections/[id]/handover` supplies the QR. The QR opens
+`/handover/[inspectionId]`, requires the tenant's own account, and contains no bearer
+credential. `Tenancy.defectWindowDays` defaults to 30 inclusive Singapore calendar days;
+0 disables it. The landlord or agent can change it only before the tenant signs.
+
+`move-in-defects.ts` records a tenant's timely intent on their repair, pinning the signed
+check-in and server filing time. Publishing freezes text and selected BEFORE photos in
+an addendum snapshot, including its filing time and deadline. The tenant acknowledges
+by publishing; only the landlord's own account can agree or dispute, with a reason for a
+dispute. Agent in-person acknowledgement is forbidden. Pending/disputed notices stay on
+the report and PDF but never enter the agreed baseline. The immutable snapshot's
+`moveInDefect` provenance is authoritative even if retention removes its source FK.
+
+A condition notice keeps the physical item's key and identifiers. Two notices about
+one appliance cannot create two appliances. If an agreed replacement or removal retired
+its target, landlord acceptance refuses it. Responses and check-out copying lock the
+same check-in row, so the agreed inventory and photos are copied together. See
+`plans/m5-invites.md` for the full contract.
+
 ## Marking up a photo
 
 The inspector can circle a chip or point an arrow at a crack, on the phone, in the
@@ -365,6 +387,14 @@ cuts JWTs from every message and stack before they are stored or mailed.
 Every 15 minutes `/api/internal/errors` emails `ERROR_ALERT_TO` once per new fingerprint,
 then deletes anything over 90 days, as the privacy page promises. Never store a
 `/reports/[token]` path unredacted: `redactPath` is the guard.
+
+Usage events use the strict screen-category allowlist in `product-event-keys.ts`, never
+paths, ids or free text. The native reporter in `product_events.dart` partitions its
+bounded durable queue by Supabase auth user id and resolves the corresponding
+Stakeholder through `/api/v1/me` before supplying `x-kivilo-owner`. It pins every bearer
+to that account, including requests delayed by an interceptor. Route visibility and
+selected tabs record visits; rebuilds and hidden tabs do not. `/admin` aggregates web,
+iOS and Android behind the data-layer admin allowlist.
 
 ## Dev scripts
 

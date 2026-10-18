@@ -3,7 +3,8 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import type { Prisma } from '@/generated/prisma'
 
 /// The report emails: "please review and sign" when a report is sent for signature, and
-/// the signed PDF when the second signature lands. Both are written to the ReportEmail
+/// the tenant's handover after their signature, and the signed PDF when the second
+/// signature lands. They are written to the ReportEmail
 /// outbox inside the transaction that calls for them and delivered by
 /// `/api/internal/report-emails` (`report-email-delivery.ts`, kept apart so the server
 /// actions do not load the PDF renderer). A mail outage can delay an email but never
@@ -62,6 +63,35 @@ export async function queueSignedCopies(tx: Prisma.TransactionClient, inspection
       recipientId,
       kind: 'SIGNED_COPY' as const,
       dedupeKey: `signed-copy:${inspectionId}:${recipientId}`,
+    })),
+    skipDuplicates: true,
+  })
+}
+
+/// A tenant who signs gets their own handover link and move-in deadline immediately,
+/// including when the landlord has not signed yet. The signed PDF follows separately
+/// on countersignature. The row is made in the signature's transaction, once only.
+export async function queueTenantHandover(tx: Prisma.TransactionClient, inspectionId: string) {
+  const inspection = await tx.inspection.findUniqueOrThrow({
+    where: { id: inspectionId },
+    select: {
+      kind: true,
+      tenancy: { select: { tenantId: true, tenant: { select: { email: true } } } },
+      signatures: { select: { stakeholderId: true } },
+    },
+  })
+  const { tenantId, tenant } = inspection.tenancy
+  if (
+    inspection.kind !== 'CHECK_IN' || !tenant.email ||
+    !inspection.signatures.some((signature) => signature.stakeholderId === tenantId)
+  ) return
+  const recipients = await activeNotificationRecipients(tx, [tenantId])
+  await tx.reportEmail.createMany({
+    data: recipients.map((recipientId) => ({
+      inspectionId,
+      recipientId,
+      kind: 'TENANT_HANDOVER' as const,
+      dedupeKey: `tenant-handover:${inspectionId}:${recipientId}`,
     })),
     skipDuplicates: true,
   })

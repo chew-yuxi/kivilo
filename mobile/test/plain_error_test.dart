@@ -26,6 +26,24 @@ void main() {
     );
   });
 
+  test('a notice for a replaced item explains why it cannot be accepted', () {
+    final request = RequestOptions(
+      path: '/api/v1/addenda/notice/acknowledgement',
+    );
+    final refusal = DioException(
+      requestOptions: request,
+      response: Response(
+        requestOptions: request,
+        statusCode: 409,
+        data: {'error': 'move_in_defect_stale_target'},
+      ),
+    );
+    expect(
+      plainError(refusal),
+      'This item has since been replaced or removed. The notice cannot be agreed, but you can still dispute it.',
+    );
+  });
+
   /// Says what happened, never where to buy: store rules forbid pointing an app user at
   /// a purchase made outside the store.
   test('a plan limit is explained without selling anything', () {

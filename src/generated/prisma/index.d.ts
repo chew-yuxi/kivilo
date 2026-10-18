@@ -496,7 +496,8 @@ export type Verdict = (typeof Verdict)[keyof typeof Verdict]
 
 export const ReportEmailKind: {
   SIGNATURE_REQUEST: 'SIGNATURE_REQUEST',
-  SIGNED_COPY: 'SIGNED_COPY'
+  SIGNED_COPY: 'SIGNED_COPY',
+  TENANT_HANDOVER: 'TENANT_HANDOVER'
 };
 
 export type ReportEmailKind = (typeof ReportEmailKind)[keyof typeof ReportEmailKind]
@@ -4494,6 +4495,7 @@ export namespace Prisma {
     reportEmails: number
     addendaCreated: number
     addendaPublished: number
+    addendaDisputed: number
     addendumAcknowledgements: number
     subscriptionsManaged: number
   }
@@ -4518,6 +4520,7 @@ export namespace Prisma {
     reportEmails?: boolean | StakeholderCountOutputTypeCountReportEmailsArgs
     addendaCreated?: boolean | StakeholderCountOutputTypeCountAddendaCreatedArgs
     addendaPublished?: boolean | StakeholderCountOutputTypeCountAddendaPublishedArgs
+    addendaDisputed?: boolean | StakeholderCountOutputTypeCountAddendaDisputedArgs
     addendumAcknowledgements?: boolean | StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
   }
@@ -4669,6 +4672,13 @@ export namespace Prisma {
   /**
    * StakeholderCountOutputType without action
    */
+  export type StakeholderCountOutputTypeCountAddendaDisputedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReportAddendumWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
   export type StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AddendumAcknowledgementWhereInput
   }
@@ -4803,6 +4813,7 @@ export namespace Prisma {
     assessments: number
     reportEmails: number
     addenda: number
+    moveInDefectCases: number
   }
 
   export type InspectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4812,6 +4823,7 @@ export namespace Prisma {
     assessments?: boolean | InspectionCountOutputTypeCountAssessmentsArgs
     reportEmails?: boolean | InspectionCountOutputTypeCountReportEmailsArgs
     addenda?: boolean | InspectionCountOutputTypeCountAddendaArgs
+    moveInDefectCases?: boolean | InspectionCountOutputTypeCountMoveInDefectCasesArgs
   }
 
   // Custom InputTypes
@@ -4865,6 +4877,13 @@ export namespace Prisma {
    */
   export type InspectionCountOutputTypeCountAddendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReportAddendumWhereInput
+  }
+
+  /**
+   * InspectionCountOutputType without action
+   */
+  export type InspectionCountOutputTypeCountMoveInDefectCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MaintenanceCaseWhereInput
   }
 
 
@@ -5577,6 +5596,7 @@ export namespace Prisma {
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
+    addendaDisputed?: boolean | Stakeholder$addendaDisputedArgs<ExtArgs>
     addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
@@ -5647,6 +5667,7 @@ export namespace Prisma {
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
+    addendaDisputed?: boolean | Stakeholder$addendaDisputedArgs<ExtArgs>
     addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
@@ -5683,6 +5704,7 @@ export namespace Prisma {
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
       addendaCreated: Prisma.$ReportAddendumPayload<ExtArgs>[]
       addendaPublished: Prisma.$ReportAddendumPayload<ExtArgs>[]
+      addendaDisputed: Prisma.$ReportAddendumPayload<ExtArgs>[]
       addendumAcknowledgements: Prisma.$AddendumAcknowledgementPayload<ExtArgs>[]
       /**
        * The plan of an agent who is on no team. An agent on a team uses the team's.
@@ -6128,6 +6150,7 @@ export namespace Prisma {
     reportEmails<T extends Stakeholder$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaCreated<T extends Stakeholder$addendaCreatedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaPublished<T extends Stakeholder$addendaPublishedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaPublishedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    addendaDisputed<T extends Stakeholder$addendaDisputedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaDisputedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendumAcknowledgements<T extends Stakeholder$addendumAcknowledgementsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendumAcknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7044,6 +7067,30 @@ export namespace Prisma {
    * Stakeholder.addendaPublished
    */
   export type Stakeholder$addendaPublishedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    where?: ReportAddendumWhereInput
+    orderBy?: ReportAddendumOrderByWithRelationInput | ReportAddendumOrderByWithRelationInput[]
+    cursor?: ReportAddendumWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.addendaDisputed
+   */
+  export type Stakeholder$addendaDisputedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the ReportAddendum
      */
@@ -11754,12 +11801,14 @@ export namespace Prisma {
     monthlyRent: Decimal | null
     deposit: Decimal | null
     minorRepairCap: Decimal | null
+    defectWindowDays: number | null
   }
 
   export type TenancySumAggregateOutputType = {
     monthlyRent: Decimal | null
     deposit: Decimal | null
     minorRepairCap: Decimal | null
+    defectWindowDays: number | null
   }
 
   export type TenancyMinAggregateOutputType = {
@@ -11774,6 +11823,7 @@ export namespace Prisma {
     deposit: Decimal | null
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean | null
+    defectWindowDays: number | null
     renewalDecision: $Enums.RenewalDecision | null
     renewalSnoozedUntil: Date | null
     renewedFromId: string | null
@@ -11793,6 +11843,7 @@ export namespace Prisma {
     deposit: Decimal | null
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean | null
+    defectWindowDays: number | null
     renewalDecision: $Enums.RenewalDecision | null
     renewalSnoozedUntil: Date | null
     renewedFromId: string | null
@@ -11812,6 +11863,7 @@ export namespace Prisma {
     deposit: number
     minorRepairCap: number
     agentMayAgreeCosts: number
+    defectWindowDays: number
     renewalDecision: number
     renewalSnoozedUntil: number
     renewedFromId: number
@@ -11825,12 +11877,14 @@ export namespace Prisma {
     monthlyRent?: true
     deposit?: true
     minorRepairCap?: true
+    defectWindowDays?: true
   }
 
   export type TenancySumAggregateInputType = {
     monthlyRent?: true
     deposit?: true
     minorRepairCap?: true
+    defectWindowDays?: true
   }
 
   export type TenancyMinAggregateInputType = {
@@ -11845,6 +11899,7 @@ export namespace Prisma {
     deposit?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
+    defectWindowDays?: true
     renewalDecision?: true
     renewalSnoozedUntil?: true
     renewedFromId?: true
@@ -11864,6 +11919,7 @@ export namespace Prisma {
     deposit?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
+    defectWindowDays?: true
     renewalDecision?: true
     renewalSnoozedUntil?: true
     renewedFromId?: true
@@ -11883,6 +11939,7 @@ export namespace Prisma {
     deposit?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
+    defectWindowDays?: true
     renewalDecision?: true
     renewalSnoozedUntil?: true
     renewedFromId?: true
@@ -11989,6 +12046,7 @@ export namespace Prisma {
     deposit: Decimal
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean
+    defectWindowDays: number
     renewalDecision: $Enums.RenewalDecision | null
     renewalSnoozedUntil: Date | null
     renewedFromId: string | null
@@ -12027,6 +12085,7 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: boolean
     renewalDecision?: boolean
     renewalSnoozedUntil?: boolean
     renewedFromId?: boolean
@@ -12055,6 +12114,7 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: boolean
     renewalDecision?: boolean
     renewalSnoozedUntil?: boolean
     renewedFromId?: boolean
@@ -12079,6 +12139,7 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: boolean
     renewalDecision?: boolean
     renewalSnoozedUntil?: boolean
     renewedFromId?: boolean
@@ -12103,6 +12164,7 @@ export namespace Prisma {
     deposit?: boolean
     minorRepairCap?: boolean
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: boolean
     renewalDecision?: boolean
     renewalSnoozedUntil?: boolean
     renewedFromId?: boolean
@@ -12110,7 +12172,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
+  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
   export type TenancyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -12169,6 +12231,11 @@ export namespace Prisma {
        * Only the landlord can change it.
        */
       agentMayAgreeCosts: boolean
+      /**
+       * First N Singapore calendar days from the tenancy start, inclusive. Zero disables
+       * move-in notices. Fixed once the tenant signs the check-in.
+       */
+      defectWindowDays: number
       /**
        * Reminder choices belong to the tenancy, so teammates see the same decision.
        */
@@ -12622,6 +12689,7 @@ export namespace Prisma {
     readonly deposit: FieldRef<"Tenancy", 'Decimal'>
     readonly minorRepairCap: FieldRef<"Tenancy", 'Decimal'>
     readonly agentMayAgreeCosts: FieldRef<"Tenancy", 'Boolean'>
+    readonly defectWindowDays: FieldRef<"Tenancy", 'Int'>
     readonly renewalDecision: FieldRef<"Tenancy", 'RenewalDecision'>
     readonly renewalSnoozedUntil: FieldRef<"Tenancy", 'DateTime'>
     readonly renewedFromId: FieldRef<"Tenancy", 'String'>
@@ -13413,6 +13481,7 @@ export namespace Prisma {
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
     reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
     addenda?: boolean | Inspection$addendaArgs<ExtArgs>
+    moveInDefectCases?: boolean | Inspection$moveInDefectCasesArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -13491,6 +13560,7 @@ export namespace Prisma {
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
     reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
     addenda?: boolean | Inspection$addendaArgs<ExtArgs>
+    moveInDefectCases?: boolean | Inspection$moveInDefectCasesArgs<ExtArgs>
     _count?: boolean | InspectionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type InspectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13517,6 +13587,7 @@ export namespace Prisma {
       assessments: Prisma.$AssessmentVersionPayload<ExtArgs>[]
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
       addenda: Prisma.$ReportAddendumPayload<ExtArgs>[]
+      moveInDefectCases: Prisma.$MaintenanceCasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13954,6 +14025,7 @@ export namespace Prisma {
     assessments<T extends Inspection$assessmentsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportEmails<T extends Inspection$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addenda<T extends Inspection$addendaArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$addendaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    moveInDefectCases<T extends Inspection$moveInDefectCasesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$moveInDefectCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14598,6 +14670,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReportAddendumScalarFieldEnum | ReportAddendumScalarFieldEnum[]
+  }
+
+  /**
+   * Inspection.moveInDefectCases
+   */
+  export type Inspection$moveInDefectCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MaintenanceCase
+     */
+    select?: MaintenanceCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MaintenanceCase
+     */
+    omit?: MaintenanceCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MaintenanceCaseInclude<ExtArgs> | null
+    where?: MaintenanceCaseWhereInput
+    orderBy?: MaintenanceCaseOrderByWithRelationInput | MaintenanceCaseOrderByWithRelationInput[]
+    cursor?: MaintenanceCaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MaintenanceCaseScalarFieldEnum | MaintenanceCaseScalarFieldEnum[]
   }
 
   /**
@@ -20864,6 +20960,8 @@ export namespace Prisma {
     resolutionReason: string | null
     acknowledgedAt: Date | null
     resolvedAt: Date | null
+    wasPresentAtMoveIn: boolean | null
+    moveInDefectInspectionId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -20882,6 +20980,8 @@ export namespace Prisma {
     resolutionReason: string | null
     acknowledgedAt: Date | null
     resolvedAt: Date | null
+    wasPresentAtMoveIn: boolean | null
+    moveInDefectInspectionId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -20900,6 +21000,8 @@ export namespace Prisma {
     resolutionReason: number
     acknowledgedAt: number
     resolvedAt: number
+    wasPresentAtMoveIn: number
+    moveInDefectInspectionId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -20920,6 +21022,8 @@ export namespace Prisma {
     resolutionReason?: true
     acknowledgedAt?: true
     resolvedAt?: true
+    wasPresentAtMoveIn?: true
+    moveInDefectInspectionId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -20938,6 +21042,8 @@ export namespace Prisma {
     resolutionReason?: true
     acknowledgedAt?: true
     resolvedAt?: true
+    wasPresentAtMoveIn?: true
+    moveInDefectInspectionId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -20956,6 +21062,8 @@ export namespace Prisma {
     resolutionReason?: true
     acknowledgedAt?: true
     resolvedAt?: true
+    wasPresentAtMoveIn?: true
+    moveInDefectInspectionId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -21047,6 +21155,8 @@ export namespace Prisma {
     resolutionReason: string | null
     acknowledgedAt: Date | null
     resolvedAt: Date | null
+    wasPresentAtMoveIn: boolean
+    moveInDefectInspectionId: string | null
     createdAt: Date
     updatedAt: Date
     _count: MaintenanceCaseCountAggregateOutputType | null
@@ -21082,6 +21192,8 @@ export namespace Prisma {
     resolutionReason?: boolean
     acknowledgedAt?: boolean
     resolvedAt?: boolean
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
@@ -21093,6 +21205,8 @@ export namespace Prisma {
     findings?: boolean | MaintenanceCase$findingsArgs<ExtArgs>
     responsibilityProposals?: boolean | MaintenanceCase$responsibilityProposalsArgs<ExtArgs>
     addendumEntries?: boolean | MaintenanceCase$addendumEntriesArgs<ExtArgs>
+    moveInDefectInspection?: boolean | MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>
+    moveInDefectAddendum?: boolean | MaintenanceCase$moveInDefectAddendumArgs<ExtArgs>
     _count?: boolean | MaintenanceCaseCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceCase"]>
 
@@ -21110,11 +21224,14 @@ export namespace Prisma {
     resolutionReason?: boolean
     acknowledgedAt?: boolean
     resolvedAt?: boolean
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     propertyAsset?: boolean | MaintenanceCase$propertyAssetArgs<ExtArgs>
     reportedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    moveInDefectInspection?: boolean | MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceCase"]>
 
   export type MaintenanceCaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -21131,11 +21248,14 @@ export namespace Prisma {
     resolutionReason?: boolean
     acknowledgedAt?: boolean
     resolvedAt?: boolean
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     propertyAsset?: boolean | MaintenanceCase$propertyAssetArgs<ExtArgs>
     reportedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    moveInDefectInspection?: boolean | MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceCase"]>
 
   export type MaintenanceCaseSelectScalar = {
@@ -21152,11 +21272,13 @@ export namespace Prisma {
     resolutionReason?: boolean
     acknowledgedAt?: boolean
     resolvedAt?: boolean
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type MaintenanceCaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "tenancyId" | "propertyAssetId" | "reportedById" | "category" | "priority" | "title" | "description" | "status" | "resolutionReason" | "acknowledgedAt" | "resolvedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["maintenanceCase"]>
+  export type MaintenanceCaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "tenancyId" | "propertyAssetId" | "reportedById" | "category" | "priority" | "title" | "description" | "status" | "resolutionReason" | "acknowledgedAt" | "resolvedAt" | "wasPresentAtMoveIn" | "moveInDefectInspectionId" | "createdAt" | "updatedAt", ExtArgs["result"]["maintenanceCase"]>
   export type MaintenanceCaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     propertyAsset?: boolean | MaintenanceCase$propertyAssetArgs<ExtArgs>
@@ -21167,17 +21289,21 @@ export namespace Prisma {
     findings?: boolean | MaintenanceCase$findingsArgs<ExtArgs>
     responsibilityProposals?: boolean | MaintenanceCase$responsibilityProposalsArgs<ExtArgs>
     addendumEntries?: boolean | MaintenanceCase$addendumEntriesArgs<ExtArgs>
+    moveInDefectInspection?: boolean | MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>
+    moveInDefectAddendum?: boolean | MaintenanceCase$moveInDefectAddendumArgs<ExtArgs>
     _count?: boolean | MaintenanceCaseCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MaintenanceCaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     propertyAsset?: boolean | MaintenanceCase$propertyAssetArgs<ExtArgs>
     reportedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    moveInDefectInspection?: boolean | MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>
   }
   export type MaintenanceCaseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     propertyAsset?: boolean | MaintenanceCase$propertyAssetArgs<ExtArgs>
     reportedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    moveInDefectInspection?: boolean | MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>
   }
 
   export type $MaintenanceCasePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -21192,6 +21318,8 @@ export namespace Prisma {
       findings: Prisma.$FindingPayload<ExtArgs>[]
       responsibilityProposals: Prisma.$ResponsibilityProposalPayload<ExtArgs>[]
       addendumEntries: Prisma.$ReportAddendumEntryPayload<ExtArgs>[]
+      moveInDefectInspection: Prisma.$InspectionPayload<ExtArgs> | null
+      moveInDefectAddendum: Prisma.$ReportAddendumPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -21207,6 +21335,14 @@ export namespace Prisma {
       resolutionReason: string | null
       acknowledgedAt: Date | null
       resolvedAt: Date | null
+      /**
+       * A timely tenant report reserves its move-in notice while evidence uploads finish.
+       */
+      wasPresentAtMoveIn: boolean
+      /**
+       * Pin the signed check-in when the intent is recorded; later reports cannot retarget it.
+       */
+      moveInDefectInspectionId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["maintenanceCase"]>
@@ -21612,6 +21748,8 @@ export namespace Prisma {
     findings<T extends MaintenanceCase$findingsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     responsibilityProposals<T extends MaintenanceCase$responsibilityProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$responsibilityProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResponsibilityProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendumEntries<T extends MaintenanceCase$addendumEntriesArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$addendumEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    moveInDefectInspection<T extends MaintenanceCase$moveInDefectInspectionArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$moveInDefectInspectionArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    moveInDefectAddendum<T extends MaintenanceCase$moveInDefectAddendumArgs<ExtArgs> = {}>(args?: Subset<T, MaintenanceCase$moveInDefectAddendumArgs<ExtArgs>>): Prisma__ReportAddendumClient<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21654,6 +21792,8 @@ export namespace Prisma {
     readonly resolutionReason: FieldRef<"MaintenanceCase", 'String'>
     readonly acknowledgedAt: FieldRef<"MaintenanceCase", 'DateTime'>
     readonly resolvedAt: FieldRef<"MaintenanceCase", 'DateTime'>
+    readonly wasPresentAtMoveIn: FieldRef<"MaintenanceCase", 'Boolean'>
+    readonly moveInDefectInspectionId: FieldRef<"MaintenanceCase", 'String'>
     readonly createdAt: FieldRef<"MaintenanceCase", 'DateTime'>
     readonly updatedAt: FieldRef<"MaintenanceCase", 'DateTime'>
   }
@@ -22217,6 +22357,44 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ReportAddendumEntryScalarFieldEnum | ReportAddendumEntryScalarFieldEnum[]
+  }
+
+  /**
+   * MaintenanceCase.moveInDefectInspection
+   */
+  export type MaintenanceCase$moveInDefectInspectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inspection
+     */
+    select?: InspectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inspection
+     */
+    omit?: InspectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InspectionInclude<ExtArgs> | null
+    where?: InspectionWhereInput
+  }
+
+  /**
+   * MaintenanceCase.moveInDefectAddendum
+   */
+  export type MaintenanceCase$moveInDefectAddendumArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReportAddendum
+     */
+    select?: ReportAddendumSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ReportAddendum
+     */
+    omit?: ReportAddendumOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReportAddendumInclude<ExtArgs> | null
+    where?: ReportAddendumWhereInput
   }
 
   /**
@@ -37549,6 +37727,10 @@ export namespace Prisma {
     publishedById: string | null
     contentHash: string | null
     acknowledgedAt: Date | null
+    sourceMaintenanceCaseId: string | null
+    disputedAt: Date | null
+    disputedById: string | null
+    disputeReason: string | null
   }
 
   export type ReportAddendumMaxAggregateOutputType = {
@@ -37565,6 +37747,10 @@ export namespace Prisma {
     publishedById: string | null
     contentHash: string | null
     acknowledgedAt: Date | null
+    sourceMaintenanceCaseId: string | null
+    disputedAt: Date | null
+    disputedById: string | null
+    disputeReason: string | null
   }
 
   export type ReportAddendumCountAggregateOutputType = {
@@ -37582,6 +37768,10 @@ export namespace Prisma {
     snapshot: number
     contentHash: number
     acknowledgedAt: number
+    sourceMaintenanceCaseId: number
+    disputedAt: number
+    disputedById: number
+    disputeReason: number
     _all: number
   }
 
@@ -37608,6 +37798,10 @@ export namespace Prisma {
     publishedById?: true
     contentHash?: true
     acknowledgedAt?: true
+    sourceMaintenanceCaseId?: true
+    disputedAt?: true
+    disputedById?: true
+    disputeReason?: true
   }
 
   export type ReportAddendumMaxAggregateInputType = {
@@ -37624,6 +37818,10 @@ export namespace Prisma {
     publishedById?: true
     contentHash?: true
     acknowledgedAt?: true
+    sourceMaintenanceCaseId?: true
+    disputedAt?: true
+    disputedById?: true
+    disputeReason?: true
   }
 
   export type ReportAddendumCountAggregateInputType = {
@@ -37641,6 +37839,10 @@ export namespace Prisma {
     snapshot?: true
     contentHash?: true
     acknowledgedAt?: true
+    sourceMaintenanceCaseId?: true
+    disputedAt?: true
+    disputedById?: true
+    disputeReason?: true
     _all?: true
   }
 
@@ -37745,6 +37947,10 @@ export namespace Prisma {
     snapshot: JsonValue | null
     contentHash: string | null
     acknowledgedAt: Date | null
+    sourceMaintenanceCaseId: string | null
+    disputedAt: Date | null
+    disputedById: string | null
+    disputeReason: string | null
     _count: ReportAddendumCountAggregateOutputType | null
     _avg: ReportAddendumAvgAggregateOutputType | null
     _sum: ReportAddendumSumAggregateOutputType | null
@@ -37781,11 +37987,17 @@ export namespace Prisma {
     snapshot?: boolean
     contentHash?: boolean
     acknowledgedAt?: boolean
+    sourceMaintenanceCaseId?: boolean
+    disputedAt?: boolean
+    disputedById?: boolean
+    disputeReason?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
     publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
     entries?: boolean | ReportAddendum$entriesArgs<ExtArgs>
     acknowledgements?: boolean | ReportAddendum$acknowledgementsArgs<ExtArgs>
+    sourceMaintenanceCase?: boolean | ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>
+    disputedBy?: boolean | ReportAddendum$disputedByArgs<ExtArgs>
     _count?: boolean | ReportAddendumCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["reportAddendum"]>
 
@@ -37804,9 +38016,15 @@ export namespace Prisma {
     snapshot?: boolean
     contentHash?: boolean
     acknowledgedAt?: boolean
+    sourceMaintenanceCaseId?: boolean
+    disputedAt?: boolean
+    disputedById?: boolean
+    disputeReason?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
     publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+    sourceMaintenanceCase?: boolean | ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>
+    disputedBy?: boolean | ReportAddendum$disputedByArgs<ExtArgs>
   }, ExtArgs["result"]["reportAddendum"]>
 
   export type ReportAddendumSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -37824,9 +38042,15 @@ export namespace Prisma {
     snapshot?: boolean
     contentHash?: boolean
     acknowledgedAt?: boolean
+    sourceMaintenanceCaseId?: boolean
+    disputedAt?: boolean
+    disputedById?: boolean
+    disputeReason?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
     publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+    sourceMaintenanceCase?: boolean | ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>
+    disputedBy?: boolean | ReportAddendum$disputedByArgs<ExtArgs>
   }, ExtArgs["result"]["reportAddendum"]>
 
   export type ReportAddendumSelectScalar = {
@@ -37844,26 +38068,36 @@ export namespace Prisma {
     snapshot?: boolean
     contentHash?: boolean
     acknowledgedAt?: boolean
+    sourceMaintenanceCaseId?: boolean
+    disputedAt?: boolean
+    disputedById?: boolean
+    disputeReason?: boolean
   }
 
-  export type ReportAddendumOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "number" | "title" | "reason" | "effectiveDate" | "createdById" | "createdAt" | "updatedAt" | "publishedAt" | "publishedById" | "snapshot" | "contentHash" | "acknowledgedAt", ExtArgs["result"]["reportAddendum"]>
+  export type ReportAddendumOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "number" | "title" | "reason" | "effectiveDate" | "createdById" | "createdAt" | "updatedAt" | "publishedAt" | "publishedById" | "snapshot" | "contentHash" | "acknowledgedAt" | "sourceMaintenanceCaseId" | "disputedAt" | "disputedById" | "disputeReason", ExtArgs["result"]["reportAddendum"]>
   export type ReportAddendumInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
     publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
     entries?: boolean | ReportAddendum$entriesArgs<ExtArgs>
     acknowledgements?: boolean | ReportAddendum$acknowledgementsArgs<ExtArgs>
+    sourceMaintenanceCase?: boolean | ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>
+    disputedBy?: boolean | ReportAddendum$disputedByArgs<ExtArgs>
     _count?: boolean | ReportAddendumCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ReportAddendumIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
     publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+    sourceMaintenanceCase?: boolean | ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>
+    disputedBy?: boolean | ReportAddendum$disputedByArgs<ExtArgs>
   }
   export type ReportAddendumIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     createdBy?: boolean | StakeholderDefaultArgs<ExtArgs>
     publishedBy?: boolean | ReportAddendum$publishedByArgs<ExtArgs>
+    sourceMaintenanceCase?: boolean | ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>
+    disputedBy?: boolean | ReportAddendum$disputedByArgs<ExtArgs>
   }
 
   export type $ReportAddendumPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -37874,6 +38108,8 @@ export namespace Prisma {
       publishedBy: Prisma.$StakeholderPayload<ExtArgs> | null
       entries: Prisma.$ReportAddendumEntryPayload<ExtArgs>[]
       acknowledgements: Prisma.$AddendumAcknowledgementPayload<ExtArgs>[]
+      sourceMaintenanceCase: Prisma.$MaintenanceCasePayload<ExtArgs> | null
+      disputedBy: Prisma.$StakeholderPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -37896,6 +38132,13 @@ export namespace Prisma {
       snapshot: Prisma.JsonValue | null
       contentHash: string | null
       acknowledgedAt: Date | null
+      /**
+       * A tenant's dated move-in notice, published directly from their maintenance report.
+       */
+      sourceMaintenanceCaseId: string | null
+      disputedAt: Date | null
+      disputedById: string | null
+      disputeReason: string | null
     }, ExtArgs["result"]["reportAddendum"]>
     composites: {}
   }
@@ -38295,6 +38538,8 @@ export namespace Prisma {
     publishedBy<T extends ReportAddendum$publishedByArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$publishedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     entries<T extends ReportAddendum$entriesArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     acknowledgements<T extends ReportAddendum$acknowledgementsArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$acknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sourceMaintenanceCase<T extends ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs>>): Prisma__MaintenanceCaseClient<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    disputedBy<T extends ReportAddendum$disputedByArgs<ExtArgs> = {}>(args?: Subset<T, ReportAddendum$disputedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -38338,6 +38583,10 @@ export namespace Prisma {
     readonly snapshot: FieldRef<"ReportAddendum", 'Json'>
     readonly contentHash: FieldRef<"ReportAddendum", 'String'>
     readonly acknowledgedAt: FieldRef<"ReportAddendum", 'DateTime'>
+    readonly sourceMaintenanceCaseId: FieldRef<"ReportAddendum", 'String'>
+    readonly disputedAt: FieldRef<"ReportAddendum", 'DateTime'>
+    readonly disputedById: FieldRef<"ReportAddendum", 'String'>
+    readonly disputeReason: FieldRef<"ReportAddendum", 'String'>
   }
     
 
@@ -38803,6 +39052,44 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
+  }
+
+  /**
+   * ReportAddendum.sourceMaintenanceCase
+   */
+  export type ReportAddendum$sourceMaintenanceCaseArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MaintenanceCase
+     */
+    select?: MaintenanceCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MaintenanceCase
+     */
+    omit?: MaintenanceCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MaintenanceCaseInclude<ExtArgs> | null
+    where?: MaintenanceCaseWhereInput
+  }
+
+  /**
+   * ReportAddendum.disputedBy
+   */
+  export type ReportAddendum$disputedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
   }
 
   /**
@@ -48056,6 +48343,7 @@ export namespace Prisma {
     deposit: 'deposit',
     minorRepairCap: 'minorRepairCap',
     agentMayAgreeCosts: 'agentMayAgreeCosts',
+    defectWindowDays: 'defectWindowDays',
     renewalDecision: 'renewalDecision',
     renewalSnoozedUntil: 'renewalSnoozedUntil',
     renewedFromId: 'renewedFromId',
@@ -48187,6 +48475,8 @@ export namespace Prisma {
     resolutionReason: 'resolutionReason',
     acknowledgedAt: 'acknowledgedAt',
     resolvedAt: 'resolvedAt',
+    wasPresentAtMoveIn: 'wasPresentAtMoveIn',
+    moveInDefectInspectionId: 'moveInDefectInspectionId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -48413,7 +48703,11 @@ export namespace Prisma {
     publishedById: 'publishedById',
     snapshot: 'snapshot',
     contentHash: 'contentHash',
-    acknowledgedAt: 'acknowledgedAt'
+    acknowledgedAt: 'acknowledgedAt',
+    sourceMaintenanceCaseId: 'sourceMaintenanceCaseId',
+    disputedAt: 'disputedAt',
+    disputedById: 'disputedById',
+    disputeReason: 'disputeReason'
   };
 
   export type ReportAddendumScalarFieldEnum = (typeof ReportAddendumScalarFieldEnum)[keyof typeof ReportAddendumScalarFieldEnum]
@@ -49172,6 +49466,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailListRelationFilter
     addendaCreated?: ReportAddendumListRelationFilter
     addendaPublished?: ReportAddendumListRelationFilter
+    addendaDisputed?: ReportAddendumListRelationFilter
     addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
@@ -49209,6 +49504,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailOrderByRelationAggregateInput
     addendaCreated?: ReportAddendumOrderByRelationAggregateInput
     addendaPublished?: ReportAddendumOrderByRelationAggregateInput
+    addendaDisputed?: ReportAddendumOrderByRelationAggregateInput
     addendumAcknowledgements?: AddendumAcknowledgementOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
@@ -49249,6 +49545,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailListRelationFilter
     addendaCreated?: ReportAddendumListRelationFilter
     addendaPublished?: ReportAddendumListRelationFilter
+    addendaDisputed?: ReportAddendumListRelationFilter
     addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
@@ -49590,6 +49887,7 @@ export namespace Prisma {
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
+    defectWindowDays?: IntFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: DateTimeNullableFilter<"Tenancy"> | Date | string | null
     renewedFromId?: StringNullableFilter<"Tenancy"> | string | null
@@ -49617,6 +49915,7 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
+    defectWindowDays?: SortOrder
     renewalDecision?: SortOrderInput | SortOrder
     renewalSnoozedUntil?: SortOrderInput | SortOrder
     renewedFromId?: SortOrderInput | SortOrder
@@ -49648,6 +49947,7 @@ export namespace Prisma {
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
+    defectWindowDays?: IntFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: DateTimeNullableFilter<"Tenancy"> | Date | string | null
     createdAt?: DateTimeFilter<"Tenancy"> | Date | string
@@ -49674,6 +49974,7 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
+    defectWindowDays?: SortOrder
     renewalDecision?: SortOrderInput | SortOrder
     renewalSnoozedUntil?: SortOrderInput | SortOrder
     renewedFromId?: SortOrderInput | SortOrder
@@ -49701,6 +50002,7 @@ export namespace Prisma {
     deposit?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolWithAggregatesFilter<"Tenancy"> | boolean
+    defectWindowDays?: IntWithAggregatesFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableWithAggregatesFilter<"Tenancy"> | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: DateTimeNullableWithAggregatesFilter<"Tenancy"> | Date | string | null
     renewedFromId?: StringNullableWithAggregatesFilter<"Tenancy"> | string | null
@@ -49738,6 +50040,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
     addenda?: ReportAddendumListRelationFilter
+    moveInDefectCases?: MaintenanceCaseListRelationFilter
   }
 
   export type InspectionOrderByWithRelationInput = {
@@ -49767,6 +50070,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionOrderByRelationAggregateInput
     reportEmails?: ReportEmailOrderByRelationAggregateInput
     addenda?: ReportAddendumOrderByRelationAggregateInput
+    moveInDefectCases?: MaintenanceCaseOrderByRelationAggregateInput
   }
 
   export type InspectionWhereUniqueInput = Prisma.AtLeast<{
@@ -49799,6 +50103,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
     addenda?: ReportAddendumListRelationFilter
+    moveInDefectCases?: MaintenanceCaseListRelationFilter
   }, "id" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
@@ -50333,6 +50638,8 @@ export namespace Prisma {
     resolutionReason?: StringNullableFilter<"MaintenanceCase"> | string | null
     acknowledgedAt?: DateTimeNullableFilter<"MaintenanceCase"> | Date | string | null
     resolvedAt?: DateTimeNullableFilter<"MaintenanceCase"> | Date | string | null
+    wasPresentAtMoveIn?: BoolFilter<"MaintenanceCase"> | boolean
+    moveInDefectInspectionId?: StringNullableFilter<"MaintenanceCase"> | string | null
     createdAt?: DateTimeFilter<"MaintenanceCase"> | Date | string
     updatedAt?: DateTimeFilter<"MaintenanceCase"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
@@ -50344,6 +50651,8 @@ export namespace Prisma {
     findings?: FindingListRelationFilter
     responsibilityProposals?: ResponsibilityProposalListRelationFilter
     addendumEntries?: ReportAddendumEntryListRelationFilter
+    moveInDefectInspection?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
+    moveInDefectAddendum?: XOR<ReportAddendumNullableScalarRelationFilter, ReportAddendumWhereInput> | null
   }
 
   export type MaintenanceCaseOrderByWithRelationInput = {
@@ -50360,6 +50669,8 @@ export namespace Prisma {
     resolutionReason?: SortOrderInput | SortOrder
     acknowledgedAt?: SortOrderInput | SortOrder
     resolvedAt?: SortOrderInput | SortOrder
+    wasPresentAtMoveIn?: SortOrder
+    moveInDefectInspectionId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenancy?: TenancyOrderByWithRelationInput
@@ -50371,6 +50682,8 @@ export namespace Prisma {
     findings?: FindingOrderByRelationAggregateInput
     responsibilityProposals?: ResponsibilityProposalOrderByRelationAggregateInput
     addendumEntries?: ReportAddendumEntryOrderByRelationAggregateInput
+    moveInDefectInspection?: InspectionOrderByWithRelationInput
+    moveInDefectAddendum?: ReportAddendumOrderByWithRelationInput
   }
 
   export type MaintenanceCaseWhereUniqueInput = Prisma.AtLeast<{
@@ -50390,6 +50703,8 @@ export namespace Prisma {
     resolutionReason?: StringNullableFilter<"MaintenanceCase"> | string | null
     acknowledgedAt?: DateTimeNullableFilter<"MaintenanceCase"> | Date | string | null
     resolvedAt?: DateTimeNullableFilter<"MaintenanceCase"> | Date | string | null
+    wasPresentAtMoveIn?: BoolFilter<"MaintenanceCase"> | boolean
+    moveInDefectInspectionId?: StringNullableFilter<"MaintenanceCase"> | string | null
     createdAt?: DateTimeFilter<"MaintenanceCase"> | Date | string
     updatedAt?: DateTimeFilter<"MaintenanceCase"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
@@ -50401,6 +50716,8 @@ export namespace Prisma {
     findings?: FindingListRelationFilter
     responsibilityProposals?: ResponsibilityProposalListRelationFilter
     addendumEntries?: ReportAddendumEntryListRelationFilter
+    moveInDefectInspection?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
+    moveInDefectAddendum?: XOR<ReportAddendumNullableScalarRelationFilter, ReportAddendumWhereInput> | null
   }, "id" | "clientId">
 
   export type MaintenanceCaseOrderByWithAggregationInput = {
@@ -50417,6 +50734,8 @@ export namespace Prisma {
     resolutionReason?: SortOrderInput | SortOrder
     acknowledgedAt?: SortOrderInput | SortOrder
     resolvedAt?: SortOrderInput | SortOrder
+    wasPresentAtMoveIn?: SortOrder
+    moveInDefectInspectionId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: MaintenanceCaseCountOrderByAggregateInput
@@ -50441,6 +50760,8 @@ export namespace Prisma {
     resolutionReason?: StringNullableWithAggregatesFilter<"MaintenanceCase"> | string | null
     acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"MaintenanceCase"> | Date | string | null
     resolvedAt?: DateTimeNullableWithAggregatesFilter<"MaintenanceCase"> | Date | string | null
+    wasPresentAtMoveIn?: BoolWithAggregatesFilter<"MaintenanceCase"> | boolean
+    moveInDefectInspectionId?: StringNullableWithAggregatesFilter<"MaintenanceCase"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"MaintenanceCase"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MaintenanceCase"> | Date | string
   }
@@ -51559,11 +51880,17 @@ export namespace Prisma {
     snapshot?: JsonNullableFilter<"ReportAddendum">
     contentHash?: StringNullableFilter<"ReportAddendum"> | string | null
     acknowledgedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    sourceMaintenanceCaseId?: StringNullableFilter<"ReportAddendum"> | string | null
+    disputedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    disputedById?: StringNullableFilter<"ReportAddendum"> | string | null
+    disputeReason?: StringNullableFilter<"ReportAddendum"> | string | null
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
     createdBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     publishedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     entries?: ReportAddendumEntryListRelationFilter
     acknowledgements?: AddendumAcknowledgementListRelationFilter
+    sourceMaintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
+    disputedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
   }
 
   export type ReportAddendumOrderByWithRelationInput = {
@@ -51581,15 +51908,22 @@ export namespace Prisma {
     snapshot?: SortOrderInput | SortOrder
     contentHash?: SortOrderInput | SortOrder
     acknowledgedAt?: SortOrderInput | SortOrder
+    sourceMaintenanceCaseId?: SortOrderInput | SortOrder
+    disputedAt?: SortOrderInput | SortOrder
+    disputedById?: SortOrderInput | SortOrder
+    disputeReason?: SortOrderInput | SortOrder
     inspection?: InspectionOrderByWithRelationInput
     createdBy?: StakeholderOrderByWithRelationInput
     publishedBy?: StakeholderOrderByWithRelationInput
     entries?: ReportAddendumEntryOrderByRelationAggregateInput
     acknowledgements?: AddendumAcknowledgementOrderByRelationAggregateInput
+    sourceMaintenanceCase?: MaintenanceCaseOrderByWithRelationInput
+    disputedBy?: StakeholderOrderByWithRelationInput
   }
 
   export type ReportAddendumWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    sourceMaintenanceCaseId?: string
     inspectionId_number?: ReportAddendumInspectionIdNumberCompoundUniqueInput
     AND?: ReportAddendumWhereInput | ReportAddendumWhereInput[]
     OR?: ReportAddendumWhereInput[]
@@ -51607,12 +51941,17 @@ export namespace Prisma {
     snapshot?: JsonNullableFilter<"ReportAddendum">
     contentHash?: StringNullableFilter<"ReportAddendum"> | string | null
     acknowledgedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    disputedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    disputedById?: StringNullableFilter<"ReportAddendum"> | string | null
+    disputeReason?: StringNullableFilter<"ReportAddendum"> | string | null
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
     createdBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     publishedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     entries?: ReportAddendumEntryListRelationFilter
     acknowledgements?: AddendumAcknowledgementListRelationFilter
-  }, "id" | "inspectionId_number">
+    sourceMaintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
+    disputedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+  }, "id" | "sourceMaintenanceCaseId" | "inspectionId_number">
 
   export type ReportAddendumOrderByWithAggregationInput = {
     id?: SortOrder
@@ -51629,6 +51968,10 @@ export namespace Prisma {
     snapshot?: SortOrderInput | SortOrder
     contentHash?: SortOrderInput | SortOrder
     acknowledgedAt?: SortOrderInput | SortOrder
+    sourceMaintenanceCaseId?: SortOrderInput | SortOrder
+    disputedAt?: SortOrderInput | SortOrder
+    disputedById?: SortOrderInput | SortOrder
+    disputeReason?: SortOrderInput | SortOrder
     _count?: ReportAddendumCountOrderByAggregateInput
     _avg?: ReportAddendumAvgOrderByAggregateInput
     _max?: ReportAddendumMaxOrderByAggregateInput
@@ -51654,6 +51997,10 @@ export namespace Prisma {
     snapshot?: JsonNullableWithAggregatesFilter<"ReportAddendum">
     contentHash?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
     acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"ReportAddendum"> | Date | string | null
+    sourceMaintenanceCaseId?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
+    disputedAt?: DateTimeNullableWithAggregatesFilter<"ReportAddendum"> | Date | string | null
+    disputedById?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
+    disputeReason?: StringNullableWithAggregatesFilter<"ReportAddendum"> | string | null
   }
 
   export type ReportAddendumEntryWhereInput = {
@@ -52319,6 +52666,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -52355,6 +52703,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -52391,6 +52740,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -52427,6 +52777,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -52791,6 +53142,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -52817,6 +53169,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -52835,6 +53188,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52861,6 +53215,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52883,6 +53238,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -52898,6 +53254,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52916,6 +53273,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52947,6 +53305,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateInput = {
@@ -52973,6 +53332,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUpdateInput = {
@@ -52999,6 +53359,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateInput = {
@@ -53025,6 +53386,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionCreateManyInput = {
@@ -53614,6 +53976,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -53625,6 +53988,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateInput = {
@@ -53641,6 +54006,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -53649,6 +54016,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUpdateInput = {
@@ -53662,6 +54030,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -53673,6 +54042,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateInput = {
@@ -53689,6 +54060,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -53697,6 +54070,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseCreateManyInput = {
@@ -53713,6 +54087,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -53728,6 +54104,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53746,6 +54123,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -54919,11 +55298,15 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
     inspection: InspectionCreateNestedOneWithoutAddendaInput
     createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
     publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
     entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
   }
 
   export type ReportAddendumUncheckedCreateInput = {
@@ -54941,6 +55324,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
     entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
   }
@@ -54957,11 +55344,15 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
     createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
     publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
     entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
   }
 
   export type ReportAddendumUncheckedUpdateInput = {
@@ -54979,6 +55370,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
   }
@@ -54998,6 +55393,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
   }
 
   export type ReportAddendumUpdateManyMutationInput = {
@@ -55012,6 +55411,8 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ReportAddendumUncheckedUpdateManyInput = {
@@ -55029,6 +55430,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ReportAddendumEntryCreateInput = {
@@ -56376,6 +56781,7 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
+    defectWindowDays?: SortOrder
     renewalDecision?: SortOrder
     renewalSnoozedUntil?: SortOrder
     renewedFromId?: SortOrder
@@ -56387,6 +56793,7 @@ export namespace Prisma {
     monthlyRent?: SortOrder
     deposit?: SortOrder
     minorRepairCap?: SortOrder
+    defectWindowDays?: SortOrder
   }
 
   export type TenancyMaxOrderByAggregateInput = {
@@ -56401,6 +56808,7 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
+    defectWindowDays?: SortOrder
     renewalDecision?: SortOrder
     renewalSnoozedUntil?: SortOrder
     renewedFromId?: SortOrder
@@ -56420,6 +56828,7 @@ export namespace Prisma {
     deposit?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
+    defectWindowDays?: SortOrder
     renewalDecision?: SortOrder
     renewalSnoozedUntil?: SortOrder
     renewedFromId?: SortOrder
@@ -56431,6 +56840,7 @@ export namespace Prisma {
     monthlyRent?: SortOrder
     deposit?: SortOrder
     minorRepairCap?: SortOrder
+    defectWindowDays?: SortOrder
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -57134,6 +57544,11 @@ export namespace Prisma {
     none?: MaintenanceVisitWhereInput
   }
 
+  export type ReportAddendumNullableScalarRelationFilter = {
+    is?: ReportAddendumWhereInput | null
+    isNot?: ReportAddendumWhereInput | null
+  }
+
   export type MaintenanceVisitOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -57152,6 +57567,8 @@ export namespace Prisma {
     resolutionReason?: SortOrder
     acknowledgedAt?: SortOrder
     resolvedAt?: SortOrder
+    wasPresentAtMoveIn?: SortOrder
+    moveInDefectInspectionId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -57170,6 +57587,8 @@ export namespace Prisma {
     resolutionReason?: SortOrder
     acknowledgedAt?: SortOrder
     resolvedAt?: SortOrder
+    wasPresentAtMoveIn?: SortOrder
+    moveInDefectInspectionId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -57188,6 +57607,8 @@ export namespace Prisma {
     resolutionReason?: SortOrder
     acknowledgedAt?: SortOrder
     resolvedAt?: SortOrder
+    wasPresentAtMoveIn?: SortOrder
+    moveInDefectInspectionId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -58153,6 +58574,10 @@ export namespace Prisma {
     snapshot?: SortOrder
     contentHash?: SortOrder
     acknowledgedAt?: SortOrder
+    sourceMaintenanceCaseId?: SortOrder
+    disputedAt?: SortOrder
+    disputedById?: SortOrder
+    disputeReason?: SortOrder
   }
 
   export type ReportAddendumAvgOrderByAggregateInput = {
@@ -58173,6 +58598,10 @@ export namespace Prisma {
     publishedById?: SortOrder
     contentHash?: SortOrder
     acknowledgedAt?: SortOrder
+    sourceMaintenanceCaseId?: SortOrder
+    disputedAt?: SortOrder
+    disputedById?: SortOrder
+    disputeReason?: SortOrder
   }
 
   export type ReportAddendumMinOrderByAggregateInput = {
@@ -58189,6 +58618,10 @@ export namespace Prisma {
     publishedById?: SortOrder
     contentHash?: SortOrder
     acknowledgedAt?: SortOrder
+    sourceMaintenanceCaseId?: SortOrder
+    disputedAt?: SortOrder
+    disputedById?: SortOrder
+    disputeReason?: SortOrder
   }
 
   export type ReportAddendumSumOrderByAggregateInput = {
@@ -58808,6 +59241,13 @@ export namespace Prisma {
     connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
   }
 
+  export type ReportAddendumCreateNestedManyWithoutDisputedByInput = {
+    create?: XOR<ReportAddendumCreateWithoutDisputedByInput, ReportAddendumUncheckedCreateWithoutDisputedByInput> | ReportAddendumCreateWithoutDisputedByInput[] | ReportAddendumUncheckedCreateWithoutDisputedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutDisputedByInput | ReportAddendumCreateOrConnectWithoutDisputedByInput[]
+    createMany?: ReportAddendumCreateManyDisputedByInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
   export type AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput = {
     create?: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput> | AddendumAcknowledgementCreateWithoutStakeholderInput[] | AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
@@ -58964,6 +59404,13 @@ export namespace Prisma {
     create?: XOR<ReportAddendumCreateWithoutPublishedByInput, ReportAddendumUncheckedCreateWithoutPublishedByInput> | ReportAddendumCreateWithoutPublishedByInput[] | ReportAddendumUncheckedCreateWithoutPublishedByInput[]
     connectOrCreate?: ReportAddendumCreateOrConnectWithoutPublishedByInput | ReportAddendumCreateOrConnectWithoutPublishedByInput[]
     createMany?: ReportAddendumCreateManyPublishedByInputEnvelope
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
+  export type ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput = {
+    create?: XOR<ReportAddendumCreateWithoutDisputedByInput, ReportAddendumUncheckedCreateWithoutDisputedByInput> | ReportAddendumCreateWithoutDisputedByInput[] | ReportAddendumUncheckedCreateWithoutDisputedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutDisputedByInput | ReportAddendumCreateOrConnectWithoutDisputedByInput[]
+    createMany?: ReportAddendumCreateManyDisputedByInputEnvelope
     connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
   }
 
@@ -59289,6 +59736,20 @@ export namespace Prisma {
     deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
   }
 
+  export type ReportAddendumUpdateManyWithoutDisputedByNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutDisputedByInput, ReportAddendumUncheckedCreateWithoutDisputedByInput> | ReportAddendumCreateWithoutDisputedByInput[] | ReportAddendumUncheckedCreateWithoutDisputedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutDisputedByInput | ReportAddendumCreateOrConnectWithoutDisputedByInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutDisputedByInput | ReportAddendumUpsertWithWhereUniqueWithoutDisputedByInput[]
+    createMany?: ReportAddendumCreateManyDisputedByInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutDisputedByInput | ReportAddendumUpdateWithWhereUniqueWithoutDisputedByInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutDisputedByInput | ReportAddendumUpdateManyWithWhereWithoutDisputedByInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
   export type AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput = {
     create?: XOR<AddendumAcknowledgementCreateWithoutStakeholderInput, AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput> | AddendumAcknowledgementCreateWithoutStakeholderInput[] | AddendumAcknowledgementUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
@@ -59600,6 +60061,20 @@ export namespace Prisma {
     connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
     update?: ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput | ReportAddendumUpdateWithWhereUniqueWithoutPublishedByInput[]
     updateMany?: ReportAddendumUpdateManyWithWhereWithoutPublishedByInput | ReportAddendumUpdateManyWithWhereWithoutPublishedByInput[]
+    deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutDisputedByInput, ReportAddendumUncheckedCreateWithoutDisputedByInput> | ReportAddendumCreateWithoutDisputedByInput[] | ReportAddendumUncheckedCreateWithoutDisputedByInput[]
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutDisputedByInput | ReportAddendumCreateOrConnectWithoutDisputedByInput[]
+    upsert?: ReportAddendumUpsertWithWhereUniqueWithoutDisputedByInput | ReportAddendumUpsertWithWhereUniqueWithoutDisputedByInput[]
+    createMany?: ReportAddendumCreateManyDisputedByInputEnvelope
+    set?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    disconnect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    delete?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+    update?: ReportAddendumUpdateWithWhereUniqueWithoutDisputedByInput | ReportAddendumUpdateWithWhereUniqueWithoutDisputedByInput[]
+    updateMany?: ReportAddendumUpdateManyWithWhereWithoutDisputedByInput | ReportAddendumUpdateManyWithWhereWithoutDisputedByInput[]
     deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
   }
 
@@ -60161,6 +60636,13 @@ export namespace Prisma {
     connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
   }
 
+  export type MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput> | MaintenanceCaseCreateWithoutMoveInDefectInspectionInput[] | MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput[]
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput | MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput[]
+    createMany?: MaintenanceCaseCreateManyMoveInDefectInspectionInputEnvelope
+    connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+  }
+
   export type InspectionUncheckedCreateNestedOneWithoutBaselineInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -60207,6 +60689,13 @@ export namespace Prisma {
     connectOrCreate?: ReportAddendumCreateOrConnectWithoutInspectionInput | ReportAddendumCreateOrConnectWithoutInspectionInput[]
     createMany?: ReportAddendumCreateManyInspectionInputEnvelope
     connect?: ReportAddendumWhereUniqueInput | ReportAddendumWhereUniqueInput[]
+  }
+
+  export type MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput> | MaintenanceCaseCreateWithoutMoveInDefectInspectionInput[] | MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput[]
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput | MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput[]
+    createMany?: MaintenanceCaseCreateManyMoveInDefectInspectionInputEnvelope
+    connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
   }
 
   export type EnumInspectionKindFieldUpdateOperationsInput = {
@@ -60339,6 +60828,20 @@ export namespace Prisma {
     deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
   }
 
+  export type MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput> | MaintenanceCaseCreateWithoutMoveInDefectInspectionInput[] | MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput[]
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput | MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput[]
+    upsert?: MaintenanceCaseUpsertWithWhereUniqueWithoutMoveInDefectInspectionInput | MaintenanceCaseUpsertWithWhereUniqueWithoutMoveInDefectInspectionInput[]
+    createMany?: MaintenanceCaseCreateManyMoveInDefectInspectionInputEnvelope
+    set?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    disconnect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    delete?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    update?: MaintenanceCaseUpdateWithWhereUniqueWithoutMoveInDefectInspectionInput | MaintenanceCaseUpdateWithWhereUniqueWithoutMoveInDefectInspectionInput[]
+    updateMany?: MaintenanceCaseUpdateManyWithWhereWithoutMoveInDefectInspectionInput | MaintenanceCaseUpdateManyWithWhereWithoutMoveInDefectInspectionInput[]
+    deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
+  }
+
   export type InspectionUncheckedUpdateOneWithoutBaselineNestedInput = {
     create?: XOR<InspectionCreateWithoutBaselineInput, InspectionUncheckedCreateWithoutBaselineInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutBaselineInput
@@ -60431,6 +60934,20 @@ export namespace Prisma {
     update?: ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput | ReportAddendumUpdateWithWhereUniqueWithoutInspectionInput[]
     updateMany?: ReportAddendumUpdateManyWithWhereWithoutInspectionInput | ReportAddendumUpdateManyWithWhereWithoutInspectionInput[]
     deleteMany?: ReportAddendumScalarWhereInput | ReportAddendumScalarWhereInput[]
+  }
+
+  export type MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput> | MaintenanceCaseCreateWithoutMoveInDefectInspectionInput[] | MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput[]
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput | MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput[]
+    upsert?: MaintenanceCaseUpsertWithWhereUniqueWithoutMoveInDefectInspectionInput | MaintenanceCaseUpsertWithWhereUniqueWithoutMoveInDefectInspectionInput[]
+    createMany?: MaintenanceCaseCreateManyMoveInDefectInspectionInputEnvelope
+    set?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    disconnect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    delete?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+    update?: MaintenanceCaseUpdateWithWhereUniqueWithoutMoveInDefectInspectionInput | MaintenanceCaseUpdateWithWhereUniqueWithoutMoveInDefectInspectionInput[]
+    updateMany?: MaintenanceCaseUpdateManyWithWhereWithoutMoveInDefectInspectionInput | MaintenanceCaseUpdateManyWithWhereWithoutMoveInDefectInspectionInput[]
+    deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
   }
 
   export type RoomCreateNestedOneWithoutCapturesInput = {
@@ -61065,6 +61582,18 @@ export namespace Prisma {
     connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
   }
 
+  export type InspectionCreateNestedOneWithoutMoveInDefectCasesInput = {
+    create?: XOR<InspectionCreateWithoutMoveInDefectCasesInput, InspectionUncheckedCreateWithoutMoveInDefectCasesInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutMoveInDefectCasesInput
+    connect?: InspectionWhereUniqueInput
+  }
+
+  export type ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput = {
+    create?: XOR<ReportAddendumCreateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutSourceMaintenanceCaseInput
+    connect?: ReportAddendumWhereUniqueInput
+  }
+
   export type MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput = {
     create?: XOR<MaintenanceEventCreateWithoutMaintenanceCaseInput, MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput> | MaintenanceEventCreateWithoutMaintenanceCaseInput[] | MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput[]
     connectOrCreate?: MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput | MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput[]
@@ -61105,6 +61634,12 @@ export namespace Prisma {
     connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput | ReportAddendumEntryCreateOrConnectWithoutMaintenanceCaseInput[]
     createMany?: ReportAddendumEntryCreateManyMaintenanceCaseInputEnvelope
     connect?: ReportAddendumEntryWhereUniqueInput | ReportAddendumEntryWhereUniqueInput[]
+  }
+
+  export type ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput = {
+    create?: XOR<ReportAddendumCreateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutSourceMaintenanceCaseInput
+    connect?: ReportAddendumWhereUniqueInput
   }
 
   export type EnumMaintenanceCategoryFieldUpdateOperationsInput = {
@@ -61229,6 +61764,26 @@ export namespace Prisma {
     deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
   }
 
+  export type InspectionUpdateOneWithoutMoveInDefectCasesNestedInput = {
+    create?: XOR<InspectionCreateWithoutMoveInDefectCasesInput, InspectionUncheckedCreateWithoutMoveInDefectCasesInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutMoveInDefectCasesInput
+    upsert?: InspectionUpsertWithoutMoveInDefectCasesInput
+    disconnect?: InspectionWhereInput | boolean
+    delete?: InspectionWhereInput | boolean
+    connect?: InspectionWhereUniqueInput
+    update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutMoveInDefectCasesInput, InspectionUpdateWithoutMoveInDefectCasesInput>, InspectionUncheckedUpdateWithoutMoveInDefectCasesInput>
+  }
+
+  export type ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutSourceMaintenanceCaseInput
+    upsert?: ReportAddendumUpsertWithoutSourceMaintenanceCaseInput
+    disconnect?: ReportAddendumWhereInput | boolean
+    delete?: ReportAddendumWhereInput | boolean
+    connect?: ReportAddendumWhereUniqueInput
+    update?: XOR<XOR<ReportAddendumUpdateToOneWithWhereWithoutSourceMaintenanceCaseInput, ReportAddendumUpdateWithoutSourceMaintenanceCaseInput>, ReportAddendumUncheckedUpdateWithoutSourceMaintenanceCaseInput>
+  }
+
   export type MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput = {
     create?: XOR<MaintenanceEventCreateWithoutMaintenanceCaseInput, MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput> | MaintenanceEventCreateWithoutMaintenanceCaseInput[] | MaintenanceEventUncheckedCreateWithoutMaintenanceCaseInput[]
     connectOrCreate?: MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput | MaintenanceEventCreateOrConnectWithoutMaintenanceCaseInput[]
@@ -61311,6 +61866,16 @@ export namespace Prisma {
     update?: ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput | ReportAddendumEntryUpdateWithWhereUniqueWithoutMaintenanceCaseInput[]
     updateMany?: ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput | ReportAddendumEntryUpdateManyWithWhereWithoutMaintenanceCaseInput[]
     deleteMany?: ReportAddendumEntryScalarWhereInput | ReportAddendumEntryScalarWhereInput[]
+  }
+
+  export type ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput = {
+    create?: XOR<ReportAddendumCreateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput>
+    connectOrCreate?: ReportAddendumCreateOrConnectWithoutSourceMaintenanceCaseInput
+    upsert?: ReportAddendumUpsertWithoutSourceMaintenanceCaseInput
+    disconnect?: ReportAddendumWhereInput | boolean
+    delete?: ReportAddendumWhereInput | boolean
+    connect?: ReportAddendumWhereUniqueInput
+    update?: XOR<XOR<ReportAddendumUpdateToOneWithWhereWithoutSourceMaintenanceCaseInput, ReportAddendumUpdateWithoutSourceMaintenanceCaseInput>, ReportAddendumUncheckedUpdateWithoutSourceMaintenanceCaseInput>
   }
 
   export type MaintenanceCaseCreateNestedOneWithoutEventsInput = {
@@ -61970,6 +62535,18 @@ export namespace Prisma {
     connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
   }
 
+  export type MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutMoveInDefectAddendumInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectAddendumInput>
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutMoveInDefectAddendumInput
+    connect?: MaintenanceCaseWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutAddendaDisputedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendaDisputedInput, StakeholderUncheckedCreateWithoutAddendaDisputedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendaDisputedInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
   export type ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput = {
     create?: XOR<ReportAddendumEntryCreateWithoutAddendumInput, ReportAddendumEntryUncheckedCreateWithoutAddendumInput> | ReportAddendumEntryCreateWithoutAddendumInput[] | ReportAddendumEntryUncheckedCreateWithoutAddendumInput[]
     connectOrCreate?: ReportAddendumEntryCreateOrConnectWithoutAddendumInput | ReportAddendumEntryCreateOrConnectWithoutAddendumInput[]
@@ -62036,6 +62613,26 @@ export namespace Prisma {
     update?: AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput | AddendumAcknowledgementUpdateWithWhereUniqueWithoutAddendumInput[]
     updateMany?: AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput | AddendumAcknowledgementUpdateManyWithWhereWithoutAddendumInput[]
     deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+  }
+
+  export type MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput = {
+    create?: XOR<MaintenanceCaseCreateWithoutMoveInDefectAddendumInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectAddendumInput>
+    connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutMoveInDefectAddendumInput
+    upsert?: MaintenanceCaseUpsertWithoutMoveInDefectAddendumInput
+    disconnect?: MaintenanceCaseWhereInput | boolean
+    delete?: MaintenanceCaseWhereInput | boolean
+    connect?: MaintenanceCaseWhereUniqueInput
+    update?: XOR<XOR<MaintenanceCaseUpdateToOneWithWhereWithoutMoveInDefectAddendumInput, MaintenanceCaseUpdateWithoutMoveInDefectAddendumInput>, MaintenanceCaseUncheckedUpdateWithoutMoveInDefectAddendumInput>
+  }
+
+  export type StakeholderUpdateOneWithoutAddendaDisputedNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAddendaDisputedInput, StakeholderUncheckedCreateWithoutAddendaDisputedInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAddendaDisputedInput
+    upsert?: StakeholderUpsertWithoutAddendaDisputedInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAddendaDisputedInput, StakeholderUpdateWithoutAddendaDisputedInput>, StakeholderUncheckedUpdateWithoutAddendaDisputedInput>
   }
 
   export type ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput = {
@@ -63257,6 +63854,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -63281,6 +63879,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -63309,6 +63908,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -63333,6 +63933,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -63361,6 +63962,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -63385,6 +63987,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -63428,6 +64031,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutConductedByInput = {
@@ -63453,6 +64057,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutConductedByInput = {
@@ -63540,6 +64145,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -63550,6 +64156,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutReportedByInput = {
@@ -63565,6 +64173,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -63573,6 +64183,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutReportedByInput = {
@@ -63980,10 +64591,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
     inspection: InspectionCreateNestedOneWithoutAddendaInput
     publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
     entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
   }
 
   export type ReportAddendumUncheckedCreateWithoutCreatedByInput = {
@@ -64000,6 +64615,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
     entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
   }
@@ -64026,10 +64645,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
     inspection: InspectionCreateNestedOneWithoutAddendaInput
     createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
     entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
   }
 
   export type ReportAddendumUncheckedCreateWithoutPublishedByInput = {
@@ -64046,6 +64669,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
     entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
   }
@@ -64057,6 +64684,60 @@ export namespace Prisma {
 
   export type ReportAddendumCreateManyPublishedByInputEnvelope = {
     data: ReportAddendumCreateManyPublishedByInput | ReportAddendumCreateManyPublishedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReportAddendumCreateWithoutDisputedByInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutDisputedByInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutDisputedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutDisputedByInput, ReportAddendumUncheckedCreateWithoutDisputedByInput>
+  }
+
+  export type ReportAddendumCreateManyDisputedByInputEnvelope = {
+    data: ReportAddendumCreateManyDisputedByInput | ReportAddendumCreateManyDisputedByInput[]
     skipDuplicates?: boolean
   }
 
@@ -64221,6 +64902,7 @@ export namespace Prisma {
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
+    defectWindowDays?: IntFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: DateTimeNullableFilter<"Tenancy"> | Date | string | null
     renewedFromId?: StringNullableFilter<"Tenancy"> | string | null
@@ -64392,6 +65074,8 @@ export namespace Prisma {
     resolutionReason?: StringNullableFilter<"MaintenanceCase"> | string | null
     acknowledgedAt?: DateTimeNullableFilter<"MaintenanceCase"> | Date | string | null
     resolvedAt?: DateTimeNullableFilter<"MaintenanceCase"> | Date | string | null
+    wasPresentAtMoveIn?: BoolFilter<"MaintenanceCase"> | boolean
+    moveInDefectInspectionId?: StringNullableFilter<"MaintenanceCase"> | string | null
     createdAt?: DateTimeFilter<"MaintenanceCase"> | Date | string
     updatedAt?: DateTimeFilter<"MaintenanceCase"> | Date | string
   }
@@ -64767,6 +65451,10 @@ export namespace Prisma {
     snapshot?: JsonNullableFilter<"ReportAddendum">
     contentHash?: StringNullableFilter<"ReportAddendum"> | string | null
     acknowledgedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    sourceMaintenanceCaseId?: StringNullableFilter<"ReportAddendum"> | string | null
+    disputedAt?: DateTimeNullableFilter<"ReportAddendum"> | Date | string | null
+    disputedById?: StringNullableFilter<"ReportAddendum"> | string | null
+    disputeReason?: StringNullableFilter<"ReportAddendum"> | string | null
   }
 
   export type ReportAddendumUpsertWithWhereUniqueWithoutPublishedByInput = {
@@ -64783,6 +65471,22 @@ export namespace Prisma {
   export type ReportAddendumUpdateManyWithWhereWithoutPublishedByInput = {
     where: ReportAddendumScalarWhereInput
     data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyWithoutPublishedByInput>
+  }
+
+  export type ReportAddendumUpsertWithWhereUniqueWithoutDisputedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    update: XOR<ReportAddendumUpdateWithoutDisputedByInput, ReportAddendumUncheckedUpdateWithoutDisputedByInput>
+    create: XOR<ReportAddendumCreateWithoutDisputedByInput, ReportAddendumUncheckedCreateWithoutDisputedByInput>
+  }
+
+  export type ReportAddendumUpdateWithWhereUniqueWithoutDisputedByInput = {
+    where: ReportAddendumWhereUniqueInput
+    data: XOR<ReportAddendumUpdateWithoutDisputedByInput, ReportAddendumUncheckedUpdateWithoutDisputedByInput>
+  }
+
+  export type ReportAddendumUpdateManyWithWhereWithoutDisputedByInput = {
+    where: ReportAddendumScalarWhereInput
+    data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyWithoutDisputedByInput>
   }
 
   export type AddendumAcknowledgementUpsertWithWhereUniqueWithoutStakeholderInput = {
@@ -64920,6 +65624,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -64955,6 +65660,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -65130,6 +65836,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -65165,6 +65872,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -65205,6 +65913,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
   }
@@ -65240,6 +65949,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
   }
@@ -65318,6 +66028,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -65353,6 +66064,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -65399,6 +66111,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
   }
@@ -65434,6 +66147,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
   }
@@ -65468,6 +66182,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -65503,6 +66218,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -65554,6 +66270,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -65589,6 +66306,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -65602,6 +66320,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -65626,6 +66345,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -65788,6 +66508,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -65823,6 +66544,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -65863,6 +66585,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -65898,6 +66621,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -65938,6 +66662,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -65973,6 +66698,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -66006,6 +66732,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutTenancyInput = {
@@ -66031,6 +66758,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutTenancyInput = {
@@ -66054,6 +66782,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     propertyAsset?: PropertyAssetCreateNestedOneWithoutMaintenanceCasesInput
@@ -66064,6 +66793,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutTenancyInput = {
@@ -66079,6 +66810,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -66087,6 +66820,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutTenancyInput = {
@@ -66107,6 +66841,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -66132,6 +66867,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -66154,6 +66890,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -66179,6 +66916,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -66267,6 +67005,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -66302,6 +67041,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -66348,6 +67088,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -66383,6 +67124,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -66429,6 +67171,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -66464,6 +67207,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -66520,6 +67264,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66545,6 +67290,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66573,6 +67319,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66598,6 +67345,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66615,6 +67363,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -66640,6 +67389,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -66684,6 +67434,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -66719,6 +67470,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -66752,6 +67504,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutCheckOutInput = {
@@ -66777,6 +67530,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutCheckOutInput = {
@@ -66807,6 +67561,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutBaselineInput = {
@@ -66832,6 +67587,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutBaselineInput = {
@@ -67023,10 +67779,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
     createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
     publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
     entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
   }
 
   export type ReportAddendumUncheckedCreateWithoutInspectionInput = {
@@ -67043,6 +67803,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
     entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
     acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
   }
@@ -67054,6 +67818,68 @@ export namespace Prisma {
 
   export type ReportAddendumCreateManyInspectionInputEnvelope = {
     data: ReportAddendumCreateManyInspectionInput | ReportAddendumCreateManyInspectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MaintenanceCaseCreateWithoutMoveInDefectInspectionInput = {
+    id?: string
+    clientId?: string | null
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutMaintenanceCasesInput
+    reportedBy: StakeholderCreateNestedOneWithoutMaintenanceCasesReportedInput
+    events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput = {
+    id?: string
+    clientId?: string | null
+    tenancyId: string
+    propertyAssetId?: string | null
+    reportedById: string
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseCreateOrConnectWithoutMoveInDefectInspectionInput = {
+    where: MaintenanceCaseWhereUniqueInput
+    create: XOR<MaintenanceCaseCreateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput>
+  }
+
+  export type MaintenanceCaseCreateManyMoveInDefectInspectionInputEnvelope = {
+    data: MaintenanceCaseCreateManyMoveInDefectInspectionInput | MaintenanceCaseCreateManyMoveInDefectInspectionInput[]
     skipDuplicates?: boolean
   }
 
@@ -67076,6 +67902,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -67101,6 +67928,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67151,6 +67979,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -67186,6 +68015,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -67225,6 +68055,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutCheckOutInput = {
@@ -67250,6 +68081,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUpsertWithoutBaselineInput = {
@@ -67286,6 +68118,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutBaselineInput = {
@@ -67311,6 +68144,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type RoomUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -67456,6 +68290,22 @@ export namespace Prisma {
   export type ReportAddendumUpdateManyWithWhereWithoutInspectionInput = {
     where: ReportAddendumScalarWhereInput
     data: XOR<ReportAddendumUpdateManyMutationInput, ReportAddendumUncheckedUpdateManyWithoutInspectionInput>
+  }
+
+  export type MaintenanceCaseUpsertWithWhereUniqueWithoutMoveInDefectInspectionInput = {
+    where: MaintenanceCaseWhereUniqueInput
+    update: XOR<MaintenanceCaseUpdateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedUpdateWithoutMoveInDefectInspectionInput>
+    create: XOR<MaintenanceCaseCreateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectInspectionInput>
+  }
+
+  export type MaintenanceCaseUpdateWithWhereUniqueWithoutMoveInDefectInspectionInput = {
+    where: MaintenanceCaseWhereUniqueInput
+    data: XOR<MaintenanceCaseUpdateWithoutMoveInDefectInspectionInput, MaintenanceCaseUncheckedUpdateWithoutMoveInDefectInspectionInput>
+  }
+
+  export type MaintenanceCaseUpdateManyWithWhereWithoutMoveInDefectInspectionInput = {
+    where: MaintenanceCaseScalarWhereInput
+    data: XOR<MaintenanceCaseUpdateManyMutationInput, MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionInput>
   }
 
   export type RoomCreateWithoutCapturesInput = {
@@ -67695,6 +68545,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutRoomsInput = {
@@ -67720,6 +68571,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutRoomsInput = {
@@ -67863,6 +68715,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutRoomsInput = {
@@ -67888,6 +68741,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type CaptureUpsertWithWhereUniqueWithoutRoomInput = {
@@ -68619,6 +69473,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -68629,6 +69484,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutPropertyAssetInput = {
@@ -68644,6 +69501,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -68652,6 +69511,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutPropertyAssetInput = {
@@ -68820,6 +69680,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     createdAt?: Date | string
@@ -68845,6 +69706,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -68922,6 +69784,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -68957,6 +69820,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -69195,6 +70059,112 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type InspectionCreateWithoutMoveInDefectCasesInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutMoveInDefectCasesInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutMoveInDefectCasesInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutMoveInDefectCasesInput, InspectionUncheckedCreateWithoutMoveInDefectCasesInput>
+  }
+
+  export type ReportAddendumCreateWithoutSourceMaintenanceCaseInput = {
+    id?: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
+    inspection: InspectionCreateNestedOneWithoutAddendaInput
+    createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
+    publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
+    entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
+  }
+
+  export type ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
+    entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
+    acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
+  }
+
+  export type ReportAddendumCreateOrConnectWithoutSourceMaintenanceCaseInput = {
+    where: ReportAddendumWhereUniqueInput
+    create: XOR<ReportAddendumCreateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput>
+  }
+
   export type TenancyUpsertWithoutMaintenanceCasesInput = {
     update: XOR<TenancyUpdateWithoutMaintenanceCasesInput, TenancyUncheckedUpdateWithoutMaintenanceCasesInput>
     create: XOR<TenancyCreateWithoutMaintenanceCasesInput, TenancyUncheckedCreateWithoutMaintenanceCasesInput>
@@ -69214,6 +70184,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -69239,6 +70210,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -69328,6 +70300,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -69363,6 +70336,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -69479,6 +70453,124 @@ export namespace Prisma {
     data: XOR<ReportAddendumEntryUpdateManyMutationInput, ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseInput>
   }
 
+  export type InspectionUpsertWithoutMoveInDefectCasesInput = {
+    update: XOR<InspectionUpdateWithoutMoveInDefectCasesInput, InspectionUncheckedUpdateWithoutMoveInDefectCasesInput>
+    create: XOR<InspectionCreateWithoutMoveInDefectCasesInput, InspectionUncheckedCreateWithoutMoveInDefectCasesInput>
+    where?: InspectionWhereInput
+  }
+
+  export type InspectionUpdateToOneWithWhereWithoutMoveInDefectCasesInput = {
+    where?: InspectionWhereInput
+    data: XOR<InspectionUpdateWithoutMoveInDefectCasesInput, InspectionUncheckedUpdateWithoutMoveInDefectCasesInput>
+  }
+
+  export type InspectionUpdateWithoutMoveInDefectCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutMoveInDefectCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+  }
+
+  export type ReportAddendumUpsertWithoutSourceMaintenanceCaseInput = {
+    update: XOR<ReportAddendumUpdateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedUpdateWithoutSourceMaintenanceCaseInput>
+    create: XOR<ReportAddendumCreateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedCreateWithoutSourceMaintenanceCaseInput>
+    where?: ReportAddendumWhereInput
+  }
+
+  export type ReportAddendumUpdateToOneWithWhereWithoutSourceMaintenanceCaseInput = {
+    where?: ReportAddendumWhereInput
+    data: XOR<ReportAddendumUpdateWithoutSourceMaintenanceCaseInput, ReportAddendumUncheckedUpdateWithoutSourceMaintenanceCaseInput>
+  }
+
+  export type ReportAddendumUpdateWithoutSourceMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutSourceMaintenanceCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
   export type MaintenanceCaseCreateWithoutEventsInput = {
     id?: string
     clientId?: string | null
@@ -69490,6 +70582,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -69500,6 +70593,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutEventsInput = {
@@ -69516,6 +70611,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -69523,6 +70620,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutEventsInput = {
@@ -69560,6 +70658,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -69595,6 +70694,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -69627,6 +70727,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -69637,6 +70738,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutEventsInput = {
@@ -69653,6 +70756,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -69660,6 +70765,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type StakeholderUpsertWithoutMaintenanceEventsInput = {
@@ -69703,6 +70809,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -69738,6 +70845,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -69754,6 +70862,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -69764,6 +70873,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutVisitsInput = {
@@ -69780,6 +70891,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -69787,6 +70900,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutVisitsInput = {
@@ -69906,6 +71020,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -69916,6 +71031,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutVisitsInput = {
@@ -69932,6 +71049,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -69939,6 +71058,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type ServiceProviderUpsertWithoutVisitsInput = {
@@ -70034,6 +71154,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -70044,6 +71165,8 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutEvidenceInput = {
@@ -70060,6 +71183,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -70067,6 +71192,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutEvidenceInput = {
@@ -70135,6 +71261,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -70170,6 +71297,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -70202,6 +71330,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -70212,6 +71341,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutEvidenceInput = {
@@ -70228,6 +71359,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -70235,6 +71368,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceVisitUpsertWithoutEvidenceInput = {
@@ -70315,6 +71449,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -70350,6 +71485,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -70416,6 +71552,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -70451,6 +71588,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -70539,6 +71677,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -70574,6 +71713,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -70590,6 +71730,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -70600,6 +71741,8 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutResponsibilityProposalsInput = {
@@ -70616,6 +71759,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -70623,6 +71768,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutResponsibilityProposalsInput = {
@@ -70660,6 +71806,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -70695,6 +71842,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -70735,6 +71883,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -70770,6 +71919,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -70802,6 +71952,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -70812,6 +71963,8 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutResponsibilityProposalsInput = {
@@ -70828,6 +71981,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -70835,6 +71990,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityProposedInput = {
@@ -70878,6 +72034,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -70913,6 +72070,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -70959,6 +72117,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -70994,6 +72153,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -71081,6 +72241,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -71116,6 +72277,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -71199,6 +72361,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -71234,6 +72397,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -71300,6 +72464,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -71335,6 +72500,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -71418,6 +72584,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -71453,6 +72620,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -71641,6 +72809,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutFindingsInput = {
@@ -71666,6 +72835,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutFindingsInput = {
@@ -71782,6 +72952,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -71792,6 +72963,8 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutFindingsInput = {
@@ -71808,6 +72981,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -71815,6 +72990,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutFindingsInput = {
@@ -71856,6 +73032,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutFindingsInput = {
@@ -71881,6 +73058,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionItemUpsertWithoutFindingsAsSubjectInput = {
@@ -72015,6 +73193,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -72025,6 +73204,8 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutFindingsInput = {
@@ -72041,6 +73222,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -72048,6 +73231,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type InspectionCreateWithoutSignaturesInput = {
@@ -72073,6 +73257,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutSignaturesInput = {
@@ -72098,6 +73283,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutSignaturesInput = {
@@ -72135,6 +73321,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -72170,6 +73357,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -72214,6 +73402,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutSignaturesInput = {
@@ -72239,6 +73428,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutSignaturesInput = {
@@ -72282,6 +73472,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -72317,6 +73508,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -72345,6 +73537,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutReportEmailsInput = {
@@ -72370,6 +73563,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutReportEmailsInput = {
@@ -72407,6 +73601,7 @@ export namespace Prisma {
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -72442,6 +73637,7 @@ export namespace Prisma {
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -72486,6 +73682,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutReportEmailsInput = {
@@ -72511,6 +73708,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutReportEmailsInput = {
@@ -72554,6 +73752,7 @@ export namespace Prisma {
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -72589,6 +73788,7 @@ export namespace Prisma {
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -72617,6 +73817,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutAssessmentsInput = {
@@ -72642,6 +73843,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutAssessmentsInput = {
@@ -72683,6 +73885,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutAssessmentsInput = {
@@ -72708,6 +73911,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionCreateWithoutAddendaInput = {
@@ -72733,6 +73937,7 @@ export namespace Prisma {
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionUncheckedCreateWithoutAddendaInput = {
@@ -72758,6 +73963,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
 
   export type InspectionCreateOrConnectWithoutAddendaInput = {
@@ -72795,6 +74001,7 @@ export namespace Prisma {
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -72830,6 +74037,7 @@ export namespace Prisma {
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -72870,6 +74078,7 @@ export namespace Prisma {
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -72905,6 +74114,7 @@ export namespace Prisma {
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -72989,6 +74199,140 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MaintenanceCaseCreateWithoutMoveInDefectAddendumInput = {
+    id?: string
+    clientId?: string | null
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
+    propertyAsset?: PropertyAssetCreateNestedOneWithoutMaintenanceCasesInput
+    reportedBy: StakeholderCreateNestedOneWithoutMaintenanceCasesReportedInput
+    events?: MaintenanceEventCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+  }
+
+  export type MaintenanceCaseUncheckedCreateWithoutMoveInDefectAddendumInput = {
+    id?: string
+    clientId?: string | null
+    tenancyId: string
+    propertyAssetId?: string | null
+    reportedById: string
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    visits?: MaintenanceVisitUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    addendumEntries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+  }
+
+  export type MaintenanceCaseCreateOrConnectWithoutMoveInDefectAddendumInput = {
+    where: MaintenanceCaseWhereUniqueInput
+    create: XOR<MaintenanceCaseCreateWithoutMoveInDefectAddendumInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectAddendumInput>
+  }
+
+  export type StakeholderCreateWithoutAddendaDisputedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAddendaDisputedInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAddendaDisputedInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAddendaDisputedInput, StakeholderUncheckedCreateWithoutAddendaDisputedInput>
+  }
+
   export type InspectionUpsertWithoutAddendaInput = {
     update: XOR<InspectionUpdateWithoutAddendaInput, InspectionUncheckedUpdateWithoutAddendaInput>
     create: XOR<InspectionCreateWithoutAddendaInput, InspectionUncheckedCreateWithoutAddendaInput>
@@ -73023,6 +74367,7 @@ export namespace Prisma {
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutAddendaInput = {
@@ -73048,6 +74393,7 @@ export namespace Prisma {
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type StakeholderUpsertWithoutAddendaCreatedInput = {
@@ -73091,6 +74437,7 @@ export namespace Prisma {
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -73126,6 +74473,7 @@ export namespace Prisma {
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -73172,6 +74520,7 @@ export namespace Prisma {
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -73207,6 +74556,7 @@ export namespace Prisma {
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -73244,6 +74594,152 @@ export namespace Prisma {
     data: XOR<AddendumAcknowledgementUpdateManyMutationInput, AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumInput>
   }
 
+  export type MaintenanceCaseUpsertWithoutMoveInDefectAddendumInput = {
+    update: XOR<MaintenanceCaseUpdateWithoutMoveInDefectAddendumInput, MaintenanceCaseUncheckedUpdateWithoutMoveInDefectAddendumInput>
+    create: XOR<MaintenanceCaseCreateWithoutMoveInDefectAddendumInput, MaintenanceCaseUncheckedCreateWithoutMoveInDefectAddendumInput>
+    where?: MaintenanceCaseWhereInput
+  }
+
+  export type MaintenanceCaseUpdateToOneWithWhereWithoutMoveInDefectAddendumInput = {
+    where?: MaintenanceCaseWhereInput
+    data: XOR<MaintenanceCaseUpdateWithoutMoveInDefectAddendumInput, MaintenanceCaseUncheckedUpdateWithoutMoveInDefectAddendumInput>
+  }
+
+  export type MaintenanceCaseUpdateWithoutMoveInDefectAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutMaintenanceCasesNestedInput
+    reportedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceCasesReportedNestedInput
+    events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+  }
+
+  export type MaintenanceCaseUncheckedUpdateWithoutMoveInDefectAddendumInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedById?: StringFieldUpdateOperationsInput | string
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+  }
+
+  export type StakeholderUpsertWithoutAddendaDisputedInput = {
+    update: XOR<StakeholderUpdateWithoutAddendaDisputedInput, StakeholderUncheckedUpdateWithoutAddendaDisputedInput>
+    create: XOR<StakeholderCreateWithoutAddendaDisputedInput, StakeholderUncheckedCreateWithoutAddendaDisputedInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAddendaDisputedInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAddendaDisputedInput, StakeholderUncheckedUpdateWithoutAddendaDisputedInput>
+  }
+
+  export type StakeholderUpdateWithoutAddendaDisputedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAddendaDisputedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
   export type ReportAddendumCreateWithoutEntriesInput = {
     id?: string
     number?: number | null
@@ -73256,10 +74752,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
     inspection: InspectionCreateNestedOneWithoutAddendaInput
     createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
     publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
     acknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
   }
 
   export type ReportAddendumUncheckedCreateWithoutEntriesInput = {
@@ -73277,6 +74777,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
     acknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutAddendumInput
   }
 
@@ -73296,6 +74800,7 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutMaintenanceCasesInput
@@ -73306,6 +74811,8 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectInspection?: InspectionCreateNestedOneWithoutMoveInDefectCasesInput
+    moveInDefectAddendum?: ReportAddendumCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseUncheckedCreateWithoutAddendumEntriesInput = {
@@ -73322,6 +74829,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: MaintenanceEventUncheckedCreateNestedManyWithoutMaintenanceCaseInput
@@ -73329,6 +74838,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     findings?: FindingUncheckedCreateNestedManyWithoutMaintenanceCaseInput
     responsibilityProposals?: ResponsibilityProposalUncheckedCreateNestedManyWithoutMaintenanceCaseInput
+    moveInDefectAddendum?: ReportAddendumUncheckedCreateNestedOneWithoutSourceMaintenanceCaseInput
   }
 
   export type MaintenanceCaseCreateOrConnectWithoutAddendumEntriesInput = {
@@ -73424,10 +74934,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
     createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
     publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
     acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
   }
 
   export type ReportAddendumUncheckedUpdateWithoutEntriesInput = {
@@ -73445,6 +74959,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
   }
 
@@ -73470,6 +74988,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -73480,6 +74999,8 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutAddendumEntriesInput = {
@@ -73496,6 +75017,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -73503,6 +75026,7 @@ export namespace Prisma {
     evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type PropertyAssetUpsertWithoutAddendumEntriesInput = {
@@ -73675,10 +75199,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
     inspection: InspectionCreateNestedOneWithoutAddendaInput
     createdBy: StakeholderCreateNestedOneWithoutAddendaCreatedInput
     publishedBy?: StakeholderCreateNestedOneWithoutAddendaPublishedInput
     entries?: ReportAddendumEntryCreateNestedManyWithoutAddendumInput
+    sourceMaintenanceCase?: MaintenanceCaseCreateNestedOneWithoutMoveInDefectAddendumInput
+    disputedBy?: StakeholderCreateNestedOneWithoutAddendaDisputedInput
   }
 
   export type ReportAddendumUncheckedCreateWithoutAcknowledgementsInput = {
@@ -73696,6 +75224,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
     entries?: ReportAddendumEntryUncheckedCreateNestedManyWithoutAddendumInput
   }
 
@@ -73735,6 +75267,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -73770,6 +75303,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -73802,10 +75336,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
     createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
     publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
     entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
   }
 
   export type ReportAddendumUncheckedUpdateWithoutAcknowledgementsInput = {
@@ -73823,6 +75361,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
   }
 
@@ -73868,6 +75410,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -73903,6 +75446,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -73937,6 +75481,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -73972,6 +75517,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -74047,6 +75593,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -74082,6 +75629,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -74212,6 +75760,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -74247,6 +75796,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -74298,6 +75848,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -74333,6 +75884,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -74368,6 +75920,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
@@ -74403,6 +75956,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
@@ -74454,6 +76008,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -74489,6 +76044,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -74505,6 +76061,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -74523,6 +76080,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -74541,6 +76099,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -74600,6 +76159,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -74746,6 +76307,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
   }
 
   export type ReportAddendumCreateManyPublishedByInput = {
@@ -74762,6 +76327,30 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
+  }
+
+  export type ReportAddendumCreateManyDisputedByInput = {
+    id?: string
+    inspectionId: string
+    number?: number | null
+    title: string
+    reason?: string | null
+    effectiveDate: Date | string
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    publishedById?: string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputeReason?: string | null
   }
 
   export type AddendumAcknowledgementCreateManyStakeholderInput = {
@@ -74796,6 +76385,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74820,6 +76410,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74841,6 +76432,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74856,6 +76448,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74880,6 +76473,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74901,6 +76495,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74916,6 +76511,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74940,6 +76536,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74961,6 +76558,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74991,6 +76589,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutConductedByInput = {
@@ -75016,6 +76615,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutConductedByInput = {
@@ -75112,6 +76712,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -75122,6 +76723,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutReportedByInput = {
@@ -75137,6 +76740,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -75145,6 +76750,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutReportedByInput = {
@@ -75160,6 +76766,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75564,10 +77172,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
     publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
     entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
   }
 
   export type ReportAddendumUncheckedUpdateWithoutCreatedByInput = {
@@ -75584,6 +77196,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
   }
@@ -75602,6 +77218,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ReportAddendumUpdateWithoutPublishedByInput = {
@@ -75616,10 +77236,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
     createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
     entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
   }
 
   export type ReportAddendumUncheckedUpdateWithoutPublishedByInput = {
@@ -75636,6 +77260,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
   }
@@ -75654,6 +77282,74 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ReportAddendumUpdateWithoutDisputedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
+    inspection?: InspectionUpdateOneRequiredWithoutAddendaNestedInput
+    createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
+    publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
+    entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateWithoutDisputedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
+    entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
+    acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
+  }
+
+  export type ReportAddendumUncheckedUpdateManyWithoutDisputedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    number?: NullableIntFieldUpdateOperationsInput | number | null
+    title?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    effectiveDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishedById?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AddendumAcknowledgementUpdateWithoutStakeholderInput = {
@@ -75770,6 +77466,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
@@ -75805,6 +77502,7 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
@@ -75833,6 +77531,7 @@ export namespace Prisma {
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
     renewalSnoozedUntil?: Date | string | null
     renewedFromId?: string | null
@@ -75859,6 +77558,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -75883,6 +77583,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75904,6 +77605,7 @@ export namespace Prisma {
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
     renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -75981,6 +77683,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -76008,6 +77712,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateWithoutTenancyInput = {
@@ -76033,6 +77738,7 @@ export namespace Prisma {
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
 
   export type InspectionUncheckedUpdateManyWithoutTenancyInput = {
@@ -76064,6 +77770,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     propertyAsset?: PropertyAssetUpdateOneWithoutMaintenanceCasesNestedInput
@@ -76074,6 +77781,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutTenancyInput = {
@@ -76089,6 +77798,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -76097,6 +77808,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutTenancyInput = {
@@ -76112,6 +77824,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76189,6 +77903,29 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: string | null
     acknowledgedAt?: Date | string | null
+    sourceMaintenanceCaseId?: string | null
+    disputedAt?: Date | string | null
+    disputedById?: string | null
+    disputeReason?: string | null
+  }
+
+  export type MaintenanceCaseCreateManyMoveInDefectInspectionInput = {
+    id?: string
+    clientId?: string | null
+    tenancyId: string
+    propertyAssetId?: string | null
+    reportedById: string
+    category: $Enums.MaintenanceCategory
+    priority?: $Enums.MaintenancePriority
+    title: string
+    description: string
+    status?: $Enums.MaintenanceStatus
+    resolutionReason?: string | null
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type RoomUpdateWithoutInspectionInput = {
@@ -76384,10 +78121,14 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: StakeholderUpdateOneRequiredWithoutAddendaCreatedNestedInput
     publishedBy?: StakeholderUpdateOneWithoutAddendaPublishedNestedInput
     entries?: ReportAddendumEntryUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUpdateManyWithoutAddendumNestedInput
+    sourceMaintenanceCase?: MaintenanceCaseUpdateOneWithoutMoveInDefectAddendumNestedInput
+    disputedBy?: StakeholderUpdateOneWithoutAddendaDisputedNestedInput
   }
 
   export type ReportAddendumUncheckedUpdateWithoutInspectionInput = {
@@ -76404,6 +78145,10 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
     entries?: ReportAddendumEntryUncheckedUpdateManyWithoutAddendumNestedInput
     acknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutAddendumNestedInput
   }
@@ -76422,6 +78167,81 @@ export namespace Prisma {
     snapshot?: NullableJsonNullValueInput | InputJsonValue
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sourceMaintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    disputedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    disputedById?: NullableStringFieldUpdateOperationsInput | string | null
+    disputeReason?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MaintenanceCaseUpdateWithoutMoveInDefectInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
+    propertyAsset?: PropertyAssetUpdateOneWithoutMaintenanceCasesNestedInput
+    reportedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceCasesReportedNestedInput
+    events?: MaintenanceEventUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
+  }
+
+  export type MaintenanceCaseUncheckedUpdateWithoutMoveInDefectInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedById?: StringFieldUpdateOperationsInput | string
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    visits?: MaintenanceVisitUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    evidence?: MaintenanceEvidenceUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
+  }
+
+  export type MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportedById?: StringFieldUpdateOperationsInput | string
+    category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
+    priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumMaintenanceStatusFieldUpdateOperationsInput | $Enums.MaintenanceStatus
+    resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InspectionItemCreateManySourceCaptureInput = {
@@ -76852,6 +78672,8 @@ export namespace Prisma {
     resolutionReason?: string | null
     acknowledgedAt?: Date | string | null
     resolvedAt?: Date | string | null
+    wasPresentAtMoveIn?: boolean
+    moveInDefectInspectionId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -76947,6 +78769,7 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutMaintenanceCasesNestedInput
@@ -76957,6 +78780,8 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectInspection?: InspectionUpdateOneWithoutMoveInDefectCasesNestedInput
+    moveInDefectAddendum?: ReportAddendumUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateWithoutPropertyAssetInput = {
@@ -76972,6 +78797,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: MaintenanceEventUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
@@ -76980,6 +78807,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
+    moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
   }
 
   export type MaintenanceCaseUncheckedUpdateManyWithoutPropertyAssetInput = {
@@ -76995,6 +78823,8 @@ export namespace Prisma {
     resolutionReason?: NullableStringFieldUpdateOperationsInput | string | null
     acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    wasPresentAtMoveIn?: BoolFieldUpdateOperationsInput | boolean
+    moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../services/push_notifications.dart';
 import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
@@ -15,7 +16,8 @@ import 'branding_drawer.dart';
 import '../ui/kivilo_layout.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, this.onStartCheckIn});
+  const SettingsScreen({super.key, this.onStartCheckIn, this.trackView = true});
+  final bool trackView;
 
   /// Set for someone whose home shows only their own tenancies, so an agent who is also
   /// somebody's tenant can still start an inspection.
@@ -244,7 +246,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.account,
+    active: widget.trackView,
+    child: Scaffold(
     appBar: AppBar(title: const Text('Account')),
     body: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
       future: _request,
@@ -447,6 +452,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       },
     )),
+  ),
   );
 
   Widget _linkCard({

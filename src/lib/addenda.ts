@@ -17,6 +17,7 @@ const lineSchema = z.object({
   identifier: z.string().nullable(),
   notes: z.string().nullable(),
   propertyAssetId: z.string().nullable(),
+  meterReading: z.string().nullable().optional(),
 })
 
 /// A published addendum, by value. Rendering never follows the entry rows.
@@ -28,6 +29,13 @@ export const addendumSnapshotSchema = z.object({
   effectiveDate: z.string(),
   publishedAt: z.string(),
   publishedBy: z.string(),
+  /// Optional on older agent updates. A tenant notice freezes when it was reported,
+  /// separately from publication, and the deadline that applied to that report.
+  moveInDefect: z.object({
+    caseId: z.string(),
+    reportedAt: z.iso.datetime(),
+    deadline: z.iso.date(),
+  }).optional(),
   entries: z.array(z.object({
     id: z.string(),
     change: z.enum(['ADDED', 'REPLACED', 'REMOVED']),
@@ -81,6 +89,12 @@ export function snapshotChanges(snapshot: AddendumSnapshot): StateChange[] {
     targetKey: entry.target?.key ?? null,
     line: entry.line,
     photos: entry.photos.map(({ id, storagePath, label, note }) => ({ id, storagePath, label, note })),
+    conditionOnly: Boolean(snapshot.moveInDefect),
+    // Older frozen notices included the target's existing notes in the new line.
+    // Apply only their own contribution so parallel notices retain both descriptions.
+    conditionNote: entry.target?.notes && entry.notes?.startsWith(`${entry.target.notes}\n`)
+      ? entry.notes.slice(entry.target.notes.length + 1)
+      : entry.notes,
   }))
 }
 
@@ -96,7 +110,12 @@ export async function currentState(
     include: {
       rooms: { orderBy: { order: 'asc' }, include: { items: { orderBy: { createdAt: 'asc' } } } },
       addenda: {
-        where: acknowledgedOnly ? { acknowledgedAt: { not: null } } : { publishedAt: { not: null } },
+        where: acknowledgedOnly
+          ? { acknowledgedAt: { not: null } }
+          : {
+              publishedAt: { not: null },
+              disputedAt: null,
+            },
         orderBy: { number: 'asc' },
       },
     },
@@ -118,10 +137,13 @@ export async function currentState(
       createdAt: item.createdAt,
     })),
   }))
-  return applyAddenda(signed, inspection.addenda.map((addendum) => ({
-    at: addendum.publishedAt!,
-    changes: snapshotChanges(addendumSnapshotSchema.parse(addendum.snapshot)),
-  })))
+  return applyAddenda(signed, inspection.addenda.flatMap((addendum) => {
+    const snapshot = addendumSnapshotSchema.parse(addendum.snapshot)
+    // The immutable provenance survives retention removing the repair FK. An
+    // unagreed tenant notice must never turn into an agent's authoring baseline.
+    if (snapshot.moveInDefect && !addendum.acknowledgedAt) return []
+    return [{ at: addendum.publishedAt!, changes: snapshotChanges(snapshot) }]
+  }))
 }
 
 export type AcknowledgementStatus = {
@@ -159,6 +181,16 @@ export function addendumView(
     ...snapshot,
     contentHash: row.contentHash!,
     acknowledgedAt: row.acknowledgedAt?.toISOString() ?? null,
+    source: snapshot.moveInDefect ? 'MOVE_IN_DEFECT' as const : 'AGENT_UPDATE' as const,
+    moveInDefect: snapshot.moveInDefect ?? null,
+    dispute: row.disputedAt
+      ? {
+          disputedAt: row.disputedAt.toISOString(),
+          disputedById: row.disputedById!,
+          disputedBy: tenancy.landlord.name,
+          reason: row.disputeReason!,
+        }
+      : null,
     acknowledgements,
   }
 }
@@ -166,7 +198,8 @@ export function addendumView(
 export type AddendumView = ReturnType<typeof addendumView>
 
 /// "Added", "Replaced", "Removed", with what, as one heading line.
-export function entryHeading(entry: AddendumSnapshot['entries'][number]) {
+export function entryHeading(entry: AddendumSnapshot['entries'][number], source?: 'MOVE_IN_DEFECT' | 'AGENT_UPDATE') {
+  if (source === 'MOVE_IN_DEFECT') return `Condition reported: ${entry.line?.name ?? entry.target?.name ?? 'item'}`
   if (entry.change === 'ADDED') return `Added: ${entry.line?.name ?? 'item'}`
   if (entry.change === 'REMOVED') return `Removed: ${entry.target?.name ?? 'item'}`
   return `Replaced: ${entry.target?.name ?? 'item'} with ${entry.line?.name ?? 'item'}`

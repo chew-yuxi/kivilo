@@ -36,7 +36,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
   final _api = Api();
   final _picker = ImagePicker();
   Directory? _root;
-  bool _busy = false;
+  bool _busy = true;
   String? _message;
 
   String get _queueOwner => 'maintenance:${widget.caseId}';
@@ -57,6 +57,8 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       if (mounted) {
         setState(() => _message = 'Could not prepare the photo. ${plainError(error)}');
       }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -149,7 +151,9 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => PopScope(
+    canPop: !_busy,
+    child: Scaffold(
     appBar: AppBar(
       title: Text(
         widget.purpose == 'BEFORE' ? 'Before photos' : 'After photos',
@@ -213,5 +217,6 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
         ],
       ],
     )),
+    ),
   );
 }

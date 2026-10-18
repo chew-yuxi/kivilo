@@ -228,6 +228,55 @@ export async function sendSignatureRequest(to: string, request: SignatureRequest
   if (error) throw new Error(`Resend refused the signature request: ${error.message}`)
 }
 
+export type TenantHandover = {
+  id: string
+  recipientName: string
+  address: string
+  /// An authenticated handover page, never a report token or signed storage URL.
+  link: string
+  deadline: Date | null
+  windowDays: number
+  countersigned: boolean
+}
+
+export function tenantHandoverEmail(handover: TenantHandover) {
+  const deadline = handover.deadline && new Intl.DateTimeFormat('en-SG', {
+    dateStyle: 'long', timeZone: 'Asia/Singapore',
+  }).format(handover.deadline)
+  const period = deadline
+    ? `Your tenancy's ${handover.windowDays}-day move-in defect period ends on ${deadline}, at the end of the day in Singapore. If something was already wrong when you moved in, report it by that deadline.`
+    : 'An early move-in defect period is not enabled for this tenancy. You can still report repairs in the Kivilo app.'
+  const signed = handover.countersigned
+    ? 'Both parties have signed. Your signed report is sent separately as a PDF.'
+    : 'You have signed the check-in report. Once the landlord has also signed, we will email you the signed report as a PDF.'
+  return {
+    subject: `Your handover for ${handover.address}`,
+    text: [
+      `Hello ${handover.recipientName},`,
+      '',
+      signed,
+      '',
+      period,
+      '',
+      'Your report and handover details:',
+      handover.link,
+      '',
+      'Sign in with a code emailed to this address. If you use the Kivilo app, sign in with the same address to find your tenancy and report a problem.',
+      '',
+      'A move-in defect report is your dated statement until the landlord acknowledges it. The signed check-in report stays unchanged.',
+    ].join('\n'),
+  }
+}
+
+export async function sendTenantHandover(to: string, handover: TenantHandover) {
+  const { subject, text } = tenantHandoverEmail(handover)
+  const { error } = await resend().emails.send(
+    { from: sender(), to, subject, text },
+    { idempotencyKey: `report-email-${handover.id}` },
+  )
+  if (error) throw new Error(`Resend refused the tenant handover: ${error.message}`)
+}
+
 export type SignedCopy = {
   id: string
   recipientName: string

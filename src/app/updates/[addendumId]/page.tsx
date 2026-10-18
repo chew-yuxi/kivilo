@@ -6,6 +6,7 @@ import { addendumView } from '@/lib/addenda'
 import { propertyLabel } from '@/lib/format'
 import { AddendumSection } from '@/components/addendum-section'
 import { AcknowledgeButton } from '@/components/acknowledge-button'
+import { MoveInDefectResponse } from '@/components/move-in-defect-response'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +35,7 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
       inspection: {
         select: {
           conductedAt: true,
+          checkOut: { select: { status: true } },
           tenancy: { include: { property: true, landlord: true, tenant: true } },
         },
       },
@@ -44,17 +46,23 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
   const addendum = addendumView(row, tenancy)
   const role = viewer.id === tenancy.landlordId ? 'Landlord' : viewer.id === tenancy.tenantId ? 'Tenant' : null
   const mine = addendum.acknowledgements.find((ack) => ack.role === role)
+  const isMoveInDefect = addendum.source === 'MOVE_IN_DEFECT'
+  const checkOutComplete = row.inspection.checkOut?.status === 'COMPLETED'
 
   return (
     <article className="mx-auto max-w-3xl bg-white p-5 sm:p-10">
       <header className="border-b border-gray-300 pb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Kivilo condition report</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Update to the check-in report</h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+          {isMoveInDefect ? 'Move-in condition reported' : 'Update to the check-in report'}
+        </h1>
         <p className="mt-1 text-sm text-gray-600">{propertyLabel(tenancy.property)}</p>
         <p className="mt-3 text-sm text-gray-700">
           The check-in report{conductedAt && ` of ${dateFormat.format(conductedAt)}`} was signed by{' '}
-          {tenancy.landlord.name} and {tenancy.tenant.name}. Since then the agent has recorded the
-          change below. It counts as part of the report once both of you have acknowledged it.
+          {tenancy.landlord.name} and {tenancy.tenant.name}.{' '}
+          {isMoveInDefect
+            ? 'The tenant has reported the condition below as present at move-in. It joins the agreed check-in once the landlord agrees; a dispute stays recorded separately.'
+            : 'Since then the agent has recorded the change below. It counts as part of the report once both of you have acknowledged it.'}
         </p>
       </header>
 
@@ -64,7 +72,7 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
 
       {/* Anyone else the read scope admits is the deal's agent or a teammate, on whose
           device a party who is present acknowledges in person. */}
-      {!role && addendum.acknowledgements.filter((ack) => !ack.acknowledgedAt).map((ack) => (
+      {!role && !isMoveInDefect && addendum.acknowledgements.filter((ack) => !ack.acknowledgedAt).map((ack) => (
         <div key={ack.role} className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
           <AcknowledgeButton
             addendumId={addendumId}
@@ -73,13 +81,20 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
         </div>
       ))}
 
-      {mine && (
+      {mine && !isMoveInDefect && (
         <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
           {mine.acknowledgedAt ? (
             <p className="text-sm text-emerald-800">You have acknowledged this update.</p>
           ) : (
             <AcknowledgeButton addendumId={addendumId} />
           )}
+        </div>
+      )}
+      {isMoveInDefect && role === 'Landlord' && !addendum.acknowledgedAt && !addendum.dispute && (
+        <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
+          {checkOutComplete
+            ? <p className="text-sm text-gray-700">The check-out is already signed. This notice remains recorded with the check-in.</p>
+            : <MoveInDefectResponse addendumId={addendumId} />}
         </div>
       )}
     </article>

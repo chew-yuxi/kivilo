@@ -15,6 +15,7 @@ export const reportInclude = {
     include: { property: true, landlord: true, tenant: true, agent: { include: { branding: true } } },
   },
   conductedBy: true,
+  checkOut: { select: { status: true } },
   rooms: {
     orderBy: { order: 'asc' },
     // The frozen check-in reference only `check-in-reference.ts` reads.
@@ -91,10 +92,13 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
     addenda: await Promise.all(inspection.addenda.map(async (row) => {
       const view = addendumView(row, tenancy)
       const mine = view.acknowledgements.find((ack) => ack.role.toUpperCase() === party)
+      const isMoveInDefect = view.source === 'MOVE_IN_DEFECT'
+      const canAnswer = !view.dispute && (!isMoveInDefect || inspection.checkOut?.status !== 'COMPLETED')
       return {
         ...view,
-        acknowledgeAs: party && mine && !mine.acknowledgedAt ? party : null,
-        acknowledgeInPerson: !party && view.acknowledgements.some((ack) => !ack.acknowledgedAt),
+        acknowledgeAs: canAnswer && party && mine && !mine.acknowledgedAt && (!isMoveInDefect || party === 'LANDLORD') ? party : null,
+        acknowledgeInPerson: !isMoveInDefect && !party && view.acknowledgements.some((ack) => !ack.acknowledgedAt),
+        disputeAs: isMoveInDefect && canAnswer && party === 'LANDLORD' && !view.acknowledgedAt ? party : null,
         entries: await Promise.all(view.entries.map(async (entry) => ({
           ...entry,
           photos: await Promise.all(entry.photos.map(async ({ storagePath, ...photo }) => ({

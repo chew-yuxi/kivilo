@@ -5,21 +5,23 @@ import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_format.dart';
 import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
 import 'property_timeline_screen.dart';
 import 'service_directory_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
-  const TenancyScreen({super.key, required this.tenancy});
+  const TenancyScreen({super.key, required this.tenancy, this.api});
   final TenancySummary tenancy;
+  final Api? api;
 
   @override
   State<TenancyScreen> createState() => _TenancyScreenState();
 }
 
 class _TenancyScreenState extends State<TenancyScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late Future<_TenancyData> _future = _load();
 
   Future<_TenancyData> _load() async => (
@@ -36,19 +38,24 @@ class _TenancyScreenState extends State<TenancyScreen> {
     await next;
   }
 
-  Future<void> _report(List<PropertyAssetSummary> assets) async {
+  Future<void> _report(
+    List<PropertyAssetSummary> assets,
+    TenancyDetail terms,
+  ) async {
     final id = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (_) => NewMaintenanceCaseScreen(
           tenancyId: widget.tenancy.id,
           assets: assets,
+          api: _api,
+          moveInDefects: terms.moveInDefects,
         ),
       ),
     );
     if (!mounted || id == null) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => MaintenanceCaseScreen(caseId: id),
+        builder: (_) => MaintenanceCaseScreen(caseId: id, api: _api),
       ),
     );
     if (mounted) await _refresh();
@@ -197,6 +204,67 @@ class _TenancyScreenState extends State<TenancyScreen> {
     if (mounted) await _refresh();
   }
 
+  Future<void> _editDefectWindow(int current) async {
+    var days = '$current';
+    final result = await showKiviloDrawer<int>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDrawerState) {
+          final value = int.tryParse(days.trim());
+          final valid = value != null && value >= 0 && value <= 365;
+          return KiviloDrawer(
+            title: const Text('Move-in defect period'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Use the period in the tenancy agreement. The tenancy start date is day 1, in Singapore time. This is fixed when the tenant first signs the check-in.',
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  initialValue: days,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Number of days',
+                    helperText: '0 disables the move-in defect period',
+                    errorText: valid
+                        ? null
+                        : 'Enter a whole number from 0 to 365',
+                  ),
+                  onChanged: (value) => setDrawerState(() => days = value),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: valid ? () => Navigator.pop(context, value) : null,
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (result == null) return;
+    try {
+      await _api.updateTenancyTerms(widget.tenancy.id, {
+        'defectWindowDays': result,
+      });
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(widget.tenancy.property)),
@@ -241,11 +309,31 @@ class _TenancyScreenState extends State<TenancyScreen> {
               ),
               const SizedBox(height: 10),
               FilledButton.icon(
-                onPressed: () => _report(assets),
+                onPressed: () => _report(assets, terms),
                 icon: const Icon(Icons.add),
                 label: const Text('Report a problem'),
               ),
               const SizedBox(height: 10),
+                if (terms.moveInDefects case final window?) ...[
+                  Card(
+                    child: ListTile(
+                      title: const Text('Move-in defect period'),
+                      subtitle: Text(
+                        window.deadline == null
+                            ? 'Disabled. Repairs can still be reported.'
+                            : '${window.windowDays} days · Report by ${calendarDate(window.deadline!)} (Singapore time)',
+                      ),
+                      trailing: window.canEditWindow
+                          ? TextButton(
+                              onPressed: () =>
+                                  _editDefectWindow(window.windowDays),
+                              child: const Text('Edit'),
+                            )
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               Card(
                 child: ListTile(
                   leading: const Icon(
@@ -409,8 +497,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
-      ),
-    ),
+      )),
   );
 
   Widget _emptyAssets() => Card(
@@ -431,8 +518,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
             ),
           ),
         ],
-      ),
-    ),
+      )),
   );
 }
 

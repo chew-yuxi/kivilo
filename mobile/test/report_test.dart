@@ -153,6 +153,11 @@ void main() {
     expect(find.text('Kitchen'), findsOneWidget);
     expect(find.text('SAMSUNG RF48A4000S9'), findsOneWidget);
     expect(find.text('Good'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('1 area marked'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.textContaining('1 area marked'), findsOneWidget);
     expect(find.textContaining('1. Dent'), findsOneWidget);
     expect(

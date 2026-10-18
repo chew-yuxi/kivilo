@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
-import { costStanding } from '@/lib/maintenance'
+import { costStanding, tenancyDetail } from '@/lib/maintenance'
 import { StatusBadge } from '@/components/status-badge'
 import { RoomCapture, type RoomRow } from '@/components/room-capture'
 import { SignaturePad } from '@/components/signature-pad'
@@ -16,6 +16,10 @@ import { SigningEmail } from '@/components/signing-email'
 import { signingParties } from '@/lib/report-email'
 import { AddendaPanel } from '@/components/addenda-panel'
 import { addendaWorkspace } from '@/lib/addenda-workspace'
+import { inspectionHandover } from '@/lib/handover'
+import { TenantHandoverCard } from '@/components/tenant-handover-card'
+import { DefectWindowForm } from '@/components/defect-window-form'
+import { findingCheckInConditions } from '@/lib/check-in-reference'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,6 +78,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     ? await signingParties(id)
     : []
 
+  const checkInConditions = kind === 'CHECK_OUT' && inspection.findings.length > 0
+    ? await findingCheckInConditions(id, agent.id) : null
   const findings: FindingRow[] = inspection.findings.map((finding) => ({
     id: finding.id,
     changeType: finding.changeType,
@@ -85,7 +91,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     baselineLabel: finding.baselineItem
       ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
       : null,
-    baselineCondition: finding.baselineItem?.condition ?? null,
+    baselineCondition: checkInConditions?.get(finding.baselineItemId ? `item:${finding.baselineItemId}` : finding.item?.baselineKey ?? '')
+      ?? finding.baselineItem?.condition ?? null,
     currentCondition: finding.item?.condition ?? null,
     maintenanceCaseId: finding.maintenanceCaseId,
     maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
@@ -121,6 +128,19 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   // Updates since signing, on a countersigned check-in only.
   const signedCheckIn = status === 'COMPLETED' && kind === 'CHECK_IN'
   const addenda = signedCheckIn ? await addendaWorkspace(id, agent.id) : null
+  const tenantSigned = inspection.signatures.some((signature) => signature.stakeholderId === tenancy.tenantId)
+  const handover = kind === 'CHECK_IN' && tenantSigned ? await inspectionHandover(id, agent.id) : null
+  let defectWindow = null
+  if (kind === 'CHECK_IN' && !tenantSigned) {
+    try {
+      const detail = await tenancyDetail(tenancy.id, agent.id)
+      if (detail.moveInDefects.canEditWindow) defectWindow = detail.moveInDefects
+    } catch (error) {
+      // A former conducting agent can retain report access after their tenancy
+      // management access ends. The domain decides whether they may change this.
+      if (!(error instanceof Error && error.message === 'Tenancy not found')) throw error
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -166,6 +186,12 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           {allReviewed && <CompleteReviewButton inspectionId={id} roomCount={rooms.length} />}
         </>
       )}
+
+      {defectWindow && (
+        <DefectWindowForm tenancyId={tenancy.id} inspectionId={id} windowDays={defectWindow.windowDays} deadline={defectWindow.deadline} />
+      )}
+
+      {handover && <TenantHandoverCard handover={handover} tenantName={tenancy.tenant.name} tenantEmail={tenancy.tenant.email} />}
 
       {(status === 'AWAITING_SIGNATURE' || status === 'COMPLETED') && (
         <>

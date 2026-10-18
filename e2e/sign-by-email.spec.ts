@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test'
 import { accessTokenFor, freshEmail, latestCodeFor, scribble, signIn } from './helpers'
+import { db } from '../src/lib/db'
+
+test.afterAll(async () => { await db.$disconnect() })
 
 /// The landlord or tenant who was not at the handover signs from the link in their
 /// email. The link is not a credential: it lands on the login page with their address
@@ -7,7 +10,8 @@ import { accessTokenFor, freshEmail, latestCodeFor, scribble, signIn } from './h
 /// see the report and sign it. Anyone else signed in sees the same page as for a report
 /// that does not exist.
 test('a party signs from the emailed link, as themselves and nobody else', async ({ browser, request }) => {
-  const agent = { Authorization: `Bearer ${await accessTokenFor(freshEmail('sign-agent'))}` }
+  const agentEmail = freshEmail('sign-agent')
+  const agent = { Authorization: `Bearer ${await accessTokenFor(agentEmail)}` }
   const landlordEmail = freshEmail('sign-landlord')
   const tenantEmail = freshEmail('sign-tenant')
 
@@ -29,6 +33,7 @@ test('a party signs from the emailed link, as themselves and nobody else', async
 
   // Send queued the signing email to both; asking again while it waits adds nothing.
   const detail = await (await request.get(`/api/v1/inspections/${id}`, { headers: agent })).json()
+  const tenancyId = detail.tenancyRecordId as string
   expect(detail.signingParties).toMatchObject([
     { role: 'LANDLORD', email: landlordEmail, signedAt: null, signingEmail: { state: 'QUEUED' } },
     { role: 'TENANT', email: tenantEmail, signedAt: null, signingEmail: { state: 'QUEUED' } },
@@ -43,6 +48,21 @@ test('a party signs from the emailed link, as themselves and nobody else', async
     data: { stakeholderId: 'cmnope00000000000000000' },
   })
   expect(notAParty.status()).toBe(404)
+
+  // The agent confirms the period against this tenancy before the tenant signs. The
+  // form and API share the same setter; the suggested 30 days is not fixed policy.
+  const agentContext = await browser.newContext()
+  const inspector = await agentContext.newPage()
+  await signIn(inspector, agentEmail)
+  await inspector.goto(`/inspections/${id}`)
+  await expect(inspector.getByLabel('Calendar days')).toHaveValue('30')
+  await expect(inspector.getByRole('img', { name: 'Scan to open your tenant handover' })).toHaveCount(0)
+  expect((await request.get(`/api/v1/inspections/${id}/handover`, { headers: agent })).status()).toBe(404)
+  await inspector.getByLabel('Calendar days').fill('21')
+  await inspector.getByRole('button', { name: 'Save period' }).click()
+  await expect(inspector.getByText('Current deadline: 2026-10-21, end of day in Singapore.')).toBeVisible()
+  const beforeSigning = await (await request.get(`/api/v1/tenancies/${tenancyId}`, { headers: agent })).json()
+  expect(beforeSigning.moveInDefects).toMatchObject({ windowDays: 21, deadline: '2026-10-21', canEditWindow: true })
 
   // The tenant opens the link signed out and is asked to sign in, address filled in.
   const tenantContext = await browser.newContext()
@@ -70,6 +90,49 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   await expect(tenant.getByText('You signed')).toBeVisible()
   await expect(tenant.getByText('Waiting for Goh Siew Lan to sign')).toBeVisible()
   await expect(tenant.getByText(`Content fingerprint ${fingerprint}`)).toBeVisible()
+  const handoverLink = tenant.getByRole('link', { name: 'Your handover and move-in defect deadline' })
+  await expect(handoverLink).toHaveAttribute('href', `/handover/${id}`)
+
+  // The first tenant signature makes the handover available immediately, before the
+  // landlord signs, and fixes the deadline shown in their email and QR destination.
+  const handoverResponse = await request.get(`/api/v1/inspections/${id}/handover`, { headers: agent })
+  expect(handoverResponse.status()).toBe(200)
+  const handover = await handoverResponse.json()
+  expect(handover).toMatchObject({ tenancyId, windowDays: 21, deadline: '2026-10-21' })
+  const destination = new URL(handover.url)
+  expect(destination.pathname).toBe(`/handover/${id}`)
+  expect(destination.search).toBe('')
+  expect(handover.modules.length).toBeGreaterThan(20)
+  expect(handover.modules.every((row: unknown[]) => row.length === handover.modules.length && row.every((bit) => typeof bit === 'boolean'))).toBe(true)
+  await inspector.reload()
+  await expect(inspector.getByRole('img', { name: 'Scan to open your tenant handover' })).toBeVisible()
+  await expect(inspector.getByRole('link', { name: 'Open tenant handover' })).toHaveAttribute('href', handover.url)
+  await expect(inspector.getByLabel('Calendar days')).toHaveCount(0)
+  const changeAfterSignature = await request.patch(`/api/v1/tenancies/${tenancyId}`, { headers: agent, data: { defectWindowDays: 30 } })
+  expect(changeAfterSignature.status()).toBe(409)
+  expect((await (await request.get(`/api/v1/tenancies/${tenancyId}`, { headers: agent })).json()).moveInDefects)
+    .toMatchObject({ windowDays: 21, deadline: '2026-10-21', canEditWindow: false })
+
+  // Inspect only this local fixture's transactional outbox: the tenant's own email is
+  // queued even though the signed PDF must still wait for the landlord's signature.
+  const database = new URL(process.env.DATABASE_URL ?? '')
+  expect(database.hostname).toBe('127.0.0.1')
+  expect(database.port).toBe('56322')
+  const queuedHandover = await db.reportEmail.findMany({
+    where: { inspectionId: id, kind: 'TENANT_HANDOVER' },
+    include: { recipient: { select: { email: true } }, inspection: { select: { tenancy: { select: { defectWindowDays: true } } } } },
+  })
+  expect(queuedHandover).toHaveLength(1)
+  expect(queuedHandover[0]).toMatchObject({ sentAt: null, attempts: 0, recipient: { email: tenantEmail }, inspection: { tenancy: { defectWindowDays: 21 } } })
+  expect(queuedHandover[0].dedupeKey).toBe(`tenant-handover:${id}:${queuedHandover[0].recipientId}`)
+
+  const handoverPage = await tenantContext.newPage()
+  await handoverPage.goto(`/handover/${id}`)
+  await expect(handoverPage.getByRole('heading', { name: 'Your tenant handover' })).toBeVisible()
+  await expect(handoverPage.getByText('Move-in defect deadline: 2026-10-21')).toBeVisible()
+  await expect(handoverPage.getByText('The landlord has not signed yet', { exact: false })).toBeVisible()
+  await expect(handoverPage.getByText('Nothing recorded in this room.')).toBeVisible()
+  await expect(handoverPage.getByRole('button', { name: 'Install app' })).toHaveCount(0)
   // Nothing to download until both have signed.
   await expect(tenant.getByRole('link', { name: 'Download PDF' })).toHaveCount(0)
   expect((await tenant.request.get(`/sign/${id}/pdf`)).status()).toBe(404)
@@ -85,6 +148,13 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   await stranger.goto(`/sign/cmnope00000000000000000?email=${encodeURIComponent(landlordEmail)}`)
   await expect(stranger.getByRole('heading', { name: 'Nothing to sign here' })).toBeVisible()
   expect(await stranger.locator('body').innerText()).toBe(refused)
+  await stranger.goto(`/handover/${id}?email=${encodeURIComponent(tenantEmail)}`)
+  await expect(stranger.getByRole('heading', { name: 'No tenant handover here' })).toBeVisible()
+  const refusedHandover = await stranger.locator('body').innerText()
+  await stranger.goto(`/handover/cmnope00000000000000000?email=${encodeURIComponent(tenantEmail)}`)
+  await expect(stranger.getByRole('heading', { name: 'No tenant handover here' })).toBeVisible()
+  expect(await stranger.locator('body').innerText()).toBe(refusedHandover)
+  await stranger.goto(`/sign/${id}?email=${encodeURIComponent(landlordEmail)}`)
   await stranger.getByRole('button', { name: 'Sign out' }).click()
   await expect(stranger).toHaveURL(/\/login\?/)
   await expect(stranger.getByLabel('Email')).toHaveValue(landlordEmail)
@@ -115,5 +185,6 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   expect(pdf.status()).toBe(200)
   expect(pdf.headers()['content-type']).toBe('application/pdf')
   expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-')
+  await agentContext.close()
   await tenantContext.close()
 })

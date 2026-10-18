@@ -7,7 +7,7 @@ import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 4
+export const RENDER_VERSION = 5
 
 const reportInclude = {
   tenancy: {

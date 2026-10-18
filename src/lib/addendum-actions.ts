@@ -16,10 +16,11 @@ import { authorizeMaintenanceCase } from '@/lib/maintenance'
 import { captureExists, createUploadUrl } from '@/lib/storage'
 import { propertyLabel } from '@/lib/format'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
-import { ADDENDUM_PHOTO_TYPES, addendumHash, currentState, type AddendumSnapshot } from '@/lib/addenda'
+import { ADDENDUM_PHOTO_TYPES, addendumHash, addendumSnapshotSchema, currentState, type AddendumSnapshot } from '@/lib/addenda'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import type { StateLine } from '@/lib/addenda-state'
 import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
+import { assertNoSignedCheckOut, lockMoveInDefectTenancy, MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 
 // Addenda: dated updates to a countersigned check-in, written and published by the agent
 // and acknowledged by both parties. They never touch the signed rooms, items, captures
@@ -535,19 +536,43 @@ export async function acknowledgeAddendumInPerson(addendumId: string, stakeholde
 async function recordAcknowledgement(addendumId: string, stakeholderId: string, method: AcknowledgementMethod) {
   const ip = (await headers()).get('x-forwarded-for')
   await db.$transaction(async (tx) => {
+    const location = await tx.reportAddendum.findUniqueOrThrow({
+      where: { id: addendumId },
+      select: { inspectionId: true, inspection: { select: { tenancyId: true } } },
+    })
+    await lockMoveInDefectTenancy(tx, location.inspectionId, location.inspection.tenancyId)
     await tx.$queryRaw`SELECT "id" FROM "ReportAddendum" WHERE "id" = ${addendumId} FOR UPDATE`
     const addendum = await tx.reportAddendum.findUniqueOrThrow({
       where: { id: addendumId },
       select: {
         contentHash: true,
+        title: true,
+        publishedAt: true,
+        sourceMaintenanceCaseId: true,
+        snapshot: true,
+        disputedAt: true,
         acknowledgedAt: true,
         acknowledgements: { select: { stakeholderId: true } },
         inspection: { select: { tenancy: { select: { landlordId: true, tenantId: true } } } },
       },
     })
     const { landlordId, tenantId } = addendum.inspection.tenancy
-    if (stakeholderId !== landlordId && stakeholderId !== tenantId) throw new Error('Addendum not found')
+    if (!addendum.publishedAt || (stakeholderId !== landlordId && stakeholderId !== tenantId)) throw new Error('Addendum not found')
     const done = new Set(addendum.acknowledgements.map((ack) => ack.stakeholderId))
+    const snapshot = addendumSnapshotSchema.parse(addendum.snapshot)
+    const isMoveInDefect = Boolean(snapshot.moveInDefect)
+    if (isMoveInDefect) {
+      if (method !== 'OWN_ACCOUNT') throw new Error('Addendum not found')
+      if (done.has(stakeholderId)) return
+      if (stakeholderId !== landlordId) throw new Error('Addendum not found')
+      if (addendum.disputedAt) throw new Error('This move-in notice already has a final response')
+      await assertNoSignedCheckOut(tx, location.inspection.tenancyId)
+      const agreedKeys = new Set((await currentState(location.inspectionId, { acknowledgedOnly: true }, tx))
+        .flatMap((room) => room.lines.map((line) => line.key)))
+      if (snapshot.entries.some((entry) => entry.target && !agreedKeys.has(entry.target.key))) {
+        throw new MoveInDefectStaleTargetError()
+      }
+    }
     if (!done.has(stakeholderId)) {
       await tx.addendumAcknowledgement.create({
         data: { addendumId, stakeholderId, ipAddress: ip, contentHash: addendum.contentHash!, method },
@@ -556,6 +581,17 @@ async function recordAcknowledgement(addendumId: string, stakeholderId: string, 
     }
     if (!addendum.acknowledgedAt && done.has(landlordId) && done.has(tenantId)) {
       await tx.reportAddendum.update({ where: { id: addendumId }, data: { acknowledgedAt: new Date() } })
+      if (isMoveInDefect) {
+        const recipients = await activeNotificationRecipients(tx, [tenantId])
+        await tx.notification.createMany({
+          data: recipients.map((recipientId) => ({
+            recipientId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
+            body: 'The landlord acknowledged your move-in notice. It now counts in the agreed check-in baseline.',
+            href: `/updates/${addendumId}`, dedupeKey: `move-in-defect-acknowledged:${addendumId}:${recipientId}`,
+          })),
+          skipDuplicates: true,
+        })
+      }
     }
   })
 }

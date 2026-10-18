@@ -23,6 +23,7 @@ vi.mock('@/lib/report-pdf/render', async (importActual) => ({
 vi.mock('@/lib/email', () => ({
   sendSignatureRequest: vi.fn(async () => undefined),
   sendSignedCopy: vi.fn(async () => undefined),
+  sendTenantHandover: vi.fn(async () => undefined),
 }))
 vi.mock('@/lib/auth', async (importActual) => {
   // Only the session lookup is faked; the authorization rules are the real ones.
@@ -34,11 +35,11 @@ import { db } from '@/lib/db'
 import { currentStakeholder, requireAgent, requireStakeholder, signingRole } from '@/lib/auth'
 import { completeReview, emailSigningLink, signInspection, signOwnReport } from '@/lib/actions'
 import { deliverReportEmails, MAX_ATTACHMENT_BYTES } from '@/lib/report-email-delivery'
-import { queueSignedCopies, signingParties } from '@/lib/report-email'
+import { queueSignedCopies, queueTenantHandover, signingParties } from '@/lib/report-email'
 import { downloadCapture } from '@/lib/storage'
 import { GET as signedPdf } from '@/app/sign/[inspectionId]/pdf/route'
 import { reportFingerprint } from '@/lib/report-fingerprint'
-import { sendSignatureRequest, sendSignedCopy } from '@/lib/email'
+import { sendSignatureRequest, sendSignedCopy, sendTenantHandover } from '@/lib/email'
 import type { Stakeholder } from '@/generated/prisma'
 
 const tag = randomUUID().slice(0, 8)
@@ -112,6 +113,7 @@ describe('signing by email link', () => {
     vi.mocked(requireStakeholder).mockReset()
     vi.mocked(sendSignatureRequest).mockReset()
     vi.mocked(sendSignedCopy).mockReset()
+    vi.mocked(sendTenantHandover).mockReset()
     process.env.KIVILO_APP_URL = 'https://kivilo.test'
   })
 
@@ -170,6 +172,52 @@ describe('signing by email link', () => {
     expect(await reportFingerprint(db, deal.inspection.id)).toBe(before)
     await db.capture.updateMany({ where: { roomId: deal.room.id, note: 'Hob plate' }, data: { note: 'Hob plate, chipped' } })
     expect(await reportFingerprint(db, deal.inspection.id)).not.toBe(before)
+  })
+
+  it('queues the tenant handover immediately after their first check-in signature, once only', async () => {
+    const deal = await readyToSend()
+    await sent(deal)
+    expect((await emails(deal.inspection.id)).some((row) => row.kind === 'TENANT_HANDOVER')).toBe(false)
+    asAgent(deal.agent)
+    await signInspection(deal.inspection.id, deal.tenant.id, png)
+    const handovers = (await emails(deal.inspection.id)).filter((row) => row.kind === 'TENANT_HANDOVER')
+    expect(handovers).toMatchObject([{
+      recipientId: deal.tenant.id, sentAt: null,
+      dedupeKey: `tenant-handover:${deal.inspection.id}:${deal.tenant.id}`,
+    }])
+    expect(await db.inspection.findUnique({ where: { id: deal.inspection.id }, select: { status: true } }))
+      .toMatchObject({ status: 'AWAITING_SIGNATURE' })
+    await db.$transaction((tx) => queueTenantHandover(tx, deal.inspection.id))
+    asAgent(deal.agent)
+    await signInspection(deal.inspection.id, deal.tenant.id, png)
+    expect((await emails(deal.inspection.id)).filter((row) => row.kind === 'TENANT_HANDOVER')).toHaveLength(1)
+  })
+
+  it('retries a failed tenant handover email with its own safe link and tenancy deadline', async () => {
+    const deal = await readyToSend()
+    await sent(deal)
+    asAgent(deal.agent)
+    await signInspection(deal.inspection.id, deal.tenant.id, png)
+    await db.reportEmail.updateMany({
+      where: { OR: [{ inspectionId: { not: deal.inspection.id } }, { kind: { not: 'TENANT_HANDOVER' } }], sentAt: null },
+      data: { retryAt: new Date('2100-01-01') },
+    })
+    vi.mocked(sendTenantHandover).mockRejectedValueOnce(new Error('Resend is down'))
+    await deliverReportEmails(500)
+    const [queued] = (await emails(deal.inspection.id)).filter((row) => row.kind === 'TENANT_HANDOVER')
+    expect(queued).toMatchObject({ attempts: 1, sentAt: null, error: 'Resend is down' })
+    await db.reportEmail.update({ where: { id: queued.id }, data: { retryAt: new Date() } })
+    await deliverReportEmails(500)
+    const [to, message] = vi.mocked(sendTenantHandover).mock.calls.at(-1)!
+    expect(to).toBe(deal.tenant.email)
+    expect(message).toMatchObject({ windowDays: 30, countersigned: false, deadline: new Date('2026-01-30T15:59:59.999Z') })
+    const link = new URL(message.link)
+    expect(link.origin).toBe('https://kivilo.test')
+    expect(link.pathname).toBe(`/handover/${deal.inspection.id}`)
+    expect(link.searchParams.get('email')).toBe(deal.tenant.email)
+    expect(link.toString()).not.toContain('/reports/')
+    expect(await db.reportEmail.findUnique({ where: { id: queued.id } })).toMatchObject({ attempts: 2, error: null, emailTo: deal.tenant.email })
+    expect(vi.mocked(sendSignedCopy)).not.toHaveBeenCalled()
   })
 
   it('lets the agent resend the link, without doubling one still waiting to go', async () => {
@@ -241,7 +289,7 @@ describe('signing by email link', () => {
     })
     vi.mocked(sendSignatureRequest).mockRejectedValueOnce(new Error('Resend is down'))
     await deliverReportEmails(500)
-    let rows = await emails(deal.inspection.id)
+    let rows = (await emails(deal.inspection.id)).filter((row) => row.kind === 'SIGNATURE_REQUEST')
     expect(rows).toHaveLength(1)
     expect(rows[0]).toMatchObject({ recipientId: deal.landlord.id, attempts: 1, sentAt: null, error: 'Resend is down' })
     expect(rows[0].retryAt.getTime()).toBeGreaterThan(Date.now())
@@ -249,7 +297,7 @@ describe('signing by email link', () => {
     // Due again: it goes, with a link to the signing page naming the landlord's address.
     await db.reportEmail.update({ where: { id: rows[0].id }, data: { retryAt: new Date() } })
     await deliverReportEmails(500)
-    rows = await emails(deal.inspection.id)
+    rows = (await emails(deal.inspection.id)).filter((row) => row.kind === 'SIGNATURE_REQUEST')
     expect(rows[0]).toMatchObject({ attempts: 2, error: null, emailTo: deal.landlord.email })
     expect(rows[0].sentAt).not.toBeNull()
     const [to, request] = vi.mocked(sendSignatureRequest).mock.calls.at(-1)!

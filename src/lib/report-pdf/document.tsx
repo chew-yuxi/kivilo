@@ -233,8 +233,8 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
           <ContentsLine
             key={addendum.id}
             href={`#update-${addendum.number}`}
-            label={`Updated ${longDate.format(new Date(addendum.effectiveDate))}`}
-            detail={addendum.acknowledgedAt ? addendum.title : `${addendum.title}  ·  Pending acknowledgement`}
+            label={`${addendum.source === 'MOVE_IN_DEFECT' ? 'Move-in condition reported' : 'Updated'} ${longDate.format(new Date(addendum.effectiveDate))}`}
+            detail={addendum.dispute ? `${addendum.title}  ·  Disputed` : addendum.acknowledgedAt ? addendum.title : `${addendum.title}  ·  Pending acknowledgement`}
           />
         ))}
       </View>
@@ -540,15 +540,28 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
     <View id={`update-${addendum.number}`}>
       <View style={{ backgroundColor: '#fef3c7', paddingVertical: 6, paddingHorizontal: 8, marginBottom: 10 }}>
         <Text style={[s.bold, { fontSize: 12, color: '#92400e' }]}>
-          Updated {longDate.format(new Date(addendum.effectiveDate))}
+          {addendum.source === 'MOVE_IN_DEFECT' ? 'Move-in condition reported ' : 'Updated '}{longDate.format(new Date(addendum.effectiveDate))}
         </Text>
         <Text style={{ color: '#92400e' }}>
           Update {addendum.number}
-          {addendum.acknowledgedAt ? '' : '  ·  Pending acknowledgement'}
+          {addendum.dispute ? '  ·  Disputed' : addendum.acknowledgedAt ? '' : '  ·  Pending acknowledgement'}
         </Text>
       </View>
       <Text style={s.h2}>{addendum.title}</Text>
       {addendum.reason && <Text style={{ marginTop: 4 }}>{addendum.reason}</Text>}
+      {addendum.moveInDefect && (
+        <Text style={{ marginTop: 4 }}>
+          Reported by the tenant {dateTime.format(new Date(addendum.moveInDefect.reportedAt))}.
+          Reporting deadline: {longDate.format(new Date(`${addendum.moveInDefect.deadline}T12:00:00+08:00`))}.
+        </Text>
+      )}
+      {addendum.dispute && (
+        <View style={{ marginTop: 6, padding: 8, backgroundColor: '#fef2f2' }}>
+          <Text style={[s.bold, { color: '#991b1b' }]}>Disputed by {addendum.dispute.disputedBy}, {dateTime.format(new Date(addendum.dispute.disputedAt))}</Text>
+          <Text>{addendum.dispute.reason}</Text>
+          <Text>This claim is recorded separately and is not part of the agreed check-in.</Text>
+        </View>
+      )}
       <Text style={[s.small, { marginTop: 4, marginBottom: 12 }]}>
         Published by {addendum.publishedBy}, {dateTime.format(new Date(addendum.publishedAt))}. Recorded beside
         the signed report, which it does not change.
@@ -557,7 +570,7 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
       {addendum.entries.map((entry) => (
         <View key={entry.id} style={[s.row, { flexDirection: 'column', paddingVertical: 6 }]} wrap={false}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={s.bold}>{entryHeading(entry)}</Text>
+            <Text style={s.bold}>{entryHeading(entry, addendum.source)}</Text>
             <Text style={s.small}>{entry.roomName}</Text>
           </View>
           {entry.change === 'REPLACED' && entry.target && (
@@ -603,7 +616,9 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
           <View key={ack.role} style={{ flex: 1, borderTopWidth: 0.75, borderTopColor: INK, paddingTop: 4 }}>
             <Text style={s.bold}>{ack.name}</Text>
             <Text style={{ fontSize: 8, color: ack.acknowledgedAt ? '#047857' : '#b45309' }}>
-              {ack.role}, {ack.acknowledgedAt
+              {ack.role}, {addendum.dispute && ack.role === 'Landlord'
+                ? 'disputed'
+                : ack.acknowledgedAt
                 ? `acknowledged ${ack.inPerson ? 'in person ' : ''}${dateTime.format(new Date(ack.acknowledgedAt))}`
                 : 'pending acknowledgement'}
             </Text>

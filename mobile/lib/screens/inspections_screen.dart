@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
@@ -10,8 +11,9 @@ import 'new_inspection_screen.dart';
 import 'renewal_reminders.dart';
 
 class InspectionsScreen extends StatefulWidget {
-  const InspectionsScreen({super.key, this.api});
+  const InspectionsScreen({super.key, this.api, this.trackView = true});
   final Api? api;
+  final bool trackView;
 
   @override
   State<InspectionsScreen> createState() => _InspectionsScreenState();
@@ -50,7 +52,10 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.inspections,
+    active: widget.trackView,
+    child: Scaffold(
     appBar: AppBar(title: const Text('Inspections')),
     floatingActionButton: FloatingActionButton.extended(
       onPressed: _create,
@@ -187,6 +192,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
         ),
       ),
     ),
+  ),
   );
 
   Widget _inspectionCard(InspectionSummary inspection) => Card(

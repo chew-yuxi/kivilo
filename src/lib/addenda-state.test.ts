@@ -68,4 +68,28 @@ describe('applyAddenda', () => {
     expect(state.map((room) => room.addendumPhotos.map((each) => each.id))).toEqual([['lamp'], ['new-wardrobe']])
     expect(bedrooms[1].addendumPhotos).toEqual([])
   })
+
+  it('keeps one physical item for frozen condition notices and never resurrects a replaced item', () => {
+    const first = {
+      change: 'REPLACED' as const, roomName: 'Kitchen', targetKey: 'item:hob',
+      line: { ...added('entry:first-notice', 'Hob')!, condition: 'FAIR' as const },
+      photos: [], conditionOnly: true, conditionNote: 'Scratch at move-in',
+    }
+    const second = {
+      ...first, line: { ...added('entry:second-notice', 'Hob')!, condition: 'DAMAGED' as const },
+      conditionNote: 'Broken switch at move-in',
+    }
+    const state = applyAddenda(signed, [
+      { at: new Date('2026-03-01'), changes: [first] },
+      { at: new Date('2026-03-02'), changes: [second] },
+    ])
+    expect(state[0].lines.map((item) => item.key)).toEqual(['item:hob', 'item:dishwasher'])
+    expect(state[0].lines[0]).toMatchObject({ condition: 'DAMAGED', notes: 'Scratch at move-in\nBroken switch at move-in', updatedByAddendum: true })
+    const replaced = applyAddenda(signed, [
+      { at: new Date('2026-03-01'), changes: [{ change: 'REPLACED', roomName: 'Kitchen', targetKey: 'item:hob', line: added('entry:new-hob', 'New hob'), photos: [] }] },
+      { at: new Date('2026-03-02'), changes: [second] },
+    ])
+    expect(replaced[0].lines.map((item) => item.key)).toEqual(['entry:new-hob', 'item:dishwasher'])
+    expect(replaced[0].lines[0]).toMatchObject({ name: 'New hob', condition: 'NEW', notes: null })
+  })
 })

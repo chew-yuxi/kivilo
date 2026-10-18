@@ -291,6 +291,7 @@ export async function authorizeOwnAcknowledgement(addendumId: string, stakeholde
     where: {
       id: addendumId,
       publishedAt: { not: null },
+      disputedAt: null,
       inspection: { tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] } },
     },
     select: { id: true, inspectionId: true },

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
@@ -96,7 +97,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: switch (_tabs[_tab]) {
+      'inspections' => ProductScreenName.inspections,
+      'account' => ProductScreenName.account,
+      _ => null,
+    },
+    child: LayoutBuilder(
     builder: (context, constraints) {
       final tablet = constraints.maxWidth >= kiviloTabletBreakpoint;
       return Scaffold(
@@ -167,8 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: switch (_tabs[_tab]) {
-                'inspections' => InspectionsScreen(api: widget.api),
+                'inspections' => InspectionsScreen(api: widget.api, trackView: false),
                 'account' => SettingsScreen(
+                  trackView: false,
                   onStartCheckIn: _partyOnly ? _create : null,
                 ),
                 _ => _overview(),
@@ -204,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
       );
     },
+  ),
   );
 
   Widget _overview() => KiviloContent(

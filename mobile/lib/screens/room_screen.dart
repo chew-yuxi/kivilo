@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../ui/check_in_reference_view.dart';
@@ -529,7 +530,9 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.room,
+    child: Scaffold(
     appBar: AppBar(title: const Text('Room')),
     body: KiviloContent(
       maxWidth: 1200,
@@ -972,6 +975,7 @@ class _RoomScreenState extends State<RoomScreen> {
         },
       ),
     ),
+  ),
   );
 
   Widget _evidenceCard(EvidenceCapture capture, int number) => Semantics(

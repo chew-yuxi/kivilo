@@ -4,6 +4,7 @@ import { inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import type { StateRoom } from '@/lib/addenda-state'
+import type { Prisma } from '@/generated/prisma'
 import { CONDITIONS } from '@/lib/inspection/schema'
 
 /// What `startCheckOut` freezes on each check-out room it copies, in `Room.baseline`:
@@ -56,8 +57,8 @@ export type CheckInReference = {
 /// copies it. Photos follow the report's rules: the check-in room's captures stamped at
 /// review, then the photos of the addendum entries `applyAddenda` applied to the room,
 /// so a replaced appliance's new picture sits beside its new line.
-export async function roomBaselines(rooms: StateRoom[]) {
-  const captures = await db.capture.findMany({
+export async function roomBaselines(rooms: StateRoom[], client: Prisma.TransactionClient = db) {
+  const captures = await client.capture.findMany({
     where: {
       roomId: { in: rooms.flatMap((room) => (room.roomId ? [room.roomId] : [])) },
       kind: 'PHOTO',
@@ -76,7 +77,7 @@ export async function roomBaselines(rooms: StateRoom[]) {
       identifier: line.identifier,
       meterReading: line.meterReading,
       // `currentState` names the lines addenda bring `entry:<id>`.
-      update: line.key.startsWith('entry:'),
+      update: line.updatedByAddendum === true || line.key.startsWith('entry:'),
     })),
     photos: [
       ...captures
@@ -127,6 +128,21 @@ async function frozenBaseline(roomId: string, agentId: string) {
 export async function checkInReference(roomId: string, agentId: string): Promise<CheckInReference | null> {
   const frozen = await frozenBaseline(roomId, agentId)
   return frozen && referenceOf(frozen)
+}
+
+/// Finding comparisons use the state copied at check-out, including agreed condition
+/// notices. The immutable original InspectionItem may have an older condition.
+export async function findingCheckInConditions(checkOutId: string, agentId: string) {
+  const checkIn = await db.inspection.findFirst({
+    where: { AND: [{ checkOut: { id: checkOutId } }, inspectionScope(agentId)] },
+    select: { checkOut: { select: { rooms: { select: { baseline: true } } } } },
+  })
+  const conditions = new Map<string, CheckInLine['condition']>()
+  for (const room of checkIn?.checkOut?.rooms ?? []) {
+    if (room.baseline === null) continue
+    for (const line of roomBaselineSchema.parse(room.baseline).lines) conditions.set(line.key, line.condition)
+  }
+  return conditions
 }
 
 /// The same, with a signed URL on each photo, for the app, which keeps a URL per photo

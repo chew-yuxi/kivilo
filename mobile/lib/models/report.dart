@@ -1,4 +1,5 @@
 import '../ui/kivilo_format.dart';
+import 'maintenance.dart' show MoveInDefectDispute;
 
 /// The report the landlord and tenant are signing or have signed: the same document the
 /// shared link shows. Read-only; the working inspection is the agent's.
@@ -256,6 +257,10 @@ class ReportAddendum {
     this.acknowledgedAt,
     this.acknowledgeAs,
     this.acknowledgeInPerson = false,
+    this.source = 'AGENT_UPDATE',
+    this.moveInDefect,
+    this.dispute,
+    this.disputeAs,
   });
   final String id;
   final int number;
@@ -276,6 +281,12 @@ class ReportAddendum {
   /// For the agent, who is no party: a party still pending can acknowledge in person on
   /// this phone.
   final bool acknowledgeInPerson;
+  final String source;
+  final ReportMoveInDefect? moveInDefect;
+  final MoveInDefectDispute? dispute;
+  final String? disputeAs;
+
+  bool get isMoveInDefect => source == 'MOVE_IN_DEFECT';
 
   factory ReportAddendum.fromJson(Map<String, dynamic> json) => ReportAddendum(
     id: json['id'] as String,
@@ -294,7 +305,35 @@ class ReportAddendum {
     acknowledgedAt: json['acknowledgedAt'] as String?,
     acknowledgeAs: json['acknowledgeAs'] as String?,
     acknowledgeInPerson: json['acknowledgeInPerson'] as bool? ?? false,
+    source: json['source'] as String? ?? 'AGENT_UPDATE',
+    moveInDefect: json['moveInDefect'] == null
+        ? null
+        : ReportMoveInDefect.fromJson(
+            json['moveInDefect'] as Map<String, dynamic>,
+          ),
+    dispute: json['dispute'] == null
+        ? null
+        : MoveInDefectDispute.fromJson(json['dispute'] as Map<String, dynamic>),
+    disputeAs: json['disputeAs'] as String?,
   );
+}
+
+class ReportMoveInDefect {
+  const ReportMoveInDefect({
+    required this.caseId,
+    required this.reportedAt,
+    required this.deadline,
+  });
+  final String caseId;
+  final String reportedAt;
+  final String deadline;
+
+  factory ReportMoveInDefect.fromJson(Map<String, dynamic> json) =>
+      ReportMoveInDefect(
+        caseId: json['caseId'] as String,
+        reportedAt: json['reportedAt'] as String,
+        deadline: json['deadline'] as String,
+      );
 }
 
 class AddendumEntry {

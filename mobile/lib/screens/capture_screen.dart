@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/inspection.dart';
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
@@ -1055,12 +1056,15 @@ class _CaptureScreenState extends State<CaptureScreen> {
         ),
       ),
     );
-    return PopScope(
+    return ProductScreen(
+      screen: ProductScreenName.capture,
+      child: PopScope(
       canPop: !_busy && !_leaving && !_finishing,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_leaveAfterSaving());
       },
       child: scaffold,
+      ),
     );
   }
 

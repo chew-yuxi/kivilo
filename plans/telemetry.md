@@ -44,10 +44,10 @@ batch from web and native clients, and checks the web queue's owner precondition
 the verified session to prevent a stale tab attributing events to a different account.
 
 `/admin` is guarded in the data layer by a comma-separated `ADMIN_EMAILS` allowlist
-(empty denies everyone). It shows 30-day active web accounts, screen views, frequent
+(empty denies everyone). It shows 30-day active accounts, screen views, frequent
 errors, and the saved inspection funnel across both clients, using inspection, room and
 capture state rather than duplicating workflow transitions as events. Native screen
-instrumentation is not included yet. Events expire after 90 days through the existing
+instrumentation was added on 18 October 2026 (details below). Events expire after 90 days through the existing
 errors cron and are removed on account deletion. The privacy page describes this.
 
 Deploy: migration `20261017120000_product_events`, set `ADMIN_EMAILS`, then deploy.
@@ -66,3 +66,21 @@ Server: migration `20261014090000_error_source_app` adds the two sources, and
 Ships as a Shorebird patch on `1.0.0+22`: pure Dart, no new plugin, no new icon. The
 server half must be deployed first, or the app's batches are refused with a 400 and
 dropped. Build 13 on Play production cannot be patched.
+
+## Native screen usage (18 October 2026)
+
+`mobile/lib/services/product_events.dart` records the same nine allowlisted screen
+categories as the web ingest accepts, with IOS/ANDROID source and the installed build
+and Shorebird patch. It records route visibility and selected tabs, not widget rebuilds
+or hidden tabs. It sends no route, tenancy id, report token or free text.
+
+Events wait in a file-backed queue (20 per account, at most three recent accounts) and
+flush on screen visits, sign-in and foregrounding. The queue is partitioned by Supabase
+auth user id. Before sending, the reporter resolves the corresponding Stakeholder using
+a verified `/api/v1/me` request and supplies `x-kivilo-owner`; the bearer is pinned to
+that account on every request. Signing out or switching accounts leaves the old queue
+for its owner and cannot attribute it to the next account. Delivery uses client UUIDs,
+so retries after an interrupted response deduplicate on the server.
+
+This needs no migration or plugin beyond phase 2 and can ship as a Dart patch to the
+current native releases. `/admin` already aggregates all three sources.

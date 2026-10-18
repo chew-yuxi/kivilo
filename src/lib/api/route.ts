@@ -3,6 +3,7 @@ import { currentStakeholder } from '@/lib/auth'
 import { recordServerError } from '@/lib/errors'
 import type { Stakeholder } from '@/generated/prisma'
 import { ZodError } from 'zod'
+import { MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 
 /// Transport for the native client. These handlers are deliberately thin: they resolve
 /// the agent, call the same function the web app calls, and serialise the result. No
@@ -67,6 +68,12 @@ export function authed<P>(
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       if (/Only a countersigned check-in can be updated|Only a resolved repair|Give the update a title|Add at least one change|Each item can change only once|no longer in the report/i.test(message)) {
+        return Response.json({ error: 'invalid_state' }, { status: 409 })
+      }
+      if (error instanceof MoveInDefectStaleTargetError) {
+        return Response.json({ error: 'move_in_defect_stale_target' }, { status: 409 })
+      }
+      if (/move-in (?:defect window|notice|notices|defect)|repair was not recorded as a move-in/i.test(message)) {
         return Response.json({ error: 'invalid_state' }, { status: 409 })
       }
       if (/not awaiting signature|already countersigned|already signed|no email on file|Only a completed check-in|Only a countersigned report|Findings require a reviewed|Share link changed|Save your agency name/i.test(message)) {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../models/maintenance.dart';
+import '../models/handover.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/read_cache.dart';
@@ -15,10 +16,14 @@ class NewMaintenanceCaseScreen extends StatefulWidget {
     required this.tenancyId,
     required this.assets,
     this.cache,
+    this.api,
+    this.moveInDefects,
   });
   final String tenancyId;
   final List<PropertyAssetSummary> assets;
   final ReadCache? cache;
+  final Api? api;
+  final MoveInDefectWindow? moveInDefects;
 
   @override
   State<NewMaintenanceCaseScreen> createState() =>
@@ -26,7 +31,7 @@ class NewMaintenanceCaseScreen extends StatefulWidget {
 }
 
 class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late final ReadCache _cache = widget.cache ?? ReadCache();
   final _title = TextEditingController();
   final _description = TextEditingController();
@@ -34,6 +39,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
   String _category = 'APPLIANCE';
   String _priority = 'ROUTINE';
   String? _assetId;
+  bool _wasPresentAtMoveIn = false;
   bool _saving = false;
   String? _error;
   int _draftRevision = 0;
@@ -63,6 +69,9 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
       _category = draft['category'] as String? ?? 'APPLIANCE';
       _priority = draft['priority'] as String? ?? 'ROUTINE';
       _clientId = draft['clientId'] as String? ?? _clientId;
+      _wasPresentAtMoveIn =
+          widget.moveInDefects?.canSubmit == true &&
+          draft['wasPresentAtMoveIn'] == true;
     });
   }
 
@@ -76,6 +85,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
       'priority': _priority,
       'title': _title.text,
       'description': _description.text,
+      'wasPresentAtMoveIn': _wasPresentAtMoveIn,
     };
     // Each edit waits for the preceding write. A slow old write can never
     // replace a newer draft, including one saved after a failed submission.
@@ -111,6 +121,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
         'priority': _priority,
         'title': _title.text.trim(),
         'description': _description.text.trim(),
+        'wasPresentAtMoveIn': _wasPresentAtMoveIn,
       });
       await _pendingDraftWrite;
       try {
@@ -210,7 +221,25 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
               ),
             ),
           ),
-        const SizedBox(height: 12),
+          if (widget.moveInDefects?.canSubmit == true) ...[
+            const SizedBox(height: 12),
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('It was like this when I moved in'),
+              subtitle: const Text(
+                'After reporting, add photos and record the move-in condition. '
+                'The landlord can accept or dispute it.',
+              ),
+              value: _wasPresentAtMoveIn,
+              onChanged: _saving
+                  ? null
+                  : (value) {
+                      setState(() => _wasPresentAtMoveIn = value!);
+                      unawaited(_saveDraft());
+                    },
+            ),
+          ],
+          const SizedBox(height: 12),
         TextField(
           controller: _title,
           readOnly: _saving,

@@ -11,7 +11,7 @@ import { annotationInputSchema } from '@/lib/annotations'
 import { templateRows } from '@/lib/room-templates'
 import { assertCanAddProperty } from '@/lib/plan'
 import { reportFingerprint } from '@/lib/report-fingerprint'
-import { queueSignatureRequests, queueSignedCopies, signingParties } from '@/lib/report-email'
+import { queueSignatureRequests, queueSignedCopies, queueTenantHandover, signingParties } from '@/lib/report-email'
 import { currentState } from '@/lib/addenda'
 import { checkInPhotoUrls, roomBaselines } from '@/lib/check-in-reference'
 import { Prisma } from '@/generated/prisma'
@@ -763,6 +763,9 @@ async function recordSignature(
     if (current.status !== 'AWAITING_SIGNATURE' && current.status !== 'COMPLETED') {
       throw new Error('Report is not awaiting signature')
     }
+    // The handover window and move-in notices use this same tenancy lock. A final
+    // check-out signature must also serialize with a landlord answering a notice.
+    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
     const tenancy = await tx.tenancy.findUniqueOrThrow({
       where: { id: tenancyId },
       select: { landlordId: true, tenantId: true },
@@ -786,6 +789,7 @@ async function recordSignature(
           contentHash: await reportFingerprint(tx, inspectionId),
         },
       })
+      if (stakeholderId === tenancy.tenantId) await queueTenantHandover(tx, inspectionId)
     }
 
     const signatures = await tx.signature.findMany({
@@ -992,58 +996,59 @@ export async function startCheckOut(baselineId: string) {
     throw new Error('Only a completed check-in can start check-out')
   }
 
-  const baseline = await db.inspection.findUniqueOrThrow({
-    where: { id: baselineId },
-    select: { tenancyId: true, fullyFurnished: true },
-  })
-
-  const existing = await db.inspection.findUnique({ where: { baselineId }, select: { id: true } })
-  if (existing) return existing.id
-
-  // The signed inventory, with every update both parties have acknowledged since. A
-  // dishwasher replaced mid-tenancy is then the one the inspector expects to find.
-  const rooms = await currentState(baselineId, { acknowledgedOnly: true })
-  // And each room as it was, frozen beside the copy for the inspector to compare against.
-  const baselines = await roomBaselines(rooms)
-
   try {
-    const checkOut = await db.inspection.create({
-      data: {
-        tenancyId: baseline.tenancyId,
-        kind: 'CHECK_OUT',
-        status: 'DRAFT',
-        fullyFurnished: baseline.fullyFurnished,
-        baselineId,
-        conductedById: agent.id,
-        // Begin with the agreed inventory as the state the inspector expects to find.
-        // Captures stay on the check-in: check-out evidence must come from this visit.
-        rooms: {
-          create: rooms.map((room, order) => ({
-            name: room.name,
-            order,
-            baseline: baselines[order],
-            items: {
-              create: room.lines.map((line) => ({
-                name: line.name,
-                category: line.category,
-                condition: line.condition,
-                quantity: line.quantity,
-                notes: line.notes,
-                identifier: line.identifier,
-                meterReading: line.meterReading,
-                editedByHuman: true,
-                propertyAssetId: line.propertyAssetId,
-                baselineKey: line.key,
-                createdAt: line.createdAt,
-              })),
-            },
-          })),
+    const checkOutId = await db.$transaction(async (tx) => {
+      // Answering a move-in notice takes this same lock, so the copy contains every
+      // agreement made before this snapshot, with its lines and photos together.
+      const current = await lockInspection(tx, baselineId)
+      if (current.status !== 'COMPLETED') throw new Error('Only a completed check-in can start check-out')
+      const baseline = await tx.inspection.findUniqueOrThrow({
+        where: { id: baselineId },
+        select: { tenancyId: true, fullyFurnished: true },
+      })
+      const existing = await tx.inspection.findUnique({ where: { baselineId }, select: { id: true } })
+      if (existing) return existing.id
+      const rooms = await currentState(baselineId, { acknowledgedOnly: true }, tx)
+      const baselines = await roomBaselines(rooms, tx)
+      const checkOut = await tx.inspection.create({
+        data: {
+          tenancyId: baseline.tenancyId,
+          kind: 'CHECK_OUT',
+          status: 'DRAFT',
+          fullyFurnished: baseline.fullyFurnished,
+          baselineId,
+          conductedById: agent.id,
+          // Begin with the agreed inventory as the state the inspector expects to find.
+          // Captures stay on the check-in: check-out evidence must come from this visit.
+          rooms: {
+            create: rooms.map((room, order) => ({
+              name: room.name,
+              order,
+              baseline: baselines[order],
+              items: {
+                create: room.lines.map((line) => ({
+                  name: line.name,
+                  category: line.category,
+                  condition: line.condition,
+                  quantity: line.quantity,
+                  notes: line.notes,
+                  identifier: line.identifier,
+                  meterReading: line.meterReading,
+                  editedByHuman: true,
+                  propertyAssetId: line.propertyAssetId,
+                  baselineKey: line.key,
+                  createdAt: line.createdAt,
+                })),
+              },
+            })),
+          },
         },
-      },
+      })
+      return checkOut.id
     })
 
     revalidate(baselineId)
-    return checkOut.id
+    return checkOutId
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       const existing = await db.inspection.findUnique({ where: { baselineId }, select: { id: true } })

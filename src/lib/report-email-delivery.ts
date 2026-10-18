@@ -2,8 +2,10 @@ import { db } from '@/lib/db'
 import { propertyLabel } from '@/lib/format'
 import { storedReportPdf } from '@/lib/report-pdf/render'
 import { downloadCapture } from '@/lib/storage'
-import { sendSignatureRequest, sendSignedCopy } from '@/lib/email'
+import { sendSignatureRequest, sendSignedCopy, sendTenantHandover } from '@/lib/email'
 import { MAX_ATTEMPTS } from '@/lib/report-email'
+import { handoverUrl } from '@/lib/handover'
+import { moveInDefectWindow } from '@/lib/move-in-defect-window'
 
 /// Resend refuses a message over 40 MB, counted after base64, which grows a file by a
 /// third: an attachment of 30 MB already reaches 40 MB before the body and headers. 25 MB
@@ -93,6 +95,28 @@ export async function deliverReportEmails(limit = 20) {
             ? agent.branding ? `${agent.name} of ${agent.branding.agencyName}` : agent.name
             : 'Your agent',
           link: link.toString(),
+        })
+      } else if (row.kind === 'TENANT_HANDOVER') {
+        if (
+          inspection.kind !== 'CHECK_IN' || recipient.id !== tenancy.tenantId ||
+          !['AWAITING_SIGNATURE', 'COMPLETED'].includes(inspection.status) ||
+          !inspection.signatures.some((signature) => signature.stakeholderId === recipient.id)
+        ) {
+          await db.reportEmail.delete({ where: { id: row.id } })
+          withdrawn += 1
+          continue
+        }
+        const link = new URL(handoverUrl(inspection.id))
+        link.searchParams.set('email', to)
+        const window = moveInDefectWindow(tenancy)
+        await sendTenantHandover(to, {
+          id: row.id,
+          recipientName: recipient.name,
+          address,
+          link: link.toString(),
+          deadline: window.deadline,
+          windowDays: window.windowDays,
+          countersigned: inspection.status === 'COMPLETED',
         })
       } else {
         // Too large to attach: a link to where the recipient can download it once signed

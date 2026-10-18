@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api.dart';
+import '../services/product_events.dart';
 import '../ui/kivilo_layout.dart';
 
 class RenewalScreen extends StatefulWidget {
@@ -97,7 +98,9 @@ class _RenewalScreenState extends State<RenewalScreen> {
       );
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => ProductScreen(
+    screen: ProductScreenName.renewal,
+    child: Scaffold(
     appBar: AppBar(title: const Text('Renew tenancy')),
     body: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
       future: _future,
@@ -154,5 +157,6 @@ class _RenewalScreenState extends State<RenewalScreen> {
         );
       },
     )),
+  ),
   );
 }

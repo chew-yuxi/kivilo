@@ -7,6 +7,7 @@ const dateTime = new Intl.DateTimeFormat('en-SG', { dateStyle: 'medium', timeSty
 /// One published update to a signed report, as the shared report and the update page both
 /// draw it. Server-rendered: photo URLs are signed per render, never stored.
 export async function AddendumSection({ addendum }: { addendum: AddendumView }) {
+  const isMoveInDefect = addendum.source === 'MOVE_IN_DEFECT'
   const entries = await Promise.all(addendum.entries.map(async (entry) => ({
     ...entry,
     photos: await Promise.all(entry.photos.map(async (photo) => ({
@@ -18,11 +19,30 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
   return (
     <section className="break-inside-avoid border-t border-gray-300 pt-6" aria-label={`Update ${addendum.number}`}>
       <div className="rounded-md bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
-        Updated {dateFormat.format(new Date(addendum.effectiveDate))}
+        {isMoveInDefect ? 'Move-in condition reported ' : 'Updated '}{dateFormat.format(new Date(addendum.effectiveDate))}
         <span className="font-normal text-amber-800"> · Update {addendum.number}</span>
       </div>
       <h3 className="mt-3 text-base font-semibold">{addendum.title}</h3>
       {addendum.reason && <p className="mt-1 text-sm text-gray-700">{addendum.reason}</p>}
+      {addendum.moveInDefect && (
+        <p className="mt-2 text-sm text-gray-700">
+          Reported by the tenant {dateTime.format(new Date(addendum.moveInDefect.reportedAt))}.
+          Reporting deadline: {dateFormat.format(new Date(`${addendum.moveInDefect.deadline}T12:00:00+08:00`))}.
+        </p>
+      )}
+      {isMoveInDefect && (
+        <div className={`mt-3 rounded-md p-3 text-sm ${addendum.dispute ? 'bg-red-50 text-red-800' : addendum.acknowledgedAt ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-900'}`}>
+          {addendum.dispute ? (
+            <>
+              <p className="font-medium">Disputed by {addendum.dispute.disputedBy}, {dateTime.format(new Date(addendum.dispute.disputedAt))}</p>
+              <p className="mt-1">{addendum.dispute.reason}</p>
+              <p className="mt-1">This claim is recorded separately and is not part of the agreed check-in.</p>
+            </>
+          ) : addendum.acknowledgedAt
+            ? 'Agreed by the landlord. This condition is part of the agreed check-in.'
+            : 'Awaiting the landlord’s response. This condition is not yet part of the agreed check-in.'}
+        </div>
+      )}
       <p className="mt-1 text-xs text-gray-500">
         Published by {addendum.publishedBy} on {dateTime.format(new Date(addendum.publishedAt))}. This update
         is recorded beside the signed report above and does not change it.
@@ -32,7 +52,7 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
         {entries.map((entry) => (
           <li key={entry.id} className="break-inside-avoid rounded border border-gray-200 p-3 text-sm">
             <div className="flex items-baseline justify-between gap-4">
-              <span className="font-medium">{entryHeading(entry)}</span>
+              <span className="font-medium">{entryHeading(entry, addendum.source)}</span>
               <span className="shrink-0 text-xs text-gray-500">{entry.roomName}</span>
             </div>
             {entry.target && entry.change === 'REPLACED' && (
@@ -59,7 +79,7 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={photo.url}
-                      alt={photo.note ?? `${entryHeading(entry)} photo`}
+                      alt={photo.note ?? `${entryHeading(entry, addendum.source)} photo`}
                       className="h-36 w-full rounded border border-gray-200 object-contain"
                     />
                     {(photo.label || photo.note) && (
@@ -82,7 +102,9 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
             <dd className="mt-0.5">
               {ack.name}
               <span className={`block text-xs ${ack.acknowledgedAt ? 'text-emerald-700' : 'text-amber-700'}`}>
-                {ack.acknowledgedAt
+                {isMoveInDefect && ack.role === 'Landlord' && addendum.dispute
+                  ? 'Disputed'
+                  : ack.acknowledgedAt
                   ? `Acknowledged ${ack.inPerson ? 'in person ' : ''}${dateTime.format(new Date(ack.acknowledgedAt))}`
                   : 'Pending acknowledgement'}
               </span>

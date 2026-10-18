@@ -15,6 +15,7 @@ import 'services/capture_sync.dart';
 import 'services/foreground_capture_retry.dart';
 import 'services/push_notifications.dart';
 import 'services/patch_update.dart';
+import 'services/product_events.dart';
 import 'screens/sign_in_screen.dart';
 import 'ui/kivilo_theme.dart';
 
@@ -55,6 +56,12 @@ Future<void> main() async {
         (Object error) => debugPrint('error reporting setup error: $error'),
       ),
     );
+    unawaited(
+      ProductEvents.install(Api().dio).catchError(
+        (Object error) =>
+            debugPrint('usage event setup error: ${error.runtimeType}'),
+      ),
+    );
     _resumeUserServices();
   }
 
@@ -71,6 +78,7 @@ class KiviloApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kivilo',
       navigatorKey: navigatorKey,
+      navigatorObservers: [productRouteObserver],
       debugShowCheckedModeBanner: false,
       theme: buildKiviloTheme(),
       // Above the navigator, so a retired build cannot reach any route, signed in or not.
@@ -98,6 +106,15 @@ void _resumeUserServices() {
   // Reports wait for a session as well as for signal, so a sign-in is a moment to send.
   final reporter = ErrorReporter.current;
   if (reporter != null) unawaited(reporter.flush());
+  final events = ProductEvents.current;
+  if (events != null) {
+    unawaited(
+      events.resume().catchError(
+        (Object error) =>
+            debugPrint('usage event resume error: ${error.runtimeType}'),
+      ),
+    );
+  }
   if (!Config.isPushComplete ||
       Supabase.instance.client.auth.currentSession == null) {
     return;

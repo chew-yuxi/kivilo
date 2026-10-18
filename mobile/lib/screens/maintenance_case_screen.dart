@@ -1,16 +1,180 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../models/maintenance.dart';
+import '../models/handover.dart';
 import '../services/api.dart';
+import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'addenda_screen.dart';
 import 'maintenance_evidence_screen.dart';
 import 'responsibility_card.dart';
+import 'report_screen.dart';
 import 'video_screen.dart';
 import '../ui/kivilo_layout.dart';
+
+class _MoveInDefectComposer extends StatefulWidget {
+  const _MoveInDefectComposer({required this.item});
+  final MaintenanceCaseDetail item;
+
+  @override
+  State<_MoveInDefectComposer> createState() => _MoveInDefectComposerState();
+}
+
+class _MoveInDefectComposerState extends State<_MoveInDefectComposer> {
+  final _room = TextEditingController();
+  final _name = TextEditingController();
+  MoveInDefectTarget? _target;
+  String _category = 'FIXTURE';
+  String? _condition;
+  late final _photos = widget.item.evidence
+      .where((photo) => photo.purpose == 'BEFORE' && photo.isImage)
+      .toList();
+  late final _selected = _photos.map((photo) => photo.id).toSet();
+
+  @override
+  void dispose() {
+    _room.dispose();
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final valid =
+        _room.text.trim().isNotEmpty &&
+        (_target != null || _name.text.trim().isNotEmpty) &&
+        _condition != null &&
+        _selected.isNotEmpty;
+    return KiviloDrawer(
+      title: const Text('Record move-in condition'),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Record what was already present when you moved in. This saves a dated notice with the problem description and selected photos. It counts towards the agreed condition once the landlord accepts it.',
+            ),
+            const SizedBox(height: 16),
+            KiviloSelectField<String?>(
+              label: 'Item in the check-in',
+              value: _target?.key,
+              options: [
+                const KiviloSelectOption<String?>(
+                  value: null,
+                  label: 'Not listed in the check-in',
+                ),
+                for (final target in widget.item.moveInDefect!.targets)
+                  KiviloSelectOption<String?>(
+                    value: target.key,
+                    label: '${target.roomName} · ${target.name}',
+                  ),
+              ],
+              onChanged: (key) => setState(() {
+                _target = key == null
+                    ? null
+                    : widget.item.moveInDefect!.targets.firstWhere(
+                        (target) => target.key == key,
+                      );
+                _room.text = _target?.roomName ?? '';
+                _name.text = _target?.name ?? '';
+              }),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _room,
+              readOnly: _target != null,
+              maxLength: 120,
+              decoration: const InputDecoration(labelText: 'Room'),
+              onChanged: (_) => setState(() {}),
+            ),
+            if (_target == null) ...[
+              TextField(
+                controller: _name,
+                maxLength: 120,
+                decoration: const InputDecoration(labelText: 'Item name'),
+                onChanged: (_) => setState(() {}),
+              ),
+              KiviloSelectField<String>(
+                label: 'Item category',
+                value: _category,
+                options: const [
+                  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
+                  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
+                  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
+                  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
+                  KiviloSelectOption(value: 'METER', label: 'Meter'),
+                ],
+                onChanged: (value) => setState(() => _category = value),
+              ),
+              const SizedBox(height: 12),
+            ],
+            KiviloSelectField<String?>(
+              label: 'Condition when you moved in',
+              value: _condition,
+              options: const [
+                KiviloSelectOption<String?>(
+                  value: null,
+                  label: 'Choose condition',
+                ),
+                KiviloSelectOption<String?>(value: 'NEW', label: 'New'),
+                KiviloSelectOption<String?>(value: 'GOOD', label: 'Good'),
+                KiviloSelectOption<String?>(value: 'FAIR', label: 'Fair'),
+                KiviloSelectOption<String?>(value: 'POOR', label: 'Poor'),
+                KiviloSelectOption<String?>(value: 'DAMAGED', label: 'Damaged'),
+              ],
+              onChanged: (value) => setState(() => _condition = value),
+            ),
+            const SizedBox(height: 12),
+            Text(widget.item.description),
+            const SizedBox(height: 16),
+            Text(
+              'Photos to include',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            for (var i = 0; i < _photos.length; i++)
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(_photos[i].note ?? 'Before photo ${i + 1}'),
+                subtitle: Text('Uploaded ${shortDate(_photos[i].createdAt)}'),
+                value: _selected.contains(_photos[i].id),
+                onChanged: (value) => setState(() {
+                  if (value == true) {
+                    _selected.add(_photos[i].id);
+                  } else {
+                    _selected.remove(_photos[i].id);
+                  }
+                }),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: valid
+              ? () => Navigator.pop(context, <String, dynamic>{
+                  'targetKey': _target?.key,
+                  'roomName': _room.text.trim(),
+                  if (_target == null) 'name': _name.text.trim(),
+                  if (_target == null) 'category': _category,
+                  'condition': _condition,
+                  'evidenceIds': _selected.toList(),
+                })
+              : null,
+          child: const Text('Record condition'),
+        ),
+      ],
+    );
+  }
+}
 
 class MaintenanceCaseScreen extends StatefulWidget {
   const MaintenanceCaseScreen({super.key, required this.caseId, this.api});
@@ -67,17 +231,17 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   }
 
   Future<String?> _ask(String title, {String? hint}) async {
-    final controller = TextEditingController();
+    var value = '';
     final result = await showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text(title),
         content: TextField(
-          controller: controller,
           autofocus: true,
           minLines: 2,
           maxLines: 5,
           decoration: InputDecoration(hintText: hint),
+          onChanged: (text) => value = text,
         ),
         actions: [
           TextButton(
@@ -85,13 +249,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(context, value.trim()),
             child: const Text('Save'),
           ),
         ],
       ),
     );
-    controller.dispose();
     return result;
   }
 
@@ -214,6 +377,145 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     );
   }
 
+  Future<void> _recordMoveInDefect(MaintenanceCaseDetail item) async {
+    final body = await showKiviloDrawer<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => _MoveInDefectComposer(item: item),
+    );
+    if (body == null) return;
+    await _run(() async {
+      final ownerId = Supabase.instance.client.auth.currentUser?.id;
+      if (ownerId == null) {
+        throw const ApiFailure('Sign in again before recording the condition.', 401);
+      }
+      final queue = CaptureQueue();
+      late final ({int captures, int edits}) pending;
+      try {
+        pending = await queue.pendingForInspection(
+          'maintenance:${item.id}',
+          ownerId,
+        );
+      } finally {
+        await queue.close();
+      }
+      if (pending.captures > 0 || pending.edits > 0) {
+        throw const ApiFailure(
+          'Some photos have not uploaded yet. Keep them on this phone and retry uploads before recording the move-in condition.',
+          null,
+        );
+      }
+      await _api.recordMoveInDefect(item.id, body);
+    });
+  }
+
+  Future<void> _disputeMoveInDefect(String addendumId) async {
+    final reason = await _ask(
+      'Dispute move-in condition',
+      hint:
+          'Explain what you disagree with. Your reason stays on the dated notice.',
+    );
+    if (reason == null || reason.isEmpty) return;
+    await _run(() => _api.disputeAddendum(addendumId, reason));
+  }
+
+  Widget _moveInDefect(MaintenanceCaseDetail item) {
+    final claim = item.moveInDefect!;
+    final recorded = claim.addendumId != null;
+    final photos = item.evidence
+        .where((photo) => photo.purpose == 'BEFORE' && photo.isImage)
+        .length;
+    return Card(
+      color: KiviloColors.amberSoft,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'It was like this when I moved in',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            if (claim.reportedAt != null)
+              Text(
+                'Reported ${shortDate(claim.reportedAt!)}${claim.deadline == null ? '' : ' · Defect deadline ${calendarDate(claim.deadline!)}'}',
+              ),
+            if (!recorded) ...[
+              const SizedBox(height: 8),
+              const Text(
+                'Add photos, then record the move-in condition as a dated notice beside the signed check-in. The landlord can accept or dispute it. The signed report stays unchanged.',
+              ),
+              const SizedBox(height: 8),
+              if (claim.canSubmit) ...[
+                OutlinedButton.icon(
+                  onPressed: _busy
+                      ? null
+                      : () => _addEvidence(item.id, 'BEFORE'),
+                  icon: const Icon(Icons.add_a_photo_outlined),
+                  label: const Text('Add before photos'),
+                ),
+                FilledButton(
+                  onPressed: _busy || photos == 0
+                      ? null
+                      : () => _recordMoveInDefect(item),
+                  child: const Text('Record move-in condition'),
+                ),
+                if (photos == 0)
+                  const Text(
+                    'Add at least one uploaded before photo to continue.',
+                  ),
+              ],
+            ] else ...[
+              const SizedBox(height: 8),
+              Text(switch (claim.status) {
+                'ACKNOWLEDGED' =>
+                  'Accepted by the landlord. Included in the agreed condition for check-out.',
+                'DISPUTED' =>
+                  'Disputed by the landlord. Kept as a dated notice and excluded from the agreed condition.',
+                _ =>
+                  'Waiting for the landlord to accept or dispute the condition.',
+              }),
+              if (claim.dispute case final dispute?) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '${dispute.disputedBy} · ${shortDate(dispute.disputedAt)}',
+                ),
+                Text(dispute.reason),
+              ],
+              if (claim.inspectionId != null)
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          ReportScreen(id: claim.inspectionId!, api: _api),
+                    ),
+                  ),
+                  icon: const Icon(Icons.description_outlined),
+                  label: const Text('View dated condition notice'),
+                ),
+              if (claim.canRespond) ...[
+                FilledButton(
+                  onPressed: _busy
+                      ? null
+                      : () => _run(
+                          () => _api.acknowledgeAddendum(claim.addendumId!),
+                        ),
+                  child: const Text('I agree this was present at move-in'),
+                ),
+                OutlinedButton(
+                  onPressed: _busy
+                      ? null
+                      : () => _disputeMoveInDefect(claim.addendumId!),
+                  child: const Text('Dispute move-in condition'),
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Maintenance')),
@@ -273,6 +575,10 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+                if (item.moveInDefect?.wasPresentAtMoveIn == true) ...[
+                  _moveInDefect(item),
+                  const SizedBox(height: 16),
+                ],
               _repairCard(item),
               const SizedBox(height: 16),
               ResponsibilityCard(

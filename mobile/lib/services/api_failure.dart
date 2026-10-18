@@ -41,6 +41,8 @@ class ApiFailure implements Exception {
         'Your plan\'s active properties are all in use. A property stops counting when its check-out is signed or its tenancy ends.',
       'maintenance_conflict' =>
         'Someone already updated this repair. Refresh and check the timeline.',
+      'move_in_defect_stale_target' =>
+        'This item has since been replaced or removed. The notice cannot be agreed, but you can still dispute it.',
       _ =>
         status == null
             ? noConnection.message

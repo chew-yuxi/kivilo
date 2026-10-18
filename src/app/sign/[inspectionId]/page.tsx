@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
@@ -92,6 +93,12 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
           </p>
         )}
       </div>
+
+      {role === 'TENANT' && mine && inspection.kind === 'CHECK_IN' && (
+        <p className="mx-5 mt-4 text-sm sm:mx-10 print:hidden">
+          <Link href={`/handover/${inspectionId}`} className="font-medium text-brand-700 underline">Your handover and move-in defect deadline</Link>
+        </p>
+      )}
 
       <ReportDocument
         inspection={inspection}

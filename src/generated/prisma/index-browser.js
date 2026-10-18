@@ -188,6 +188,7 @@ exports.Prisma.TenancyScalarFieldEnum = {
   deposit: 'deposit',
   minorRepairCap: 'minorRepairCap',
   agentMayAgreeCosts: 'agentMayAgreeCosts',
+  defectWindowDays: 'defectWindowDays',
   renewalDecision: 'renewalDecision',
   renewalSnoozedUntil: 'renewalSnoozedUntil',
   renewedFromId: 'renewedFromId',
@@ -298,6 +299,8 @@ exports.Prisma.MaintenanceCaseScalarFieldEnum = {
   resolutionReason: 'resolutionReason',
   acknowledgedAt: 'acknowledgedAt',
   resolvedAt: 'resolvedAt',
+  wasPresentAtMoveIn: 'wasPresentAtMoveIn',
+  moveInDefectInspectionId: 'moveInDefectInspectionId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -482,7 +485,11 @@ exports.Prisma.ReportAddendumScalarFieldEnum = {
   publishedById: 'publishedById',
   snapshot: 'snapshot',
   contentHash: 'contentHash',
-  acknowledgedAt: 'acknowledgedAt'
+  acknowledgedAt: 'acknowledgedAt',
+  sourceMaintenanceCaseId: 'sourceMaintenanceCaseId',
+  disputedAt: 'disputedAt',
+  disputedById: 'disputedById',
+  disputeReason: 'disputeReason'
 };
 
 exports.Prisma.ReportAddendumEntryScalarFieldEnum = {
@@ -803,7 +810,8 @@ exports.Verdict = exports.$Enums.Verdict = {
 
 exports.ReportEmailKind = exports.$Enums.ReportEmailKind = {
   SIGNATURE_REQUEST: 'SIGNATURE_REQUEST',
-  SIGNED_COPY: 'SIGNED_COPY'
+  SIGNED_COPY: 'SIGNED_COPY',
+  TENANT_HANDOVER: 'TENANT_HANDOVER'
 };
 
 exports.AddendumChange = exports.$Enums.AddendumChange = {

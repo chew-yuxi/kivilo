@@ -13,6 +13,8 @@ export type StateLine = {
   meterReading: string | null
   propertyAssetId: string | null
   createdAt: Date
+  /// A condition notice keeps the physical item's key while updating its agreed state.
+  updatedByAddendum?: boolean
 }
 
 /// A photo an addendum entry was published with, with its label ("Before") and note.
@@ -28,8 +30,11 @@ export type StateChange = {
   change: 'ADDED' | 'REPLACED' | 'REMOVED'
   roomName: string
   targetKey: string | null
-  line: Omit<StateLine, 'meterReading' | 'createdAt'> | null
+  line: (Omit<StateLine, 'meterReading' | 'createdAt'> & { meterReading?: string | null }) | null
   photos: StatePhoto[]
+  /// A tenant is reporting the condition of this item, not a physical replacement.
+  conditionOnly?: boolean
+  conditionNote?: string | null
 }
 
 /// The signed check-in with addenda applied in the order given. Pure, so the draft
@@ -69,8 +74,24 @@ export function applyAddenda(
       // before it, in the order the addendum lists it.
       const line = change.line && {
         ...change.line,
-        meterReading: null,
+        meterReading: change.line.meterReading ?? null,
         createdAt: new Date(addendum.at.getTime() + order),
+      }
+      if (change.conditionOnly && change.change === 'REPLACED') {
+        // Two accepted notices about the same appliance still describe one appliance.
+        // If an agreed replacement removed it meanwhile, this notice cannot add the
+        // old appliance back or put its condition onto the new one.
+        if (target && line) {
+          const existing = target.room.lines[target.index]
+          target.room.lines[target.index] = {
+            ...existing,
+            condition: line.condition,
+            notes: [existing.notes, change.conditionNote].filter(Boolean).join('\n') || null,
+            updatedByAddendum: true,
+          }
+          target.room.addendumPhotos.push(...change.photos)
+        }
+        return
       }
       // An entry's photos go to the room its change lands in, which for a targeted
       // change is the room holding the target, whatever name the entry carries.

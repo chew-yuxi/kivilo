@@ -57,6 +57,7 @@ model Stakeholder {
   reportEmails                ReportEmail[]
   addendaCreated              ReportAddendum[]          @relation("AddendumCreator")
   addendaPublished            ReportAddendum[]          @relation("AddendumPublisher")
+  addendaDisputed             ReportAddendum[]          @relation("AddendumDisputer")
   addendumAcknowledgements    AddendumAcknowledgement[]
   /// The plan of an agent who is on no team. An agent on a team uses the team's.
   subscription                Subscription?             @relation("OwnSubscription")
@@ -168,6 +169,9 @@ model Tenancy {
   /// Whether the agent may accept or reject a tenant's cost proposal for the landlord.
   /// Only the landlord can change it.
   agentMayAgreeCosts  Boolean          @default(true)
+  /// First N Singapore calendar days from the tenancy start, inclusive. Zero disables
+  /// move-in notices. Fixed once the tenant signs the check-in.
+  defectWindowDays    Int              @default(30)
   /// Reminder choices belong to the tenancy, so teammates see the same decision.
   renewalDecision     RenewalDecision?
   renewalSnoozedUntil DateTime?
@@ -243,12 +247,13 @@ model Inspection {
   baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
   checkOut    Inspection?  @relation("Baseline")
 
-  rooms        Room[]
-  findings     Finding[]
-  signatures   Signature[]
-  assessments  AssessmentVersion[]
-  reportEmails ReportEmail[]
-  addenda      ReportAddendum[]
+  rooms             Room[]
+  findings          Finding[]
+  signatures        Signature[]
+  assessments       AssessmentVersion[]
+  reportEmails      ReportEmail[]
+  addenda           ReportAddendum[]
+  moveInDefectCases MaintenanceCase[]   @relation("MoveInDefectInspection")
 
   @@index([tenancyId, kind])
 }
@@ -469,21 +474,25 @@ enum MaintenanceStatus {
 }
 
 model MaintenanceCase {
-  id               String              @id @default(cuid())
-  clientId         String?             @unique
-  tenancyId        String
-  propertyAssetId  String?
-  reportedById     String
-  category         MaintenanceCategory
-  priority         MaintenancePriority @default(ROUTINE)
-  title            String
-  description      String
-  status           MaintenanceStatus   @default(REPORTED)
-  resolutionReason String?
-  acknowledgedAt   DateTime?
-  resolvedAt       DateTime?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  id                       String              @id @default(cuid())
+  clientId                 String?             @unique
+  tenancyId                String
+  propertyAssetId          String?
+  reportedById             String
+  category                 MaintenanceCategory
+  priority                 MaintenancePriority @default(ROUTINE)
+  title                    String
+  description              String
+  status                   MaintenanceStatus   @default(REPORTED)
+  resolutionReason         String?
+  acknowledgedAt           DateTime?
+  resolvedAt               DateTime?
+  /// A timely tenant report reserves its move-in notice while evidence uploads finish.
+  wasPresentAtMoveIn       Boolean             @default(false)
+  /// Pin the signed check-in when the intent is recorded; later reports cannot retarget it.
+  moveInDefectInspectionId String?
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
 
   tenancy                 Tenancy                  @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
   propertyAsset           PropertyAsset?           @relation(fields: [propertyAssetId], references: [id], onDelete: SetNull)
@@ -494,6 +503,8 @@ model MaintenanceCase {
   findings                Finding[]
   responsibilityProposals ResponsibilityProposal[]
   addendumEntries         ReportAddendumEntry[]
+  moveInDefectInspection  Inspection?              @relation("MoveInDefectInspection", fields: [moveInDefectInspectionId], references: [id], onDelete: SetNull)
+  moveInDefectAddendum    ReportAddendum?          @relation("MoveInDefectSource")
 
   @@index([tenancyId, status, createdAt])
   @@index([propertyAssetId, createdAt])
@@ -809,6 +820,8 @@ enum ReportEmailKind {
   SIGNATURE_REQUEST
   /// "Both parties have signed", with the signed PDF attached.
   SIGNED_COPY
+  /// Tenant's handover instructions and move-in defect deadline, after their signature.
+  TENANT_HANDOVER
 }
 
 /// Outbox for report emails (`src/lib/report-email.ts`). A row is written in the same
@@ -862,28 +875,35 @@ model AssessmentVersion {
 /// (check-out baseline, timeline) only from `acknowledgedAt`, when both the landlord and
 /// the tenant have acknowledged it.
 model ReportAddendum {
-  id             String    @id @default(cuid())
-  inspectionId   String
-  number         Int?
-  title          String
-  reason         String?
+  id                      String    @id @default(cuid())
+  inspectionId            String
+  number                  Int?
+  title                   String
+  reason                  String?
   /// The day the change happened, which is what the "Updated" banner shows.
-  effectiveDate  DateTime
-  createdById    String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  publishedAt    DateTime?
-  publishedById  String?
+  effectiveDate           DateTime
+  createdById             String
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  publishedAt             DateTime?
+  publishedById           String?
   /// Everything the report draws, by value. Shape in src/lib/addenda.ts.
-  snapshot       Json?
-  contentHash    String?
-  acknowledgedAt DateTime?
+  snapshot                Json?
+  contentHash             String?
+  acknowledgedAt          DateTime?
+  /// A tenant's dated move-in notice, published directly from their maintenance report.
+  sourceMaintenanceCaseId String?   @unique
+  disputedAt              DateTime?
+  disputedById            String?
+  disputeReason           String?
 
-  inspection       Inspection                @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
-  createdBy        Stakeholder               @relation("AddendumCreator", fields: [createdById], references: [id])
-  publishedBy      Stakeholder?              @relation("AddendumPublisher", fields: [publishedById], references: [id])
-  entries          ReportAddendumEntry[]
-  acknowledgements AddendumAcknowledgement[]
+  inspection            Inspection                @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  createdBy             Stakeholder               @relation("AddendumCreator", fields: [createdById], references: [id])
+  publishedBy           Stakeholder?              @relation("AddendumPublisher", fields: [publishedById], references: [id])
+  entries               ReportAddendumEntry[]
+  acknowledgements      AddendumAcknowledgement[]
+  sourceMaintenanceCase MaintenanceCase?          @relation("MoveInDefectSource", fields: [sourceMaintenanceCaseId], references: [id], onDelete: SetNull)
+  disputedBy            Stakeholder?              @relation("AddendumDisputer", fields: [disputedById], references: [id])
 
   @@unique([inspectionId, number])
   @@index([inspectionId, createdAt])

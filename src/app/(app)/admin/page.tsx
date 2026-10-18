@@ -29,7 +29,7 @@ export default async function AdminPage() {
       </section>
       <section>
         <h2 className="mb-3 text-lg font-semibold">Screen views</h2>
-        <p className="mb-3 text-sm text-gray-500">Screen views currently cover the web app. Inspection progress includes every client.</p>
+        <p className="mb-3 text-sm text-gray-500">Screen views from web, iOS and Android. Mobile counts begin when the app receives the update.</p>
         <table className="w-full text-left text-sm">
           <thead><tr className="border-b"><th className="py-2">Screen</th><th className="py-2 text-right">Views</th></tr></thead>
           <tbody>{data.screens.map((group, index) => (

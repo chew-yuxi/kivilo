@@ -7,6 +7,7 @@ import { costStanding, describeProposal } from '@/lib/maintenance'
 import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations } from '@/lib/annotations'
 import { signingParties } from '@/lib/report-email'
+import { findingCheckInConditions } from '@/lib/check-in-reference'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,6 +83,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     inspection.findings.some((finding) => finding.updatedAt > latest.publishedAt) ||
     inspection.findings.length !== assessmentSnapshotSchema.parse(latest.snapshot).findings.length
 
+  const checkInConditions = inspection.kind === 'CHECK_OUT' && inspection.findings.length > 0
+    ? await findingCheckInConditions(id, agent.id) : null
   return {
     id: inspection.id,
     tenancyRecordId: inspection.tenancyId,
@@ -152,7 +155,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       baselineLabel: finding.baselineItem
         ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
         : null,
-      baselineCondition: finding.baselineItem?.condition ?? null,
+      baselineCondition: checkInConditions?.get(finding.baselineItemId ? `item:${finding.baselineItemId}` : finding.item?.baselineKey ?? '')
+        ?? finding.baselineItem?.condition ?? null,
       currentCondition: finding.item?.condition ?? null,
       maintenanceCaseId: finding.maintenanceCaseId,
       maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,

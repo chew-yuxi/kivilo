@@ -1,3 +1,5 @@
+import 'handover.dart';
+
 class UserProfile {
   const UserProfile({
     required this.id,
@@ -135,6 +137,7 @@ class TenancyDetail {
     required this.canEditMinorRepairCap,
     required this.canEditAgentAuthority,
     this.minorRepairCap,
+    this.moveInDefects,
   });
   final String id;
   final String role;
@@ -142,6 +145,7 @@ class TenancyDetail {
   final bool agentMayAgreeCosts;
   final bool canEditMinorRepairCap;
   final bool canEditAgentAuthority;
+  final MoveInDefectWindow? moveInDefects;
 
   factory TenancyDetail.fromJson(Map<String, dynamic> json) {
     final capabilities = json['capabilities'] as Map<String, dynamic>;
@@ -152,6 +156,11 @@ class TenancyDetail {
       agentMayAgreeCosts: json['agentMayAgreeCosts'] as bool,
       canEditMinorRepairCap: capabilities['editMinorRepairCap'] as bool,
       canEditAgentAuthority: capabilities['editAgentAuthority'] as bool,
+      moveInDefects: json['moveInDefects'] == null
+          ? null
+          : MoveInDefectWindow.fromJson(
+              json['moveInDefects'] as Map<String, dynamic>,
+            ),
     );
   }
 }
@@ -450,6 +459,7 @@ class MaintenanceCaseDetail {
     required this.evidence,
     required this.events,
     this.resolutionReason,
+    this.moveInDefect,
   });
   final String id;
   final String title;
@@ -469,6 +479,7 @@ class MaintenanceCaseDetail {
   final List<MaintenanceVisitModel> visits;
   final List<MaintenanceEvidenceModel> evidence;
   final List<Map<String, dynamic>> events;
+  final MaintenanceMoveInDefect? moveInDefect;
 
   factory MaintenanceCaseDetail.fromJson(
     Map<String, dynamic> json,
@@ -503,7 +514,78 @@ class MaintenanceCaseDetail {
         )
         .toList(),
     events: (json['events'] as List<dynamic>).cast<Map<String, dynamic>>(),
+    moveInDefect: json['moveInDefect'] == null
+        ? null
+        : MaintenanceMoveInDefect.fromJson(
+            json['moveInDefect'] as Map<String, dynamic>,
+          ),
   );
+}
+
+class MaintenanceMoveInDefect {
+  const MaintenanceMoveInDefect({
+    required this.wasPresentAtMoveIn,
+    required this.canSubmit,
+    this.canRespond = false,
+    required this.targets,
+    this.addendumId,
+    this.inspectionId,
+    this.status,
+    this.reportedAt,
+    this.deadline,
+    this.dispute,
+  });
+  final bool wasPresentAtMoveIn;
+  final bool canSubmit;
+  final bool canRespond;
+  final List<MoveInDefectTarget> targets;
+  final String? addendumId;
+  final String? inspectionId;
+  final String? status;
+  final String? reportedAt;
+  final String? deadline;
+  final MoveInDefectDispute? dispute;
+
+  factory MaintenanceMoveInDefect.fromJson(Map<String, dynamic> json) =>
+      MaintenanceMoveInDefect(
+        wasPresentAtMoveIn: json['wasPresentAtMoveIn'] as bool,
+        canSubmit: json['canSubmit'] as bool,
+        canRespond: json['canRespond'] as bool? ?? false,
+        targets: (json['targets'] as List<dynamic>)
+            .map(
+              (target) =>
+                  MoveInDefectTarget.fromJson(target as Map<String, dynamic>),
+            )
+            .toList(),
+        addendumId: json['addendumId'] as String?,
+        inspectionId: json['inspectionId'] as String?,
+        status: json['status'] as String?,
+        reportedAt: json['reportedAt'] as String?,
+        deadline: json['deadline'] as String?,
+        dispute: json['dispute'] == null
+            ? null
+            : MoveInDefectDispute.fromJson(
+                json['dispute'] as Map<String, dynamic>,
+              ),
+      );
+}
+
+class MoveInDefectDispute {
+  const MoveInDefectDispute({
+    required this.disputedAt,
+    required this.disputedBy,
+    required this.reason,
+  });
+  final String disputedAt;
+  final String disputedBy;
+  final String reason;
+
+  factory MoveInDefectDispute.fromJson(Map<String, dynamic> json) =>
+      MoveInDefectDispute(
+        disputedAt: json['disputedAt'] as String,
+        disputedBy: json['disputedBy'] as String,
+        reason: json['reason'] as String,
+      );
 }
 
 class ServiceProviderModel {

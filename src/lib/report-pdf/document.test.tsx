@@ -159,6 +159,9 @@ describe('report PDF', () => {
       publishedBy: 'Alaric Yeo',
       contentHash: 'hash',
       acknowledgedAt: null,
+      source: 'AGENT_UPDATE',
+      moveInDefect: null,
+      dispute: null,
       acknowledgements: [
         { role: 'Landlord', name: 'Tan Wei Ming', stakeholderId: 'landlord-1', acknowledgedAt: '2025-09-11T03:00:00.000Z', inPerson: true },
         { role: 'Tenant', name: 'Priya Raman', stakeholderId: 'tenant-1', acknowledgedAt: null, inPerson: false },
@@ -191,5 +194,40 @@ describe('report PDF', () => {
     expect(update).toContain('Tenant, pending acknowledgement')
     expect(update).toContain(`Page ${pages.length} of ${pages.length}`)
     expect(pages.findIndex((text) => text.includes('Agreement') && text.includes('signed by the'))).toBeLessThan(pages.length - 1)
+  })
+
+  it('keeps a disputed move-in claim visible with its dates without presenting it as an agreed replacement', async () => {
+    const report = model([room(1, 'Kitchen', 0)])
+    report.addenda = [{
+      id: 'move-in-claim', schemaVersion: 1, number: 1,
+      title: 'Move-in defect: chipped hob', reason: 'The tenant reported a chip present at move-in.',
+      effectiveDate: '2026-10-18T02:00:00.000Z', publishedAt: '2026-10-18T03:00:00.000Z',
+      publishedBy: 'Priya Raman', contentHash: 'claim-hash', acknowledgedAt: null,
+      source: 'MOVE_IN_DEFECT',
+      moveInDefect: { caseId: 'repair', reportedAt: '2026-10-18T02:00:00.000Z', deadline: '2026-10-30' },
+      dispute: {
+        disputedAt: '2026-10-19T02:00:00.000Z', disputedById: 'landlord',
+        disputedBy: 'Tan Wei Ming', reason: 'The handover photo shows no chip.',
+      },
+      acknowledgements: [
+        { role: 'Landlord', name: 'Tan Wei Ming', stakeholderId: 'landlord', acknowledgedAt: null, inPerson: false },
+        { role: 'Tenant', name: 'Priya Raman', stakeholderId: 'tenant', acknowledgedAt: '2026-10-18T03:00:00.000Z', inPerson: false },
+      ],
+      entries: [{
+        id: 'claim-entry', change: 'REPLACED', roomName: 'Kitchen', notes: 'Chip on the left corner.',
+        target: { key: 'item:hob', name: 'Hob', condition: 'GOOD', quantity: 1, identifier: 'HOB123', notes: null },
+        line: { key: 'entry:claim-entry', name: 'Hob', category: 'APPLIANCE', condition: 'DAMAGED', quantity: 1, identifier: 'HOB123', notes: 'Chip on the left corner.', propertyAssetId: null },
+        maintenanceCase: { id: 'repair', title: 'Chipped hob' }, photos: [],
+      }],
+    }]
+    const text = (await render(report)).join(' ')
+    expect(text).toContain('Condition reported: Hob')
+    expect(text).not.toContain('Replaced: Hob with Hob')
+    expect(text).toContain('Reported by the tenant')
+    expect(text).toContain('30 October 2026')
+    expect(text).toContain('Disputed by Tan Wei Ming')
+    expect(text).toContain('The handover photo shows no chip.')
+    expect(text).toContain('not part of the agreed check-in')
+    expect(text).toContain('Landlord, disputed')
   })
 })

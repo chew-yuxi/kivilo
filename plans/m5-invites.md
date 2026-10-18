@@ -42,8 +42,8 @@ The landlord acknowledges or disputes the update and arranges the repair.
    `POST /api/v1/inspections/[id]/report/signature`), through the same transaction as a
    signature on the agent's phone. Not yet: telling the agent when the report completes;
    it belongs with the emails in 4.
-4. **The tenant's copy at handover.** QR after signing, email with the defect deadline.
-5. **"It was like this when I moved in"**, with a per-tenancy defect window.
+4. **The tenant's copy at handover.** Done: QR after signing, email with the defect deadline.
+5. **"It was like this when I moved in"**, with a per-tenancy defect window. Done.
 
 Later: asking for a missing email at signing (the address may already belong to someone,
 and the deal then has to move onto them), and app links that open emailed links in the
@@ -73,3 +73,35 @@ to the maintenance screen.
 inspections of their own) sees their tenancies with the latest report and Repairs, and
 no Inspections tab. "Start a check-in" is under Account for them. The sign-in screen no
 longer pitches inspectors.
+
+## 4 and 5, as built (18 October 2026)
+
+After the tenant's first check-in signature, the inspection and report screens show a
+QR for `/handover/[inspectionId]`. It contains no email or bearer credential. The page
+requires the tenancy's tenant account; other accounts and missing reports get the same
+response. The transactional email outbox sends the tenant this link and the deadline.
+The signed PDF still goes to both parties and the conducting agent after both signatures.
+
+The defect window defaults to 30 Singapore calendar days, counting the tenancy start as
+day one. The landlord or agent can set 0–365 days before the tenant signs; zero disables
+it. The value locks at that signature. The app's repair form offers the move-in checkbox
+only for a completed check-in during its open window, before a signed check-out.
+
+A flagged repair reserves its filing time and pins its check-in when the server creates
+it. Its text and selected, registered BEFORE photos become a dated notice only when the
+tenant publishes it. The app waits for that repair's durable uploads and changes before
+publishing; a timely filing can finish its uploads after the deadline. The tenant can
+name an existing line or write a new one. The frozen snapshot records the original filing
+time and deadline, independently of the repair's later lifecycle.
+
+The tenant acknowledges their notice by publishing it. Only the landlord, signed in as
+themselves, can agree or dispute it; there is no agent in-person acknowledgement. A
+reason is required for a dispute. Pending and disputed notices are visible on the report
+and PDF but excluded from the agreed inventory and check-out. Agreement includes the
+condition and photos in the agreed baseline without editing the original signed report.
+Condition notices preserve the physical item's identity; a notice about an item already
+replaced or removed cannot be accepted. Responses are final, and stop once check-out is
+signed. Ordinary repair work continues independently.
+
+Server deployment requires `20261018120000_move_in_defects` before the app update.
+Mobile changes are Dart only; no native dependency, icon or version change is required.
