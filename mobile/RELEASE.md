@@ -961,17 +961,30 @@ the user confirmed a native background notification on the physical TestFlight i
 tapping it opened Kivilo's Notifications screen. The development APNs slot is
 intentionally unconfigured.
 
-On 18 October, a production outbox audit found four exhausted `RENEWAL_DUE`
-deliveries reporting `Invalid APNs credential.` They belong to two older iOS
-installations on store-reviewer accounts (created 10/11 October), with no recorded
-successful deliveries, and predate build 24. They do not establish a failure on the
-current TestFlight build. The registry stores no build or APNs environment, so debug
-sandbox tokens cannot be distinguished retrospectively. Firebase's signed-in Console
-still shows production key `JK75WN48PB`, team `4N9TA3WSYM`, and no development key.
-Apple Developer requires a fresh sign-in to inspect its key status. No keys, retry
-rows or installations were changed. Physical distribution-device push verification
-remains open. An attempt to diagnose using cached Firebase CLI refresh credentials
-was rejected by automatic approval review; that credential path was not retried.
+On 18 October, a read-only production audit found four exhausted `RENEWAL_DUE`
+deliveries reporting `Invalid APNs credential.` All four belong to two older iOS
+reviewer installations created 10/11 October, with no recorded successes. However,
+**two iOS renewal deliveries succeeded on a different installation in the same batch**
+(`2026-10-16T23:45:08.575Z`). There are five successful iOS outbox deliveries in total.
+This rules out a universal APNs failure during that batch; installation/environment
+mismatch is plausible but not proven. No success is recorded after the failures'
+final retry at `2026-10-17T01:30Z`, so this is not a current-device delivery test.
+
+The registry stores no build or APNs environment. One affected installation was last
+seen before the first archived TestFlight candidate was signed, which supports debug
+origin but does not establish token identity. Firebase's signed-in Console was last
+checked on 18 October: production key `JK75WN48PB`, team `4N9TA3WSYM`, development
+slot empty. Apple's API confirms `PUSH_NOTIFICATIONS` is enabled for the bundle ID.
+The released IPA has `aps-environment=production`.
+
+The owner explicitly approved the existing Firebase CLI login after the initial
+automatic approval refusal. Token refresh and identity checks succeeded, but the
+cached account (`t***@pm.me`) has no Kivilo project access: Firebase Management and
+Cloud Resource Manager return 403; its complete visible-project list excludes Kivilo.
+No credentials, retry rows or installations changed, and no pushes were sent.
+FCM dry run cannot validate APNs tokens ([Admin SDK reference](https://firebase.google.com/docs/reference/admin/java/reference/com/google/firebase/messaging/FirebaseMessaging)).
+Current physical TestFlight delivery and Apple key validation remain unverified.
+Sanitized local evidence is in `build/release-artifacts/ios/apns-diagnosis-20261018/`.
 
 The checked-in iOS and Android client files match project `kivilo-b4e14` and the
 Kivilo bundle/package ID. The iOS plist is part of the Runner target, and the Android
