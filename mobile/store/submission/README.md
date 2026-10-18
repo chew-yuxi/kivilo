@@ -1,7 +1,7 @@
 # Kivilo public submission request set
 
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
-Pte. Ltd. The current public candidates are iOS build 24 and Android build 25.
+Pte. Ltd. Android build 25 is published; iOS build 24 is waiting for review.
 The older submission records below are retained as history.
 
 Android build 13 replaces the native-upload
@@ -77,11 +77,13 @@ resources.
 
 ## Google Play
 
-Current read-back on 18 October 2026: production `23` is actually `PUBLISHED` after
-completing its final Console Publish action. The edits API's earlier `completed`
-status had concealed an approved-but-unpublished release. Internal `25` is
-`PUBLISHED`; production `25` is `IN_REVIEW` after edit `06562556097228654965`
-validated and committed at `2026-10-18T00:24:39.605Z`.
+Current read-back on 18 October 2026: production and internal `25` are both
+`PUBLISHED`. Edit `06562556097228654965` validated and committed at
+`2026-10-18T00:24:39.605Z`; after review Google reported approved but unpublished.
+The final Console Publish action was completed later that morning, and the lifecycle
+API then confirmed `25` published, superseding `23`. Build `23` had also needed a
+manual Publish action earlier that day. Do not infer publication from an edits API
+`completed` status.
 
 Build `25` is signed source `ce0d8e3`, containing responsive tablet layouts, native
 PDF viewing/sharing, capture guards, renewal cards and the check-in reference.

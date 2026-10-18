@@ -7,18 +7,18 @@ the native app is piloted. Build only against the production API and Supabase pr
 
 ## Current releases: 18 October 2026 Singapore time
 
-Android production build `23` is now actually published. The lifecycle API had shown
-`23` as approved but unpublished while the edits API said `completed`; Publishing
-overview's final Publish action was completed on 18 October, and the lifecycle API
-then confirmed `RELEASE_LIFECYCLE_STATE_PUBLISHED`. Stable patches `5` (Android)
-and `6` (iOS) for `1.0.0+23` remain live. Both minimum-build floors remain unchanged.
+Android production build `25` is published. Google approved it after submission;
+the final Console Publish action was completed on 18 October, and the lifecycle API
+confirms `RELEASE_LIFECYCLE_STATE_PUBLISHED` for production and internal testing.
+Earlier that day, build `23` also needed its final Publish action despite the edits API
+saying `completed`; always verify the lifecycle. Stable patches `5` (Android) and
+`6` (iOS) remain live for installed build `23`. Both minimum-build floors are unchanged.
 
-The new native candidates are iOS `24` and Android `25`, described below. Neither
-candidate should be described as publicly available until its store approves and
-publishes it. Backend `86d7bbc` is already deployed in `sin1`, with the check-in
-reference migration and the earlier renewal, usage-event and upload-intent migrations
-applied. Verification at that source: typecheck, lint, production build, 90 unit tests,
-128 integration tests, 13 end-to-end tests, clean Flutter analysis and 182 mobile tests.
+iOS `24` is submitted and still `WAITING_FOR_REVIEW`. Backend `86d7bbc` was deployed
+in `sin1` before these releases, with the check-in reference migration and earlier
+renewal, usage-event and upload-intent migrations applied. Verification at that source:
+typecheck, lint, production build, 90 unit tests, 128 integration tests, 13 end-to-end
+tests, clean Flutter analysis and 182 mobile tests.
 
 ## iOS build 24: native iPad support
 
@@ -110,8 +110,10 @@ are present. Flutter analysis and all 182 tests pass. AAB:
 
 Play edit `06562556097228654965` validated and committed at
 `2026-10-18T00:24:39.605Z`. Google accepted the matching artifact hash. The lifecycle
-API confirms internal build `25` is `PUBLISHED`, production `25` is `IN_REVIEW`, and
-production `23` remains `PUBLISHED`.
+API initially confirmed internal `25` published and production `25` in review.
+After Google approved it, the final Console Publish action was completed on 18 October.
+Fresh lifecycle read-back confirms production `25` is `PUBLISHED` and supersedes `23`;
+internal `25` remains published. Publication evidence is archived beside the AAB.
 
 ## Build 23
 
