@@ -67,9 +67,11 @@ A separate native-plugin harness also passed one XCUITest on an iPad Pro 13-inch
 simulator: `OpenFilex` returned success and QuickLook displayed a synthetic local PDF;
 `share_plus` opened an anchored PDF popover with its 691-byte attachment and a separate
 link popover. Both were dismissed without sending. This tests real native plugin
-mechanics, not the signed-report backend flow. Local evidence is
-`/private/tmp/kivilo-native-plugins-qa-4.xcresult` and
-`/private/tmp/kivilo-native-plugin-evidence/`.
+mechanics, not the signed-report backend flow. A second native XCUITest verified the
+actual capture screen with a synthetic pending upload: Review room stayed disabled
+and the upload-wait explanation remained visible. Screenshots, provenance and the
+limits of both probes are archived at
+`build/release-artifacts/ios/build24/simulator-qa/summary.json`.
 
 The IPA is `build/release-artifacts/ios/build24/kivilo.ipa`, SHA-256
 `ae9a28ca5646273b003c6939e9539ed9f330e1d83d07814d2d80a2ae69f59ca9`; matching dSYMs
