@@ -40,8 +40,8 @@ The landlord acknowledges or disputes the update and arranges the repair.
 3. **The landlord signs remotely.** Done. A landlord or tenant signs as themselves, on
    their own tenancy, while the report awaits signature (`authorizeOwnSignature`,
    `POST /api/v1/inspections/[id]/report/signature`), through the same transaction as a
-   signature on the agent's phone. Not yet: telling the agent when the report completes;
-   it belongs with the emails in 4.
+   signature on the agent's phone. The conducting agent receives the signed PDF email
+   when the report completes, along with both parties.
 4. **The tenant's copy at handover.** Done: QR after signing, email with the defect deadline.
 5. **"It was like this when I moved in"**, with a per-tenancy defect window. Done.
 

@@ -20,6 +20,47 @@ renewal, usage-event and upload-intent migrations applied. Verification at that 
 typecheck, lint, production build, 90 unit tests, 128 integration tests, 13 end-to-end
 tests, clean Flutter analysis and 182 mobile tests.
 
+## Tenant handover, move-in notices and native usage: 18 October 2026
+
+Source `18bb3f1` is pushed and live on the server. Vercel deployment
+`dpl_7DBrHUYpF2aKHUtc2VJ6SWmVBZnq` is Ready in `sin1`; the custom production domain
+serves the new authenticated handover routes. Migration
+`20261018120000_move_in_defects` was applied before the deployment.
+
+Stable Android `1.0.0+25` patch **1** (ID `728132`) and iOS `1.0.0+24` patch **2**
+(ID `728133`) were built from separate detached checkouts of this exact source using
+Shorebird Flutter `3.47.2`. Android preserves CLI `--build-number=25`; the pubspec stays
+`1.0.0+24`. Both passed native and asset compatibility checks without overrides, and
+neither uses a Material icon absent from its original release. Fresh metadata confirms
+both patches on stable. No store binary, version or minimum-build floor changed.
+
+The tenant's first check-in signature now provides a safe handover QR and queues a
+deadline email. The per-tenancy window defaults to 30 inclusive Singapore calendar days,
+configurable before that signature. A tenant can flag a repair as present at move-in,
+finish its durable photo uploads, and publish a dated notice beside the signed report.
+Only the landlord's own account can agree or dispute it. Pending/disputed notices do
+not enter the agreed check-in. Condition-only notices preserve one physical item's
+identity and all accepted descriptions; stale claims cannot overwrite replacements.
+Check-out and finding comparisons use their frozen agreed condition.
+
+Native analytics records only approved screen categories, with bounded per-account
+queues, verified account ownership and release/patch metadata. It records visible
+routes and selected tabs, excluding rebuilds and dismissed field dialogs.
+
+Verification: typecheck, lint, production build, **98 unit**, **145 integration**,
+**14 end-to-end** tests, clean Flutter analysis and **201 Flutter tests**. Real local
+Storage, emailed OTPs and the landlord's web account are exercised by the end-to-end
+flow. Android's three signed ABIs also contain the new feature markers, versionCode25
+and none of the four removed broad media permissions.
+
+Physical-device delivery and performance remain unverified. The iOS linker shared
+87.7% of Dart code with the original release and warned that patched execution may be
+slower; it passed compatibility checks. Evidence, logs and patch debug artifacts are
+in `build/release-artifacts/ios/build24/handover-patch2/` and
+`build/release-artifacts/android/build25/handover-patch1/`. iOS VM-code SHA-256:
+`1bca4a42dc4072604876d6bcd64ca4d5b5beb538847e22bfdf626b2c66e0c4da`.
+Apple's existing build24 submission still reads `WAITING_FOR_REVIEW`.
+
 ## iOS build 24: native iPad support
 
 On 18 October 2026 Singapore time, iOS `1.0.0+24` was built from `7161f53` in a pinned

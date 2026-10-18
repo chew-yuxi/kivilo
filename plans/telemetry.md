@@ -40,7 +40,7 @@ production env, then push (the cron is in `vercel.json`).
 client UUID, source, release and server-stamped account. No paths, free text, query
 strings or report tokens. The web reporter bounds its per-account offline queue at 20;
 unavailable browser storage falls back to memory. `POST /api/v1/events` accepts the same
-batch from web and native clients, and checks the web queue's owner precondition against
+batch from web and native clients, and checks each queue's owner precondition against
 the verified session to prevent a stale tab attributing events to a different account.
 
 `/admin` is guarded in the data layer by a comma-separated `ADMIN_EMAILS` allowlist
