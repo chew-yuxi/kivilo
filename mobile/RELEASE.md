@@ -965,17 +965,20 @@ intentionally unconfigured.
 
 On 18 October, a read-only production audit found four exhausted `RENEWAL_DUE`
 deliveries reporting `Invalid APNs credential.` All four belong to two older iOS
-reviewer installations created 10/11 October, with no recorded successes. However,
+reviewer installations both created 11 October, with no recorded successes. However,
 **two iOS renewal deliveries succeeded on a different installation in the same batch**
-(`2026-10-16T23:45:08.575Z`). There are five successful iOS outbox deliveries in total.
+(`2026-10-17T07:45:08.575Z`). There are five successful iOS outbox deliveries in total.
 This rules out a universal APNs failure during that batch; installation/environment
 mismatch is plausible but not proven. No success is recorded after the failures'
-final retry at `2026-10-17T01:30Z`, so this is not a current-device delivery test.
+final retry at `2026-10-17T09:30Z`, so this is not a current-device delivery test.
 
-The registry stores no build or APNs environment. One affected installation was last
-seen before the first archived TestFlight candidate was signed, which supports debug
-origin but does not establish token identity. Firebase's signed-in Console was last
-checked on 18 October: production key `JK75WN48PB`, team `4N9TA3WSYM`, development
+The registry stores no build or APNs environment, so it cannot establish whether the
+affected installations used sandbox or production APNs. A raw-pg audit originally
+parsed UTC database timestamps in the Mac's local timezone, shifting reported UTC
+dates by eight hours. That audit is corrected; the earlier pre-TestFlight chronology
+inference is withdrawn. Prisma's application timestamp handling was already correct,
+and the counts and same-batch finding are unchanged. Firebase's signed-in Console was
+last checked on 18 October: production key `JK75WN48PB`, team `4N9TA3WSYM`, development
 slot empty. Apple's API confirms `PUSH_NOTIFICATIONS` is enabled for the bundle ID.
 The released IPA has `aps-environment=production`.
 
