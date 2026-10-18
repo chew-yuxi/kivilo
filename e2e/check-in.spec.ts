@@ -71,8 +71,8 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await page.getByRole('button', { name: 'Review room' }).click()
   await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}$/)
   await expect(page.getByText('11 items', { exact: true })).toBeVisible()
-  await expect(page.locator('input[value="Walls"]')).toBeVisible()
-  await expect(page.locator('input[value="Cooker hood"]')).toBeVisible()
+  await expect(page.locator('[data-item-row] > button', { hasText: 'Walls' })).toBeVisible()
+  await expect(page.locator('[data-item-row] > button', { hasText: 'Cooker hood' })).toBeVisible()
 
   // The evidence strip becomes a two-column grid from sm up, where a row is as tall as
   // its tallest item. That is the one surface where the overlay can stretch away from
@@ -100,6 +100,10 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await serial.fill('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')
   await serial.blur()
   await expect(page.locator('input[value="SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N"]')).toBeVisible()
+  // Which photo shows the fridge, so the report can point at it from the line.
+  const fridgePhoto = page.getByRole('button', { name: 'Photo 1', exact: true })
+  await fridgePhoto.click()
+  await expect(fridgePhoto).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: '+ Add an item' }).click()
   const worktop = page.locator('input[value="New item"]')
   await worktop.fill('Quartz worktop')
@@ -118,11 +122,13 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page.getByRole('button', { name: /^Photo 1/ })).toBeVisible()
   await page.getByRole('button', { name: 'Review room' }).click()
   await expect(page).toHaveURL(/\/rooms\/c[a-z0-9]{20,}$/)
-  const remove = page.getByRole('button', { name: 'Remove' })
-  await expect(remove).toHaveCount(5)
+  // Each line opens to be edited, and Remove is inside it.
+  const lines = page.locator('[data-item-row] > button[aria-expanded]')
+  await expect(lines).toHaveCount(5)
   for (let left = 4; left >= 0; left--) {
-    await remove.first().click()
-    await expect(remove).toHaveCount(left)
+    await lines.first().click()
+    await page.getByRole('button', { name: 'Remove' }).click()
+    await expect(lines).toHaveCount(left)
   }
   await expect(
     page.getByText('Add an item, or confirm there is nothing to record in this room.'),
@@ -159,6 +165,7 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(report.getByText('#28-05')).toBeVisible()
   await expect(report.getByText('Quartz worktop')).toBeVisible()
   await expect(report.getByText('SAMSUNG RF48A4000S9/SS SERIAL 0KM74BDT200341N')).toBeVisible()
+  await expect(report.getByRole('link', { name: /^\d+\.1$/ })).toHaveCount(1)
   await expect(report.getByText('Nothing recorded in this room.')).toBeVisible()
   await expect(report.getByRole('button', { name: 'Install app' })).toHaveCount(0)
 
@@ -247,7 +254,12 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
     0.425,
     2,
   )
-  await expect(page.getByText(/^At check-in: /)).toHaveCount(13)
+  // Nothing has changed yet, so every copied line is folded away behind one row, and
+  // each still says what it was at check-in once opened.
+  await expect(page.getByText('none changed since check-in', { exact: false })).toBeVisible()
+  await page.getByRole('button', { name: /13 lines as at check-in/ }).click()
+  await page.locator('[data-item-row] > button', { hasText: 'Quartz worktop' }).click()
+  await expect(page.getByText(/^At check-in: /)).toHaveCount(1)
 
   // Authorization lives in the data layer: a second agent sees nothing of this deal.
   const other = await browser.newContext()

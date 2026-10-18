@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useSyncExternalStore, useTransition } from 'react'
 import { shareReport, revokeReportLink } from '@/lib/actions'
 
 export function ShareReport({
@@ -14,8 +14,10 @@ export function ShareReport({
   const [copied, setCopied] = useState(false)
 
   // Built in the browser so the link carries whatever host the agent is actually on,
-  // rather than a base URL baked in at build time.
-  const url = shareToken ? `${window.location.origin}/reports/${shareToken}` : null
+  // rather than a base URL baked in at build time. The server has no window, so it
+  // renders the path alone and the origin joins it on hydration.
+  const origin = useSyncExternalStore(subscribeToNothing, () => window.location.origin, () => '')
+  const url = shareToken ? `${origin}/reports/${shareToken}` : null
 
   if (!url) {
     return (
@@ -81,3 +83,5 @@ export function ShareReport({
     </div>
   )
 }
+
+const subscribeToNothing = () => () => {}

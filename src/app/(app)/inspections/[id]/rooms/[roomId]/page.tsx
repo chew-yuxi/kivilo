@@ -22,7 +22,7 @@ export default async function RoomReviewPage({
     // Read through `checkInReference`, which checks the agent may see the check-in.
     omit: { baseline: true },
     include: {
-      items: { orderBy: { createdAt: 'asc' } },
+      items: { orderBy: { createdAt: 'asc' }, include: { evidence: { select: { captureId: true } } } },
       captures: { orderBy: { createdAt: 'asc' } },
     },
   })
@@ -69,7 +69,10 @@ export default async function RoomReviewPage({
         inspectionId={id}
         roomId={room.id}
         roomName={room.name}
-        items={room.items}
+        items={room.items.map(({ evidence, ...item }) => ({
+          ...item,
+          evidenceCaptureIds: evidence.map(({ captureId }) => captureId),
+        }))}
         captures={captures}
         checkIn={checkIn}
         alreadyReviewed={room.status === 'REVIEWED'}

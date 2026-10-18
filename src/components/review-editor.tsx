@@ -28,6 +28,8 @@ export type EditableItem = {
   sourceCaptureId: string | null
   sourceTimestampSec: number | null
   baselineKey: string | null
+  /// Captures the inspector has said show this line.
+  evidenceCaptureIds: string[]
 }
 
 export type EvidenceCapture = {
@@ -45,59 +47,212 @@ const differs = (was: string | null, now: string | null) => (was ?? '').trim() !
 /// "serial: ABC123", or "no serial" when the check-in left it empty.
 const quoted = (field: string, value: string | null) => (value?.trim() ? `${field}: ${value.trim()}` : `no ${field}`)
 
+/// Whether a check-out row says anything its check-in line did not.
+function changedSince(item: EditableItem, baseline: CheckInLine) {
+  return (
+    baseline.condition !== item.condition ||
+    baseline.quantity !== item.quantity ||
+    differs(baseline.name, item.name) ||
+    differs(baseline.identifier, item.identifier) ||
+    differs(baseline.meterReading, item.meterReading) ||
+    differs(baseline.notes, item.notes)
+  )
+}
+
 function ItemRow({
   item,
   baseline,
+  onCheckOut,
   inspectionId,
+  captures,
+  open,
+  onToggle,
   onShowEvidence,
 }: {
   item: EditableItem
   /// The check-in line this check-out row was copied from, so what it was stays in view
   /// once it is edited.
   baseline: CheckInLine | undefined
+  /// A check-out row with no baseline is one the inspector added on this visit.
+  onCheckOut: boolean
   inspectionId: string
+  /// The room's captures, any of which the inspector can say shows this line.
+  captures: EvidenceCapture[]
+  open: boolean
+  onToggle: () => void
   onShowEvidence: (captureId: string, seconds: number | null) => void
 }) {
   const [pending, startTransition] = useTransition()
+  // Held here as well as saved, so a tap shows at once rather than after the round trip.
+  const [condition, setCondition] = useState(item.condition)
+  const [evidence, setEvidence] = useState(item.evidenceCaptureIds)
 
   const save = (data: Parameters<typeof updateItem>[2]) =>
     startTransition(() => void updateItem(item.id, inspectionId, data))
 
+  const toggleEvidence = (captureId: string) => {
+    // Only captures still in the room: one deleted since the page opened would be
+    // refused as evidence that does not exist.
+    const current = evidence.filter((id) => captures.some((capture) => capture.id === id))
+    const next = current.includes(captureId)
+      ? current.filter((id) => id !== captureId)
+      : [...current, captureId]
+    setEvidence(next)
+    save({ evidenceCaptureIds: next })
+  }
+
+  const changed = baseline ? changedSince({ ...item, condition }, baseline) : false
+  const summary = [
+    item.quantity > 1 ? `×${item.quantity}` : null,
+    item.identifier?.trim() || null,
+    item.meterReading?.trim() ? `reading ${item.meterReading.trim()}` : null,
+    item.notes?.trim().split('\n')[0] || null,
+    evidence.length > 0 ? `${evidence.length} ${evidence.length === 1 ? 'photo' : 'photos'}` : null,
+  ].filter(Boolean)
+  const flag = changed ? 'Changed since check-in' : onCheckOut && !baseline ? 'Not at check-in' : null
+
   return (
-    // Stacked on a phone, which is where this is actually used, and a single row from
-    // sm upward where there is room for one.
-    <div
-      className={`grid grid-cols-1 items-start gap-2 border-t border-gray-100 px-4 py-3 sm:grid-cols-12 sm:gap-3 ${
-        pending ? 'opacity-60' : ''
-      }`}
-    >
-      <div className="sm:col-span-4">
-        <input
-          defaultValue={item.name}
-          onBlur={(e) => e.target.value !== item.name && save({ name: e.target.value })}
-          className="w-full rounded border border-transparent bg-transparent px-1.5 py-1 text-sm font-medium hover:border-gray-200 focus:border-brand-500 focus:bg-white focus:outline-none"
-        />
-        <input
-          defaultValue={item.identifier ?? ''}
-          placeholder="Make / model / serial"
-          onBlur={(e) =>
-            e.target.value !== (item.identifier ?? '') &&
-            save({ identifier: e.target.value || null })
-          }
-          className="mt-1 w-full rounded border border-transparent bg-transparent px-1.5 py-0.5 font-mono text-xs text-gray-600 hover:border-gray-200 focus:border-brand-500 focus:bg-white focus:outline-none"
-        />
-        <div className="mt-1 flex items-center gap-2 px-1.5">
-          <select
-            defaultValue={item.category}
-            onChange={(e) => save({ category: e.target.value as ItemCategory })}
-            className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600 focus:outline-none"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c.toLowerCase()}
-              </option>
+    <div data-item-row className={`border-t border-gray-100 ${pending ? 'opacity-60' : ''}`}>
+      {/* The whole line is one target, so a room of lines reads as a list on a phone and
+          only the line being written takes the space its fields need. */}
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-gray-50"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-medium text-gray-900">{item.name}</span>
+          {(summary.length > 0 || flag) && (
+            <span className="mt-0.5 block truncate text-xs text-gray-500">
+              {flag && <span className="font-medium text-amber-700">{flag}</span>}
+              {flag && summary.length > 0 && ' · '}
+              {summary.join(' · ')}
+            </span>
+          )}
+        </span>
+        <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${CONDITION_TONE[condition]}`}>
+          {condition}
+        </span>
+      </button>
+
+      {open && (
+        <div className="space-y-3 px-4 pb-4">
+          <input
+            aria-label="Item name"
+            defaultValue={item.name}
+            onBlur={(e) => e.target.value !== item.name && save({ name: e.target.value })}
+            className="w-full rounded border border-gray-200 px-2 py-1.5 text-sm font-medium focus:border-brand-500 focus:outline-none"
+          />
+
+          <div role="radiogroup" aria-label="Condition" className="flex gap-1.5">
+            {CONDITIONS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                role="radio"
+                aria-checked={condition === c}
+                onClick={() => {
+                  if (c === condition) return
+                  setCondition(c)
+                  save({ condition: c })
+                }}
+                className={`min-w-0 flex-1 rounded px-0.5 py-2 text-[11px] font-medium ${
+                  condition === c ? `${CONDITION_TONE[c]} ring-1 ring-current` : 'bg-gray-50 text-gray-500'
+                }`}
+              >
+                {c}
+              </button>
             ))}
-          </select>
+          </div>
+
+          {item.category === 'METER' && (
+            <input
+              aria-label="Reading"
+              defaultValue={item.meterReading ?? ''}
+              placeholder="Reading"
+              onBlur={(e) => save({ meterReading: e.target.value || null })}
+              className="w-full rounded border border-gray-200 px-2 py-1.5 font-mono text-xs focus:border-brand-500 focus:outline-none"
+            />
+          )}
+
+          <textarea
+            aria-label="Condition notes"
+            defaultValue={item.notes ?? ''}
+            rows={2}
+            placeholder="Condition notes"
+            onBlur={(e) =>
+              e.target.value !== (item.notes ?? '') && save({ notes: e.target.value || null })
+            }
+            className="w-full resize-none rounded border border-gray-200 px-2 py-1.5 text-sm text-gray-700 focus:border-brand-500 focus:outline-none"
+          />
+
+          <div className="flex items-center gap-2">
+            <input
+              aria-label="Make, model and serial"
+              defaultValue={item.identifier ?? ''}
+              placeholder="Make / model / serial"
+              onBlur={(e) =>
+                e.target.value !== (item.identifier ?? '') &&
+                save({ identifier: e.target.value || null })
+              }
+              className="min-w-0 flex-1 rounded border border-gray-200 px-2 py-1.5 font-mono text-xs text-gray-600 focus:border-brand-500 focus:outline-none"
+            />
+            <select
+              aria-label="Kind"
+              defaultValue={item.category}
+              onChange={(e) => save({ category: e.target.value as ItemCategory })}
+              className="rounded bg-gray-100 px-1.5 py-1.5 text-xs text-gray-600 focus:outline-none"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c.toLowerCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {captures.length > 0 && (
+            // Which photos show this line. The report prints their numbers beside it, so
+            // a dispute about the fridge goes straight to the fridge's pictures.
+            <div>
+              <p className="text-xs text-gray-500">Photos of this item</p>
+              <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
+                {captures.map((capture, index) => {
+                  const selected = evidence.includes(capture.id)
+                  return (
+                    <button
+                      key={capture.id}
+                      type="button"
+                      aria-pressed={selected}
+                      aria-label={`${capture.kind === 'VIDEO' ? 'Video' : 'Photo'} ${
+                        captures.slice(0, index + 1).filter(({ kind }) => kind === capture.kind).length
+                      }`}
+                      onClick={() => toggleEvidence(capture.id)}
+                      className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border-2 ${
+                        selected ? 'border-brand-500' : 'border-transparent opacity-70'
+                      }`}
+                    >
+                      {capture.kind === 'VIDEO' ? (
+                        <span className="flex h-full w-full items-center justify-center bg-gray-900 text-xs text-white">
+                          Video
+                        </span>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={capture.url} alt="" className="h-full w-full object-cover" />
+                      )}
+                      {selected && (
+                        <span className="absolute right-0.5 top-0.5 rounded-full bg-brand-500 px-1 text-[10px] leading-4 text-white">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {item.sourceCaptureId && (
             <button
               type="button"
@@ -107,71 +262,43 @@ function ItemRow({
               {item.sourceTimestampSec !== null ? timecode(item.sourceTimestampSec) : 'photo'}
             </button>
           )}
+
+          {baseline && (
+            // The condition, which is the comparison, and anything else only where this
+            // row no longer says the same, each named, so "no serial" says the serial is new.
+            <p className="text-xs text-gray-500">
+              {/* An addendum's line is marked as the reference panel marks it. */}
+              {baseline.update ? 'At check-in, updated:' : 'At check-in:'}{' '}
+              {[
+                baseline.condition,
+                differs(baseline.name, item.name) ? `name: ${baseline.name}` : null,
+                baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
+                differs(baseline.identifier, item.identifier) ? quoted('serial', baseline.identifier) : null,
+                differs(baseline.meterReading, item.meterReading) ? quoted('reading', baseline.meterReading) : null,
+                differs(baseline.notes, item.notes) ? quoted('notes', baseline.notes) : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+          )}
+
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => startTransition(() => void deleteItem(item.id, inspectionId))}
+              className="-mx-2 px-2 py-1 text-xs text-gray-400 hover:text-red-600"
+            >
+              Remove
+            </button>
+            <button
+              type="button"
+              onClick={onToggle}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+            >
+              Done
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div className="sm:col-span-2">
-        <select
-          defaultValue={item.condition}
-          onChange={(e) => save({ condition: e.target.value as ItemCondition })}
-          className={`w-full rounded px-2 py-2 text-xs font-medium focus:outline-none sm:py-1 ${CONDITION_TONE[item.condition]}`}
-        >
-          {CONDITIONS.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        {item.category === 'METER' && (
-          <input
-            defaultValue={item.meterReading ?? ''}
-            placeholder="Reading"
-            onBlur={(e) => save({ meterReading: e.target.value || null })}
-            className="mt-1 w-full rounded border border-gray-200 px-2 py-1 font-mono text-xs focus:border-brand-500 focus:outline-none"
-          />
-        )}
-      </div>
-
-      <div className="sm:col-span-5">
-        <textarea
-          defaultValue={item.notes ?? ''}
-          rows={2}
-          placeholder="Condition notes"
-          onBlur={(e) =>
-            e.target.value !== (item.notes ?? '') && save({ notes: e.target.value || null })
-          }
-          className="w-full resize-none rounded border border-transparent bg-transparent px-1.5 py-1 text-sm text-gray-600 hover:border-gray-200 focus:border-brand-500 focus:bg-white focus:outline-none"
-        />
-      </div>
-
-      <div className="text-right sm:col-span-1">
-        <button
-          type="button"
-          onClick={() => startTransition(() => void deleteItem(item.id, inspectionId))}
-          // Big enough to hit with a thumb, and pushed clear of the notes field above.
-          className="-my-1 px-2 py-1 text-xs text-gray-400 hover:text-red-600"
-        >
-          Remove
-        </button>
-      </div>
-
-      {baseline && (
-        // The condition, which is the comparison, and anything else only where this
-        // row no longer says the same, each named, so "no serial" says the serial is new.
-        <p className="px-1.5 text-xs text-gray-500 sm:col-span-12">
-          {/* An addendum's line is marked as the reference panel marks it. */}
-          {baseline.update ? 'At check-in, updated:' : 'At check-in:'}{' '}
-          {[
-            baseline.condition,
-            differs(baseline.name, item.name) ? `name: ${baseline.name}` : null,
-            baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
-            differs(baseline.identifier, item.identifier) ? quoted('serial', baseline.identifier) : null,
-            differs(baseline.meterReading, item.meterReading) ? quoted('reading', baseline.meterReading) : null,
-            differs(baseline.notes, item.notes) ? quoted('notes', baseline.notes) : null,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
       )}
     </div>
   )
@@ -202,6 +329,47 @@ export function ReviewEditor({
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
   const [pending, startTransition] = useTransition()
   const [confirmEmpty, setConfirmEmpty] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
+  const [showUnchanged, setShowUnchanged] = useState(false)
+
+  const baselineOf = (item: EditableItem) => checkIn?.lines.find((line) => line.key === item.baselineKey)
+  // On a check-out most lines are as they were, so those fold away and what the
+  // inspector has to look at comes first. Decided once, as the page opened: a line
+  // edited now stays where the inspector found it rather than jumping out from under
+  // their thumb, and says it has changed.
+  const [unchangedAtOpen] = useState(
+    () =>
+      new Set(
+        items
+          .filter((item) => {
+            const baseline = baselineOf(item)
+            return baseline && !changedSince(item, baseline)
+          })
+          .map((item) => item.id),
+      ),
+  )
+  const unchanged = items.filter((item) => unchangedAtOpen.has(item.id))
+  const listed = items.filter((item) => !unchangedAtOpen.has(item.id))
+  const changedCount = checkIn
+    ? items.filter((item) => {
+        const baseline = baselineOf(item)
+        return !baseline || changedSince(item, baseline)
+      }).length
+    : 0
+
+  const row = (item: EditableItem) => (
+    <ItemRow
+      key={item.id}
+      item={item}
+      baseline={baselineOf(item)}
+      onCheckOut={checkIn !== null}
+      inspectionId={inspectionId}
+      captures={captures}
+      open={openId === item.id}
+      onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+      onShowEvidence={showEvidence}
+    />
+  )
 
   const review = (options?: { nothingToRecord: boolean }) =>
     startTransition(async () => {
@@ -276,19 +444,29 @@ export function ReviewEditor({
             <h2 className="text-sm font-medium">{roomName}</h2>
             <p className="text-xs text-gray-500">
               {items.length} {items.length === 1 ? 'item' : 'items'}
+              {checkIn && (changedCount === 0 ? ' · none changed since check-in' : ` · ${changedCount} changed since check-in`)}
             </p>
           </div>
         </div>
 
-        {items.map((item) => (
-          <ItemRow
-            key={item.id}
-            item={item}
-            baseline={checkIn?.lines.find((line) => line.key === item.baselineKey)}
-            inspectionId={inspectionId}
-            onShowEvidence={showEvidence}
-          />
-        ))}
+        {listed.map(row)}
+
+        {unchanged.length > 0 && (
+          <>
+            <button
+              type="button"
+              aria-expanded={showUnchanged}
+              onClick={() => setShowUnchanged(!showUnchanged)}
+              className="flex w-full items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-3 text-left text-sm text-gray-600 hover:bg-gray-100"
+            >
+              <span>
+                {unchanged.length} {unchanged.length === 1 ? 'line' : 'lines'} as at check-in
+              </span>
+              <span className="text-xs font-medium text-brand-600">{showUnchanged ? 'Hide' : 'Show'}</span>
+            </button>
+            {showUnchanged && unchanged.map(row)}
+          </>
+        )}
 
         {items.length === 0 && (
           <p className="border-t border-gray-100 px-4 py-8 text-center text-sm text-gray-500">
@@ -301,13 +479,25 @@ export function ReviewEditor({
           <button
             type="button"
             disabled={pending}
-            onClick={() => startTransition(() => void addItem(roomId, inspectionId))}
+            onClick={() =>
+              startTransition(async () => {
+                // Opened, since the first thing to do with a new line is name it.
+                setOpenId(await addItem(roomId, inspectionId))
+              })
+            }
             className="text-sm font-medium text-brand-600 hover:underline disabled:opacity-50"
           >
             + Add an item
           </button>
         </div>
       </div>
+
+      {unchanged.length > 0 && (
+        <p className="text-right text-sm text-gray-600">
+          Marking the room reviewed records the {unchanged.length} folded{' '}
+          {unchanged.length === 1 ? 'line' : 'lines'} as you found them at check-in.
+        </p>
+      )}
 
       {items.length === 0 && (
         <p className="text-right text-sm text-gray-600">

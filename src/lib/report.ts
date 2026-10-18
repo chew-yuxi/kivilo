@@ -21,7 +21,7 @@ export const reportInclude = {
     // The frozen check-in reference only `check-in-reference.ts` reads.
     omit: { baseline: true },
     include: {
-      items: { orderBy: { createdAt: 'asc' } },
+      items: { orderBy: { createdAt: 'asc' }, include: { evidence: { select: { captureId: true } } } },
       captures: { where: { kind: 'PHOTO', processedAt: { not: null } }, orderBy: { createdAt: 'asc' } },
     },
   },

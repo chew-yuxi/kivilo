@@ -32,16 +32,16 @@ export async function ReportDocument({
 
   // Signed URLs are minted per render, so a link shared today still resolves next month
   // without the storage objects ever being public.
-  const photosByRoom = new Map<
-    string,
-    { id: string; url: string; note: string | null; annotations: StoredAnnotations | null }[]
-  >()
-  for (const room of inspection.rooms) {
+  // Numbered as the PDF numbers them, room then photo, so "photo 3.2" means the same
+  // picture on the page, on paper and in a conversation about either.
+  const photosByRoom = new Map<string, EvidencePhoto[]>()
+  for (const [roomIndex, room] of inspection.rooms.entries()) {
     photosByRoom.set(
       room.id,
       await Promise.all(
-        room.captures.map(async (capture) => ({
+        room.captures.map(async (capture, index) => ({
           id: capture.id,
+          ref: `${roomIndex + 1}.${index + 1}`,
           url: await createDownloadUrl(capture.storagePath, 60 * 60 * 24),
           note: capture.note,
           annotations: toAnnotations(capture.annotations),
@@ -78,7 +78,7 @@ export async function ReportDocument({
     <article className="mx-auto max-w-3xl bg-white p-5 sm:p-10 print:p-0">
       <header className="border-b border-gray-300 pb-6">
         {branding && tenancy.agent && (
-          <div className="mb-6 flex items-start justify-between gap-6 border-b border-gray-200 pb-5">
+          <div className="mb-6 flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
             <div className="flex min-w-0 items-center gap-3">
               {logoUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -91,7 +91,7 @@ export async function ReportDocument({
                 )}
               </div>
             </div>
-            <div className="shrink-0 text-right text-xs leading-relaxed text-gray-600">
+            <div className="min-w-0 break-words text-xs leading-relaxed text-gray-600 sm:shrink-0 sm:text-right">
               <p className="font-medium text-gray-900">{tenancy.agent.name}</p>
               {branding.ceaRegistration && <p>CEA registration {branding.ceaRegistration}</p>}
               {branding.phone && <p>{branding.phone}</p>}
@@ -184,6 +184,11 @@ export async function ReportDocument({
                             {item.identifier}
                           </span>
                         )}
+                        <PhotoRefs
+                          photos={photos.filter((photo) =>
+                            item.evidence.some(({ captureId }) => captureId === photo.id),
+                          )}
+                        />
                       </td>
                       <td className="w-24 py-2 pr-3 align-top text-xs uppercase tracking-wide text-gray-600">
                         {item.condition}
@@ -354,13 +359,39 @@ export async function ReportDocument({
   )
 }
 
+type EvidencePhoto = {
+  id: string
+  ref: string
+  url: string
+  note: string | null
+  annotations: StoredAnnotations | null
+}
+
+/// The photos the inspector said show a line, as links down to each.
+function PhotoRefs({ photos }: { photos: EvidencePhoto[] }) {
+  if (photos.length === 0) return null
+  return (
+    <span className="mt-0.5 block text-xs text-gray-500">
+      {photos.length === 1 ? 'Photo ' : 'Photos '}
+      {photos.map((photo, index) => (
+        <span key={photo.id}>
+          {index > 0 && ', '}
+          <a href={`#photo-${photo.ref.replace('.', '-')}`} className="text-brand-600 hover:underline">
+            {photo.ref}
+          </a>
+        </span>
+      ))}
+    </span>
+  )
+}
+
 /// One evidence photograph. The `relative` wrapper contains only the <img>, never the
 /// caption, so the overlay's box is exactly the picture's box.
 function ReportPhoto({
   photo,
   roomName,
 }: {
-  photo: { id: string; url: string; note: string | null; annotations: StoredAnnotations | null }
+  photo: EvidencePhoto
   roomName: string
 }) {
   const marks = photo.annotations?.marks.length ?? 0
@@ -369,12 +400,12 @@ function ReportPhoto({
   ) ?? []
   // Also the fallback when the signed URL has expired and the picture will not load:
   // the reader gets the sentence rather than marks floating over a broken image.
-  const caption = [photo.note, marks > 0 && `${marks} area${marks === 1 ? '' : 's'} marked`]
+  const caption = [photo.ref, photo.note, marks > 0 && `${marks} area${marks === 1 ? '' : 's'} marked`]
     .filter(Boolean)
     .join(' · ')
 
   return (
-    <figure className="break-inside-avoid">
+    <figure id={`photo-${photo.ref.replace('.', '-')}`} className="break-inside-avoid scroll-mt-4">
       <div className="relative overflow-hidden rounded border border-gray-200">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
