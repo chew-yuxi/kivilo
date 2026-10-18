@@ -1,7 +1,8 @@
 # Kivilo public submission request set
 
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
-Pte. Ltd. Apple build 12 and Google Play build 13 have been submitted for review.
+Pte. Ltd. The current public candidates are iOS build 24 and Android build 25.
+The older submission records below are retained as history.
 
 Android build 13 replaces the native-upload
 notification path that caused an ANR in build 12. The foreground WorkManager fix
@@ -44,13 +45,20 @@ Island medium screenshot](https://developer.apple.com/help/app-store-connect/ref
 and lists 1206×2622 as an accepted portrait size; no iPad screenshot is required
 for this iPhone-only build.
 
-iOS build `24` (`7161f53`) adds native iPad support and is on internal TestFlight.
-On 18 October, live read-back showed public version `1.0.0` selecting build `23` in
-`WAITING_FOR_REVIEW`; the build-12 details above describe the earlier submission.
-Before submitting the universal build for public review,
-add at least one actual 13-inch iPad screenshot at `2064×2752` or `2048×2732` (or the
-landscape equivalents), as required by [Apple's screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
-The widget-test previews are not store screenshots.
+On 18 October 2026, iOS build `24` (`7161f53`) replaced build `23` for public
+version `1.0.0`. Build ID `4609e2e1-a6d9-490c-980e-537401caf84a` is `VALID` and
+selected. Review submission `628f3b8a-64c9-43fe-bc57-3305e6d25aa6` was submitted at
+`2026-10-18T00:24:54.107Z`; live read-back is `WAITING_FOR_REVIEW`. The prior
+build-23 submission is canceled. Reviewer contact, login and notes are present.
+
+The native iPad build has an actual 2064×2752 screenshot at
+`mobile/store/assets/ios/ipad13-build24.png`, taken from the production-configured
+`7161f53` simulator with the synthetic Apple reviewer login. Screenshot
+`36000019-6980-8c3e-8004-39b3ae6169d6` in set `APP_IPAD_PRO_3GEN_129` has delivery
+state `COMPLETE`. The iPhone screenshot remains accepted. This satisfies the
+[universal-app screenshot sizes](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/).
+Shorebird stable patch `1` on iOS `1.0.0+24` supplies the Dart-only check-in reference
+from `86d7bbc`; native plugins, icons and configuration are unchanged by the patch.
 
 Use the existing App Store Connect JWT helper at
 `/Users/liguro/.appstoreconnect/asc_check.py` without printing its token:
@@ -68,6 +76,21 @@ and [review-submission-item](https://developer.apple.com/documentation/appstorec
 resources.
 
 ## Google Play
+
+Current read-back on 18 October 2026: production `23` is actually `PUBLISHED` after
+completing its final Console Publish action. The edits API's earlier `completed`
+status had concealed an approved-but-unpublished release. Internal `25` is
+`PUBLISHED`; production `25` is `IN_REVIEW` after edit `06562556097228654965`
+validated and committed at `2026-10-18T00:24:39.605Z`.
+
+Build `25` is signed source `ce0d8e3`, containing responsive tablet layouts, native
+PDF viewing/sharing, capture guards, renewal cards and the check-in reference.
+Build `24`'s failed edit was discarded after an unnecessary-media-permissions error.
+Build `25` explicitly removes the PDF plugin's four unused broad storage/media
+permissions; Google accepted and validated this artifact. Hashes and evidence are
+in `mobile/RELEASE.md` and `mobile/build/release-artifacts/android/build25/`.
+
+The following build-13 details describe the earlier submission.
 
 On 2026-10-12, Play Console saved the complete Kivilo default listing and showed
 **Ready to send for review**. The approved title, short/full description, one

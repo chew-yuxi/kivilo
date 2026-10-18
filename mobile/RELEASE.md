@@ -5,53 +5,111 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Current releases: 18 October 2026 Singapore time
+
+Android production build `23` is now actually published. The lifecycle API had shown
+`23` as approved but unpublished while the edits API said `completed`; Publishing
+overview's final Publish action was completed on 18 October, and the lifecycle API
+then confirmed `RELEASE_LIFECYCLE_STATE_PUBLISHED`. Stable patches `5` (Android)
+and `6` (iOS) for `1.0.0+23` remain live. Both minimum-build floors remain unchanged.
+
+The new native candidates are iOS `24` and Android `25`, described below. Neither
+candidate should be described as publicly available until its store approves and
+publishes it. Backend `86d7bbc` is already deployed in `sin1`, with the check-in
+reference migration and the earlier renewal, usage-event and upload-intent migrations
+applied. Verification at that source: typecheck, lint, production build, 90 unit tests,
+128 integration tests, 13 end-to-end tests, clean Flutter analysis and 182 mobile tests.
+
 ## iOS build 24: native iPad support
 
 On 18 October 2026 Singapore time, iOS `1.0.0+24` was built from `7161f53` in a pinned
-worktree with the production client configuration and Shorebird's Flutter `3.47.2`.
-Shorebird release `905978` is active for iOS. Apple validation and upload passed with
-no errors. App Store Connect build `4609e2e1-a6d9-490c-980e-537401caf84a` is `VALID`,
-declares `usesNonExemptEncryption: false`, and is attached only to the existing
-`Kivilo Internal` TestFlight group, with auto-notify enabled and internal state
-`IN_BETA_TESTING`.
+worktree with the production configuration and Shorebird's Flutter `3.47.2`.
+Shorebird release `905978` is active for iOS. App Store Connect build
+`4609e2e1-a6d9-490c-980e-537401caf84a` is `VALID`, declares
+`usesNonExemptEncryption: false`, and is available in the existing `Kivilo Internal`
+TestFlight group.
 
-This build supports iPhone and iPad natively (`UIDeviceFamily=1,2`). Tablet
-windows use sidebar navigation, property and room grids, and room inventory beside a
-bounded, lazy evidence grid. Capture controls sit beside a lazy media list. Forms and
-reports have readable widths, signature pads grow while retaining their original
-drawing coordinates, and narrow Split View windows retain the phone layout. Resizing
-preserves loaded data, entered details, the selected tab, capture mode and signatures.
+Public version `1.0.0` now selects build `24`. The earlier build-23 review submission
+was canceled, and submission `628f3b8a-64c9-43fe-bc57-3305e6d25aa6` was sent at
+`2026-10-18T00:24:54.107Z`; live read-back is `WAITING_FOR_REVIEW`.
+The required genuine 13-inch iPad screenshot is
+`store/assets/ios/ipad13-build24.png` (2064×2752), captured from exact source
+`7161f53` against production using the synthetic Apple reviewer account. SHA-256:
+`2258a570b6f5910b92732a1f4c6ef8e5d9c2192e477f3f1842f3cb31cd77df69`.
+Apple screenshot `36000019-6980-8c3e-8004-39b3ae6169d6` in the
+`APP_IPAD_PRO_3GEN_129` set has delivery state `COMPLETE`.
 
-Build `24` also adds native PDF viewing and sharing (`open_filex` and `share_plus`).
-The signed report card offers View PDF, Share PDF and Share link; Share PDF downloads
-the actual document and gives the share sheet a local attachment. Signed storage URLs
+This build supports iPhone and iPad natively (`UIDeviceFamily=1,2`). Tablet windows
+use sidebar navigation, property and room grids, and room inventory beside a bounded,
+lazy evidence grid. Capture controls sit beside a lazy media list. Forms and reports
+have readable widths; signature pads grow while retaining their drawing coordinates.
+Narrow Split View retains the phone layout. Resizing preserves loaded data, entered
+details, the selected tab, capture mode and signatures.
+
+Build `24` adds native PDF viewing and sharing (`open_filex` and `share_plus`). The
+signed report card offers View PDF, Share PDF and Share link; Share PDF downloads the
+actual document and gives the share sheet a local attachment. Signed storage URLs
 are never shared. The card no longer offers Revoke. These plugins and the iPad target
 require a new store binary; do not patch this source onto build `23`.
 
-Also included: Take another photo is the main capture action, Review room stays disabled
-until that room's queued uploads and changes finish, and renewal cards appear immediately
+Also included: Take another photo is the main capture action; Review room stays disabled
+until that room's queued uploads and changes finish. Renewal cards appear immediately
 three months before tenancy end, with Start renewal, Not renewing, a one-week snooze,
-and Dismiss. The server supplies room furniture rows and Pro's 10 properties per seat.
+and Dismiss. The server supplies furniture rows and Pro's 10 properties per seat.
 
-Flutter analysis is clean and all 178 mobile tests pass, including 18 tablet regressions
-for resizing, larger text, keyboard handling, signature PNG coordinates, queue guards
-and lazy loading of 100-photo rooms. The iOS simulator build compiles. The store IPA
-passes strict code-sign verification: Apple Distribution for team `4N9TA3WSYM`,
-`aps-environment=production`, `get-task-allow=false`, and all four iPad orientations.
-Physical iPad use and on-device PDF sharing still need testing through TestFlight.
+The original binary's analysis and 178 tests passed, including 18 tablet regressions.
+The simulator build compiles. The IPA passes strict code-sign verification: Apple
+Distribution for team `4N9TA3WSYM`, `aps-environment=production`,
+`get-task-allow=false`, and all four iPad orientations. Physical iPad use and the full
+signed-report sharing flow on a physical device remain unverified.
+
+A separate native-plugin harness also passed one XCUITest on an iPad Pro 13-inch
+simulator: `OpenFilex` returned success and QuickLook displayed a synthetic local PDF;
+`share_plus` opened an anchored PDF popover with its 691-byte attachment and a separate
+link popover. Both were dismissed without sending. This tests real native plugin
+mechanics, not the signed-report backend flow. Local evidence is
+`/private/tmp/kivilo-native-plugins-qa-4.xcresult` and
+`/private/tmp/kivilo-native-plugin-evidence/`.
 
 The IPA is `build/release-artifacts/ios/build24/kivilo.ipa`, SHA-256
 `ae9a28ca5646273b003c6939e9539ed9f330e1d83d07814d2d80a2ae69f59ca9`; matching dSYMs
-and upload evidence are archived beside it. Android build `24` has not been released.
-The existing build-23 stable patches and both minimum-build floors are unchanged.
-Public version `1.0.0` still selects build `23` in `WAITING_FOR_REVIEW`; build `24`
-is internal only. A future public submission of this universal build needs a 13-inch
-iPad screenshot.
+and upload evidence are archived beside it.
 
-Backend verification at `85a17e4`: typecheck, lint, production build, 89 unit tests,
-120 integration tests, and 13 end-to-end tests against the production bundle. A corrupted
-`.next/dev` route cache was removed before that production build; browser verification
-used `next start`.
+### iOS 24 stable patch 1: check-in reference
+
+Patch `1` (ID `727778`) for iOS `1.0.0+24` was built from `86d7bbc` and promoted to
+stable on 18 October. Check-out rooms now show their frozen At check-in reference,
+including item baseline keys and acknowledged update labels. All 182 Flutter tests
+and analysis pass. This is Dart only; native/configuration compatibility checks passed
+without overrides, and the icon check printed nothing. The patch artifact's VM-code
+SHA-256 is `600b85857e3050387f0c197d7d02b2892161d611655fbabd011c72c80a66b7a3`.
+The binary without the patch remains compatible with the additive server response.
+
+## Android build 25: native sharing and tablets
+
+Android `1.0.0+25` was built from `ce0d8e3` in a clean pinned worktree with the
+production configuration and Shorebird Flutter `3.47.2`, using `--build-number=25`.
+The source pubspec remains at `1.0.0+24`; preserve the actual CLI build number when
+patching. Shorebird release `906190` is active for Android.
+
+This contains the iPad-era responsive layouts, native sharing, capture/renewal changes
+and check-in reference from `86d7bbc`. Build `24` was uploaded but its Play edit failed
+validation: `open_filex` had merged unused broad storage/media permissions. That edit
+(`01665508438676412502`) was discarded. Commit `ce0d8e3` removes
+`READ_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` and
+`READ_MEDIA_AUDIO` from the merged manifest; Kivilo uses its own cached PDF and the
+system photo picker. Version `25` avoids reusing the uploaded build/release number.
+
+The signed build-25 merged manifest confirms none of those four permissions, package
+`one.kivilo.kivilo`, target SDK 36 and the expected upload certificate. All three ABIs
+are present. Flutter analysis and all 182 tests pass. AAB:
+`build/release-artifacts/android/build25/kivilo-v25.aab`, SHA-256
+`45fbc047bf3bef6754c4cd993a18284ded49c774f8f7973b330f94a0b66e9fe5`.
+
+Play edit `06562556097228654965` validated and committed at
+`2026-10-18T00:24:39.605Z`. Google accepted the matching artifact hash. The lifecycle
+API confirms internal build `25` is `PUBLISHED`, production `25` is `IN_REVIEW`, and
+production `23` remains `PUBLISHED`.
 
 ## Build 23
 
@@ -900,6 +958,18 @@ Android phone running signed builds `2`, `4`, and `5`. On 2026-10-12 Singapore t
 the user confirmed a native background notification on the physical TestFlight iPhone;
 tapping it opened Kivilo's Notifications screen. The development APNs slot is
 intentionally unconfigured.
+
+On 18 October, a production outbox audit found four exhausted `RENEWAL_DUE`
+deliveries reporting `Invalid APNs credential.` They belong to two older iOS
+installations on store-reviewer accounts (created 10/11 October), with no recorded
+successful deliveries, and predate build 24. They do not establish a failure on the
+current TestFlight build. The registry stores no build or APNs environment, so debug
+sandbox tokens cannot be distinguished retrospectively. Firebase's signed-in Console
+still shows production key `JK75WN48PB`, team `4N9TA3WSYM`, and no development key.
+Apple Developer requires a fresh sign-in to inspect its key status. No keys, retry
+rows or installations were changed. Physical distribution-device push verification
+remains open. An attempt to diagnose using cached Firebase CLI refresh credentials
+was rejected by automatic approval review; that credential path was not retried.
 
 The checked-in iOS and Android client files match project `kivilo-b4e14` and the
 Kivilo bundle/package ID. The iOS plist is part of the Runner target, and the Android

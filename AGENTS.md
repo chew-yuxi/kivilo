@@ -431,6 +431,8 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   statement" even though `prisma generate` has run.
 - Prisma 7 rejects a nested `select` inside an `include` (`rooms: { include: { items:
   { select: … } } }`). Use `_count`, or include the relation whole.
+- Keep Prisma's `omit` on each query that needs it. Setting it on the shared client
+  changes inferred payload types throughout the app and breaks unrelated queries.
 - `prisma migrate reset` has no `--skip-seed` flag in Prisma 7. Passing it silently
   prints help instead of running. It also refuses to run for an agent without
   `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION`; ask the user rather than routing around it.
