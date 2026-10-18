@@ -237,6 +237,19 @@ report has a Download PDF, and to `/inspections/[id]` for the agent, both behind
 The link's origin is `KIVILO_APP_URL`. Pinned by `src/lib/email-signing.integration.test.ts` and
 `e2e/sign-by-email.spec.ts`.
 
+## Checking a report
+
+`/verify` lets anyone holding a report PDF check it is one Kivilo issued, byte for byte.
+The browser hashes the file and posts only the SHA-256 to `POST /api/verify`; the file
+never leaves the device. `storedReportPdf` records every file it stores in
+`IssuedReportFile` before uploading it, and records a stored copy from before the table
+the next time it serves it. Rows outlive the file (a new render replaces it, revoking a
+link deletes it), because a genuine copy stays genuine; a later row only adds "a newer
+copy exists". A match shows what the file already says (property, signers, times, the
+fingerprints), and an unknown hash is one answer whatever the reason
+(`src/lib/report-verification.ts`). Like `/support`, it is public and outside `(app)` and
+the proxy matcher.
+
 ## Updating a signed report
 
 A countersigned check-in still changes: a dishwasher is replaced, a fixture removed. That

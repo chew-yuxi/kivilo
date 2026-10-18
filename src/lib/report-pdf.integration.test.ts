@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import sharp from 'sharp'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
@@ -16,6 +16,7 @@ import { CAPTURE_BUCKET, serviceClient, uploadBytes } from '@/lib/storage'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { reportPdfUrl } from '@/lib/report-pdf/render'
 import { pdfPageTexts } from '@/lib/report-pdf/pdf-text'
+import { verifyReportFile } from '@/lib/report-verification'
 
 const POSTAL = '991577'
 const written: string[] = []
@@ -65,7 +66,7 @@ async function signedReport(status: 'COMPLETED' | 'AWAITING_SIGNATURE' = 'COMPLE
       editedByHuman: true, evidence: { create: [{ captureId: captures[1].id }] },
     },
   })
-  return { agent, inspection }
+  return { agent, landlord, inspection }
 }
 
 async function storedReports(inspectionId: string) {
@@ -127,5 +128,39 @@ describe('report PDF', () => {
 
     await revokeReportLink(inspection.id)
     expect(await storedReports(inspection.id)).toEqual([])
+  })
+
+  it('lets anyone holding a copy check it was issued unaltered, without the file leaving them', async () => {
+    const { landlord, inspection } = await signedReport()
+    const ink = await sharp({ create: { width: 200, height: 80, channels: 4, background: '#ffffff' } }).png().toBuffer()
+    await db.signature.create({
+      data: {
+        inspectionId: inspection.id, stakeholderId: landlord.id, contentHash: 'ab'.repeat(32),
+        imageData: `data:image/png;base64,${ink.toString('base64')}`,
+      },
+    })
+    const pdf = await fetchPdf((await reportPdfUrl(inspection.id))!)
+    const sha256 = createHash('sha256').update(pdf).digest('hex')
+
+    expect(await verifyReportFile(sha256)).toMatchObject({
+      kind: 'Check-in report',
+      property: expect.stringContaining('27 Jalan Merah Saga'),
+      newerCopyIssuedAt: null,
+      signatures: [{ role: 'Landlord', name: 'PDF landlord', fingerprint: 'ABAB ABAB ABAB ABAB' }],
+    })
+    // One byte different is a different file, and says nothing about any report.
+    const altered = createHash('sha256').update(Buffer.concat([pdf, Buffer.from(' ')])).digest('hex')
+    expect(await verifyReportFile(altered)).toBeNull()
+
+    // A copy stored before files were recorded is recorded the next time it is served.
+    await db.issuedReportFile.deleteMany({ where: { inspectionId: inspection.id } })
+    await reportPdfUrl(inspection.id)
+    expect(await verifyReportFile(sha256)).not.toBeNull()
+
+    // A later copy leaves this one genuine, and says a newer one exists.
+    await db.issuedReportFile.create({
+      data: { sha256: 'cd'.repeat(32), inspectionId: inspection.id, storagePath: 'later.pdf', issuedAt: new Date(Date.now() + 60_000) },
+    })
+    expect((await verifyReportFile(sha256))?.newerCopyIssuedAt).not.toBeNull()
   })
 })

@@ -1,5 +1,7 @@
+import { createHash } from 'node:crypto'
 import { renderToBuffer } from '@react-pdf/renderer'
 import sharp from 'sharp'
+import { db } from '@/lib/db'
 import { captureExists, createDownloadUrl, downloadCapture, removePrefix, uploadBytes } from '@/lib/storage'
 import { ReportDocument, type Bitmap, type ReportAssets } from './document'
 import { buildReportModel, loadReportRow, reportFilename, reportHash, reportPrefix, type ReportModel } from './model'
@@ -34,10 +36,26 @@ export async function storedReportPdf(inspectionId: string) {
 
   if (!(await captureExists(path))) {
     const pdf = await renderToBuffer(<ReportDocument model={model} assets={await fetchAssets(model)} />)
+    await recordIssued(inspectionId, path, pdf)
     await uploadBytes(path, pdf, 'application/pdf')
     await removePrefix(reportPrefix(inspectionId), { keep: path })
+  } else if (!(await db.issuedReportFile.findFirst({ where: { storagePath: path }, select: { sha256: true } }))) {
+    // Stored before files were recorded. Read once, so that copy can be checked too.
+    await recordIssued(inspectionId, path, await downloadCapture(path))
   }
   return { path, filename: reportFilename(model) }
+}
+
+/// Recorded before the file is stored, so no copy can be handed out that a check would
+/// call unknown. Two renders racing for one path each record their own bytes; both were
+/// genuinely issued.
+async function recordIssued(inspectionId: string, storagePath: string, pdf: Uint8Array) {
+  const sha256 = createHash('sha256').update(pdf).digest('hex')
+  await db.issuedReportFile.upsert({
+    where: { sha256 },
+    create: { sha256, inspectionId, storagePath },
+    update: {},
+  })
 }
 
 async function fetchAssets(model: ReportModel): Promise<ReportAssets> {

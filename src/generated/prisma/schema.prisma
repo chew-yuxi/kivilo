@@ -251,6 +251,7 @@ model Inspection {
   findings          Finding[]
   signatures        Signature[]
   assessments       AssessmentVersion[]
+  issuedReportFiles IssuedReportFile[]
   reportEmails      ReportEmail[]
   addenda           ReportAddendum[]
   moveInDefectCases MaintenanceCase[]   @relation("MoveInDefectInspection")
@@ -1112,4 +1113,21 @@ model ProductEvent {
   @@index([createdAt])
   @@index([name, createdAt])
   @@index([stakeholderId, createdAt])
+}
+
+/// Every report PDF Kivilo has handed out, by the SHA-256 of its exact bytes, so anyone
+/// holding a copy can check it is one we issued and has not been altered since
+/// (`src/lib/report-verification.ts`). Rows outlive the stored file, which is replaced
+/// whenever the report changes and deleted when its link is revoked: a genuine copy
+/// stays genuine.
+model IssuedReportFile {
+  sha256       String   @id
+  inspectionId String
+  storagePath  String
+  issuedAt     DateTime @default(now())
+
+  inspection Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([inspectionId, issuedAt])
+  @@index([storagePath])
 }

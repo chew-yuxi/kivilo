@@ -353,6 +353,12 @@ export async function ReportDocument({
         photographs are retained as the underlying evidence. Where a photograph carries
         marks, the inspector drew them to point out a detail; they are recorded
         separately and nothing has been painted onto the photograph itself.
+        {pdfHref && (
+          <span className="mt-2 block">
+            Anyone can check a downloaded PDF of this report is genuine and unaltered at{' '}
+            <a href="/verify" className="underline">the Kivilo report check</a>.
+          </span>
+        )}
         {branding && <span className="mt-2 block">Prepared with Kivilo.</span>}
       </footer>
     </article>

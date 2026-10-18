@@ -223,6 +223,15 @@ export type ErrorEvent = $Result.DefaultSelection<Prisma.$ErrorEventPayload>
  * No addresses, report tokens, free text or IPs. Kept for 90 days.
  */
 export type ProductEvent = $Result.DefaultSelection<Prisma.$ProductEventPayload>
+/**
+ * Model IssuedReportFile
+ * Every report PDF Kivilo has handed out, by the SHA-256 of its exact bytes, so anyone
+ * holding a copy can check it is one we issued and has not been altered since
+ * (`src/lib/report-verification.ts`). Rows outlive the stored file, which is replaced
+ * whenever the report changes and deleted when its link is revoked: a genuine copy
+ * stays genuine.
+ */
+export type IssuedReportFile = $Result.DefaultSelection<Prisma.$IssuedReportFilePayload>
 
 /**
  * Enums
@@ -1147,6 +1156,16 @@ export class PrismaClient<
     * ```
     */
   get productEvent(): Prisma.ProductEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.issuedReportFile`: Exposes CRUD operations for the **IssuedReportFile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more IssuedReportFiles
+    * const issuedReportFiles = await prisma.issuedReportFile.findMany()
+    * ```
+    */
+  get issuedReportFile(): Prisma.IssuedReportFileDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1628,7 +1647,8 @@ export namespace Prisma {
     AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
     StoragePurge: 'StoragePurge',
     ErrorEvent: 'ErrorEvent',
-    ProductEvent: 'ProductEvent'
+    ProductEvent: 'ProductEvent',
+    IssuedReportFile: 'IssuedReportFile'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1644,7 +1664,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent"
+      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4238,6 +4258,80 @@ export namespace Prisma {
           }
         }
       }
+      IssuedReportFile: {
+        payload: Prisma.$IssuedReportFilePayload<ExtArgs>
+        fields: Prisma.IssuedReportFileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.IssuedReportFileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.IssuedReportFileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>
+          }
+          findFirst: {
+            args: Prisma.IssuedReportFileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.IssuedReportFileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>
+          }
+          findMany: {
+            args: Prisma.IssuedReportFileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>[]
+          }
+          create: {
+            args: Prisma.IssuedReportFileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>
+          }
+          createMany: {
+            args: Prisma.IssuedReportFileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.IssuedReportFileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>[]
+          }
+          delete: {
+            args: Prisma.IssuedReportFileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>
+          }
+          update: {
+            args: Prisma.IssuedReportFileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>
+          }
+          deleteMany: {
+            args: Prisma.IssuedReportFileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.IssuedReportFileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.IssuedReportFileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>[]
+          }
+          upsert: {
+            args: Prisma.IssuedReportFileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IssuedReportFilePayload>
+          }
+          aggregate: {
+            args: Prisma.IssuedReportFileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateIssuedReportFile>
+          }
+          groupBy: {
+            args: Prisma.IssuedReportFileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<IssuedReportFileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.IssuedReportFileCountArgs<ExtArgs>
+            result: $Utils.Optional<IssuedReportFileCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4396,6 +4490,7 @@ export namespace Prisma {
     storagePurge?: StoragePurgeOmit
     errorEvent?: ErrorEventOmit
     productEvent?: ProductEventOmit
+    issuedReportFile?: IssuedReportFileOmit
   }
 
   /* Types for Logging */
@@ -4811,6 +4906,7 @@ export namespace Prisma {
     findings: number
     signatures: number
     assessments: number
+    issuedReportFiles: number
     reportEmails: number
     addenda: number
     moveInDefectCases: number
@@ -4821,6 +4917,7 @@ export namespace Prisma {
     findings?: boolean | InspectionCountOutputTypeCountFindingsArgs
     signatures?: boolean | InspectionCountOutputTypeCountSignaturesArgs
     assessments?: boolean | InspectionCountOutputTypeCountAssessmentsArgs
+    issuedReportFiles?: boolean | InspectionCountOutputTypeCountIssuedReportFilesArgs
     reportEmails?: boolean | InspectionCountOutputTypeCountReportEmailsArgs
     addenda?: boolean | InspectionCountOutputTypeCountAddendaArgs
     moveInDefectCases?: boolean | InspectionCountOutputTypeCountMoveInDefectCasesArgs
@@ -4863,6 +4960,13 @@ export namespace Prisma {
    */
   export type InspectionCountOutputTypeCountAssessmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssessmentVersionWhereInput
+  }
+
+  /**
+   * InspectionCountOutputType without action
+   */
+  export type InspectionCountOutputTypeCountIssuedReportFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: IssuedReportFileWhereInput
   }
 
   /**
@@ -13479,6 +13583,7 @@ export namespace Prisma {
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
+    issuedReportFiles?: boolean | Inspection$issuedReportFilesArgs<ExtArgs>
     reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
     addenda?: boolean | Inspection$addendaArgs<ExtArgs>
     moveInDefectCases?: boolean | Inspection$moveInDefectCasesArgs<ExtArgs>
@@ -13558,6 +13663,7 @@ export namespace Prisma {
     findings?: boolean | Inspection$findingsArgs<ExtArgs>
     signatures?: boolean | Inspection$signaturesArgs<ExtArgs>
     assessments?: boolean | Inspection$assessmentsArgs<ExtArgs>
+    issuedReportFiles?: boolean | Inspection$issuedReportFilesArgs<ExtArgs>
     reportEmails?: boolean | Inspection$reportEmailsArgs<ExtArgs>
     addenda?: boolean | Inspection$addendaArgs<ExtArgs>
     moveInDefectCases?: boolean | Inspection$moveInDefectCasesArgs<ExtArgs>
@@ -13585,6 +13691,7 @@ export namespace Prisma {
       findings: Prisma.$FindingPayload<ExtArgs>[]
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
       assessments: Prisma.$AssessmentVersionPayload<ExtArgs>[]
+      issuedReportFiles: Prisma.$IssuedReportFilePayload<ExtArgs>[]
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
       addenda: Prisma.$ReportAddendumPayload<ExtArgs>[]
       moveInDefectCases: Prisma.$MaintenanceCasePayload<ExtArgs>[]
@@ -14023,6 +14130,7 @@ export namespace Prisma {
     findings<T extends Inspection$findingsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$findingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatures<T extends Inspection$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assessments<T extends Inspection$assessmentsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    issuedReportFiles<T extends Inspection$issuedReportFilesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$issuedReportFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reportEmails<T extends Inspection$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addenda<T extends Inspection$addendaArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$addendaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     moveInDefectCases<T extends Inspection$moveInDefectCasesArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$moveInDefectCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -14622,6 +14730,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AssessmentVersionScalarFieldEnum | AssessmentVersionScalarFieldEnum[]
+  }
+
+  /**
+   * Inspection.issuedReportFiles
+   */
+  export type Inspection$issuedReportFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    where?: IssuedReportFileWhereInput
+    orderBy?: IssuedReportFileOrderByWithRelationInput | IssuedReportFileOrderByWithRelationInput[]
+    cursor?: IssuedReportFileWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: IssuedReportFileScalarFieldEnum | IssuedReportFileScalarFieldEnum[]
   }
 
   /**
@@ -48247,6 +48379,1056 @@ export namespace Prisma {
 
 
   /**
+   * Model IssuedReportFile
+   */
+
+  export type AggregateIssuedReportFile = {
+    _count: IssuedReportFileCountAggregateOutputType | null
+    _min: IssuedReportFileMinAggregateOutputType | null
+    _max: IssuedReportFileMaxAggregateOutputType | null
+  }
+
+  export type IssuedReportFileMinAggregateOutputType = {
+    sha256: string | null
+    inspectionId: string | null
+    storagePath: string | null
+    issuedAt: Date | null
+  }
+
+  export type IssuedReportFileMaxAggregateOutputType = {
+    sha256: string | null
+    inspectionId: string | null
+    storagePath: string | null
+    issuedAt: Date | null
+  }
+
+  export type IssuedReportFileCountAggregateOutputType = {
+    sha256: number
+    inspectionId: number
+    storagePath: number
+    issuedAt: number
+    _all: number
+  }
+
+
+  export type IssuedReportFileMinAggregateInputType = {
+    sha256?: true
+    inspectionId?: true
+    storagePath?: true
+    issuedAt?: true
+  }
+
+  export type IssuedReportFileMaxAggregateInputType = {
+    sha256?: true
+    inspectionId?: true
+    storagePath?: true
+    issuedAt?: true
+  }
+
+  export type IssuedReportFileCountAggregateInputType = {
+    sha256?: true
+    inspectionId?: true
+    storagePath?: true
+    issuedAt?: true
+    _all?: true
+  }
+
+  export type IssuedReportFileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which IssuedReportFile to aggregate.
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IssuedReportFiles to fetch.
+     */
+    orderBy?: IssuedReportFileOrderByWithRelationInput | IssuedReportFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: IssuedReportFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IssuedReportFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IssuedReportFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned IssuedReportFiles
+    **/
+    _count?: true | IssuedReportFileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: IssuedReportFileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: IssuedReportFileMaxAggregateInputType
+  }
+
+  export type GetIssuedReportFileAggregateType<T extends IssuedReportFileAggregateArgs> = {
+        [P in keyof T & keyof AggregateIssuedReportFile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateIssuedReportFile[P]>
+      : GetScalarType<T[P], AggregateIssuedReportFile[P]>
+  }
+
+
+
+
+  export type IssuedReportFileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: IssuedReportFileWhereInput
+    orderBy?: IssuedReportFileOrderByWithAggregationInput | IssuedReportFileOrderByWithAggregationInput[]
+    by: IssuedReportFileScalarFieldEnum[] | IssuedReportFileScalarFieldEnum
+    having?: IssuedReportFileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: IssuedReportFileCountAggregateInputType | true
+    _min?: IssuedReportFileMinAggregateInputType
+    _max?: IssuedReportFileMaxAggregateInputType
+  }
+
+  export type IssuedReportFileGroupByOutputType = {
+    sha256: string
+    inspectionId: string
+    storagePath: string
+    issuedAt: Date
+    _count: IssuedReportFileCountAggregateOutputType | null
+    _min: IssuedReportFileMinAggregateOutputType | null
+    _max: IssuedReportFileMaxAggregateOutputType | null
+  }
+
+  type GetIssuedReportFileGroupByPayload<T extends IssuedReportFileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<IssuedReportFileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof IssuedReportFileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], IssuedReportFileGroupByOutputType[P]>
+            : GetScalarType<T[P], IssuedReportFileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type IssuedReportFileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sha256?: boolean
+    inspectionId?: boolean
+    storagePath?: boolean
+    issuedAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["issuedReportFile"]>
+
+  export type IssuedReportFileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sha256?: boolean
+    inspectionId?: boolean
+    storagePath?: boolean
+    issuedAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["issuedReportFile"]>
+
+  export type IssuedReportFileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sha256?: boolean
+    inspectionId?: boolean
+    storagePath?: boolean
+    issuedAt?: boolean
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["issuedReportFile"]>
+
+  export type IssuedReportFileSelectScalar = {
+    sha256?: boolean
+    inspectionId?: boolean
+    storagePath?: boolean
+    issuedAt?: boolean
+  }
+
+  export type IssuedReportFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"sha256" | "inspectionId" | "storagePath" | "issuedAt", ExtArgs["result"]["issuedReportFile"]>
+  export type IssuedReportFileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }
+  export type IssuedReportFileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }
+  export type IssuedReportFileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+  }
+
+  export type $IssuedReportFilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "IssuedReportFile"
+    objects: {
+      inspection: Prisma.$InspectionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      sha256: string
+      inspectionId: string
+      storagePath: string
+      issuedAt: Date
+    }, ExtArgs["result"]["issuedReportFile"]>
+    composites: {}
+  }
+
+  type IssuedReportFileGetPayload<S extends boolean | null | undefined | IssuedReportFileDefaultArgs> = $Result.GetResult<Prisma.$IssuedReportFilePayload, S>
+
+  type IssuedReportFileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<IssuedReportFileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: IssuedReportFileCountAggregateInputType | true
+    }
+
+  export interface IssuedReportFileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['IssuedReportFile'], meta: { name: 'IssuedReportFile' } }
+    /**
+     * Find zero or one IssuedReportFile that matches the filter.
+     * @param {IssuedReportFileFindUniqueArgs} args - Arguments to find a IssuedReportFile
+     * @example
+     * // Get one IssuedReportFile
+     * const issuedReportFile = await prisma.issuedReportFile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends IssuedReportFileFindUniqueArgs>(args: SelectSubset<T, IssuedReportFileFindUniqueArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one IssuedReportFile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {IssuedReportFileFindUniqueOrThrowArgs} args - Arguments to find a IssuedReportFile
+     * @example
+     * // Get one IssuedReportFile
+     * const issuedReportFile = await prisma.issuedReportFile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends IssuedReportFileFindUniqueOrThrowArgs>(args: SelectSubset<T, IssuedReportFileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first IssuedReportFile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileFindFirstArgs} args - Arguments to find a IssuedReportFile
+     * @example
+     * // Get one IssuedReportFile
+     * const issuedReportFile = await prisma.issuedReportFile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends IssuedReportFileFindFirstArgs>(args?: SelectSubset<T, IssuedReportFileFindFirstArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first IssuedReportFile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileFindFirstOrThrowArgs} args - Arguments to find a IssuedReportFile
+     * @example
+     * // Get one IssuedReportFile
+     * const issuedReportFile = await prisma.issuedReportFile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends IssuedReportFileFindFirstOrThrowArgs>(args?: SelectSubset<T, IssuedReportFileFindFirstOrThrowArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more IssuedReportFiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all IssuedReportFiles
+     * const issuedReportFiles = await prisma.issuedReportFile.findMany()
+     * 
+     * // Get first 10 IssuedReportFiles
+     * const issuedReportFiles = await prisma.issuedReportFile.findMany({ take: 10 })
+     * 
+     * // Only select the `sha256`
+     * const issuedReportFileWithSha256Only = await prisma.issuedReportFile.findMany({ select: { sha256: true } })
+     * 
+     */
+    findMany<T extends IssuedReportFileFindManyArgs>(args?: SelectSubset<T, IssuedReportFileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a IssuedReportFile.
+     * @param {IssuedReportFileCreateArgs} args - Arguments to create a IssuedReportFile.
+     * @example
+     * // Create one IssuedReportFile
+     * const IssuedReportFile = await prisma.issuedReportFile.create({
+     *   data: {
+     *     // ... data to create a IssuedReportFile
+     *   }
+     * })
+     * 
+     */
+    create<T extends IssuedReportFileCreateArgs>(args: SelectSubset<T, IssuedReportFileCreateArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many IssuedReportFiles.
+     * @param {IssuedReportFileCreateManyArgs} args - Arguments to create many IssuedReportFiles.
+     * @example
+     * // Create many IssuedReportFiles
+     * const issuedReportFile = await prisma.issuedReportFile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends IssuedReportFileCreateManyArgs>(args?: SelectSubset<T, IssuedReportFileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many IssuedReportFiles and returns the data saved in the database.
+     * @param {IssuedReportFileCreateManyAndReturnArgs} args - Arguments to create many IssuedReportFiles.
+     * @example
+     * // Create many IssuedReportFiles
+     * const issuedReportFile = await prisma.issuedReportFile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many IssuedReportFiles and only return the `sha256`
+     * const issuedReportFileWithSha256Only = await prisma.issuedReportFile.createManyAndReturn({
+     *   select: { sha256: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends IssuedReportFileCreateManyAndReturnArgs>(args?: SelectSubset<T, IssuedReportFileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a IssuedReportFile.
+     * @param {IssuedReportFileDeleteArgs} args - Arguments to delete one IssuedReportFile.
+     * @example
+     * // Delete one IssuedReportFile
+     * const IssuedReportFile = await prisma.issuedReportFile.delete({
+     *   where: {
+     *     // ... filter to delete one IssuedReportFile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends IssuedReportFileDeleteArgs>(args: SelectSubset<T, IssuedReportFileDeleteArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one IssuedReportFile.
+     * @param {IssuedReportFileUpdateArgs} args - Arguments to update one IssuedReportFile.
+     * @example
+     * // Update one IssuedReportFile
+     * const issuedReportFile = await prisma.issuedReportFile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends IssuedReportFileUpdateArgs>(args: SelectSubset<T, IssuedReportFileUpdateArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more IssuedReportFiles.
+     * @param {IssuedReportFileDeleteManyArgs} args - Arguments to filter IssuedReportFiles to delete.
+     * @example
+     * // Delete a few IssuedReportFiles
+     * const { count } = await prisma.issuedReportFile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends IssuedReportFileDeleteManyArgs>(args?: SelectSubset<T, IssuedReportFileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more IssuedReportFiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many IssuedReportFiles
+     * const issuedReportFile = await prisma.issuedReportFile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends IssuedReportFileUpdateManyArgs>(args: SelectSubset<T, IssuedReportFileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more IssuedReportFiles and returns the data updated in the database.
+     * @param {IssuedReportFileUpdateManyAndReturnArgs} args - Arguments to update many IssuedReportFiles.
+     * @example
+     * // Update many IssuedReportFiles
+     * const issuedReportFile = await prisma.issuedReportFile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more IssuedReportFiles and only return the `sha256`
+     * const issuedReportFileWithSha256Only = await prisma.issuedReportFile.updateManyAndReturn({
+     *   select: { sha256: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends IssuedReportFileUpdateManyAndReturnArgs>(args: SelectSubset<T, IssuedReportFileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one IssuedReportFile.
+     * @param {IssuedReportFileUpsertArgs} args - Arguments to update or create a IssuedReportFile.
+     * @example
+     * // Update or create a IssuedReportFile
+     * const issuedReportFile = await prisma.issuedReportFile.upsert({
+     *   create: {
+     *     // ... data to create a IssuedReportFile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the IssuedReportFile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends IssuedReportFileUpsertArgs>(args: SelectSubset<T, IssuedReportFileUpsertArgs<ExtArgs>>): Prisma__IssuedReportFileClient<$Result.GetResult<Prisma.$IssuedReportFilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of IssuedReportFiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileCountArgs} args - Arguments to filter IssuedReportFiles to count.
+     * @example
+     * // Count the number of IssuedReportFiles
+     * const count = await prisma.issuedReportFile.count({
+     *   where: {
+     *     // ... the filter for the IssuedReportFiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends IssuedReportFileCountArgs>(
+      args?: Subset<T, IssuedReportFileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], IssuedReportFileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a IssuedReportFile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends IssuedReportFileAggregateArgs>(args: Subset<T, IssuedReportFileAggregateArgs>): Prisma.PrismaPromise<GetIssuedReportFileAggregateType<T>>
+
+    /**
+     * Group by IssuedReportFile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IssuedReportFileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends IssuedReportFileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: IssuedReportFileGroupByArgs['orderBy'] }
+        : { orderBy?: IssuedReportFileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, IssuedReportFileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetIssuedReportFileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the IssuedReportFile model
+   */
+  readonly fields: IssuedReportFileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for IssuedReportFile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__IssuedReportFileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the IssuedReportFile model
+   */
+  interface IssuedReportFileFieldRefs {
+    readonly sha256: FieldRef<"IssuedReportFile", 'String'>
+    readonly inspectionId: FieldRef<"IssuedReportFile", 'String'>
+    readonly storagePath: FieldRef<"IssuedReportFile", 'String'>
+    readonly issuedAt: FieldRef<"IssuedReportFile", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * IssuedReportFile findUnique
+   */
+  export type IssuedReportFileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * Filter, which IssuedReportFile to fetch.
+     */
+    where: IssuedReportFileWhereUniqueInput
+  }
+
+  /**
+   * IssuedReportFile findUniqueOrThrow
+   */
+  export type IssuedReportFileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * Filter, which IssuedReportFile to fetch.
+     */
+    where: IssuedReportFileWhereUniqueInput
+  }
+
+  /**
+   * IssuedReportFile findFirst
+   */
+  export type IssuedReportFileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * Filter, which IssuedReportFile to fetch.
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IssuedReportFiles to fetch.
+     */
+    orderBy?: IssuedReportFileOrderByWithRelationInput | IssuedReportFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for IssuedReportFiles.
+     */
+    cursor?: IssuedReportFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IssuedReportFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IssuedReportFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of IssuedReportFiles.
+     */
+    distinct?: IssuedReportFileScalarFieldEnum | IssuedReportFileScalarFieldEnum[]
+  }
+
+  /**
+   * IssuedReportFile findFirstOrThrow
+   */
+  export type IssuedReportFileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * Filter, which IssuedReportFile to fetch.
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IssuedReportFiles to fetch.
+     */
+    orderBy?: IssuedReportFileOrderByWithRelationInput | IssuedReportFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for IssuedReportFiles.
+     */
+    cursor?: IssuedReportFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IssuedReportFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IssuedReportFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of IssuedReportFiles.
+     */
+    distinct?: IssuedReportFileScalarFieldEnum | IssuedReportFileScalarFieldEnum[]
+  }
+
+  /**
+   * IssuedReportFile findMany
+   */
+  export type IssuedReportFileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * Filter, which IssuedReportFiles to fetch.
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IssuedReportFiles to fetch.
+     */
+    orderBy?: IssuedReportFileOrderByWithRelationInput | IssuedReportFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing IssuedReportFiles.
+     */
+    cursor?: IssuedReportFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IssuedReportFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IssuedReportFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of IssuedReportFiles.
+     */
+    distinct?: IssuedReportFileScalarFieldEnum | IssuedReportFileScalarFieldEnum[]
+  }
+
+  /**
+   * IssuedReportFile create
+   */
+  export type IssuedReportFileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * The data needed to create a IssuedReportFile.
+     */
+    data: XOR<IssuedReportFileCreateInput, IssuedReportFileUncheckedCreateInput>
+  }
+
+  /**
+   * IssuedReportFile createMany
+   */
+  export type IssuedReportFileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many IssuedReportFiles.
+     */
+    data: IssuedReportFileCreateManyInput | IssuedReportFileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * IssuedReportFile createManyAndReturn
+   */
+  export type IssuedReportFileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * The data used to create many IssuedReportFiles.
+     */
+    data: IssuedReportFileCreateManyInput | IssuedReportFileCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * IssuedReportFile update
+   */
+  export type IssuedReportFileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * The data needed to update a IssuedReportFile.
+     */
+    data: XOR<IssuedReportFileUpdateInput, IssuedReportFileUncheckedUpdateInput>
+    /**
+     * Choose, which IssuedReportFile to update.
+     */
+    where: IssuedReportFileWhereUniqueInput
+  }
+
+  /**
+   * IssuedReportFile updateMany
+   */
+  export type IssuedReportFileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update IssuedReportFiles.
+     */
+    data: XOR<IssuedReportFileUpdateManyMutationInput, IssuedReportFileUncheckedUpdateManyInput>
+    /**
+     * Filter which IssuedReportFiles to update
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * Limit how many IssuedReportFiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * IssuedReportFile updateManyAndReturn
+   */
+  export type IssuedReportFileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * The data used to update IssuedReportFiles.
+     */
+    data: XOR<IssuedReportFileUpdateManyMutationInput, IssuedReportFileUncheckedUpdateManyInput>
+    /**
+     * Filter which IssuedReportFiles to update
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * Limit how many IssuedReportFiles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * IssuedReportFile upsert
+   */
+  export type IssuedReportFileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * The filter to search for the IssuedReportFile to update in case it exists.
+     */
+    where: IssuedReportFileWhereUniqueInput
+    /**
+     * In case the IssuedReportFile found by the `where` argument doesn't exist, create a new IssuedReportFile with this data.
+     */
+    create: XOR<IssuedReportFileCreateInput, IssuedReportFileUncheckedCreateInput>
+    /**
+     * In case the IssuedReportFile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<IssuedReportFileUpdateInput, IssuedReportFileUncheckedUpdateInput>
+  }
+
+  /**
+   * IssuedReportFile delete
+   */
+  export type IssuedReportFileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+    /**
+     * Filter which IssuedReportFile to delete.
+     */
+    where: IssuedReportFileWhereUniqueInput
+  }
+
+  /**
+   * IssuedReportFile deleteMany
+   */
+  export type IssuedReportFileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which IssuedReportFiles to delete
+     */
+    where?: IssuedReportFileWhereInput
+    /**
+     * Limit how many IssuedReportFiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * IssuedReportFile without action
+   */
+  export type IssuedReportFileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IssuedReportFile
+     */
+    select?: IssuedReportFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IssuedReportFile
+     */
+    omit?: IssuedReportFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IssuedReportFileInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -48834,6 +50016,16 @@ export namespace Prisma {
   };
 
   export type ProductEventScalarFieldEnum = (typeof ProductEventScalarFieldEnum)[keyof typeof ProductEventScalarFieldEnum]
+
+
+  export const IssuedReportFileScalarFieldEnum: {
+    sha256: 'sha256',
+    inspectionId: 'inspectionId',
+    storagePath: 'storagePath',
+    issuedAt: 'issuedAt'
+  };
+
+  export type IssuedReportFileScalarFieldEnum = (typeof IssuedReportFileScalarFieldEnum)[keyof typeof IssuedReportFileScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -50038,6 +51230,7 @@ export namespace Prisma {
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
     assessments?: AssessmentVersionListRelationFilter
+    issuedReportFiles?: IssuedReportFileListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
     addenda?: ReportAddendumListRelationFilter
     moveInDefectCases?: MaintenanceCaseListRelationFilter
@@ -50068,6 +51261,7 @@ export namespace Prisma {
     findings?: FindingOrderByRelationAggregateInput
     signatures?: SignatureOrderByRelationAggregateInput
     assessments?: AssessmentVersionOrderByRelationAggregateInput
+    issuedReportFiles?: IssuedReportFileOrderByRelationAggregateInput
     reportEmails?: ReportEmailOrderByRelationAggregateInput
     addenda?: ReportAddendumOrderByRelationAggregateInput
     moveInDefectCases?: MaintenanceCaseOrderByRelationAggregateInput
@@ -50101,6 +51295,7 @@ export namespace Prisma {
     findings?: FindingListRelationFilter
     signatures?: SignatureListRelationFilter
     assessments?: AssessmentVersionListRelationFilter
+    issuedReportFiles?: IssuedReportFileListRelationFilter
     reportEmails?: ReportEmailListRelationFilter
     addenda?: ReportAddendumListRelationFilter
     moveInDefectCases?: MaintenanceCaseListRelationFilter
@@ -52635,6 +53830,56 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ProductEvent"> | Date | string
   }
 
+  export type IssuedReportFileWhereInput = {
+    AND?: IssuedReportFileWhereInput | IssuedReportFileWhereInput[]
+    OR?: IssuedReportFileWhereInput[]
+    NOT?: IssuedReportFileWhereInput | IssuedReportFileWhereInput[]
+    sha256?: StringFilter<"IssuedReportFile"> | string
+    inspectionId?: StringFilter<"IssuedReportFile"> | string
+    storagePath?: StringFilter<"IssuedReportFile"> | string
+    issuedAt?: DateTimeFilter<"IssuedReportFile"> | Date | string
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+  }
+
+  export type IssuedReportFileOrderByWithRelationInput = {
+    sha256?: SortOrder
+    inspectionId?: SortOrder
+    storagePath?: SortOrder
+    issuedAt?: SortOrder
+    inspection?: InspectionOrderByWithRelationInput
+  }
+
+  export type IssuedReportFileWhereUniqueInput = Prisma.AtLeast<{
+    sha256?: string
+    AND?: IssuedReportFileWhereInput | IssuedReportFileWhereInput[]
+    OR?: IssuedReportFileWhereInput[]
+    NOT?: IssuedReportFileWhereInput | IssuedReportFileWhereInput[]
+    inspectionId?: StringFilter<"IssuedReportFile"> | string
+    storagePath?: StringFilter<"IssuedReportFile"> | string
+    issuedAt?: DateTimeFilter<"IssuedReportFile"> | Date | string
+    inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+  }, "sha256">
+
+  export type IssuedReportFileOrderByWithAggregationInput = {
+    sha256?: SortOrder
+    inspectionId?: SortOrder
+    storagePath?: SortOrder
+    issuedAt?: SortOrder
+    _count?: IssuedReportFileCountOrderByAggregateInput
+    _max?: IssuedReportFileMaxOrderByAggregateInput
+    _min?: IssuedReportFileMinOrderByAggregateInput
+  }
+
+  export type IssuedReportFileScalarWhereWithAggregatesInput = {
+    AND?: IssuedReportFileScalarWhereWithAggregatesInput | IssuedReportFileScalarWhereWithAggregatesInput[]
+    OR?: IssuedReportFileScalarWhereWithAggregatesInput[]
+    NOT?: IssuedReportFileScalarWhereWithAggregatesInput | IssuedReportFileScalarWhereWithAggregatesInput[]
+    sha256?: StringWithAggregatesFilter<"IssuedReportFile"> | string
+    inspectionId?: StringWithAggregatesFilter<"IssuedReportFile"> | string
+    storagePath?: StringWithAggregatesFilter<"IssuedReportFile"> | string
+    issuedAt?: DateTimeWithAggregatesFilter<"IssuedReportFile"> | Date | string
+  }
+
   export type StakeholderCreateInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -53303,6 +54548,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -53330,6 +54576,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -53357,6 +54604,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -53384,6 +54632,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -56127,6 +57376,54 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type IssuedReportFileCreateInput = {
+    sha256: string
+    storagePath: string
+    issuedAt?: Date | string
+    inspection: InspectionCreateNestedOneWithoutIssuedReportFilesInput
+  }
+
+  export type IssuedReportFileUncheckedCreateInput = {
+    sha256: string
+    inspectionId: string
+    storagePath: string
+    issuedAt?: Date | string
+  }
+
+  export type IssuedReportFileUpdateInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspection?: InspectionUpdateOneRequiredWithoutIssuedReportFilesNestedInput
+  }
+
+  export type IssuedReportFileUncheckedUpdateInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type IssuedReportFileCreateManyInput = {
+    sha256: string
+    inspectionId: string
+    storagePath: string
+    issuedAt?: Date | string
+  }
+
+  export type IssuedReportFileUpdateManyMutationInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type IssuedReportFileUncheckedUpdateManyInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -56927,6 +58224,12 @@ export namespace Prisma {
     none?: AssessmentVersionWhereInput
   }
 
+  export type IssuedReportFileListRelationFilter = {
+    every?: IssuedReportFileWhereInput
+    some?: IssuedReportFileWhereInput
+    none?: IssuedReportFileWhereInput
+  }
+
   export type RoomOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -56936,6 +58239,10 @@ export namespace Prisma {
   }
 
   export type AssessmentVersionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type IssuedReportFileOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -59096,6 +60403,27 @@ export namespace Prisma {
     _max?: NestedEnumProductEventSourceFilter<$PrismaModel>
   }
 
+  export type IssuedReportFileCountOrderByAggregateInput = {
+    sha256?: SortOrder
+    inspectionId?: SortOrder
+    storagePath?: SortOrder
+    issuedAt?: SortOrder
+  }
+
+  export type IssuedReportFileMaxOrderByAggregateInput = {
+    sha256?: SortOrder
+    inspectionId?: SortOrder
+    storagePath?: SortOrder
+    issuedAt?: SortOrder
+  }
+
+  export type IssuedReportFileMinOrderByAggregateInput = {
+    sha256?: SortOrder
+    inspectionId?: SortOrder
+    storagePath?: SortOrder
+    issuedAt?: SortOrder
+  }
+
   export type TeamCreateNestedOneWithoutMembersInput = {
     create?: XOR<TeamCreateWithoutMembersInput, TeamUncheckedCreateWithoutMembersInput>
     connectOrCreate?: TeamCreateOrConnectWithoutMembersInput
@@ -60622,6 +61950,13 @@ export namespace Prisma {
     connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
   }
 
+  export type IssuedReportFileCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<IssuedReportFileCreateWithoutInspectionInput, IssuedReportFileUncheckedCreateWithoutInspectionInput> | IssuedReportFileCreateWithoutInspectionInput[] | IssuedReportFileUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: IssuedReportFileCreateOrConnectWithoutInspectionInput | IssuedReportFileCreateOrConnectWithoutInspectionInput[]
+    createMany?: IssuedReportFileCreateManyInspectionInputEnvelope
+    connect?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+  }
+
   export type ReportEmailCreateNestedManyWithoutInspectionInput = {
     create?: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput> | ReportEmailCreateWithoutInspectionInput[] | ReportEmailUncheckedCreateWithoutInspectionInput[]
     connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
@@ -60675,6 +62010,13 @@ export namespace Prisma {
     connectOrCreate?: AssessmentVersionCreateOrConnectWithoutInspectionInput | AssessmentVersionCreateOrConnectWithoutInspectionInput[]
     createMany?: AssessmentVersionCreateManyInspectionInputEnvelope
     connect?: AssessmentVersionWhereUniqueInput | AssessmentVersionWhereUniqueInput[]
+  }
+
+  export type IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput = {
+    create?: XOR<IssuedReportFileCreateWithoutInspectionInput, IssuedReportFileUncheckedCreateWithoutInspectionInput> | IssuedReportFileCreateWithoutInspectionInput[] | IssuedReportFileUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: IssuedReportFileCreateOrConnectWithoutInspectionInput | IssuedReportFileCreateOrConnectWithoutInspectionInput[]
+    createMany?: IssuedReportFileCreateManyInspectionInputEnvelope
+    connect?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
   }
 
   export type ReportEmailUncheckedCreateNestedManyWithoutInspectionInput = {
@@ -60800,6 +62142,20 @@ export namespace Prisma {
     deleteMany?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
   }
 
+  export type IssuedReportFileUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<IssuedReportFileCreateWithoutInspectionInput, IssuedReportFileUncheckedCreateWithoutInspectionInput> | IssuedReportFileCreateWithoutInspectionInput[] | IssuedReportFileUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: IssuedReportFileCreateOrConnectWithoutInspectionInput | IssuedReportFileCreateOrConnectWithoutInspectionInput[]
+    upsert?: IssuedReportFileUpsertWithWhereUniqueWithoutInspectionInput | IssuedReportFileUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: IssuedReportFileCreateManyInspectionInputEnvelope
+    set?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    disconnect?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    delete?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    connect?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    update?: IssuedReportFileUpdateWithWhereUniqueWithoutInspectionInput | IssuedReportFileUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: IssuedReportFileUpdateManyWithWhereWithoutInspectionInput | IssuedReportFileUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: IssuedReportFileScalarWhereInput | IssuedReportFileScalarWhereInput[]
+  }
+
   export type ReportEmailUpdateManyWithoutInspectionNestedInput = {
     create?: XOR<ReportEmailCreateWithoutInspectionInput, ReportEmailUncheckedCreateWithoutInspectionInput> | ReportEmailCreateWithoutInspectionInput[] | ReportEmailUncheckedCreateWithoutInspectionInput[]
     connectOrCreate?: ReportEmailCreateOrConnectWithoutInspectionInput | ReportEmailCreateOrConnectWithoutInspectionInput[]
@@ -60906,6 +62262,20 @@ export namespace Prisma {
     update?: AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput | AssessmentVersionUpdateWithWhereUniqueWithoutInspectionInput[]
     updateMany?: AssessmentVersionUpdateManyWithWhereWithoutInspectionInput | AssessmentVersionUpdateManyWithWhereWithoutInspectionInput[]
     deleteMany?: AssessmentVersionScalarWhereInput | AssessmentVersionScalarWhereInput[]
+  }
+
+  export type IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput = {
+    create?: XOR<IssuedReportFileCreateWithoutInspectionInput, IssuedReportFileUncheckedCreateWithoutInspectionInput> | IssuedReportFileCreateWithoutInspectionInput[] | IssuedReportFileUncheckedCreateWithoutInspectionInput[]
+    connectOrCreate?: IssuedReportFileCreateOrConnectWithoutInspectionInput | IssuedReportFileCreateOrConnectWithoutInspectionInput[]
+    upsert?: IssuedReportFileUpsertWithWhereUniqueWithoutInspectionInput | IssuedReportFileUpsertWithWhereUniqueWithoutInspectionInput[]
+    createMany?: IssuedReportFileCreateManyInspectionInputEnvelope
+    set?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    disconnect?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    delete?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    connect?: IssuedReportFileWhereUniqueInput | IssuedReportFileWhereUniqueInput[]
+    update?: IssuedReportFileUpdateWithWhereUniqueWithoutInspectionInput | IssuedReportFileUpdateWithWhereUniqueWithoutInspectionInput[]
+    updateMany?: IssuedReportFileUpdateManyWithWhereWithoutInspectionInput | IssuedReportFileUpdateManyWithWhereWithoutInspectionInput[]
+    deleteMany?: IssuedReportFileScalarWhereInput | IssuedReportFileScalarWhereInput[]
   }
 
   export type ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput = {
@@ -62930,6 +64300,20 @@ export namespace Prisma {
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutProductEventsInput, StakeholderUpdateWithoutProductEventsInput>, StakeholderUncheckedUpdateWithoutProductEventsInput>
   }
 
+  export type InspectionCreateNestedOneWithoutIssuedReportFilesInput = {
+    create?: XOR<InspectionCreateWithoutIssuedReportFilesInput, InspectionUncheckedCreateWithoutIssuedReportFilesInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutIssuedReportFilesInput
+    connect?: InspectionWhereUniqueInput
+  }
+
+  export type InspectionUpdateOneRequiredWithoutIssuedReportFilesNestedInput = {
+    create?: XOR<InspectionCreateWithoutIssuedReportFilesInput, InspectionUncheckedCreateWithoutIssuedReportFilesInput>
+    connectOrCreate?: InspectionCreateOrConnectWithoutIssuedReportFilesInput
+    upsert?: InspectionUpsertWithoutIssuedReportFilesInput
+    connect?: InspectionWhereUniqueInput
+    update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutIssuedReportFilesInput, InspectionUpdateWithoutIssuedReportFilesInput>, InspectionUncheckedUpdateWithoutIssuedReportFilesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -64029,6 +65413,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -64055,6 +65440,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -66730,6 +68116,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -66756,6 +68143,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -67502,6 +68890,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -67528,6 +68917,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -67559,6 +68949,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -67585,6 +68976,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -67728,6 +69120,28 @@ export namespace Prisma {
 
   export type AssessmentVersionCreateManyInspectionInputEnvelope = {
     data: AssessmentVersionCreateManyInspectionInput | AssessmentVersionCreateManyInspectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type IssuedReportFileCreateWithoutInspectionInput = {
+    sha256: string
+    storagePath: string
+    issuedAt?: Date | string
+  }
+
+  export type IssuedReportFileUncheckedCreateWithoutInspectionInput = {
+    sha256: string
+    storagePath: string
+    issuedAt?: Date | string
+  }
+
+  export type IssuedReportFileCreateOrConnectWithoutInspectionInput = {
+    where: IssuedReportFileWhereUniqueInput
+    create: XOR<IssuedReportFileCreateWithoutInspectionInput, IssuedReportFileUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type IssuedReportFileCreateManyInspectionInputEnvelope = {
+    data: IssuedReportFileCreateManyInspectionInput | IssuedReportFileCreateManyInspectionInput[]
     skipDuplicates?: boolean
   }
 
@@ -68053,6 +69467,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -68079,6 +69494,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -68116,6 +69532,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -68142,6 +69559,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -68258,6 +69676,32 @@ export namespace Prisma {
     contentHash?: StringFilter<"AssessmentVersion"> | string
     publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
     publishedById?: StringFilter<"AssessmentVersion"> | string
+  }
+
+  export type IssuedReportFileUpsertWithWhereUniqueWithoutInspectionInput = {
+    where: IssuedReportFileWhereUniqueInput
+    update: XOR<IssuedReportFileUpdateWithoutInspectionInput, IssuedReportFileUncheckedUpdateWithoutInspectionInput>
+    create: XOR<IssuedReportFileCreateWithoutInspectionInput, IssuedReportFileUncheckedCreateWithoutInspectionInput>
+  }
+
+  export type IssuedReportFileUpdateWithWhereUniqueWithoutInspectionInput = {
+    where: IssuedReportFileWhereUniqueInput
+    data: XOR<IssuedReportFileUpdateWithoutInspectionInput, IssuedReportFileUncheckedUpdateWithoutInspectionInput>
+  }
+
+  export type IssuedReportFileUpdateManyWithWhereWithoutInspectionInput = {
+    where: IssuedReportFileScalarWhereInput
+    data: XOR<IssuedReportFileUpdateManyMutationInput, IssuedReportFileUncheckedUpdateManyWithoutInspectionInput>
+  }
+
+  export type IssuedReportFileScalarWhereInput = {
+    AND?: IssuedReportFileScalarWhereInput | IssuedReportFileScalarWhereInput[]
+    OR?: IssuedReportFileScalarWhereInput[]
+    NOT?: IssuedReportFileScalarWhereInput | IssuedReportFileScalarWhereInput[]
+    sha256?: StringFilter<"IssuedReportFile"> | string
+    inspectionId?: StringFilter<"IssuedReportFile"> | string
+    storagePath?: StringFilter<"IssuedReportFile"> | string
+    issuedAt?: DateTimeFilter<"IssuedReportFile"> | Date | string
   }
 
   export type ReportEmailUpsertWithWhereUniqueWithoutInspectionInput = {
@@ -68543,6 +69987,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -68569,6 +70014,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -68713,6 +70159,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -68739,6 +70186,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -70081,6 +71529,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
   }
@@ -70107,6 +71556,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
   }
@@ -70486,6 +71936,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
   }
@@ -70512,6 +71963,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
   }
@@ -72807,6 +74259,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -72833,6 +74286,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -73030,6 +74484,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -73056,6 +74511,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -73255,6 +74711,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -73281,6 +74738,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -73400,6 +74858,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -73426,6 +74885,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -73536,6 +74996,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
@@ -73562,6 +75023,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
@@ -73681,6 +75143,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
@@ -73707,6 +75170,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
@@ -73815,6 +75279,7 @@ export namespace Prisma {
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -73841,6 +75306,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
@@ -73883,6 +75349,7 @@ export namespace Prisma {
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -73909,6 +75376,7 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -73936,6 +75404,7 @@ export namespace Prisma {
     findings?: FindingCreateNestedManyWithoutInspectionInput
     signatures?: SignatureCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
   }
@@ -73962,6 +75431,7 @@ export namespace Prisma {
     findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
     assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
     moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
   }
@@ -74366,6 +75836,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
@@ -74392,6 +75863,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
   }
@@ -76050,6 +77522,130 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
+  export type InspectionCreateWithoutIssuedReportFilesInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutIssuedReportFilesInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutIssuedReportFilesInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutIssuedReportFilesInput, InspectionUncheckedCreateWithoutIssuedReportFilesInput>
+  }
+
+  export type InspectionUpsertWithoutIssuedReportFilesInput = {
+    update: XOR<InspectionUpdateWithoutIssuedReportFilesInput, InspectionUncheckedUpdateWithoutIssuedReportFilesInput>
+    create: XOR<InspectionCreateWithoutIssuedReportFilesInput, InspectionUncheckedCreateWithoutIssuedReportFilesInput>
+    where?: InspectionWhereInput
+  }
+
+  export type InspectionUpdateToOneWithWhereWithoutIssuedReportFilesInput = {
+    where?: InspectionWhereInput
+    data: XOR<InspectionUpdateWithoutIssuedReportFilesInput, InspectionUncheckedUpdateWithoutIssuedReportFilesInput>
+  }
+
+  export type InspectionUpdateWithoutIssuedReportFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutIssuedReportFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
   export type TenancyCreateManyLandlordInput = {
     id?: string
     propertyId: string
@@ -76587,6 +78183,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -76613,6 +78210,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -77710,6 +79308,7 @@ export namespace Prisma {
     findings?: FindingUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -77736,6 +79335,7 @@ export namespace Prisma {
     findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
     assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
@@ -77874,6 +79474,12 @@ export namespace Prisma {
     contentHash: string
     publishedAt?: Date | string
     publishedById: string
+  }
+
+  export type IssuedReportFileCreateManyInspectionInput = {
+    sha256: string
+    storagePath: string
+    issuedAt?: Date | string
   }
 
   export type ReportEmailCreateManyInspectionInput = {
@@ -78068,6 +79674,24 @@ export namespace Prisma {
     contentHash?: StringFieldUpdateOperationsInput | string
     publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type IssuedReportFileUpdateWithoutInspectionInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type IssuedReportFileUncheckedUpdateWithoutInspectionInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type IssuedReportFileUncheckedUpdateManyWithoutInspectionInput = {
+    sha256?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReportEmailUpdateWithoutInspectionInput = {

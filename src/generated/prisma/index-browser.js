@@ -591,6 +591,13 @@ exports.Prisma.ProductEventScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.IssuedReportFileScalarFieldEnum = {
+  sha256: 'sha256',
+  inspectionId: 'inspectionId',
+  storagePath: 'storagePath',
+  issuedAt: 'issuedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -879,7 +886,8 @@ exports.Prisma.ModelName = {
   AccountDeletionStoragePurge: 'AccountDeletionStoragePurge',
   StoragePurge: 'StoragePurge',
   ErrorEvent: 'ErrorEvent',
-  ProductEvent: 'ProductEvent'
+  ProductEvent: 'ProductEvent',
+  IssuedReportFile: 'IssuedReportFile'
 };
 
 /**
