@@ -582,3 +582,7 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   only the lines you wrote, or check `git diff --stat` and redo the edit on a clean copy.
   Never `dart format lib test`: it rewrote 14 untouched files and split one-line `if`
   returns into new `curly_braces_in_flow_control_structures` lints. Name the new files.
+- A web-only look at a feature misses what the Flutter app and the PDF already do. The
+  2026-10-18 UX review called photo-to-line linking missing when the app's edit sheet
+  and the PDF both had it, and called the list unreachable when the logo links to it.
+  Before calling anything missing, grep `mobile/lib` and `src/lib/report-pdf/` too.
