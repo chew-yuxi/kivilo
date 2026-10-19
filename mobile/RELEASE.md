@@ -20,6 +20,32 @@ renewal, usage-event and upload-intent migrations applied. Verification at that 
 typecheck, lint, production build, 90 unit tests, 128 integration tests, 13 end-to-end
 tests, clean Flutter analysis and 182 mobile tests.
 
+## Deposit statement, report check and review editor: 19 October 2026
+
+Source `3e85462` is pushed and live on the server. Vercel deployment
+`dpl_78c9gPeQWCz89PZnyENNHZXSvd1m` is Ready in `sin1` on the custom domain. Migrations
+`20261019090000_issued_report_files` and `20261019100000_assessment_responses` were
+applied to production first. Server side: the deposit statement (both parties agree or
+dispute the published assessment's deductions), the public `/verify` report check, the
+web review editor as expandable rows, folded check-out lines with their check-in photos,
+and the inspection page's next-step card.
+
+**Staging** Android `1.0.0+25` patch **2** and iOS `1.0.0+24` patch **3**, built from
+separate detached worktrees of `3e85462` with Shorebird Flutter `3.47.2`, Android with
+CLI `--build-number=25`. Both passed native and asset checks without overrides, and the
+icon check against `ce0d8e3` and `7161f53` printed nothing. iOS shared 86.0% of Dart
+code with the release (warning only, as patch 2 did at 87.7%). The app change is the
+deposit statement on the report screen: a party agrees or disputes, and the agent takes
+either party's answer in person. **Not promoted:** check on a phone with
+`shorebird preview --release-version=1.0.0+25 --track=staging` (and `1.0.0+24` on iOS),
+then promote both to stable. iOS `24` is still in review, so App Store users on `23`
+cannot receive this; they answer on the web. Logs are in
+`build/release-artifacts/android/build25/statement-patch2/` and
+`build/release-artifacts/ios/build24/statement-patch3/`.
+
+Verification at the source: typecheck, lint, production build, 98 unit, 150
+integration, 14 end-to-end tests, clean Flutter analysis and 204 Flutter tests.
+
 ## Tenant handover, move-in notices and native usage: 18 October 2026
 
 Source `18bb3f1` is pushed and live on the server. Vercel deployment
