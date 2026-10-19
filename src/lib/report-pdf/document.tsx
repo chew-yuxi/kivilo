@@ -3,6 +3,7 @@ import { Document, Font, Image, Link, Page, Path, StyleSheet, Svg, Text, View } 
 import type { ItemCondition } from '@/generated/prisma'
 import { markPath } from '@/lib/annotations'
 import { sgd } from '@/lib/format'
+import { depositStatement } from '@/lib/assessment-schema'
 import { entryHeading, type AddendumView } from '@/lib/addenda'
 import { shortFingerprint } from '@/lib/report-fingerprint'
 import { markNotes, type ReportModel, type ReportPhoto, type ReportRoom } from './model'
@@ -487,6 +488,7 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
   const assessment = model.assessment!
   const liable = assessment.findings.filter((finding) => finding.verdict === 'TENANT_LIABLE')
   const total = liable.reduce((sum, finding) => sum + Number(finding.estimatedCost ?? 0), 0)
+  const statement = depositStatement(assessment)
 
   return (
     <View break>
@@ -496,10 +498,37 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
         assessment is separate from the signed inventory.
       </Text>
       {assessment.summary && <Text style={{ marginTop: 10 }}>{assessment.summary}</Text>}
-      <Text style={{ marginTop: 10, marginBottom: 10 }}>
-        {liable.length} of {assessment.findings.length} findings assess tenant liability, totalling{' '}
-        <Text style={s.bold}>{sgd(total)}</Text> against a deposit of {sgd(model.deposit)}.
-      </Text>
+      {statement ? (
+        <View style={{ marginTop: 10, marginBottom: 10, padding: 8, borderWidth: 0.5, borderColor: '#d1d5db' }} wrap={false}>
+          <Text style={s.bold}>Deposit statement</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+            <Text>Deposit</Text>
+            <Text>{sgd(statement.deposit)}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text>Deductions ({statement.deducted.length} of {assessment.findings.length} findings, tenant liable)</Text>
+            <Text>{sgd(-statement.deductions)}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 }}>
+            <Text style={s.bold}>{statement.toReturn >= 0 ? 'To return to the tenant' : 'Deductions exceed the deposit by'}</Text>
+            <Text style={s.bold}>{sgd(Math.abs(statement.toReturn))}</Text>
+          </View>
+          {assessment.responses.map((response) => (
+            <Text key={response.role} style={{ marginTop: 4 }}>
+              {response.name} ({response.role}):{' '}
+              {response.answer
+                ? `${response.answer === 'AGREED' ? 'agreed' : 'disputed'}${response.inPerson ? ' in person' : ''}, ${dateTime.format(new Date(response.respondedAt!))}${response.reason ? `. "${response.reason}"` : ''}`
+                : 'not answered yet'}
+            </Text>
+          ))}
+          <Text style={[s.small, { marginTop: 4 }]}>Kivilo records each party&apos;s answer. It does not hold or move the deposit.</Text>
+        </View>
+      ) : (
+        <Text style={{ marginTop: 10, marginBottom: 10 }}>
+          {liable.length} of {assessment.findings.length} findings assess tenant liability, totalling{' '}
+          <Text style={s.bold}>{sgd(total)}</Text> against a deposit of {sgd(model.deposit)}.
+        </Text>
+      )}
       {assessment.findings.map((finding) => (
         <View key={finding.id} style={[s.row, { flexDirection: 'column' }]} wrap={false}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

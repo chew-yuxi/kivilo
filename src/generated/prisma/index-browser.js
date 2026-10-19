@@ -598,6 +598,18 @@ exports.Prisma.IssuedReportFileScalarFieldEnum = {
   issuedAt: 'issuedAt'
 };
 
+exports.Prisma.AssessmentResponseScalarFieldEnum = {
+  id: 'id',
+  assessmentVersionId: 'assessmentVersionId',
+  stakeholderId: 'stakeholderId',
+  answer: 'answer',
+  reason: 'reason',
+  method: 'method',
+  contentHash: 'contentHash',
+  ipAddress: 'ipAddress',
+  respondedAt: 'respondedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -851,6 +863,11 @@ exports.ProductEventSource = exports.$Enums.ProductEventSource = {
   IOS: 'IOS'
 };
 
+exports.StatementAnswer = exports.$Enums.StatementAnswer = {
+  AGREED: 'AGREED',
+  DISPUTED: 'DISPUTED'
+};
+
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Team: 'Team',
@@ -887,7 +904,8 @@ exports.Prisma.ModelName = {
   StoragePurge: 'StoragePurge',
   ErrorEvent: 'ErrorEvent',
   ProductEvent: 'ProductEvent',
-  IssuedReportFile: 'IssuedReportFile'
+  IssuedReportFile: 'IssuedReportFile',
+  AssessmentResponse: 'AssessmentResponse'
 };
 
 /**

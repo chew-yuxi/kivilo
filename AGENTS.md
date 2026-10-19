@@ -237,6 +237,23 @@ report has a Download PDF, and to `/inspections/[id]` for the agent, both behind
 The link's origin is `KIVILO_APP_URL`. Pinned by `src/lib/email-signing.integration.test.ts` and
 `e2e/sign-by-email.spec.ts`.
 
+## The deposit statement
+
+A completed check-out's published assessment is also a deposit statement: the deposit,
+frozen into the snapshot at publish (`deposit`), less every tenant-liable finding's
+cost (`depositStatement` in `src/lib/assessment-schema.ts`, in cents). Publishing a
+version asks the landlord and tenant through a `REPORT_UPDATED` notification linking to
+`/sign/[inspectionId]`, where each agrees or disputes with a reason, as themselves
+(`answerDepositStatement`) or on the agent's phone (`answerDepositStatementInPerson`),
+or through `POST /api/v1/inspections/[id]/deposit-statement`. Every answer names the
+version it was given to and is refused on anything but the latest, so nobody agrees to a
+revision they have not read; one `AssessmentResponse` per party per version, never
+edited, holding that version's `contentHash`. A version from before deposits were frozen
+has no statement and cannot be answered until the agent publishes again. Kivilo records
+the answers and never holds or moves the deposit. The report and PDF draw the statement
+and both answers, a party who has not answered as "not answered yet". The app does not
+show it yet. Pinned by `src/lib/statement-actions.integration.test.ts`.
+
 ## Checking a report
 
 `/verify` lets anyone holding a report PDF check it is one Kivilo issued, byte for byte.

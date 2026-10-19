@@ -123,8 +123,10 @@ export function reportUpdateEmail(notification: { title: string; body: string; h
       notification.body,
       '',
       `Review and acknowledge it here: ${link}`,
-      '',
-      'You can also open the report in the Kivilo app and acknowledge it there.',
+      // A deposit statement links to the signing page and is answered on the web.
+      ...(notification.href.startsWith('/updates/')
+        ? ['', 'You can also open the report in the Kivilo app and acknowledge it there.']
+        : []),
     ].join('\n'),
   }
 }

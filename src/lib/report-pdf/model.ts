@@ -7,7 +7,7 @@ import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 5
+export const RENDER_VERSION = 6
 
 const reportInclude = {
   tenancy: {
@@ -31,7 +31,11 @@ const reportInclude = {
     },
   },
   signatures: { include: { stakeholder: true }, orderBy: { signedAt: 'asc' } },
-  assessments: { orderBy: { version: 'desc' }, take: 1 },
+  assessments: {
+    orderBy: { version: 'desc' },
+    take: 1,
+    include: { responses: { include: { stakeholder: { select: { name: true } } }, orderBy: { respondedAt: 'asc' } } },
+  },
   addenda: publishedAddenda,
 } satisfies Prisma.InspectionInclude
 
@@ -134,7 +138,24 @@ export function buildReportModel(row: ReportRow) {
 
   const published = row.assessments[0] ?? null
   const assessment = published
-    ? { version: published.version, publishedAt: published.publishedAt.toISOString(), ...assessmentSnapshotSchema.parse(published.snapshot) }
+    ? {
+        version: published.version,
+        publishedAt: published.publishedAt.toISOString(),
+        ...assessmentSnapshotSchema.parse(published.snapshot),
+        /// Each party's answer to the deposit statement, in the order the parties are
+        /// named. An answer changes the cache key, so the copy redraws when one arrives.
+        responses: [tenancy.landlordId, tenancy.tenantId].map((id) => {
+          const response = published.responses.find((row) => row.stakeholderId === id)
+          return {
+            name: id === tenancy.landlordId ? tenancy.landlord.name : tenancy.tenant.name,
+            role: id === tenancy.landlordId ? 'landlord' : 'tenant',
+            answer: response?.answer ?? null,
+            reason: response?.reason ?? null,
+            inPerson: response?.method === 'IN_PERSON',
+            respondedAt: response?.respondedAt.toISOString() ?? null,
+          }
+        }),
+      }
     : null
 
   return {

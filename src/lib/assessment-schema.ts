@@ -7,6 +7,10 @@ export const assessmentSnapshotSchema = z.object({
   schemaVersion: z.literal(1),
   /// Written by the AI comparison in snapshots published before it was removed.
   summary: z.string().nullable(),
+  /// The tenancy's deposit as published, so the statement both parties answer cannot
+  /// move under them. Absent on versions published before deposit statements, which are
+  /// shown as before and cannot be answered until the agent publishes again.
+  deposit: z.string().optional(),
   findings: z.array(z.object({
     id: z.string(),
     itemLabel: z.string(),
@@ -30,3 +34,24 @@ export const assessmentSnapshotSchema = z.object({
     }).nullable().optional(),
   })),
 })
+
+export type AssessmentSnapshot = z.infer<typeof assessmentSnapshotSchema>
+
+/// What comes off the deposit: every tenant-liable finding's cost, against the deposit
+/// frozen in the version. Null for a version published before deposits were frozen.
+/// Fair wear and other verdicts are not deducted. Kivilo records the figure the parties
+/// answer; it never moves money.
+export function depositStatement(snapshot: AssessmentSnapshot) {
+  if (snapshot.deposit === undefined) return null
+  const deducted = snapshot.findings.filter((finding) => finding.verdict === 'TENANT_LIABLE')
+  // In cents, so a column of costs adds up to the figure a person would get by hand.
+  const cents = (amount: string | null) => Math.round(Number(amount ?? 0) * 100)
+  const deposit = cents(snapshot.deposit)
+  const deductions = deducted.reduce((sum, finding) => sum + cents(finding.estimatedCost), 0)
+  return {
+    deposit: deposit / 100,
+    deductions: deductions / 100,
+    toReturn: (deposit - deductions) / 100,
+    deducted,
+  }
+}

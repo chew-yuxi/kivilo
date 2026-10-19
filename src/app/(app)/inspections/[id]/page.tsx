@@ -20,6 +20,9 @@ import { inspectionHandover } from '@/lib/handover'
 import { TenantHandoverCard } from '@/components/tenant-handover-card'
 import { DefectWindowForm } from '@/components/defect-window-form'
 import { findingCheckInConditions } from '@/lib/check-in-reference'
+import { DepositStatementView } from '@/components/report-document'
+import { DepositStatementAnswer } from '@/components/deposit-statement-answer'
+import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,13 +57,21 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           maintenanceCase: { select: { id: true, title: true } },
         },
       },
-      assessments: { orderBy: { version: 'desc' }, take: 1 },
+      assessments: {
+        orderBy: { version: 'desc' },
+        take: 1,
+        include: { responses: { include: { stakeholder: { select: { name: true } } }, orderBy: { respondedAt: 'asc' } } },
+      },
     },
   })
 
   if (!inspection) notFound()
 
   const { tenancy, status, kind } = inspection
+  const published = inspection.assessments[0]
+  const snapshot = published && assessmentSnapshotSchema.parse(published.snapshot)
+  const deposit = snapshot && depositStatement(snapshot)
+  const statement = deposit && { ...deposit, findingCount: snapshot.findings.length }
   const isCapturePhase = ['DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW', 'FAILED'].includes(status)
 
   const rooms: RoomRow[] = inspection.rooms.map((room) => ({
@@ -285,6 +296,29 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             checkOutItems={checkOutItems}
             checkInItems={checkInItems}
           />
+          {published && statement && (
+            <div className="space-y-3">
+              <DepositStatementView
+                statement={statement}
+                findingCount={statement.findingCount}
+                responses={published.responses}
+                tenancy={tenancy}
+              />
+              {[
+                { id: tenancy.landlordId, name: tenancy.landlord.name, role: 'Landlord' },
+                { id: tenancy.tenantId, name: tenancy.tenant.name, role: 'Tenant' },
+              ]
+                .filter((party) => !published.responses.some((response) => response.stakeholderId === party.id))
+                .map((party) => (
+                  <DepositStatementAnswer
+                    key={party.id}
+                    inspectionId={id}
+                    version={published.version}
+                    inPerson={{ stakeholderId: party.id, name: party.name, role: party.role }}
+                  />
+                ))}
+            </div>
+          )}
         </section>
       )}
     </div>

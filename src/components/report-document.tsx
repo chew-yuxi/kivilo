@@ -2,7 +2,7 @@ import { createDownloadUrl } from '@/lib/storage'
 import { propertyLabel, sgd } from '@/lib/format'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
-import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
+import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { shortFingerprint } from '@/lib/report-fingerprint'
 import type { reportInclude } from '@/lib/report'
 import { addendumView } from '@/lib/addenda'
@@ -67,6 +67,7 @@ export async function ReportDocument({
   }
   const liable = assessment?.findings.filter((f) => f.verdict === 'TENANT_LIABLE') ?? []
   const claimTotal = liable.reduce((sum, f) => sum + Number(f.estimatedCost ?? 0), 0)
+  const statement = assessment && depositStatement(assessment)
   const itemCount = inspection.rooms.reduce((n, room) => n + room.items.length, 0)
 
   const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long' })
@@ -297,11 +298,20 @@ export async function ReportDocument({
           {assessment.summary && (
             <p className="mt-4 text-sm leading-relaxed text-gray-700">{assessment.summary}</p>
           )}
-          <p className="mt-4 text-sm text-gray-700">
-            {liable.length} of {assessment.findings.length} findings assess tenant liability,
-            totalling <strong>{sgd(claimTotal)}</strong> against a deposit of{' '}
-            {sgd(tenancy.deposit.toString())}.
-          </p>
+          {statement ? (
+            <DepositStatementView
+              statement={statement}
+              findingCount={assessment.findings.length}
+              responses={published.responses}
+              tenancy={tenancy}
+            />
+          ) : (
+            <p className="mt-4 text-sm text-gray-700">
+              {liable.length} of {assessment.findings.length} findings assess tenant liability,
+              totalling <strong>{sgd(claimTotal)}</strong> against a deposit of{' '}
+              {sgd(tenancy.deposit.toString())}.
+            </p>
+          )}
           <ul className="mt-4 space-y-3">
             {assessment.findings.map((finding) => (
               <li key={finding.id} className="break-inside-avoid rounded border border-gray-200 p-3 text-sm">
@@ -362,6 +372,68 @@ export async function ReportDocument({
         {branding && <span className="mt-2 block">Prepared with Kivilo.</span>}
       </footer>
     </article>
+  )
+}
+
+/// The deposit, what the tenant-liable findings take off it, and each party's answer.
+/// A party who has not answered is shown as waiting, so nobody reads silence as consent.
+export function DepositStatementView({
+  statement,
+  findingCount,
+  responses,
+  tenancy,
+}: {
+  statement: NonNullable<ReturnType<typeof depositStatement>>
+  findingCount: number
+  responses: { stakeholderId: string; answer: 'AGREED' | 'DISPUTED'; reason: string | null; method: string; respondedAt: Date; stakeholder: { name: string } }[]
+  tenancy: { landlordId: string; tenantId: string; landlord: { name: string }; tenant: { name: string } }
+}) {
+  const when = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Asia/Singapore' })
+  const parties = [
+    { id: tenancy.landlordId, name: tenancy.landlord.name, role: 'landlord' },
+    { id: tenancy.tenantId, name: tenancy.tenant.name, role: 'tenant' },
+  ]
+  return (
+    <div className="mt-4 rounded border border-gray-200 p-4 text-sm">
+      <h3 className="font-semibold">Deposit statement</h3>
+      <dl className="mt-3 space-y-1">
+        <div className="flex justify-between gap-4"><dt className="text-gray-600">Deposit</dt><dd>{sgd(statement.deposit)}</dd></div>
+        <div className="flex justify-between gap-4">
+          <dt className="text-gray-600">
+            Deductions ({statement.deducted.length} of {findingCount} findings, tenant liable)
+          </dt>
+          <dd>{sgd(-statement.deductions)}</dd>
+        </div>
+        <div className="flex justify-between gap-4 border-t border-gray-200 pt-1 font-semibold">
+          <dt>{statement.toReturn >= 0 ? 'To return to the tenant' : 'Deductions exceed the deposit by'}</dt>
+          <dd>{sgd(Math.abs(statement.toReturn))}</dd>
+        </div>
+      </dl>
+      <ul className="mt-4 space-y-1">
+        {parties.map((party) => {
+          const response = responses.find((row) => row.stakeholderId === party.id)
+          return (
+            <li key={party.id}>
+              <span className="font-medium">{party.name}</span> ({party.role}):{' '}
+              {response ? (
+                <>
+                  <span className={response.answer === 'AGREED' ? 'text-emerald-700' : 'text-red-700'}>
+                    {response.answer === 'AGREED' ? 'agreed' : 'disputed'}
+                  </span>
+                  {response.method === 'IN_PERSON' && ' in person'}, {when.format(response.respondedAt)}
+                  {response.reason && <span className="block text-gray-600">&ldquo;{response.reason}&rdquo;</span>}
+                </>
+              ) : (
+                <span className="text-gray-500">not answered yet</span>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+      <p className="mt-3 text-xs text-gray-500">
+        Kivilo records each party&apos;s answer. It does not hold or move the deposit.
+      </p>
+    </div>
   )
 }
 

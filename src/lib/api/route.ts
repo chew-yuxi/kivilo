@@ -55,6 +55,9 @@ export function authed<P>(
       if (/Review every finding before publishing/i.test(message)) {
         return Response.json({ error: 'assessment_review_incomplete' }, { status: 409 })
       }
+      if (/A revised statement has been published|already been answered/i.test(message)) {
+        return Response.json({ error: 'statement_changed' }, { status: 409 })
+      }
       if (/Confirm that no damage was found/i.test(message)) {
         return Response.json({ error: 'no_damage_unconfirmed' }, { status: 409 })
       }

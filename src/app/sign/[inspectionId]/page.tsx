@@ -9,6 +9,8 @@ import { reportFingerprint, shortFingerprint } from '@/lib/report-fingerprint'
 import { ReportDocument } from '@/components/report-document'
 import { SignatureCanvas } from '@/components/signature-pad'
 import { SignOut } from '@/components/sign-out'
+import { DepositStatementAnswer } from '@/components/deposit-statement-answer'
+import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,6 +62,15 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
   const awaitingMe = inspection.status === 'AWAITING_SIGNATURE' && !mine
   const kind = inspection.kind === 'CHECK_OUT' ? 'check-out' : 'check-in'
   const roleLabel = role === 'LANDLORD' ? 'landlord' : 'tenant'
+  // The latest published assessment's deposit statement, while this party has not
+  // answered it. Only a completed check-out has one.
+  const published = inspection.status === 'COMPLETED' ? inspection.assessments[0] : undefined
+  const statementToAnswer =
+    published &&
+    depositStatement(assessmentSnapshotSchema.parse(published.snapshot)) &&
+    !published.responses.some((response) => response.stakeholderId === signer.id)
+      ? published
+      : null
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -85,6 +96,12 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
             they have, we will email you the signed report as a PDF.
           </p>
         )}
+        {statementToAnswer && (
+          <p className="mb-2">
+            <span className="font-medium">A deposit statement awaits your answer.</span> Read the
+            check-out assessment below, then agree or dispute the deductions at the end.
+          </p>
+        )}
         {inspection.status === 'COMPLETED' && (
           <p>
             <span className="font-medium">Completed.</span> Both parties have signed this
@@ -104,6 +121,13 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
         inspection={inspection}
         pdfHref={inspection.status === 'COMPLETED' ? `${here}/pdf` : null}
       />
+
+      {statementToAnswer && (
+        <section className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Your answer to the deposit statement</h2>
+          <DepositStatementAnswer inspectionId={inspectionId} version={statementToAnswer.version} />
+        </section>
+      )}
 
       {awaitingMe && (
         <section className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">

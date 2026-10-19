@@ -1,7 +1,9 @@
 # Deduction statement: both parties agree what comes off the deposit
 
 Proposed 2026-10-19, from `plans/ux-competitive-review.md` ("own the deposit settlement").
-Not built. Needs the four decisions at the bottom.
+Built 2026-10-19 with the four recommendations below, which Yuxi approved. It hangs
+off `AssessmentVersion` rather than a separate statement table: the version is already
+immutable and hashed, so the deposit was frozen into its snapshot and answers point at it.
 
 ## Why
 
@@ -24,20 +26,22 @@ are listed as not deducted, so the tenant sees what was considered and let go.
 Kivilo records the agreement. It never moves money, rules on liability, or calls a
 verdict law (scribe, not witness, as in `plans/m5-who-pays.md`).
 
-## Shape
+## Shape (as built)
 
-- `DepositStatement`: `assessmentVersionId` (unique), `deposit` copied from the tenancy
-  at publish, `deductionTotal`, `contentHash` over both, `publishedAt`.
-- `DepositStatementResponse`: `statementId`, `stakeholderId`, `answer` (`AGREED` or
-  `DISPUTED`), `reason` (required to dispute), `method` (`OWN_ACCOUNT` or
-  `IN_PERSON`), `respondedAt`. One per party per statement, append-only.
-- Publishing a new assessment version supersedes the open statement; agreements on the
-  old one stay on record against the old hash.
-- Responses go through the existing outbox for email and push, and the report and PDF
-  draw the statement and each party's answer after the assessment. Bump
-  `RENDER_VERSION`.
+- `deposit` in the assessment snapshot, copied from the tenancy at publish, so it is
+  covered by the version's `contentHash`.
+- `AssessmentResponse`: `assessmentVersionId`, `stakeholderId`, `answer` (`AGREED` or
+  `DISPUTED`), `reason` (required to dispute), `method` (`OWN_ACCOUNT` or `IN_PERSON`),
+  `contentHash`, `respondedAt`. One per party per version, append-only.
+- Publishing a new version supersedes the open statement; answers on the old one stay
+  on record against the old hash.
+- Publishing notifies both parties (in-app, email, push) with a link to the signing
+  page. The report and PDF draw the statement and each party's answer
+  (`RENDER_VERSION` 6).
+- Not yet: the app screen. `POST /api/v1/inspections/[id]/deposit-statement` is ready
+  for it.
 
-## Decisions needed
+## Decisions (approved as recommended)
 
 1. **Whole statement or per line?** Recommended: agree or dispute the whole statement,
    with a reason. A partial agreement is the agent publishing a revised version, which

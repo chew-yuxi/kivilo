@@ -232,6 +232,14 @@ export type ProductEvent = $Result.DefaultSelection<Prisma.$ProductEventPayload>
  * stays genuine.
  */
 export type IssuedReportFile = $Result.DefaultSelection<Prisma.$IssuedReportFilePayload>
+/**
+ * Model AssessmentResponse
+ * The landlord's or tenant's answer to the deposit statement in one published
+ * assessment version: agreed, or disputed with a reason. One per party per version and
+ * never edited; a revised assessment is a new version with its own answers, and the old
+ * ones stay against the old hash (`src/lib/statement-actions.ts`).
+ */
+export type AssessmentResponse = $Result.DefaultSelection<Prisma.$AssessmentResponsePayload>
 
 /**
  * Enums
@@ -556,6 +564,14 @@ export const ProductEventSource: {
 
 export type ProductEventSource = (typeof ProductEventSource)[keyof typeof ProductEventSource]
 
+
+export const StatementAnswer: {
+  AGREED: 'AGREED',
+  DISPUTED: 'DISPUTED'
+};
+
+export type StatementAnswer = (typeof StatementAnswer)[keyof typeof StatementAnswer]
+
 }
 
 export type StakeholderKind = $Enums.StakeholderKind
@@ -685,6 +701,10 @@ export const ErrorSource: typeof $Enums.ErrorSource
 export type ProductEventSource = $Enums.ProductEventSource
 
 export const ProductEventSource: typeof $Enums.ProductEventSource
+
+export type StatementAnswer = $Enums.StatementAnswer
+
+export const StatementAnswer: typeof $Enums.StatementAnswer
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1166,6 +1186,16 @@ export class PrismaClient<
     * ```
     */
   get issuedReportFile(): Prisma.IssuedReportFileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.assessmentResponse`: Exposes CRUD operations for the **AssessmentResponse** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssessmentResponses
+    * const assessmentResponses = await prisma.assessmentResponse.findMany()
+    * ```
+    */
+  get assessmentResponse(): Prisma.AssessmentResponseDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1648,7 +1678,8 @@ export namespace Prisma {
     StoragePurge: 'StoragePurge',
     ErrorEvent: 'ErrorEvent',
     ProductEvent: 'ProductEvent',
-    IssuedReportFile: 'IssuedReportFile'
+    IssuedReportFile: 'IssuedReportFile',
+    AssessmentResponse: 'AssessmentResponse'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1664,7 +1695,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile"
+      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4332,6 +4363,80 @@ export namespace Prisma {
           }
         }
       }
+      AssessmentResponse: {
+        payload: Prisma.$AssessmentResponsePayload<ExtArgs>
+        fields: Prisma.AssessmentResponseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssessmentResponseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssessmentResponseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>
+          }
+          findFirst: {
+            args: Prisma.AssessmentResponseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssessmentResponseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>
+          }
+          findMany: {
+            args: Prisma.AssessmentResponseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>[]
+          }
+          create: {
+            args: Prisma.AssessmentResponseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>
+          }
+          createMany: {
+            args: Prisma.AssessmentResponseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssessmentResponseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>[]
+          }
+          delete: {
+            args: Prisma.AssessmentResponseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>
+          }
+          update: {
+            args: Prisma.AssessmentResponseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>
+          }
+          deleteMany: {
+            args: Prisma.AssessmentResponseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssessmentResponseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AssessmentResponseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>[]
+          }
+          upsert: {
+            args: Prisma.AssessmentResponseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssessmentResponsePayload>
+          }
+          aggregate: {
+            args: Prisma.AssessmentResponseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssessmentResponse>
+          }
+          groupBy: {
+            args: Prisma.AssessmentResponseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentResponseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssessmentResponseCountArgs<ExtArgs>
+            result: $Utils.Optional<AssessmentResponseCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4491,6 +4596,7 @@ export namespace Prisma {
     errorEvent?: ErrorEventOmit
     productEvent?: ProductEventOmit
     issuedReportFile?: IssuedReportFileOmit
+    assessmentResponse?: AssessmentResponseOmit
   }
 
   /* Types for Logging */
@@ -4592,6 +4698,7 @@ export namespace Prisma {
     addendaPublished: number
     addendaDisputed: number
     addendumAcknowledgements: number
+    assessmentResponses: number
     subscriptionsManaged: number
   }
 
@@ -4617,6 +4724,7 @@ export namespace Prisma {
     addendaPublished?: boolean | StakeholderCountOutputTypeCountAddendaPublishedArgs
     addendaDisputed?: boolean | StakeholderCountOutputTypeCountAddendaDisputedArgs
     addendumAcknowledgements?: boolean | StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs
+    assessmentResponses?: boolean | StakeholderCountOutputTypeCountAssessmentResponsesArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
   }
 
@@ -4776,6 +4884,13 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AddendumAcknowledgementWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountAssessmentResponsesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentResponseWhereInput
   }
 
   /**
@@ -5370,6 +5485,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type AssessmentVersionCountOutputType
+   */
+
+  export type AssessmentVersionCountOutputType = {
+    responses: number
+  }
+
+  export type AssessmentVersionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    responses?: boolean | AssessmentVersionCountOutputTypeCountResponsesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AssessmentVersionCountOutputType without action
+   */
+  export type AssessmentVersionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentVersionCountOutputType
+     */
+    select?: AssessmentVersionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentVersionCountOutputType without action
+   */
+  export type AssessmentVersionCountOutputTypeCountResponsesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentResponseWhereInput
+  }
+
+
+  /**
    * Count Type ReportAddendumCountOutputType
    */
 
@@ -5702,6 +5848,7 @@ export namespace Prisma {
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
     addendaDisputed?: boolean | Stakeholder$addendaDisputedArgs<ExtArgs>
     addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
+    assessmentResponses?: boolean | Stakeholder$assessmentResponsesArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -5773,6 +5920,7 @@ export namespace Prisma {
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
     addendaDisputed?: boolean | Stakeholder$addendaDisputedArgs<ExtArgs>
     addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
+    assessmentResponses?: boolean | Stakeholder$assessmentResponsesArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -5810,6 +5958,7 @@ export namespace Prisma {
       addendaPublished: Prisma.$ReportAddendumPayload<ExtArgs>[]
       addendaDisputed: Prisma.$ReportAddendumPayload<ExtArgs>[]
       addendumAcknowledgements: Prisma.$AddendumAcknowledgementPayload<ExtArgs>[]
+      assessmentResponses: Prisma.$AssessmentResponsePayload<ExtArgs>[]
       /**
        * The plan of an agent who is on no team. An agent on a team uses the team's.
        */
@@ -6256,6 +6405,7 @@ export namespace Prisma {
     addendaPublished<T extends Stakeholder$addendaPublishedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaPublishedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaDisputed<T extends Stakeholder$addendaDisputedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaDisputedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendumAcknowledgements<T extends Stakeholder$addendumAcknowledgementsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendumAcknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    assessmentResponses<T extends Stakeholder$assessmentResponsesArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$assessmentResponsesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -7237,6 +7387,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AddendumAcknowledgementScalarFieldEnum | AddendumAcknowledgementScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.assessmentResponses
+   */
+  export type Stakeholder$assessmentResponsesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    where?: AssessmentResponseWhereInput
+    orderBy?: AssessmentResponseOrderByWithRelationInput | AssessmentResponseOrderByWithRelationInput[]
+    cursor?: AssessmentResponseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssessmentResponseScalarFieldEnum | AssessmentResponseScalarFieldEnum[]
   }
 
   /**
@@ -36917,6 +37091,8 @@ export namespace Prisma {
     publishedAt?: boolean
     publishedById?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    responses?: boolean | AssessmentVersion$responsesArgs<ExtArgs>
+    _count?: boolean | AssessmentVersionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["assessmentVersion"]>
 
   export type AssessmentVersionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -36954,6 +37130,8 @@ export namespace Prisma {
   export type AssessmentVersionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "version" | "snapshot" | "contentHash" | "publishedAt" | "publishedById", ExtArgs["result"]["assessmentVersion"]>
   export type AssessmentVersionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
+    responses?: boolean | AssessmentVersion$responsesArgs<ExtArgs>
+    _count?: boolean | AssessmentVersionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AssessmentVersionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -36966,6 +37144,7 @@ export namespace Prisma {
     name: "AssessmentVersion"
     objects: {
       inspection: Prisma.$InspectionPayload<ExtArgs>
+      responses: Prisma.$AssessmentResponsePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -37370,6 +37549,7 @@ export namespace Prisma {
   export interface Prisma__AssessmentVersionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     inspection<T extends InspectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, InspectionDefaultArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    responses<T extends AssessmentVersion$responsesArgs<ExtArgs> = {}>(args?: Subset<T, AssessmentVersion$responsesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -37804,6 +37984,30 @@ export namespace Prisma {
      * Limit how many AssessmentVersions to delete.
      */
     limit?: number
+  }
+
+  /**
+   * AssessmentVersion.responses
+   */
+  export type AssessmentVersion$responsesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    where?: AssessmentResponseWhereInput
+    orderBy?: AssessmentResponseOrderByWithRelationInput | AssessmentResponseOrderByWithRelationInput[]
+    cursor?: AssessmentResponseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssessmentResponseScalarFieldEnum | AssessmentResponseScalarFieldEnum[]
   }
 
   /**
@@ -49429,6 +49633,1135 @@ export namespace Prisma {
 
 
   /**
+   * Model AssessmentResponse
+   */
+
+  export type AggregateAssessmentResponse = {
+    _count: AssessmentResponseCountAggregateOutputType | null
+    _min: AssessmentResponseMinAggregateOutputType | null
+    _max: AssessmentResponseMaxAggregateOutputType | null
+  }
+
+  export type AssessmentResponseMinAggregateOutputType = {
+    id: string | null
+    assessmentVersionId: string | null
+    stakeholderId: string | null
+    answer: $Enums.StatementAnswer | null
+    reason: string | null
+    method: $Enums.AcknowledgementMethod | null
+    contentHash: string | null
+    ipAddress: string | null
+    respondedAt: Date | null
+  }
+
+  export type AssessmentResponseMaxAggregateOutputType = {
+    id: string | null
+    assessmentVersionId: string | null
+    stakeholderId: string | null
+    answer: $Enums.StatementAnswer | null
+    reason: string | null
+    method: $Enums.AcknowledgementMethod | null
+    contentHash: string | null
+    ipAddress: string | null
+    respondedAt: Date | null
+  }
+
+  export type AssessmentResponseCountAggregateOutputType = {
+    id: number
+    assessmentVersionId: number
+    stakeholderId: number
+    answer: number
+    reason: number
+    method: number
+    contentHash: number
+    ipAddress: number
+    respondedAt: number
+    _all: number
+  }
+
+
+  export type AssessmentResponseMinAggregateInputType = {
+    id?: true
+    assessmentVersionId?: true
+    stakeholderId?: true
+    answer?: true
+    reason?: true
+    method?: true
+    contentHash?: true
+    ipAddress?: true
+    respondedAt?: true
+  }
+
+  export type AssessmentResponseMaxAggregateInputType = {
+    id?: true
+    assessmentVersionId?: true
+    stakeholderId?: true
+    answer?: true
+    reason?: true
+    method?: true
+    contentHash?: true
+    ipAddress?: true
+    respondedAt?: true
+  }
+
+  export type AssessmentResponseCountAggregateInputType = {
+    id?: true
+    assessmentVersionId?: true
+    stakeholderId?: true
+    answer?: true
+    reason?: true
+    method?: true
+    contentHash?: true
+    ipAddress?: true
+    respondedAt?: true
+    _all?: true
+  }
+
+  export type AssessmentResponseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentResponse to aggregate.
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentResponses to fetch.
+     */
+    orderBy?: AssessmentResponseOrderByWithRelationInput | AssessmentResponseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssessmentResponseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentResponses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentResponses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssessmentResponses
+    **/
+    _count?: true | AssessmentResponseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssessmentResponseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssessmentResponseMaxAggregateInputType
+  }
+
+  export type GetAssessmentResponseAggregateType<T extends AssessmentResponseAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssessmentResponse]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssessmentResponse[P]>
+      : GetScalarType<T[P], AggregateAssessmentResponse[P]>
+  }
+
+
+
+
+  export type AssessmentResponseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssessmentResponseWhereInput
+    orderBy?: AssessmentResponseOrderByWithAggregationInput | AssessmentResponseOrderByWithAggregationInput[]
+    by: AssessmentResponseScalarFieldEnum[] | AssessmentResponseScalarFieldEnum
+    having?: AssessmentResponseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssessmentResponseCountAggregateInputType | true
+    _min?: AssessmentResponseMinAggregateInputType
+    _max?: AssessmentResponseMaxAggregateInputType
+  }
+
+  export type AssessmentResponseGroupByOutputType = {
+    id: string
+    assessmentVersionId: string
+    stakeholderId: string
+    answer: $Enums.StatementAnswer
+    reason: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress: string | null
+    respondedAt: Date
+    _count: AssessmentResponseCountAggregateOutputType | null
+    _min: AssessmentResponseMinAggregateOutputType | null
+    _max: AssessmentResponseMaxAggregateOutputType | null
+  }
+
+  type GetAssessmentResponseGroupByPayload<T extends AssessmentResponseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssessmentResponseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssessmentResponseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssessmentResponseGroupByOutputType[P]>
+            : GetScalarType<T[P], AssessmentResponseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssessmentResponseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    assessmentVersionId?: boolean
+    stakeholderId?: boolean
+    answer?: boolean
+    reason?: boolean
+    method?: boolean
+    contentHash?: boolean
+    ipAddress?: boolean
+    respondedAt?: boolean
+    assessmentVersion?: boolean | AssessmentVersionDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentResponse"]>
+
+  export type AssessmentResponseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    assessmentVersionId?: boolean
+    stakeholderId?: boolean
+    answer?: boolean
+    reason?: boolean
+    method?: boolean
+    contentHash?: boolean
+    ipAddress?: boolean
+    respondedAt?: boolean
+    assessmentVersion?: boolean | AssessmentVersionDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentResponse"]>
+
+  export type AssessmentResponseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    assessmentVersionId?: boolean
+    stakeholderId?: boolean
+    answer?: boolean
+    reason?: boolean
+    method?: boolean
+    contentHash?: boolean
+    ipAddress?: boolean
+    respondedAt?: boolean
+    assessmentVersion?: boolean | AssessmentVersionDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assessmentResponse"]>
+
+  export type AssessmentResponseSelectScalar = {
+    id?: boolean
+    assessmentVersionId?: boolean
+    stakeholderId?: boolean
+    answer?: boolean
+    reason?: boolean
+    method?: boolean
+    contentHash?: boolean
+    ipAddress?: boolean
+    respondedAt?: boolean
+  }
+
+  export type AssessmentResponseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "assessmentVersionId" | "stakeholderId" | "answer" | "reason" | "method" | "contentHash" | "ipAddress" | "respondedAt", ExtArgs["result"]["assessmentResponse"]>
+  export type AssessmentResponseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assessmentVersion?: boolean | AssessmentVersionDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AssessmentResponseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assessmentVersion?: boolean | AssessmentVersionDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AssessmentResponseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assessmentVersion?: boolean | AssessmentVersionDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $AssessmentResponsePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssessmentResponse"
+    objects: {
+      assessmentVersion: Prisma.$AssessmentVersionPayload<ExtArgs>
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      assessmentVersionId: string
+      stakeholderId: string
+      answer: $Enums.StatementAnswer
+      /**
+       * Required to dispute.
+       */
+      reason: string | null
+      method: $Enums.AcknowledgementMethod
+      /**
+       * The version's `contentHash`, which covers the frozen deposit and every finding.
+       */
+      contentHash: string
+      ipAddress: string | null
+      respondedAt: Date
+    }, ExtArgs["result"]["assessmentResponse"]>
+    composites: {}
+  }
+
+  type AssessmentResponseGetPayload<S extends boolean | null | undefined | AssessmentResponseDefaultArgs> = $Result.GetResult<Prisma.$AssessmentResponsePayload, S>
+
+  type AssessmentResponseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AssessmentResponseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AssessmentResponseCountAggregateInputType | true
+    }
+
+  export interface AssessmentResponseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssessmentResponse'], meta: { name: 'AssessmentResponse' } }
+    /**
+     * Find zero or one AssessmentResponse that matches the filter.
+     * @param {AssessmentResponseFindUniqueArgs} args - Arguments to find a AssessmentResponse
+     * @example
+     * // Get one AssessmentResponse
+     * const assessmentResponse = await prisma.assessmentResponse.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssessmentResponseFindUniqueArgs>(args: SelectSubset<T, AssessmentResponseFindUniqueArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AssessmentResponse that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AssessmentResponseFindUniqueOrThrowArgs} args - Arguments to find a AssessmentResponse
+     * @example
+     * // Get one AssessmentResponse
+     * const assessmentResponse = await prisma.assessmentResponse.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssessmentResponseFindUniqueOrThrowArgs>(args: SelectSubset<T, AssessmentResponseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentResponse that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseFindFirstArgs} args - Arguments to find a AssessmentResponse
+     * @example
+     * // Get one AssessmentResponse
+     * const assessmentResponse = await prisma.assessmentResponse.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssessmentResponseFindFirstArgs>(args?: SelectSubset<T, AssessmentResponseFindFirstArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AssessmentResponse that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseFindFirstOrThrowArgs} args - Arguments to find a AssessmentResponse
+     * @example
+     * // Get one AssessmentResponse
+     * const assessmentResponse = await prisma.assessmentResponse.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssessmentResponseFindFirstOrThrowArgs>(args?: SelectSubset<T, AssessmentResponseFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AssessmentResponses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssessmentResponses
+     * const assessmentResponses = await prisma.assessmentResponse.findMany()
+     * 
+     * // Get first 10 AssessmentResponses
+     * const assessmentResponses = await prisma.assessmentResponse.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assessmentResponseWithIdOnly = await prisma.assessmentResponse.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssessmentResponseFindManyArgs>(args?: SelectSubset<T, AssessmentResponseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AssessmentResponse.
+     * @param {AssessmentResponseCreateArgs} args - Arguments to create a AssessmentResponse.
+     * @example
+     * // Create one AssessmentResponse
+     * const AssessmentResponse = await prisma.assessmentResponse.create({
+     *   data: {
+     *     // ... data to create a AssessmentResponse
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssessmentResponseCreateArgs>(args: SelectSubset<T, AssessmentResponseCreateArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AssessmentResponses.
+     * @param {AssessmentResponseCreateManyArgs} args - Arguments to create many AssessmentResponses.
+     * @example
+     * // Create many AssessmentResponses
+     * const assessmentResponse = await prisma.assessmentResponse.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssessmentResponseCreateManyArgs>(args?: SelectSubset<T, AssessmentResponseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssessmentResponses and returns the data saved in the database.
+     * @param {AssessmentResponseCreateManyAndReturnArgs} args - Arguments to create many AssessmentResponses.
+     * @example
+     * // Create many AssessmentResponses
+     * const assessmentResponse = await prisma.assessmentResponse.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssessmentResponses and only return the `id`
+     * const assessmentResponseWithIdOnly = await prisma.assessmentResponse.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssessmentResponseCreateManyAndReturnArgs>(args?: SelectSubset<T, AssessmentResponseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AssessmentResponse.
+     * @param {AssessmentResponseDeleteArgs} args - Arguments to delete one AssessmentResponse.
+     * @example
+     * // Delete one AssessmentResponse
+     * const AssessmentResponse = await prisma.assessmentResponse.delete({
+     *   where: {
+     *     // ... filter to delete one AssessmentResponse
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssessmentResponseDeleteArgs>(args: SelectSubset<T, AssessmentResponseDeleteArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AssessmentResponse.
+     * @param {AssessmentResponseUpdateArgs} args - Arguments to update one AssessmentResponse.
+     * @example
+     * // Update one AssessmentResponse
+     * const assessmentResponse = await prisma.assessmentResponse.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssessmentResponseUpdateArgs>(args: SelectSubset<T, AssessmentResponseUpdateArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AssessmentResponses.
+     * @param {AssessmentResponseDeleteManyArgs} args - Arguments to filter AssessmentResponses to delete.
+     * @example
+     * // Delete a few AssessmentResponses
+     * const { count } = await prisma.assessmentResponse.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssessmentResponseDeleteManyArgs>(args?: SelectSubset<T, AssessmentResponseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentResponses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssessmentResponses
+     * const assessmentResponse = await prisma.assessmentResponse.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssessmentResponseUpdateManyArgs>(args: SelectSubset<T, AssessmentResponseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssessmentResponses and returns the data updated in the database.
+     * @param {AssessmentResponseUpdateManyAndReturnArgs} args - Arguments to update many AssessmentResponses.
+     * @example
+     * // Update many AssessmentResponses
+     * const assessmentResponse = await prisma.assessmentResponse.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AssessmentResponses and only return the `id`
+     * const assessmentResponseWithIdOnly = await prisma.assessmentResponse.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AssessmentResponseUpdateManyAndReturnArgs>(args: SelectSubset<T, AssessmentResponseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AssessmentResponse.
+     * @param {AssessmentResponseUpsertArgs} args - Arguments to update or create a AssessmentResponse.
+     * @example
+     * // Update or create a AssessmentResponse
+     * const assessmentResponse = await prisma.assessmentResponse.upsert({
+     *   create: {
+     *     // ... data to create a AssessmentResponse
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssessmentResponse we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssessmentResponseUpsertArgs>(args: SelectSubset<T, AssessmentResponseUpsertArgs<ExtArgs>>): Prisma__AssessmentResponseClient<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AssessmentResponses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseCountArgs} args - Arguments to filter AssessmentResponses to count.
+     * @example
+     * // Count the number of AssessmentResponses
+     * const count = await prisma.assessmentResponse.count({
+     *   where: {
+     *     // ... the filter for the AssessmentResponses we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssessmentResponseCountArgs>(
+      args?: Subset<T, AssessmentResponseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssessmentResponseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssessmentResponse.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssessmentResponseAggregateArgs>(args: Subset<T, AssessmentResponseAggregateArgs>): Prisma.PrismaPromise<GetAssessmentResponseAggregateType<T>>
+
+    /**
+     * Group by AssessmentResponse.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssessmentResponseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssessmentResponseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssessmentResponseGroupByArgs['orderBy'] }
+        : { orderBy?: AssessmentResponseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssessmentResponseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssessmentResponseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssessmentResponse model
+   */
+  readonly fields: AssessmentResponseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssessmentResponse.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssessmentResponseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    assessmentVersion<T extends AssessmentVersionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AssessmentVersionDefaultArgs<ExtArgs>>): Prisma__AssessmentVersionClient<$Result.GetResult<Prisma.$AssessmentVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssessmentResponse model
+   */
+  interface AssessmentResponseFieldRefs {
+    readonly id: FieldRef<"AssessmentResponse", 'String'>
+    readonly assessmentVersionId: FieldRef<"AssessmentResponse", 'String'>
+    readonly stakeholderId: FieldRef<"AssessmentResponse", 'String'>
+    readonly answer: FieldRef<"AssessmentResponse", 'StatementAnswer'>
+    readonly reason: FieldRef<"AssessmentResponse", 'String'>
+    readonly method: FieldRef<"AssessmentResponse", 'AcknowledgementMethod'>
+    readonly contentHash: FieldRef<"AssessmentResponse", 'String'>
+    readonly ipAddress: FieldRef<"AssessmentResponse", 'String'>
+    readonly respondedAt: FieldRef<"AssessmentResponse", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssessmentResponse findUnique
+   */
+  export type AssessmentResponseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentResponse to fetch.
+     */
+    where: AssessmentResponseWhereUniqueInput
+  }
+
+  /**
+   * AssessmentResponse findUniqueOrThrow
+   */
+  export type AssessmentResponseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentResponse to fetch.
+     */
+    where: AssessmentResponseWhereUniqueInput
+  }
+
+  /**
+   * AssessmentResponse findFirst
+   */
+  export type AssessmentResponseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentResponse to fetch.
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentResponses to fetch.
+     */
+    orderBy?: AssessmentResponseOrderByWithRelationInput | AssessmentResponseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentResponses.
+     */
+    cursor?: AssessmentResponseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentResponses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentResponses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentResponses.
+     */
+    distinct?: AssessmentResponseScalarFieldEnum | AssessmentResponseScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentResponse findFirstOrThrow
+   */
+  export type AssessmentResponseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentResponse to fetch.
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentResponses to fetch.
+     */
+    orderBy?: AssessmentResponseOrderByWithRelationInput | AssessmentResponseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssessmentResponses.
+     */
+    cursor?: AssessmentResponseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentResponses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentResponses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentResponses.
+     */
+    distinct?: AssessmentResponseScalarFieldEnum | AssessmentResponseScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentResponse findMany
+   */
+  export type AssessmentResponseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * Filter, which AssessmentResponses to fetch.
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssessmentResponses to fetch.
+     */
+    orderBy?: AssessmentResponseOrderByWithRelationInput | AssessmentResponseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssessmentResponses.
+     */
+    cursor?: AssessmentResponseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssessmentResponses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssessmentResponses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssessmentResponses.
+     */
+    distinct?: AssessmentResponseScalarFieldEnum | AssessmentResponseScalarFieldEnum[]
+  }
+
+  /**
+   * AssessmentResponse create
+   */
+  export type AssessmentResponseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssessmentResponse.
+     */
+    data: XOR<AssessmentResponseCreateInput, AssessmentResponseUncheckedCreateInput>
+  }
+
+  /**
+   * AssessmentResponse createMany
+   */
+  export type AssessmentResponseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssessmentResponses.
+     */
+    data: AssessmentResponseCreateManyInput | AssessmentResponseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssessmentResponse createManyAndReturn
+   */
+  export type AssessmentResponseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * The data used to create many AssessmentResponses.
+     */
+    data: AssessmentResponseCreateManyInput | AssessmentResponseCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentResponse update
+   */
+  export type AssessmentResponseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssessmentResponse.
+     */
+    data: XOR<AssessmentResponseUpdateInput, AssessmentResponseUncheckedUpdateInput>
+    /**
+     * Choose, which AssessmentResponse to update.
+     */
+    where: AssessmentResponseWhereUniqueInput
+  }
+
+  /**
+   * AssessmentResponse updateMany
+   */
+  export type AssessmentResponseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssessmentResponses.
+     */
+    data: XOR<AssessmentResponseUpdateManyMutationInput, AssessmentResponseUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentResponses to update
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * Limit how many AssessmentResponses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentResponse updateManyAndReturn
+   */
+  export type AssessmentResponseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * The data used to update AssessmentResponses.
+     */
+    data: XOR<AssessmentResponseUpdateManyMutationInput, AssessmentResponseUncheckedUpdateManyInput>
+    /**
+     * Filter which AssessmentResponses to update
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * Limit how many AssessmentResponses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssessmentResponse upsert
+   */
+  export type AssessmentResponseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssessmentResponse to update in case it exists.
+     */
+    where: AssessmentResponseWhereUniqueInput
+    /**
+     * In case the AssessmentResponse found by the `where` argument doesn't exist, create a new AssessmentResponse with this data.
+     */
+    create: XOR<AssessmentResponseCreateInput, AssessmentResponseUncheckedCreateInput>
+    /**
+     * In case the AssessmentResponse was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssessmentResponseUpdateInput, AssessmentResponseUncheckedUpdateInput>
+  }
+
+  /**
+   * AssessmentResponse delete
+   */
+  export type AssessmentResponseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+    /**
+     * Filter which AssessmentResponse to delete.
+     */
+    where: AssessmentResponseWhereUniqueInput
+  }
+
+  /**
+   * AssessmentResponse deleteMany
+   */
+  export type AssessmentResponseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssessmentResponses to delete
+     */
+    where?: AssessmentResponseWhereInput
+    /**
+     * Limit how many AssessmentResponses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AssessmentResponse without action
+   */
+  export type AssessmentResponseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssessmentResponse
+     */
+    select?: AssessmentResponseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AssessmentResponse
+     */
+    omit?: AssessmentResponseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssessmentResponseInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -50028,6 +51361,21 @@ export namespace Prisma {
   export type IssuedReportFileScalarFieldEnum = (typeof IssuedReportFileScalarFieldEnum)[keyof typeof IssuedReportFileScalarFieldEnum]
 
 
+  export const AssessmentResponseScalarFieldEnum: {
+    id: 'id',
+    assessmentVersionId: 'assessmentVersionId',
+    stakeholderId: 'stakeholderId',
+    answer: 'answer',
+    reason: 'reason',
+    method: 'method',
+    contentHash: 'contentHash',
+    ipAddress: 'ipAddress',
+    respondedAt: 'respondedAt'
+  };
+
+  export type AssessmentResponseScalarFieldEnum = (typeof AssessmentResponseScalarFieldEnum)[keyof typeof AssessmentResponseScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -50618,6 +51966,20 @@ export namespace Prisma {
    */
   export type ListEnumProductEventSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductEventSource[]'>
     
+
+
+  /**
+   * Reference to a field of type 'StatementAnswer'
+   */
+  export type EnumStatementAnswerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatementAnswer'>
+    
+
+
+  /**
+   * Reference to a field of type 'StatementAnswer[]'
+   */
+  export type ListEnumStatementAnswerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatementAnswer[]'>
+    
   /**
    * Deep Input Types
    */
@@ -50660,6 +52022,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumListRelationFilter
     addendaDisputed?: ReportAddendumListRelationFilter
     addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
+    assessmentResponses?: AssessmentResponseListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }
@@ -50698,6 +52061,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumOrderByRelationAggregateInput
     addendaDisputed?: ReportAddendumOrderByRelationAggregateInput
     addendumAcknowledgements?: AddendumAcknowledgementOrderByRelationAggregateInput
+    assessmentResponses?: AssessmentResponseOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
   }
@@ -50739,6 +52103,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumListRelationFilter
     addendaDisputed?: ReportAddendumListRelationFilter
     addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
+    assessmentResponses?: AssessmentResponseListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }, "id" | "email" | "authUserId">
@@ -53001,6 +54366,7 @@ export namespace Prisma {
     publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
     publishedById?: StringFilter<"AssessmentVersion"> | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    responses?: AssessmentResponseListRelationFilter
   }
 
   export type AssessmentVersionOrderByWithRelationInput = {
@@ -53012,6 +54378,7 @@ export namespace Prisma {
     publishedAt?: SortOrder
     publishedById?: SortOrder
     inspection?: InspectionOrderByWithRelationInput
+    responses?: AssessmentResponseOrderByRelationAggregateInput
   }
 
   export type AssessmentVersionWhereUniqueInput = Prisma.AtLeast<{
@@ -53027,6 +54394,7 @@ export namespace Prisma {
     publishedAt?: DateTimeFilter<"AssessmentVersion"> | Date | string
     publishedById?: StringFilter<"AssessmentVersion"> | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
+    responses?: AssessmentResponseListRelationFilter
   }, "id" | "inspectionId_version">
 
   export type AssessmentVersionOrderByWithAggregationInput = {
@@ -53880,6 +55248,85 @@ export namespace Prisma {
     issuedAt?: DateTimeWithAggregatesFilter<"IssuedReportFile"> | Date | string
   }
 
+  export type AssessmentResponseWhereInput = {
+    AND?: AssessmentResponseWhereInput | AssessmentResponseWhereInput[]
+    OR?: AssessmentResponseWhereInput[]
+    NOT?: AssessmentResponseWhereInput | AssessmentResponseWhereInput[]
+    id?: StringFilter<"AssessmentResponse"> | string
+    assessmentVersionId?: StringFilter<"AssessmentResponse"> | string
+    stakeholderId?: StringFilter<"AssessmentResponse"> | string
+    answer?: EnumStatementAnswerFilter<"AssessmentResponse"> | $Enums.StatementAnswer
+    reason?: StringNullableFilter<"AssessmentResponse"> | string | null
+    method?: EnumAcknowledgementMethodFilter<"AssessmentResponse"> | $Enums.AcknowledgementMethod
+    contentHash?: StringFilter<"AssessmentResponse"> | string
+    ipAddress?: StringNullableFilter<"AssessmentResponse"> | string | null
+    respondedAt?: DateTimeFilter<"AssessmentResponse"> | Date | string
+    assessmentVersion?: XOR<AssessmentVersionScalarRelationFilter, AssessmentVersionWhereInput>
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type AssessmentResponseOrderByWithRelationInput = {
+    id?: SortOrder
+    assessmentVersionId?: SortOrder
+    stakeholderId?: SortOrder
+    answer?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    method?: SortOrder
+    contentHash?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    respondedAt?: SortOrder
+    assessmentVersion?: AssessmentVersionOrderByWithRelationInput
+    stakeholder?: StakeholderOrderByWithRelationInput
+  }
+
+  export type AssessmentResponseWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    assessmentVersionId_stakeholderId?: AssessmentResponseAssessmentVersionIdStakeholderIdCompoundUniqueInput
+    AND?: AssessmentResponseWhereInput | AssessmentResponseWhereInput[]
+    OR?: AssessmentResponseWhereInput[]
+    NOT?: AssessmentResponseWhereInput | AssessmentResponseWhereInput[]
+    assessmentVersionId?: StringFilter<"AssessmentResponse"> | string
+    stakeholderId?: StringFilter<"AssessmentResponse"> | string
+    answer?: EnumStatementAnswerFilter<"AssessmentResponse"> | $Enums.StatementAnswer
+    reason?: StringNullableFilter<"AssessmentResponse"> | string | null
+    method?: EnumAcknowledgementMethodFilter<"AssessmentResponse"> | $Enums.AcknowledgementMethod
+    contentHash?: StringFilter<"AssessmentResponse"> | string
+    ipAddress?: StringNullableFilter<"AssessmentResponse"> | string | null
+    respondedAt?: DateTimeFilter<"AssessmentResponse"> | Date | string
+    assessmentVersion?: XOR<AssessmentVersionScalarRelationFilter, AssessmentVersionWhereInput>
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "id" | "assessmentVersionId_stakeholderId">
+
+  export type AssessmentResponseOrderByWithAggregationInput = {
+    id?: SortOrder
+    assessmentVersionId?: SortOrder
+    stakeholderId?: SortOrder
+    answer?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    method?: SortOrder
+    contentHash?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    respondedAt?: SortOrder
+    _count?: AssessmentResponseCountOrderByAggregateInput
+    _max?: AssessmentResponseMaxOrderByAggregateInput
+    _min?: AssessmentResponseMinOrderByAggregateInput
+  }
+
+  export type AssessmentResponseScalarWhereWithAggregatesInput = {
+    AND?: AssessmentResponseScalarWhereWithAggregatesInput | AssessmentResponseScalarWhereWithAggregatesInput[]
+    OR?: AssessmentResponseScalarWhereWithAggregatesInput[]
+    NOT?: AssessmentResponseScalarWhereWithAggregatesInput | AssessmentResponseScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssessmentResponse"> | string
+    assessmentVersionId?: StringWithAggregatesFilter<"AssessmentResponse"> | string
+    stakeholderId?: StringWithAggregatesFilter<"AssessmentResponse"> | string
+    answer?: EnumStatementAnswerWithAggregatesFilter<"AssessmentResponse"> | $Enums.StatementAnswer
+    reason?: StringNullableWithAggregatesFilter<"AssessmentResponse"> | string | null
+    method?: EnumAcknowledgementMethodWithAggregatesFilter<"AssessmentResponse"> | $Enums.AcknowledgementMethod
+    contentHash?: StringWithAggregatesFilter<"AssessmentResponse"> | string
+    ipAddress?: StringNullableWithAggregatesFilter<"AssessmentResponse"> | string | null
+    respondedAt?: DateTimeWithAggregatesFilter<"AssessmentResponse"> | Date | string
+  }
+
   export type StakeholderCreateInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -53913,6 +55360,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -53950,6 +55398,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -53987,6 +55436,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -54024,6 +55474,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -56474,6 +57925,7 @@ export namespace Prisma {
     publishedAt?: Date | string
     publishedById: string
     inspection: InspectionCreateNestedOneWithoutAssessmentsInput
+    responses?: AssessmentResponseCreateNestedManyWithoutAssessmentVersionInput
   }
 
   export type AssessmentVersionUncheckedCreateInput = {
@@ -56484,6 +57936,7 @@ export namespace Prisma {
     contentHash: string
     publishedAt?: Date | string
     publishedById: string
+    responses?: AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentVersionInput
   }
 
   export type AssessmentVersionUpdateInput = {
@@ -56494,6 +57947,7 @@ export namespace Prisma {
     publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedById?: StringFieldUpdateOperationsInput | string
     inspection?: InspectionUpdateOneRequiredWithoutAssessmentsNestedInput
+    responses?: AssessmentResponseUpdateManyWithoutAssessmentVersionNestedInput
   }
 
   export type AssessmentVersionUncheckedUpdateInput = {
@@ -56504,6 +57958,7 @@ export namespace Prisma {
     contentHash?: StringFieldUpdateOperationsInput | string
     publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedById?: StringFieldUpdateOperationsInput | string
+    responses?: AssessmentResponseUncheckedUpdateManyWithoutAssessmentVersionNestedInput
   }
 
   export type AssessmentVersionCreateManyInput = {
@@ -57424,6 +58879,88 @@ export namespace Prisma {
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AssessmentResponseCreateInput = {
+    id?: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+    assessmentVersion: AssessmentVersionCreateNestedOneWithoutResponsesInput
+    stakeholder: StakeholderCreateNestedOneWithoutAssessmentResponsesInput
+  }
+
+  export type AssessmentResponseUncheckedCreateInput = {
+    id?: string
+    assessmentVersionId: string
+    stakeholderId: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+  }
+
+  export type AssessmentResponseUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assessmentVersion?: AssessmentVersionUpdateOneRequiredWithoutResponsesNestedInput
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAssessmentResponsesNestedInput
+  }
+
+  export type AssessmentResponseUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assessmentVersionId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentResponseCreateManyInput = {
+    id?: string
+    assessmentVersionId: string
+    stakeholderId: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+  }
+
+  export type AssessmentResponseUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentResponseUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assessmentVersionId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -57578,6 +59115,12 @@ export namespace Prisma {
     none?: AddendumAcknowledgementWhereInput
   }
 
+  export type AssessmentResponseListRelationFilter = {
+    every?: AssessmentResponseWhereInput
+    some?: AssessmentResponseWhereInput
+    none?: AssessmentResponseWhereInput
+  }
+
   export type SubscriptionNullableScalarRelationFilter = {
     is?: SubscriptionWhereInput | null
     isNot?: SubscriptionWhereInput | null
@@ -57655,6 +59198,10 @@ export namespace Prisma {
   }
 
   export type AddendumAcknowledgementOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssessmentResponseOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -60424,6 +61971,86 @@ export namespace Prisma {
     issuedAt?: SortOrder
   }
 
+  export type EnumStatementAnswerFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatementAnswer | EnumStatementAnswerFieldRefInput<$PrismaModel>
+    in?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatementAnswerFilter<$PrismaModel> | $Enums.StatementAnswer
+  }
+
+  export type EnumAcknowledgementMethodFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcknowledgementMethodFilter<$PrismaModel> | $Enums.AcknowledgementMethod
+  }
+
+  export type AssessmentVersionScalarRelationFilter = {
+    is?: AssessmentVersionWhereInput
+    isNot?: AssessmentVersionWhereInput
+  }
+
+  export type AssessmentResponseAssessmentVersionIdStakeholderIdCompoundUniqueInput = {
+    assessmentVersionId: string
+    stakeholderId: string
+  }
+
+  export type AssessmentResponseCountOrderByAggregateInput = {
+    id?: SortOrder
+    assessmentVersionId?: SortOrder
+    stakeholderId?: SortOrder
+    answer?: SortOrder
+    reason?: SortOrder
+    method?: SortOrder
+    contentHash?: SortOrder
+    ipAddress?: SortOrder
+    respondedAt?: SortOrder
+  }
+
+  export type AssessmentResponseMaxOrderByAggregateInput = {
+    id?: SortOrder
+    assessmentVersionId?: SortOrder
+    stakeholderId?: SortOrder
+    answer?: SortOrder
+    reason?: SortOrder
+    method?: SortOrder
+    contentHash?: SortOrder
+    ipAddress?: SortOrder
+    respondedAt?: SortOrder
+  }
+
+  export type AssessmentResponseMinOrderByAggregateInput = {
+    id?: SortOrder
+    assessmentVersionId?: SortOrder
+    stakeholderId?: SortOrder
+    answer?: SortOrder
+    reason?: SortOrder
+    method?: SortOrder
+    contentHash?: SortOrder
+    ipAddress?: SortOrder
+    respondedAt?: SortOrder
+  }
+
+  export type EnumStatementAnswerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatementAnswer | EnumStatementAnswerFieldRefInput<$PrismaModel>
+    in?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatementAnswerWithAggregatesFilter<$PrismaModel> | $Enums.StatementAnswer
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStatementAnswerFilter<$PrismaModel>
+    _max?: NestedEnumStatementAnswerFilter<$PrismaModel>
+  }
+
+  export type EnumAcknowledgementMethodWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcknowledgementMethodWithAggregatesFilter<$PrismaModel> | $Enums.AcknowledgementMethod
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAcknowledgementMethodFilter<$PrismaModel>
+    _max?: NestedEnumAcknowledgementMethodFilter<$PrismaModel>
+  }
+
   export type TeamCreateNestedOneWithoutMembersInput = {
     create?: XOR<TeamCreateWithoutMembersInput, TeamUncheckedCreateWithoutMembersInput>
     connectOrCreate?: TeamCreateOrConnectWithoutMembersInput
@@ -60581,6 +62208,13 @@ export namespace Prisma {
     connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
     createMany?: AddendumAcknowledgementCreateManyStakeholderInputEnvelope
     connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+  }
+
+  export type AssessmentResponseCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AssessmentResponseCreateWithoutStakeholderInput, AssessmentResponseUncheckedCreateWithoutStakeholderInput> | AssessmentResponseCreateWithoutStakeholderInput[] | AssessmentResponseUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutStakeholderInput | AssessmentResponseCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AssessmentResponseCreateManyStakeholderInputEnvelope
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
   }
 
   export type SubscriptionCreateNestedOneWithoutStakeholderInput = {
@@ -60747,6 +62381,13 @@ export namespace Prisma {
     connectOrCreate?: AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput | AddendumAcknowledgementCreateOrConnectWithoutStakeholderInput[]
     createMany?: AddendumAcknowledgementCreateManyStakeholderInputEnvelope
     connect?: AddendumAcknowledgementWhereUniqueInput | AddendumAcknowledgementWhereUniqueInput[]
+  }
+
+  export type AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AssessmentResponseCreateWithoutStakeholderInput, AssessmentResponseUncheckedCreateWithoutStakeholderInput> | AssessmentResponseCreateWithoutStakeholderInput[] | AssessmentResponseUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutStakeholderInput | AssessmentResponseCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AssessmentResponseCreateManyStakeholderInputEnvelope
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
   }
 
   export type SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput = {
@@ -61092,6 +62733,20 @@ export namespace Prisma {
     deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
   }
 
+  export type AssessmentResponseUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AssessmentResponseCreateWithoutStakeholderInput, AssessmentResponseUncheckedCreateWithoutStakeholderInput> | AssessmentResponseCreateWithoutStakeholderInput[] | AssessmentResponseUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutStakeholderInput | AssessmentResponseCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AssessmentResponseUpsertWithWhereUniqueWithoutStakeholderInput | AssessmentResponseUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AssessmentResponseCreateManyStakeholderInputEnvelope
+    set?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    disconnect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    delete?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    update?: AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput | AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput | AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
+  }
+
   export type SubscriptionUpdateOneWithoutStakeholderNestedInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -61418,6 +63073,20 @@ export namespace Prisma {
     update?: AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput | AddendumAcknowledgementUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput | AddendumAcknowledgementUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: AddendumAcknowledgementScalarWhereInput | AddendumAcknowledgementScalarWhereInput[]
+  }
+
+  export type AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AssessmentResponseCreateWithoutStakeholderInput, AssessmentResponseUncheckedCreateWithoutStakeholderInput> | AssessmentResponseCreateWithoutStakeholderInput[] | AssessmentResponseUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutStakeholderInput | AssessmentResponseCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AssessmentResponseUpsertWithWhereUniqueWithoutStakeholderInput | AssessmentResponseUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AssessmentResponseCreateManyStakeholderInputEnvelope
+    set?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    disconnect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    delete?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    update?: AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput | AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput | AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
   }
 
   export type SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput = {
@@ -63865,12 +65534,54 @@ export namespace Prisma {
     connect?: InspectionWhereUniqueInput
   }
 
+  export type AssessmentResponseCreateNestedManyWithoutAssessmentVersionInput = {
+    create?: XOR<AssessmentResponseCreateWithoutAssessmentVersionInput, AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput> | AssessmentResponseCreateWithoutAssessmentVersionInput[] | AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput | AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput[]
+    createMany?: AssessmentResponseCreateManyAssessmentVersionInputEnvelope
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+  }
+
+  export type AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentVersionInput = {
+    create?: XOR<AssessmentResponseCreateWithoutAssessmentVersionInput, AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput> | AssessmentResponseCreateWithoutAssessmentVersionInput[] | AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput | AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput[]
+    createMany?: AssessmentResponseCreateManyAssessmentVersionInputEnvelope
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+  }
+
   export type InspectionUpdateOneRequiredWithoutAssessmentsNestedInput = {
     create?: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutAssessmentsInput
     upsert?: InspectionUpsertWithoutAssessmentsInput
     connect?: InspectionWhereUniqueInput
     update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutAssessmentsInput, InspectionUpdateWithoutAssessmentsInput>, InspectionUncheckedUpdateWithoutAssessmentsInput>
+  }
+
+  export type AssessmentResponseUpdateManyWithoutAssessmentVersionNestedInput = {
+    create?: XOR<AssessmentResponseCreateWithoutAssessmentVersionInput, AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput> | AssessmentResponseCreateWithoutAssessmentVersionInput[] | AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput | AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput[]
+    upsert?: AssessmentResponseUpsertWithWhereUniqueWithoutAssessmentVersionInput | AssessmentResponseUpsertWithWhereUniqueWithoutAssessmentVersionInput[]
+    createMany?: AssessmentResponseCreateManyAssessmentVersionInputEnvelope
+    set?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    disconnect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    delete?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    update?: AssessmentResponseUpdateWithWhereUniqueWithoutAssessmentVersionInput | AssessmentResponseUpdateWithWhereUniqueWithoutAssessmentVersionInput[]
+    updateMany?: AssessmentResponseUpdateManyWithWhereWithoutAssessmentVersionInput | AssessmentResponseUpdateManyWithWhereWithoutAssessmentVersionInput[]
+    deleteMany?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
+  }
+
+  export type AssessmentResponseUncheckedUpdateManyWithoutAssessmentVersionNestedInput = {
+    create?: XOR<AssessmentResponseCreateWithoutAssessmentVersionInput, AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput> | AssessmentResponseCreateWithoutAssessmentVersionInput[] | AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput[]
+    connectOrCreate?: AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput | AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput[]
+    upsert?: AssessmentResponseUpsertWithWhereUniqueWithoutAssessmentVersionInput | AssessmentResponseUpsertWithWhereUniqueWithoutAssessmentVersionInput[]
+    createMany?: AssessmentResponseCreateManyAssessmentVersionInputEnvelope
+    set?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    disconnect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    delete?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+    update?: AssessmentResponseUpdateWithWhereUniqueWithoutAssessmentVersionInput | AssessmentResponseUpdateWithWhereUniqueWithoutAssessmentVersionInput[]
+    updateMany?: AssessmentResponseUpdateManyWithWhereWithoutAssessmentVersionInput | AssessmentResponseUpdateManyWithWhereWithoutAssessmentVersionInput[]
+    deleteMany?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
   }
 
   export type InspectionCreateNestedOneWithoutAddendaInput = {
@@ -64312,6 +66023,42 @@ export namespace Prisma {
     upsert?: InspectionUpsertWithoutIssuedReportFilesInput
     connect?: InspectionWhereUniqueInput
     update?: XOR<XOR<InspectionUpdateToOneWithWhereWithoutIssuedReportFilesInput, InspectionUpdateWithoutIssuedReportFilesInput>, InspectionUncheckedUpdateWithoutIssuedReportFilesInput>
+  }
+
+  export type AssessmentVersionCreateNestedOneWithoutResponsesInput = {
+    create?: XOR<AssessmentVersionCreateWithoutResponsesInput, AssessmentVersionUncheckedCreateWithoutResponsesInput>
+    connectOrCreate?: AssessmentVersionCreateOrConnectWithoutResponsesInput
+    connect?: AssessmentVersionWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutAssessmentResponsesInput = {
+    create?: XOR<StakeholderCreateWithoutAssessmentResponsesInput, StakeholderUncheckedCreateWithoutAssessmentResponsesInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAssessmentResponsesInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type EnumStatementAnswerFieldUpdateOperationsInput = {
+    set?: $Enums.StatementAnswer
+  }
+
+  export type EnumAcknowledgementMethodFieldUpdateOperationsInput = {
+    set?: $Enums.AcknowledgementMethod
+  }
+
+  export type AssessmentVersionUpdateOneRequiredWithoutResponsesNestedInput = {
+    create?: XOR<AssessmentVersionCreateWithoutResponsesInput, AssessmentVersionUncheckedCreateWithoutResponsesInput>
+    connectOrCreate?: AssessmentVersionCreateOrConnectWithoutResponsesInput
+    upsert?: AssessmentVersionUpsertWithoutResponsesInput
+    connect?: AssessmentVersionWhereUniqueInput
+    update?: XOR<XOR<AssessmentVersionUpdateToOneWithWhereWithoutResponsesInput, AssessmentVersionUpdateWithoutResponsesInput>, AssessmentVersionUncheckedUpdateWithoutResponsesInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutAssessmentResponsesNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAssessmentResponsesInput, StakeholderUncheckedCreateWithoutAssessmentResponsesInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAssessmentResponsesInput
+    upsert?: StakeholderUpsertWithoutAssessmentResponsesInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAssessmentResponsesInput, StakeholderUpdateWithoutAssessmentResponsesInput>, StakeholderUncheckedUpdateWithoutAssessmentResponsesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -65207,6 +66954,40 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumProductEventSourceFilter<$PrismaModel>
     _max?: NestedEnumProductEventSourceFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStatementAnswerFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatementAnswer | EnumStatementAnswerFieldRefInput<$PrismaModel>
+    in?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatementAnswerFilter<$PrismaModel> | $Enums.StatementAnswer
+  }
+
+  export type NestedEnumAcknowledgementMethodFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcknowledgementMethodFilter<$PrismaModel> | $Enums.AcknowledgementMethod
+  }
+
+  export type NestedEnumStatementAnswerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatementAnswer | EnumStatementAnswerFieldRefInput<$PrismaModel>
+    in?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatementAnswer[] | ListEnumStatementAnswerFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatementAnswerWithAggregatesFilter<$PrismaModel> | $Enums.StatementAnswer
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStatementAnswerFilter<$PrismaModel>
+    _max?: NestedEnumStatementAnswerFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAcknowledgementMethodWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcknowledgementMethod | EnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcknowledgementMethod[] | ListEnumAcknowledgementMethodFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcknowledgementMethodWithAggregatesFilter<$PrismaModel> | $Enums.AcknowledgementMethod
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAcknowledgementMethodFilter<$PrismaModel>
+    _max?: NestedEnumAcknowledgementMethodFilter<$PrismaModel>
   }
 
   export type TeamCreateWithoutMembersInput = {
@@ -66155,6 +67936,38 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AssessmentResponseCreateWithoutStakeholderInput = {
+    id?: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+    assessmentVersion: AssessmentVersionCreateNestedOneWithoutResponsesInput
+  }
+
+  export type AssessmentResponseUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    assessmentVersionId: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+  }
+
+  export type AssessmentResponseCreateOrConnectWithoutStakeholderInput = {
+    where: AssessmentResponseWhereUniqueInput
+    create: XOR<AssessmentResponseCreateWithoutStakeholderInput, AssessmentResponseUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AssessmentResponseCreateManyStakeholderInputEnvelope = {
+    data: AssessmentResponseCreateManyStakeholderInput | AssessmentResponseCreateManyStakeholderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SubscriptionCreateWithoutStakeholderInput = {
     id?: string
     plan: $Enums.Plan
@@ -66904,6 +68717,37 @@ export namespace Prisma {
     method?: EnumAcknowledgementMethodNullableFilter<"AddendumAcknowledgement"> | $Enums.AcknowledgementMethod | null
   }
 
+  export type AssessmentResponseUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: AssessmentResponseWhereUniqueInput
+    update: XOR<AssessmentResponseUpdateWithoutStakeholderInput, AssessmentResponseUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AssessmentResponseCreateWithoutStakeholderInput, AssessmentResponseUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: AssessmentResponseWhereUniqueInput
+    data: XOR<AssessmentResponseUpdateWithoutStakeholderInput, AssessmentResponseUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput = {
+    where: AssessmentResponseScalarWhereInput
+    data: XOR<AssessmentResponseUpdateManyMutationInput, AssessmentResponseUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type AssessmentResponseScalarWhereInput = {
+    AND?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
+    OR?: AssessmentResponseScalarWhereInput[]
+    NOT?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
+    id?: StringFilter<"AssessmentResponse"> | string
+    assessmentVersionId?: StringFilter<"AssessmentResponse"> | string
+    stakeholderId?: StringFilter<"AssessmentResponse"> | string
+    answer?: EnumStatementAnswerFilter<"AssessmentResponse"> | $Enums.StatementAnswer
+    reason?: StringNullableFilter<"AssessmentResponse"> | string | null
+    method?: EnumAcknowledgementMethodFilter<"AssessmentResponse"> | $Enums.AcknowledgementMethod
+    contentHash?: StringFilter<"AssessmentResponse"> | string
+    ipAddress?: StringNullableFilter<"AssessmentResponse"> | string | null
+    respondedAt?: DateTimeFilter<"AssessmentResponse"> | Date | string
+  }
+
   export type SubscriptionUpsertWithoutStakeholderInput = {
     update: XOR<SubscriptionUpdateWithoutStakeholderInput, SubscriptionUncheckedUpdateWithoutStakeholderInput>
     create: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
@@ -67012,6 +68856,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -67048,6 +68893,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -67224,6 +69070,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
 
@@ -67260,6 +69107,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
 
@@ -67301,6 +69149,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
   }
 
@@ -67337,6 +69186,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
@@ -67416,6 +69266,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
 
@@ -67452,6 +69303,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
@@ -67499,6 +69351,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -67535,6 +69388,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -67570,6 +69424,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -67606,6 +69461,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -67658,6 +69514,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -67694,6 +69551,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -67896,6 +69754,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -67932,6 +69791,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -67973,6 +69833,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -68009,6 +69870,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -68050,6 +69912,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -68086,6 +69949,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -68395,6 +70259,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -68431,6 +70296,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -68478,6 +70344,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -68514,6 +70381,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -68561,6 +70429,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -68597,6 +70466,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -68824,6 +70694,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -68860,6 +70731,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -69102,6 +70974,7 @@ export namespace Prisma {
     contentHash: string
     publishedAt?: Date | string
     publishedById: string
+    responses?: AssessmentResponseCreateNestedManyWithoutAssessmentVersionInput
   }
 
   export type AssessmentVersionUncheckedCreateWithoutInspectionInput = {
@@ -69111,6 +70984,7 @@ export namespace Prisma {
     contentHash: string
     publishedAt?: Date | string
     publishedById: string
+    responses?: AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentVersionInput
   }
 
   export type AssessmentVersionCreateOrConnectWithoutInspectionInput = {
@@ -69395,6 +71269,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -69431,6 +71306,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -71234,6 +73110,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -71270,6 +73147,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -71752,6 +73630,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -71788,6 +73667,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -72112,6 +73992,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -72148,6 +74029,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -72263,6 +74145,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -72299,6 +74182,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -72715,6 +74599,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -72751,6 +74636,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -72903,6 +74789,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -72939,6 +74826,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -73006,6 +74894,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -73042,6 +74931,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -73131,6 +75021,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -73167,6 +75058,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -73260,6 +75152,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -73296,6 +75189,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -73337,6 +75231,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -73373,6 +75268,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -73488,6 +75384,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -73524,6 +75421,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -73571,6 +75469,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -73607,6 +75506,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -73695,6 +75595,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -73731,6 +75632,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -73815,6 +75717,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -73851,6 +75754,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -73918,6 +75822,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -73954,6 +75859,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -74038,6 +75944,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -74074,6 +75981,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -74781,6 +76689,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -74817,6 +76726,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -74934,6 +76844,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -74970,6 +76881,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -75065,6 +76977,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -75101,6 +77014,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -75218,6 +77132,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -75254,6 +77169,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -75315,6 +77231,38 @@ export namespace Prisma {
   export type InspectionCreateOrConnectWithoutAssessmentsInput = {
     where: InspectionWhereUniqueInput
     create: XOR<InspectionCreateWithoutAssessmentsInput, InspectionUncheckedCreateWithoutAssessmentsInput>
+  }
+
+  export type AssessmentResponseCreateWithoutAssessmentVersionInput = {
+    id?: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+    stakeholder: StakeholderCreateNestedOneWithoutAssessmentResponsesInput
+  }
+
+  export type AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput = {
+    id?: string
+    stakeholderId: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+  }
+
+  export type AssessmentResponseCreateOrConnectWithoutAssessmentVersionInput = {
+    where: AssessmentResponseWhereUniqueInput
+    create: XOR<AssessmentResponseCreateWithoutAssessmentVersionInput, AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput>
+  }
+
+  export type AssessmentResponseCreateManyAssessmentVersionInputEnvelope = {
+    data: AssessmentResponseCreateManyAssessmentVersionInput | AssessmentResponseCreateManyAssessmentVersionInput[]
+    skipDuplicates?: boolean
   }
 
   export type InspectionUpsertWithoutAssessmentsInput = {
@@ -75380,6 +77328,22 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type AssessmentResponseUpsertWithWhereUniqueWithoutAssessmentVersionInput = {
+    where: AssessmentResponseWhereUniqueInput
+    update: XOR<AssessmentResponseUpdateWithoutAssessmentVersionInput, AssessmentResponseUncheckedUpdateWithoutAssessmentVersionInput>
+    create: XOR<AssessmentResponseCreateWithoutAssessmentVersionInput, AssessmentResponseUncheckedCreateWithoutAssessmentVersionInput>
+  }
+
+  export type AssessmentResponseUpdateWithWhereUniqueWithoutAssessmentVersionInput = {
+    where: AssessmentResponseWhereUniqueInput
+    data: XOR<AssessmentResponseUpdateWithoutAssessmentVersionInput, AssessmentResponseUncheckedUpdateWithoutAssessmentVersionInput>
+  }
+
+  export type AssessmentResponseUpdateManyWithWhereWithoutAssessmentVersionInput = {
+    where: AssessmentResponseScalarWhereInput
+    data: XOR<AssessmentResponseUpdateManyMutationInput, AssessmentResponseUncheckedUpdateManyWithoutAssessmentVersionInput>
   }
 
   export type InspectionCreateWithoutAddendaInput = {
@@ -75473,6 +77437,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -75509,6 +77474,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -75550,6 +77516,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -75586,6 +77553,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -75758,6 +77726,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -75794,6 +77763,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -75911,6 +77881,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -75947,6 +77918,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -75994,6 +77966,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -76030,6 +78003,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -76172,6 +78146,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -76208,6 +78183,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -76740,6 +78716,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -76776,6 +78753,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -76883,6 +78861,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -76919,6 +78898,7 @@ export namespace Prisma {
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -76955,6 +78935,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -76991,6 +78972,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -77067,6 +79049,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -77103,6 +79086,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -77234,6 +79218,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -77270,6 +79255,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -77322,6 +79308,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -77358,6 +79345,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -77394,6 +79382,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -77430,6 +79419,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -77482,6 +79472,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -77518,6 +79509,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -77644,6 +79636,226 @@ export namespace Prisma {
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
     addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
     moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type AssessmentVersionCreateWithoutResponsesInput = {
+    id?: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+    inspection: InspectionCreateNestedOneWithoutAssessmentsInput
+  }
+
+  export type AssessmentVersionUncheckedCreateWithoutResponsesInput = {
+    id?: string
+    inspectionId: string
+    version: number
+    snapshot: JsonNullValueInput | InputJsonValue
+    contentHash: string
+    publishedAt?: Date | string
+    publishedById: string
+  }
+
+  export type AssessmentVersionCreateOrConnectWithoutResponsesInput = {
+    where: AssessmentVersionWhereUniqueInput
+    create: XOR<AssessmentVersionCreateWithoutResponsesInput, AssessmentVersionUncheckedCreateWithoutResponsesInput>
+  }
+
+  export type StakeholderCreateWithoutAssessmentResponsesInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAssessmentResponsesInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAssessmentResponsesInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAssessmentResponsesInput, StakeholderUncheckedCreateWithoutAssessmentResponsesInput>
+  }
+
+  export type AssessmentVersionUpsertWithoutResponsesInput = {
+    update: XOR<AssessmentVersionUpdateWithoutResponsesInput, AssessmentVersionUncheckedUpdateWithoutResponsesInput>
+    create: XOR<AssessmentVersionCreateWithoutResponsesInput, AssessmentVersionUncheckedCreateWithoutResponsesInput>
+    where?: AssessmentVersionWhereInput
+  }
+
+  export type AssessmentVersionUpdateToOneWithWhereWithoutResponsesInput = {
+    where?: AssessmentVersionWhereInput
+    data: XOR<AssessmentVersionUpdateWithoutResponsesInput, AssessmentVersionUncheckedUpdateWithoutResponsesInput>
+  }
+
+  export type AssessmentVersionUpdateWithoutResponsesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+    inspection?: InspectionUpdateOneRequiredWithoutAssessmentsNestedInput
+  }
+
+  export type AssessmentVersionUncheckedUpdateWithoutResponsesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    snapshot?: JsonNullValueInput | InputJsonValue
+    contentHash?: StringFieldUpdateOperationsInput | string
+    publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedById?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type StakeholderUpsertWithoutAssessmentResponsesInput = {
+    update: XOR<StakeholderUpdateWithoutAssessmentResponsesInput, StakeholderUncheckedUpdateWithoutAssessmentResponsesInput>
+    create: XOR<StakeholderCreateWithoutAssessmentResponsesInput, StakeholderUncheckedCreateWithoutAssessmentResponsesInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAssessmentResponsesInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAssessmentResponsesInput, StakeholderUncheckedUpdateWithoutAssessmentResponsesInput>
+  }
+
+  export type StakeholderUpdateWithoutAssessmentResponsesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAssessmentResponsesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
   export type TenancyCreateManyLandlordInput = {
@@ -77956,6 +80168,17 @@ export namespace Prisma {
     ipAddress?: string | null
     contentHash: string
     method?: $Enums.AcknowledgementMethod | null
+  }
+
+  export type AssessmentResponseCreateManyStakeholderInput = {
+    id?: string
+    assessmentVersionId: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
   }
 
   export type SubscriptionCreateManyManagedByInput = {
@@ -78977,6 +81200,39 @@ export namespace Prisma {
     method?: NullableEnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod | null
   }
 
+  export type AssessmentResponseUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assessmentVersion?: AssessmentVersionUpdateOneRequiredWithoutResponsesNestedInput
+  }
+
+  export type AssessmentResponseUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assessmentVersionId?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentResponseUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assessmentVersionId?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SubscriptionUpdateWithoutManagedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -79066,6 +81322,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -79102,6 +81359,7 @@ export namespace Prisma {
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -79656,6 +81914,7 @@ export namespace Prisma {
     contentHash?: StringFieldUpdateOperationsInput | string
     publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedById?: StringFieldUpdateOperationsInput | string
+    responses?: AssessmentResponseUpdateManyWithoutAssessmentVersionNestedInput
   }
 
   export type AssessmentVersionUncheckedUpdateWithoutInspectionInput = {
@@ -79665,6 +81924,7 @@ export namespace Prisma {
     contentHash?: StringFieldUpdateOperationsInput | string
     publishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     publishedById?: StringFieldUpdateOperationsInput | string
+    responses?: AssessmentResponseUncheckedUpdateManyWithoutAssessmentVersionNestedInput
   }
 
   export type AssessmentVersionUncheckedUpdateManyWithoutInspectionInput = {
@@ -81022,6 +83282,50 @@ export namespace Prisma {
     error?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentResponseCreateManyAssessmentVersionInput = {
+    id?: string
+    stakeholderId: string
+    answer: $Enums.StatementAnswer
+    reason?: string | null
+    method: $Enums.AcknowledgementMethod
+    contentHash: string
+    ipAddress?: string | null
+    respondedAt?: Date | string
+  }
+
+  export type AssessmentResponseUpdateWithoutAssessmentVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAssessmentResponsesNestedInput
+  }
+
+  export type AssessmentResponseUncheckedUpdateWithoutAssessmentVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssessmentResponseUncheckedUpdateManyWithoutAssessmentVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    answer?: EnumStatementAnswerFieldUpdateOperationsInput | $Enums.StatementAnswer
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: EnumAcknowledgementMethodFieldUpdateOperationsInput | $Enums.AcknowledgementMethod
+    contentHash?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReportAddendumEntryCreateManyAddendumInput = {

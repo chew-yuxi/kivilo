@@ -4,6 +4,9 @@ import { createHash } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { authorizeInspection, requireAgent } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { propertyLabel, sgd } from '@/lib/format'
+import { activeNotificationRecipients } from '@/lib/notification-recipients'
+import { depositStatement } from '@/lib/assessment-schema'
 
 /// Publishing is an explicit human review step. The signed inventory remains frozen;
 /// this is a separately dated assessment that can only be superseded by a new version.
@@ -25,6 +28,7 @@ export async function publishAssessment(
     const inspection = await tx.inspection.findUniqueOrThrow({
       where: { id: inspectionId },
       include: {
+        tenancy: { include: { property: true } },
         findings: {
           orderBy: { createdAt: 'asc' },
           include: {
@@ -46,8 +50,9 @@ export async function publishAssessment(
     }
 
     const snapshot = {
-      schemaVersion: 1,
+      schemaVersion: 1 as const,
       summary: inspection.summary,
+      deposit: inspection.tenancy.deposit.toString(),
       findings: inspection.findings.map((finding) => ({
         id: finding.id,
         itemLabel: finding.item
@@ -85,7 +90,7 @@ export async function publishAssessment(
     if (latest?.contentHash === contentHash) {
       return latest
     }
-    return tx.assessmentVersion.create({
+    const version = await tx.assessmentVersion.create({
       data: {
         inspectionId,
         version: (latest?.version ?? 0) + 1,
@@ -94,6 +99,22 @@ export async function publishAssessment(
         publishedById: agent.id,
       },
     })
+    // Each party is asked to agree or dispute it, where they signed the check-out.
+    const statement = depositStatement(snapshot)!
+    const { landlordId, tenantId, property } = inspection.tenancy
+    const recipients = await activeNotificationRecipients(tx, [landlordId, tenantId])
+    await tx.notification.createMany({
+      data: recipients.map((recipientId) => ({
+        recipientId,
+        kind: 'REPORT_UPDATED' as const,
+        title: `Deposit statement for ${propertyLabel(property)}`,
+        body: `The check-out assessment proposes deductions of ${sgd(statement.deductions)} from the deposit of ${sgd(statement.deposit)}. Agree or dispute it.`,
+        href: `/sign/${inspectionId}`,
+        dedupeKey: `deposit-statement:${version.id}:${recipientId}`,
+      })),
+      skipDuplicates: true,
+    })
+    return version
   }, { isolationLevel: 'Serializable' })
 
   revalidatePath(`/inspections/${inspectionId}`)

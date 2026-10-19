@@ -26,7 +26,11 @@ export const reportInclude = {
     },
   },
   signatures: { include: { stakeholder: true } },
-  assessments: { orderBy: { version: 'desc' }, take: 1 },
+  assessments: {
+    orderBy: { version: 'desc' },
+    take: 1,
+    include: { responses: { include: { stakeholder: { select: { name: true } } }, orderBy: { respondedAt: 'asc' } } },
+  },
   addenda: publishedAddenda,
 } satisfies Prisma.InspectionInclude
 
