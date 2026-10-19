@@ -5,6 +5,13 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## iOS store freeze (from 19 October 2026)
+
+**No new iOS store build, submission, cancellation or metadata change until Apple
+approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the review
+queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
+carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
+
 ## Current releases: 18 October 2026 Singapore time
 
 Android production build `25` is published. Google approved it after submission;
