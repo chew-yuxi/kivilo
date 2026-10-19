@@ -32,7 +32,11 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
               <Link href="/account" className="text-xs text-gray-500 hover:underline">
                 Account
               </Link>
-              <SignOut email={agent.email} />
+              {/* A phone header has room for the way home and Account; signing out,
+                  done rarely, is on the Account page. */}
+              <div className="hidden sm:block">
+                <SignOut email={agent.email} />
+              </div>
             </div>
           </div>
         </header>

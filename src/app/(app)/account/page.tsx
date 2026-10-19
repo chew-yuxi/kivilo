@@ -4,6 +4,7 @@ import { syncCheckoutSession, syncSubscription } from '@/lib/billing'
 import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
 import { PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
 import { checkoutOpen } from '@/lib/stripe'
+import { SignOut } from '@/components/sign-out'
 
 const SUPPORT = 'hello@nottoosweetlabs.com'
 
@@ -35,7 +36,11 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="text-2xl font-semibold tracking-tight">Account</h1>
-      <p className="mt-1 text-sm text-gray-500">Signed in as {agent.email}</p>
+      <div className="mt-1 flex items-center gap-3 text-sm text-gray-500">
+        <span>Signed in as {agent.email}</span>
+        {/* The header keeps this on wider screens only; on a phone it lives here. */}
+        <SignOut email={null} />
+      </div>
 
       <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex items-baseline justify-between gap-4">

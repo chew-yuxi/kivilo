@@ -60,9 +60,9 @@ phone, and that is the part an agent feels every day.
    inventory, signatures, share, PDF, addenda, renewal and check-out are stacked in one
    column. Lead with status and the single next action, collapse the inventory by room,
    group the after-signing actions.
-7. **Phone chrome.** "Sign out" is a top-level header link on every screen; there is no
-   way back to the list except "All rooms" then "All inspections". Small, but it is on
-   every screen.
+7. **Phone chrome.** "Sign out" took a top-level header spot on every screen. (The
+   logo already leads back to the list; the review said otherwise and was wrong.) Built
+   2026-10-19: on a phone, sign-out is on the Account page.
 
 ## How to be at the forefront
 
@@ -102,10 +102,17 @@ Ranked by leverage. The first two are the product; the rest compound it.
 
 ## Status (2026-10-19)
 
-All six items in the order below are built on `claude/ux-review`, plus the inspection page
-restructure (6) and check-in photos inline on check-out lines (4). Not built: the app
-screen for the deposit statement (the API is ready), item 7, and forefront items 2
-(dictation and text selection, awaiting a decision), 4 and 5.
+Built: items 1 to 7, forefront 1 (the deposit statement, web and app) and 3 (`/verify`),
+and check-in photos inline on check-out lines.
+
+Not built, by decision rather than oversight:
+- Forefront 2's dictation and serial copying. Both already exist in the phone itself:
+  the keyboard's microphone types the inspector's own words into any field, and iOS
+  Live Text or Google Lens copies a serial off a photo. Nothing in Kivilo would keep a
+  person more firmly the author than that, so there is nothing to build; at most a hint
+  in onboarding.
+- Forefront 4 (tenant view) and 5 (Singapore details such as aircon servicing records
+  and CEA repair rules). Each is a product design of its own and needs a plan first.
 
 ## Suggested order
 
