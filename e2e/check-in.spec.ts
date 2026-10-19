@@ -260,6 +260,9 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await page.getByRole('button', { name: /13 lines as at check-in/ }).click()
   await page.locator('[data-item-row] > button', { hasText: 'Quartz worktop' }).click()
   await expect(page.getByText(/^At check-in: /)).toHaveCount(1)
+  // The photo linked to the fridge at check-in sits beside its line, and no other.
+  await page.locator('[data-item-row] > button', { hasText: 'Refrigerator' }).click()
+  await expect(page.getByRole('img', { name: 'Check-in photo of this item' })).toHaveCount(1)
 
   // Authorization lives in the data layer: a second agent sees nothing of this deal.
   const other = await browser.newContext()

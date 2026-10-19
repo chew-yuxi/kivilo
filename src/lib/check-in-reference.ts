@@ -25,6 +25,9 @@ export const roomBaselineSchema = z.object({
       meterReading: z.string().nullable(),
       /// Added or replaced by an acknowledged addendum, not signed at check-in.
       update: z.boolean(),
+      /// The photos below that the check-in inspector said show this line, so the
+      /// check-out inspector sees them beside it. Absent on baselines frozen before it.
+      photoIds: z.array(z.string()).optional(),
     }),
   ),
   photos: z.array(
@@ -66,6 +69,10 @@ export async function roomBaselines(rooms: StateRoom[], client: Prisma.Transacti
     },
     orderBy: { createdAt: 'asc' },
   })
+  const evidence = await client.itemEvidence.findMany({
+    where: { captureId: { in: captures.map((capture) => capture.id) } },
+    select: { itemId: true, captureId: true },
+  })
 
   return rooms.map((room) => ({
     lines: room.lines.map((line) => ({
@@ -78,6 +85,11 @@ export async function roomBaselines(rooms: StateRoom[], client: Prisma.Transacti
       meterReading: line.meterReading,
       // `currentState` names the lines addenda bring `entry:<id>`.
       update: line.updatedByAddendum === true || line.key.startsWith('entry:'),
+      // Only a signed check-in line has photos linked to it; an addendum's photos are
+      // the room's, as the report shows them.
+      photoIds: evidence
+        .filter((row) => line.key === `item:${row.itemId}`)
+        .map((row) => row.captureId),
     })),
     photos: [
       ...captures

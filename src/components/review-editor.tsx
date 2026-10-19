@@ -13,6 +13,7 @@ import {
   deleteItem,
   addItem,
   markRoomReviewed,
+  checkInPhotoLinks,
 } from '@/lib/actions'
 import type { ItemCategory, ItemCondition } from '@/generated/prisma'
 
@@ -65,6 +66,7 @@ function ItemRow({
   onCheckOut,
   inspectionId,
   captures,
+  checkInPhotos,
   open,
   onToggle,
   onShowEvidence,
@@ -78,6 +80,9 @@ function ItemRow({
   inspectionId: string
   /// The room's captures, any of which the inspector can say shows this line.
   captures: EvidenceCapture[]
+  /// The check-in photos of this row's check-in line, once their links have been
+  /// fetched. Empty until then, and on a line with none.
+  checkInPhotos: { id: string; url: string; annotations: StoredAnnotations | null }[]
   open: boolean
   onToggle: () => void
   onShowEvidence: (captureId: string, seconds: number | null) => void
@@ -263,6 +268,23 @@ function ItemRow({
             </button>
           )}
 
+          {checkInPhotos.length > 0 && (
+            // What this line looked like when both parties signed, beside the line now.
+            // Each overlay wraps its picture alone, so a check-in ring stays on its spot.
+            <div>
+              <p className="text-xs text-gray-500">At check-in</p>
+              <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
+                {checkInPhotos.map((photo) => (
+                  <a key={photo.id} href={photo.url} target="_blank" rel="noreferrer" className="relative block shrink-0 self-start overflow-hidden rounded border border-gray-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo.url} alt="Check-in photo of this item" className="block h-20 w-auto" />
+                    <MarkOverlay annotations={photo.annotations} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
           {baseline && (
             // The condition, which is the comparison, and anything else only where this
             // row no longer says the same, each named, so "no serial" says the serial is new.
@@ -330,6 +352,16 @@ export function ReviewEditor({
   const [pending, startTransition] = useTransition()
   const [confirmEmpty, setConfirmEmpty] = useState(false)
   const [openId, setOpenId] = useState<string | null>(null)
+  // Check-in photo links, signed when a row that has some is first opened rather than
+  // on every render, as the check-in panel does.
+  const [checkInUrls, setCheckInUrls] = useState<Record<string, string> | null>(null)
+  const toggle = (item: EditableItem) => {
+    const opening = openId !== item.id
+    setOpenId(opening ? item.id : null)
+    if (opening && checkInUrls === null && baselineOf(item)?.photoIds?.length) {
+      void checkInPhotoLinks(roomId).then(setCheckInUrls)
+    }
+  }
   const [showUnchanged, setShowUnchanged] = useState(false)
 
   const baselineOf = (item: EditableItem) => checkIn?.lines.find((line) => line.key === item.baselineKey)
@@ -365,8 +397,13 @@ export function ReviewEditor({
       onCheckOut={checkIn !== null}
       inspectionId={inspectionId}
       captures={captures}
+      checkInPhotos={(baselineOf(item)?.photoIds ?? []).flatMap((photoId) => {
+        const url = checkInUrls?.[photoId]
+        const photo = checkIn?.photos.find(({ id }) => id === photoId)
+        return url && photo ? [{ id: photoId, url, annotations: photo.annotations }] : []
+      })}
       open={openId === item.id}
-      onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+      onToggle={() => toggle(item)}
       onShowEvidence={showEvidence}
     />
   )

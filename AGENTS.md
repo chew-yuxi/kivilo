@@ -37,7 +37,9 @@ each room copied from the check-in shows its check-in lines and agreed photos (t
 check-in's and any acknowledged addendum's), frozen in `Room.baseline` when the check-out
 started, so renaming a room or a later addendum never
 changes them (`src/lib/check-in-reference.ts`). Each copied row names its check-in line in
-`InspectionItem.baselineKey`, so what it said stays in view after it is edited. The
+`InspectionItem.baselineKey`, so what it said stays in view after it is edited, and a
+line's frozen `photoIds` (the check-in photos linked to it, absent on baselines frozen
+before 2026-10-19) put those photos beside the row when it is opened. The
 reference checks `inspectionScope` on the check-in itself, since conducting a check-out
 is no access to its check-in. It is for reading only: nothing is ever written from it. A room
 reaches `REVIEWED` only through `markRoomReviewed`, which needs at least one item or the
