@@ -153,6 +153,44 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     }
   }
 
+  // Where the inspection stands and the one thing to do next, under the header, so the
+  // agent does not have to scroll a signed report's full inventory to find it.
+  const itemCount = inspection.rooms.reduce((sum, room) => sum + room._count.items, 0)
+  const signedCount = parties.filter((party) => party.signedAt).length
+  const answers = published?.responses ?? []
+  const nextStep =
+    status === 'AWAITING_SIGNATURE'
+      ? {
+          title: `Collecting signatures: ${signedCount} of ${parties.length} signed`,
+          body: 'Hand the phone to each party to sign, or they can sign from the emailed link.',
+          links: [{ href: '#signatures', label: 'Go to signatures' }],
+        }
+      : status === 'COMPLETED' && kind === 'CHECK_IN'
+        ? {
+            title: 'Signed by both parties',
+            body: 'Send both parties the report. At the end of the tenancy, the check-out starts from here.',
+            links: [
+              { href: '#send', label: 'Send the report' },
+              inspection.checkOut
+                ? { href: `/inspections/${inspection.checkOut.id}`, label: 'Open the check-out' }
+                : { href: '#check-out', label: 'Start the check-out' },
+            ],
+          }
+        : status === 'COMPLETED' && kind === 'CHECK_OUT'
+          ? statement
+            ? {
+                title: `Deposit statement: ${answers.filter((row) => row.answer === 'AGREED').length} agreed, ${
+                  answers.filter((row) => row.answer === 'DISPUTED').length} disputed, ${2 - answers.length} waiting`,
+                body: 'Each party answers from their own account or on this phone.',
+                links: [{ href: '#comparison', label: 'Go to the statement' }],
+              }
+            : {
+                title: 'Signed by both parties',
+                body: 'Record what changed against the check-in, then publish the assessment so both parties can answer the deposit statement.',
+                links: [{ href: '#comparison', label: 'Go to the comparison' }],
+              }
+          : null
+
   return (
     <div className="space-y-8">
       <div>
@@ -191,6 +229,20 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
         )}
       </div>
 
+      {nextStep && (
+        <div className="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
+          <p className="text-sm font-medium text-gray-900">{nextStep.title}</p>
+          <p className="mt-0.5 text-sm text-gray-600">{nextStep.body}</p>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {nextStep.links.map((link) => (
+              <a key={link.href} href={link.href} className="text-sm font-medium text-brand-700 hover:underline">
+                {link.label} →
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       {isCapturePhase && (
         <>
           <RoomCapture inspectionId={id} rooms={rooms} />
@@ -206,16 +258,28 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
       {(status === 'AWAITING_SIGNATURE' || status === 'COMPLETED') && (
         <>
-          <section className="space-y-3">
-            <h2 className="text-sm font-medium">Agreed inventory</h2>
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+          {/* Read through with both parties before they sign, so open then; afterwards
+              it is the record, and folded so what is left to do is in reach. */}
+          <details open={status === 'AWAITING_SIGNATURE'} className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
+              <span>
+                <span className="font-medium">Agreed inventory</span>
+                <span className="text-gray-500">
+                  {' '}· {inspection.rooms.length} {inspection.rooms.length === 1 ? 'room' : 'rooms'},{' '}
+                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                </span>
+              </span>
+              <span className="text-xs font-medium text-brand-600 group-open:hidden">Show</span>
+              <span className="hidden text-xs font-medium text-brand-600 group-open:inline">Hide</span>
+            </summary>
+            <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-white">
               {inspection.rooms.map((room) => (
                 <AgreedRoom key={room.id} roomId={room.id} name={room.name} />
               ))}
             </div>
-          </section>
+          </details>
 
-          <section className="space-y-3">
+          <section id="signatures" className="scroll-mt-4 space-y-3">
             <h2 className="text-sm font-medium">Signatures</h2>
             {status === 'AWAITING_SIGNATURE' && (
               <p className="text-sm text-gray-500">
@@ -251,20 +315,22 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       )}
 
       {status === 'COMPLETED' && (
-        <>
+        <div id="send" className="scroll-mt-4 space-y-8">
           <ShareReport inspectionId={id} shareToken={inspection.shareToken} />
           <DownloadPdf inspectionId={id} />
-        </>
+        </div>
       )}
 
       {addenda && <AddendaPanel inspectionId={id} {...addenda} />}
 
       {status === 'COMPLETED' && kind === 'CHECK_IN' && (
-        <CheckOutButton baselineId={id} existingCheckOutId={inspection.checkOut?.id ?? null} />
+        <div id="check-out" className="scroll-mt-4">
+          <CheckOutButton baselineId={id} existingCheckOutId={inspection.checkOut?.id ?? null} />
+        </div>
       )}
 
       {kind === 'CHECK_OUT' && status === 'COMPLETED' && (
-        <section className="space-y-3">
+        <section id="comparison" className="scroll-mt-4 space-y-3">
           <h2 className="text-sm font-medium">Comparison against check-in</h2>
           {unsettledCosts.length > 0 && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">

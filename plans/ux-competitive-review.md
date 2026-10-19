@@ -100,6 +100,13 @@ Ranked by leverage. The first two are the product; the rest compound it.
 6. **Later: 360 capture.** Inventory Hive ships it and PIM has it coming. For SG condos
    the narrated video already covers the walkthrough; not worth it before 1 to 5.
 
+## Status (2026-10-19)
+
+All six items in the order below are built on `claude/ux-review`, plus the inspection page
+restructure (6) and check-in photos inline on check-out lines (4). Not built: the app
+screen for the deposit statement (the API is ready), item 7, and forefront items 2
+(dictation and text selection, awaiting a decision), 4 and 5.
+
 ## Suggested order
 
 1. Fix bugs 1 and 2 (a day).
