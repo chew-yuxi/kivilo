@@ -151,6 +151,235 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
+  bool _answering = false;
+
+  /// Agrees or disputes the deposit statement: as whoever is signed in, or, with
+  /// `party`, for a landlord or tenant handed this phone. A dispute asks for the reason
+  /// first. The version shown goes with the answer, so a revision published meanwhile
+  /// is refused rather than answered unread.
+  Future<void> _answerStatement(
+    SignedReport report,
+    ReportAssessment assessment, {
+    required bool agreed,
+    StatementParty? party,
+  }) async {
+    String? reason;
+    if (!agreed) {
+      var draft = '';
+      reason = await showKiviloDrawer<String>(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setDrawerState) => KiviloDrawer(
+            title: Text(
+              party == null
+                  ? 'Dispute the deductions'
+                  : '${party.name} disputes the deductions',
+            ),
+            content: TextField(
+              autofocus: true,
+              minLines: 3,
+              maxLines: 6,
+              maxLength: 2000,
+              decoration: const InputDecoration(
+                labelText: 'What is disputed, and why?',
+                helperText: 'The reason is recorded beside the statement.',
+              ),
+              onChanged: (value) => setDrawerState(() => draft = value),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: draft.trim().isEmpty
+                    ? null
+                    : () => Navigator.pop(context, draft.trim()),
+                child: const Text('Record dispute'),
+              ),
+            ],
+          ),
+        ),
+      );
+      if (reason == null) return;
+    } else if (party != null) {
+      final confirmed = await showKiviloDrawer<bool>(
+        context: context,
+        builder: (context) => KiviloDrawer(
+          title: Text('Hand the phone to ${party.name}'),
+          content: Text(
+            '${party.name}, the ${party.role.toLowerCase()}, has read the deposit '
+            'statement. Tapping below records that they agreed to the deductions in '
+            'person, with the time and the exact statement shown.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Agree to the deductions'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    if (!mounted) return;
+    setState(() => _answering = true);
+    try {
+      await _api.answerDepositStatement(
+        report.id,
+        version: assessment.version,
+        agreed: agreed,
+        reason: reason,
+        stakeholderId: party?.stakeholderId,
+      );
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    } finally {
+      if (mounted) setState(() => _answering = false);
+    }
+  }
+
+  Widget _statement(
+    SignedReport report,
+    ReportAssessment assessment,
+    DepositStatement statement,
+    int findingCount,
+  ) {
+    final text = Theme.of(context).textTheme;
+    String money(double amount) => 'S\$${amount.toStringAsFixed(2)}';
+    Widget line(String label, String value, {bool bold = false}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(label, style: bold ? text.titleSmall : text.bodyMedium),
+          ),
+          const SizedBox(width: 12),
+          Text(value, style: bold ? text.titleSmall : text.bodyMedium),
+        ],
+      ),
+    );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Deposit statement', style: text.titleSmall),
+            const SizedBox(height: 8),
+            line('Deposit', money(statement.deposit)),
+            line(
+              'Deductions (${statement.deductedCount} of $findingCount '
+                  'findings, tenant liable)',
+              '-${money(statement.deductions)}',
+            ),
+            const Divider(),
+            line(
+              statement.toReturn >= 0
+                  ? 'To return to the tenant'
+                  : 'Deductions exceed the deposit by',
+              money(statement.toReturn.abs()),
+              bold: true,
+            ),
+            const SizedBox(height: 8),
+            for (final response in statement.responses)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  [
+                    '${response.name} (${response.role.toLowerCase()}): ',
+                    switch (response.answer) {
+                      'AGREED' => 'agreed',
+                      'DISPUTED' => 'disputed',
+                      _ => 'not answered yet',
+                    },
+                    if (response.inPerson) ' in person',
+                    if (response.respondedAt != null)
+                      ', ${shortDate(response.respondedAt!)}',
+                    if (response.reason != null) '. "${response.reason}"',
+                  ].join(),
+                  style: text.bodySmall,
+                ),
+              ),
+            const SizedBox(height: 6),
+            Text(
+              'Kivilo records each answer. It does not hold or move the deposit.',
+              style: text.bodySmall?.copyWith(color: KiviloColors.muted),
+            ),
+            if (statement.answerAs != null) ...[
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: _answering
+                    ? null
+                    : () => _answerStatement(report, assessment, agreed: true),
+                child: Text(
+                  _answering ? 'Recording…' : 'I agree to the deductions',
+                ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                onPressed: _answering
+                    ? null
+                    : () => _answerStatement(report, assessment, agreed: false),
+                child: const Text('Dispute'),
+              ),
+            ],
+            for (final party in statement.answerInPerson) ...[
+              const SizedBox(height: 12),
+              Text(
+                'In person: ${party.role.toLowerCase()} ${party.name}',
+                style: text.labelLarge,
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _answering
+                          ? null
+                          : () => _answerStatement(
+                              report,
+                              assessment,
+                              agreed: true,
+                              party: party,
+                            ),
+                      icon: const Icon(Icons.handshake_outlined),
+                      label: const Text('Agrees'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _answering
+                          ? null
+                          : () => _answerStatement(
+                              report,
+                              assessment,
+                              agreed: false,
+                              party: party,
+                            ),
+                      child: const Text('Disputes'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _sign(SignedReport report) async {
     final landlord = report.signAs == 'LANDLORD';
     final signed = await Navigator.of(context).push<bool>(
@@ -760,12 +989,20 @@ class _ReportScreenState extends State<ReportScreen> {
           Text(assessment.summary!, style: text.bodyMedium),
           const SizedBox(height: 10),
         ],
-        Text(
-          '${liable.length} of ${assessment.findings.length} findings assess '
-          'tenant liability, totalling S\$${claim.toStringAsFixed(2)} against a '
-          'deposit of S\$${report.deposit}.',
-          style: text.bodyMedium,
-        ),
+        if (assessment.statement != null)
+          _statement(
+            report,
+            assessment,
+            assessment.statement!,
+            assessment.findings.length,
+          )
+        else
+          Text(
+            '${liable.length} of ${assessment.findings.length} findings assess '
+            'tenant liability, totalling S\$${claim.toStringAsFixed(2)} against a '
+            'deposit of S\$${report.deposit}.',
+            style: text.bodyMedium,
+          ),
         const SizedBox(height: 10),
         for (final finding in assessment.findings)
           Card(

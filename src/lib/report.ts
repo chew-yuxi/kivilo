@@ -3,7 +3,7 @@ import { authorizeReport } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { propertyLabel } from '@/lib/format'
 import { toAnnotations } from '@/lib/annotations'
-import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
+import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
 import type { Prisma } from '@/generated/prisma'
 
@@ -116,6 +116,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
       version: published.version,
       publishedAt: published.publishedAt.toISOString(),
       summary: assessment.summary,
+      statement: depositStatementView(assessment, published.responses, tenancy, party),
       findings: await Promise.all(assessment.findings.map(async (finding) => ({
         id: finding.id,
         itemLabel: finding.itemLabel,
@@ -132,5 +133,43 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
         }))),
       }))),
     },
+  }
+}
+
+/// The deposit statement as the app shows it, or null on a version published before
+/// deposits were frozen. A party who has not answered sees `answerAs`; the agent, who is
+/// no party, sees `answerInPerson` for each party still to answer, to take it on their
+/// phone. The answer names `version`, which the server checks is still the latest.
+function depositStatementView(
+  assessment: ReturnType<typeof assessmentSnapshotSchema.parse>,
+  responses: { stakeholderId: string; answer: 'AGREED' | 'DISPUTED'; reason: string | null; method: string; respondedAt: Date }[],
+  tenancy: { landlordId: string; tenantId: string; landlord: { name: string }; tenant: { name: string } },
+  party: 'LANDLORD' | 'TENANT' | null,
+) {
+  const statement = depositStatement(assessment)
+  if (!statement) return null
+  const parties = [
+    { stakeholderId: tenancy.landlordId, name: tenancy.landlord.name, role: 'LANDLORD' as const },
+    { stakeholderId: tenancy.tenantId, name: tenancy.tenant.name, role: 'TENANT' as const },
+  ]
+  const answered = (id: string) => responses.some((response) => response.stakeholderId === id)
+  return {
+    deposit: statement.deposit,
+    deductions: statement.deductions,
+    toReturn: statement.toReturn,
+    deductedCount: statement.deducted.length,
+    responses: parties.map((row) => {
+      const response = responses.find((candidate) => candidate.stakeholderId === row.stakeholderId)
+      return {
+        name: row.name,
+        role: row.role,
+        answer: response?.answer ?? null,
+        reason: response?.reason ?? null,
+        inPerson: response?.method === 'IN_PERSON',
+        respondedAt: response?.respondedAt.toISOString() ?? null,
+      }
+    }),
+    answerAs: party && !answered(party === 'LANDLORD' ? tenancy.landlordId : tenancy.tenantId) ? party : null,
+    answerInPerson: party ? [] : parties.filter((row) => !answered(row.stakeholderId)),
   }
 }

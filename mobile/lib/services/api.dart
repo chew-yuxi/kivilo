@@ -584,6 +584,27 @@ class Api {
     );
   });
 
+  /// Agrees or disputes the deposit statement in assessment `version`. With no
+  /// `stakeholderId` the party is whoever holds the token; with one, a party answering
+  /// on this (the agent's) phone, which the server checks belongs to the tenancy.
+  Future<void> answerDepositStatement(
+    String inspectionId, {
+    required int version,
+    required bool agreed,
+    String? reason,
+    String? stakeholderId,
+  }) => _call(() async {
+    await _dio.post(
+      '/api/v1/inspections/$inspectionId/deposit-statement',
+      data: {
+        'version': version,
+        'answer': agreed ? 'AGREED' : 'DISPUTED',
+        'reason': ?reason,
+        'stakeholderId': ?stakeholderId,
+      },
+    );
+  });
+
   /// "Add to the report as an update" on a resolved repair. Returns the check-in whose
   /// draft update now carries it, where the agent finishes and publishes it.
   Future<String> addendumFromMaintenanceCase(String caseId) => _call(() async {

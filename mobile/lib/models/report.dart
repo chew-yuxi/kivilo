@@ -191,11 +191,16 @@ class ReportAssessment {
     required this.publishedAt,
     this.summary,
     required this.findings,
+    this.statement,
   });
   final int version;
   final String publishedAt;
   final String? summary;
   final List<ReportFinding> findings;
+
+  /// Null on a version published before deposits were frozen, and from a server that
+  /// predates deposit statements.
+  final DepositStatement? statement;
 
   factory ReportAssessment.fromJson(Map<String, dynamic> json) =>
       ReportAssessment(
@@ -205,7 +210,95 @@ class ReportAssessment {
         findings: (json['findings'] as List<dynamic>)
             .map((f) => ReportFinding.fromJson(f as Map<String, dynamic>))
             .toList(),
+        statement: json['statement'] == null
+            ? null
+            : DepositStatement.fromJson(
+                json['statement'] as Map<String, dynamic>,
+              ),
       );
+}
+
+/// The deposit less every tenant-liable cost, and each party's answer to it. A party
+/// still to answer sees `answerAs`; the agent sees `answerInPerson` for each party
+/// still to answer, to take it on this phone.
+class DepositStatement {
+  const DepositStatement({
+    required this.deposit,
+    required this.deductions,
+    required this.toReturn,
+    required this.deductedCount,
+    required this.responses,
+    this.answerAs,
+    required this.answerInPerson,
+  });
+  final double deposit;
+  final double deductions;
+  final double toReturn;
+  final int deductedCount;
+  final List<StatementResponse> responses;
+  final String? answerAs;
+  final List<StatementParty> answerInPerson;
+
+  factory DepositStatement.fromJson(Map<String, dynamic> json) =>
+      DepositStatement(
+        deposit: (json['deposit'] as num).toDouble(),
+        deductions: (json['deductions'] as num).toDouble(),
+        toReturn: (json['toReturn'] as num).toDouble(),
+        deductedCount: json['deductedCount'] as int,
+        responses: (json['responses'] as List<dynamic>)
+            .map((r) => StatementResponse.fromJson(r as Map<String, dynamic>))
+            .toList(),
+        answerAs: json['answerAs'] as String?,
+        answerInPerson: (json['answerInPerson'] as List<dynamic>)
+            .map((p) => StatementParty.fromJson(p as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+class StatementResponse {
+  const StatementResponse({
+    required this.name,
+    required this.role,
+    this.answer,
+    this.reason,
+    required this.inPerson,
+    this.respondedAt,
+  });
+  final String name;
+  final String role;
+
+  /// `AGREED`, `DISPUTED`, or null while this party has not answered.
+  final String? answer;
+  final String? reason;
+  final bool inPerson;
+  final String? respondedAt;
+
+  factory StatementResponse.fromJson(Map<String, dynamic> json) =>
+      StatementResponse(
+        name: json['name'] as String,
+        role: json['role'] as String,
+        answer: json['answer'] as String?,
+        reason: json['reason'] as String?,
+        inPerson: json['inPerson'] as bool,
+        respondedAt: json['respondedAt'] as String?,
+      );
+}
+
+class StatementParty {
+  const StatementParty({
+    required this.stakeholderId,
+    required this.name,
+    required this.role,
+  });
+  final String stakeholderId;
+  final String name;
+  final String role;
+
+  factory StatementParty.fromJson(Map<String, dynamic> json) => StatementParty(
+    stakeholderId: json['stakeholderId'] as String,
+    name: json['name'] as String,
+    role: json['role'] as String,
+  );
 }
 
 class ReportFinding {
