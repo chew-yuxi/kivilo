@@ -27,6 +27,47 @@ renewal, usage-event and upload-intent migrations applied. Verification at that 
 typecheck, lint, production build, 90 unit tests, 128 integration tests, 13 end-to-end
 tests, clean Flutter analysis and 182 mobile tests.
 
+## Rich check-out finding chooser: 20 October 2026
+
+Source `4e5fe87` is live on the server (Vercel `dpl_Bi4JoUcCw3TLUYtUc4fE71ye1sjt`,
+Ready in `sin1`). No migration is required. Android `1.0.0+25` patch **3** (ID `734030`)
+and iOS `1.0.0+24` patch **4** (ID `734035`) are **stable**, published under Yuxi's
+“let's give it a go” for this finding-flow change. Both were built from detached
+checkouts of that exact source with Shorebird Flutter `3.47.2`, with Android CLI
+`--build-number=25`. Both passed native and asset checks without overrides; no new
+icons, plugins, pubspec/version changes or store uploads. Apple's existing build24
+submission still reads `WAITING_FOR_REVIEW` and was not changed.
+
+Add finding now opens a full-page searchable item chooser. Room filters and rich cards
+show assigned photos, serial/meter details, quantity, notes and frozen agreed check-in
+versus current check-out condition. The check-in side covers missing items. Item and
+room identities are exact IDs/keys, including renamed rooms and repeated item names.
+Selecting a line opens the form with its context retained and optional inline details;
+change and verdict choices are visible chips. Search, filters and entered text survive
+changing the selected item. The save action stays visible above the keyboard. Failed
+save/remove requests keep the form open, duplicate taps are blocked, and completion
+closes the editor's own route. Photo navigation is disabled while saving.
+
+The inspection API keeps the old `id`/`label` fields and adds the richer context. It
+independently authorizes the check-in, uses frozen room references and explicit line
+photo IDs, and batch-signs at most two linked, room-local, reviewed photos per source
+and item. Legacy snapshots never guess which room photos show an item.
+
+Checks: typecheck, lint, production build, **98 unit**, **156 integration**, **14 e2e**,
+clean Flutter analysis and **214 mobile tests** (10 new behavior tests). This includes
+320×568 at 1.5× text with the keyboard open, tablet layout, matched photo sources/marks,
+missing items, retained drafts and failed-save retries. A real local private photo was
+also batch-signed and read successfully. Rendered phone/tablet fixture previews are in
+`build/release-artifacts/finding-picker-4e5fe87/`; their demo-photo placeholders are
+intentional. Physical-device delivery and interaction remain unverified.
+
+iOS shared 82.3% of code with the release and emitted the existing possible slower
+execution warning; no compatibility check was bypassed. Artifacts and stable receipts:
+`build/release-artifacts/ios/build24/finding-patch4/` and
+`build/release-artifacts/android/build25/finding-patch3/`.
+iOS VM-code SHA-256:
+`58c887ae58df74bfcb5949368d392ba11b11a64b10dfd21a7aca9d371ebe459f`.
+
 ## Deposit statement, report check and review editor: 19 to 20 October 2026
 
 Source `3e85462` is pushed and live on the server. Vercel deployment
