@@ -16,6 +16,7 @@ import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import '../ui/tenant_handover.dart';
 import 'addenda_screen.dart';
+import 'finding_editor_screen.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
@@ -288,37 +289,47 @@ class _InspectionScreenState extends State<InspectionScreen> {
   }
 
   Future<void> _addFinding(InspectionDetail inspection) async {
-    final data = await showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => FindingEditor(
-        maintenanceHistory: inspection.maintenanceHistory,
-        checkOutItems: inspection.checkOutItems,
-        checkInItems: inspection.checkInItems,
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => FindingEditorScreen(
+          maintenanceHistory: inspection.maintenanceHistory,
+          checkOutItems: inspection.checkOutItems,
+          checkInItems: inspection.checkInItems,
+          onSave: (data) => _api.createFinding(widget.id, data),
+        ),
       ),
     );
-    if (data != null) {
-      await _run(() => _api.createFinding(widget.id, data));
+    if (saved == true && mounted) {
+      try {
+        await _refresh();
+      } catch (error) {
+        if (mounted) setState(() => _error = plainError(error));
+      }
     }
   }
 
   Future<void> _editFinding(
     Finding finding,
-    List<Map<String, dynamic>> maintenanceHistory,
+    InspectionDetail inspection,
   ) async {
-    final data = await showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => FindingEditor(
-        finding: finding,
-        maintenanceHistory: maintenanceHistory,
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => FindingEditorScreen(
+          finding: finding,
+          maintenanceHistory: inspection.maintenanceHistory,
+          checkOutItems: inspection.checkOutItems,
+          checkInItems: inspection.checkInItems,
+          onSave: (data) => _api.updateFinding(widget.id, finding.id, data),
+          onRemove: () => _api.deleteFinding(widget.id, finding.id),
+        ),
       ),
     );
-    if (data == null) return;
-    if (data[FindingEditor.remove] == true) {
-      await _run(() => _api.deleteFinding(widget.id, finding.id));
-    } else {
-      await _run(() => _api.updateFinding(widget.id, finding.id, data));
+    if (saved == true && mounted) {
+      try {
+        await _refresh();
+      } catch (error) {
+        if (mounted) setState(() => _error = plainError(error));
+      }
     }
   }
 
@@ -1203,7 +1214,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
             borderRadius: BorderRadius.circular(16),
             onTap: _busy
                 ? null
-                : () => _editFinding(finding, inspection.maintenanceHistory),
+                : () => _editFinding(finding, inspection),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -1305,227 +1316,5 @@ class _InspectionScreenState extends State<InspectionScreen> {
       text,
       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
     ),
-  );
-}
-
-/// Writes a new finding, or reviews an existing one. A new finding is written against
-/// an item from either report: the check-out for anything still there, the check-in for
-/// anything now missing.
-class FindingEditor extends StatefulWidget {
-  const FindingEditor({
-    super.key,
-    this.finding,
-    required this.maintenanceHistory,
-    this.checkOutItems = const [],
-    this.checkInItems = const [],
-  });
-  final Finding? finding;
-  final List<Map<String, dynamic>> maintenanceHistory;
-  final List<ComparableItem> checkOutItems;
-  final List<ComparableItem> checkInItems;
-
-  /// Key of the result that asks for the finding to be removed rather than saved.
-  static const remove = 'remove';
-
-  @override
-  State<FindingEditor> createState() => _FindingEditorState();
-}
-
-class _FindingEditorState extends State<FindingEditor> {
-  /// `out:<id>` or `in:<id>`, so one picker can offer both reports.
-  String? _item;
-  late String _changeType = widget.finding?.changeType ?? 'DAMAGE';
-  late String _verdict = widget.finding?.verdict ?? 'UNDECIDED';
-  late final _rationale = TextEditingController(
-    text: widget.finding?.rationale,
-  );
-  late final _cost = TextEditingController(text: widget.finding?.estimatedCost);
-  late String? _maintenanceCaseId = widget.finding?.maintenanceCaseId;
-  String? _error;
-
-  @override
-  void dispose() {
-    _rationale.dispose();
-    _cost.dispose();
-    super.dispose();
-  }
-
-  void _save() {
-    final cost = _cost.text.trim();
-    if ((widget.finding == null && _item == null) ||
-        _rationale.text.trim().isEmpty ||
-        (cost.isNotEmpty && !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(cost))) {
-      setState(
-        () => _error =
-            'Choose an item, enter a rationale and a cost with up to 2 decimals.',
-      );
-      return;
-    }
-    final fields = <String, dynamic>{
-      'changeType': _changeType,
-      'verdict': _verdict,
-      'rationale': _rationale.text.trim(),
-      'estimatedCost': cost.isEmpty ? null : cost,
-    };
-    if (widget.finding == null) {
-      final [side, id] = _item!.split(':');
-      Navigator.pop(context, <String, dynamic>{
-        'itemId': side == 'out' ? id : null,
-        'baselineItemId': side == 'in' ? id : null,
-        ...fields,
-      });
-    } else {
-      Navigator.pop(context, <String, dynamic>{
-        ...fields,
-        'maintenanceCaseId': _maintenanceCaseId,
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.fromLTRB(
-      20,
-      12,
-      20,
-      MediaQuery.viewInsetsOf(context).bottom + 24,
-    ),
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 34,
-              height: 4,
-              decoration: BoxDecoration(
-                color: KiviloColors.border,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            widget.finding == null ? 'Add finding' : 'Review finding',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 4),
-          if (widget.finding != null)
-            Text(
-              widget.finding!.itemLabel ??
-                  widget.finding!.baselineLabel ??
-                  widget.finding!.changeType,
-              style: Theme.of(context).textTheme.bodyMedium,
-            )
-          else ...[
-            const SizedBox(height: 16),
-            KiviloSelectField<String?>(
-              label: 'Item',
-              value: _item,
-              options: [
-                const KiviloSelectOption<String?>(
-                  value: null,
-                  label: 'Choose an item',
-                ),
-                for (final item in widget.checkOutItems)
-                  KiviloSelectOption<String?>(
-                    value: 'out:${item.id}',
-                    label: item.label,
-                  ),
-                for (final item in widget.checkInItems)
-                  KiviloSelectOption<String?>(
-                    value: 'in:${item.id}',
-                    label: '${item.label} (at check-in)',
-                  ),
-              ],
-              onChanged: (value) => setState(() => _item = value),
-            ),
-          ],
-          const SizedBox(height: 20),
-          KiviloSelectField<String>(
-            label: 'Change',
-            value: _changeType,
-            options: const [
-              KiviloSelectOption(value: 'DAMAGE', label: 'Damage'),
-              KiviloSelectOption(value: 'WEAR', label: 'Wear'),
-              KiviloSelectOption(value: 'MISSING', label: 'Missing'),
-              KiviloSelectOption(value: 'IMPROVED', label: 'Improved'),
-              KiviloSelectOption(value: 'UNCHANGED', label: 'Unchanged'),
-            ],
-            onChanged: (value) => setState(() => _changeType = value),
-          ),
-          const SizedBox(height: 12),
-          KiviloSelectField<String>(
-            label: 'Verdict',
-            value: _verdict,
-            options: const [
-              KiviloSelectOption(value: 'UNDECIDED', label: 'Undecided'),
-              KiviloSelectOption(
-                value: 'TENANT_LIABLE',
-                label: 'Tenant liable',
-              ),
-              KiviloSelectOption(value: 'FAIR_WEAR', label: 'Fair wear'),
-              KiviloSelectOption(value: 'DISPUTED', label: 'Disputed'),
-            ],
-            onChanged: (value) => setState(() => _verdict = value),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _rationale,
-            minLines: 3,
-            maxLines: 6,
-            decoration: const InputDecoration(labelText: 'Rationale'),
-          ),
-          if (widget.finding != null) ...[
-            const SizedBox(height: 12),
-            KiviloSelectField<String?>(
-              label: 'Maintenance media',
-              value: _maintenanceCaseId,
-              options: [
-                const KiviloSelectOption<String?>(
-                  value: null,
-                  label: 'No linked maintenance record',
-                ),
-                ...widget.maintenanceHistory.map(
-                  (item) => KiviloSelectOption<String?>(
-                    value: item['id'] as String,
-                    label: item['title'] as String,
-                  ),
-                ),
-              ],
-              onChanged: (value) => setState(() => _maintenanceCaseId = value),
-            ),
-          ],
-          const SizedBox(height: 12),
-          TextField(
-            controller: _cost,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Estimated cost (SGD)',
-            ),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 10),
-            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
-          ],
-          const SizedBox(height: 20),
-          FilledButton(
-            onPressed: _save,
-            child: Text(
-              widget.finding == null ? 'Add finding' : 'Save reviewed finding',
-            ),
-          ),
-          if (widget.finding != null) ...[
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => Navigator.pop(context, <String, dynamic>{
-                FindingEditor.remove: true,
-              }),
-              child: const Text('Remove finding'),
-            ),
-          ],
-        ],
-      )),
   );
 }

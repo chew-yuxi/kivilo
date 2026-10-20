@@ -222,6 +222,23 @@ strand it there forever, which is exactly what the capture invariant forbids. So
 after it. Signing, findings and sharing are deliberately not guarded, since they are what
 happens *after* the freeze. Pinned by `src/lib/signature-freeze.integration.test.ts`.
 
+## Choosing a check-out finding
+
+The native Add finding flow is a full-page item chooser followed by its form
+(`mobile/lib/screens/finding_editor_screen.dart`). Search and room filters use stable
+room/item IDs; the chosen item keeps its condition comparison, serial/meter details,
+notes and linked photos in view. The form saves before closing and keeps its draft on
+failure. Photo navigation is disabled while saving, and completion closes its own route.
+
+`finding-comparables.ts` enriches the existing inspection API's `checkOutItems` and
+`checkInItems` additively; `id` and `label` stay for older builds. It reads the check-in
+through its own `inspectionScope`, then uses frozen `Room.baseline` lines and `photoIds`
+for comparisons. Photos are item-linked, room-local, PHOTO, stamped at review and signed
+in one bounded batch (two per source/item). An older snapshot without line `photoIds`
+never guesses from all room photos. Agreed retired original rows are excluded from the
+missing-item choices only when frozen room ownership is known; deleting a whole
+check-out room must not be mistaken for retiring its original inventory.
+
 ## Signing
 
 There are three ways to sign, and all of them end in `recordSignature`: on the agent's

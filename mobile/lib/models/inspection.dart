@@ -479,6 +479,8 @@ class SigningParty {
 class Finding {
   const Finding({
     required this.id,
+    this.itemId,
+    this.baselineItemId,
     required this.changeType,
     required this.verdict,
     required this.rationale,
@@ -491,6 +493,8 @@ class Finding {
   });
 
   final String id;
+  final String? itemId;
+  final String? baselineItemId;
   final String changeType;
   final String verdict;
   final String rationale;
@@ -503,6 +507,8 @@ class Finding {
 
   factory Finding.fromJson(Map<String, dynamic> json) => Finding(
     id: json['id'] as String,
+    itemId: json['itemId'] as String?,
+    baselineItemId: json['baselineItemId'] as String?,
     changeType: json['changeType'] as String,
     verdict: json['verdict'] as String,
     rationale: json['rationale'] as String,
@@ -515,10 +521,108 @@ class Finding {
   );
 }
 
+/// Item evidence used while choosing a finding. The signed URL is a temporary read
+/// capability, never an identity or part of the finding request.
+class ComparablePhoto {
+  const ComparablePhoto({
+    required this.id,
+    required this.url,
+    this.note,
+    this.annotations,
+  });
+  final String id;
+  final String url;
+  final String? note;
+  final Map<String, dynamic>? annotations;
+
+  static List<ComparablePhoto> listFromJson(Object? json) =>
+      (json as List<dynamic>? ?? const []).map((value) {
+        final photo = value as Map<String, dynamic>;
+        return ComparablePhoto(
+          id: photo['id'] as String,
+          url: photo['url'] as String,
+          note: photo['note'] as String?,
+          annotations: photo['annotations'] as Map<String, dynamic>?,
+        );
+      }).toList();
+}
+
+/// The agreed line frozen when this check-out began, not today's live check-in.
+class ComparableCheckIn {
+  const ComparableCheckIn({
+    required this.key,
+    required this.name,
+    required this.condition,
+    required this.quantity,
+    this.identifier,
+    this.meterReading,
+    this.notes,
+    this.update = false,
+    this.photos = const [],
+  });
+  final String key;
+  final String name;
+  final String condition;
+  final int quantity;
+  final String? identifier;
+  final String? meterReading;
+  final String? notes;
+  final bool update;
+  final List<ComparablePhoto> photos;
+
+  factory ComparableCheckIn.fromJson(Map<String, dynamic> json) =>
+      ComparableCheckIn(
+        key: json['key'] as String,
+        name: json['name'] as String,
+        condition: json['condition'] as String,
+        quantity: json['quantity'] as int,
+        identifier: json['identifier'] as String?,
+        meterReading: json['meterReading'] as String?,
+        notes: json['notes'] as String?,
+        update: json['update'] as bool? ?? false,
+        photos: ComparablePhoto.listFromJson(json['photos']),
+      );
+}
+
 class ComparableItem {
-  const ComparableItem({required this.id, required this.label});
+  const ComparableItem({
+    required this.id,
+    required this.label,
+    this.roomId,
+    this.roomName,
+    this.name,
+    this.category,
+    this.condition,
+    this.quantity,
+    this.identifier,
+    this.meterReading,
+    this.notes,
+    this.baselineKey,
+    this.photos = const [],
+    this.checkIn,
+    this.representedAtCheckOut,
+    this.representedByItemIds = const [],
+    this.includedAtCheckOutStart,
+  });
   final String id;
   final String label;
+  final String? roomId;
+  final String? roomName;
+  final String? name;
+  final String? category;
+  final String? condition;
+  final int? quantity;
+  final String? identifier;
+  final String? meterReading;
+  final String? notes;
+  final String? baselineKey;
+  final List<ComparablePhoto> photos;
+  final ComparableCheckIn? checkIn;
+  final bool? representedAtCheckOut;
+  final List<String> representedByItemIds;
+  final bool? includedAtCheckOutStart;
+
+  String get displayName => name ?? label;
 
   static List<ComparableItem> listFromJson(Object? json) =>
       (json as List<dynamic>)
@@ -527,6 +631,28 @@ class ComparableItem {
             (entry) => ComparableItem(
               id: entry['id'] as String,
               label: entry['label'] as String,
+              roomId: entry['roomId'] as String?,
+              roomName: entry['roomName'] as String?,
+              name: entry['name'] as String?,
+              category: entry['category'] as String?,
+              condition: entry['condition'] as String?,
+              quantity: entry['quantity'] as int?,
+              identifier: entry['identifier'] as String?,
+              meterReading: entry['meterReading'] as String?,
+              notes: entry['notes'] as String?,
+              baselineKey: entry['baselineKey'] as String?,
+              photos: ComparablePhoto.listFromJson(entry['photos']),
+              checkIn: entry['checkIn'] == null
+                  ? null
+                  : ComparableCheckIn.fromJson(
+                      entry['checkIn'] as Map<String, dynamic>,
+                    ),
+              representedAtCheckOut: entry['representedAtCheckOut'] as bool?,
+              representedByItemIds:
+                  (entry['representedByItemIds'] as List<dynamic>? ?? const [])
+                      .cast<String>(),
+              includedAtCheckOutStart:
+                  entry['includedAtCheckOutStart'] as bool?,
             ),
           )
           .toList();

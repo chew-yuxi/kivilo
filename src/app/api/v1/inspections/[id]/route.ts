@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { authorizeInspection } from '@/lib/auth'
+import { authorizeInspection, inspectionScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { authed } from '@/lib/api/route'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
@@ -8,6 +8,7 @@ import { createDownloadUrl } from '@/lib/storage'
 import { toAnnotations } from '@/lib/annotations'
 import { signingParties } from '@/lib/report-email'
 import { findingCheckInConditions } from '@/lib/check-in-reference'
+import { comparableItemSelect, findingComparables } from '@/lib/finding-comparables'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +16,8 @@ export const dynamic = 'force-dynamic'
 /// server actions use, so an id belonging to another agent is a 404 here exactly as it
 /// is everywhere else.
 export const GET = authed(async (agent, { id }: { id: string }, request) => {
-  await authorizeInspection(id, agent.id)
+  const authorized = await authorizeInspection(id, agent.id)
+  const canCompare = authorized.kind === 'CHECK_OUT' && authorized.status === 'COMPLETED'
 
   const inspection = await db.inspection.findUniqueOrThrow({
     where: { id },
@@ -23,14 +25,34 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       tenancy: { include: { property: true, landlord: true, tenant: true } },
       rooms: {
         orderBy: { order: 'asc' },
-        // The frozen check-in reference only `check-in-reference.ts` reads.
-        omit: { baseline: true },
+        omit: { baseline: !canCompare },
         include: {
           captures: {
             orderBy: { createdAt: 'desc' },
             select: { kind: true, storagePath: true, posterPath: true, annotations: true },
           },
           _count: { select: { items: true } },
+          items: {
+            where: canCompare ? {} : { id: { in: [] } },
+            orderBy: { createdAt: 'asc' },
+            select: comparableItemSelect,
+          },
+        },
+      },
+      // Conducting the check-out grants no access to its check-in. Its original rows
+      // and frozen reference are exposed only through this independently scoped join.
+      baseline: {
+        where: inspectionScope(agent.id),
+        select: {
+          rooms: {
+            where: canCompare ? {} : { id: { in: [] } },
+            orderBy: { order: 'asc' },
+            select: {
+              id: true, name: true,
+              items: { orderBy: { createdAt: 'asc' }, select: comparableItemSelect },
+              captures: { where: { kind: 'PHOTO', processedAt: { not: null } }, select: { id: true } },
+            },
+          },
         },
       },
       signatures: { select: { stakeholderId: true, signedAt: true } },
@@ -64,17 +86,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     },
   })
 
-  // What the add-finding form offers: every item on both signed reports.
-  const comparable = async (inspectionId: string | null) =>
-    inspectionId && inspection.kind === 'CHECK_OUT' && inspection.status === 'COMPLETED'
-      ? (
-          await db.inspectionItem.findMany({
-            where: { room: { inspectionId } },
-            orderBy: [{ room: { order: 'asc' } }, { createdAt: 'asc' }],
-            include: { room: { select: { name: true } } },
-          })
-        ).map((item) => ({ id: item.id, label: `${item.room.name} · ${item.name}` }))
-      : []
+  const comparable = await findingComparables(inspection)
 
   // Unpublished work: an edit or addition since the last version (updatedAt), or a
   // deletion, which leaves no row behind and shows only as a different count.
@@ -152,17 +164,19 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       itemId: finding.itemId,
       baselineItemId: finding.baselineItemId,
       itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
-      baselineLabel: finding.baselineItem
+      baselineLabel: inspection.baseline && finding.baselineItem
         ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
         : null,
-      baselineCondition: checkInConditions?.get(finding.baselineItemId ? `item:${finding.baselineItemId}` : finding.item?.baselineKey ?? '')
-        ?? finding.baselineItem?.condition ?? null,
+      baselineCondition: inspection.baseline
+        ? checkInConditions?.get(finding.baselineItemId ? `item:${finding.baselineItemId}` : finding.item?.baselineKey ?? '')
+          ?? finding.baselineItem?.condition ?? null
+        : null,
       currentCondition: finding.item?.condition ?? null,
       maintenanceCaseId: finding.maintenanceCaseId,
       maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
     })),
-    checkOutItems: await comparable(inspection.id),
-    checkInItems: await comparable(inspection.baselineId),
+    checkOutItems: comparable.checkOutItems,
+    checkInItems: comparable.checkInItems,
     rooms: await Promise.all(inspection.rooms.map(async (room) => {
       const previews = room.captures
         .map((capture) => ({
