@@ -9,6 +9,7 @@ import { toAnnotations } from '@/lib/annotations'
 import { signingParties } from '@/lib/report-email'
 import { findingCheckInConditions } from '@/lib/check-in-reference'
 import { comparableItemSelect, findingComparables } from '@/lib/finding-comparables'
+import { findingPhotoView } from '@/lib/finding-photos'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
           item: { include: { room: { select: { name: true } } } },
           baselineItem: { include: { room: { select: { name: true } } } },
           maintenanceCase: { select: { id: true, title: true } },
+          photos: { where: { deletedAt: null, registeredAt: { not: null } }, orderBy: [{ createdAt: 'asc' }, { clientId: 'asc' }] },
         },
       },
       assessments: {
@@ -153,7 +155,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         costAgreement: agreed ? describeProposal(agreed) : null,
       }
     }),
-    findings: inspection.findings.map((finding) => ({
+    findings: await Promise.all(inspection.findings.map(async (finding) => ({
       id: finding.id,
       changeType: finding.changeType,
       verdict: finding.verdict,
@@ -174,7 +176,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       currentCondition: finding.item?.condition ?? null,
       maintenanceCaseId: finding.maintenanceCaseId,
       maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
-    })),
+      photos: await Promise.all(finding.photos.map(findingPhotoView)),
+    }))),
     checkOutItems: comparable.checkOutItems,
     checkInItems: comparable.checkInItems,
     rooms: await Promise.all(inspection.rooms.map(async (room) => {

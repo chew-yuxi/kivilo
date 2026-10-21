@@ -281,6 +281,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
   }
 
   Future<void> _recoverLostPickerData() async {
+    // ImagePicker has one lost-result slot. Only the finding editor which owns
+    // this durable intent may consume its photo after an Android restart.
+    if (await File('${_root!.path}/finding-picker.json').exists()) return;
     Map<String, dynamic>? intent;
     if (await _pickerJournal.exists()) {
       intent =
@@ -328,7 +331,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
   }
 
   Future<void> _beginPicker() async {
-    if (await _pickerJournal.exists()) {
+    if (await _pickerJournal.exists() ||
+        await File('${_root!.path}/finding-picker.json').exists()) {
       throw StateError(
         'A previous camera selection still needs recovery. Reopen its room before taking another photo.',
       );

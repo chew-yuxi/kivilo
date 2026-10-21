@@ -3,8 +3,9 @@
 import { randomBytes } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
+import { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom } from '@/lib/auth'
+import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom, inspectionScope } from '@/lib/auth'
 import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
@@ -15,6 +16,7 @@ import { queueSignatureRequests, queueSignedCopies, queueTenantHandover, signing
 import { currentState } from '@/lib/addenda'
 import { checkInPhotoUrls, roomBaselines } from '@/lib/check-in-reference'
 import { Prisma } from '@/generated/prisma'
+import { claimFindingPhotoDraft, retireFindingPhotos } from '@/lib/finding-photos'
 import type {
   ChangeType,
   InspectionStatus,
@@ -831,6 +833,8 @@ export async function createFinding(
     verdict: Verdict
     rationale: string
     estimatedCost: string | null
+    clientId?: string
+    photoDraftId?: string
   },
 ) {
   const agent = await requireAgent()
@@ -838,70 +842,107 @@ export async function createFinding(
   if (inspection.kind !== 'CHECK_OUT' || !['AWAITING_SIGNATURE', 'COMPLETED'].includes(inspection.status)) {
     throw new Error('Findings require a reviewed check-out')
   }
-  if (!data.itemId && !data.baselineItemId) throw new Error('Item not found')
-  const { baselineId } = await db.inspection.findUniqueOrThrow({
-    where: { id: inspectionId },
-    select: { baselineId: true },
-  })
+  const clientId = data.clientId ?? data.photoDraftId
+  if (clientId) z.string().uuid().parse(clientId)
+  const findingId = await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${inspection.tenancyId} FOR UPDATE`
+    await lockInspection(tx, inspectionId)
+    if (!await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(agent.id) }, select: { id: true } })) {
+      throw new Error('Inspection not found')
+    }
+    if (!data.itemId && !data.baselineItemId) throw new Error('Item not found')
+    const { baselineId } = await tx.inspection.findUniqueOrThrow({
+      where: { id: inspectionId },
+      select: { baselineId: true },
+    })
 
-  const item = data.itemId
-    ? await db.inspectionItem.findFirst({
-        where: { id: data.itemId, room: { inspectionId } },
-        include: { room: { select: { name: true } } },
-      })
-    : null
-  if (data.itemId && !item) throw new Error('Item not found')
-
-  let baselineItemId = data.baselineItemId
-  if (baselineItemId) {
-    const baselineItem = baselineId
-      ? await db.inspectionItem.findFirst({
-          where: { id: baselineItemId, room: { inspectionId: baselineId } },
-          select: { id: true },
+    const item = data.itemId
+      ? await tx.inspectionItem.findFirst({
+          where: { id: data.itemId, room: { inspectionId } },
+          include: { room: { select: { name: true } } },
         })
       : null
-    if (!baselineItem) throw new Error('Item not found')
-  } else if (item && baselineId) {
-    // A row copied from the check-in names its line, which survives a rename and two
-    // rooms sharing a name; one an addendum brought has no check-in item. Only rows
-    // without one (added during the check-out, or from before it existed) are matched
-    // by name.
-    const match = item.baselineKey?.startsWith('entry:') ? null : await db.inspectionItem.findFirst({
-      where: item.baselineKey
-        ? { id: item.baselineKey.slice('item:'.length), room: { inspectionId: baselineId } }
-        : {
-            name: { equals: item.name, mode: 'insensitive' },
-            room: { inspectionId: baselineId, name: { equals: item.room.name, mode: 'insensitive' } },
-          },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true },
-    })
-    baselineItemId = match?.id ?? null
-  }
+    if (data.itemId && !item) throw new Error('Item not found')
 
-  const finding = await db.finding.create({
-    data: {
-      inspectionId,
-      itemId: data.itemId,
-      baselineItemId,
-      changeType: data.changeType,
-      verdict: data.verdict,
-      rationale: data.rationale,
-      estimatedCost: data.estimatedCost,
-      editedByHuman: true,
-    },
+    let baselineItemId = data.baselineItemId
+    if (baselineItemId) {
+      const baselineItem = baselineId
+        ? await tx.inspectionItem.findFirst({
+            where: { id: baselineItemId, room: { inspectionId: baselineId } },
+            select: { id: true },
+          })
+        : null
+      if (!baselineItem) throw new Error('Item not found')
+    } else if (item && baselineId) {
+      // A row copied from the check-in names its line, which survives a rename and two
+      // rooms sharing a name; one an addendum brought has no check-in item. Only rows
+      // without one (added during the check-out, or from before it existed) are matched
+      // by name.
+      const match = item.baselineKey?.startsWith('entry:') ? null : await tx.inspectionItem.findFirst({
+        where: item.baselineKey
+          ? { id: item.baselineKey.slice('item:'.length), room: { inspectionId: baselineId } }
+          : {
+              name: { equals: item.name, mode: 'insensitive' },
+              room: { inspectionId: baselineId, name: { equals: item.room.name, mode: 'insensitive' } },
+            },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true },
+      })
+      baselineItemId = match?.id ?? null
+    }
+
+    if (clientId) {
+      const existing = await tx.finding.findUnique({ where: { clientId } })
+      if (existing) {
+        if (existing.inspectionId !== inspectionId) throw new Error('Finding not found')
+        await claimFindingPhotoDraft(tx, inspectionId, data.photoDraftId, agent.id, existing.id)
+        const sameCost = existing.estimatedCost === null
+          ? data.estimatedCost === null
+          : data.estimatedCost !== null && existing.estimatedCost.equals(data.estimatedCost)
+        if (existing.itemId !== data.itemId || existing.baselineItemId !== baselineItemId ||
+            existing.changeType !== data.changeType || existing.verdict !== data.verdict ||
+            existing.rationale !== data.rationale || !sameCost) {
+          throw new Error('Finding save conflict: this finding was already saved with different details')
+        }
+        return existing.id
+      }
+    }
+    const finding = await tx.finding.create({
+      data: {
+        inspectionId,
+        clientId,
+        itemId: data.itemId,
+        baselineItemId,
+        changeType: data.changeType,
+        verdict: data.verdict,
+        rationale: data.rationale,
+        estimatedCost: data.estimatedCost,
+        editedByHuman: true,
+      },
+    })
+    await claimFindingPhotoDraft(tx, inspectionId, data.photoDraftId, agent.id, finding.id)
+    return finding.id
   })
   revalidate(inspectionId)
-  return finding.id
+  return findingId
 }
 
 export async function deleteFinding(findingId: string, inspectionId: string) {
   const agent = await requireAgent()
   const finding = await db.finding.findUnique({ where: { id: findingId }, select: { inspectionId: true } })
   if (!finding || finding.inspectionId !== inspectionId) throw new Error('Finding not found')
-  await authorizeInspection(inspectionId, agent.id)
+  const inspection = await authorizeInspection(inspectionId, agent.id)
 
-  await db.finding.delete({ where: { id: findingId } })
+  await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${inspection.tenancyId} FOR UPDATE`
+    await lockInspection(tx, inspectionId)
+    if (!await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(agent.id) }, select: { id: true } })) {
+      throw new Error('Inspection not found')
+    }
+    if (!await tx.finding.findFirst({ where: { id: findingId, inspectionId }, select: { id: true } })) throw new Error('Finding not found')
+    await retireFindingPhotos(tx, inspectionId, findingId)
+    await tx.finding.delete({ where: { id: findingId } })
+  })
   revalidate(inspectionId)
 }
 
@@ -914,6 +955,7 @@ export async function updateFinding(
     rationale?: string
     estimatedCost?: string | null
     maintenanceCaseId?: string | null
+    photoDraftId?: string
   },
 ) {
   const agent = await requireAgent()
@@ -922,7 +964,7 @@ export async function updateFinding(
     select: { inspectionId: true, inspection: { select: { tenancyId: true } } },
   })
   if (!finding || finding.inspectionId !== inspectionId) throw new Error('Finding not found')
-  await authorizeInspection(inspectionId, agent.id)
+  const inspection = await authorizeInspection(inspectionId, agent.id)
 
   if (data.maintenanceCaseId) {
     const maintenanceCase = await db.maintenanceCase.findFirst({
@@ -932,9 +974,19 @@ export async function updateFinding(
     if (!maintenanceCase) throw new Error('Maintenance case not found')
   }
 
-  await db.finding.update({
-    where: { id: findingId },
-    data: { ...data, editedByHuman: true, confidence: null },
+  await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${inspection.tenancyId} FOR UPDATE`
+    await lockInspection(tx, inspectionId)
+    if (!await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(agent.id) }, select: { id: true } })) {
+      throw new Error('Inspection not found')
+    }
+    if (!await tx.finding.findFirst({ where: { id: findingId, inspectionId }, select: { id: true } })) throw new Error('Finding not found')
+    const { photoDraftId, ...fields } = data
+    await claimFindingPhotoDraft(tx, inspectionId, photoDraftId, agent.id, findingId)
+    await tx.finding.update({
+      where: { id: findingId },
+      data: { ...fields, editedByHuman: true, confidence: null },
+    })
   })
   revalidate(inspectionId)
 }

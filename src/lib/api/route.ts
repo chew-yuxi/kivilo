@@ -49,6 +49,12 @@ export function authed<P>(
       if (/Maintenance evidence has not reached storage/i.test(message)) {
         return Response.json({ error: 'evidence_missing' }, { status: 409 })
       }
+      if (/Finding photos are still uploading|finding photo draft is closed/i.test(message)) {
+        return Response.json({ error: 'finding_photos_pending' }, { status: 409 })
+      }
+      if (/^Finding save conflict/.test(message)) {
+        return Response.json({ error: 'finding_save_conflict' }, { status: 409 })
+      }
       if (/rooms? still need review|Add and review at least one room|Review every room with new captures|Finish capturing this room|Add at least one item/i.test(message)) {
         return Response.json({ error: 'review_incomplete' }, { status: 409 })
       }

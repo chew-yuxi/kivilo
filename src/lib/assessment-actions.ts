@@ -2,11 +2,13 @@
 
 import { createHash } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
-import { authorizeInspection, requireAgent } from '@/lib/auth'
+import { authorizeInspection, inspectionScope, requireAgent } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { propertyLabel, sgd } from '@/lib/format'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
-import { depositStatement } from '@/lib/assessment-schema'
+import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
+import { toAnnotations } from '@/lib/annotations'
+import { assertFindingPhotoDraftsReady } from '@/lib/finding-photos'
 
 /// Publishing is an explicit human review step. The signed inventory remains frozen;
 /// this is a separately dated assessment that can only be superseded by a new version.
@@ -25,6 +27,14 @@ export async function publishAssessment(
   }
 
   const result = await db.$transaction(async (tx) => {
+    // Finding text, photo claims/edits and publication share this lock. Nothing can
+    // finish an upload or change a mark between this read and the frozen snapshot.
+    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${authorized.tenancyId} FOR UPDATE`
+    await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "id" = ${inspectionId} FOR UPDATE`
+    if (!await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(agent.id) }, select: { id: true } })) {
+      throw new Error('Inspection not found')
+    }
+    await assertFindingPhotoDraftsReady(tx, inspectionId)
     const inspection = await tx.inspection.findUniqueOrThrow({
       where: { id: inspectionId },
       include: {
@@ -35,6 +45,7 @@ export async function publishAssessment(
             item: { include: { room: { select: { name: true } } } },
             baselineItem: { include: { room: { select: { name: true } } } },
             maintenanceCase: { include: { evidence: { orderBy: { createdAt: 'asc' } } } },
+            photos: { where: { deletedAt: null }, orderBy: [{ createdAt: 'asc' }, { clientId: 'asc' }] },
           },
         },
       },
@@ -48,8 +59,11 @@ export async function publishAssessment(
     if (inspection.findings.length === 0 && !noFindings) {
       throw new Error('Confirm that no damage was found before publishing an assessment without findings')
     }
+    if (inspection.findings.some((finding) => finding.photos.some((photo) => !photo.registeredAt))) {
+      throw new Error('Finding photos are still uploading')
+    }
 
-    const snapshot = {
+    const snapshot = assessmentSnapshotSchema.parse({
       schemaVersion: 1 as const,
       summary: inspection.summary,
       deposit: inspection.tenancy.deposit.toString(),
@@ -66,6 +80,14 @@ export async function publishAssessment(
         estimatedCost: finding.estimatedCost?.toString() ?? null,
         confidence: finding.confidence,
         editedByHuman: finding.editedByHuman,
+        photos: finding.photos.map((photo) => ({
+          id: photo.clientId,
+          storagePath: photo.storagePath,
+          mimeType: photo.mimeType,
+          note: photo.note,
+          annotations: toAnnotations(photo.annotations),
+          createdAt: photo.createdAt.toISOString(),
+        })),
         maintenanceEvidence: finding.maintenanceCase
           ? {
               caseId: finding.maintenanceCase.id,
@@ -81,11 +103,21 @@ export async function publishAssessment(
             }
           : null,
       })),
-    }
+    })
     const contentHash = createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')
     const latest = await tx.assessmentVersion.findFirst({
       where: { inspectionId },
       orderBy: { version: 'desc' },
+    })
+    // Published objects outlive their editable finding. Removing a later draft photo
+    // must not remove the original bytes a party read in this version. Also protect
+    // every included object on an idempotent publication retry.
+    await tx.findingPhoto.updateMany({
+      where: {
+        clientId: { in: inspection.findings.flatMap((finding) => finding.photos.map((photo) => photo.clientId)) },
+        publishedAt: null,
+      },
+      data: { publishedAt: latest?.contentHash === contentHash ? latest.publishedAt : new Date() },
     })
     if (latest?.contentHash === contentHash) {
       return latest
@@ -115,7 +147,7 @@ export async function publishAssessment(
       skipDuplicates: true,
     })
     return version
-  }, { isolationLevel: 'Serializable' })
+  })
 
   revalidatePath(`/inspections/${inspectionId}`)
   return { version: result.version, publishedAt: result.publishedAt }

@@ -20,19 +20,66 @@ class Api {
     : _dio = dio ?? Dio(BaseOptions(baseUrl: Config.apiBase)),
       _cache = cache ?? ReadCache() {
     if (!attachAuth) return;
+    _dio.options.extra['currentOwnerId'] = () =>
+        Supabase.instance.client.auth.currentUser?.id;
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
+          final expected = options.extra['expectedOwnerId'] as String?;
+          if (expected != null &&
+              Supabase.instance.client.auth.currentUser?.id != expected) {
+            return handler.reject(
+              DioException(
+                requestOptions: options,
+                response: Response(requestOptions: options, statusCode: 401),
+                error: const ApiFailure(
+                  'Account changed. Open this page again.',
+                  401,
+                ),
+              ),
+            );
+          }
           final token =
               Supabase.instance.client.auth.currentSession?.accessToken;
           if (token != null) options.headers['Authorization'] = 'Bearer $token';
           handler.next(options);
         },
+        onResponse: (response, handler) {
+          final expected =
+              response.requestOptions.extra['expectedOwnerId'] as String?;
+          if (expected != null &&
+              Supabase.instance.client.auth.currentUser?.id != expected) {
+            return handler.reject(
+              DioException(
+                requestOptions: response.requestOptions,
+                response: Response(
+                  requestOptions: response.requestOptions,
+                  statusCode: 401,
+                ),
+                error: const ApiFailure(
+                  'Account changed. Open this page again.',
+                  401,
+                ),
+              ),
+            );
+          }
+          handler.next(response);
+        },
         onError: (error, handler) async {
+          final expected =
+              error.requestOptions.extra['expectedOwnerId'] as String?;
+          if (expected != null &&
+              Supabase.instance.client.auth.currentUser?.id != expected) {
+            return handler.next(error);
+          }
           if (error.response?.statusCode == 401 &&
               error.requestOptions.extra['retried'] != true) {
             try {
               await Supabase.instance.client.auth.refreshSession();
+              if (expected != null &&
+                  Supabase.instance.client.auth.currentUser?.id != expected) {
+                return handler.next(error);
+              }
               final options = error.requestOptions..extra['retried'] = true;
               return handler.resolve(await _dio.fetch(options));
             } catch (refreshError) {
@@ -62,6 +109,7 @@ class Api {
   Future<Response<T>> _get<T>(
     String route, {
     Map<String, dynamic>? queryParameters,
+    String? expectedOwnerId,
   }) {
     final cancel = CancelToken();
     // A connected radio can silently drop every packet. Bound the whole read
@@ -69,7 +117,12 @@ class Api {
     // open. Mutations and long-running AI requests keep their own semantics.
     return _call(
       () => _dio
-          .get<T>(route, queryParameters: queryParameters, cancelToken: cancel)
+          .get<T>(
+            route,
+            queryParameters: queryParameters,
+            cancelToken: cancel,
+            options: Options(extra: {'expectedOwnerId': ?expectedOwnerId}),
+          )
           .timeout(
             const Duration(seconds: 8),
             onTimeout: () {
@@ -90,10 +143,17 @@ class Api {
     }
   }
 
-  Future<Object> _read(String route, String cacheKey) async {
+  Future<Object> _read(
+    String route,
+    String cacheKey, {
+    String? expectedOwnerId,
+  }) async {
     final owner = _cache.ownerId;
     try {
-      final response = await _get<Object>(route);
+      final response = await _get<Object>(
+        route,
+        expectedOwnerId: expectedOwnerId,
+      );
       _checkOwner(owner);
       if (owner != null) {
         await _cache.writeForOwner(owner, cacheKey, response.data);
@@ -718,29 +778,62 @@ class Api {
     return response.data!['id'] as String;
   });
 
-  Future<void> createFinding(String inspectionId, Map<String, dynamic> data) =>
-      _call(() async {
-        await _dio.post(
-          '/api/v1/inspections/$inspectionId/findings',
-          data: data,
-        );
-      });
+  Future<void> createFinding(
+    String inspectionId,
+    Map<String, dynamic> data, {
+    String? ownerId,
+  }) => _call(() async {
+    await _dio.post(
+      '/api/v1/inspections/$inspectionId/findings',
+      data: data,
+      options: Options(extra: {'expectedOwnerId': ?ownerId}),
+    );
+  });
 
-  Future<void> deleteFinding(String inspectionId, String findingId) =>
-      _call(() async {
-        await _dio.delete(
-          '/api/v1/inspections/$inspectionId/findings/$findingId',
-        );
-      });
+  Future<Map<String, dynamic>> findingPhotoDraft(
+    String inspectionId,
+    String draftId, {
+    String? ownerId,
+  }) async =>
+      await _read(
+            '/api/v1/inspections/$inspectionId/finding-photo-drafts/$draftId',
+            'finding-photos-$inspectionId-$draftId',
+            expectedOwnerId: ownerId,
+          )
+          as Map<String, dynamic>;
+
+  Future<void> discardFindingPhotoDraft(
+    String inspectionId,
+    String draftId, {
+    String? ownerId,
+  }) => _call(() async {
+    await _dio.delete(
+      '/api/v1/inspections/$inspectionId/finding-photo-drafts/$draftId',
+      options: Options(extra: {'expectedOwnerId': ?ownerId}),
+    );
+  });
+
+  Future<void> deleteFinding(
+    String inspectionId,
+    String findingId, {
+    String? ownerId,
+  }) => _call(() async {
+    await _dio.delete(
+      '/api/v1/inspections/$inspectionId/findings/$findingId',
+      options: Options(extra: {'expectedOwnerId': ?ownerId}),
+    );
+  });
 
   Future<void> updateFinding(
     String inspectionId,
     String findingId,
-    Map<String, dynamic> data,
-  ) => _call(() async {
+    Map<String, dynamic> data, {
+    String? ownerId,
+  }) => _call(() async {
     await _dio.patch(
       '/api/v1/inspections/$inspectionId/findings/$findingId',
       data: data,
+      options: Options(extra: {'expectedOwnerId': ?ownerId}),
     );
   });
 

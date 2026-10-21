@@ -144,10 +144,12 @@ class ReportPhoto {
     required this.url,
     this.note,
     this.annotations,
+    this.mimeType,
   });
   final String id;
   final String url;
   final String? note;
+  final String? mimeType;
 
   /// Marks drawn beside the photo, never into it: `{width, height, marks}`, with every
   /// coordinate normalized against that upright box.
@@ -162,6 +164,7 @@ class ReportPhoto {
     url: json['url'] as String,
     note: json['note'] as String?,
     annotations: json['annotations'] as Map<String, dynamic>?,
+    mimeType: json['mimeType'] as String?,
   );
 }
 
@@ -310,6 +313,7 @@ class ReportFinding {
     required this.rationale,
     this.maintenanceTitle,
     required this.evidenceImageUrls,
+    this.photos = const [],
   });
   final String id;
   final String itemLabel;
@@ -318,6 +322,7 @@ class ReportFinding {
   final String rationale;
   final String? maintenanceTitle;
   final List<String> evidenceImageUrls;
+  final List<ReportPhoto> photos;
 
   factory ReportFinding.fromJson(Map<String, dynamic> json) => ReportFinding(
     id: json['id'] as String,
@@ -326,6 +331,9 @@ class ReportFinding {
     estimatedCost: json['estimatedCost'] as String?,
     rationale: json['rationale'] as String,
     maintenanceTitle: json['maintenanceTitle'] as String?,
+    photos: ((json['photos'] as List<dynamic>?) ?? const [])
+        .map((photo) => ReportPhoto.fromJson(photo as Map<String, dynamic>))
+        .toList(),
     evidenceImageUrls: (json['evidence'] as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .where((e) => (e['mimeType'] as String).startsWith('image/'))

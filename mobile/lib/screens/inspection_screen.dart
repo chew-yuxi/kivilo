@@ -8,6 +8,7 @@ import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../services/capture_queue.dart';
+import '../services/finding_photos.dart';
 import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
@@ -289,13 +290,18 @@ class _InspectionScreenState extends State<InspectionScreen> {
   }
 
   Future<void> _addFinding(InspectionDetail inspection) async {
+    final owner = Supabase.instance.client.auth.currentUser?.id;
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => FindingEditorScreen(
+          inspectionId: widget.id,
+          api: _api,
           maintenanceHistory: inspection.maintenanceHistory,
           checkOutItems: inspection.checkOutItems,
           checkInItems: inspection.checkInItems,
-          onSave: (data) => _api.createFinding(widget.id, data),
+          onSave: (data) => _api.createFinding(widget.id, data, ownerId: owner),
+          onRecover: (id, data) =>
+              _api.updateFinding(widget.id, id, data, ownerId: owner),
         ),
       ),
     );
@@ -312,15 +318,22 @@ class _InspectionScreenState extends State<InspectionScreen> {
     Finding finding,
     InspectionDetail inspection,
   ) async {
+    final owner = Supabase.instance.client.auth.currentUser?.id;
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => FindingEditorScreen(
           finding: finding,
+          inspectionId: widget.id,
+          api: _api,
           maintenanceHistory: inspection.maintenanceHistory,
           checkOutItems: inspection.checkOutItems,
           checkInItems: inspection.checkInItems,
-          onSave: (data) => _api.updateFinding(widget.id, finding.id, data),
-          onRemove: () => _api.deleteFinding(widget.id, finding.id),
+          onSave: (data) =>
+              _api.updateFinding(widget.id, finding.id, data, ownerId: owner),
+          onRecover: (id, data) =>
+              _api.updateFinding(widget.id, id, data, ownerId: owner),
+          onRemove: () =>
+              _api.deleteFinding(widget.id, finding.id, ownerId: owner),
         ),
       ),
     );
@@ -336,6 +349,23 @@ class _InspectionScreenState extends State<InspectionScreen> {
   /// With no findings, publishing states that no damage was found, so the drawer says
   /// exactly that and the request carries the confirmation the server requires.
   Future<void> _publishFindings(bool noFindings) async {
+    final owner = Supabase.instance.client.auth.currentUser?.id;
+    if (owner != null) {
+      try {
+        if (await FindingPhotos.hasUnfinishedPhotos(widget.id, owner)) {
+          if (mounted)
+            setState(
+              () => _error =
+                  'Finish marking and uploading your finding photos before publishing. Reopen Add finding or Review finding to resume them.',
+            );
+          return;
+        }
+      } catch (error) {
+        if (mounted) setState(() => _error = plainError(error));
+        return;
+      }
+    }
+    if (!mounted) return;
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
@@ -373,560 +403,575 @@ class _InspectionScreenState extends State<InspectionScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.inspection,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Inspection')),
-    body: KiviloContent(maxWidth: 1120, child: RefreshIndicator(
-      onRefresh: _refresh,
-      child: FutureBuilder<InspectionDetail>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData && !snapshot.hasError) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    'Could not open this inspection. ${plainError(snapshot.error!)}',
-                  ),
-                ),
-              ],
-            );
-          }
-          final inspection = snapshot.data!;
-          final reviewed = inspection.rooms
-              .where((room) => room.status == 'REVIEWED')
-              .length;
-          final isCheckIn = inspection.kind == 'CHECK_IN';
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
-            children: [
-              if (_api.offlineCopy) ...[
-                Card(
-                  color: KiviloColors.amberSoft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.cloud_off_outlined,
-                          color: KiviloColors.amber,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Offline copy. Open a saved room to keep capturing. Review and signatures need a connection.',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      ],
+      appBar: AppBar(title: const Text('Inspection')),
+      body: KiviloContent(
+        maxWidth: 1120,
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: FutureBuilder<InspectionDetail>(
+            future: _future,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData && !snapshot.hasError) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Could not open this inspection. ${plainError(snapshot.error!)}',
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-              ],
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                  ],
+                );
+              }
+              final inspection = snapshot.data!;
+              final reviewed = inspection.rooms
+                  .where((room) => room.status == 'REVIEWED')
+                  .length;
+              final isCheckIn = inspection.kind == 'CHECK_IN';
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: KiviloColors.pinkSoft,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      isCheckIn ? Icons.login_outlined : Icons.logout_outlined,
-                      color: KiviloColors.pinkDark,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isCheckIn ? 'CHECK-IN REPORT' : 'CHECK-OUT REPORT',
-                          style: const TextStyle(
-                            color: KiviloColors.pinkDark,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          inspection.property,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  KiviloStatusPill(status: inspection.status),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      '${inspection.rooms.length} ${inspection.rooms.length == 1 ? 'room' : 'rooms'}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Card(
-                color: KiviloColors.canvas,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'People on this report',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      _personRow(
-                        Icons.person_outline,
-                        'Landlord',
-                        inspection.landlord,
-                      ),
-                      const SizedBox(height: 10),
-                      _personRow(
-                        Icons.person_outline,
-                        'Tenant',
-                        inspection.tenant,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (inspection.isOpen) ...[
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Walkthrough progress',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                            NumberFlow(
-                              value: reviewed,
-                              suffix: '/${inspection.rooms.length} reviewed',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              tabularNums: true,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        KiviloProgressBar(
-                          minHeight: 7,
-                          value: inspection.rooms.isEmpty
-                              ? 0
-                              : reviewed / inspection.rooms.length,
-                          color: KiviloColors.pink,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          inspection.allRoomsReviewed
-                              ? 'Every room is reviewed. The inventory is ready to send.'
-                              : 'Capture each room, write and review its inventory, then send the report for signatures.',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              if (isCheckIn &&
-                    inspection.signatures.any(
-                      (signature) =>
-                          signature.stakeholderId == inspection.tenantId,
-                    )) ...[
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () => showTenantHandover(
-                      context,
-                      inspectionId: widget.id,
-                      api: _api,
-                    ),
-                    child: const Text('Tenant handover'),
-                ),
-              ],
-              if (inspection.baselineId != null) ...[
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) =>
-                          InspectionScreen(id: inspection.baselineId!),
-                    ),
-                  ),
-                  icon: const Icon(Icons.compare_arrows_outlined),
-                  label: const Text('View check-in baseline'),
-                ),
-              ],
-              if (inspection.summary != null) ...[
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Report summary',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          inspection.summary!,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              if (_error != null) ...[
-                const SizedBox(height: 16),
-                Card(
-                  color: KiviloColors.redSoft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: KiviloColors.red),
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 28),
-              KiviloSectionHeading(
-                title: 'Rooms',
-                subtitle: inspection.rooms.isEmpty
-                    ? 'Start with your first room'
-                    : 'Inventory and media, room by room',
-                action: inspection.isOpen
-                    ? TextButton.icon(
-                        onPressed: _busy ? null : _addRoom,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add'),
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              if (inspection.rooms.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 30,
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.meeting_room_outlined,
-                          size: 34,
-                          color: KiviloColors.subtle,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No rooms yet',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Add a room to start the walkthrough.',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final columns = constraints.maxWidth >= 760 ? 2 : 1;
-                  final width =
-                      (constraints.maxWidth - (columns - 1) * 12) / columns;
-                  return Wrap(
-                    spacing: 12,
-                    runSpacing: 10,
-                    children: [
-                      for (final room in inspection.rooms)
-                        SizedBox(
-                          width: width,
-                          child: _roomCard(room, inspection.isOpen),
-                        ),
-                    ],
-                  );
-                },
-              ),
-              if (inspection.rooms.isNotEmpty) const SizedBox(height: 10),
-              if (inspection.isOpen && inspection.allRoomsReviewed) ...[
-                const SizedBox(height: 8),
-                Card(
-                  color: KiviloColors.pinkSoft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'Ready for signatures',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Sending freezes inventory, captions and photo marks for both parties.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 14),
-                        FilledButton.icon(
-                          onPressed: _busy
-                              ? null
-                              : () => _sendForSignature(inspection),
-                          icon: const Icon(Icons.draw_outlined),
-                          label: const Text('Send for signature'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              if (inspection.status == 'AWAITING_SIGNATURE' ||
-                  inspection.status == 'COMPLETED') ...[
-                const SizedBox(height: 28),
-                const KiviloSectionHeading(
-                  title: 'Signatures',
-                  subtitle: 'The agreed inventory is now fixed for signing.',
-                ),
-                const SizedBox(height: 12),
-                _signatureTile(
-                  inspection,
-                  inspection.landlordId,
-                  inspection.landlord,
-                  'Landlord',
-                ),
-                _signatureTile(
-                  inspection,
-                  inspection.tenantId,
-                  inspection.tenant,
-                  'Tenant',
-                ),
-              ],
-              if (inspection.status == 'COMPLETED') ...[
-                const SizedBox(height: 28),
-                const KiviloSectionHeading(
-                  title: 'Share report',
-                  subtitle: 'A private link, or a PDF headed with your agency.',
-                ),
-                const SizedBox(height: 12),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
+                  if (_api.offlineCopy) ...[
+                    Card(
+                      color: KiviloColors.amberSoft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Row(
                           children: [
                             const Icon(
-                              Icons.link_outlined,
-                              color: KiviloColors.pinkDark,
+                              Icons.cloud_off_outlined,
+                              color: KiviloColors.amber,
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'View or send the signed report',
-                                style: Theme.of(context).textTheme.titleMedium,
+                                'Offline copy. Open a saved room to keep capturing. Review and signatures need a connection.',
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 14),
-                        FilledButton.icon(
-                          onPressed: _busy ? null : () => _pdf(inspection),
-                          icon: const Icon(Icons.description_outlined),
-                          label: const Text('View PDF'),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: KiviloColors.pinkSoft,
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        const SizedBox(height: 10),
-                        Builder(
-                          builder: (context) => OutlinedButton.icon(
-                            onPressed: _busy
-                                ? null
-                                : () {
-                                    final box =
-                                        context.findRenderObject()!
-                                            as RenderBox;
-                                    _pdf(
-                                      inspection,
-                                      shareOrigin:
-                                          box.localToGlobal(Offset.zero) &
-                                          box.size,
-                                    );
-                                  },
-                            icon: const Icon(Icons.share_outlined),
-                            label: const Text('Share PDF'),
-                          ),
+                        child: Icon(
+                          isCheckIn
+                              ? Icons.login_outlined
+                              : Icons.logout_outlined,
+                          color: KiviloColors.pinkDark,
                         ),
-                        const SizedBox(height: 10),
-                        Builder(
-                          builder: (context) => OutlinedButton.icon(
-                            onPressed: _busy
-                                ? null
-                                : () {
-                                    final box =
-                                        context.findRenderObject()!
-                                            as RenderBox;
-                                    _share(
-                                      inspection,
-                                      box.localToGlobal(Offset.zero) & box.size,
-                                    );
-                                  },
-                            icon: const Icon(Icons.link_outlined),
-                            label: const Text('Share link'),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Anyone with the link can read this report.',
-                        ),
-                        // The report as the parties read it, with every update since
-                        // signing and who has acknowledged it.
-                        if (inspection.kind == 'CHECK_IN') ...[
-                          const SizedBox(height: 10),
-                          OutlinedButton.icon(
-                            onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => ReportScreen(id: widget.id),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isCheckIn
+                                  ? 'CHECK-IN REPORT'
+                                  : 'CHECK-OUT REPORT',
+                              style: const TextStyle(
+                                color: KiviloColors.pinkDark,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.1,
                               ),
                             ),
-                            icon: const Icon(Icons.fact_check_outlined),
-                            label: const Text('Signed report and updates'),
+                            const SizedBox(height: 4),
+                            Text(
+                              inspection.property,
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      KiviloStatusPill(status: inspection.status),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '${inspection.rooms.length} ${inspection.rooms.length == 1 ? 'room' : 'rooms'}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Card(
+                    color: KiviloColors.canvas,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'People on this report',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 12),
+                          _personRow(
+                            Icons.person_outline,
+                            'Landlord',
+                            inspection.landlord,
                           ),
                           const SizedBox(height: 10),
-                          OutlinedButton.icon(
-                            onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    AddendaScreen(inspectionId: widget.id),
-                              ),
-                            ),
-                            icon: const Icon(Icons.edit_outlined),
-                            label: const Text('Write an update'),
+                          _personRow(
+                            Icons.person_outline,
+                            'Tenant',
+                            inspection.tenant,
                           ),
                         ],
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-              if (inspection.kind == 'CHECK_IN' &&
-                  inspection.status == 'COMPLETED') ...[
-                const SizedBox(height: 28),
-                Card(
-                  color: KiviloColors.canvas,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'End of tenancy',
-                          style: Theme.of(context).textTheme.titleMedium,
+                  if (inspection.isOpen) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Walkthrough progress',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ),
+                                NumberFlow(
+                                  value: reviewed,
+                                  suffix:
+                                      '/${inspection.rooms.length} reviewed',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  tabularNums: true,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            KiviloProgressBar(
+                              minHeight: 7,
+                              value: inspection.rooms.isEmpty
+                                  ? 0
+                                  : reviewed / inspection.rooms.length,
+                              color: KiviloColors.pink,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              inspection.allRoomsReviewed
+                                  ? 'Every room is reviewed. The inventory is ready to send.'
+                                  : 'Capture each room, write and review its inventory, then send the report for signatures.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Use this signed check-in as the baseline for a check-out.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 14),
-                        OutlinedButton.icon(
-                          onPressed: _busy
-                              ? null
-                              : () => _startCheckOut(inspection),
-                          icon: const Icon(Icons.compare_arrows_outlined),
-                          label: Text(
-                            inspection.checkOutId == null
-                                ? 'Start check-out'
-                                : 'Open check-out',
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
-              if (inspection.kind == 'CHECK_OUT' &&
-                  (inspection.status == 'AWAITING_SIGNATURE' ||
-                      inspection.status == 'COMPLETED'))
-                _findings(inspection),
-              if (inspection.maintenanceHistory.isNotEmpty) ...[
-                const SizedBox(height: 28),
-                const KiviloSectionHeading(
-                  title: 'Maintenance history',
-                  subtitle:
-                      'Context for review. A person decides whether it affects a finding.',
-                ),
-                const SizedBox(height: 12),
-                if (inspection.kind == 'CHECK_OUT')
-                  ?_unsettledCosts(inspection.maintenanceHistory),
-                for (final record in inspection.maintenanceHistory) ...[
-                  Card(
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
+                  ],
+                  if (isCheckIn &&
+                      inspection.signatures.any(
+                        (signature) =>
+                            signature.stakeholderId == inspection.tenantId,
+                      )) ...[
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: () => showTenantHandover(
+                        context,
+                        inspectionId: widget.id,
+                        api: _api,
                       ),
-                      leading: Icon(
-                        Icons.home_repair_service_outlined,
-                        color: _costOpen(record)
-                            ? KiviloColors.amber
-                            : KiviloColors.pinkDark,
-                      ),
-                      title: Text(record['title'] as String),
-                      subtitle: Text(
-                        '${maintenanceStatusLabels[record['status']]} · '
-                        '${record['repairAttempts']} ${record['repairAttempts'] == 1 ? 'repair' : 'repairs'} · '
-                        '${record['evidence']} media ${record['evidence'] == 1 ? 'file' : 'files'}'
-                        '${_costLine(record)}',
-                      ),
-                      trailing: const Icon(
-                        Icons.chevron_right,
-                        color: KiviloColors.subtle,
-                      ),
-                      onTap: () => Navigator.of(context).push(
+                      child: const Text('Tenant handover'),
+                    ),
+                  ],
+                  if (inspection.baselineId != null) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => MaintenanceCaseScreen(
-                            caseId: record['id'] as String,
-                          ),
+                          builder: (_) =>
+                              InspectionScreen(id: inspection.baselineId!),
+                        ),
+                      ),
+                      icon: const Icon(Icons.compare_arrows_outlined),
+                      label: const Text('View check-in baseline'),
+                    ),
+                  ],
+                  if (inspection.summary != null) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Report summary',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              inspection.summary!,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                  ],
+                  if (_error != null) ...[
+                    const SizedBox(height: 16),
+                    Card(
+                      color: KiviloColors.redSoft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: KiviloColors.red),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 28),
+                  KiviloSectionHeading(
+                    title: 'Rooms',
+                    subtitle: inspection.rooms.isEmpty
+                        ? 'Start with your first room'
+                        : 'Inventory and media, room by room',
+                    action: inspection.isOpen
+                        ? TextButton.icon(
+                            onPressed: _busy ? null : _addRoom,
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add'),
+                          )
+                        : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
+                  if (inspection.rooms.isEmpty)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 30,
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.meeting_room_outlined,
+                              size: 34,
+                              color: KiviloColors.subtle,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No rooms yet',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Add a room to start the walkthrough.',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 760 ? 2 : 1;
+                      final width =
+                          (constraints.maxWidth - (columns - 1) * 12) / columns;
+                      return Wrap(
+                        spacing: 12,
+                        runSpacing: 10,
+                        children: [
+                          for (final room in inspection.rooms)
+                            SizedBox(
+                              width: width,
+                              child: _roomCard(room, inspection.isOpen),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  if (inspection.rooms.isNotEmpty) const SizedBox(height: 10),
+                  if (inspection.isOpen && inspection.allRoomsReviewed) ...[
+                    const SizedBox(height: 8),
+                    Card(
+                      color: KiviloColors.pinkSoft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Ready for signatures',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Sending freezes inventory, captions and photo marks for both parties.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 14),
+                            FilledButton.icon(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _sendForSignature(inspection),
+                              icon: const Icon(Icons.draw_outlined),
+                              label: const Text('Send for signature'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (inspection.status == 'AWAITING_SIGNATURE' ||
+                      inspection.status == 'COMPLETED') ...[
+                    const SizedBox(height: 28),
+                    const KiviloSectionHeading(
+                      title: 'Signatures',
+                      subtitle:
+                          'The agreed inventory is now fixed for signing.',
+                    ),
+                    const SizedBox(height: 12),
+                    _signatureTile(
+                      inspection,
+                      inspection.landlordId,
+                      inspection.landlord,
+                      'Landlord',
+                    ),
+                    _signatureTile(
+                      inspection,
+                      inspection.tenantId,
+                      inspection.tenant,
+                      'Tenant',
+                    ),
+                  ],
+                  if (inspection.status == 'COMPLETED') ...[
+                    const SizedBox(height: 28),
+                    const KiviloSectionHeading(
+                      title: 'Share report',
+                      subtitle:
+                          'A private link, or a PDF headed with your agency.',
+                    ),
+                    const SizedBox(height: 12),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.link_outlined,
+                                  color: KiviloColors.pinkDark,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    'View or send the signed report',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            FilledButton.icon(
+                              onPressed: _busy ? null : () => _pdf(inspection),
+                              icon: const Icon(Icons.description_outlined),
+                              label: const Text('View PDF'),
+                            ),
+                            const SizedBox(height: 10),
+                            Builder(
+                              builder: (context) => OutlinedButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () {
+                                        final box =
+                                            context.findRenderObject()!
+                                                as RenderBox;
+                                        _pdf(
+                                          inspection,
+                                          shareOrigin:
+                                              box.localToGlobal(Offset.zero) &
+                                              box.size,
+                                        );
+                                      },
+                                icon: const Icon(Icons.share_outlined),
+                                label: const Text('Share PDF'),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Builder(
+                              builder: (context) => OutlinedButton.icon(
+                                onPressed: _busy
+                                    ? null
+                                    : () {
+                                        final box =
+                                            context.findRenderObject()!
+                                                as RenderBox;
+                                        _share(
+                                          inspection,
+                                          box.localToGlobal(Offset.zero) &
+                                              box.size,
+                                        );
+                                      },
+                                icon: const Icon(Icons.link_outlined),
+                                label: const Text('Share link'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Anyone with the link can read this report.',
+                            ),
+                            // The report as the parties read it, with every update since
+                            // signing and who has acknowledged it.
+                            if (inspection.kind == 'CHECK_IN') ...[
+                              const SizedBox(height: 10),
+                              OutlinedButton.icon(
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => ReportScreen(id: widget.id),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.fact_check_outlined),
+                                label: const Text('Signed report and updates'),
+                              ),
+                              const SizedBox(height: 10),
+                              OutlinedButton.icon(
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) =>
+                                        AddendaScreen(inspectionId: widget.id),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.edit_outlined),
+                                label: const Text('Write an update'),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (inspection.kind == 'CHECK_IN' &&
+                      inspection.status == 'COMPLETED') ...[
+                    const SizedBox(height: 28),
+                    Card(
+                      color: KiviloColors.canvas,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'End of tenancy',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Use this signed check-in as the baseline for a check-out.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 14),
+                            OutlinedButton.icon(
+                              onPressed: _busy
+                                  ? null
+                                  : () => _startCheckOut(inspection),
+                              icon: const Icon(Icons.compare_arrows_outlined),
+                              label: Text(
+                                inspection.checkOutId == null
+                                    ? 'Start check-out'
+                                    : 'Open check-out',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (inspection.kind == 'CHECK_OUT' &&
+                      (inspection.status == 'AWAITING_SIGNATURE' ||
+                          inspection.status == 'COMPLETED'))
+                    _findings(inspection),
+                  if (inspection.maintenanceHistory.isNotEmpty) ...[
+                    const SizedBox(height: 28),
+                    const KiviloSectionHeading(
+                      title: 'Maintenance history',
+                      subtitle:
+                          'Context for review. A person decides whether it affects a finding.',
+                    ),
+                    const SizedBox(height: 12),
+                    if (inspection.kind == 'CHECK_OUT')
+                      ?_unsettledCosts(inspection.maintenanceHistory),
+                    for (final record in inspection.maintenanceHistory) ...[
+                      Card(
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          leading: Icon(
+                            Icons.home_repair_service_outlined,
+                            color: _costOpen(record)
+                                ? KiviloColors.amber
+                                : KiviloColors.pinkDark,
+                          ),
+                          title: Text(record['title'] as String),
+                          subtitle: Text(
+                            '${maintenanceStatusLabels[record['status']]} · '
+                            '${record['repairAttempts']} ${record['repairAttempts'] == 1 ? 'repair' : 'repairs'} · '
+                            '${record['evidence']} media ${record['evidence'] == 1 ? 'file' : 'files'}'
+                            '${_costLine(record)}',
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            color: KiviloColors.subtle,
+                          ),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => MaintenanceCaseScreen(
+                                caseId: record['id'] as String,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ],
+                  if (_busy) const Center(child: CircularProgressIndicator()),
                 ],
-              ],
-              if (_busy) const Center(child: CircularProgressIndicator()),
-            ],
-          );
-        },
-      )),
+              );
+            },
+          ),
+        ),
+      ),
     ),
-  ),
   );
 
   bool _costOpen(Map<String, dynamic> record) => const [
@@ -1051,7 +1096,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
             ],
           ],
         ),
-      )),
+      ),
+    ),
   );
 
   Widget _signatureTile(
@@ -1212,9 +1258,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            onTap: _busy
-                ? null
-                : () => _editFinding(finding, inspection),
+            onTap: _busy ? null : () => _editFinding(finding, inspection),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

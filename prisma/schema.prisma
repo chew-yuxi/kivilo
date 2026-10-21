@@ -59,6 +59,7 @@ model Stakeholder {
   addendaPublished ReportAddendum[] @relation("AddendumPublisher")
   addendaDisputed  ReportAddendum[] @relation("AddendumDisputer")
   addendumAcknowledgements AddendumAcknowledgement[]
+  findingPhotoDrafts FindingPhotoDraft[]
   assessmentResponses AssessmentResponse[]
   /// The plan of an agent who is on no team. An agent on a team uses the team's.
   subscription         Subscription?  @relation("OwnSubscription")
@@ -250,6 +251,7 @@ model Inspection {
 
   rooms      Room[]
   findings   Finding[]
+  findingPhotoDrafts FindingPhotoDraft[]
   signatures Signature[]
   assessments AssessmentVersion[]
   issuedReportFiles IssuedReportFile[]
@@ -777,6 +779,8 @@ enum Verdict {
 model Finding {
   id             String     @id @default(cuid())
   inspectionId   String
+  /// A client save id makes retrying a lost create response exactly once.
+  clientId       String? @unique
   itemId         String?
   baselineItemId String?
   /// Human-selected maintenance history to preserve with a published assessment.
@@ -794,9 +798,57 @@ model Finding {
   item         InspectionItem? @relation("FindingItem", fields: [itemId], references: [id], onDelete: SetNull)
   baselineItem InspectionItem? @relation("FindingBaselineItem", fields: [baselineItemId], references: [id], onDelete: SetNull)
   maintenanceCase MaintenanceCase? @relation(fields: [maintenanceCaseId], references: [id], onDelete: SetNull)
+  photos FindingPhoto[]
+  photoDrafts FindingPhotoDraft[]
 
   @@index([inspectionId])
   @@index([maintenanceCaseId])
+}
+
+/// Personal working photos before Save. This is not a visible finding. A discarded
+/// draft remains a tombstone so delayed queue requests cannot recreate its uploads.
+model FindingPhotoDraft {
+  id String @id
+  inspectionId String
+  createdById String
+  findingId String?
+  savedAt DateTime?
+  discardedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inspection Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  createdBy Stakeholder @relation(fields: [createdById], references: [id])
+  finding Finding? @relation(fields: [findingId], references: [id], onDelete: SetNull)
+  photos FindingPhoto[]
+
+  @@index([inspectionId, findingId, savedAt, discardedAt])
+  @@index([createdById])
+}
+
+/// Intent first, bytes second, registration last. Stored photographs never change;
+/// annotations stay beside them and are copied by value into each assessment version.
+model FindingPhoto {
+  clientId String @id
+  draftId String
+  findingId String?
+  storagePath String @unique
+  mimeType String
+  sizeBytes Int?
+  note String?
+  annotations Json?
+  registeredAt DateTime?
+  deletedAt DateTime?
+  /// Once any assessment includes these bytes, deleting working rows never purges them.
+  publishedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  draft FindingPhotoDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  finding Finding? @relation(fields: [findingId], references: [id], onDelete: SetNull)
+
+  @@index([findingId, deletedAt, createdAt])
+  @@index([draftId, deletedAt])
 }
 
 model Signature {

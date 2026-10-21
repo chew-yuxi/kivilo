@@ -226,6 +226,21 @@ class CaptureQueue extends _$CaptureQueue {
     return (captures: captures.length, edits: edits.length);
   }
 
+  /// Includes held, unsaved finding photos which do not have a server intent yet.
+  /// Publishing cannot leave those originals behind on this phone.
+  Future<int> pendingForFindings(String inspectionId, String ownerId) async {
+    final prefixes = ['finding-draft:$inspectionId:', 'finding:$inspectionId:'];
+    final captures = await (select(
+      pendingCaptures,
+    )..where((row) => row.ownerId.equals(ownerId))).get();
+    final edits = await (select(
+      pendingRemoteEdits,
+    )..where((row) => row.ownerId.equals(ownerId))).get();
+    bool belongs(String value) => prefixes.any(value.startsWith);
+    return captures.where((row) => belongs(row.inspectionId)).length +
+        edits.where((row) => belongs(row.inspectionId)).length;
+  }
+
   Future<({int captures, int edits})> pendingForRoom(
     String inspectionId,
     String roomId,

@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { retireFindingDraftsForAccount, retireInspectionFindingPhotos } from '@/lib/finding-photos'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
@@ -58,6 +59,7 @@ async function deleteOwnedDraft(inspectionId: string, stakeholderId: string, req
     await tx.accountDeletionStoragePurge.createMany({
       data: rooms.map((room) => ({ requestId, roomId: room.id, readyAt })),
     })
+    await retireInspectionFindingPhotos(tx, inspectionId)
     await tx.inspection.delete({ where: { id: inspectionId } })
   })
 }
@@ -140,6 +142,8 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       await syncSubscription(stripeSubscriptionId)
     }
     await db.subscription.updateMany({ where: { managedById: person.id }, data: { managedById: null } })
+
+    await retireFindingDraftsForAccount(person.id)
 
     // An inspection can be this agent's work while also being a landlord's or
     // tenant's record. Keep that shared work under the explicit retention choice.

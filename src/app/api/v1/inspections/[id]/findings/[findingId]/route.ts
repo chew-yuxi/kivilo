@@ -11,6 +11,7 @@ const body = z.object({
   rationale: z.string().trim().min(1).max(10000).optional(),
   estimatedCost: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/).nullable().optional(),
   maintenanceCaseId: z.string().min(1).nullable().optional(),
+  photoDraftId: z.string().uuid().optional(),
 }).strict().refine((value) => Object.keys(value).length > 0)
 
 export const PATCH = authed(

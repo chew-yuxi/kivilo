@@ -529,8 +529,8 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
           <Text style={s.bold}>{sgd(total)}</Text> against a deposit of {sgd(model.deposit)}.
         </Text>
       )}
-      {assessment.findings.map((finding) => (
-        <View key={finding.id} style={[s.row, { flexDirection: 'column' }]} wrap={false}>
+      {assessment.findings.map((finding, findingIndex) => (
+        <View key={finding.id} style={[s.row, { flexDirection: 'column' }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={s.bold}>{finding.itemLabel}</Text>
             <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 8, color: finding.verdict === 'TENANT_LIABLE' ? DEFECT : MUTED }}>
@@ -538,6 +538,29 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
             </Text>
           </View>
           <Text style={{ color: '#374151' }}>{finding.rationale}</Text>
+          {(finding.photos?.length ?? 0) > 0 && (
+            <View style={{ marginTop: 8 }}>
+              <Text style={[s.small, s.bold]}>Finding photos</Text>
+              {Array.from({ length: Math.ceil(finding.photos!.length / 3) }, (_, row) => (
+                <View key={row} style={{ flexDirection: 'row', gap: GRID_GAP, marginTop: 6 }} wrap={false}>
+                  {finding.photos!.slice(row * 3, row * 3 + 3).map((photo, column) => (
+                    <PhotoTile
+                      key={photo.id}
+                      photo={{
+                        ref: `F${findingIndex + 1}.${row * 3 + column + 1}`,
+                        anchor: `finding-photo-${findingIndex + 1}-${row * 3 + column + 1}`,
+                        storagePath: photo.storagePath,
+                        note: photo.note,
+                        annotations: photo.annotations,
+                        shows: [],
+                      }}
+                      bitmap={assets.evidence.get(photo.storagePath) ?? null}
+                    />
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
           {finding.maintenanceEvidence && (
             <View style={{ marginTop: 6 }}>
               <Text style={s.small}>Maintenance record: {finding.maintenanceEvidence.title}</Text>

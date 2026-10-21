@@ -124,6 +124,10 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
         estimatedCost: finding.estimatedCost,
         rationale: finding.rationale,
         maintenanceTitle: finding.maintenanceEvidence?.title ?? null,
+        photos: await Promise.all((finding.photos ?? []).map(async ({ storagePath, ...photo }) => ({
+          ...photo,
+          url: await createDownloadUrl(storagePath),
+        }))),
         evidence: await Promise.all((finding.maintenanceEvidence?.evidence ?? []).map(async (item) => ({
           id: item.id,
           purpose: item.purpose,

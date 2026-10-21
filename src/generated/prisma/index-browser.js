@@ -424,6 +424,7 @@ exports.Prisma.NotificationPushDeliveryScalarFieldEnum = {
 exports.Prisma.FindingScalarFieldEnum = {
   id: 'id',
   inspectionId: 'inspectionId',
+  clientId: 'clientId',
   itemId: 'itemId',
   baselineItemId: 'baselineItemId',
   maintenanceCaseId: 'maintenanceCaseId',
@@ -433,6 +434,33 @@ exports.Prisma.FindingScalarFieldEnum = {
   estimatedCost: 'estimatedCost',
   confidence: 'confidence',
   editedByHuman: 'editedByHuman',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FindingPhotoDraftScalarFieldEnum = {
+  id: 'id',
+  inspectionId: 'inspectionId',
+  createdById: 'createdById',
+  findingId: 'findingId',
+  savedAt: 'savedAt',
+  discardedAt: 'discardedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FindingPhotoScalarFieldEnum = {
+  clientId: 'clientId',
+  draftId: 'draftId',
+  findingId: 'findingId',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  note: 'note',
+  annotations: 'annotations',
+  registeredAt: 'registeredAt',
+  deletedAt: 'deletedAt',
+  publishedAt: 'publishedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -892,6 +920,8 @@ exports.Prisma.ModelName = {
   Notification: 'Notification',
   NotificationPushDelivery: 'NotificationPushDelivery',
   Finding: 'Finding',
+  FindingPhotoDraft: 'FindingPhotoDraft',
+  FindingPhoto: 'FindingPhoto',
   Signature: 'Signature',
   ReportEmail: 'ReportEmail',
   AssessmentVersion: 'AssessmentVersion',

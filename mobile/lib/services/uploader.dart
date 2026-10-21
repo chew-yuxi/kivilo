@@ -14,7 +14,10 @@ class Uploader {
     required this.backend,
     required this.root,
     required this.ownerId,
-  });
+  }) {
+    final transport = backend;
+    if (transport is RoutingEvidenceBackend) transport.bindOwner(ownerId);
+  }
 
   final CaptureQueue queue;
   final CaptureBackend backend;

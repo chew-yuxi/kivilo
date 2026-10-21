@@ -53,8 +53,16 @@ export async function ReportDocument({
   const published = inspection.assessments[0] ?? null
   const assessment = published ? assessmentSnapshotSchema.parse(published.snapshot) : null
   const maintenanceEvidenceUrls = new Map<string, { id: string; purpose: string; mimeType: string; note: string | null; url: string }[]>()
+  const findingPhotos = new Map<string, EvidencePhoto[]>()
   if (assessment) {
-    await Promise.all(assessment.findings.map(async (finding) => {
+    await Promise.all(assessment.findings.map(async (finding, findingIndex) => {
+      findingPhotos.set(finding.id, await Promise.all((finding.photos ?? []).map(async (photo, photoIndex) => ({
+        id: photo.id,
+        ref: `F${findingIndex + 1}.${photoIndex + 1}`,
+        url: await createDownloadUrl(photo.storagePath, 60 * 60 * 24),
+        note: photo.note,
+        annotations: photo.annotations,
+      }))))
       const evidence = finding.maintenanceEvidence?.evidence ?? []
       maintenanceEvidenceUrls.set(finding.id, await Promise.all(evidence.map(async (item) => ({
         id: item.id,
@@ -323,6 +331,16 @@ export async function ReportDocument({
                   </span>
                 </div>
                 <p className="mt-1 text-gray-600">{finding.rationale}</p>
+                {(findingPhotos.get(finding.id)?.length ?? 0) > 0 && (
+                  <div className="mt-3 border-t border-gray-100 pt-3">
+                    <p className="text-xs font-medium text-gray-700">Finding photos</p>
+                    <div className="mt-2 grid grid-cols-2 items-start gap-3 sm:grid-cols-3">
+                      {findingPhotos.get(finding.id)!.map((photo) => (
+                        <ReportPhoto key={photo.id} photo={photo} roomName={finding.itemLabel} />
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {finding.maintenanceEvidence && (
                   <div className="mt-3 border-t border-gray-100 pt-3">
                     <p className="text-xs font-medium text-gray-700">

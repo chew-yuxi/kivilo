@@ -334,16 +334,22 @@ class RoutingEvidenceBackend implements CaptureBackend {
   RoutingEvidenceBackend(Dio dio)
     : _captures = HttpCaptureBackend(dio),
       _maintenance = HttpMaintenanceEvidenceBackend(dio),
-      _addenda = HttpAddendumPhotoBackend(dio);
+      _addenda = HttpAddendumPhotoBackend(dio),
+      _findings = HttpFindingPhotoBackend(dio);
 
   final HttpCaptureBackend _captures;
   final HttpMaintenanceEvidenceBackend _maintenance;
   final HttpAddendumPhotoBackend _addenda;
+  final HttpFindingPhotoBackend _findings;
+
+  void bindOwner(String ownerId) => _findings.bindOwner(ownerId);
 
   CaptureBackend _for(String ownerId) => ownerId.startsWith('maintenance:')
       ? _maintenance
       : ownerId.startsWith(addendumQueueOwnerPrefix)
       ? _addenda
+      : ownerId.startsWith('finding-draft:') || ownerId.startsWith('finding:')
+      ? _findings
       : _captures;
 
   @override
@@ -631,4 +637,168 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
   @override
   Future<void> deleteCapture(String inspectionId, String captureId) async =>
       _immutable();
+}
+
+/// Finding originals use the same durable uploader as room captures. The namespace
+/// retains the draft and optional existing finding across process death/retries.
+class HttpFindingPhotoBackend implements CaptureBackend {
+  HttpFindingPhotoBackend(this._dio);
+  final Dio _dio;
+  String? _ownerId;
+  void bindOwner(String ownerId) {
+    if (_ownerId != null && _ownerId != ownerId) {
+      throw StateError('Uploader account changed.');
+    }
+    _ownerId = ownerId;
+  }
+
+  Options get _options =>
+      Options(extra: {if (_ownerId != null) 'expectedOwnerId': _ownerId});
+  void _guardOwner() {
+    final current = _dio.options.extra['currentOwnerId'];
+    if (_ownerId != null &&
+        current is String? Function() &&
+        current() != _ownerId) {
+      throw const ApiFailure('Account changed. Open this page again.', 401);
+    }
+  }
+
+  String _base(String owner) {
+    final parts = owner.split(':');
+    if (parts[0] == 'finding-draft' && parts.length >= 3) {
+      return '/api/v1/inspections/${parts[1]}/finding-photo-drafts/${parts[2]}';
+    }
+    if (parts[0] == 'finding' && parts.length == 3) {
+      return '/api/v1/inspections/${parts[1]}/findings/${parts[2]}';
+    }
+    throw StateError('Invalid finding photo owner');
+  }
+
+  @override
+  Future<({String storagePath, String? signedUrl, bool alreadyUploaded})>
+  uploadUrl(
+    String inspectionId,
+    String roomId,
+    String filename,
+    String clientId,
+  ) async {
+    _guardOwner();
+    final parts = inspectionId.split(':');
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '${_base(inspectionId)}/upload-url',
+        data: {
+          'clientId': clientId,
+          'mimeType': addendumPhotoMimeType(filename),
+          if (parts.length > 3) 'findingId': parts[3],
+        },
+        cancelToken: cancel,
+        options: _options,
+      ),
+      _metadataDeadline,
+    );
+    final data = response.data!;
+    return (
+      storagePath: data['storagePath'] as String,
+      signedUrl: data['signedUrl'] as String?,
+      alreadyUploaded:
+          data['alreadyUploaded'] == true || data['alreadyRegistered'] == true,
+    );
+  }
+
+  @override
+  Future<void> putBytes(
+    String signedUrl,
+    File file,
+    String mimeType,
+    String clientId,
+  ) async {
+    _guardOwner();
+    await HttpCaptureBackend(
+      _dio,
+    ).putBytes(signedUrl, file, mimeType, clientId);
+  }
+
+  @override
+  Future<({String id, bool annotationsApplied, bool itemApplied})>
+  registerCapture({
+    required String inspectionId,
+    required String roomId,
+    required String kind,
+    required String storagePath,
+    required String clientId,
+    required String mimeType,
+    required int sizeBytes,
+    int? durationSec,
+    String? itemId,
+    String? note,
+    Map<String, dynamic>? annotations,
+  }) async {
+    _guardOwner();
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '${_base(inspectionId)}/photos',
+        data: {
+          'clientId': clientId,
+          'storagePath': storagePath,
+          'mimeType': mimeType,
+          'sizeBytes': sizeBytes,
+          'note': note,
+          'annotations': annotations,
+        },
+        cancelToken: cancel,
+        options: _options,
+      ),
+      _metadataDeadline,
+    );
+    return (
+      id: response.data!['id'] as String,
+      annotationsApplied: response.data!['annotationsApplied'] == true,
+      itemApplied: true,
+    );
+  }
+
+  Future<void> _patch(
+    String owner,
+    String id,
+    Map<String, dynamic> fields,
+  ) async {
+    _guardOwner();
+    await _metadata(
+      (cancel) => _dio.patch(
+        '${_base(owner)}/photos/$id',
+        data: fields,
+        cancelToken: cancel,
+        options: _options,
+      ),
+      _metadataDeadline,
+    );
+  }
+
+  @override
+  Future<void> updateNote(
+    String inspectionId,
+    String captureId,
+    String? note,
+  ) => _patch(inspectionId, captureId, {'note': note});
+
+  @override
+  Future<void> annotate(
+    String inspectionId,
+    String captureId,
+    Map<String, dynamic>? annotations,
+  ) => _patch(inspectionId, captureId, {'annotations': annotations});
+
+  @override
+  Future<void> deleteCapture(String inspectionId, String captureId) async {
+    _guardOwner();
+    await _metadata(
+      (cancel) => _dio.delete(
+        '${_base(inspectionId)}/photos/$captureId',
+        cancelToken: cancel,
+        options: _options,
+      ),
+      _metadataDeadline,
+    );
+  }
 }

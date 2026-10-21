@@ -66,6 +66,12 @@ export async function purgeStorageEntry(purge: StoragePurge) {
         select: { id: true },
       }) ?? await db.reportAddendumPhoto.findFirst({
         where: { storagePath: purge.path }, select: { id: true },
+      }) ?? await db.findingPhoto.findFirst({
+        where: { storagePath: purge.path, OR: [{ deletedAt: null }, { publishedAt: { not: null } }] },
+        select: { clientId: true },
+      }) ?? await db.assessmentVersion.findFirst({
+        where: { snapshot: { path: ['findings'], array_contains: [{ photos: [{ storagePath: purge.path }] }] } },
+        select: { id: true },
       })
     if (await inUse()) {
       throw new Error(`Object ${purge.path} still belongs to a report; refusing object purge`)

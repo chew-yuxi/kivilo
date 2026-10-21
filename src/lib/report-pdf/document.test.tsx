@@ -68,12 +68,51 @@ async function render(report: ReportModel) {
     photos: new Map(report.rooms.flatMap((each) => each.photos.map((p) => [p.storagePath, bitmap]))),
     logo: null,
     signatures: [],
-    evidence: new Map(report.addenda.flatMap((each) => each.entries.flatMap((entry) => entry.photos.map((p) => [p.storagePath, bitmap])))),
+    evidence: new Map([
+      ...report.addenda.flatMap((each) => each.entries.flatMap((entry) => entry.photos.map((p) => [p.storagePath, bitmap] as const))),
+      ...(report.assessment?.findings ?? []).flatMap((finding) => (finding.photos ?? []).map((photo) => [photo.storagePath, bitmap] as const)),
+    ]),
   }
   return pdfPageTexts(await renderToBuffer(<ReportDocument model={report} assets={assets} />))
 }
 
 describe('report PDF', () => {
+  it('renders the assessment version\'s marked finding photos beside its finding across pages', async () => {
+    const report = model([room(1, 'Kitchen', 0)])
+    report.kind = 'CHECK_OUT'
+    report.assessment = {
+      schemaVersion: 1, version: 1, publishedAt: '2026-10-21T02:00:00.000Z',
+      summary: null, deposit: '14400', responses: [],
+      findings: [{
+        id: 'burn', itemLabel: 'Kitchen, Worktop', changeType: 'DAMAGE', verdict: 'TENANT_LIABLE',
+        rationale: 'Burn beside the hob.', estimatedCost: '180', confidence: null, editedByHuman: true,
+        photos: Array.from({ length: 12 }, (_, index) => ({
+          id: `finding-photo-${index}`, storagePath: `finding-evidence/private-path-${index}.jpg`, mimeType: 'image/jpeg' as const,
+          note: `Finding evidence caption ${index + 1}`, createdAt: '2026-10-21T01:00:00.000Z',
+          annotations: {
+            v: 1 as const, by: 'inspector', at: '2026-10-21T01:00:00.000Z', w: 1200, h: 1600,
+            marks: [{ shape: 'ring' as const, cx: .5, cy: .5, rx: .15, ry: .1, note: `Burn detail ${index + 1}` }],
+          },
+        })),
+      }],
+    }
+    const pages = await render(report)
+    const text = pages.join(' ')
+    expect(text).toContain('Kitchen, Worktop')
+    expect(text).toContain('Finding photos')
+    for (let index = 1; index <= 12; index++) {
+      expect(text).toContain(`F1.${index}`)
+      expect(text).toContain(`Finding evidence caption ${index}`)
+      expect(text).toContain(`1. Burn detail ${index}`)
+    }
+    expect(text).not.toContain('Photo unavailable')
+    expect(text).not.toContain('finding-evidence/')
+    expect(text).not.toContain('private-path')
+    const assessmentPages = pages.filter((page) => page.includes('Finding evidence caption'))
+    expect(assessmentPages.length).toBeGreaterThan(1)
+    pages.forEach((page, index) => expect(page).toContain(`Page ${index + 1} of ${pages.length}`))
+  })
+
   it('heads and numbers every page, and dates it in Singapore time', async () => {
     const pages = await render(model([room(1, 'Entrance', 4), room(2, 'Kitchen', 30)]))
 

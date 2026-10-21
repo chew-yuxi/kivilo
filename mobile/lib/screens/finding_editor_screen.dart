@@ -1,7 +1,14 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
+
 import 'package:flutter/material.dart';
 
 import '../models/inspection.dart';
-import '../services/api_failure.dart';
+import '../services/api.dart';
+import '../services/finding_photos.dart';
+import 'photo_mark_screen.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
@@ -13,6 +20,10 @@ class FindingEditorScreen extends StatefulWidget {
   const FindingEditorScreen({
     super.key,
     this.finding,
+    this.inspectionId,
+    this.api,
+    this.photoSession,
+    this.onRecover,
     required this.maintenanceHistory,
     this.checkOutItems = const [],
     this.checkInItems = const [],
@@ -21,6 +32,11 @@ class FindingEditorScreen extends StatefulWidget {
   });
 
   final Finding? finding;
+  final String? inspectionId;
+  final Api? api;
+  final FindingPhotos? photoSession;
+  final Future<void> Function(String findingId, Map<String, dynamic>)?
+  onRecover;
   final List<Map<String, dynamic>> maintenanceHistory;
   final List<ComparableItem> checkOutItems;
   final List<ComparableItem> checkInItems;
@@ -51,25 +67,119 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
   bool _saving = false;
   bool _showItemDetails = false;
   String? _error;
+  FindingPhotos? _photos;
+  bool _loadingPhotos = false;
+  bool _restoringDraft = false;
+  bool _photoAction = false;
 
   @override
   void initState() {
     super.initState();
     final finding = widget.finding;
-    if (finding == null) return;
-    _selected = widget.checkOutItems
-        .where((item) => item.id == finding.itemId)
-        .firstOrNull;
-    if (_selected == null) {
-      _selected = widget.checkInItems
-          .where((item) => item.id == finding.baselineItemId)
+    if (finding != null) {
+      _selected = widget.checkOutItems
+          .where((item) => item.id == finding.itemId)
           .firstOrNull;
-      _selectedAtCheckIn = _selected != null;
+      if (_selected == null) {
+        _selected = widget.checkInItems
+            .where((item) => item.id == finding.baselineItemId)
+            .firstOrNull;
+        _selectedAtCheckIn = _selected != null;
+      }
+    }
+    _rationale.addListener(_draftChanged);
+    _cost.addListener(_draftChanged);
+    if (widget.photoSession != null || widget.inspectionId != null) {
+      _photos =
+          widget.photoSession ??
+          FindingPhotos(
+            api: widget.api ?? Api(),
+            inspectionId: widget.inspectionId!,
+            findingId: finding?.id,
+            savedPhotos: finding?.photos ?? const [],
+          );
+      _photos!.addListener(_photosChanged);
+      _loadingPhotos = true;
+      unawaited(_openPhotos());
+    }
+  }
+
+  Future<void> _openPhotos() async {
+    try {
+      await _photos!.initialize();
+      if (!mounted) return;
+      final draft = _photos!.form;
+      if (draft.isNotEmpty) {
+        _restoringDraft = true;
+        _selectedAtCheckIn = draft['atCheckIn'] == true;
+        final items = _selectedAtCheckIn
+            ? widget.checkInItems
+            : widget.checkOutItems;
+        if (widget.finding == null) {
+          _selected = items
+              .where((item) => item.id == draft['selectedId'])
+              .firstOrNull;
+          _choosing = _selected == null;
+          _fromCheckIn = _selectedAtCheckIn;
+        }
+        _rationale.text = draft['rationale'] as String? ?? '';
+        _cost.text = draft['cost'] as String? ?? '';
+        _changeType = draft['changeType'] as String? ?? _changeType;
+        _verdict = draft['verdict'] as String? ?? _verdict;
+        _maintenanceCaseId = draft['maintenanceCaseId'] as String?;
+        _changeChosen = draft['changeChosen'] == true;
+        _restoringDraft = false;
+      }
+      if (_photos!.claimed) {
+        setState(
+          () => _error =
+              'This finding was already saved. Save to apply any further changes to it.',
+        );
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = plainError(error));
+    } finally {
+      if (mounted) setState(() => _loadingPhotos = false);
+    }
+  }
+
+  void _photosChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Map<String, dynamic> get _draft => {
+    'selectedId': _selected?.id,
+    'atCheckIn': _selectedAtCheckIn,
+    'rationale': _rationale.text,
+    'cost': _cost.text,
+    'changeType': _changeType,
+    'verdict': _verdict,
+    'maintenanceCaseId': _maintenanceCaseId,
+    'changeChosen': _changeChosen,
+  };
+
+  void _draftChanged() {
+    if (_restoringDraft || _photos?.ready != true) return;
+    unawaited(_writeDraft());
+  }
+
+  Future<void> _writeDraft() async {
+    try {
+      await _photos?.persistForm(_draft);
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () => _error =
+              'Could not save the finding draft on this phone. ${plainError(error)}',
+        );
+      }
     }
   }
 
   @override
   void dispose() {
+    _photos?.removeListener(_photosChanged);
+    _photos?.dispose();
     _search.dispose();
     _chooserScroll.dispose();
     _rationale.dispose();
@@ -94,6 +204,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       _error = null;
       if (!_changeChosen) _changeType = _fromCheckIn ? 'MISSING' : 'DAMAGE';
     });
+    _draftChanged();
   }
 
   void _showChooser() {
@@ -109,7 +220,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
   }
 
   void _back() {
-    if (_saving) return;
+    if (_saving || _photoAction) return;
     if (widget.finding == null && !_choosing) {
       _showChooser();
     } else {
@@ -145,7 +256,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
   }
 
   Future<void> _save() async {
-    if (_saving) return;
+    if (_saving || _photoAction || _loadingPhotos) return;
     final cost = _cost.text.trim();
     final error = widget.finding == null && _selected == null
         ? 'Choose an item first.'
@@ -169,14 +280,333 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       } else
         'maintenanceCaseId': _maintenanceCaseId,
     };
-    await _persist(() => widget.onSave(fields));
+    await _persist(() async {
+      if (_photos != null) {
+        if (!_photos!.ready) {
+          throw const ApiFailure('Wait until the photo draft is ready.', null);
+        }
+        await _photos!.persistForm(_draft);
+        await _photos!.ensureReady();
+        if (_photos!.claimed) {
+          final previous = _photos!.submittedForm;
+          if (previous != null &&
+              (previous['selectedId'] != _draft['selectedId'] ||
+                  previous['atCheckIn'] != _draft['atCheckIn'])) {
+            throw const ApiFailure(
+              'This finding was already saved for its original item. Choose that item to save your latest text, or discard this draft and add another finding.',
+              null,
+            );
+          }
+          final savedId = _photos!.claimedFindingId;
+          if (savedId == null || widget.onRecover == null) {
+            throw const ApiFailure(
+              'This finding was already saved. Your latest draft is kept. Reopen the saved finding to make further changes.',
+              null,
+            );
+          }
+          fields.remove('itemId');
+          fields.remove('baselineItemId');
+          await widget.onRecover!(savedId, fields);
+          await _photos!.complete();
+          return;
+        }
+        await _photos!.prepareSubmission();
+        fields['photoDraftId'] = _photos!.draftId;
+        if (widget.finding == null) fields['clientId'] = _photos!.draftId;
+      }
+      await widget.onSave(fields);
+      await _photos?.complete();
+    });
+  }
+
+  Future<void> _photoOperation(Future<void> Function() action) async {
+    if (_saving || _photoAction || _photos?.ready != true) return;
+    setState(() {
+      _photoAction = true;
+      _error = null;
+    });
+    try {
+      await action();
+    } catch (error) {
+      if (mounted) setState(() => _error = plainError(error));
+    } finally {
+      if (mounted) setState(() => _photoAction = false);
+    }
+  }
+
+  Future<void> _pickPhoto(ImageSource source) => _photoOperation(() async {
+    await _photos!.persistForm(_draft);
+    final ids = await _photos!.pick(source);
+    // Every selected original is durable before opening the first mark editor.
+    for (final id in ids) {
+      if (!mounted) return;
+      final photo = _photos!.evidence
+          .where((photo) => photo.id == id)
+          .firstOrNull;
+      if (photo != null) await _markPhoto(photo);
+    }
+  });
+
+  Future<void> _markPhoto(FindingEvidence photo) async {
+    ImageProvider image;
+    if (photo.localPath != null && await File(photo.localPath!).exists()) {
+      image = MemoryImage(await File(photo.localPath!).readAsBytes());
+    } else if (photo.url != null) {
+      image = NetworkImage(photo.url!);
+    } else {
+      throw const ApiFailure(
+        'Connect and retry to open this photo. Its upload is kept on this phone.',
+        null,
+      );
+    }
+    if (!mounted) return;
+    final result = await Navigator.push<PhotoMarksResult>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PhotoMarkScreen(
+          image: image,
+          annotations: photo.annotations,
+          saveLabel: photo.awaitingMarkup ? 'Save photo' : 'Save',
+          onChanged: (annotations) =>
+              _photos!.setAnnotations(photo.id, annotations),
+        ),
+      ),
+    );
+    if (result != null) await _photos!.finishMarkup(photo.id);
+  }
+
+  Future<void> _viewFindingPhoto(FindingEvidence photo) async {
+    ImageProvider? image;
+    if (photo.localPath != null && await File(photo.localPath!).exists()) {
+      image = MemoryImage(await File(photo.localPath!).readAsBytes());
+    }
+    if (!mounted) return;
+    if (image == null && photo.url == null) {
+      throw const ApiFailure('Connect and retry to view this photo.', null);
+    }
+    final provider = image;
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: const Text('Finding photo')),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: InteractiveViewer(
+                    minScale: 0.75,
+                    maxScale: 6,
+                    child: Center(
+                      child: provider == null
+                          ? MarkedNetworkPhoto(
+                              url: photo.url!,
+                              annotations: photo.annotations,
+                              fit: BoxFit.contain,
+                            )
+                          : _LocalFindingPhoto(
+                              image: provider,
+                              annotations: photo.annotations,
+                            ),
+                    ),
+                  ),
+                ),
+                if (photo.note?.isNotEmpty == true)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(photo.note!),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _caption(FindingEvidence photo) async {
+    final controller = TextEditingController(text: photo.note);
+    final value = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Photo caption'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: 3,
+          decoration: const InputDecoration(labelText: 'Caption'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Save caption'),
+          ),
+        ],
+      ),
+    );
+    // A dialog can still be disposing its TextField on the next frame.
+    if (value != null) {
+      await _photos!.setNote(photo.id, value.isEmpty ? null : value);
+    }
+  }
+
+  Future<void> _discardDraft() async {
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Discard this finding draft?'),
+        content: const Text(
+          'The draft text and newly added photos will be removed. Saved finding photos stay with their finding.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep draft'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Discard draft'),
+          ),
+        ],
+      ),
+    );
+    if (discard == true) await _persist(() => _photos!.discard());
+  }
+
+  Widget _photoEvidence() {
+    final photos = _photos!.evidence;
+    final enabled =
+        !_saving && !_photoAction && _photos!.ready && !_photos!.claimed;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Finding photos', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 4),
+        Text(
+          'Add evidence for this finding. Originals are kept; marks are stored beside each photo.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        Wrap(
+          spacing: 8,
+          children: [
+            OutlinedButton(
+              onPressed: enabled ? () => _pickPhoto(ImageSource.camera) : null,
+              child: const Text('Take photo'),
+            ),
+            OutlinedButton(
+              onPressed: enabled ? () => _pickPhoto(ImageSource.gallery) : null,
+              child: const Text('Add from gallery'),
+            ),
+            if (photos.any((photo) => photo.pending) || _photos!.error != null)
+              TextButton(
+                onPressed: enabled
+                    ? () => _photoOperation(_photos!.retry)
+                    : null,
+                child: const Text('Retry uploads'),
+              ),
+          ],
+        ),
+        if (_photoAction) const LinearProgressIndicator(),
+        for (final photo in photos)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    label: 'Open finding photo: ${photo.note ?? 'Photo'}',
+                    button: true,
+                    child: InkWell(
+                      onTap: enabled && !photo.removing
+                          ? () =>
+                                _photoOperation(() => _viewFindingPhoto(photo))
+                          : null,
+                      child: SizedBox(
+                        height: 160,
+                        child: photo.url != null
+                            ? MarkedNetworkPhoto(
+                                url: photo.url!,
+                                annotations: photo.annotations,
+                                fit: BoxFit.contain,
+                              )
+                            : photo.localPath != null
+                            ? _LocalFindingPhoto(
+                                image: FileImage(File(photo.localPath!)),
+                                annotations: photo.annotations,
+                              )
+                            : const Center(child: Text('Photo upload pending')),
+                      ),
+                    ),
+                  ),
+                  if (photo.note != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(photo.note!),
+                    ),
+                  const SizedBox(height: 6),
+                  Text(
+                    photo.removing
+                        ? 'Removing photo…'
+                        : photo.awaitingMarkup
+                        ? 'Saved on this phone · Finish marking'
+                        : photo.error != null
+                        ? 'Saved on this phone · Upload failed. Retry when connected.'
+                        : photo.pending
+                        ? photo.progress != null
+                              ? 'Uploading ${(photo.progress! * 100).round()}%…'
+                              : 'Saving photo…'
+                        : 'Uploaded',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  if (photo.pending && !photo.awaitingMarkup && !photo.removing)
+                    LinearProgressIndicator(value: photo.progress),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      TextButton(
+                        onPressed: enabled && !photo.removing
+                            ? () => _photoOperation(() => _markPhoto(photo))
+                            : null,
+                        child: Text(
+                          photo.awaitingMarkup
+                              ? 'Resume marking'
+                              : 'Mark photo',
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: enabled && !photo.removing
+                            ? () => _photoOperation(() => _caption(photo))
+                            : null,
+                        child: const Text('Caption'),
+                      ),
+                      TextButton(
+                        onPressed: enabled && !photo.removing
+                            ? () => _photoOperation(
+                                () => _photos!.remove(photo.id),
+                              )
+                            : null,
+                        child: const Text('Remove photo'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) => PopScope<bool>(
-    canPop: !_saving && (_choosing || widget.finding != null),
+    canPop: !_saving && !_photoAction && (_choosing || widget.finding != null),
     onPopInvokedWithResult: (didPop, _) {
-      if (!didPop && !_saving) _back();
+      if (!didPop && !_saving && !_photoAction) _back();
     },
     child: Scaffold(
       appBar: AppBar(
@@ -190,12 +620,20 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: _saving ? null : () => Navigator.pop(context),
+            onPressed: _saving || _photoAction
+                ? null
+                : () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
         ],
       ),
-      body: KiviloContent(child: _choosing ? _chooser() : _form()),
+      body: KiviloContent(
+        child: _loadingPhotos
+            ? const Center(child: CircularProgressIndicator())
+            : _choosing
+            ? _chooser()
+            : _form(),
+      ),
     ),
   );
 
@@ -411,7 +849,12 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             ChoiceChip(
               label: Text(option.value),
               selected: option.key == value,
-              onSelected: _saving ? null : (_) => change(option.key),
+              onSelected: _saving || _photoAction
+                  ? null
+                  : (_) {
+                      change(option.key);
+                      _draftChanged();
+                    },
             ),
         ],
       ),
@@ -436,7 +879,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                   ),
                   if (widget.finding == null)
                     TextButton(
-                      onPressed: _saving ? null : _showChooser,
+                      onPressed: _saving || _photoAction ? null : _showChooser,
                       child: const Text('Change item'),
                     ),
                 ],
@@ -451,7 +894,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                         item: _selected!,
                         atCheckIn: _selectedAtCheckIn,
                         compact: !_showItemDetails,
-                        enabled: !_saving,
+                        enabled: !_saving && !_photoAction,
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -479,6 +922,10 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                     widget.finding!.changeType,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
+            if (_photos != null) ...[
+              const SizedBox(height: 20),
+              _photoEvidence(),
+            ],
             const SizedBox(height: 24),
             _choices(
               'Change',
@@ -505,7 +952,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             const SizedBox(height: 20),
             TextField(
               controller: _rationale,
-              enabled: !_saving,
+              enabled: !_saving && !_photoAction,
               minLines: 3,
               maxLines: 6,
               decoration: const InputDecoration(labelText: 'Rationale'),
@@ -526,15 +973,17 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                       label: item['title'] as String,
                     ),
                 ],
-                enabled: !_saving,
-                onChanged: (value) =>
-                    setState(() => _maintenanceCaseId = value),
+                enabled: !_saving && !_photoAction,
+                onChanged: (value) => setState(() {
+                  _maintenanceCaseId = value;
+                  _draftChanged();
+                }),
               ),
             ],
             const SizedBox(height: 16),
             TextField(
               controller: _cost,
-              enabled: !_saving,
+              enabled: !_saving && !_photoAction,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -542,10 +991,20 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 labelText: 'Estimated cost (SGD)',
               ),
             ),
+            if (_photos != null)
+              TextButton(
+                onPressed: _saving || _photoAction ? null : _discardDraft,
+                child: const Text('Discard draft'),
+              ),
             if (widget.finding != null && widget.onRemove != null) ...[
               const SizedBox(height: 8),
               TextButton(
-                onPressed: _saving ? null : () => _persist(widget.onRemove!),
+                onPressed: _saving || _photoAction
+                    ? null
+                    : () => _persist(() async {
+                        if (_photos != null) await _photos!.discard();
+                        await widget.onRemove!();
+                      }),
                 child: const Text('Remove finding'),
               ),
             ],
@@ -562,18 +1021,20 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (_error != null) ...[
+              if ((_error ?? _photos?.error) != null) ...[
                 Semantics(
                   liveRegion: true,
                   child: Text(
-                    _error!,
+                    (_error ?? _photos?.error)!,
                     style: const TextStyle(color: KiviloColors.red),
                   ),
                 ),
                 const SizedBox(height: 12),
               ],
               FilledButton(
-                onPressed: _saving ? null : _save,
+                onPressed: _saving || _photoAction || _loadingPhotos
+                    ? null
+                    : _save,
                 child: Text(
                   _saving
                       ? 'Saving…'
@@ -786,6 +1247,45 @@ class _ItemInformation extends StatelessWidget {
             ),
         ],
       ],
+    );
+  }
+}
+
+/// Local originals use the same upright box as the vector marks. No edited bitmap
+/// is written to disk or uploaded.
+class _LocalFindingPhoto extends StatelessWidget {
+  const _LocalFindingPhoto({required this.image, this.annotations});
+  final ImageProvider image;
+  final Map<String, dynamic>? annotations;
+  @override
+  Widget build(BuildContext context) {
+    final width = (annotations?['w'] as num?)?.toDouble();
+    final height = (annotations?['h'] as num?)?.toDouble();
+    final marks = (annotations?['marks'] as List<dynamic>? ?? const [])
+        .cast<Map<String, dynamic>>();
+    if (width == null || height == null || marks.isEmpty) {
+      return Image(
+        image: image,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) =>
+            const Center(child: Text('Photo is finishing uploading…')),
+      );
+    }
+    return Center(
+      child: AspectRatio(
+        aspectRatio: width / height,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image(
+              image: image,
+              fit: BoxFit.fill,
+              errorBuilder: (_, _, _) => const SizedBox(),
+            ),
+            CustomPaint(painter: MarkPainter(marks)),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -60,17 +60,20 @@ async function recordIssued(inspectionId: string, storagePath: string, pdf: Uint
 
 async function fetchAssets(model: ReportModel): Promise<ReportAssets> {
   const photos = model.rooms.flatMap((room) => room.photos)
-  // Pictures outside the room grid: a repair's evidence in the assessment, and the
-  // photos of updates since signing.
+  // Pictures outside the room grid. Finding photos carry the marks frozen with the
+  // assessment, drawn over the original bytes rather than a painted export.
   const evidence = [
-    ...(model.assessment?.findings ?? []).flatMap((finding) => finding.maintenanceEvidence?.evidence ?? []),
-    ...model.addenda.flatMap((addendum) => addendum.entries.flatMap((entry) => entry.photos)),
+    ...(model.assessment?.findings ?? []).flatMap((finding) => finding.photos ?? []),
+    ...(model.assessment?.findings ?? []).flatMap((finding) =>
+      (finding.maintenanceEvidence?.evidence ?? []).map((photo) => ({ ...photo, annotations: null }))),
+    ...model.addenda.flatMap((addendum) => addendum.entries.flatMap((entry) =>
+      entry.photos.map((photo) => ({ ...photo, annotations: null })))),
   ]
     .filter((item) => /^image\/(jpeg|png|webp)$/.test(item.mimeType))
 
   const [photoBitmaps, evidenceBitmaps, logo] = await Promise.all([
     pool(photos, (photo) => jpeg(photo.storagePath, photo.annotations ? MARKED_PHOTO_EDGE : PHOTO_EDGE)),
-    pool(evidence, (item) => jpeg(item.storagePath, PHOTO_EDGE)),
+    pool(evidence, (item) => jpeg(item.storagePath, item.annotations ? MARKED_PHOTO_EDGE : PHOTO_EDGE)),
     model.branding?.logoPath ? png(await downloadCapture(model.branding.logoPath)) : null,
   ])
 

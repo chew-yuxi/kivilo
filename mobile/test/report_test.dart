@@ -7,6 +7,7 @@ import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
+import 'package:kivilo/ui/marked_network_photo.dart';
 
 Map<String, dynamic> reportJson({
   String status = 'AWAITING_SIGNATURE',
@@ -198,6 +199,90 @@ void main() {
     expect(find.text('Store room'), findsOneWidget);
     expect(find.text('Nothing recorded in this room.'), findsOneWidget);
   });
+
+  testWidgets(
+    'published finding photos show frozen marks in a read-only viewer',
+    (tester) async {
+      const url = 'https://storage.test/finding-chip.jpg';
+      const marks = {
+        'v': 1,
+        'w': 640,
+        'h': 480,
+        'by': 'agent-1',
+        'at': '2026-10-21T08:00:00.000Z',
+        'marks': [
+          {
+            'shape': 'ring',
+            'cx': 0.4,
+            'cy': 0.5,
+            'rx': 0.1,
+            'ry': 0.15,
+            'note': 'Fresh chip',
+          },
+        ],
+      };
+      final json = reportJson(status: 'COMPLETED')
+        ..['kind'] = 'CHECK_OUT'
+        ..['rooms'] = <Map<String, dynamic>>[]
+        ..['signatures'] = <Map<String, dynamic>>[]
+        ..['assessment'] = {
+          'version': 1,
+          'publishedAt': '2026-10-21T08:30:00.000Z',
+          'summary': null,
+          'findings': [
+            {
+              'id': 'finding-1',
+              'itemLabel': 'Kitchen · Worktop',
+              'verdict': 'UNDECIDED',
+              'estimatedCost': null,
+              'rationale': 'A fresh chip on the edge.',
+              'maintenanceTitle': null,
+              'evidence': <Map<String, dynamic>>[],
+              'photos': [
+                {
+                  'id': 'photo-1',
+                  'url': url,
+                  'note': 'Worktop edge',
+                  'mimeType': 'image/jpeg',
+                  'annotations': marks,
+                },
+              ],
+            },
+          ],
+        };
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: ReportScreen(id: 'inspection-1', api: FakeReportApi(json)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final open = find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label == 'Open finding photo: Worktop edge',
+      );
+      await tester.scrollUntilVisible(
+        open,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(open);
+      await tester.pumpAndSettle();
+      final image = tester.widget<MarkedNetworkPhoto>(
+        find.byType(MarkedNetworkPhoto).last,
+      );
+      expect(image.url, url);
+      expect(image.annotations, marks);
+      expect(image.fit, BoxFit.contain);
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+      expect(find.byType(PhotoMarkScreen), findsNothing);
+      expect(find.text('Save photo'), findsNothing);
+      expect(find.text('Take photo'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('says both parties signed once it is complete', (tester) async {
     await tester.pumpWidget(

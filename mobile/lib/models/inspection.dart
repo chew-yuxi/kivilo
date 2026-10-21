@@ -1,3 +1,5 @@
+import 'report.dart' show ReportPhoto;
+
 class InspectionSummary {
   const InspectionSummary({
     required this.id,
@@ -490,6 +492,7 @@ class Finding {
     required this.editedByHuman,
     required this.maintenanceCaseId,
     required this.maintenanceCaseTitle,
+    this.photos = const [],
   });
 
   final String id;
@@ -504,6 +507,7 @@ class Finding {
   final bool editedByHuman;
   final String? maintenanceCaseId;
   final String? maintenanceCaseTitle;
+  final List<ReportPhoto> photos;
 
   factory Finding.fromJson(Map<String, dynamic> json) => Finding(
     id: json['id'] as String,
@@ -518,6 +522,9 @@ class Finding {
     editedByHuman: json['editedByHuman'] as bool,
     maintenanceCaseId: json['maintenanceCaseId'] as String?,
     maintenanceCaseTitle: json['maintenanceCaseTitle'] as String?,
+    photos: ((json['photos'] as List<dynamic>?) ?? const [])
+        .map((photo) => ReportPhoto.fromJson(photo as Map<String, dynamic>))
+        .toList(),
   );
 }
 

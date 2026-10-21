@@ -12,6 +12,8 @@ const body = z.object({
   verdict: z.enum(VERDICTS),
   rationale: z.string().trim().min(1).max(10000),
   estimatedCost: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/).nullable(),
+  clientId: z.string().uuid().optional(),
+  photoDraftId: z.string().uuid().optional(),
 }).strict()
 
 export const POST = authed(async (_agent, { id }: { id: string }, request) => {

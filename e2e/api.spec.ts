@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { randomUUID } from 'node:crypto'
 import { accessTokenFor, freshEmail, signIn, FIXTURES } from './helpers'
 
 /// The native client speaks to the same backend over HTTP with a bearer token instead of
@@ -261,6 +262,89 @@ test('a native client takes a check-in from capture to both signatures, then ope
   expect(await reviewedCheckOut.json()).toEqual({ ok: true })
   const walked = await (await request.get(`/api/v1/inspections/${checkOutId}`, { headers })).json()
   expect(walked.rooms[0]).toMatchObject({ status: 'REVIEWED', items: 11 })
+
+  // Finding photos are new evidence after countersigning, not changes to the signed
+  // room. Exercise real bearer authorization, signed PUT, retry and publication.
+  const checkOutBase = `/api/v1/inspections/${checkOutId}`
+  expect((await request.post(`${checkOutBase}/review`, { headers })).status()).toBe(200)
+  const checkOutParties = await (await request.get(checkOutBase, { headers })).json()
+  for (const stakeholderId of [checkOutParties.landlordId, checkOutParties.tenantId]) {
+    expect((await request.post(`${checkOutBase}/signatures`, {
+      headers, data: { stakeholderId, imageData: png },
+    })).status()).toBe(200)
+  }
+  const frozenRoom = await (await request.get(copiedRoom, { headers })).json()
+  const frozenReport = await (await request.get(`${checkOutBase}/report`, { headers })).json()
+  const draftId = randomUUID()
+  const clientId = randomUUID()
+  const draftBase = `${checkOutBase}/finding-photo-drafts/${draftId}`
+  const photoUpload = await request.post(`${draftBase}/upload-url`, {
+    headers, data: { clientId, mimeType: FIXTURES.photo.mimeType },
+  })
+  expect(photoUpload.status()).toBe(200)
+  const findingUpload = await photoUpload.json()
+  expect((await request.put(findingUpload.signedUrl, {
+    headers: { 'content-type': FIXTURES.photo.mimeType }, data: FIXTURES.photo.buffer,
+  })).ok()).toBeTruthy()
+  const findingMarks = {
+    w: 640, h: 480,
+    marks: [{ shape: 'ring', cx: 0.4, cy: 0.5, rx: 0.1, ry: 0.15, note: 'Fresh chip' }],
+  }
+  const findingBody = {
+    itemId: frozenRoom.items[0].id,
+    baselineItemId: null,
+    changeType: 'DAMAGE', verdict: 'UNDECIDED',
+    rationale: 'A fresh chip recorded after the signed inventory.',
+    estimatedCost: null, photoDraftId: draftId,
+  }
+  // Bytes in Storage without registration are still pending, so Save cannot omit them.
+  expect((await request.post(`${checkOutBase}/findings`, {
+    headers, data: findingBody,
+  })).status()).toBe(409)
+  for (let attempt = 0; attempt < 2; attempt++) {
+    expect((await request.post(`${draftBase}/photos`, {
+      headers,
+      data: {
+        clientId, storagePath: findingUpload.storagePath,
+        mimeType: FIXTURES.photo.mimeType, sizeBytes: FIXTURES.photo.buffer.length,
+        note: 'Close-up of the fresh chip', annotations: findingMarks,
+      },
+    })).status()).toBe(200)
+  }
+  const outsider = { Authorization: `Bearer ${await accessTokenFor(freshEmail('finding-outsider'))}` }
+  const foreignDraft = await request.get(draftBase, { headers: outsider })
+  const unknownDraft = await request.get(
+    `/api/v1/inspections/cmnope00000000000000000/finding-photo-drafts/${draftId}`,
+    { headers: outsider },
+  )
+  expect(foreignDraft.status()).toBe(404)
+  expect(await foreignDraft.json()).toEqual(await unknownDraft.json())
+  const ids: string[] = []
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const savedFinding = await request.post(`${checkOutBase}/findings`, { headers, data: findingBody })
+    expect(savedFinding.status()).toBe(200)
+    ids.push((await savedFinding.json()).id)
+  }
+  expect(ids[1]).toBe(ids[0])
+  const draftDetail = await (await request.get(checkOutBase, { headers })).json()
+  expect(draftDetail.findings).toHaveLength(1)
+  expect(draftDetail.findings[0].photos).toMatchObject([{
+    id: clientId, note: 'Close-up of the fresh chip',
+    annotations: { ...findingMarks, v: 1, by: expect.any(String), at: expect.any(String) },
+  }])
+  expect((await request.post(`${checkOutBase}/findings/publish`, { headers, data: {} })).status()).toBe(200)
+  const published = await (await request.get(`${checkOutBase}/report`, { headers })).json()
+  const findingPhoto = published.assessment.findings[0].photos[0]
+  expect(findingPhoto.annotations).toMatchObject(findingMarks)
+  expect(findingPhoto.url).toContain('token=')
+  expect(await (await request.get(findingPhoto.url)).body()).toEqual(FIXTURES.photo.buffer)
+  expect(published.rooms).toEqual(frozenReport.rooms)
+  expect(published.signatures).toEqual(frozenReport.signatures)
+  expect((await request.delete(`${checkOutBase}/findings/${ids[0]}`, { headers })).status()).toBe(200)
+  const afterRemoval = await (await request.get(`${checkOutBase}/report`, { headers })).json()
+  const retained = afterRemoval.assessment.findings[0].photos[0]
+  expect(retained.annotations).toEqual(findingPhoto.annotations)
+  expect(await (await request.get(retained.url)).body()).toEqual(FIXTURES.photo.buffer)
 })
 
 test('an agent brands their reports from the app, logo as a raw body', async ({ request }) => {

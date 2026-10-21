@@ -9,6 +9,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/marked_network_photo.dart';
 import '../ui/tenant_handover.dart';
 import 'photo_mark_screen.dart';
 import 'signature_screen.dart';
@@ -407,45 +408,54 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.report,
     child: FutureBuilder<SignedReport>(
-    future: _future,
-    builder: (context, snapshot) {
-      final report = snapshot.data;
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            report == null
-                ? 'Report'
-                : report.isCheckOut
-                ? 'Check-out report'
-                : 'Check-in report',
+      future: _future,
+      builder: (context, snapshot) {
+        final report = snapshot.data;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              report == null
+                  ? 'Report'
+                  : report.isCheckOut
+                  ? 'Check-out report'
+                  : 'Check-in report',
+            ),
           ),
-        ),
-        body: KiviloContent(maxWidth: 960, child: snapshot.hasError
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text('${snapshot.error}', textAlign: TextAlign.center),
-                ),
-              )
-            : report == null
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(onRefresh: _refresh, child: _body(report))),
-        bottomNavigationBar: report != null && report.signAs != null
-            ? KiviloContent(maxWidth: 720, child: SafeArea(
-                minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: FilledButton(
-                  onPressed: () => _sign(report),
-                  child: Text(
-                    report.signAs == 'LANDLORD'
-                        ? 'Sign as landlord'
-                        : 'Sign as tenant',
+          body: KiviloContent(
+            maxWidth: 960,
+            child: snapshot.hasError
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        '${snapshot.error}',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                : report == null
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(onRefresh: _refresh, child: _body(report)),
+          ),
+          bottomNavigationBar: report != null && report.signAs != null
+              ? KiviloContent(
+                  maxWidth: 720,
+                  child: SafeArea(
+                    minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: FilledButton(
+                      onPressed: () => _sign(report),
+                      child: Text(
+                        report.signAs == 'LANDLORD'
+                            ? 'Sign as landlord'
+                            : 'Sign as tenant',
+                      ),
+                    ),
                   ),
-                ),
-              ))
-            : null,
-      );
-    },
-  ),
+                )
+              : null,
+        );
+      },
+    ),
   );
 
   Widget _body(SignedReport report) {
@@ -848,7 +858,9 @@ class _ReportScreenState extends State<ReportScreen> {
                 entry.roomName,
                 style: text.bodySmall?.copyWith(color: KiviloColors.muted),
               ),
-              if (!addendum.isMoveInDefect && entry.change == 'REPLACED' && entry.targetIdentifier != null)
+              if (!addendum.isMoveInDefect &&
+                  entry.change == 'REPLACED' &&
+                  entry.targetIdentifier != null)
                 Text(
                   'Was: ${entry.targetIdentifier}',
                   style: text.bodySmall?.copyWith(fontFamily: 'monospace'),
@@ -1032,6 +1044,50 @@ class _ReportScreenState extends State<ReportScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(finding.rationale, style: text.bodyMedium),
+                  if (finding.photos.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text('Finding photos', style: text.labelMedium),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final photo in finding.photos)
+                          SizedBox(
+                            width: 160,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Semantics(
+                                  button: true,
+                                  label:
+                                      'Open finding photo: ${photo.note ?? 'Photo'}',
+                                  child: InkWell(
+                                    onTap: () => _viewFindingPhoto(photo),
+                                    child: SizedBox(
+                                      height: 120,
+                                      child: MarkedNetworkPhoto(
+                                        url: photo.url,
+                                        annotations: photo.annotations,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (photo.note != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      photo.note!,
+                                      style: text.bodySmall,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                   if (finding.maintenanceTitle != null) ...[
                     const SizedBox(height: 10),
                     Text(
@@ -1063,6 +1119,28 @@ class _ReportScreenState extends State<ReportScreen> {
       ],
     );
   }
+
+  Future<void> _viewFindingPhoto(ReportPhoto photo) =>
+      Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => Scaffold(
+            appBar: AppBar(title: Text(photo.note ?? 'Finding photo')),
+            body: SafeArea(
+              child: Center(
+                child: InteractiveViewer(
+                  minScale: 0.75,
+                  maxScale: 6,
+                  child: MarkedNetworkPhoto(
+                    url: photo.url,
+                    annotations: photo.annotations,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 /// The picture at its own aspect ratio with the marks painted over exactly its box, so

@@ -43,6 +43,8 @@ class ApiFailure implements Exception {
         'Someone already updated this repair. Refresh and check the timeline.',
       'move_in_defect_stale_target' =>
         'This item has since been replaced or removed. The notice cannot be agreed, but you can still dispute it.',
+      'finding_save_conflict' =>
+        'This finding was already saved. Reopen it to save your latest changes. Your draft is kept on this phone.',
       _ =>
         status == null
             ? noConnection.message
