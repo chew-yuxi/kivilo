@@ -10,7 +10,9 @@ import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/marked_network_photo.dart';
 import 'addendum_entry_screen.dart';
+import 'evidence_photo_screen.dart';
 import 'report_screen.dart';
 import '../ui/kivilo_layout.dart';
 
@@ -24,11 +26,13 @@ class AddendaScreen extends StatefulWidget {
     required this.inspectionId,
     this.api,
     this.photos,
+    this.photoScreenBuilder,
   });
 
   final String inspectionId;
   final Api? api;
   final AddendumPhotos? photos;
+  final Widget Function(EvidencePhotoScreen screen)? photoScreenBuilder;
 
   @override
   State<AddendaScreen> createState() => _AddendaScreenState();
@@ -36,7 +40,7 @@ class AddendaScreen extends StatefulWidget {
 
 class _AddendaScreenState extends State<AddendaScreen> {
   late final _api = widget.api ?? Api();
-  late final _photos = widget.photos ?? AddendumPhotos(api: _api);
+  late final _photos = widget.photos ?? AddendumPhotos();
   late Future<AddendaWorkspace> _future = _load();
   final _title = TextEditingController();
   final _reason = TextEditingController();
@@ -166,25 +170,38 @@ class _AddendaScreenState extends State<AddendaScreen> {
   Future<void> _addPhoto(
     AddendumDraft draft,
     DraftEntry entry,
-    ImageSource source,
+    ImageSource? source,
   ) async {
-    bool? uploaded;
-    await _run(() async {
-      uploaded = await _photos.add(
-        addendumId: draft.id,
-        entryId: entry.id,
-        source: source,
-      );
-    });
-    if (uploaded == false && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Photo saved on this phone. Kivilo will upload it when it can.',
-          ),
-        ),
-      );
-    }
+    final screen = EvidencePhotoScreen(
+      title: 'Photos · ${entry.name ?? entry.roomName}',
+      queueOwner: AddendumPhotos.queueOwner(draft.id),
+      targetId: entry.id,
+      initialSource: source,
+      loadPhotos: () async {
+        final current = (await _api.addenda(widget.inspectionId)).draft;
+        final currentEntry = current?.id == draft.id
+            ? current!.entries.where((item) => item.id == entry.id).firstOrNull
+            : null;
+        if (currentEntry == null) {
+          throw const ApiFailure('This draft entry is no longer available.', 404);
+        }
+        return [
+          for (final photo in currentEntry.photos)
+            EvidencePhoto(
+              id: photo.id,
+              url: photo.url,
+              note: photo.note,
+              annotations: photo.annotations,
+            ),
+        ];
+      },
+    );
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => widget.photoScreenBuilder?.call(screen) ?? screen,
+      ),
+    );
+    if (mounted) await _refresh();
   }
 
   Future<void> _publish(AddendumDraft draft) async {
@@ -211,6 +228,17 @@ class _AddendaScreenState extends State<AddendaScreen> {
     if (!confirmed) return;
     await _run(() async {
       await _saveDetails(draft);
+      final pending = await _photos.pending(
+        draft.id,
+        draft.entries.map((entry) => entry.id),
+      );
+      if (mounted) setState(() => _pending = pending);
+      if (pending.values.any((count) => count > 0)) {
+        throw const ApiFailure(
+          'Some photos are still on this phone. Finish marking and upload them before publishing.',
+          null,
+        );
+      }
       await _api.publishAddendum(draft.id);
     });
   }
@@ -458,18 +486,19 @@ class _AddendaScreenState extends State<AddendaScreen> {
                   for (final photo in entry.photos)
                     Stack(
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            photo.url,
-                            width: 88,
-                            height: 88,
-                            fit: BoxFit.cover,
-                            semanticLabel: photo.note ?? photo.label,
-                            errorBuilder: (_, _, _) => const SizedBox(
+                        InkWell(
+                          onTap: _busy ? null : () => _addPhoto(draft, entry, null),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: SizedBox(
                               width: 88,
                               height: 88,
-                              child: ColoredBox(color: KiviloColors.canvas),
+                              child: MarkedNetworkPhoto(
+                                url: photo.url,
+                                annotations: photo.annotations,
+                                fit: BoxFit.contain,
+                                semanticLabel: photo.note ?? photo.label,
+                              ),
                             ),
                           ),
                         ),
@@ -496,6 +525,10 @@ class _AddendaScreenState extends State<AddendaScreen> {
               ),
             ],
             if (waiting > 0) ...[
+              TextButton(
+                onPressed: _busy ? null : () => _addPhoto(draft, entry, null),
+                child: const Text('Continue saved photos'),
+              ),
               const SizedBox(height: 6),
               Row(
                 children: [

@@ -1,4 +1,5 @@
 import { createDownloadUrl } from '@/lib/storage'
+import { MarkOverlay } from '@/components/mark-overlay'
 import { entryHeading, type AddendumView } from '@/lib/addenda'
 
 const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long', timeZone: 'Asia/Singapore' })
@@ -76,17 +77,23 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {entry.photos.map((photo) => (
                   <figure key={photo.id}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo.url}
-                      alt={photo.note ?? `${entryHeading(entry, addendum.source)} photo`}
-                      className="h-36 w-full rounded border border-gray-200 object-contain"
-                    />
+                    <div className="relative h-36 w-full">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photo.url}
+                        alt={photo.note ?? `${entryHeading(entry, addendum.source)} photo`}
+                        className="h-full w-full rounded border border-gray-200 object-contain"
+                      />
+                      <MarkOverlay annotations={photo.annotations ?? null} />
+                    </div>
                     {(photo.label || photo.note) && (
                       <figcaption className="mt-1 text-xs text-gray-500">
                         {[photo.label, photo.note].filter(Boolean).join(': ')}
                       </figcaption>
                     )}
+                    {photo.annotations?.marks.map((mark, index) => mark.note && (
+                      <p key={index} className="mt-1 text-xs text-red-700">{index + 1}. {mark.note}</p>
+                    ))}
                   </figure>
                 ))}
               </div>

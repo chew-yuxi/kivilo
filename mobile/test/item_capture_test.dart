@@ -228,6 +228,29 @@ void main() {
     },
   );
 
+  testWidgets('room capture leaves a finding picker journal for its own flow', (tester) async {
+    final journal = File('${root.path}/capture-picker.json');
+    final intent = {
+      'flow': 'evidence',
+      'ownerId': 'owner',
+      'inspectionId': 'finding:inspection',
+      'roomId': 'finding-1',
+      'kind': 'PHOTO',
+      'video': false,
+      'files': [
+        {'path': photos.first.path, 'clientId': newCaptureId(), 'mimeType': 'image/png'},
+      ],
+    };
+    journal.writeAsStringSync(jsonEncode(intent));
+    await open(tester);
+    expect(jsonDecode(journal.readAsStringSync()), intent);
+    expect(File(photos.first.path).existsSync(), isTrue);
+    expect(await queue.forRoom('finding-1', 'owner'), isEmpty);
+    expect(find.byType(PhotoMarkScreen), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await settle(tester);
+  });
+
   testWidgets('a library batch is durable before its first photo is marked', (
     tester,
   ) async {

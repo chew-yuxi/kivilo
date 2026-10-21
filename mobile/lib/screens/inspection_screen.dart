@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -8,6 +11,7 @@ import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../services/capture_queue.dart';
+import '../services/pending_evidence.dart';
 import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
@@ -18,6 +22,7 @@ import '../ui/page_context_title.dart';
 import '../ui/tenant_handover.dart';
 import 'addenda_screen.dart';
 import 'finding_editor_screen.dart';
+import 'evidence_photo_screen.dart';
 import 'room_screen.dart';
 import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
@@ -29,10 +34,16 @@ class InspectionScreen extends StatefulWidget {
     required this.id,
     this.api,
     this.reportPdf,
+    this.evidenceQueue,
+    this.ownerId,
+    this.supportDirectory,
   });
   final String id;
   final Api? api;
   final ReportPdfFile? reportPdf;
+  final CaptureQueue? evidenceQueue;
+  final String? ownerId;
+  final Directory? supportDirectory;
 
   @override
   State<InspectionScreen> createState() => _InspectionScreenState();
@@ -293,17 +304,61 @@ class _InspectionScreenState extends State<InspectionScreen> {
   }
 
   Future<void> _addFinding(InspectionDetail inspection) async {
-    final saved = await Navigator.of(context).push<bool>(
+    final clientId = newCaptureId();
+    String? createdId;
+    String? createdItemId;
+    String? createdBaselineItemId;
+    Map<String, dynamic>? createRequest;
+    Future<String> save(Map<String, dynamic> data) async {
+      final resolvingCreate = createdId == null;
+      if (createdId == null) {
+        createRequest ??= {
+          ...data,
+          'clientId': clientId,
+        };
+        // Resolve a lost response with the exact original request before applying
+        // any edits made while it was offline. One UUID always means one finding.
+        createdId = await _api.createFinding(widget.id, createRequest!);
+        createdItemId = createRequest!['itemId'] as String?;
+        createdBaselineItemId = createRequest!['baselineItemId'] as String?;
+      }
+      if (createdItemId != data['itemId'] ||
+          createdBaselineItemId != data['baselineItemId']) {
+        throw const ApiFailure(
+          'This finding was already saved for another item. Reopen it from the assessment.',
+          null,
+        );
+      }
+      if (!resolvingCreate ||
+          data.entries.any((entry) => createRequest![entry.key] != entry.value)) {
+        await _api.updateFinding(widget.id, createdId!, {
+          for (final entry in data.entries)
+            if (entry.key != 'itemId' && entry.key != 'baselineItemId')
+              entry.key: entry.value,
+        });
+      }
+      return createdId!;
+    }
+
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => FindingEditorScreen(
           maintenanceHistory: inspection.maintenanceHistory,
           checkOutItems: inspection.checkOutItems,
           checkInItems: inspection.checkInItems,
-          onSave: (data) => _api.createFinding(widget.id, data),
+          onSave: (data) async {
+            await save(data);
+          },
+          onSaveAndAddPhotos: (data) async {
+            final findingId = await save(data);
+            if (mounted) await _findingPhotos(findingId);
+          },
         ),
       ),
     );
-    if (saved == true && mounted) {
+    // A save can succeed even when its response or the next screen is interrupted.
+    // Refresh on Cancel too, so an already-saved finding remains discoverable.
+    if (mounted) {
       try {
         await _refresh();
       } catch (error) {
@@ -316,7 +371,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
     Finding finding,
     InspectionDetail inspection,
   ) async {
-    final saved = await Navigator.of(context).push<bool>(
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => FindingEditorScreen(
           finding: finding,
@@ -324,16 +379,69 @@ class _InspectionScreenState extends State<InspectionScreen> {
           checkOutItems: inspection.checkOutItems,
           checkInItems: inspection.checkInItems,
           onSave: (data) => _api.updateFinding(widget.id, finding.id, data),
-          onRemove: () => _api.deleteFinding(widget.id, finding.id),
+          onSaveAndAddPhotos: (data) async {
+            await _api.updateFinding(widget.id, finding.id, data);
+            if (mounted) await _findingPhotos(finding.id);
+          },
+          onRemove: () async {
+            await _requireFindingPhotosUploaded(findingId: finding.id);
+            await _api.deleteFinding(widget.id, finding.id);
+          },
         ),
       ),
     );
-    if (saved == true && mounted) {
+    if (mounted) {
       try {
         await _refresh();
       } catch (error) {
         if (mounted) setState(() => _error = plainError(error));
       }
+    }
+  }
+
+  Future<void> _findingPhotos(String findingId) => Navigator.of(context).push<void>(
+    MaterialPageRoute(
+      builder: (_) => EvidencePhotoScreen(
+        title: 'Finding photos',
+        queueOwner: 'finding:${widget.id}',
+        targetId: findingId,
+        loadPhotos: () async => [
+          for (final photo in await _api.findingPhotos(widget.id, findingId))
+            EvidencePhoto(
+              id: photo['id'] as String,
+              url: photo['url'] as String,
+              note: photo['note'] as String?,
+              annotations: photo['annotations'] as Map<String, dynamic>?,
+            ),
+        ],
+      ),
+    ),
+  );
+
+  Future<void> _requireFindingPhotosUploaded({String? findingId}) async {
+    final ownerId = widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id;
+    if (ownerId == null) throw const ApiFailure('Sign in again to continue.', 401);
+    final queue = widget.evidenceQueue ?? CaptureQueue();
+    try {
+      final owner = 'finding:${widget.id}';
+      final counts = await pendingEvidencePhotos(
+        queue: queue,
+        root: widget.supportDirectory ?? await getApplicationSupportDirectory(),
+        ownerId: ownerId,
+        queueOwner: owner,
+      );
+      final pending = findingId == null
+          ? counts.values.fold<int>(0, (total, count) => total + count)
+          : counts[findingId] ?? 0;
+      if (pending > 0) {
+        throw const ApiFailure(
+          'Finish marking and uploading finding photos before continuing. '
+          'Open the finding, then Save & add photos to resume.',
+          null,
+        );
+      }
+    } finally {
+      if (widget.evidenceQueue == null) await queue.close();
     }
   }
 
@@ -369,7 +477,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
       ),
     );
     if (confirmed == true) {
-      await _run(() => _api.publishFindings(widget.id, noFindings: noFindings));
+      await _run(() async {
+        await _requireFindingPhotosUploaded();
+        await _api.publishFindings(widget.id, noFindings: noFindings);
+      });
     }
   }
 
@@ -1348,6 +1459,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     children: [
                       _findingTag(finding.changeType.replaceAll('_', ' ')),
                       _findingTag(finding.verdict.replaceAll('_', ' ')),
+                      if (finding.photoCount > 0)
+                        _findingTag('${finding.photoCount} ${finding.photoCount == 1 ? 'photo' : 'photos'}'),
                       // Drafted by the old AI comparison, not yet confirmed.
                       if (!finding.editedByHuman)
                         _findingTag(

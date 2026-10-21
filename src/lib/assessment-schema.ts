@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CHANGE_TYPES, VERDICTS } from '@/lib/inspection/schema'
+import { storedAnnotationsSchema } from '@/lib/annotations'
 
 /// A publication is a self-contained snapshot. Report rendering never follows the
 /// mutable Finding rows, which remain a private working draft for the next version.
@@ -20,6 +21,16 @@ export const assessmentSnapshotSchema = z.object({
     estimatedCost: z.string().nullable(),
     confidence: z.number().nullable(),
     editedByHuman: z.boolean(),
+    // Absent on historical versions; never read live FindingPhoto rows for a report.
+    photos: z.array(z.object({
+      id: z.string(),
+      storagePath: z.string(),
+      mimeType: z.string(),
+      sizeBytes: z.number().int(),
+      note: z.string().nullable(),
+      annotations: storedAnnotationsSchema.nullable().optional(),
+      createdAt: z.string(),
+    })).optional(),
     maintenanceEvidence: z.object({
       caseId: z.string(),
       title: z.string(),
@@ -29,6 +40,7 @@ export const assessmentSnapshotSchema = z.object({
         storagePath: z.string(),
         mimeType: z.string(),
         note: z.string().nullable(),
+        annotations: storedAnnotationsSchema.nullable().optional(),
         createdAt: z.string(),
       })),
     }).nullable().optional(),

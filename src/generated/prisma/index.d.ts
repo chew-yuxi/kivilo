@@ -145,6 +145,12 @@ export type NotificationPushDelivery = $Result.DefaultSelection<Prisma.$Notifica
  */
 export type Finding = $Result.DefaultSelection<Prisma.$FindingPayload>
 /**
+ * Model FindingPhoto
+ * Assessment evidence, separate from the inventory the parties signed. Registered
+ * photos are immutable; a published assessment freezes their metadata in its snapshot.
+ */
+export type FindingPhoto = $Result.DefaultSelection<Prisma.$FindingPhotoPayload>
+/**
  * Model Signature
  * 
  */
@@ -1058,6 +1064,16 @@ export class PrismaClient<
   get finding(): Prisma.FindingDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.findingPhoto`: Exposes CRUD operations for the **FindingPhoto** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FindingPhotos
+    * const findingPhotos = await prisma.findingPhoto.findMany()
+    * ```
+    */
+  get findingPhoto(): Prisma.FindingPhotoDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.signature`: Exposes CRUD operations for the **Signature** model.
     * Example usage:
     * ```ts
@@ -1666,6 +1682,7 @@ export namespace Prisma {
     Notification: 'Notification',
     NotificationPushDelivery: 'NotificationPushDelivery',
     Finding: 'Finding',
+    FindingPhoto: 'FindingPhoto',
     Signature: 'Signature',
     ReportEmail: 'ReportEmail',
     AssessmentVersion: 'AssessmentVersion',
@@ -1695,7 +1712,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "inspection" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3401,6 +3418,80 @@ export namespace Prisma {
           }
         }
       }
+      FindingPhoto: {
+        payload: Prisma.$FindingPhotoPayload<ExtArgs>
+        fields: Prisma.FindingPhotoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FindingPhotoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FindingPhotoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>
+          }
+          findFirst: {
+            args: Prisma.FindingPhotoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FindingPhotoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>
+          }
+          findMany: {
+            args: Prisma.FindingPhotoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>[]
+          }
+          create: {
+            args: Prisma.FindingPhotoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>
+          }
+          createMany: {
+            args: Prisma.FindingPhotoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FindingPhotoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>[]
+          }
+          delete: {
+            args: Prisma.FindingPhotoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>
+          }
+          update: {
+            args: Prisma.FindingPhotoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>
+          }
+          deleteMany: {
+            args: Prisma.FindingPhotoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FindingPhotoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FindingPhotoUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>[]
+          }
+          upsert: {
+            args: Prisma.FindingPhotoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FindingPhotoPayload>
+          }
+          aggregate: {
+            args: Prisma.FindingPhotoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFindingPhoto>
+          }
+          groupBy: {
+            args: Prisma.FindingPhotoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FindingPhotoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FindingPhotoCountArgs<ExtArgs>
+            result: $Utils.Optional<FindingPhotoCountAggregateOutputType> | number
+          }
+        }
+      }
       Signature: {
         payload: Prisma.$SignaturePayload<ExtArgs>
         fields: Prisma.SignatureFieldRefs
@@ -4583,6 +4674,7 @@ export namespace Prisma {
     notification?: NotificationOmit
     notificationPushDelivery?: NotificationPushDeliveryOmit
     finding?: FindingOmit
+    findingPhoto?: FindingPhotoOmit
     signature?: SignatureOmit
     reportEmail?: ReportEmailOmit
     assessmentVersion?: AssessmentVersionOmit
@@ -5481,6 +5573,37 @@ export namespace Prisma {
    */
   export type NotificationCountOutputTypeCountPushDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NotificationPushDeliveryWhereInput
+  }
+
+
+  /**
+   * Count Type FindingCountOutputType
+   */
+
+  export type FindingCountOutputType = {
+    photos: number
+  }
+
+  export type FindingCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    photos?: boolean | FindingCountOutputTypeCountPhotosArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * FindingCountOutputType without action
+   */
+  export type FindingCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingCountOutputType
+     */
+    select?: FindingCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * FindingCountOutputType without action
+   */
+  export type FindingCountOutputTypeCountPhotosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FindingPhotoWhereInput
   }
 
 
@@ -25122,6 +25245,7 @@ export namespace Prisma {
     mimeType: number
     sizeBytes: number
     note: number
+    annotations: number
     createdAt: number
     _all: number
   }
@@ -25174,6 +25298,7 @@ export namespace Prisma {
     mimeType?: true
     sizeBytes?: true
     note?: true
+    annotations?: true
     createdAt?: true
     _all?: true
   }
@@ -25275,6 +25400,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note: string | null
+    annotations: JsonValue | null
     createdAt: Date
     _count: MaintenanceEvidenceCountAggregateOutputType | null
     _avg: MaintenanceEvidenceAvgAggregateOutputType | null
@@ -25308,6 +25434,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -25325,6 +25452,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -25342,6 +25470,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -25359,10 +25488,11 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
   }
 
-  export type MaintenanceEvidenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "caseId" | "visitId" | "uploadedById" | "purpose" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "createdAt", ExtArgs["result"]["maintenanceEvidence"]>
+  export type MaintenanceEvidenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "caseId" | "visitId" | "uploadedById" | "purpose" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "annotations" | "createdAt", ExtArgs["result"]["maintenanceEvidence"]>
   export type MaintenanceEvidenceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -25397,6 +25527,7 @@ export namespace Prisma {
       mimeType: string
       sizeBytes: number
       note: string | null
+      annotations: Prisma.JsonValue | null
       createdAt: Date
     }, ExtArgs["result"]["maintenanceEvidence"]>
     composites: {}
@@ -25834,6 +25965,7 @@ export namespace Prisma {
     readonly mimeType: FieldRef<"MaintenanceEvidence", 'String'>
     readonly sizeBytes: FieldRef<"MaintenanceEvidence", 'Int'>
     readonly note: FieldRef<"MaintenanceEvidence", 'String'>
+    readonly annotations: FieldRef<"MaintenanceEvidence", 'Json'>
     readonly createdAt: FieldRef<"MaintenanceEvidence", 'DateTime'>
   }
     
@@ -33318,6 +33450,7 @@ export namespace Prisma {
 
   export type FindingMinAggregateOutputType = {
     id: string | null
+    clientId: string | null
     inspectionId: string | null
     itemId: string | null
     baselineItemId: string | null
@@ -33334,6 +33467,7 @@ export namespace Prisma {
 
   export type FindingMaxAggregateOutputType = {
     id: string | null
+    clientId: string | null
     inspectionId: string | null
     itemId: string | null
     baselineItemId: string | null
@@ -33350,6 +33484,7 @@ export namespace Prisma {
 
   export type FindingCountAggregateOutputType = {
     id: number
+    clientId: number
     inspectionId: number
     itemId: number
     baselineItemId: number
@@ -33360,6 +33495,7 @@ export namespace Prisma {
     estimatedCost: number
     confidence: number
     editedByHuman: number
+    uploadPaths: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -33378,6 +33514,7 @@ export namespace Prisma {
 
   export type FindingMinAggregateInputType = {
     id?: true
+    clientId?: true
     inspectionId?: true
     itemId?: true
     baselineItemId?: true
@@ -33394,6 +33531,7 @@ export namespace Prisma {
 
   export type FindingMaxAggregateInputType = {
     id?: true
+    clientId?: true
     inspectionId?: true
     itemId?: true
     baselineItemId?: true
@@ -33410,6 +33548,7 @@ export namespace Prisma {
 
   export type FindingCountAggregateInputType = {
     id?: true
+    clientId?: true
     inspectionId?: true
     itemId?: true
     baselineItemId?: true
@@ -33420,6 +33559,7 @@ export namespace Prisma {
     estimatedCost?: true
     confidence?: true
     editedByHuman?: true
+    uploadPaths?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -33513,6 +33653,7 @@ export namespace Prisma {
 
   export type FindingGroupByOutputType = {
     id: string
+    clientId: string | null
     inspectionId: string
     itemId: string | null
     baselineItemId: string | null
@@ -33523,6 +33664,7 @@ export namespace Prisma {
     estimatedCost: Decimal | null
     confidence: number | null
     editedByHuman: boolean
+    uploadPaths: string[]
     createdAt: Date
     updatedAt: Date
     _count: FindingCountAggregateOutputType | null
@@ -33548,6 +33690,7 @@ export namespace Prisma {
 
   export type FindingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     inspectionId?: boolean
     itemId?: boolean
     baselineItemId?: boolean
@@ -33558,16 +33701,20 @@ export namespace Prisma {
     estimatedCost?: boolean
     confidence?: boolean
     editedByHuman?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     item?: boolean | Finding$itemArgs<ExtArgs>
     baselineItem?: boolean | Finding$baselineItemArgs<ExtArgs>
     maintenanceCase?: boolean | Finding$maintenanceCaseArgs<ExtArgs>
+    photos?: boolean | Finding$photosArgs<ExtArgs>
+    _count?: boolean | FindingCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["finding"]>
 
   export type FindingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     inspectionId?: boolean
     itemId?: boolean
     baselineItemId?: boolean
@@ -33578,6 +33725,7 @@ export namespace Prisma {
     estimatedCost?: boolean
     confidence?: boolean
     editedByHuman?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -33588,6 +33736,7 @@ export namespace Prisma {
 
   export type FindingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     inspectionId?: boolean
     itemId?: boolean
     baselineItemId?: boolean
@@ -33598,6 +33747,7 @@ export namespace Prisma {
     estimatedCost?: boolean
     confidence?: boolean
     editedByHuman?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -33608,6 +33758,7 @@ export namespace Prisma {
 
   export type FindingSelectScalar = {
     id?: boolean
+    clientId?: boolean
     inspectionId?: boolean
     itemId?: boolean
     baselineItemId?: boolean
@@ -33618,16 +33769,19 @@ export namespace Prisma {
     estimatedCost?: boolean
     confidence?: boolean
     editedByHuman?: boolean
+    uploadPaths?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type FindingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "itemId" | "baselineItemId" | "maintenanceCaseId" | "changeType" | "verdict" | "rationale" | "estimatedCost" | "confidence" | "editedByHuman" | "createdAt" | "updatedAt", ExtArgs["result"]["finding"]>
+  export type FindingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "inspectionId" | "itemId" | "baselineItemId" | "maintenanceCaseId" | "changeType" | "verdict" | "rationale" | "estimatedCost" | "confidence" | "editedByHuman" | "uploadPaths" | "createdAt" | "updatedAt", ExtArgs["result"]["finding"]>
   export type FindingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     item?: boolean | Finding$itemArgs<ExtArgs>
     baselineItem?: boolean | Finding$baselineItemArgs<ExtArgs>
     maintenanceCase?: boolean | Finding$maintenanceCaseArgs<ExtArgs>
+    photos?: boolean | Finding$photosArgs<ExtArgs>
+    _count?: boolean | FindingCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FindingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
@@ -33649,9 +33803,14 @@ export namespace Prisma {
       item: Prisma.$InspectionItemPayload<ExtArgs> | null
       baselineItem: Prisma.$InspectionItemPayload<ExtArgs> | null
       maintenanceCase: Prisma.$MaintenanceCasePayload<ExtArgs> | null
+      photos: Prisma.$FindingPhotoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      /**
+       * Stable native draft id, so retrying Save after a lost response is safe.
+       */
+      clientId: string | null
       inspectionId: string
       itemId: string | null
       baselineItemId: string | null
@@ -33665,6 +33824,10 @@ export namespace Prisma {
       estimatedCost: Prisma.Decimal | null
       confidence: number | null
       editedByHuman: boolean
+      /**
+       * Durable signed-upload intents, including bytes not yet registered.
+       */
+      uploadPaths: string[]
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["finding"]>
@@ -34065,6 +34228,7 @@ export namespace Prisma {
     item<T extends Finding$itemArgs<ExtArgs> = {}>(args?: Subset<T, Finding$itemArgs<ExtArgs>>): Prisma__InspectionItemClient<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     baselineItem<T extends Finding$baselineItemArgs<ExtArgs> = {}>(args?: Subset<T, Finding$baselineItemArgs<ExtArgs>>): Prisma__InspectionItemClient<$Result.GetResult<Prisma.$InspectionItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     maintenanceCase<T extends Finding$maintenanceCaseArgs<ExtArgs> = {}>(args?: Subset<T, Finding$maintenanceCaseArgs<ExtArgs>>): Prisma__MaintenanceCaseClient<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    photos<T extends Finding$photosArgs<ExtArgs> = {}>(args?: Subset<T, Finding$photosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -34095,6 +34259,7 @@ export namespace Prisma {
    */
   interface FindingFieldRefs {
     readonly id: FieldRef<"Finding", 'String'>
+    readonly clientId: FieldRef<"Finding", 'String'>
     readonly inspectionId: FieldRef<"Finding", 'String'>
     readonly itemId: FieldRef<"Finding", 'String'>
     readonly baselineItemId: FieldRef<"Finding", 'String'>
@@ -34105,6 +34270,7 @@ export namespace Prisma {
     readonly estimatedCost: FieldRef<"Finding", 'Decimal'>
     readonly confidence: FieldRef<"Finding", 'Float'>
     readonly editedByHuman: FieldRef<"Finding", 'Boolean'>
+    readonly uploadPaths: FieldRef<"Finding", 'String[]'>
     readonly createdAt: FieldRef<"Finding", 'DateTime'>
     readonly updatedAt: FieldRef<"Finding", 'DateTime'>
   }
@@ -34565,6 +34731,30 @@ export namespace Prisma {
   }
 
   /**
+   * Finding.photos
+   */
+  export type Finding$photosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    where?: FindingPhotoWhereInput
+    orderBy?: FindingPhotoOrderByWithRelationInput | FindingPhotoOrderByWithRelationInput[]
+    cursor?: FindingPhotoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FindingPhotoScalarFieldEnum | FindingPhotoScalarFieldEnum[]
+  }
+
+  /**
    * Finding without action
    */
   export type FindingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -34580,6 +34770,1151 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: FindingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FindingPhoto
+   */
+
+  export type AggregateFindingPhoto = {
+    _count: FindingPhotoCountAggregateOutputType | null
+    _avg: FindingPhotoAvgAggregateOutputType | null
+    _sum: FindingPhotoSumAggregateOutputType | null
+    _min: FindingPhotoMinAggregateOutputType | null
+    _max: FindingPhotoMaxAggregateOutputType | null
+  }
+
+  export type FindingPhotoAvgAggregateOutputType = {
+    sizeBytes: number | null
+  }
+
+  export type FindingPhotoSumAggregateOutputType = {
+    sizeBytes: number | null
+  }
+
+  export type FindingPhotoMinAggregateOutputType = {
+    id: string | null
+    clientId: string | null
+    findingId: string | null
+    storagePath: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type FindingPhotoMaxAggregateOutputType = {
+    id: string | null
+    clientId: string | null
+    findingId: string | null
+    storagePath: string | null
+    mimeType: string | null
+    sizeBytes: number | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type FindingPhotoCountAggregateOutputType = {
+    id: number
+    clientId: number
+    findingId: number
+    storagePath: number
+    mimeType: number
+    sizeBytes: number
+    note: number
+    annotations: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FindingPhotoAvgAggregateInputType = {
+    sizeBytes?: true
+  }
+
+  export type FindingPhotoSumAggregateInputType = {
+    sizeBytes?: true
+  }
+
+  export type FindingPhotoMinAggregateInputType = {
+    id?: true
+    clientId?: true
+    findingId?: true
+    storagePath?: true
+    mimeType?: true
+    sizeBytes?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type FindingPhotoMaxAggregateInputType = {
+    id?: true
+    clientId?: true
+    findingId?: true
+    storagePath?: true
+    mimeType?: true
+    sizeBytes?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type FindingPhotoCountAggregateInputType = {
+    id?: true
+    clientId?: true
+    findingId?: true
+    storagePath?: true
+    mimeType?: true
+    sizeBytes?: true
+    note?: true
+    annotations?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FindingPhotoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FindingPhoto to aggregate.
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FindingPhotos to fetch.
+     */
+    orderBy?: FindingPhotoOrderByWithRelationInput | FindingPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FindingPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FindingPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FindingPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FindingPhotos
+    **/
+    _count?: true | FindingPhotoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FindingPhotoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FindingPhotoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FindingPhotoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FindingPhotoMaxAggregateInputType
+  }
+
+  export type GetFindingPhotoAggregateType<T extends FindingPhotoAggregateArgs> = {
+        [P in keyof T & keyof AggregateFindingPhoto]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFindingPhoto[P]>
+      : GetScalarType<T[P], AggregateFindingPhoto[P]>
+  }
+
+
+
+
+  export type FindingPhotoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FindingPhotoWhereInput
+    orderBy?: FindingPhotoOrderByWithAggregationInput | FindingPhotoOrderByWithAggregationInput[]
+    by: FindingPhotoScalarFieldEnum[] | FindingPhotoScalarFieldEnum
+    having?: FindingPhotoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FindingPhotoCountAggregateInputType | true
+    _avg?: FindingPhotoAvgAggregateInputType
+    _sum?: FindingPhotoSumAggregateInputType
+    _min?: FindingPhotoMinAggregateInputType
+    _max?: FindingPhotoMaxAggregateInputType
+  }
+
+  export type FindingPhotoGroupByOutputType = {
+    id: string
+    clientId: string
+    findingId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note: string | null
+    annotations: JsonValue | null
+    createdAt: Date
+    _count: FindingPhotoCountAggregateOutputType | null
+    _avg: FindingPhotoAvgAggregateOutputType | null
+    _sum: FindingPhotoSumAggregateOutputType | null
+    _min: FindingPhotoMinAggregateOutputType | null
+    _max: FindingPhotoMaxAggregateOutputType | null
+  }
+
+  type GetFindingPhotoGroupByPayload<T extends FindingPhotoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FindingPhotoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FindingPhotoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FindingPhotoGroupByOutputType[P]>
+            : GetScalarType<T[P], FindingPhotoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FindingPhotoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    clientId?: boolean
+    findingId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    annotations?: boolean
+    createdAt?: boolean
+    finding?: boolean | FindingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["findingPhoto"]>
+
+  export type FindingPhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    clientId?: boolean
+    findingId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    annotations?: boolean
+    createdAt?: boolean
+    finding?: boolean | FindingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["findingPhoto"]>
+
+  export type FindingPhotoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    clientId?: boolean
+    findingId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    annotations?: boolean
+    createdAt?: boolean
+    finding?: boolean | FindingDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["findingPhoto"]>
+
+  export type FindingPhotoSelectScalar = {
+    id?: boolean
+    clientId?: boolean
+    findingId?: boolean
+    storagePath?: boolean
+    mimeType?: boolean
+    sizeBytes?: boolean
+    note?: boolean
+    annotations?: boolean
+    createdAt?: boolean
+  }
+
+  export type FindingPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "findingId" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "annotations" | "createdAt", ExtArgs["result"]["findingPhoto"]>
+  export type FindingPhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    finding?: boolean | FindingDefaultArgs<ExtArgs>
+  }
+  export type FindingPhotoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    finding?: boolean | FindingDefaultArgs<ExtArgs>
+  }
+  export type FindingPhotoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    finding?: boolean | FindingDefaultArgs<ExtArgs>
+  }
+
+  export type $FindingPhotoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FindingPhoto"
+    objects: {
+      finding: Prisma.$FindingPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      clientId: string
+      findingId: string
+      storagePath: string
+      mimeType: string
+      sizeBytes: number
+      note: string | null
+      annotations: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["findingPhoto"]>
+    composites: {}
+  }
+
+  type FindingPhotoGetPayload<S extends boolean | null | undefined | FindingPhotoDefaultArgs> = $Result.GetResult<Prisma.$FindingPhotoPayload, S>
+
+  type FindingPhotoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FindingPhotoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FindingPhotoCountAggregateInputType | true
+    }
+
+  export interface FindingPhotoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FindingPhoto'], meta: { name: 'FindingPhoto' } }
+    /**
+     * Find zero or one FindingPhoto that matches the filter.
+     * @param {FindingPhotoFindUniqueArgs} args - Arguments to find a FindingPhoto
+     * @example
+     * // Get one FindingPhoto
+     * const findingPhoto = await prisma.findingPhoto.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FindingPhotoFindUniqueArgs>(args: SelectSubset<T, FindingPhotoFindUniqueArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FindingPhoto that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FindingPhotoFindUniqueOrThrowArgs} args - Arguments to find a FindingPhoto
+     * @example
+     * // Get one FindingPhoto
+     * const findingPhoto = await prisma.findingPhoto.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FindingPhotoFindUniqueOrThrowArgs>(args: SelectSubset<T, FindingPhotoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FindingPhoto that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoFindFirstArgs} args - Arguments to find a FindingPhoto
+     * @example
+     * // Get one FindingPhoto
+     * const findingPhoto = await prisma.findingPhoto.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FindingPhotoFindFirstArgs>(args?: SelectSubset<T, FindingPhotoFindFirstArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FindingPhoto that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoFindFirstOrThrowArgs} args - Arguments to find a FindingPhoto
+     * @example
+     * // Get one FindingPhoto
+     * const findingPhoto = await prisma.findingPhoto.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FindingPhotoFindFirstOrThrowArgs>(args?: SelectSubset<T, FindingPhotoFindFirstOrThrowArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FindingPhotos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FindingPhotos
+     * const findingPhotos = await prisma.findingPhoto.findMany()
+     * 
+     * // Get first 10 FindingPhotos
+     * const findingPhotos = await prisma.findingPhoto.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const findingPhotoWithIdOnly = await prisma.findingPhoto.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FindingPhotoFindManyArgs>(args?: SelectSubset<T, FindingPhotoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FindingPhoto.
+     * @param {FindingPhotoCreateArgs} args - Arguments to create a FindingPhoto.
+     * @example
+     * // Create one FindingPhoto
+     * const FindingPhoto = await prisma.findingPhoto.create({
+     *   data: {
+     *     // ... data to create a FindingPhoto
+     *   }
+     * })
+     * 
+     */
+    create<T extends FindingPhotoCreateArgs>(args: SelectSubset<T, FindingPhotoCreateArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FindingPhotos.
+     * @param {FindingPhotoCreateManyArgs} args - Arguments to create many FindingPhotos.
+     * @example
+     * // Create many FindingPhotos
+     * const findingPhoto = await prisma.findingPhoto.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FindingPhotoCreateManyArgs>(args?: SelectSubset<T, FindingPhotoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FindingPhotos and returns the data saved in the database.
+     * @param {FindingPhotoCreateManyAndReturnArgs} args - Arguments to create many FindingPhotos.
+     * @example
+     * // Create many FindingPhotos
+     * const findingPhoto = await prisma.findingPhoto.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FindingPhotos and only return the `id`
+     * const findingPhotoWithIdOnly = await prisma.findingPhoto.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FindingPhotoCreateManyAndReturnArgs>(args?: SelectSubset<T, FindingPhotoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FindingPhoto.
+     * @param {FindingPhotoDeleteArgs} args - Arguments to delete one FindingPhoto.
+     * @example
+     * // Delete one FindingPhoto
+     * const FindingPhoto = await prisma.findingPhoto.delete({
+     *   where: {
+     *     // ... filter to delete one FindingPhoto
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FindingPhotoDeleteArgs>(args: SelectSubset<T, FindingPhotoDeleteArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FindingPhoto.
+     * @param {FindingPhotoUpdateArgs} args - Arguments to update one FindingPhoto.
+     * @example
+     * // Update one FindingPhoto
+     * const findingPhoto = await prisma.findingPhoto.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FindingPhotoUpdateArgs>(args: SelectSubset<T, FindingPhotoUpdateArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FindingPhotos.
+     * @param {FindingPhotoDeleteManyArgs} args - Arguments to filter FindingPhotos to delete.
+     * @example
+     * // Delete a few FindingPhotos
+     * const { count } = await prisma.findingPhoto.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FindingPhotoDeleteManyArgs>(args?: SelectSubset<T, FindingPhotoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FindingPhotos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FindingPhotos
+     * const findingPhoto = await prisma.findingPhoto.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FindingPhotoUpdateManyArgs>(args: SelectSubset<T, FindingPhotoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FindingPhotos and returns the data updated in the database.
+     * @param {FindingPhotoUpdateManyAndReturnArgs} args - Arguments to update many FindingPhotos.
+     * @example
+     * // Update many FindingPhotos
+     * const findingPhoto = await prisma.findingPhoto.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FindingPhotos and only return the `id`
+     * const findingPhotoWithIdOnly = await prisma.findingPhoto.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FindingPhotoUpdateManyAndReturnArgs>(args: SelectSubset<T, FindingPhotoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FindingPhoto.
+     * @param {FindingPhotoUpsertArgs} args - Arguments to update or create a FindingPhoto.
+     * @example
+     * // Update or create a FindingPhoto
+     * const findingPhoto = await prisma.findingPhoto.upsert({
+     *   create: {
+     *     // ... data to create a FindingPhoto
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FindingPhoto we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FindingPhotoUpsertArgs>(args: SelectSubset<T, FindingPhotoUpsertArgs<ExtArgs>>): Prisma__FindingPhotoClient<$Result.GetResult<Prisma.$FindingPhotoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FindingPhotos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoCountArgs} args - Arguments to filter FindingPhotos to count.
+     * @example
+     * // Count the number of FindingPhotos
+     * const count = await prisma.findingPhoto.count({
+     *   where: {
+     *     // ... the filter for the FindingPhotos we want to count
+     *   }
+     * })
+    **/
+    count<T extends FindingPhotoCountArgs>(
+      args?: Subset<T, FindingPhotoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FindingPhotoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FindingPhoto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FindingPhotoAggregateArgs>(args: Subset<T, FindingPhotoAggregateArgs>): Prisma.PrismaPromise<GetFindingPhotoAggregateType<T>>
+
+    /**
+     * Group by FindingPhoto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FindingPhotoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FindingPhotoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FindingPhotoGroupByArgs['orderBy'] }
+        : { orderBy?: FindingPhotoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FindingPhotoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFindingPhotoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FindingPhoto model
+   */
+  readonly fields: FindingPhotoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FindingPhoto.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FindingPhotoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    finding<T extends FindingDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FindingDefaultArgs<ExtArgs>>): Prisma__FindingClient<$Result.GetResult<Prisma.$FindingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FindingPhoto model
+   */
+  interface FindingPhotoFieldRefs {
+    readonly id: FieldRef<"FindingPhoto", 'String'>
+    readonly clientId: FieldRef<"FindingPhoto", 'String'>
+    readonly findingId: FieldRef<"FindingPhoto", 'String'>
+    readonly storagePath: FieldRef<"FindingPhoto", 'String'>
+    readonly mimeType: FieldRef<"FindingPhoto", 'String'>
+    readonly sizeBytes: FieldRef<"FindingPhoto", 'Int'>
+    readonly note: FieldRef<"FindingPhoto", 'String'>
+    readonly annotations: FieldRef<"FindingPhoto", 'Json'>
+    readonly createdAt: FieldRef<"FindingPhoto", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FindingPhoto findUnique
+   */
+  export type FindingPhotoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which FindingPhoto to fetch.
+     */
+    where: FindingPhotoWhereUniqueInput
+  }
+
+  /**
+   * FindingPhoto findUniqueOrThrow
+   */
+  export type FindingPhotoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which FindingPhoto to fetch.
+     */
+    where: FindingPhotoWhereUniqueInput
+  }
+
+  /**
+   * FindingPhoto findFirst
+   */
+  export type FindingPhotoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which FindingPhoto to fetch.
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FindingPhotos to fetch.
+     */
+    orderBy?: FindingPhotoOrderByWithRelationInput | FindingPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FindingPhotos.
+     */
+    cursor?: FindingPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FindingPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FindingPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FindingPhotos.
+     */
+    distinct?: FindingPhotoScalarFieldEnum | FindingPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * FindingPhoto findFirstOrThrow
+   */
+  export type FindingPhotoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which FindingPhoto to fetch.
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FindingPhotos to fetch.
+     */
+    orderBy?: FindingPhotoOrderByWithRelationInput | FindingPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FindingPhotos.
+     */
+    cursor?: FindingPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FindingPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FindingPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FindingPhotos.
+     */
+    distinct?: FindingPhotoScalarFieldEnum | FindingPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * FindingPhoto findMany
+   */
+  export type FindingPhotoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * Filter, which FindingPhotos to fetch.
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FindingPhotos to fetch.
+     */
+    orderBy?: FindingPhotoOrderByWithRelationInput | FindingPhotoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FindingPhotos.
+     */
+    cursor?: FindingPhotoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FindingPhotos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FindingPhotos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FindingPhotos.
+     */
+    distinct?: FindingPhotoScalarFieldEnum | FindingPhotoScalarFieldEnum[]
+  }
+
+  /**
+   * FindingPhoto create
+   */
+  export type FindingPhotoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FindingPhoto.
+     */
+    data: XOR<FindingPhotoCreateInput, FindingPhotoUncheckedCreateInput>
+  }
+
+  /**
+   * FindingPhoto createMany
+   */
+  export type FindingPhotoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FindingPhotos.
+     */
+    data: FindingPhotoCreateManyInput | FindingPhotoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FindingPhoto createManyAndReturn
+   */
+  export type FindingPhotoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * The data used to create many FindingPhotos.
+     */
+    data: FindingPhotoCreateManyInput | FindingPhotoCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FindingPhoto update
+   */
+  export type FindingPhotoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FindingPhoto.
+     */
+    data: XOR<FindingPhotoUpdateInput, FindingPhotoUncheckedUpdateInput>
+    /**
+     * Choose, which FindingPhoto to update.
+     */
+    where: FindingPhotoWhereUniqueInput
+  }
+
+  /**
+   * FindingPhoto updateMany
+   */
+  export type FindingPhotoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FindingPhotos.
+     */
+    data: XOR<FindingPhotoUpdateManyMutationInput, FindingPhotoUncheckedUpdateManyInput>
+    /**
+     * Filter which FindingPhotos to update
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * Limit how many FindingPhotos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FindingPhoto updateManyAndReturn
+   */
+  export type FindingPhotoUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * The data used to update FindingPhotos.
+     */
+    data: XOR<FindingPhotoUpdateManyMutationInput, FindingPhotoUncheckedUpdateManyInput>
+    /**
+     * Filter which FindingPhotos to update
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * Limit how many FindingPhotos to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FindingPhoto upsert
+   */
+  export type FindingPhotoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FindingPhoto to update in case it exists.
+     */
+    where: FindingPhotoWhereUniqueInput
+    /**
+     * In case the FindingPhoto found by the `where` argument doesn't exist, create a new FindingPhoto with this data.
+     */
+    create: XOR<FindingPhotoCreateInput, FindingPhotoUncheckedCreateInput>
+    /**
+     * In case the FindingPhoto was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FindingPhotoUpdateInput, FindingPhotoUncheckedUpdateInput>
+  }
+
+  /**
+   * FindingPhoto delete
+   */
+  export type FindingPhotoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
+    /**
+     * Filter which FindingPhoto to delete.
+     */
+    where: FindingPhotoWhereUniqueInput
+  }
+
+  /**
+   * FindingPhoto deleteMany
+   */
+  export type FindingPhotoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FindingPhotos to delete
+     */
+    where?: FindingPhotoWhereInput
+    /**
+     * Limit how many FindingPhotos to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FindingPhoto without action
+   */
+  export type FindingPhotoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FindingPhoto
+     */
+    select?: FindingPhotoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FindingPhoto
+     */
+    omit?: FindingPhotoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FindingPhotoInclude<ExtArgs> | null
   }
 
 
@@ -40822,6 +42157,7 @@ export namespace Prisma {
     mimeType: number
     sizeBytes: number
     note: number
+    annotations: number
     label: number
     maintenanceEvidenceId: number
     createdAt: number
@@ -40868,6 +42204,7 @@ export namespace Prisma {
     mimeType?: true
     sizeBytes?: true
     note?: true
+    annotations?: true
     label?: true
     maintenanceEvidenceId?: true
     createdAt?: true
@@ -40967,6 +42304,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number | null
     note: string | null
+    annotations: JsonValue | null
     label: string | null
     maintenanceEvidenceId: string | null
     createdAt: Date
@@ -40998,6 +42336,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
     createdAt?: boolean
@@ -41011,6 +42350,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
     createdAt?: boolean
@@ -41024,6 +42364,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
     createdAt?: boolean
@@ -41037,12 +42378,13 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
     createdAt?: boolean
   }
 
-  export type ReportAddendumPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "entryId" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "label" | "maintenanceEvidenceId" | "createdAt", ExtArgs["result"]["reportAddendumPhoto"]>
+  export type ReportAddendumPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "entryId" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "annotations" | "label" | "maintenanceEvidenceId" | "createdAt", ExtArgs["result"]["reportAddendumPhoto"]>
   export type ReportAddendumPhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
   }
@@ -41065,6 +42407,7 @@ export namespace Prisma {
       mimeType: string
       sizeBytes: number | null
       note: string | null
+      annotations: Prisma.JsonValue | null
       /**
        * "Before" or "After" for a repair's evidence.
        */
@@ -41504,6 +42847,7 @@ export namespace Prisma {
     readonly mimeType: FieldRef<"ReportAddendumPhoto", 'String'>
     readonly sizeBytes: FieldRef<"ReportAddendumPhoto", 'Int'>
     readonly note: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly annotations: FieldRef<"ReportAddendumPhoto", 'Json'>
     readonly label: FieldRef<"ReportAddendumPhoto", 'String'>
     readonly maintenanceEvidenceId: FieldRef<"ReportAddendumPhoto", 'String'>
     readonly createdAt: FieldRef<"ReportAddendumPhoto", 'DateTime'>
@@ -51038,6 +52382,7 @@ export namespace Prisma {
     mimeType: 'mimeType',
     sizeBytes: 'sizeBytes',
     note: 'note',
+    annotations: 'annotations',
     createdAt: 'createdAt'
   };
 
@@ -51144,6 +52489,7 @@ export namespace Prisma {
 
   export const FindingScalarFieldEnum: {
     id: 'id',
+    clientId: 'clientId',
     inspectionId: 'inspectionId',
     itemId: 'itemId',
     baselineItemId: 'baselineItemId',
@@ -51154,11 +52500,27 @@ export namespace Prisma {
     estimatedCost: 'estimatedCost',
     confidence: 'confidence',
     editedByHuman: 'editedByHuman',
+    uploadPaths: 'uploadPaths',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type FindingScalarFieldEnum = (typeof FindingScalarFieldEnum)[keyof typeof FindingScalarFieldEnum]
+
+
+  export const FindingPhotoScalarFieldEnum: {
+    id: 'id',
+    clientId: 'clientId',
+    findingId: 'findingId',
+    storagePath: 'storagePath',
+    mimeType: 'mimeType',
+    sizeBytes: 'sizeBytes',
+    note: 'note',
+    annotations: 'annotations',
+    createdAt: 'createdAt'
+  };
+
+  export type FindingPhotoScalarFieldEnum = (typeof FindingPhotoScalarFieldEnum)[keyof typeof FindingPhotoScalarFieldEnum]
 
 
   export const SignatureScalarFieldEnum: {
@@ -51256,6 +52618,7 @@ export namespace Prisma {
     mimeType: 'mimeType',
     sizeBytes: 'sizeBytes',
     note: 'note',
+    annotations: 'annotations',
     label: 'label',
     maintenanceEvidenceId: 'maintenanceEvidenceId',
     createdAt: 'createdAt'
@@ -53494,6 +54857,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntFilter<"MaintenanceEvidence"> | number
     note?: StringNullableFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableFilter<"MaintenanceEvidence">
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
     maintenanceCase?: XOR<MaintenanceCaseScalarRelationFilter, MaintenanceCaseWhereInput>
     visit?: XOR<MaintenanceVisitNullableScalarRelationFilter, MaintenanceVisitWhereInput> | null
@@ -53511,6 +54875,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     maintenanceCase?: MaintenanceCaseOrderByWithRelationInput
     visit?: MaintenanceVisitOrderByWithRelationInput
@@ -53531,6 +54896,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntFilter<"MaintenanceEvidence"> | number
     note?: StringNullableFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableFilter<"MaintenanceEvidence">
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
     maintenanceCase?: XOR<MaintenanceCaseScalarRelationFilter, MaintenanceCaseWhereInput>
     visit?: XOR<MaintenanceVisitNullableScalarRelationFilter, MaintenanceVisitWhereInput> | null
@@ -53548,6 +54914,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: MaintenanceEvidenceCountOrderByAggregateInput
     _avg?: MaintenanceEvidenceAvgOrderByAggregateInput
@@ -53570,6 +54937,7 @@ export namespace Prisma {
     mimeType?: StringWithAggregatesFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntWithAggregatesFilter<"MaintenanceEvidence"> | number
     note?: StringNullableWithAggregatesFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableWithAggregatesFilter<"MaintenanceEvidence">
     createdAt?: DateTimeWithAggregatesFilter<"MaintenanceEvidence"> | Date | string
   }
 
@@ -54094,6 +55462,7 @@ export namespace Prisma {
     OR?: FindingWhereInput[]
     NOT?: FindingWhereInput | FindingWhereInput[]
     id?: StringFilter<"Finding"> | string
+    clientId?: StringNullableFilter<"Finding"> | string | null
     inspectionId?: StringFilter<"Finding"> | string
     itemId?: StringNullableFilter<"Finding"> | string | null
     baselineItemId?: StringNullableFilter<"Finding"> | string | null
@@ -54104,16 +55473,19 @@ export namespace Prisma {
     estimatedCost?: DecimalNullableFilter<"Finding"> | Decimal | DecimalJsLike | number | string | null
     confidence?: FloatNullableFilter<"Finding"> | number | null
     editedByHuman?: BoolFilter<"Finding"> | boolean
+    uploadPaths?: StringNullableListFilter<"Finding">
     createdAt?: DateTimeFilter<"Finding"> | Date | string
     updatedAt?: DateTimeFilter<"Finding"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
     item?: XOR<InspectionItemNullableScalarRelationFilter, InspectionItemWhereInput> | null
     baselineItem?: XOR<InspectionItemNullableScalarRelationFilter, InspectionItemWhereInput> | null
     maintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
+    photos?: FindingPhotoListRelationFilter
   }
 
   export type FindingOrderByWithRelationInput = {
     id?: SortOrder
+    clientId?: SortOrderInput | SortOrder
     inspectionId?: SortOrder
     itemId?: SortOrderInput | SortOrder
     baselineItemId?: SortOrderInput | SortOrder
@@ -54124,16 +55496,19 @@ export namespace Prisma {
     estimatedCost?: SortOrderInput | SortOrder
     confidence?: SortOrderInput | SortOrder
     editedByHuman?: SortOrder
+    uploadPaths?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inspection?: InspectionOrderByWithRelationInput
     item?: InspectionItemOrderByWithRelationInput
     baselineItem?: InspectionItemOrderByWithRelationInput
     maintenanceCase?: MaintenanceCaseOrderByWithRelationInput
+    photos?: FindingPhotoOrderByRelationAggregateInput
   }
 
   export type FindingWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    clientId?: string
     AND?: FindingWhereInput | FindingWhereInput[]
     OR?: FindingWhereInput[]
     NOT?: FindingWhereInput | FindingWhereInput[]
@@ -54147,16 +55522,19 @@ export namespace Prisma {
     estimatedCost?: DecimalNullableFilter<"Finding"> | Decimal | DecimalJsLike | number | string | null
     confidence?: FloatNullableFilter<"Finding"> | number | null
     editedByHuman?: BoolFilter<"Finding"> | boolean
+    uploadPaths?: StringNullableListFilter<"Finding">
     createdAt?: DateTimeFilter<"Finding"> | Date | string
     updatedAt?: DateTimeFilter<"Finding"> | Date | string
     inspection?: XOR<InspectionScalarRelationFilter, InspectionWhereInput>
     item?: XOR<InspectionItemNullableScalarRelationFilter, InspectionItemWhereInput> | null
     baselineItem?: XOR<InspectionItemNullableScalarRelationFilter, InspectionItemWhereInput> | null
     maintenanceCase?: XOR<MaintenanceCaseNullableScalarRelationFilter, MaintenanceCaseWhereInput> | null
-  }, "id">
+    photos?: FindingPhotoListRelationFilter
+  }, "id" | "clientId">
 
   export type FindingOrderByWithAggregationInput = {
     id?: SortOrder
+    clientId?: SortOrderInput | SortOrder
     inspectionId?: SortOrder
     itemId?: SortOrderInput | SortOrder
     baselineItemId?: SortOrderInput | SortOrder
@@ -54167,6 +55545,7 @@ export namespace Prisma {
     estimatedCost?: SortOrderInput | SortOrder
     confidence?: SortOrderInput | SortOrder
     editedByHuman?: SortOrder
+    uploadPaths?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: FindingCountOrderByAggregateInput
@@ -54181,6 +55560,7 @@ export namespace Prisma {
     OR?: FindingScalarWhereWithAggregatesInput[]
     NOT?: FindingScalarWhereWithAggregatesInput | FindingScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Finding"> | string
+    clientId?: StringNullableWithAggregatesFilter<"Finding"> | string | null
     inspectionId?: StringWithAggregatesFilter<"Finding"> | string
     itemId?: StringNullableWithAggregatesFilter<"Finding"> | string | null
     baselineItemId?: StringNullableWithAggregatesFilter<"Finding"> | string | null
@@ -54191,8 +55571,86 @@ export namespace Prisma {
     estimatedCost?: DecimalNullableWithAggregatesFilter<"Finding"> | Decimal | DecimalJsLike | number | string | null
     confidence?: FloatNullableWithAggregatesFilter<"Finding"> | number | null
     editedByHuman?: BoolWithAggregatesFilter<"Finding"> | boolean
+    uploadPaths?: StringNullableListFilter<"Finding">
     createdAt?: DateTimeWithAggregatesFilter<"Finding"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Finding"> | Date | string
+  }
+
+  export type FindingPhotoWhereInput = {
+    AND?: FindingPhotoWhereInput | FindingPhotoWhereInput[]
+    OR?: FindingPhotoWhereInput[]
+    NOT?: FindingPhotoWhereInput | FindingPhotoWhereInput[]
+    id?: StringFilter<"FindingPhoto"> | string
+    clientId?: StringFilter<"FindingPhoto"> | string
+    findingId?: StringFilter<"FindingPhoto"> | string
+    storagePath?: StringFilter<"FindingPhoto"> | string
+    mimeType?: StringFilter<"FindingPhoto"> | string
+    sizeBytes?: IntFilter<"FindingPhoto"> | number
+    note?: StringNullableFilter<"FindingPhoto"> | string | null
+    annotations?: JsonNullableFilter<"FindingPhoto">
+    createdAt?: DateTimeFilter<"FindingPhoto"> | Date | string
+    finding?: XOR<FindingScalarRelationFilter, FindingWhereInput>
+  }
+
+  export type FindingPhotoOrderByWithRelationInput = {
+    id?: SortOrder
+    clientId?: SortOrder
+    findingId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    finding?: FindingOrderByWithRelationInput
+  }
+
+  export type FindingPhotoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    clientId?: string
+    storagePath?: string
+    AND?: FindingPhotoWhereInput | FindingPhotoWhereInput[]
+    OR?: FindingPhotoWhereInput[]
+    NOT?: FindingPhotoWhereInput | FindingPhotoWhereInput[]
+    findingId?: StringFilter<"FindingPhoto"> | string
+    mimeType?: StringFilter<"FindingPhoto"> | string
+    sizeBytes?: IntFilter<"FindingPhoto"> | number
+    note?: StringNullableFilter<"FindingPhoto"> | string | null
+    annotations?: JsonNullableFilter<"FindingPhoto">
+    createdAt?: DateTimeFilter<"FindingPhoto"> | Date | string
+    finding?: XOR<FindingScalarRelationFilter, FindingWhereInput>
+  }, "id" | "clientId" | "storagePath">
+
+  export type FindingPhotoOrderByWithAggregationInput = {
+    id?: SortOrder
+    clientId?: SortOrder
+    findingId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: FindingPhotoCountOrderByAggregateInput
+    _avg?: FindingPhotoAvgOrderByAggregateInput
+    _max?: FindingPhotoMaxOrderByAggregateInput
+    _min?: FindingPhotoMinOrderByAggregateInput
+    _sum?: FindingPhotoSumOrderByAggregateInput
+  }
+
+  export type FindingPhotoScalarWhereWithAggregatesInput = {
+    AND?: FindingPhotoScalarWhereWithAggregatesInput | FindingPhotoScalarWhereWithAggregatesInput[]
+    OR?: FindingPhotoScalarWhereWithAggregatesInput[]
+    NOT?: FindingPhotoScalarWhereWithAggregatesInput | FindingPhotoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FindingPhoto"> | string
+    clientId?: StringWithAggregatesFilter<"FindingPhoto"> | string
+    findingId?: StringWithAggregatesFilter<"FindingPhoto"> | string
+    storagePath?: StringWithAggregatesFilter<"FindingPhoto"> | string
+    mimeType?: StringWithAggregatesFilter<"FindingPhoto"> | string
+    sizeBytes?: IntWithAggregatesFilter<"FindingPhoto"> | number
+    note?: StringNullableWithAggregatesFilter<"FindingPhoto"> | string | null
+    annotations?: JsonNullableWithAggregatesFilter<"FindingPhoto">
+    createdAt?: DateTimeWithAggregatesFilter<"FindingPhoto"> | Date | string
   }
 
   export type SignatureWhereInput = {
@@ -54692,6 +56150,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"ReportAddendumPhoto"> | string
     sizeBytes?: IntNullableFilter<"ReportAddendumPhoto"> | number | null
     note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableFilter<"ReportAddendumPhoto">
     label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
@@ -54705,6 +56164,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     label?: SortOrderInput | SortOrder
     maintenanceEvidenceId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -54721,6 +56181,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"ReportAddendumPhoto"> | string
     sizeBytes?: IntNullableFilter<"ReportAddendumPhoto"> | number | null
     note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableFilter<"ReportAddendumPhoto">
     label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
@@ -54734,6 +56195,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrderInput | SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     label?: SortOrderInput | SortOrder
     maintenanceEvidenceId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -54754,6 +56216,7 @@ export namespace Prisma {
     mimeType?: StringWithAggregatesFilter<"ReportAddendumPhoto"> | string
     sizeBytes?: IntNullableWithAggregatesFilter<"ReportAddendumPhoto"> | number | null
     note?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableWithAggregatesFilter<"ReportAddendumPhoto">
     label?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ReportAddendumPhoto"> | Date | string
@@ -56995,6 +58458,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     maintenanceCase: MaintenanceCaseCreateNestedOneWithoutEvidenceInput
     visit?: MaintenanceVisitCreateNestedOneWithoutEvidenceInput
@@ -57012,6 +58476,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -57023,6 +58488,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutEvidenceNestedInput
     visit?: MaintenanceVisitUpdateOneWithoutEvidenceNestedInput
@@ -57040,6 +58506,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -57054,6 +58521,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -57065,6 +58533,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -57079,6 +58548,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -57647,22 +59117,26 @@ export namespace Prisma {
 
   export type FindingCreateInput = {
     id?: string
+    clientId?: string | null
     changeType: $Enums.ChangeType
     verdict?: $Enums.Verdict
     rationale: string
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutFindingsInput
     item?: InspectionItemCreateNestedOneWithoutFindingsAsSubjectInput
     baselineItem?: InspectionItemCreateNestedOneWithoutFindingsAsBaselineInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutFindingsInput
+    photos?: FindingPhotoCreateNestedManyWithoutFindingInput
   }
 
   export type FindingUncheckedCreateInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     itemId?: string | null
     baselineItemId?: string | null
@@ -57673,28 +59147,34 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    photos?: FindingPhotoUncheckedCreateNestedManyWithoutFindingInput
   }
 
   export type FindingUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
     verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
     rationale?: StringFieldUpdateOperationsInput | string
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutFindingsNestedInput
     item?: InspectionItemUpdateOneWithoutFindingsAsSubjectNestedInput
     baselineItem?: InspectionItemUpdateOneWithoutFindingsAsBaselineNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutFindingsNestedInput
+    photos?: FindingPhotoUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57705,12 +59185,15 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: FindingPhotoUncheckedUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingCreateManyInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     itemId?: string | null
     baselineItemId?: string | null
@@ -57721,24 +59204,28 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type FindingUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
     verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
     rationale?: StringFieldUpdateOperationsInput | string
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57749,8 +59236,92 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FindingPhotoCreateInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    finding: FindingCreateNestedOneWithoutPhotosInput
+  }
+
+  export type FindingPhotoUncheckedCreateInput = {
+    id?: string
+    clientId: string
+    findingId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type FindingPhotoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finding?: FindingUpdateOneRequiredWithoutPhotosNestedInput
+  }
+
+  export type FindingPhotoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    findingId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FindingPhotoCreateManyInput = {
+    id?: string
+    clientId: string
+    findingId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type FindingPhotoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FindingPhotoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    findingId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SignatureCreateInput = {
@@ -58273,6 +59844,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes?: number | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: string | null
     maintenanceEvidenceId?: string | null
     createdAt?: Date | string
@@ -58286,6 +59858,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes?: number | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: string | null
     maintenanceEvidenceId?: string | null
     createdAt?: Date | string
@@ -58297,6 +59870,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58310,6 +59884,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58322,6 +59897,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes?: number | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: string | null
     maintenanceEvidenceId?: string | null
     createdAt?: Date | string
@@ -58333,6 +59909,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58345,6 +59922,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60624,6 +62202,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrder
+    annotations?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -61138,8 +62717,19 @@ export namespace Prisma {
     isNot?: MaintenanceCaseWhereInput | null
   }
 
+  export type FindingPhotoListRelationFilter = {
+    every?: FindingPhotoWhereInput
+    some?: FindingPhotoWhereInput
+    none?: FindingPhotoWhereInput
+  }
+
+  export type FindingPhotoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type FindingCountOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     inspectionId?: SortOrder
     itemId?: SortOrder
     baselineItemId?: SortOrder
@@ -61150,6 +62740,7 @@ export namespace Prisma {
     estimatedCost?: SortOrder
     confidence?: SortOrder
     editedByHuman?: SortOrder
+    uploadPaths?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -61161,6 +62752,7 @@ export namespace Prisma {
 
   export type FindingMaxOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     inspectionId?: SortOrder
     itemId?: SortOrder
     baselineItemId?: SortOrder
@@ -61177,6 +62769,7 @@ export namespace Prisma {
 
   export type FindingMinOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     inspectionId?: SortOrder
     itemId?: SortOrder
     baselineItemId?: SortOrder
@@ -61214,6 +62807,53 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumVerdictFilter<$PrismaModel>
     _max?: NestedEnumVerdictFilter<$PrismaModel>
+  }
+
+  export type FindingScalarRelationFilter = {
+    is?: FindingWhereInput
+    isNot?: FindingWhereInput
+  }
+
+  export type FindingPhotoCountOrderByAggregateInput = {
+    id?: SortOrder
+    clientId?: SortOrder
+    findingId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrder
+    annotations?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FindingPhotoAvgOrderByAggregateInput = {
+    sizeBytes?: SortOrder
+  }
+
+  export type FindingPhotoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    clientId?: SortOrder
+    findingId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FindingPhotoMinOrderByAggregateInput = {
+    id?: SortOrder
+    clientId?: SortOrder
+    findingId?: SortOrder
+    storagePath?: SortOrder
+    mimeType?: SortOrder
+    sizeBytes?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FindingPhotoSumOrderByAggregateInput = {
+    sizeBytes?: SortOrder
   }
 
   export type SignatureInspectionIdStakeholderIdCompoundUniqueInput = {
@@ -61620,6 +63260,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrder
+    annotations?: SortOrder
     label?: SortOrder
     maintenanceEvidenceId?: SortOrder
     createdAt?: SortOrder
@@ -65398,6 +67039,10 @@ export namespace Prisma {
     update?: XOR<XOR<DeviceInstallationUpdateToOneWithWhereWithoutDeliveriesInput, DeviceInstallationUpdateWithoutDeliveriesInput>, DeviceInstallationUncheckedUpdateWithoutDeliveriesInput>
   }
 
+  export type FindingCreateuploadPathsInput = {
+    set: string[]
+  }
+
   export type InspectionCreateNestedOneWithoutFindingsInput = {
     create?: XOR<InspectionCreateWithoutFindingsInput, InspectionUncheckedCreateWithoutFindingsInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutFindingsInput
@@ -65422,12 +67067,31 @@ export namespace Prisma {
     connect?: MaintenanceCaseWhereUniqueInput
   }
 
+  export type FindingPhotoCreateNestedManyWithoutFindingInput = {
+    create?: XOR<FindingPhotoCreateWithoutFindingInput, FindingPhotoUncheckedCreateWithoutFindingInput> | FindingPhotoCreateWithoutFindingInput[] | FindingPhotoUncheckedCreateWithoutFindingInput[]
+    connectOrCreate?: FindingPhotoCreateOrConnectWithoutFindingInput | FindingPhotoCreateOrConnectWithoutFindingInput[]
+    createMany?: FindingPhotoCreateManyFindingInputEnvelope
+    connect?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+  }
+
+  export type FindingPhotoUncheckedCreateNestedManyWithoutFindingInput = {
+    create?: XOR<FindingPhotoCreateWithoutFindingInput, FindingPhotoUncheckedCreateWithoutFindingInput> | FindingPhotoCreateWithoutFindingInput[] | FindingPhotoUncheckedCreateWithoutFindingInput[]
+    connectOrCreate?: FindingPhotoCreateOrConnectWithoutFindingInput | FindingPhotoCreateOrConnectWithoutFindingInput[]
+    createMany?: FindingPhotoCreateManyFindingInputEnvelope
+    connect?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+  }
+
   export type EnumChangeTypeFieldUpdateOperationsInput = {
     set?: $Enums.ChangeType
   }
 
   export type EnumVerdictFieldUpdateOperationsInput = {
     set?: $Enums.Verdict
+  }
+
+  export type FindingUpdateuploadPathsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type InspectionUpdateOneRequiredWithoutFindingsNestedInput = {
@@ -65466,6 +67130,48 @@ export namespace Prisma {
     delete?: MaintenanceCaseWhereInput | boolean
     connect?: MaintenanceCaseWhereUniqueInput
     update?: XOR<XOR<MaintenanceCaseUpdateToOneWithWhereWithoutFindingsInput, MaintenanceCaseUpdateWithoutFindingsInput>, MaintenanceCaseUncheckedUpdateWithoutFindingsInput>
+  }
+
+  export type FindingPhotoUpdateManyWithoutFindingNestedInput = {
+    create?: XOR<FindingPhotoCreateWithoutFindingInput, FindingPhotoUncheckedCreateWithoutFindingInput> | FindingPhotoCreateWithoutFindingInput[] | FindingPhotoUncheckedCreateWithoutFindingInput[]
+    connectOrCreate?: FindingPhotoCreateOrConnectWithoutFindingInput | FindingPhotoCreateOrConnectWithoutFindingInput[]
+    upsert?: FindingPhotoUpsertWithWhereUniqueWithoutFindingInput | FindingPhotoUpsertWithWhereUniqueWithoutFindingInput[]
+    createMany?: FindingPhotoCreateManyFindingInputEnvelope
+    set?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    disconnect?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    delete?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    connect?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    update?: FindingPhotoUpdateWithWhereUniqueWithoutFindingInput | FindingPhotoUpdateWithWhereUniqueWithoutFindingInput[]
+    updateMany?: FindingPhotoUpdateManyWithWhereWithoutFindingInput | FindingPhotoUpdateManyWithWhereWithoutFindingInput[]
+    deleteMany?: FindingPhotoScalarWhereInput | FindingPhotoScalarWhereInput[]
+  }
+
+  export type FindingPhotoUncheckedUpdateManyWithoutFindingNestedInput = {
+    create?: XOR<FindingPhotoCreateWithoutFindingInput, FindingPhotoUncheckedCreateWithoutFindingInput> | FindingPhotoCreateWithoutFindingInput[] | FindingPhotoUncheckedCreateWithoutFindingInput[]
+    connectOrCreate?: FindingPhotoCreateOrConnectWithoutFindingInput | FindingPhotoCreateOrConnectWithoutFindingInput[]
+    upsert?: FindingPhotoUpsertWithWhereUniqueWithoutFindingInput | FindingPhotoUpsertWithWhereUniqueWithoutFindingInput[]
+    createMany?: FindingPhotoCreateManyFindingInputEnvelope
+    set?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    disconnect?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    delete?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    connect?: FindingPhotoWhereUniqueInput | FindingPhotoWhereUniqueInput[]
+    update?: FindingPhotoUpdateWithWhereUniqueWithoutFindingInput | FindingPhotoUpdateWithWhereUniqueWithoutFindingInput[]
+    updateMany?: FindingPhotoUpdateManyWithWhereWithoutFindingInput | FindingPhotoUpdateManyWithWhereWithoutFindingInput[]
+    deleteMany?: FindingPhotoScalarWhereInput | FindingPhotoScalarWhereInput[]
+  }
+
+  export type FindingCreateNestedOneWithoutPhotosInput = {
+    create?: XOR<FindingCreateWithoutPhotosInput, FindingUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: FindingCreateOrConnectWithoutPhotosInput
+    connect?: FindingWhereUniqueInput
+  }
+
+  export type FindingUpdateOneRequiredWithoutPhotosNestedInput = {
+    create?: XOR<FindingCreateWithoutPhotosInput, FindingUncheckedCreateWithoutPhotosInput>
+    connectOrCreate?: FindingCreateOrConnectWithoutPhotosInput
+    upsert?: FindingUpsertWithoutPhotosInput
+    connect?: FindingWhereUniqueInput
+    update?: XOR<XOR<FindingUpdateToOneWithWhereWithoutPhotosInput, FindingUpdateWithoutPhotosInput>, FindingUncheckedUpdateWithoutPhotosInput>
   }
 
   export type InspectionCreateNestedOneWithoutSignaturesInput = {
@@ -67425,6 +69131,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     maintenanceCase: MaintenanceCaseCreateNestedOneWithoutEvidenceInput
     visit?: MaintenanceVisitCreateNestedOneWithoutEvidenceInput
@@ -67440,6 +69147,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -68366,6 +70074,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntFilter<"MaintenanceEvidence"> | number
     note?: StringNullableFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableFilter<"MaintenanceEvidence">
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
   }
 
@@ -70901,21 +72610,25 @@ export namespace Prisma {
 
   export type FindingCreateWithoutInspectionInput = {
     id?: string
+    clientId?: string | null
     changeType: $Enums.ChangeType
     verdict?: $Enums.Verdict
     rationale: string
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     item?: InspectionItemCreateNestedOneWithoutFindingsAsSubjectInput
     baselineItem?: InspectionItemCreateNestedOneWithoutFindingsAsBaselineInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutFindingsInput
+    photos?: FindingPhotoCreateNestedManyWithoutFindingInput
   }
 
   export type FindingUncheckedCreateWithoutInspectionInput = {
     id?: string
+    clientId?: string | null
     itemId?: string | null
     baselineItemId?: string | null
     maintenanceCaseId?: string | null
@@ -70925,8 +72638,10 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    photos?: FindingPhotoUncheckedCreateNestedManyWithoutFindingInput
   }
 
   export type FindingCreateOrConnectWithoutInspectionInput = {
@@ -71495,6 +73210,7 @@ export namespace Prisma {
     OR?: FindingScalarWhereInput[]
     NOT?: FindingScalarWhereInput | FindingScalarWhereInput[]
     id?: StringFilter<"Finding"> | string
+    clientId?: StringNullableFilter<"Finding"> | string | null
     inspectionId?: StringFilter<"Finding"> | string
     itemId?: StringNullableFilter<"Finding"> | string | null
     baselineItemId?: StringNullableFilter<"Finding"> | string | null
@@ -71505,6 +73221,7 @@ export namespace Prisma {
     estimatedCost?: DecimalNullableFilter<"Finding"> | Decimal | DecimalJsLike | number | string | null
     confidence?: FloatNullableFilter<"Finding"> | number | null
     editedByHuman?: BoolFilter<"Finding"> | boolean
+    uploadPaths?: StringNullableListFilter<"Finding">
     createdAt?: DateTimeFilter<"Finding"> | Date | string
     updatedAt?: DateTimeFilter<"Finding"> | Date | string
   }
@@ -72254,21 +73971,25 @@ export namespace Prisma {
 
   export type FindingCreateWithoutItemInput = {
     id?: string
+    clientId?: string | null
     changeType: $Enums.ChangeType
     verdict?: $Enums.Verdict
     rationale: string
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutFindingsInput
     baselineItem?: InspectionItemCreateNestedOneWithoutFindingsAsBaselineInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutFindingsInput
+    photos?: FindingPhotoCreateNestedManyWithoutFindingInput
   }
 
   export type FindingUncheckedCreateWithoutItemInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     baselineItemId?: string | null
     maintenanceCaseId?: string | null
@@ -72278,8 +73999,10 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    photos?: FindingPhotoUncheckedCreateNestedManyWithoutFindingInput
   }
 
   export type FindingCreateOrConnectWithoutItemInput = {
@@ -72294,21 +74017,25 @@ export namespace Prisma {
 
   export type FindingCreateWithoutBaselineItemInput = {
     id?: string
+    clientId?: string | null
     changeType: $Enums.ChangeType
     verdict?: $Enums.Verdict
     rationale: string
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutFindingsInput
     item?: InspectionItemCreateNestedOneWithoutFindingsAsSubjectInput
     maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutFindingsInput
+    photos?: FindingPhotoCreateNestedManyWithoutFindingInput
   }
 
   export type FindingUncheckedCreateWithoutBaselineItemInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     itemId?: string | null
     maintenanceCaseId?: string | null
@@ -72318,8 +74045,10 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    photos?: FindingPhotoUncheckedCreateNestedManyWithoutFindingInput
   }
 
   export type FindingCreateOrConnectWithoutBaselineItemInput = {
@@ -73229,6 +74958,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     visit?: MaintenanceVisitCreateNestedOneWithoutEvidenceInput
     uploadedBy: StakeholderCreateNestedOneWithoutMaintenanceEvidenceUploadedInput
@@ -73244,6 +74974,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -73259,21 +74990,25 @@ export namespace Prisma {
 
   export type FindingCreateWithoutMaintenanceCaseInput = {
     id?: string
+    clientId?: string | null
     changeType: $Enums.ChangeType
     verdict?: $Enums.Verdict
     rationale: string
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     inspection: InspectionCreateNestedOneWithoutFindingsInput
     item?: InspectionItemCreateNestedOneWithoutFindingsAsSubjectInput
     baselineItem?: InspectionItemCreateNestedOneWithoutFindingsAsBaselineInput
+    photos?: FindingPhotoCreateNestedManyWithoutFindingInput
   }
 
   export type FindingUncheckedCreateWithoutMaintenanceCaseInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     itemId?: string | null
     baselineItemId?: string | null
@@ -73283,8 +75018,10 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
+    photos?: FindingPhotoUncheckedCreateNestedManyWithoutFindingInput
   }
 
   export type FindingCreateOrConnectWithoutMaintenanceCaseInput = {
@@ -74285,6 +76022,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     maintenanceCase: MaintenanceCaseCreateNestedOneWithoutEvidenceInput
     uploadedBy: StakeholderCreateNestedOneWithoutMaintenanceEvidenceUploadedInput
@@ -74300,6 +76038,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -76360,6 +78099,38 @@ export namespace Prisma {
     create: XOR<MaintenanceCaseCreateWithoutFindingsInput, MaintenanceCaseUncheckedCreateWithoutFindingsInput>
   }
 
+  export type FindingPhotoCreateWithoutFindingInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type FindingPhotoUncheckedCreateWithoutFindingInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type FindingPhotoCreateOrConnectWithoutFindingInput = {
+    where: FindingPhotoWhereUniqueInput
+    create: XOR<FindingPhotoCreateWithoutFindingInput, FindingPhotoUncheckedCreateWithoutFindingInput>
+  }
+
+  export type FindingPhotoCreateManyFindingInputEnvelope = {
+    data: FindingPhotoCreateManyFindingInput | FindingPhotoCreateManyFindingInput[]
+    skipDuplicates?: boolean
+  }
+
   export type InspectionUpsertWithoutFindingsInput = {
     update: XOR<InspectionUpdateWithoutFindingsInput, InspectionUncheckedUpdateWithoutFindingsInput>
     create: XOR<InspectionCreateWithoutFindingsInput, InspectionUncheckedCreateWithoutFindingsInput>
@@ -76596,6 +78367,125 @@ export namespace Prisma {
     responsibilityProposals?: ResponsibilityProposalUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     addendumEntries?: ReportAddendumEntryUncheckedUpdateManyWithoutMaintenanceCaseNestedInput
     moveInDefectAddendum?: ReportAddendumUncheckedUpdateOneWithoutSourceMaintenanceCaseNestedInput
+  }
+
+  export type FindingPhotoUpsertWithWhereUniqueWithoutFindingInput = {
+    where: FindingPhotoWhereUniqueInput
+    update: XOR<FindingPhotoUpdateWithoutFindingInput, FindingPhotoUncheckedUpdateWithoutFindingInput>
+    create: XOR<FindingPhotoCreateWithoutFindingInput, FindingPhotoUncheckedCreateWithoutFindingInput>
+  }
+
+  export type FindingPhotoUpdateWithWhereUniqueWithoutFindingInput = {
+    where: FindingPhotoWhereUniqueInput
+    data: XOR<FindingPhotoUpdateWithoutFindingInput, FindingPhotoUncheckedUpdateWithoutFindingInput>
+  }
+
+  export type FindingPhotoUpdateManyWithWhereWithoutFindingInput = {
+    where: FindingPhotoScalarWhereInput
+    data: XOR<FindingPhotoUpdateManyMutationInput, FindingPhotoUncheckedUpdateManyWithoutFindingInput>
+  }
+
+  export type FindingPhotoScalarWhereInput = {
+    AND?: FindingPhotoScalarWhereInput | FindingPhotoScalarWhereInput[]
+    OR?: FindingPhotoScalarWhereInput[]
+    NOT?: FindingPhotoScalarWhereInput | FindingPhotoScalarWhereInput[]
+    id?: StringFilter<"FindingPhoto"> | string
+    clientId?: StringFilter<"FindingPhoto"> | string
+    findingId?: StringFilter<"FindingPhoto"> | string
+    storagePath?: StringFilter<"FindingPhoto"> | string
+    mimeType?: StringFilter<"FindingPhoto"> | string
+    sizeBytes?: IntFilter<"FindingPhoto"> | number
+    note?: StringNullableFilter<"FindingPhoto"> | string | null
+    annotations?: JsonNullableFilter<"FindingPhoto">
+    createdAt?: DateTimeFilter<"FindingPhoto"> | Date | string
+  }
+
+  export type FindingCreateWithoutPhotosInput = {
+    id?: string
+    clientId?: string | null
+    changeType: $Enums.ChangeType
+    verdict?: $Enums.Verdict
+    rationale: string
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspection: InspectionCreateNestedOneWithoutFindingsInput
+    item?: InspectionItemCreateNestedOneWithoutFindingsAsSubjectInput
+    baselineItem?: InspectionItemCreateNestedOneWithoutFindingsAsBaselineInput
+    maintenanceCase?: MaintenanceCaseCreateNestedOneWithoutFindingsInput
+  }
+
+  export type FindingUncheckedCreateWithoutPhotosInput = {
+    id?: string
+    clientId?: string | null
+    inspectionId: string
+    itemId?: string | null
+    baselineItemId?: string | null
+    maintenanceCaseId?: string | null
+    changeType: $Enums.ChangeType
+    verdict?: $Enums.Verdict
+    rationale: string
+    estimatedCost?: Decimal | DecimalJsLike | number | string | null
+    confidence?: number | null
+    editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FindingCreateOrConnectWithoutPhotosInput = {
+    where: FindingWhereUniqueInput
+    create: XOR<FindingCreateWithoutPhotosInput, FindingUncheckedCreateWithoutPhotosInput>
+  }
+
+  export type FindingUpsertWithoutPhotosInput = {
+    update: XOR<FindingUpdateWithoutPhotosInput, FindingUncheckedUpdateWithoutPhotosInput>
+    create: XOR<FindingCreateWithoutPhotosInput, FindingUncheckedCreateWithoutPhotosInput>
+    where?: FindingWhereInput
+  }
+
+  export type FindingUpdateToOneWithWhereWithoutPhotosInput = {
+    where?: FindingWhereInput
+    data: XOR<FindingUpdateWithoutPhotosInput, FindingUncheckedUpdateWithoutPhotosInput>
+  }
+
+  export type FindingUpdateWithoutPhotosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
+    verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
+    rationale?: StringFieldUpdateOperationsInput | string
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspection?: InspectionUpdateOneRequiredWithoutFindingsNestedInput
+    item?: InspectionItemUpdateOneWithoutFindingsAsSubjectNestedInput
+    baselineItem?: InspectionItemUpdateOneWithoutFindingsAsBaselineNestedInput
+    maintenanceCase?: MaintenanceCaseUpdateOneWithoutFindingsNestedInput
+  }
+
+  export type FindingUncheckedUpdateWithoutPhotosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    itemId?: NullableStringFieldUpdateOperationsInput | string | null
+    baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
+    verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
+    rationale?: StringFieldUpdateOperationsInput | string
+    estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InspectionCreateWithoutSignaturesInput = {
@@ -78333,6 +80223,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes?: number | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: string | null
     maintenanceEvidenceId?: string | null
     createdAt?: Date | string
@@ -78344,6 +80235,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes?: number | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: string | null
     maintenanceEvidenceId?: string | null
     createdAt?: Date | string
@@ -78542,6 +80434,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"ReportAddendumPhoto"> | string
     sizeBytes?: IntNullableFilter<"ReportAddendumPhoto"> | number | null
     note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableFilter<"ReportAddendumPhoto">
     label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
@@ -80000,6 +81893,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -80652,6 +82546,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutEvidenceNestedInput
     visit?: MaintenanceVisitUpdateOneWithoutEvidenceNestedInput
@@ -80667,6 +82562,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -80680,6 +82576,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -81703,6 +83600,7 @@ export namespace Prisma {
 
   export type FindingCreateManyInspectionInput = {
     id?: string
+    clientId?: string | null
     itemId?: string | null
     baselineItemId?: string | null
     maintenanceCaseId?: string | null
@@ -81712,6 +83610,7 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -81837,21 +83736,25 @@ export namespace Prisma {
 
   export type FindingUpdateWithoutInspectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
     verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
     rationale?: StringFieldUpdateOperationsInput | string
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     item?: InspectionItemUpdateOneWithoutFindingsAsSubjectNestedInput
     baselineItem?: InspectionItemUpdateOneWithoutFindingsAsBaselineNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutFindingsNestedInput
+    photos?: FindingPhotoUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateWithoutInspectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81861,12 +83764,15 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: FindingPhotoUncheckedUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateManyWithoutInspectionInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81876,6 +83782,7 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -82391,6 +84298,7 @@ export namespace Prisma {
 
   export type FindingCreateManyItemInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     baselineItemId?: string | null
     maintenanceCaseId?: string | null
@@ -82400,12 +84308,14 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type FindingCreateManyBaselineItemInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     itemId?: string | null
     maintenanceCaseId?: string | null
@@ -82415,6 +84325,7 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -82436,21 +84347,25 @@ export namespace Prisma {
 
   export type FindingUpdateWithoutItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
     verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
     rationale?: StringFieldUpdateOperationsInput | string
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutFindingsNestedInput
     baselineItem?: InspectionItemUpdateOneWithoutFindingsAsBaselineNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutFindingsNestedInput
+    photos?: FindingPhotoUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateWithoutItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82460,12 +84375,15 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: FindingPhotoUncheckedUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateManyWithoutItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82475,27 +84393,32 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUpdateWithoutBaselineItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
     verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
     rationale?: StringFieldUpdateOperationsInput | string
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutFindingsNestedInput
     item?: InspectionItemUpdateOneWithoutFindingsAsSubjectNestedInput
     maintenanceCase?: MaintenanceCaseUpdateOneWithoutFindingsNestedInput
+    photos?: FindingPhotoUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateWithoutBaselineItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82505,12 +84428,15 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: FindingPhotoUncheckedUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateManyWithoutBaselineItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceCaseId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82520,6 +84446,7 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -82796,11 +84723,13 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
   export type FindingCreateManyMaintenanceCaseInput = {
     id?: string
+    clientId?: string | null
     inspectionId: string
     itemId?: string | null
     baselineItemId?: string | null
@@ -82810,6 +84739,7 @@ export namespace Prisma {
     estimatedCost?: Decimal | DecimalJsLike | number | string | null
     confidence?: number | null
     editedByHuman?: boolean
+    uploadPaths?: FindingCreateuploadPathsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -82919,6 +84849,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     visit?: MaintenanceVisitUpdateOneWithoutEvidenceNestedInput
     uploadedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceEvidenceUploadedNestedInput
@@ -82934,6 +84865,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -82947,26 +84879,31 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FindingUpdateWithoutMaintenanceCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     changeType?: EnumChangeTypeFieldUpdateOperationsInput | $Enums.ChangeType
     verdict?: EnumVerdictFieldUpdateOperationsInput | $Enums.Verdict
     rationale?: StringFieldUpdateOperationsInput | string
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inspection?: InspectionUpdateOneRequiredWithoutFindingsNestedInput
     item?: InspectionItemUpdateOneWithoutFindingsAsSubjectNestedInput
     baselineItem?: InspectionItemUpdateOneWithoutFindingsAsBaselineNestedInput
+    photos?: FindingPhotoUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateWithoutMaintenanceCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82976,12 +84913,15 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    photos?: FindingPhotoUncheckedUpdateManyWithoutFindingNestedInput
   }
 
   export type FindingUncheckedUpdateManyWithoutMaintenanceCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     inspectionId?: StringFieldUpdateOperationsInput | string
     itemId?: NullableStringFieldUpdateOperationsInput | string | null
     baselineItemId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82991,6 +84931,7 @@ export namespace Prisma {
     estimatedCost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     confidence?: NullableFloatFieldUpdateOperationsInput | number | null
     editedByHuman?: BoolFieldUpdateOperationsInput | boolean
+    uploadPaths?: FindingUpdateuploadPathsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -83106,6 +85047,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -83117,6 +85059,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutEvidenceNestedInput
     uploadedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceEvidenceUploadedNestedInput
@@ -83132,6 +85075,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -83145,6 +85089,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -83282,6 +85227,50 @@ export namespace Prisma {
     error?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FindingPhotoCreateManyFindingInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    mimeType: string
+    sizeBytes: number
+    note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type FindingPhotoUpdateWithoutFindingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FindingPhotoUncheckedUpdateWithoutFindingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FindingPhotoUncheckedUpdateManyWithoutFindingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AssessmentResponseCreateManyAssessmentVersionInput = {
@@ -83440,6 +85429,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes?: number | null
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: string | null
     maintenanceEvidenceId?: string | null
     createdAt?: Date | string
@@ -83451,6 +85441,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -83462,6 +85453,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -83473,6 +85465,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: NullableIntFieldUpdateOperationsInput | number | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

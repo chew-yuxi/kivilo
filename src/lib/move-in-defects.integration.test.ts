@@ -102,6 +102,37 @@ afterAll(async () => {
 })
 
 describe('tenant move-in notices', () => {
+  it('freezes registered photo notes and marks through the notice and later check-out baseline', async () => {
+    const record = await fixture()
+    const created = await report(record)
+    const clientId = randomUUID()
+    const marks = { w: 1200, h: 900, marks: [{ shape: 'ring', cx: .4, cy: .6, rx: .1, ry: .1, note: 'Dent' }] }
+    const input = {
+      clientId, purpose: 'BEFORE', mimeType: 'image/jpeg', sizeBytes: 120,
+      storagePath: `maintenance/${created.id}/${clientId}.jpg`, note: 'Upper door dent',
+      annotations: { ...marks, by: 'forged', at: 'forged' },
+    }
+    const saved = await registerMaintenanceEvidence(created.id, record.tenant.id, input)
+    expect(saved.annotationsApplied).toBe(true)
+    expect(await registerMaintenanceEvidence(created.id, record.tenant.id, input)).toEqual(saved)
+    await expect(registerMaintenanceEvidence(created.id, record.tenant.id, { ...input, annotations: null })).rejects.toThrow('different notes or marks')
+    await expect(registerMaintenanceEvidence(created.id, record.tenant.id, { ...input, note: 'Changed' })).rejects.toThrow('different notes or marks')
+    const detail = await maintenanceCaseDetail(created.id, record.tenant.id)
+    const photo = detail.evidence.find((item) => item.id === saved.id)!
+    expect(photo.annotations).toMatchObject({ ...marks, v: 1, by: record.tenant.id, at: expect.any(String) })
+    const published = await publishMoveInDefect(created.id, record.tenant.id, notice(record, [saved.id]))
+    const frozen = await db.reportAddendum.findUniqueOrThrow({ where: { id: published.addendumId } })
+    expect(addendumSnapshotSchema.parse(frozen.snapshot).entries[0].photos[0]).toMatchObject({ note: input.note, annotations: photo.annotations })
+    expect(addendumHash(frozen.snapshot)).toBe(frozen.contentHash)
+    as(record.landlord)
+    await acknowledgeAddendum(published.addendumId)
+    as(record.agent)
+    const checkoutId = await startCheckOut(record.inspection.id)
+    const copied = await db.room.findFirstOrThrow({ where: { inspectionId: checkoutId, name: 'Kitchen' } })
+    expect(roomBaselineSchema.parse(copied.baseline).photos[0]).toMatchObject({ annotations: photo.annotations })
+    expect((await db.reportAddendum.findUniqueOrThrow({ where: { id: published.addendumId } })).snapshot).toEqual(frozen.snapshot)
+  })
+
   it('lets landlord and tenant handle a notice without an appointed agent, preserving signed evidence and assets', async () => {
     const record = await fixture({ agentManaged: false })
     const created = await report(record)

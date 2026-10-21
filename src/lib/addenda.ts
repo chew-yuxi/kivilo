@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
+import { storedAnnotationsSchema } from '@/lib/annotations'
 import { db } from '@/lib/db'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import { applyAddenda, type StateChange, type StateRoom } from '@/lib/addenda-state'
@@ -51,6 +52,7 @@ export const addendumSnapshotSchema = z.object({
       storagePath: z.string(),
       mimeType: z.string(),
       note: z.string().nullable(),
+      annotations: storedAnnotationsSchema.nullable().optional(),
       label: z.string().nullable(),
     })),
   })),
@@ -88,7 +90,7 @@ export function snapshotChanges(snapshot: AddendumSnapshot): StateChange[] {
     roomName: entry.roomName,
     targetKey: entry.target?.key ?? null,
     line: entry.line,
-    photos: entry.photos.map(({ id, storagePath, label, note }) => ({ id, storagePath, label, note })),
+    photos: entry.photos.map(({ id, storagePath, label, note, annotations }) => ({ id, storagePath, label, note, annotations })),
     conditionOnly: Boolean(snapshot.moveInDefect),
     // Older frozen notices included the target's existing notes in the new line.
     // Apply only their own contribution so parallel notices retain both descriptions.

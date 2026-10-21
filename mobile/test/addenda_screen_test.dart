@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kivilo/models/addenda.dart';
 import 'package:kivilo/models/report.dart';
 import 'package:kivilo/screens/addenda_screen.dart';
+import 'package:kivilo/ui/marked_network_photo.dart';
 import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/services/addendum_photos.dart';
 import 'package:kivilo/services/api.dart';
@@ -112,12 +113,11 @@ class _FakeApi extends Api {
 
 /// Stands in for the camera and the durable queue: a photo taken reaches the draft.
 class _FakePhotos extends AddendumPhotos {
-  _FakePhotos(this.fake) : super(api: fake);
+  _FakePhotos(this.fake);
   final _FakeApi fake;
   final taken = <String>[];
   Map<String, int> waiting = const {};
 
-  @override
   Future<bool?> add({
     required String addendumId,
     required String entryId,
@@ -128,7 +128,13 @@ class _FakePhotos extends AddendumPhotos {
     (entry['photos'] as List).add({
       'id': 'photo-1',
       'url': 'https://storage.test/p.jpg',
-      'note': null,
+      'note': 'Small chip beside the handle',
+      'annotations': {
+        'w': 1200, 'h': 900,
+        'marks': [
+          {'shape': 'ring', 'cx': .5, 'cy': .5, 'rx': .1, 'ry': .1, 'note': 'Chip'},
+        ],
+      },
       'label': null,
     });
     return true;
@@ -157,6 +163,24 @@ Future<void> _open(
         inspectionId: 'inspection-1',
         api: api,
         photos: photos,
+        photoScreenBuilder: (screen) => Builder(
+          builder: (context) => Scaffold(
+            appBar: AppBar(title: Text(screen.title)),
+            body: FilledButton(
+              onPressed: () async {
+                expect(screen.queueOwner, 'addendum:draft-1');
+                expect(screen.targetId, 'entry-1');
+                await photos.add(
+                  addendumId: 'draft-1',
+                  entryId: screen.targetId,
+                  source: screen.initialSource!,
+                );
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: const Text('Save photo'),
+            ),
+          ),
+        ),
       ),
     ),
   );
@@ -220,6 +244,10 @@ void main() {
 
       // A photo goes through the queue to the draft, and can be taken off again.
       await _tap(tester, find.text('Take photo'));
+      expect(find.text('Save photo'), findsOneWidget);
+      expect(photos.taken, isEmpty);
+      await _tap(tester, find.text('Save photo'));
+      expect(tester.widget<MarkedNetworkPhoto>(find.byType(MarkedNetworkPhoto)).annotations, isNotNull);
       expect(photos.taken, ['draft-1:entry-1:camera']);
       expect(find.byTooltip('Remove photo'), findsOneWidget);
       await _tap(tester, find.byTooltip('Remove photo'));
@@ -277,6 +305,28 @@ void main() {
       expect(find.text('Start an update'), findsOneWidget);
     },
   );
+
+  testWidgets('publish rechecks photos saved after the workspace was loaded', (tester) async {
+    final api = _FakeApi();
+    await api.startAddendum('inspection-1');
+    api.draft!['title'] = 'Dryer taken away';
+    await api.addAddendumEntry('draft-1', {
+      'change': 'REMOVED',
+      'roomName': 'Utility',
+      'targetKey': 'item:dryer',
+      'quantity': 1,
+    });
+    final photos = _FakePhotos(api);
+    await _open(tester, api, photos);
+    await _tap(tester, find.text('Publish update'));
+    expect(find.text('Publish this update?'), findsOneWidget);
+    photos.waiting = {'entry-1': 1};
+    await _tap(tester, find.widgetWithText(FilledButton, 'Publish'));
+    expect(api.calls, isNot(contains('publish:draft-1')));
+    expect(find.textContaining('Finish marking and upload them'), findsOneWidget);
+    expect(find.text('Continue saved photos'), findsOneWidget);
+    expect(api.draft, isNotNull);
+  });
 
   testWidgets('a change says what it is missing before it is sent', (
     tester,
@@ -365,7 +415,7 @@ void main() {
                         'signedUrl': null,
                         'token': null,
                       }
-                    : {'id': 'photo-1'},
+                    : {'id': 'photo-1', 'annotationsApplied': true},
               ),
             );
           },
@@ -403,6 +453,7 @@ void main() {
         'storagePath': 'addenda/draft-1/client.png',
         'sizeBytes': 321,
         'note': null,
+        'annotations': null,
       });
       expect(
         () => backend.deleteCapture('addendum:draft-1', 'photo-1'),

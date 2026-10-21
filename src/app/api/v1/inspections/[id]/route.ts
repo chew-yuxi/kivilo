@@ -63,6 +63,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
           item: { include: { room: { select: { name: true } } } },
           baselineItem: { include: { room: { select: { name: true } } } },
           maintenanceCase: { select: { id: true, title: true } },
+          _count: { select: { photos: true } },
         },
       },
       assessments: {
@@ -174,6 +175,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       currentCondition: finding.item?.condition ?? null,
       maintenanceCaseId: finding.maintenanceCaseId,
       maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
+      photoCount: finding._count.photos,
     })),
     checkOutItems: comparable.checkOutItems,
     checkInItems: comparable.checkInItems,

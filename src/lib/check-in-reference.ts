@@ -106,7 +106,7 @@ export async function roomBaselines(rooms: StateRoom[], client: Prisma.Transacti
         storagePath: photo.storagePath,
         caption: [photo.label, photo.note].filter(Boolean).join(': ') || null,
         update: true,
-        annotations: null,
+        annotations: toAnnotations(photo.annotations),
       })),
     ],
   }))

@@ -17,6 +17,7 @@ class FindingEditorScreen extends StatefulWidget {
     this.checkOutItems = const [],
     this.checkInItems = const [],
     required this.onSave,
+    this.onSaveAndAddPhotos,
     this.onRemove,
   });
 
@@ -25,6 +26,7 @@ class FindingEditorScreen extends StatefulWidget {
   final List<ComparableItem> checkOutItems;
   final List<ComparableItem> checkInItems;
   final Future<void> Function(Map<String, dynamic>) onSave;
+  final Future<void> Function(Map<String, dynamic>)? onSaveAndAddPhotos;
   final Future<void> Function()? onRemove;
 
   @override
@@ -144,7 +146,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     }
   }
 
-  Future<void> _save() async {
+  Future<void> _save({bool addPhotos = false}) async {
     if (_saving) return;
     final cost = _cost.text.trim();
     final error = widget.finding == null && _selected == null
@@ -169,7 +171,11 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       } else
         'maintenanceCaseId': _maintenanceCaseId,
     };
-    await _persist(() => widget.onSave(fields));
+    await _persist(
+      () => addPhotos
+          ? widget.onSaveAndAddPhotos!(fields)
+          : widget.onSave(fields),
+    );
   }
 
   @override
@@ -542,6 +548,25 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 labelText: 'Estimated cost (SGD)',
               ),
             ),
+            if (widget.onSaveAndAddPhotos != null) ...[
+              const SizedBox(height: 20),
+              Text(
+                'Finding photos',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Save this finding, then take or choose photos. '
+                'Circle details and add notes before each photo uploads. '
+                'Photos stay with this assessment; the signed inventory stays unchanged.',
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _saving ? null : () => _save(addPhotos: true),
+                icon: const Icon(Icons.add_a_photo_outlined),
+                label: const Text('Save & add photos'),
+              ),
+            ],
             if (widget.finding != null && widget.onRemove != null) ...[
               const SizedBox(height: 8),
               TextButton(

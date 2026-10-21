@@ -4,6 +4,13 @@ Updated 21 October 2026. This conversation coordinates the work below. Yuxi has
 authorized publishing the native patch once the artwork deployment is live; that
 deployment is now verified. This does not authorize a new iOS store submission.
 
+The newer evidence-photo flow is pushed on **`codex/evidence-photo-flow`**, source
+`7e4533b`, in [draft PR #2](https://github.com/chew-yuxi/kivilo/pull/2).
+It is **not on `main` or live**. Production migration
+`20261021120000_finding_photo_evidence` must run before merge and backend deployment.
+Production credentials are unavailable here; the draft PR is the handoff for the
+configured release machine, followed by patches on the existing native releases.
+
 ## Current execution queue
 
 | Work | Status | Owner | Completion evidence / next step |
@@ -13,6 +20,8 @@ deployment is now verified. This does not authorize a new iOS store submission.
 | Remove the new icon-font dependency from the redesign | **Done in candidate** | Integration agent | Reused existing icons; no missing glyph names against iOS `7161f53` or Android `ce0d8e3`. The actual Shorebird asset/native checks remain required. |
 | Review and verify the combined candidate | **Done** | Integration agent + independent reviewer | 276 Flutter tests, clean analysis, web typecheck/lint/build and 98 unit tests. Independent review found no material regression in routing, guidance or the preserved capture/markup/queue logic. |
 | Remove duplicate drawer handles | **Done in source; awaiting native patch** | Coordinator + audit agent | Removed the inventory editor's inner handle and extra spacing; the outer sheet supplies its single handle for add/edit flows. All native sheet implementations audited; 19 existing targeted tests and Flutter analysis pass. |
+| Shared finding, repair and update photo flow | **Verified source; draft PR handoff** | Coordinator + evidence agents | Findings save their draft before adding photos. All three flows preserve originals and save whole-photo notes plus per-mark notes before releasing upload. All 309 mobile tests and analysis pass; server checks and remaining environment/device gaps are recorded below. |
+| Evidence schema and backend deployment | **Pending production migration; draft PR handoff** | Production owner | Apply `20261021120000_finding_photo_evidence` before merging `codex/evidence-photo-flow`. No production credentials here; the migration has only run locally. Deploy and verify the backend before publishing its native patch. |
 | Refresh the phone rehearsal | **Done** | Release agent | [rehearsal-checklist.md](rehearsal-checklist.md) now targets iOS 24 / Android 25 and the combined workflow. All physical results remain pending. |
 | Publish Android patch for `1.0.0+25` | **Waiting for release environment** | Release agent, coordinator publishes | User approval exists. Need the existing production configuration, Shorebird identity, Android build/signing tools and a pinned verified source. Preserve `--build-number=25`. |
 | Publish iOS patch for `1.0.0+24` | **Waiting for release Mac** | Release agent, coordinator publishes | User approval exists. Need the configured Mac/Xcode/Shorebird/signing environment; check App Store state read-only and preserve the store freeze. |
@@ -44,14 +53,34 @@ deployment is now verified. This does not authorize a new iOS store submission.
 
 ## Verification and release record
 
-The combined native source passed **276 Flutter tests** and clean analysis.
+The evidence-photo branch has passed focused tests for durable originals, captions
+and marks, registration retries, addendum/move-in snapshots, and report/PDF evidence.
+Pending-photo tests cover picker/intake journals before queue insertion, exact account
+and destination ownership, completed handoffs, and rechecking before publication.
+All **309 Flutter tests** and full Flutter analysis passed. The source uses no new
+icons, plugins, native configuration or bundled assets. Its migration has run only on
+disposable local PostgreSQL. Server typecheck, lint,
+production build and all **99 unit tests** passed. Integration testing passed **158
+checks**; **12 could not pass** without the real local Supabase Auth/Storage stack
+(account deletion, addendum storage, branding, posters and stored PDFs). Browser
+end-to-end tests were not run. No production deployment, physical-device result or
+patch delivery is claimed for this feature.
+
+Unsupported or corrupt originals remain held on the phone and block publication;
+they are never silently dropped. Recovering those files needs support. The shared
+flow accepts JPEG, PNG and WebP, and physical-device format/recovery checks remain
+part of the release rehearsal.
+
+The earlier combined design source passed **276 Flutter tests** and clean analysis.
 Both release icon comparisons are empty, and native configuration, dependencies,
 version and bundled assets are unchanged. The web passed typecheck, lint,
 production build and **98 unit tests**. Independent review confirmed that capture,
 photo markup and queue implementations remain the upstream versions.
 
-Database integration/browser end-to-end tests were not rerun here: this environment
-has no local Supabase/Docker stack. Physical-device tests and Shorebird's actual
+For that design-only consolidation, database integration/browser end-to-end tests
+were not rerun: this environment has no local Supabase/Docker stack. The current
+evidence work uses disposable PostgreSQL for its integration tests; this does not
+verify real Storage, email or browser flows. Physical-device tests and Shorebird's actual
 native/asset build checks remain outstanding. The local Next build used non-production
 configuration for compilation; it was not uploaded as a production build.
 

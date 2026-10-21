@@ -490,6 +490,7 @@ class Finding {
     required this.editedByHuman,
     required this.maintenanceCaseId,
     required this.maintenanceCaseTitle,
+    this.photoCount = 0,
   });
 
   final String id;
@@ -504,6 +505,7 @@ class Finding {
   final bool editedByHuman;
   final String? maintenanceCaseId;
   final String? maintenanceCaseTitle;
+  final int photoCount;
 
   factory Finding.fromJson(Map<String, dynamic> json) => Finding(
     id: json['id'] as String,
@@ -518,6 +520,7 @@ class Finding {
     editedByHuman: json['editedByHuman'] as bool,
     maintenanceCaseId: json['maintenanceCaseId'] as String?,
     maintenanceCaseTitle: json['maintenanceCaseTitle'] as String?,
+    photoCount: json['photoCount'] as int? ?? 0,
   );
 }
 

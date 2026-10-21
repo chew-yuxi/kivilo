@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { MarkOverlay } from '@/components/mark-overlay'
 import { createClient } from '@supabase/supabase-js'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import {
@@ -404,10 +405,13 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
         <div className="mb-2 grid grid-cols-3 gap-2">
           {entry.photos.map((photo) => (
             <figure key={photo.id} className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="h-24 w-full rounded border border-gray-200 object-contain" />
+              <div className="relative h-24 w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="h-full w-full rounded border border-gray-200 object-contain" />
+                <MarkOverlay annotations={photo.annotations} />
+              </div>
               <figcaption className="flex items-center justify-between text-xs text-gray-500">
-                <span>{photo.label ?? ''}</span>
+                <span>{[photo.label, photo.note].filter(Boolean).join(': ')}</span>
                 <button
                   type="button"
                   disabled={pending}
@@ -423,6 +427,9 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
                   Remove
                 </button>
               </figcaption>
+              {photo.annotations?.marks.map((mark, index) => mark.note && (
+                <p key={index} className="mt-1 text-xs text-red-700">{index + 1}. {mark.note}</p>
+              ))}
             </figure>
           ))}
         </div>

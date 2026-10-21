@@ -24,6 +24,111 @@ class _DelayedImage extends ImageProvider<_DelayedImage> {
 }
 
 void main() {
+  testWidgets('photo note persists without a mark and Save waits for it', (
+    tester,
+  ) async {
+    final image = _DelayedImage();
+    final noteWrite = Completer<void>();
+    final notes = <String?>[];
+    PhotoMarksResult? saved;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () async {
+                saved = await Navigator.push<PhotoMarksResult>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PhotoMarkScreen(
+                      image: image,
+                      onNoteChanged: (note) {
+                        notes.add(note);
+                        return notes.length == 1
+                            ? noteWrite.future
+                            : Future.value();
+                      },
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pump();
+    final recorder = ui.PictureRecorder();
+    ui.Canvas(recorder);
+    image.complete(await recorder.endRecording().toImage(400, 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add photo note'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Empty space where the lamp stood');
+    await tester.pump();
+    expect(notes, ['Empty space where the lamp stood']);
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(saved, isNull);
+    expect(find.text('Saving…'), findsOneWidget);
+    noteWrite.complete();
+    await tester.pumpAndSettle();
+    expect(saved?.note, 'Empty space where the lamp stood');
+    expect(saved?.annotations, isNull);
+    expect(notes, hasLength(2));
+  });
+
+  testWidgets('failed photo note keeps the editor open and retries on Save', (
+    tester,
+  ) async {
+    final image = _DelayedImage();
+    var fail = true;
+    PhotoMarksResult? saved;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () async {
+                saved = await Navigator.push<PhotoMarksResult>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PhotoMarkScreen(
+                      image: image,
+                      note: 'Scratched surface',
+                      onNoteChanged: (_) async {
+                        if (fail) throw const ApiFailure('Storage is full', null);
+                      },
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pump();
+    final recorder = ui.PictureRecorder();
+    ui.Canvas(recorder);
+    image.complete(await recorder.endRecording().toImage(400, 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(saved, isNull);
+    expect(find.text('Could not save photo details. Storage is full'), findsOneWidget);
+    fail = false;
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(saved?.note, 'Scratched surface');
+  });
+
   testWidgets(
     'Save waits for image dimensions and a no-op keeps original marks',
     (tester) async {

@@ -171,9 +171,17 @@ describe('report addenda', () => {
     const clientId = randomUUID()
     const upload = await requestAddendumPhotoUpload(entryId, id, { clientId, mimeType: 'image/jpeg' })
     expect(upload.storagePath).toBe(`addenda/${id}/${clientId}.jpg`)
-    const photoId = await registerAddendumPhoto(entryId, id, {
-      clientId, mimeType: 'image/jpeg', storagePath: upload.storagePath, sizeBytes: 1200, note: 'Rating plate',
-    })
+    const marks = { w: 1200, h: 900, marks: [{ shape: 'ring', cx: .5, cy: .5, rx: .1, ry: .1, note: 'Serial label' }] }
+    const photoInput = {
+      clientId, mimeType: 'image/jpeg', storagePath: upload.storagePath, sizeBytes: 1200,
+      note: 'Rating plate', annotations: { ...marks, by: 'forged', at: 'forged' },
+    }
+    const photoId = await registerAddendumPhoto(entryId, id, photoInput)
+    expect(await registerAddendumPhoto(entryId, id, photoInput)).toBe(photoId)
+    await expect(registerAddendumPhoto(entryId, id, { ...photoInput, note: 'Changed' })).rejects.toThrow('different notes or marks')
+    await expect(registerAddendumPhoto(entryId, id, { ...photoInput, annotations: null })).rejects.toThrow('different notes or marks')
+    const storedPhoto = await db.reportAddendumPhoto.findUniqueOrThrow({ where: { id: photoId } })
+    expect(storedPhoto.annotations).toMatchObject({ ...marks, v: 1, by: agent.id, at: expect.any(String) })
 
     expect(await publishAddendum(id)).toMatchObject({ number: 1 })
 
@@ -190,7 +198,7 @@ describe('report addenda', () => {
           roomName: 'Kitchen',
           target: { key: `item:${dishwasher.id}`, name: 'Dishwasher', identifier: 'Bosch SMS2', condition: 'POOR' },
           line: { key: `entry:${entryId}`, identifier: 'Miele G7100 SN 4471', condition: 'NEW' },
-          photos: [{ storagePath: upload.storagePath, note: 'Rating plate' }],
+          photos: [{ storagePath: upload.storagePath, note: 'Rating plate', annotations: storedPhoto.annotations }],
         },
         { change: 'ADDED', roomName: 'Helper room', target: null, line: { name: 'Ceiling fan' } },
       ],
@@ -506,6 +514,7 @@ describe('report addenda', () => {
     const photo = await call(photosRoute.POST, { id, entryId }, {
       body: { clientId, mimeType: 'image/jpeg', storagePath: upload.body.storagePath, sizeBytes: 1200 },
     })
+    expect(photo.body.annotationsApplied).toBe(true)
     // A retry after a lost response is the same photo.
     expect((await call(photosRoute.POST, { id, entryId }, {
       body: { clientId, mimeType: 'image/jpeg', storagePath: upload.body.storagePath, sizeBytes: 1200 },

@@ -7,6 +7,7 @@ import { db } from '@/lib/db'
 import { propertyLabel, sgd } from '@/lib/format'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { depositStatement } from '@/lib/assessment-schema'
+import { toAnnotations } from '@/lib/annotations'
 
 /// Publishing is an explicit human review step. The signed inventory remains frozen;
 /// this is a separately dated assessment that can only be superseded by a new version.
@@ -25,6 +26,7 @@ export async function publishAssessment(
   }
 
   const result = await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "id" = ${inspectionId} FOR UPDATE`
     const inspection = await tx.inspection.findUniqueOrThrow({
       where: { id: inspectionId },
       include: {
@@ -35,6 +37,7 @@ export async function publishAssessment(
             item: { include: { room: { select: { name: true } } } },
             baselineItem: { include: { room: { select: { name: true } } } },
             maintenanceCase: { include: { evidence: { orderBy: { createdAt: 'asc' } } } },
+            photos: { orderBy: { createdAt: 'asc' } },
           },
         },
       },
@@ -47,6 +50,10 @@ export async function publishAssessment(
     }
     if (inspection.findings.length === 0 && !noFindings) {
       throw new Error('Confirm that no damage was found before publishing an assessment without findings')
+    }
+    if (inspection.findings.some((finding) => finding.uploadPaths.some((path) =>
+      !finding.photos.some((photo) => photo.storagePath === path)))) {
+      throw new Error('Finding photos are still uploading')
     }
 
     const snapshot = {
@@ -66,6 +73,15 @@ export async function publishAssessment(
         estimatedCost: finding.estimatedCost?.toString() ?? null,
         confidence: finding.confidence,
         editedByHuman: finding.editedByHuman,
+        photos: finding.photos.map((photo) => ({
+          id: photo.id,
+          storagePath: photo.storagePath,
+          mimeType: photo.mimeType,
+          sizeBytes: photo.sizeBytes,
+          note: photo.note,
+          annotations: toAnnotations(photo.annotations),
+          createdAt: photo.createdAt.toISOString(),
+        })),
         maintenanceEvidence: finding.maintenanceCase
           ? {
               caseId: finding.maintenanceCase.id,
@@ -76,6 +92,7 @@ export async function publishAssessment(
                 storagePath: item.storagePath,
                 mimeType: item.mimeType,
                 note: item.note,
+                annotations: toAnnotations(item.annotations),
                 createdAt: item.createdAt.toISOString(),
               })),
             }
@@ -115,7 +132,7 @@ export async function publishAssessment(
       skipDuplicates: true,
     })
     return version
-  }, { isolationLevel: 'Serializable' })
+  })
 
   revalidatePath(`/inspections/${inspectionId}`)
   return { version: result.version, publishedAt: result.publishedAt }

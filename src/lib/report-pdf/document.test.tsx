@@ -68,7 +68,12 @@ async function render(report: ReportModel) {
     photos: new Map(report.rooms.flatMap((each) => each.photos.map((p) => [p.storagePath, bitmap]))),
     logo: null,
     signatures: [],
-    evidence: new Map(report.addenda.flatMap((each) => each.entries.flatMap((entry) => entry.photos.map((p) => [p.storagePath, bitmap])))),
+    evidence: new Map([
+      ...report.addenda.flatMap((each) => each.entries.flatMap((entry) => entry.photos.map((p) => [p.storagePath, bitmap] as const))),
+      ...(report.assessment?.findings ?? []).flatMap((finding) => [
+        ...(finding.photos ?? []), ...(finding.maintenanceEvidence?.evidence ?? []),
+      ].map((p) => [p.storagePath, bitmap] as const)),
+    ]),
   }
   return pdfPageTexts(await renderToBuffer(<ReportDocument model={report} assets={assets} />))
 }
@@ -145,6 +150,41 @@ describe('report PDF', () => {
     expect(text.match(/Content fingerprint/g)).toHaveLength(1)
   })
 
+  it('paginates finding photos and prints the frozen captions and mark notes for assessment and repair evidence', async () => {
+    const report = model([room(1, 'Kitchen', 0)])
+    report.kind = 'CHECK_OUT'
+    const annotations = {
+      v: 1 as const, by: 'agent', at: '2026-10-21T00:00:00Z', w: 600, h: 800,
+      marks: [{ shape: 'ring' as const, cx: 0.5, cy: 0.5, rx: 0.2, ry: 0.1, note: 'Deep chip marked by inspector' }],
+    }
+    report.assessment = {
+      schemaVersion: 1, version: 1, publishedAt: '2026-10-21T00:00:00Z', summary: null, deposit: '14400', responses: [],
+      findings: [{
+        id: 'finding', itemLabel: 'Kitchen, Hob', changeType: 'DAMAGE', verdict: 'TENANT_LIABLE',
+        rationale: 'Chipped hob corner', estimatedCost: '200', confidence: null, editedByHuman: true,
+        photos: Array.from({ length: 12 }, (_, index) => ({
+          id: `finding-photo-${index}`, storagePath: `findings/finding/${index}.jpg`, mimeType: 'image/jpeg', sizeBytes: 100,
+          note: `Finding evidence number ${index + 1}`, annotations, createdAt: '2026-10-21T00:00:00Z',
+        })),
+        maintenanceEvidence: { caseId: 'repair', title: 'Earlier hob repair', evidence: [{
+          id: 'repair-photo', purpose: 'AFTER', storagePath: 'maintenance/repair/after.jpg', mimeType: 'image/jpeg',
+          note: 'Previous repair completed', annotations: { ...annotations, marks: [{ ...annotations.marks[0], note: 'Original repaired corner' }] },
+          createdAt: '2026-10-20T00:00:00Z',
+        }] },
+      }],
+    }
+    const pages = await render(report)
+    const text = pages.join(' ')
+    for (let index = 1; index <= 12; index++) {
+      expect(text).toContain(`F1.${index}`)
+      expect(text).toContain(`Finding evidence number ${index}`)
+    }
+    expect(text).toContain('1. Deep chip marked by inspector')
+    expect(text).toContain('Previous repair completed')
+    expect(text).toContain('1. Original repaired corner')
+    expect(pages.filter((page) => page.includes('Finding evidence number')).length).toBeGreaterThan(1)
+  })
+
   it('draws each update after the signatures with its date, and says who has not acknowledged it and who did so in person', async () => {
     const report = model([room(1, 'Kitchen', 1)])
     report.addenda = [{
@@ -177,7 +217,10 @@ describe('report PDF', () => {
           identifier: 'Miele G7100 SN 123', notes: 'Installed by the landlord', propertyAssetId: null,
         },
         maintenanceCase: null,
-        photos: [{ id: 'photo-1', storagePath: 'addenda/addendum-1/a.jpg', mimeType: 'image/jpeg', note: 'Rating plate', label: null }],
+        photos: [{ id: 'photo-1', storagePath: 'addenda/addendum-1/a.jpg', mimeType: 'image/jpeg', note: 'Rating plate', label: null,
+          annotations: { v: 1, by: 'agent', at: '2026-10-21T00:00:00Z', w: 600, h: 800,
+            marks: [{ shape: 'arrow', tx: 0.1, ty: 0.1, hx: 0.5, hy: 0.5, note: 'Serial number beside the door' }] },
+        }],
       }],
     }]
 
@@ -189,6 +232,7 @@ describe('report PDF', () => {
     expect(update).toContain('Replaced: Dishwasher with Dishwasher')
     expect(update).toContain('Miele G7100 SN 123')
     expect(update).toContain('Rating plate')
+    expect(update).toContain('1. Serial number beside the door')
     expect(update).toContain('Pending acknowledgement')
     expect(update).toContain('Landlord, acknowledged in person')
     expect(update).toContain('Tenant, pending acknowledgement')

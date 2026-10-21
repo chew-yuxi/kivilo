@@ -55,6 +55,12 @@ export function authed<P>(
       if (/Review every finding before publishing/i.test(message)) {
         return Response.json({ error: 'assessment_review_incomplete' }, { status: 409 })
       }
+      if (/Finding photos are still uploading/i.test(message)) {
+        return Response.json({ error: 'finding_photos_pending', message: 'Finding photos are still uploading. Finish uploading them before publishing the assessment.' }, { status: 409 })
+      }
+      if (/Finding client id already registered/i.test(message)) {
+        return Response.json({ error: 'finding_conflict', message: 'This finding was already saved. Reopen it from the assessment to review or change it.' }, { status: 409 })
+      }
       if (/A revised statement has been published|already been answered/i.test(message)) {
         return Response.json({ error: 'statement_changed' }, { status: 409 })
       }

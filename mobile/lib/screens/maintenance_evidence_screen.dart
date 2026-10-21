@@ -1,222 +1,45 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/api.dart';
-import '../services/capture_backend.dart';
-import '../services/capture_queue.dart';
-import '../services/capture_store.dart';
-import '../services/uploader.dart';
-import '../ui/kivilo_theme.dart';
-import '../ui/kivilo_layout.dart';
+import 'evidence_photo_screen.dart';
 
-class MaintenanceEvidenceScreen extends StatefulWidget {
+/// Maintenance keeps its own purpose and visit identity while using the shared
+/// save-original, mark and caption workflow.
+class MaintenanceEvidenceScreen extends StatelessWidget {
   const MaintenanceEvidenceScreen({
     super.key,
     required this.caseId,
     required this.purpose,
     this.visitId,
+    this.api,
   });
 
   final String caseId;
   final String purpose;
   final String? visitId;
+  final Api? api;
 
   @override
-  State<MaintenanceEvidenceScreen> createState() =>
-      _MaintenanceEvidenceScreenState();
-}
-
-class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
-  final _queue = CaptureQueue();
-  final _api = Api();
-  final _picker = ImagePicker();
-  Directory? _root;
-  bool _busy = true;
-  String? _message;
-
-  String get _queueOwner => 'maintenance:${widget.caseId}';
-  String get _target =>
-      '${widget.purpose}${widget.visitId == null ? '' : '|${widget.visitId}'}';
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_initialize());
-  }
-
-  Future<void> _initialize() async {
-    try {
-      _root = await getApplicationSupportDirectory();
-      await _recoverLostPhoto();
-    } catch (error) {
-      if (mounted) {
-        setState(() => _message = 'Could not prepare the photo. ${plainError(error)}');
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _recoverLostPhoto() async {
-    if (!Platform.isAndroid) return;
-    final response = await _picker.retrieveLostData();
-    if (response.isEmpty) return;
-    if (response.exception != null) {
-      throw StateError(
-        'Could not recover the interrupted photo: ${response.exception}',
-      );
-    }
-    for (final photo in response.files ?? const <XFile>[]) {
-      await _savePhoto(photo);
-    }
-  }
-
-  Future<void> _addPhoto(ImageSource source) async {
-    if (_busy || _root == null) return;
-    setState(() {
-      _busy = true;
-      _message = null;
-    });
-    try {
-      final photo = await _picker.pickImage(
-        source: source,
-        imageQuality: 95,
-        requestFullMetadata: false,
-      );
-      if (photo != null) await _savePhoto(photo);
-    } catch (error) {
-      if (mounted) {
-        setState(() => _message = 'Could not add the photo. ${plainError(error)}');
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _savePhoto(XFile photo) async {
-    final root = _root!;
-    final path = photo.path.toLowerCase();
-    final extension = path.endsWith('.png')
-        ? 'png'
-        : path.endsWith('.webp')
-        ? 'webp'
-        : path.endsWith('.heic')
-        ? 'heic'
-        : path.endsWith('.heif')
-        ? 'heif'
-        : 'jpg';
-    final mimeType =
-        photo.mimeType ??
-        switch (extension) {
-          'png' => 'image/png',
-          'webp' => 'image/webp',
-          'heic' => 'image/heic',
-          'heif' => 'image/heif',
-          _ => 'image/jpeg',
-        };
-    final authOwner = Supabase.instance.client.auth.currentUser!.id;
-    await CaptureStore(queue: _queue, root: root).save(
-      source: File(photo.path),
-      ownerId: authOwner,
-      inspectionId: _queueOwner,
-      roomId: _target,
-      kind: widget.purpose,
-      extension: extension,
-      mimeType: mimeType,
+  Widget build(BuildContext context) {
+    final client = api ?? Api();
+    return EvidencePhotoScreen(
+      title: purpose == 'BEFORE' ? 'Before photos' : 'After photos',
+      queueOwner: 'maintenance:$caseId',
+      targetId: '$purpose${visitId == null ? '' : '|$visitId'}',
+      kind: purpose,
+      loadPhotos: () async {
+        final detail = await client.maintenanceCase(caseId);
+        return [
+          for (final photo in detail.evidence)
+            if (photo.isImage && photo.purpose == purpose && photo.visitId == visitId)
+              EvidencePhoto(
+                id: photo.id,
+                url: photo.url,
+                note: photo.note,
+                annotations: photo.annotations,
+              ),
+        ];
+      },
     );
-    final moved = await Uploader(
-      queue: _queue,
-      backend: RoutingEvidenceBackend(_api.dio),
-      root: root,
-      ownerId: authOwner,
-    ).drain();
-    if (mounted) {
-      setState(
-        () => _message = moved
-            ? 'Photo saved and uploaded.'
-            : 'Photo saved on this phone. Kivilo will retry automatically.',
-      );
-    }
   }
-
-  @override
-  void dispose() {
-    unawaited(_queue.close());
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: !_busy,
-    child: Scaffold(
-    appBar: AppBar(
-      title: Text(
-        widget.purpose == 'BEFORE' ? 'Before photos' : 'After photos',
-      ),
-    ),
-    body: KiviloContent(maxWidth: 720, child: ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(24, 30, 24, 28),
-          decoration: BoxDecoration(
-            color: KiviloColors.canvas,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: KiviloColors.border),
-          ),
-          child: const Column(
-            children: [
-              Icon(
-                Icons.add_a_photo_outlined,
-                size: 44,
-                color: KiviloColors.pink,
-              ),
-              SizedBox(height: 14),
-              Text(
-                'Add photos with your phone’s camera',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: KiviloColors.ink,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Use the full native camera experience, or choose a photo you already took.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: KiviloColors.muted),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        FilledButton.icon(
-          onPressed: _busy || _root == null
-              ? null
-              : () => unawaited(_addPhoto(ImageSource.camera)),
-          icon: const Icon(Icons.photo_camera_outlined),
-          label: Text(_busy ? 'Saving…' : 'Take photo'),
-        ),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          onPressed: _busy || _root == null
-              ? null
-              : () => unawaited(_addPhoto(ImageSource.gallery)),
-          icon: const Icon(Icons.add_photo_alternate_outlined),
-          label: const Text('Choose existing photo'),
-        ),
-        if (_message != null) ...[
-          const SizedBox(height: 18),
-          Text(_message!, textAlign: TextAlign.center),
-        ],
-      ],
-    )),
-    ),
-  );
 }

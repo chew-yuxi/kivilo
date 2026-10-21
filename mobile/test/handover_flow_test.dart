@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,11 +11,13 @@ import 'package:kivilo/models/handover.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/report.dart';
 import 'package:kivilo/screens/maintenance_case_screen.dart';
-import 'package:kivilo/screens/maintenance_evidence_screen.dart';
+import 'package:kivilo/screens/evidence_photo_screen.dart';
 import 'package:kivilo/screens/new_maintenance_case_screen.dart';
 import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/screens/tenancy_screen.dart';
 import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/capture_backend.dart';
+import 'package:kivilo/services/capture_queue.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_format.dart';
 import 'package:kivilo/ui/tenant_handover.dart';
@@ -150,6 +154,12 @@ class _Adapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {}
+}
+
+class _UnusedEvidenceBackend implements CaptureBackend {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('An empty photo queue must not contact its backend.');
 }
 
 void main() {
@@ -355,21 +365,34 @@ void main() {
   testWidgets(
     'evidence cannot be left before the durable photo store is ready',
     (tester) async {
-      final prepared = Completer<String>();
-      const pathProvider = MethodChannel('plugins.flutter.io/path_provider');
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        pathProvider,
-        (call) async => prepared.future,
-      );
+      final prepared = Completer<Directory>();
+      final root = Directory.systemTemp.createTempSync('evidence-ready-');
+      final queue = CaptureQueue(NativeDatabase.memory());
+      var loaded = false;
+      addTearDown(() async {
+        await queue.close();
+        root.deleteSync(recursive: true);
+      });
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
             builder: (context) => TextButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                  builder: (_) => const MaintenanceEvidenceScreen(
-                    caseId: 'case-1',
-                    purpose: 'BEFORE',
+                  builder: (_) => EvidencePhotoScreen(
+                    title: 'Before photos',
+                    queueOwner: 'maintenance:case-1',
+                    targetId: 'BEFORE',
+                    kind: 'BEFORE',
+                    ownerId: 'tenant',
+                    currentOwnerId: () => 'tenant',
+                    queue: queue,
+                    supportDirectory: () => prepared.future,
+                    backend: _UnusedEvidenceBackend(),
+                    loadPhotos: () async {
+                      loaded = true;
+                      return const [];
+                    },
                   ),
                 ),
               ),
@@ -379,21 +402,27 @@ void main() {
         ),
       );
       await tester.tap(find.text('Open photos'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, false);
+      expect(loaded, false);
       await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(find.byType(MaintenanceEvidenceScreen), findsOneWidget);
-      prepared.complete('/private/tmp/kivilo-evidence-widget-test');
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(EvidencePhotoScreen), findsOneWidget);
+      prepared.complete(root);
+      for (var attempt = 0; attempt < 20 && !loaded; attempt++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 5)),
+        );
+        await tester.pump();
+      }
+      expect(loaded, true);
       await tester.pumpAndSettle();
       expect(tester.widget<PopScope>(find.byType(PopScope)).canPop, true);
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.text('Open photos'), findsOneWidget);
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        pathProvider,
-        null,
-      );
+      expect(find.byType(EvidencePhotoScreen), findsNothing);
     },
   );
 

@@ -58,7 +58,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
   late final _api = widget.api ?? Api();
   late final _queue = widget.queue ?? CaptureQueue();
   late final _picker = widget.picker ?? ImagePicker();
-  late final _backend = RoutingEvidenceBackend(_api.dio);
+  late final _backend = RoutingEvidenceBackend(_api.evidenceDio(_ownerId));
   late final String _ownerId =
       widget.ownerId ?? Supabase.instance.client.auth.currentUser!.id;
   Directory? _root;
@@ -287,6 +287,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
           jsonDecode(await _pickerJournal.readAsString())
               as Map<String, dynamic>;
       if (intent['ownerId'] != _ownerId) return;
+      // A maintenance, finding or report-update photo belongs to its own flow.
+      // Leave its journal and Android recovery result for that evidence screen.
+      if (intent['flow'] != null && intent['flow'] != 'room') return;
       if (intent['files'] != null) {
         await _persistSelection(intent);
         return;
@@ -659,7 +662,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
         builder: (_) => PhotoMarkScreen(
           image: image,
           annotations: previous,
+          note: capture.note,
           saveLabel: capture.awaitingMarkup ? 'Save photo' : 'Save',
+          onNoteChanged: capture.awaitingMarkup
+              ? (note) => _queue.setNote(capture.id, note)
+              : null,
           onChanged: capture.awaitingMarkup
               ? (annotations) => _queue.setAnnotations(
                   capture.id,

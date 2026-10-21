@@ -10,6 +10,7 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/page_context_title.dart';
+import '../ui/marked_network_photo.dart';
 import '../ui/tenant_handover.dart';
 import 'photo_mark_screen.dart';
 import 'signature_screen.dart';
@@ -726,7 +727,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Widget _caption(ReportPhoto photo) {
     final lines = [
-      [?photo.note, '${_count(photo.marks.length, 'area')} marked'].join(' · '),
+      if (photo.note != null || photo.marks.isNotEmpty)
+        [?photo.note, if (photo.marks.isNotEmpty) '${_count(photo.marks.length, 'area')} marked'].join(' · '),
       for (var index = 0; index < photo.marks.length; index++)
         if (photo.marks[index]['note'] is String)
           '${index + 1}. ${photo.marks[index]['note']}',
@@ -739,6 +741,28 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
     );
   }
+
+  Widget _evidencePhotos(List<ReportPhoto> photos) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (final photo in photos) ...[
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: () => _view(photo),
+          child: SizedBox(
+            height: 200,
+            child: MarkedNetworkPhoto(
+              url: photo.url,
+              annotations: photo.annotations,
+              fit: BoxFit.contain,
+              semanticLabel: photo.note ?? 'Evidence photo',
+            ),
+          ),
+        ),
+        _caption(photo),
+      ],
+    ],
+  );
 
   Future<void> _view(ReportPhoto photo) => Navigator.of(context).push<void>(
     MaterialPageRoute(
@@ -875,35 +899,16 @@ class _ReportScreenState extends State<ReportScreen> {
                 ),
               if (entry.photos.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final photo in entry.photos)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              photo.url,
-                              width: 96,
-                              height: 96,
-                              fit: BoxFit.cover,
-                              semanticLabel: photo.note ?? entry.heading,
-                              errorBuilder: (_, _, _) => const SizedBox(
-                                width: 96,
-                                height: 96,
-                                child: ColoredBox(color: KiviloColors.canvas),
-                              ),
-                            ),
-                          ),
-                          if (photo.label != null)
-                            Text(photo.label!, style: text.bodySmall),
-                        ],
+                _evidencePhotos([
+                  for (final photo in entry.photos)
+                    if (photo.mimeType.startsWith('image/'))
+                      ReportPhoto(
+                        id: photo.id,
+                        url: photo.url,
+                        note: [?photo.label, ?photo.note].join(' · '),
+                        annotations: photo.annotations,
                       ),
-                  ],
-                ),
+                ]),
               ],
             ],
             const Divider(height: 24),
@@ -1036,6 +1041,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(finding.rationale, style: text.bodyMedium),
+                  if (finding.photos.isNotEmpty) _evidencePhotos(finding.photos),
                   if (finding.maintenanceTitle != null) ...[
                     const SizedBox(height: 10),
                     Text(
@@ -1043,22 +1049,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       style: text.labelMedium,
                     ),
                     const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        for (final url in finding.evidenceImageUrls)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              url,
-                              width: 96,
-                              height: 96,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                      ],
-                    ),
+                    _evidencePhotos(finding.evidencePhotos),
                   ],
                 ],
               ),
@@ -1077,8 +1068,8 @@ class _MarkedPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = (photo.annotations!['width'] as num).toDouble();
-    final height = (photo.annotations!['height'] as num).toDouble();
+    final width = (photo.annotations!['w'] as num).toDouble();
+    final height = (photo.annotations!['h'] as num).toDouble();
     return AspectRatio(
       aspectRatio: width / height,
       child: Stack(
