@@ -1562,17 +1562,6 @@ class _ItemEditorState extends State<ItemEditor> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: Container(
-                  width: 34,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: KiviloColors.border,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
               Text(
                 'Edit inventory item',
                 style: Theme.of(context).textTheme.titleLarge,

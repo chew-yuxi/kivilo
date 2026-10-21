@@ -3,7 +3,7 @@
 Updated 21 October 2026. This tracker now combines the cloud design session with the
 mobility/Kivilo sessions on the release Mac. Work is being integrated on
 `codex/consolidate-kivilo-20261021`; production is still the separately verified
-`ddd1e62`. A completed source change is not evidence of app delivery.
+`d32bc42`. A completed source change is not evidence of app delivery.
 
 ## Current execution queue
 
@@ -11,6 +11,7 @@ mobility/Kivilo sessions on the release Mac. Work is being integrated on
 | --- | --- | --- |
 | Inventory-first room capture and immediate markup | **Implemented; backend live; native release pending** | `292a0b5`. Preserved in the integrated candidate. Photos carry their item and completed marks through the durable queue. |
 | Guided Home, navigation and onboarding artwork | **Implemented; artwork live; native release pending** | `ddb4012`, `3a11313`, `ddd1e62`. The eight public WebPs were verified for hashes, transparency and immutable caching. Native assets/configuration remain unchanged. |
+| Remove duplicate drawer handles | **Integrated; awaiting native patch** | Main `d32bc42` removes the inventory editor’s inner handle; add/edit drawers retain one outer handle. |
 | Photos and markup inside Add finding | **Integrated; verification running** | Recovered interrupted session as `85b2e2b`. Choose item, capture/select photo, mark immediately, save finding; resumable personal drafts, retry-safe uploads and immutable published evidence in app/web/PDF. Recovery and access-removal regressions added. |
 | Private tenancies and selected collaboration | **Integrated; verification running** | Existing completed branch `9697a67` incorporated without rebuilding it. Lead shares selected tenancies; both work on them; only lead manages access. Removal preserves work, renewal sharing is opt-in, billing teams no longer imply access. |
 | Combined regression checks | **Running** | Isolated local DB `kivilo_consolidation_20261021`; both migrations applied successfully. Logs and rendered finding-photo PDF fixture under `build/consolidation-20261021/`. |
@@ -26,8 +27,8 @@ mobility/Kivilo sessions on the release Mac. Work is being integrated on
 
 Fresh read-only release checks on 21 October:
 
-- Production custom domain: Vercel `dpl_J4WnCWnS83pCzgKkmkLQRgBfP8uX`, Ready in
-  `sin1`, source `ddd1e62` (GitHub deployment `7221559116`). It includes the optional
+- Production custom domain: Vercel `dpl_8BnWWQdXJ93xDEifstQwBbRCwcmf`, Ready in
+  `sin1`, source `d32bc42`. It includes the optional
   capture `itemId` and `itemApplied` acknowledgement needed by inventory-first capture.
 - iOS `1.0.0+24`: latest patch **4**, ID `734035`, stable.
 - Android `1.0.0+25`: latest patch **3**, ID `734030`, stable.
@@ -36,7 +37,8 @@ Fresh read-only release checks on 21 October:
 - Native-design publication was already authorized in the cloud session once artwork
   was live. That permission was recorded in `mobile/RELEASE.md`. Findings and tenancy
   collaboration add backend migrations to the coordinated candidate; stable promotion
-  still follows the go requirement in `AGENTS.md` and `mobile/RELEASE.md`.
+  was authorized on 21 October after automated checks, with physical-device testing
+  explicitly outstanding.
 
 Release the expanded candidate in this order:
 

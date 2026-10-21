@@ -78,6 +78,7 @@ photos are detectable.
 - [ ] **B1 — Item first.** Open a room's inventory. Edit/remove a standard row and
   add another by hand. Open an item: details and evidence are together. **Edit details**
   saves the intended item; cancelling leaves the previous wording unchanged.
+  The add/edit drawer has exactly one drag handle above its content.
 - [ ] **B2 — Camera to item.** Take an item photo: **Mark photo** opens immediately.
   Try circle, arrow, freehand and undo/redo, then **Save photo**. It appears once,
   automatically attached to that item and room. Also save a photo without marks.
