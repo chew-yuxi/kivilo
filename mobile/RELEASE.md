@@ -12,7 +12,70 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
-## Illustrated onboarding: artwork live, native changes unreleased
+## Consolidated release: 22 October 2026 Singapore time
+
+Source `298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49` is live on the production domain,
+Vercel `dpl_2DNJ3CiT5Nzrt5dEv3Z7WboGRLLS`, Ready in `sin1`. This combines main's
+single-handle inventory drawers, inventory-first capture, illustrated Home and guidance,
+finding photos and markup, and explicit tenancy collaboration.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **4** / `738237` | **stable**, active and latest |
+| iOS `1.0.0+24` | **5** / `738246` | **stable**, active and latest |
+
+Both were promoted from staging with the authorized go after automated checks.
+Fresh read-back at **01:21:53 Singapore time on 22 October** confirms these exact
+release targets, IDs and stable status (`build/release-20261021/stable-release.json`).
+
+Both platforms were built from separate clean checkouts of the exact source with
+Shorebird Flutter `3.47.2`, production configuration and existing signing setup.
+Android keeps CLI `--build-number=25`; iOS keeps its export options. Native and asset
+compatibility checks passed without overrides. All ten bundled assets match their
+original releases byte for byte, including MaterialIcons SHA-256
+`faa4e86d697b1fcedea02bc708f6c9da7c2e1dfa1f788bb90e1d2ba238cf70d2`.
+The initial builds stopped at the changed icon-font check. The final source uses
+existing release glyphs for camera/library controls and an accessible expanding
+lesson control; the rebuilt font matches, without bundling assets or bypassing checks.
+
+iOS strict code-sign verification also passed. As on previous iOS patches, Shorebird
+warned that patched execution may be slower: this patch shares **73.7%** of Dart code
+with the original release. No check was overridden; physical-device performance is
+**NOT RUN**. iOS VM-code SHA-256:
+`9adfc98a6d581acc7f28784af645df4425abb1f4d0ab36c57a911c9310af1ad2`.
+
+Before pushing the backend, `20261021090000_finding_photos` and then
+`20261021130000_tenancy_collaborators` were applied to production. Read-back found no
+pending/failed migrations, no missing access grants and all ten existing notification
+scopes correct; no team or historical-conductor grants were needed for the existing
+24 tenancies and 30 inspections. The final production smoke verified bearer identity,
+inspection/access/draft reads, private signed photo delivery, and identical 404s for
+missing and forbidden records. It sent no email and created no application records.
+
+Finding photos use resumable personal drafts, durable uploads and retry identifiers;
+saved evidence appears in the app, web and assessment PDF (`RENDER_VERSION=7`). A
+removed collaborator's unfinished personal draft keeps its rows and bytes, stays out
+of publication and no longer blocks the lead's saved findings. Restoring that person's
+inspection access makes the unfinished draft block publication again. New tenancies
+are private; only the lead manages selected collaborators, and renewal sharing is
+explicitly opt-in. Billing teams grant no access.
+
+Verification: typecheck, zero-warning lint, production build, **105 unit**, **198
+integration**, **15 end-to-end** tests with local Mailpit, clean Flutter analysis and
+**311 mobile tests**. Eight PDF renderer tests passed and all five finding-photo
+fixture pages were visually checked, including marks over the untouched photographs.
+Stable publication after these automated checks was authorized; **physical-device
+delivery and every interaction/rehearsal check are NOT RUN**. Receipts and logs are in
+`build/release-20261021/`, with final patch artifacts under each platform's `final/`.
+
+Rollback baselines are Android25 patch **3** (ID `734030`) and iOS24 patch **4**
+(ID `734035`). Roll back only a newly published patch if needed and preserve queued
+media. Keep the additive migrations. Backend recovery must retain explicit-grant
+authorization: restoring the old team-based rules could restore revoked access.
+Apple still reports `WAITING_FOR_REVIEW` for `1.0.0` build24; no store binary,
+submission, metadata, screenshots, version or minimum-build floor changed.
+
+## Illustrated onboarding: included in the consolidated release
 
 The native Home, handover guide and empty states load public decorative artwork from
 `<API_BASE origin>/illustrations/<content-hashed filename>.webp`. The eight files in
@@ -37,22 +100,19 @@ the guidance and actions available if an illustration cannot load.
 No images, plugins or configuration are added to the installed app bundle. This
 removes the bundled-asset obstacle to a Dart-only Shorebird patch; normal native,
 asset and icon compatibility checks still apply, with no overrides. Yuxi authorized
-publication on 21 October after artwork deployment. No store submission, version or
-published patch has changed yet.
-The hosting commit was built on current production/main `292a0b5` in a clean worktree
-and contains only the eight WebPs and their cache header. Native design changes are
-integrated with the inventory-first room changes from `292a0b5` and remain unreleased.
-Build their patch from a pinned, tested commit.
+publication on 21 October after artwork deployment. The hosting commit was built on
+then-current production/main `292a0b5` in a clean worktree and contains only the eight
+WebPs and their cache header. Native design and inventory-first room changes are
+included in the consolidated release recorded above.
 
-The unified native tree passed Flutter analysis and all **276 mobile tests** on
+The earlier unified native tree passed Flutter analysis and all **276 mobile tests** on
 21 October, including the inventory-first capture/markup tests and 12 artwork-cache
 tests. The source icon checks against iOS `7161f53` and Android `ce0d8e3` printed
-nothing. Native configuration, dependencies, version and bundled assets are unchanged
-from those releases. These source checks do not replace Shorebird's build-time native
-and asset compatibility checks. Patch building and publication await a configured
-release environment; no patch build or publication has occurred here.
+nothing. Those source checks did not detect the changed tree-shaken font from the
+lesson control; the consolidated release above records the correction and actual
+byte-for-byte asset checks. Native configuration, dependencies and version are unchanged.
 
-## Inventory-first room capture: unreleased source
+## Inventory-first room capture: included in the consolidated release
 
 Rooms now lead with inventory. Opening an item shows its details and media; new
 photos open the mark editor immediately and attach to that item automatically.
@@ -67,10 +127,11 @@ intake also preserves the original owner/room/item and the entire library select
 The backend's optional capture `itemId` and `itemApplied` acknowledgement are included
 in `292a0b5`, the parent of the live hosting deployment `ddb4012` recorded above. No
 server migration, plugin, native configuration, version or bundled asset change is
-needed. Native changes have not been published as a Shorebird patch. The iOS review
-freeze remains in force.
+needed for inventory-first capture itself. It is included in the consolidated patch
+above alongside the separately migrated finding-photo and sharing features. The iOS
+review freeze remains in force.
 
-Verification: clean Flutter analysis, 238 mobile tests, server typecheck/lint/build,
+Earlier verification: clean Flutter analysis, 238 mobile tests, server typecheck/lint/build,
 98 unit tests and 160 integration tests. All 14 end-to-end cases passed, with one
 email-code timing failure passing on retry. Physical-device interaction is unverified.
 

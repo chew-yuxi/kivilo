@@ -1,15 +1,20 @@
 # Native app rehearsal on physical devices
 
-The outstanding full-flow rehearsal in `DEPLOYING.md`, updated for the consolidated
-design and inventory-first capture changes. **All checks below are pending until
-someone records a physical-device result.** Automated tests, generated previews and
+The outstanding full-flow rehearsal in `DEPLOYING.md`, updated on 22 October 2026
+Singapore time for the consolidated design, inventory-first capture, finding photos
+and tenancy sharing. **All checks below are NOT RUN until someone records a
+physical-device result.** Automated tests, generated previews and
 a successful patch upload do not complete this checklist.
 
 Target the existing releases: **iOS `1.0.0+24` and Android `1.0.0+25`**, with the exact
 consolidated patch recorded below. Follow `mobile/RELEASE.md` for patch delivery.
 The iOS store freeze still applies; this rehearsal needs no new store build.
-The consolidated source candidate is `3a11313`; its new patches have not been built
-or published. Record their eventual numbers before running delivery checks.
+The consolidated source is `298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49`.
+Target Android patch **4** (ID `738237`) and iOS patch **5** (ID `738246`), both
+**stable**, active and latest in the 22 October 01:21:53 Singapore read-back. These
+are release targets, not proof that either phone has installed or exercised them.
+The iOS linker reported 73.7% shared Dart code and a possible slower-execution
+warning; record actual performance during rehearsal. Physical performance is **NOT RUN**.
 
 ## Owner prerequisites and results
 
@@ -26,17 +31,18 @@ or published. Record their eventual numbers before running delivery checks.
 
 Do not send production email during these checks. Use existing sessions and fixtures
 for sections A–D. Sign-in codes, **Send for signature**, resends, the second signature,
-and some repair/publication actions can send mail. Leave section E pending until the
-owner separately arranges those actions with controlled inboxes. No production emails
+adding a tenancy collaborator, and some repair/publication actions can send mail.
+Leave section E pending until the owner separately arranges those actions with
+controlled inboxes. No production emails
 or physical-device checks were performed when writing this plan.
 
 | Record | iPhone | Android |
 | --- | --- | --- |
 | Device model / OS | Pending | Pending |
 | Installed release | `1.0.0+24` — confirm | `1.0.0+25` — confirm |
-| Patch number / track / source commit | Pending | Pending |
+| Device-confirmed patch / track / source | NOT RUN | NOT RUN |
 | Date / tester / network | Pending | Pending |
-| Passed, failed and blocked check IDs | Pending | Pending |
+| Passed, failed and blocked check IDs | All NOT RUN | All NOT RUN |
 
 Record **pass**, **fail**, or **not run** per check and platform. For a failure, include
 the last action, connectivity, queue count where relevant, and a screenshot/recording.
@@ -91,6 +97,9 @@ photos are detectable.
 - [ ] **B5 — Room walkthrough.** **Room media & walkthrough** records a short video
   and opens existing room media. Video plays with audio and does not open the photo
   mark editor. Back/Done returns to the right room/item without moving evidence.
+- [ ] **B6 — Finding photos.** On a controlled completed check-out, choose an item,
+  take/select photos and mark them. Save the finding and reopen it: wording, notes,
+  marks and each photo appear once on the intended finding. Do not publish yet.
 
 ## C. Offline, restart and photo-loss checks
 
@@ -122,6 +131,10 @@ photos are detectable.
   low free storage and an expired session with queued media on a dedicated test phone.
   Record these separately; a short video does not verify them. Do not deliberately
   exhaust storage on someone's working phone.
+- [ ] **C8 — Finding draft recovery.** Interrupt a finding photo's markup/upload,
+  restart offline, then reconnect. Its personal draft, original and completed marks
+  survive; retrying saves one finding and one copy of each photo. Switching to the
+  other pre-signed-in account must not expose or upload that draft as their work.
 
 ## D. Existing fixtures: reports, references and access
 
@@ -156,8 +169,9 @@ both intended patched release binaries.
   frozen report in app/web/PDF. Late bytes must not silently join the photos agreed
   at Send.
 - [ ] **E2 — Check-out and publication.** Start from that signed check-in. Verify
-  copied inventory/reference, record a changed item/finding, finish reviews/signatures
-  and publish. With a second fixture, exercise **Publish: no damage found**. Each
+  copied inventory/reference, record a changed item/finding with marked photos,
+  finish reviews/signatures and publish. Compare the finding photos/marks in app,
+  web and PDF. With a second fixture, exercise **Publish: no damage found**. Each
   assessment appears on the intended report without changing the original check-in.
 - [ ] **E3 — Repair regression.** Tenant reports a sample issue with a before photo;
   the parties propose/counterpropose/accept costs; agent records repair and actual
@@ -167,6 +181,12 @@ both intended patched release binaries.
   own-account signing and final PDF delivery only to the arranged inboxes. An unrelated
   account cannot open/edit the inspection. Revoke a controlled share link and verify
   the old URL no longer opens the report.
+- [ ] **E5 — Selected tenancy access.** Share only the controlled tenancy with the
+  second agent; an unshared tenancy stays private and only the lead manages access.
+  Remove access while the collaborator has an unfinished finding-photo draft: bytes
+  remain recoverable, the lead can publish saved findings without those draft photos,
+  and restoring access makes the unfinished draft block publication again. Check a
+  renewal starts private by default and copies collaborators only when opted in.
 
 ## Finish
 
