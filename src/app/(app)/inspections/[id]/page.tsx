@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
-import { requireAgent, inspectionScope } from '@/lib/auth'
+import { requireAgent, inspectionScope, tenancyScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { costStanding, tenancyDetail } from '@/lib/maintenance'
 import { StatusBadge } from '@/components/status-badge'
@@ -23,6 +23,8 @@ import { findingCheckInConditions } from '@/lib/check-in-reference'
 import { DepositStatementView } from '@/components/report-document'
 import { DepositStatementAnswer } from '@/components/deposit-statement-answer'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
+import { tenancyAccess } from '@/lib/tenancy-access'
+import { TenancyAccessPanel } from '@/components/tenancy-access-panel'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,14 +49,14 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
         },
       },
       signatures: true,
-      checkOut: { select: { id: true } },
-      baseline: { select: { id: true, conductedAt: true } },
+      checkOut: { where: inspectionScope(agent.id), select: { id: true } },
+      baseline: { where: inspectionScope(agent.id), select: { id: true, conductedAt: true } },
       findings: {
         orderBy: { createdAt: 'asc' },
         include: {
           item: { include: { room: { select: { name: true } } } },
-          baselineItem: { include: { room: { select: { name: true } } } },
-          maintenanceCase: { select: { id: true, title: true } },
+          baselineItem: { where: { room: { inspection: inspectionScope(agent.id) } }, include: { room: { select: { name: true } } } },
+          maintenanceCase: { where: { tenancy: tenancyScope(agent.id) }, select: { id: true, title: true } },
         },
       },
       assessments: {
@@ -68,6 +70,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   if (!inspection) notFound()
 
   const { tenancy, status, kind } = inspection
+  const access = await tenancyAccess(tenancy.id, agent.id)
   const published = inspection.assessments[0]
   const snapshot = published && assessmentSnapshotSchema.parse(published.snapshot)
   const deposit = snapshot && depositStatement(snapshot)
@@ -99,13 +102,15 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     estimatedCost: finding.estimatedCost?.toString() ?? null,
     editedByHuman: finding.editedByHuman,
     itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
-    baselineLabel: finding.baselineItem
+    baselineLabel: inspection.baseline && finding.baselineItem
       ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
       : null,
-    baselineCondition: checkInConditions?.get(finding.baselineItemId ? `item:${finding.baselineItemId}` : finding.item?.baselineKey ?? '')
-      ?? finding.baselineItem?.condition ?? null,
+    baselineCondition: inspection.baseline
+      ? checkInConditions?.get(finding.baselineItemId ? `item:${finding.baselineItemId}` : finding.item?.baselineKey ?? '')
+        ?? finding.baselineItem?.condition ?? null
+      : null,
     currentCondition: finding.item?.condition ?? null,
-    maintenanceCaseId: finding.maintenanceCaseId,
+    maintenanceCaseId: finding.maintenanceCase?.id ?? null,
     maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
   }))
 
@@ -114,7 +119,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     inspectionId && kind === 'CHECK_OUT' && status === 'COMPLETED'
       ? (
           await db.inspectionItem.findMany({
-            where: { room: { inspectionId } },
+            where: { room: { inspectionId, inspection: inspectionScope(agent.id) } },
             orderBy: [{ room: { order: 'asc' } }, { createdAt: 'asc' }],
             include: { room: { select: { name: true } } },
           })
@@ -124,7 +129,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   const checkInItems = await comparable(inspection.baseline?.id ?? null)
 
   const maintenanceCases = await db.maintenanceCase.findMany({
-    where: { tenancyId: inspection.tenancyId },
+    where: { tenancyId: inspection.tenancyId, tenancy: tenancyScope(agent.id) },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true, title: true, status: true,
@@ -147,8 +152,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       const detail = await tenancyDetail(tenancy.id, agent.id)
       if (detail.moveInDefects.canEditWindow) defectWindow = detail.moveInDefects
     } catch (error) {
-      // A former conducting agent can retain report access after their tenancy
-      // management access ends. The domain decides whether they may change this.
+      // Historical inspection access can outlast active tenancy management access.
+      // The domain decides whether the defect period can still be changed.
       if (!(error instanceof Error && error.message === 'Tenancy not found')) throw error
     }
   }
@@ -171,9 +176,9 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             body: 'Send both parties the report. At the end of the tenancy, the check-out starts from here.',
             links: [
               { href: '#send', label: 'Send the report' },
-              inspection.checkOut
-                ? { href: `/inspections/${inspection.checkOut.id}`, label: 'Open the check-out' }
-                : { href: '#check-out', label: 'Start the check-out' },
+              ...(inspection.checkOut
+                ? [{ href: `/inspections/${inspection.checkOut.id}`, label: 'Open the check-out' }]
+                : access.scope === 'TENANCY' ? [{ href: '#check-out', label: 'Start the check-out' }] : []),
             ],
           }
         : status === 'COMPLETED' && kind === 'CHECK_OUT'
@@ -228,6 +233,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           </p>
         )}
       </div>
+
+      <TenancyAccessPanel access={access} viewerId={agent.id} />
 
       {nextStep && (
         <div className="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
@@ -323,7 +330,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
       {addenda && <AddendaPanel inspectionId={id} {...addenda} />}
 
-      {status === 'COMPLETED' && kind === 'CHECK_IN' && (
+      {status === 'COMPLETED' && kind === 'CHECK_IN' && (access.scope === 'TENANCY' || inspection.checkOut) && (
         <div id="check-out" className="scroll-mt-4">
           <CheckOutButton baselineId={id} existingCheckOutId={inspection.checkOut?.id ?? null} />
         </div>

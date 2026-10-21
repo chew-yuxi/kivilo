@@ -3,10 +3,11 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireAgent, authorizeAgentTenancy } from '@/lib/auth'
+import { requireAgent, authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
 
 export async function respondToRenewal(tenancyId: string, choice: 'NOT_RENEWING' | 'DISMISSED' | 'LATER') {
   const agent = await requireAgent()
+  await authorizeLeadTenancy(tenancyId, agent.id)
   await authorizeAgentTenancy(tenancyId, agent.id)
   const decision = z.enum(['NOT_RENEWING', 'DISMISSED', 'LATER']).parse(choice)
   await db.tenancy.update({
@@ -23,23 +24,28 @@ const renewalInput = z.object({
   endDate: z.iso.date(),
   monthlyRent: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/),
   deposit: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/),
+  keepCollaborators: z.boolean().default(false),
 })
 
 /// Reuse the property and the same parties. Confirming a next term creates its own
 /// working check-in; the signed report, its dates and inventory remain untouched.
+/// The next term is private unless its lead explicitly carries collaborators forward.
 export async function createRenewal(tenancyId: string, raw: z.input<typeof renewalInput>) {
   const agent = await requireAgent()
+  await authorizeLeadTenancy(tenancyId, agent.id)
   await authorizeAgentTenancy(tenancyId, agent.id)
   const input = renewalInput.parse(raw)
   const startDate = new Date(input.startDate)
   const endDate = new Date(input.endDate)
   const inspectionId = await db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
+    await authorizeLeadTenancy(tenancyId, agent.id, tx)
     const source = await tx.tenancy.findUniqueOrThrow({
       where: { id: tenancyId },
       include: {
         renewedAs: { include: { inspections: { select: { id: true }, take: 1 } } },
         inspections: { where: { kind: 'CHECK_IN' }, orderBy: { createdAt: 'desc' }, take: 1 },
+        collaborators: { select: { stakeholderId: true } },
       },
     })
     if (source.renewedAs) return source.renewedAs.inspections[0].id
@@ -63,6 +69,10 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
           deposit: input.deposit,
           minorRepairCap: source.minorRepairCap,
           agentMayAgreeCosts: source.agentMayAgreeCosts,
+          collaborators: input.keepCollaborators ? { create: source.collaborators.map(({ stakeholderId }) => ({
+            stakeholderId,
+            grantedById: agent.id,
+          })) } : undefined,
         } },
       },
       select: { id: true },

@@ -79,10 +79,21 @@ action calls `requireAgent()` then `authorizeInspection` / `authorizeRoom`, and 
 page query is filtered by `inspectionScope`. Server actions are public HTTP endpoints
 and every id they take is attacker-controlled, so none of them may trust one. A refusal
 returns the same error as a missing row, so the API cannot be used to enumerate ids.
-Agents on one `Team` (set with `pnpm team:set`) work each other's deals as the deal's
-agent would; that rule lives only in `actsAsAgent`, so no other file decides who an
-agent is. Landlords and tenants read a report through `authorizeReport`, never through
-the agent rules.
+New tenancies are private to their lead agent. `TenancyCollaborator` grants full working
+access to one tenancy; `actsAsAgent` is the single rule for the lead and these explicit
+collaborators. `Team` membership (set with `pnpm team:set`) groups billing only and never
+changes sharing. `InspectionAccessGrant` preserves an older conductor's access to that
+specific inspection, without granting sibling reports or repairs; new `conductedById`
+values are attribution only. Landlords and tenants read a report through `authorizeReport`,
+never through the agent rules.
+
+The lead manages sharing by email on the web or app (`tenancy-access-actions.ts`), under
+the tenancy row lock. An unclaimed address uses the existing verified sign-in claim.
+Adding access queues a `PROPERTY_SHARED` notification; removal deletes both full and
+historical grants while keeping saved work. Scoped inbox, email and push messages recheck
+access, and signed PDF delivery rechecks the recipient before sending. Sharing does not
+include another tenancy on the same property. Only the lead starts a renewal; its sharing
+checkbox is off by default and explicitly copies current full collaborators when checked.
 
 **Rooms are independent.** Finishing, reviewing and re-shooting are all scoped to one
 room, so re-shooting the kitchen cannot touch a bedroom someone already reviewed. A new
@@ -309,7 +320,7 @@ the proxy matcher.
 A countersigned check-in still changes: a dishwasher is replaced, a fixture removed. That
 is an addendum (`ReportAddendum`, plan in `plans/report-addenda.md`), a dated, numbered
 record beside the signed report, never an edit to it; the freeze guards above are
-untouched. The agent (or a teammate, through `authorizeAddendum`) drafts entries that add,
+untouched. The agent (or an authorized collaborator, through `authorizeAddendum`) drafts entries that add,
 replace or remove a line, with photos uploaded straight to storage under
 `addenda/<addendumId>/` or reused from a resolved repair's evidence by reference.
 Publishing (`src/lib/addendum-actions.ts`) freezes the draft into `snapshot` with
@@ -507,7 +518,9 @@ and JPEG, and the agent can set the name printed beside them.
 ## Plans and billing
 
 A plan belongs to a workspace: the agent's team, or the agent alone (`plans/billing.md`).
-Free holds 1 active property; Pro is per seat with 10 each, pooled. **`src/lib/plan.ts`
+Free holds 1 active property; Pro is per seat with 10 each, pooled. A property counts once
+against its lead's billing workspace, including private properties, and sharing does not
+charge the collaborator's workspace. **`src/lib/plan.ts`
 is the only place a limit is decided**, and `createInspection`, the only place a property
 is made, calls its guard; the API answers 403 `plan_limit`. An active property is one
 whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so

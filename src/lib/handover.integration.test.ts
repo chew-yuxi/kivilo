@@ -55,6 +55,10 @@ describe('tenant handover access', () => {
     const record = await deal()
     await expect(inspectionHandover(record.inspection.id, record.agent.id)).rejects.toThrow('Report not found')
     await db.signature.create({ data: { inspectionId: record.inspection.id, stakeholderId: record.tenant.id, imageData: 'data:,' } })
+    await expect(inspectionHandover(record.inspection.id, record.teammate.id)).rejects.toThrow('Report not found')
+    await db.tenancyCollaborator.create({ data: {
+      tenancyId: record.tenancy.id, stakeholderId: record.teammate.id, grantedById: record.agent.id,
+    } })
     for (const viewer of [record.agent, record.teammate, record.landlord, record.tenant]) {
       const handover = await inspectionHandover(record.inspection.id, viewer.id)
       expect(handover).toMatchObject({ tenancyId: record.tenancy.id, url: `https://kivilo.test/handover/${record.inspection.id}`, deadline: '2026-06-30', windowDays: 30 })

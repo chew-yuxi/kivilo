@@ -385,7 +385,7 @@ export async function publishAddendum(addendumId: string) {
           orderBy: { createdAt: 'asc' },
           include: { photos: { orderBy: { createdAt: 'asc' } }, maintenanceCase: { select: { id: true, title: true } } },
         },
-        inspection: { select: { tenancy: { select: { propertyId: true, landlordId: true, tenantId: true, property: true } } } },
+        inspection: { select: { tenancy: { select: { id: true, propertyId: true, landlordId: true, tenantId: true, property: true } } } },
       },
     })
     if (!addendum.title.trim()) throw new Error('Give the update a title before publishing')
@@ -492,6 +492,7 @@ export async function publishAddendum(addendumId: string) {
     await tx.notification.createMany({
       data: recipients.map((recipientId) => ({
         recipientId,
+        tenancyId: tenancy.id,
         kind: 'REPORT_UPDATED' as const,
         title: `The report for ${address} was updated`,
         body: `Update ${number}: ${snapshot.title}. Please review it and acknowledge it.`,
@@ -585,7 +586,7 @@ async function recordAcknowledgement(addendumId: string, stakeholderId: string, 
         const recipients = await activeNotificationRecipients(tx, [tenantId])
         await tx.notification.createMany({
           data: recipients.map((recipientId) => ({
-            recipientId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
+            recipientId, tenancyId: location.inspection.tenancyId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
             body: 'The landlord acknowledged your move-in notice. It now counts in the agreed check-in baseline.',
             href: `/updates/${addendumId}`, dedupeKey: `move-in-defect-acknowledged:${addendumId}:${recipientId}`,
           })),

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { authorizeInspection, inspectionScope } from '@/lib/auth'
+import { authorizeInspection, inspectionScope, tenancyScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { authed } from '@/lib/api/route'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
@@ -9,6 +9,7 @@ import { toAnnotations } from '@/lib/annotations'
 import { signingParties } from '@/lib/report-email'
 import { findingCheckInConditions } from '@/lib/check-in-reference'
 import { comparableItemSelect, findingComparables } from '@/lib/finding-comparables'
+import { tenancyAccess } from '@/lib/tenancy-access'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +45,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       baseline: {
         where: inspectionScope(agent.id),
         select: {
+          id: true,
           rooms: {
             where: canCompare ? {} : { id: { in: [] } },
             orderBy: { order: 'asc' },
@@ -56,13 +58,13 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         },
       },
       signatures: { select: { stakeholderId: true, signedAt: true } },
-      checkOut: { select: { id: true } },
+      checkOut: { where: inspectionScope(agent.id), select: { id: true } },
       findings: {
         orderBy: { createdAt: 'asc' },
         include: {
           item: { include: { room: { select: { name: true } } } },
-          baselineItem: { include: { room: { select: { name: true } } } },
-          maintenanceCase: { select: { id: true, title: true } },
+          baselineItem: { where: { room: { inspection: inspectionScope(agent.id) } }, include: { room: { select: { name: true } } } },
+          maintenanceCase: { where: { tenancy: tenancyScope(agent.id) }, select: { id: true, title: true } },
         },
       },
       assessments: {
@@ -73,7 +75,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     },
   })
   const maintenanceHistory = await db.maintenanceCase.findMany({
-    where: { tenancyId: inspection.tenancyId },
+    where: { tenancyId: inspection.tenancyId, tenancy: tenancyScope(agent.id) },
     orderBy: { createdAt: 'desc' },
     include: {
       propertyAsset: { select: { name: true } },
@@ -100,6 +102,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
   return {
     id: inspection.id,
     tenancyRecordId: inspection.tenancyId,
+    access: await tenancyAccess(inspection.tenancyId, agent.id),
     kind: inspection.kind,
     status: inspection.status,
     property: propertyLabel(inspection.tenancy.property),
@@ -109,7 +112,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     tenantId: inspection.tenancy.tenantId,
     deposit: inspection.tenancy.deposit.toString(),
     summary: inspection.summary,
-    baselineId: inspection.baselineId,
+    baselineId: inspection.baseline?.id ?? null,
     checkOutId: inspection.checkOut?.id ?? null,
     // Required by installed app builds up to 19; see the note on rooms below.
     aiConsentAt: inspection.aiConsentAt?.toISOString() ?? null,
@@ -162,7 +165,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
       confidence: finding.confidence,
       editedByHuman: finding.editedByHuman,
       itemId: finding.itemId,
-      baselineItemId: finding.baselineItemId,
+      baselineItemId: inspection.baseline ? finding.baselineItem?.id ?? null : null,
       itemLabel: finding.item ? `${finding.item.room.name} · ${finding.item.name}` : null,
       baselineLabel: inspection.baseline && finding.baselineItem
         ? `${finding.baselineItem.room.name} · ${finding.baselineItem.name}`
@@ -172,7 +175,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
           ?? finding.baselineItem?.condition ?? null
         : null,
       currentCondition: finding.item?.condition ?? null,
-      maintenanceCaseId: finding.maintenanceCaseId,
+      maintenanceCaseId: finding.maintenanceCase?.id ?? null,
       maintenanceCaseTitle: finding.maintenanceCase?.title ?? null,
     })),
     checkOutItems: comparable.checkOutItems,

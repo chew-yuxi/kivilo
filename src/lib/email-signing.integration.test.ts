@@ -392,4 +392,38 @@ describe('signing by email link', () => {
       expect(await refusal(await download(deal.inspection.id, someone))).toEqual(missing)
     }
   })
+
+  it.each(['before delivery', 'while downloading the PDF'])('withdraws a queued signed copy when its former conductor loses access %s', async (revokedAt) => {
+    const deal = await readyToSend()
+    const colleague = await person('Former collaborator', 'revoked-conductor')
+    await db.tenancyCollaborator.create({ data: {
+      tenancyId: deal.inspection.tenancyId, stakeholderId: colleague.id, grantedById: deal.agent.id,
+    } })
+    await db.inspection.update({ where: { id: deal.inspection.id }, data: {
+      status: 'COMPLETED', conductedById: colleague.id,
+    } })
+    await db.$transaction((tx) => queueSignedCopies(tx, deal.inspection.id))
+    expect((await emails(deal.inspection.id)).some((row) => row.recipientId === colleague.id)).toBe(true)
+    const revoke = () => db.tenancyCollaborator.deleteMany({ where: {
+      tenancyId: deal.inspection.tenancyId, stakeholderId: colleague.id,
+    } })
+    if (revokedAt === 'before delivery') await revoke()
+    else vi.mocked(downloadCapture).mockImplementationOnce(async () => {
+      await revoke()
+      return new Uint8Array([37, 80, 68, 70])
+    })
+    // Make the colleague's copy the first to fetch this PDF, so revocation during
+    // the download cannot pass merely because a party already primed the cache.
+    await db.reportEmail.updateMany({
+      where: { recipientId: { not: colleague.id }, sentAt: null },
+      data: { retryAt: new Date('2100-01-01') },
+    })
+    const result = await deliverReportEmails(500)
+    expect(result.withdrawn).toBe(1)
+    expect(vi.mocked(sendSignedCopy).mock.calls.map(([to]) => to)).not.toContain(colleague.email)
+    expect((await emails(deal.inspection.id)).some((row) => row.recipientId === colleague.id)).toBe(false)
+    await db.$transaction((tx) => queueSignedCopies(tx, deal.inspection.id))
+    expect((await emails(deal.inspection.id)).map((row) => row.recipientId)).toContain(deal.agent.id)
+    expect((await emails(deal.inspection.id)).some((row) => row.recipientId === colleague.id)).toBe(false)
+  })
 })

@@ -5,15 +5,16 @@ import '../services/product_events.dart';
 import '../ui/kivilo_layout.dart';
 
 class RenewalScreen extends StatefulWidget {
-  const RenewalScreen({super.key, required this.tenancyId});
+  const RenewalScreen({super.key, required this.tenancyId, this.api});
   final String tenancyId;
+  final Api? api;
 
   @override
   State<RenewalScreen> createState() => _RenewalScreenState();
 }
 
 class _RenewalScreenState extends State<RenewalScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   final _form = GlobalKey<FormState>();
   final _rent = TextEditingController();
   final _deposit = TextEditingController();
@@ -21,6 +22,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
   DateTime? _end;
   DateTime? _earliestStart;
   bool _busy = false;
+  bool _keepCollaborators = false;
   String? _error;
   late final _future = _load();
 
@@ -62,6 +64,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
   }
 
   Future<void> _create() async {
+    if (_busy) return;
     if (!_form.currentState!.validate()) return;
     if (!_end!.isAfter(_start!)) {
       setState(() => _error = 'The tenancy must end after it starts.');
@@ -77,6 +80,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
         'endDate': _iso(_end!),
         'monthlyRent': _rent.text.trim(),
         'deposit': _deposit.text.trim(),
+        'keepCollaborators': _keepCollaborators,
       });
       if (mounted) Navigator.pop(context, id);
     } catch (error) {
@@ -89,6 +93,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
   Widget _amount(TextEditingController controller, String label) =>
       TextFormField(
         controller: controller,
+        enabled: !_busy,
         decoration: InputDecoration(labelText: label),
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         validator: (value) =>
@@ -111,6 +116,9 @@ class _RenewalScreenState extends State<RenewalScreen> {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
+        final collaborators =
+            (snapshot.data!['collaborators'] as List<dynamic>? ?? const [])
+                .cast<Map<String, dynamic>>();
         return Form(
           key: _form,
           child: ListView(
@@ -140,6 +148,23 @@ class _RenewalScreenState extends State<RenewalScreen> {
               const Text(
                 'Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property.',
               ),
+              if (collaborators.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: _keepCollaborators,
+                  onChanged: _busy
+                      ? null
+                      : (value) => setState(() => _keepCollaborators = value!),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(
+                    'Keep sharing this renewal with ${collaborators.map((person) => person['name'] as String).join(', ')}',
+                  ),
+                  subtitle: const Text(
+                    'Leave unchecked to keep the new tenancy private.',
+                  ),
+                ),
+              ],
               if (_error != null) ...[
                 const SizedBox(height: 16),
                 Text(

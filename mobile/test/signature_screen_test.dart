@@ -339,6 +339,7 @@ void main() {
     await tester.pumpAndSettle();
     final tenant = find.text('Tenant · Awaiting signature');
     await tester.scrollUntilVisible(tenant, 300);
+    await tester.pumpAndSettle();
     await tester.tap(tenant);
     await tester.pumpAndSettle();
 

@@ -13,7 +13,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 })
 
 import { db } from '@/lib/db'
-import { currentStakeholder, requireAgent } from '@/lib/auth'
+import { currentStakeholder, requireAgent, authorizeInspection } from '@/lib/auth'
 import { createInspection } from '@/lib/actions'
 import { PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
 import { GET as planRoute } from '@/app/api/v1/me/plan/route'
@@ -97,7 +97,8 @@ describe('plan limits', () => {
     teams.push(team.id)
     const lead = await agent('Lead', team.id)
     const teammate = await agent('Teammate', team.id)
-    await deal(lead)
+    const leadDeal = await deal(lead)
+    await expect(authorizeInspection(leadDeal.id, teammate.id)).rejects.toThrow('Inspection not found')
 
     await expect(attempt(teammate)).rejects.toThrow('Plan limit reached')
 
@@ -112,6 +113,34 @@ describe('plan limits', () => {
     })
     await deal(teammate)
     expect((await workspacePlan(lead)).active).toBe(2)
+    expect((await workspacePlan(teammate)).active).toBe(2)
+  })
+
+  it('counts a shared property once for its owner and never for a collaborator workspace', async () => {
+    const owner = await agent('Shared lead')
+    const collaborator = await agent('External collaborator')
+    const shared = await deal(owner)
+    await db.tenancyCollaborator.create({
+      data: { tenancyId: shared.tenancy.id, stakeholderId: collaborator.id, grantedById: owner.id },
+    })
+    // Two active terms on one property are still one property for billing.
+    await db.tenancy.create({
+      data: {
+        propertyId: shared.tenancy.propertyId,
+        landlordId: shared.tenancy.landlordId,
+        tenantId: shared.tenancy.tenantId,
+        agentId: owner.id,
+        startDate: shared.tenancy.startDate,
+        endDate: shared.tenancy.endDate,
+        monthlyRent: '3000',
+        deposit: '6000',
+      },
+    })
+    expect((await workspacePlan(owner)).active).toBe(1)
+    expect((await workspacePlan(collaborator)).active).toBe(0)
+    await deal(collaborator)
+    expect((await workspacePlan(collaborator)).active).toBe(1)
+    expect((await workspacePlan(owner)).active).toBe(1)
   })
 
   it('keeps Pro through a failed payment and drops to Free once canceled', async () => {

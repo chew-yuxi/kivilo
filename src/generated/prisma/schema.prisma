@@ -30,7 +30,7 @@ model Stakeholder {
   /// Most stakeholders (landlords, tenants) never sign in and leave this null; it is
   /// what separates "a person on a deal" from "a person with a login".
   authUserId String?         @unique
-  /// Agents on one team work each other's deals as if each were the deal's agent.
+  /// Billing workspace membership. Property access is granted separately per tenancy.
   teamId     String?
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
@@ -40,7 +40,10 @@ model Stakeholder {
   tenanciesAsLandlord         Tenancy[]                 @relation("LandlordTenancies")
   tenanciesAsTenant           Tenancy[]                 @relation("TenantTenancies")
   tenanciesAsAgent            Tenancy[]                 @relation("AgentTenancies")
+  tenancyCollaborations       TenancyCollaborator[]     @relation("TenancyCollaborator")
+  tenancyAccessGranted        TenancyCollaborator[]     @relation("TenancyAccessGrantor")
   inspectionsRun              Inspection[]
+  inspectionAccessGrants      InspectionAccessGrant[]
   signatures                  Signature[]
   deletionRequests            AccountDeletionRequest[]
   maintenanceCasesReported    MaintenanceCase[]         @relation("MaintenanceReporter")
@@ -68,9 +71,8 @@ model Stakeholder {
   @@index([teamId])
 }
 
-/// A small group of agents who share their deals. Set up with `pnpm team:set`; nothing in
-/// the app creates or edits one yet. Leaving ends access to teammates' deals at once, and
-/// a deal never moves: it stays with the agent who holds it.
+/// A billing workspace set up with `pnpm team:set`. Membership does not grant or revoke
+/// property access; the lead agent shares each tenancy explicitly.
 model Team {
   id        String   @id @default(cuid())
   name      String   @unique
@@ -173,7 +175,7 @@ model Tenancy {
   /// First N Singapore calendar days from the tenancy start, inclusive. Zero disables
   /// move-in notices. Fixed once the tenant signs the check-in.
   defectWindowDays    Int              @default(30)
-  /// Reminder choices belong to the tenancy, so teammates see the same decision.
+  /// Reminder choices belong to the tenancy, so collaborators see the same decision.
   renewalDecision     RenewalDecision?
   renewalSnoozedUntil DateTime?
   /// A renewal is a new term on the same property, never an edit to the signed term.
@@ -187,11 +189,31 @@ model Tenancy {
   agent    Stakeholder? @relation("AgentTenancies", fields: [agentId], references: [id])
 
   inspections      Inspection[]
+  collaborators    TenancyCollaborator[]
+  notifications    Notification[]
   maintenanceCases MaintenanceCase[]
-  renewedFrom      Tenancy?          @relation("TenancyRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
-  renewedAs        Tenancy?          @relation("TenancyRenewal")
+  renewedFrom      Tenancy?              @relation("TenancyRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
+  renewedAs        Tenancy?              @relation("TenancyRenewal")
 
   @@index([propertyId])
+}
+
+/// Full working access to one tenancy. Inspection conductors remain attribution only;
+/// removing this grant revokes access even when the person conducted an inspection.
+model TenancyCollaborator {
+  id            String   @id @default(cuid())
+  tenancyId     String
+  stakeholderId String
+  /// Null for historical access preserved by the migration, or a deleted grantor.
+  grantedById   String?
+  createdAt     DateTime @default(now())
+
+  tenancy     Tenancy      @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  stakeholder Stakeholder  @relation("TenancyCollaborator", fields: [stakeholderId], references: [id], onDelete: Cascade)
+  grantedBy   Stakeholder? @relation("TenancyAccessGrantor", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  @@unique([tenancyId, stakeholderId])
+  @@index([stakeholderId])
 }
 
 enum RenewalDecision {
@@ -255,9 +277,25 @@ model Inspection {
   issuedReportFiles IssuedReportFile[]
   reportEmails      ReportEmail[]
   addenda           ReportAddendum[]
-  moveInDefectCases MaintenanceCase[]   @relation("MoveInDefectInspection")
+  accessGrants      InspectionAccessGrant[]
+  moveInDefectCases MaintenanceCase[]       @relation("MoveInDefectInspection")
 
   @@index([tenancyId, kind])
+}
+
+/// Exact inspection access preserved from the old conductor rule. This never grants
+/// access to sibling inspections or the tenancy's repairs, and is explicitly revocable.
+model InspectionAccessGrant {
+  id            String   @id @default(cuid())
+  inspectionId  String
+  stakeholderId String
+  createdAt     DateTime @default(now())
+
+  inspection  Inspection  @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
+
+  @@unique([inspectionId, stakeholderId])
+  @@index([stakeholderId])
 }
 
 enum CaptureKind {
@@ -684,6 +722,7 @@ model ServiceProvider {
 }
 
 enum NotificationKind {
+  PROPERTY_SHARED
   MAINTENANCE_REPORTED
   MAINTENANCE_STATUS
   MAINTENANCE_VISIT
@@ -719,6 +758,7 @@ model DeviceInstallation {
 model Notification {
   id             String           @id @default(cuid())
   recipientId    String
+  tenancyId      String?
   kind           NotificationKind
   title          String
   body           String
@@ -733,9 +773,11 @@ model Notification {
   createdAt      DateTime         @default(now())
 
   recipient      Stakeholder                @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  tenancy        Tenancy?                   @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
   pushDeliveries NotificationPushDelivery[]
 
   @@index([recipientId, readAt, createdAt])
+  @@index([tenancyId, recipientId])
   @@index([emailSentAt, emailAttempts, createdAt])
   @@index([pushExpandedAt, createdAt])
 }

@@ -6,6 +6,7 @@ import { isLive } from '@/lib/plan'
 
 /// Puts an agent on a team, or takes them off one with an empty --team. The agent is found
 /// by email, or created unclaimed so their first sign-in claims them already on the team.
+/// Team membership controls billing only; it never grants or revokes tenancy access.
 ///
 /// A plan belongs to the workspace, so an agent paying for Pro on their own would keep
 /// being charged for a workspace nobody works in once they join a team. That is refused

@@ -12,8 +12,10 @@ they are on none. One `Subscription` row per workspace (exactly one of `teamId` 
 | Pro | S$39 per agent seat a month | 10 active properties per seat, pooled across the team |
 
 An **active property** is one whose tenancy has not ended and whose check-out is not
-`COMPLETED`, so finished deals free a slot. Counted through `agentTenancies`, so a
-teammate's deal counts against the team exactly as the team can see it. Over the limit
+`COMPLETED`, so finished deals free a slot. Count each property once in its lead agent's
+billing workspace, including private tenancies. Access is separate: a collaborator can
+work on a shared tenancy without it consuming their own workspace's property allowance,
+and joining or leaving a billing team never changes explicit property sharing. Over the limit
 (after a downgrade) nothing is locked; the workspace only cannot add another property.
 
 Per seat is the agent price in `product-spec.md` (S$30–50/mo). The per-active-property

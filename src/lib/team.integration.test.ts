@@ -5,9 +5,8 @@ import { authorizeInspection, authorizeTenancy } from '@/lib/auth'
 import { createPropertyAsset } from '@/lib/maintenance'
 import { propertyTimeline } from '@/lib/property-timeline'
 
-/// Small teams cover each other's handovers and check-outs, so a teammate works a deal
-/// exactly as its own agent does, and stops the moment they leave the team. Anyone else
-/// gets the same refusal as a deal that does not exist.
+/// Teams share billing, while a lead shares a tenancy explicitly. Joining or leaving
+/// a team never silently changes the properties an agent is allowed to work on.
 
 const postalCode = '996666'
 const tag = randomUUID().slice(0, 8)
@@ -67,11 +66,16 @@ describe('teams', () => {
     await db.$disconnect()
   })
 
-  it('lets a teammate work a deal as its own agent would', async () => {
+  it('lets an explicitly invited teammate work a deal as its own agent would', async () => {
     const ours = await team('Ng and Lim')
     const owner = await person('Owner', ours.id)
     const teammate = await person('Teammate', ours.id)
     const { property, tenancy, inspection } = await deal(owner.id)
+
+    await expect(authorizeInspection(inspection.id, teammate.id)).rejects.toThrow('Inspection not found')
+    await db.tenancyCollaborator.create({
+      data: { tenancyId: tenancy.id, stakeholderId: teammate.id, grantedById: owner.id },
+    })
 
     await expect(authorizeInspection(inspection.id, teammate.id)).resolves.toMatchObject({ id: inspection.id })
     await expect(authorizeTenancy(tenancy.id, teammate.id)).resolves.toMatchObject({ role: 'AGENT' })
@@ -97,17 +101,34 @@ describe('teams', () => {
     }
   })
 
-  it('ends access the moment someone leaves, and the deal stays with its agent', async () => {
+  it('keeps explicit sharing when someone leaves a billing team', async () => {
     const ours = await team('Leaving')
     const owner = await person('Owner', ours.id)
     const leaver = await person('Leaver', ours.id)
-    const { inspection } = await deal(owner.id)
+    const { tenancy, inspection } = await deal(owner.id)
+    await db.tenancyCollaborator.create({
+      data: { tenancyId: tenancy.id, stakeholderId: leaver.id, grantedById: owner.id },
+    })
     await expect(authorizeInspection(inspection.id, leaver.id)).resolves.toBeTruthy()
 
     await db.stakeholder.update({ where: { id: leaver.id }, data: { teamId: null } })
 
-    await expect(authorizeInspection(inspection.id, leaver.id)).rejects.toThrow('Inspection not found')
+    await expect(authorizeInspection(inspection.id, leaver.id)).resolves.toBeTruthy()
     await expect(authorizeInspection(inspection.id, owner.id)).resolves.toBeTruthy()
+  })
+
+  it('keeps existing and newly created private deals hidden when someone joins a team', async () => {
+    const ours = await team('Joining')
+    const owner = await person('Owner', ours.id)
+    const joiner = await person('Joiner')
+    const before = await deal(owner.id)
+    await db.stakeholder.update({ where: { id: joiner.id }, data: { teamId: ours.id } })
+    const after = await deal(owner.id)
+
+    for (const { tenancy, inspection } of [before, after]) {
+      await expect(authorizeInspection(inspection.id, joiner.id)).rejects.toThrow('Inspection not found')
+      await expect(authorizeTenancy(tenancy.id, joiner.id)).rejects.toThrow('Tenancy not found')
+    }
   })
 
   it("does not let a teammate's own deals reach the team through the landlord or tenant", async () => {

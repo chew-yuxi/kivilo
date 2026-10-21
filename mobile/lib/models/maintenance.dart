@@ -1,4 +1,5 @@
 import 'handover.dart';
+import 'tenancy_access.dart';
 
 class UserProfile {
   const UserProfile({
@@ -138,6 +139,7 @@ class TenancyDetail {
     required this.canEditAgentAuthority,
     this.minorRepairCap,
     this.moveInDefects,
+    this.access,
   });
   final String id;
   final String role;
@@ -146,12 +148,16 @@ class TenancyDetail {
   final bool canEditMinorRepairCap;
   final bool canEditAgentAuthority;
   final MoveInDefectWindow? moveInDefects;
+  final TenancyAccess? access;
 
   factory TenancyDetail.fromJson(Map<String, dynamic> json) {
     final capabilities = json['capabilities'] as Map<String, dynamic>;
     return TenancyDetail(
       id: json['id'] as String,
       role: json['role'] as String,
+      access: json['access'] == null
+          ? null
+          : TenancyAccess.fromJson(json['access'] as Map<String, dynamic>),
       minorRepairCap: json['minorRepairCap'] as String?,
       agentMayAgreeCosts: json['agentMayAgreeCosts'] as bool,
       canEditMinorRepairCap: capabilities['editMinorRepairCap'] as bool,

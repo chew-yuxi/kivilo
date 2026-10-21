@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { agentTenancies } from '@/lib/auth'
+import { leadTenancies } from '@/lib/auth'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { propertyLabel } from '@/lib/format'
 import type { Prisma } from '@/generated/prisma'
@@ -30,10 +30,11 @@ function pendingRenewals(now: Date): Prisma.TenancyWhereInput {
   }
 }
 
-/// The card is derived from the tenancy immediately, without waiting for a cron run.
+/// Only the lead receives the renewal card: creating a next term decides who may work
+/// on it. The card is derived immediately, without waiting for a cron run.
 export async function dueRenewals(agentId: string, now = new Date()) {
   const tenancies = await db.tenancy.findMany({
-    where: { AND: [agentTenancies(agentId, now), pendingRenewals(now)] },
+    where: { AND: [leadTenancies(agentId), pendingRenewals(now)] },
     include: { property: true, tenant: { select: { name: true } } },
     orderBy: { endDate: 'asc' },
   })
@@ -60,6 +61,7 @@ export async function queueRenewalReminders(now = new Date()) {
   const result = await db.notification.createMany({
     data: reminders.map((tenancy) => ({
       recipientId: tenancy.agentId!,
+      tenancyId: tenancy.id,
       kind: 'RENEWAL_DUE' as const,
       title: 'Renewal due',
       body: `${propertyLabel(tenancy.property)}: tenancy ends ${tenancy.endDate.toISOString().slice(0, 10)}. Arrange the renewal with the landlord and tenant.`,

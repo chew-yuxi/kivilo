@@ -22,6 +22,77 @@ function assertLocalSupabase() {
 afterAll(async () => db.$disconnect())
 
 describe('operator account deletion fulfillment', () => {
+  it.each(['tenancy', 'inspection'] as const)('retains drafts shared through %s access and removes only the deleted account\'s grants', async (access) => {
+    assertLocalSupabase()
+    vi.stubEnv('KIVILO_RETAIN_SIGNED_RECORDS', '1')
+    vi.stubEnv('KIVILO_DELETE_SOLE_UNSIGNED_RECORDS', '1')
+    vi.stubEnv('KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS', '1')
+    sendComplete.mockReset()
+    sendComplete.mockResolvedValue(undefined)
+
+    const tag = randomUUID()
+    const person = await db.stakeholder.create({ data: { name: `Deleting collaborator ${tag}` } })
+    const partner = await db.stakeholder.create({ data: { name: `Remaining collaborator ${tag}` } })
+    const propertyIds: string[] = []
+    let requestId: string | undefined
+    try {
+      const drafts = []
+      for (const [lead, collaborator] of [[person, partner], [partner, person]]) {
+        const property = await db.property.create({ data: {
+          line1: `Deletion collaboration ${tag}`, postalCode: '000000', type: 'PRIVATE_NON_LANDED',
+        } })
+        propertyIds.push(property.id)
+        const tenancy = await db.tenancy.create({ data: {
+          propertyId: property.id, landlordId: lead.id, tenantId: lead.id, agentId: lead.id,
+          startDate: new Date('2026-01-01'), endDate: new Date('2027-01-01'),
+          monthlyRent: '100', deposit: '200',
+        } })
+        const draft = await db.inspection.create({ data: {
+          tenancyId: tenancy.id, kind: 'CHECK_IN', status: 'REVIEW', conductedById: lead.id,
+        } })
+        const room = await db.room.create({ data: {
+          inspectionId: draft.id, name: 'Shared work', order: 0,
+          items: { create: { name: 'Painted wall', category: 'FIXTURE', condition: 'GOOD', notes: 'Keep this shared inventory' } },
+          captures: { create: {
+            storagePath: `${tag}/${draft.id}.jpg`, kind: 'PHOTO', mimeType: 'image/jpeg', sizeBytes: 3,
+          } },
+        } })
+        if (access === 'tenancy') {
+          await db.tenancyCollaborator.create({ data: {
+            tenancyId: tenancy.id, stakeholderId: collaborator.id, grantedById: lead.id,
+          } })
+        } else {
+          await db.inspectionAccessGrant.create({ data: { inspectionId: draft.id, stakeholderId: collaborator.id } })
+        }
+        drafts.push({ id: draft.id, roomId: room.id })
+      }
+      const request = await db.accountDeletionRequest.create({ data: {
+        stakeholderId: person.id, dueAt: new Date('2099-01-01'),
+      } })
+      requestId = request.id
+
+      await fulfillAccountDeletion(request.id, policyVersion)
+
+      for (const draft of drafts) {
+        expect(await db.inspection.findUnique({ where: { id: draft.id } })).not.toBeNull()
+        expect(await db.inspectionItem.count({ where: { roomId: draft.roomId } })).toBe(1)
+        expect(await db.capture.count({ where: { roomId: draft.roomId } })).toBe(1)
+      }
+      expect(await db.accountDeletionStoragePurge.count({ where: { requestId } })).toBe(0)
+      expect(await db.tenancyCollaborator.count({ where: { stakeholderId: person.id } })).toBe(0)
+      expect(await db.inspectionAccessGrant.count({ where: { stakeholderId: person.id } })).toBe(0)
+      expect(await db.tenancyCollaborator.count({ where: { stakeholderId: partner.id } })).toBe(access === 'tenancy' ? 1 : 0)
+      expect(await db.inspectionAccessGrant.count({ where: { stakeholderId: partner.id } })).toBe(access === 'inspection' ? 1 : 0)
+      expect((await db.accountDeletionRequest.findUniqueOrThrow({ where: { id: request.id } })).status).toBe('COMPLETED')
+      expect((await db.stakeholder.findUniqueOrThrow({ where: { id: person.id } })).name).toBe(person.name)
+    } finally {
+      vi.unstubAllEnvs()
+      if (requestId) await db.accountDeletionRequest.deleteMany({ where: { id: requestId } })
+      await db.property.deleteMany({ where: { id: { in: propertyIds } } })
+      await db.stakeholder.deleteMany({ where: { id: { in: [person.id, partner.id] } } })
+    }
+  })
+
   it('anonymizes an account without retained records and sends one mocked completion notice', async () => {
     assertLocalSupabase()
     vi.stubEnv('KIVILO_RETAIN_SIGNED_RECORDS', '1')

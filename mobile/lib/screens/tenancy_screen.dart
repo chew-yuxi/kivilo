@@ -10,6 +10,7 @@ import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
 import 'property_timeline_screen.dart';
 import 'service_directory_screen.dart';
+import 'tenancy_access_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
   const TenancyScreen({super.key, required this.tenancy, this.api});
@@ -293,6 +294,33 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
+              if (terms.role == 'AGENT') ...[
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.person_outline),
+                    title: Text(
+                      terms.access?.canManageAccess == true
+                          ? 'Manage access'
+                          : 'Property access',
+                    ),
+                    subtitle: terms.access == null ? null : Text(terms.access!.label),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () async {
+                      await Navigator.of(context).push<void>(
+                        MaterialPageRoute(
+                          builder: (_) => TenancyAccessScreen(
+                            tenancyId: widget.tenancy.id,
+                            property: widget.tenancy.property,
+                            api: _api,
+                          ),
+                        ),
+                      );
+                      if (mounted) await _refresh();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               Card(
                 color: Theme.of(context).colorScheme.errorContainer,
                 child: ListTile(

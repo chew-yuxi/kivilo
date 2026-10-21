@@ -80,6 +80,7 @@ async function deal(status: InspectionStatus = 'COMPLETED') {
     data: {
       propertyId: property.id, landlordId: landlord.id, tenantId: tenant.id, agentId: agent.id,
       startDate: new Date('2026-01-01'), endDate: new Date('2099-01-01'), monthlyRent: '3000', deposit: '6000',
+      collaborators: { create: { stakeholderId: teammate.id, grantedById: agent.id } },
     },
   })
   const asset = await db.propertyAsset.create({
@@ -228,7 +229,7 @@ describe('report addenda', () => {
     expect((await signedReport(inspection.id, landlord.id)).addenda.map((each) => each.title)).toEqual(['New dishwasher', 'Fan removed'])
   })
 
-  it('is written only by the agent or a teammate, and a refusal reads like a missing id', async () => {
+  it('is written only by the lead or an invited collaborator, and a refusal reads like a missing id', async () => {
     const { agent, teammate, landlord, tenant, stranger, inspection, dishwasher } = await deal()
     as(agent)
     const id = await startAddendum(inspection.id)

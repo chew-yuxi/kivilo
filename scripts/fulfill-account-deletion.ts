@@ -48,10 +48,19 @@ async function deleteOwnedDraft(inspectionId: string, stakeholderId: string, req
     `
     if (rows.length === 0) return // A previous invocation completed this transaction.
     const current = rows[0]
+    // Sharing takes the tenancy lock too. Read grants after acquiring it, so an
+    // invitation committed while this transaction waited is visible before deleting.
+    const sharedAccess = await tx.inspection.count({ where: {
+      id: inspectionId,
+      OR: [
+        { accessGrants: { some: { stakeholderId: { not: stakeholderId } } } },
+        { tenancy: { collaborators: { some: { stakeholderId: { not: stakeholderId } } } } },
+      ],
+    } })
     if (current.conductedById !== stakeholderId || !draftStatuses.includes(current.status) ||
         current.landlordId !== stakeholderId || current.tenantId !== stakeholderId ||
-        (current.agentId !== null && current.agentId !== stakeholderId)) {
-      throw new Error(`Inspection ${inspectionId} changed status or parties; review it before resuming deletion`)
+        (current.agentId !== null && current.agentId !== stakeholderId) || sharedAccess) {
+      throw new Error(`Inspection ${inspectionId} changed status, parties or access; review it before resuming deletion`)
     }
     const rooms = await tx.room.findMany({ where: { inspectionId }, select: { id: true } })
     const readyAt = new Date(Date.now() + uploadWindow)
@@ -125,6 +134,8 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       db.notification.deleteMany({ where: { recipientId: person.id } }),
       db.errorEvent.deleteMany({ where: { stakeholderId: person.id } }),
       db.productEvent.deleteMany({ where: { stakeholderId: person.id } }),
+      db.tenancyCollaborator.deleteMany({ where: { stakeholderId: person.id } }),
+      db.inspectionAccessGrant.deleteMany({ where: { stakeholderId: person.id } }),
     ])
 
     // A plan this person pays for would keep charging their card after they are gone,
@@ -143,16 +154,18 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
 
     // An inspection can be this agent's work while also being a landlord's or
     // tenant's record. Keep that shared work under the explicit retention choice.
-    // Only a draft whose conductor and every tenancy party are this account can
+    // Only a draft whose conductor, parties and access grants are this account can
     // be deleted without erasing another person's unsigned record.
     const soleDrafts = await db.inspection.findMany({
       where: {
         conductedById: person.id,
         status: { in: draftStatuses },
+        accessGrants: { none: { stakeholderId: { not: person.id } } },
         tenancy: {
           landlordId: person.id,
           tenantId: person.id,
           OR: [{ agentId: null }, { agentId: person.id }],
+          collaborators: { none: { stakeholderId: { not: person.id } } },
         },
       },
       select: { id: true },
@@ -201,10 +214,12 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
         where: {
           conductedById: person.id,
           status: { in: draftStatuses },
+          accessGrants: { none: { stakeholderId: { not: person.id } } },
           tenancy: {
             landlordId: person.id,
             tenantId: person.id,
             OR: [{ agentId: null }, { agentId: person.id }],
+            collaborators: { none: { stakeholderId: { not: person.id } } },
           },
         },
       })
@@ -219,7 +234,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
         throw new Error(`Deletion remains PROCESSING: ${soleDraftsLeft} sole-party drafts, ${storageLeft} request room prefixes, and ${generalStorageLeft} general Storage tombstones await cleanup. Rerun the Storage purge worker after signed upload URLs expire, then retry this request.`)
       }
 
-      // Remaining unsigned records involve another tenancy party or conductor. The
+      // Remaining unsigned records involve another party, conductor or collaborator. The
       // operator explicitly accepted retaining them under the named policy.
       const sharedUnsigned = await tx.inspection.count({
         where: {
@@ -259,6 +274,8 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       // The notification cascade also removes queued push deliveries and emailTo.
       await tx.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } })
       await tx.notification.deleteMany({ where: { recipientId: person.id } })
+      await tx.tenancyCollaborator.deleteMany({ where: { stakeholderId: person.id } })
+      await tx.inspectionAccessGrant.deleteMany({ where: { stakeholderId: person.id } })
       // The logo object went before this transaction; see above.
       await tx.agentBranding.deleteMany({ where: { stakeholderId: person.id } })
 

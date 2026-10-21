@@ -21,6 +21,7 @@ import 'room_screen.dart';
 import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
+import 'tenancy_access_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
   const InspectionScreen({
@@ -479,6 +480,39 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 ],
               ),
               const SizedBox(height: 20),
+              if (inspection.tenancyRecordId case final tenancyId?) ...[
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.person_outline),
+                    title: Text(
+                      inspection.access?.canManageAccess == true
+                          ? 'Manage access'
+                          : inspection.access?.scope == 'INSPECTION'
+                              ? 'Access to previous reports'
+                              : 'Property access',
+                    ),
+                    subtitle: inspection.access == null
+                        ? null
+                        : Text(inspection.access!.label),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: _busy
+                        ? null
+                        : () async {
+                            await Navigator.of(context).push<void>(
+                              MaterialPageRoute(
+                                builder: (_) => TenancyAccessScreen(
+                                  tenancyId: tenancyId,
+                                  property: inspection.property,
+                                  api: _api,
+                                ),
+                              ),
+                            );
+                            if (mounted) await _refresh();
+                          },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               Card(
                 color: KiviloColors.canvas,
                 child: Padding(
@@ -835,7 +869,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 ),
               ],
               if (inspection.kind == 'CHECK_IN' &&
-                  inspection.status == 'COMPLETED') ...[
+                  inspection.status == 'COMPLETED' &&
+                  (inspection.access?.scope != 'INSPECTION' ||
+                      inspection.checkOutId != null)) ...[
                 const SizedBox(height: 28),
                 Card(
                   color: KiviloColors.canvas,
