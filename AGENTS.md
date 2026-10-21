@@ -13,6 +13,7 @@ inventory themselves. The AI-era columns (`InspectionItem.confidence`, `Capture.
 migration; rows written by the old pipeline still carry them.
 
 Product context: `plans/product-spec.md`. Build plan for this module: `plans/m4-check-in-out.md`.
+Consolidated work queue, verification and release blockers: `plans/work-status.md`.
 
 The product is **Kivilo**. The directory, this repo's Supabase `project_id`, and the
 `otter-context` notes file are all still called `mobility`, which was the working name.
