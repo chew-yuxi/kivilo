@@ -25,6 +25,7 @@ import {
   registerFindingPhoto, requestFindingPhotoUpload, retireFindingDraftsForAccount,
 } from '@/lib/finding-photos'
 import { publishAssessment } from '@/lib/assessment-actions'
+import { removeTenancyCollaborator } from '@/lib/tenancy-access-actions'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { reportFingerprint } from '@/lib/report-fingerprint'
 import { purgeStorageEntry } from '../../scripts/purge-storage'
@@ -55,6 +56,7 @@ async function fixture() {
     startDate: new Date('2024-01-01'), endDate: new Date('2099-12-31'), monthlyRent: '3000', deposit: '6000',
   } })
   const inspection = await db.inspection.create({ data: { tenancyId: tenancy.id, kind: 'CHECK_OUT', status: 'COMPLETED', conductedById: conductor.id } })
+  await db.inspectionAccessGrant.create({ data: { inspectionId: inspection.id, stakeholderId: conductor.id } })
   const room = await db.room.create({ data: { inspectionId: inspection.id, name: 'Kitchen', order: 0, status: 'REVIEWED' } })
   const item = await db.inspectionItem.create({ data: { roomId: room.id, name: 'Hob', category: 'APPLIANCE', condition: 'DAMAGED', notes: 'Cracked glass' } })
   as(agent)
@@ -65,17 +67,17 @@ function fields(record: Awaited<ReturnType<typeof fixture>>, photoDraftId?: stri
   return { itemId: record.item.id, baselineItemId: null, changeType: 'DAMAGE' as const, verdict: 'TENANT_LIABLE' as const, rationale: 'Cracked glass', estimatedCost: '100', photoDraftId }
 }
 
-async function intent(record: Awaited<ReturnType<typeof fixture>>, draftId = randomUUID(), findingId?: string) {
+async function intent(record: Awaited<ReturnType<typeof fixture>>, draftId = randomUUID(), findingId?: string, actorId = record.agent.id) {
   const clientId = randomUUID()
-  const result = await requestFindingPhotoUpload(record.inspection.id, draftId, record.agent.id, { clientId, mimeType: 'image/jpeg', ...(findingId ? { findingId } : {}) })
+  const result = await requestFindingPhotoUpload(record.inspection.id, draftId, actorId, { clientId, mimeType: 'image/jpeg', ...(findingId ? { findingId } : {}) })
   paths.push(result.storagePath)
   return { draftId, clientId, storagePath: result.storagePath, mimeType: 'image/jpeg', sizeBytes: 42, note: 'Crack close-up', annotations: annotation }
 }
 
-async function register(record: Awaited<ReturnType<typeof fixture>>, photo: Awaited<ReturnType<typeof intent>>) {
+async function register(record: Awaited<ReturnType<typeof fixture>>, photo: Awaited<ReturnType<typeof intent>>, actorId = record.agent.id) {
   objects.add(photo.storagePath)
   const { draftId, ...input } = photo
-  return registerFindingPhoto(record.inspection.id, draftId, record.agent.id, input)
+  return registerFindingPhoto(record.inspection.id, draftId, actorId, input)
 }
 
 beforeEach(() => { objects.clear() })
@@ -145,6 +147,8 @@ describe('finding-owned photos', () => {
     const findingId = await createFinding(record.inspection.id, fields(record, photo.draftId))
     const before = await db.findingPhoto.findUniqueOrThrow({ where: { clientId: photo.clientId } })
     const findingBefore = await db.finding.findUniqueOrThrow({ where: { id: findingId } })
+    await db.tenancyCollaborator.create({ data: { tenancyId: record.tenancy.id, stakeholderId: record.agent.id } })
+    await db.tenancy.update({ where: { id: record.tenancy.id }, data: { agentId: record.stranger.id } })
     const uploadsBefore = vi.mocked(createUploadUrl).mock.calls.length
     const nextDraftId = randomUUID()
     let releaseAuthorization!: () => void
@@ -162,9 +166,9 @@ describe('finding-owned photos', () => {
       await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "id" = ${record.inspection.id} FOR UPDATE`
       releaseLocks()
       await authorizationChecked
-      // Simulate the lead's access disappearing while the request is waiting. The
-      // same tenancy lock serializes explicit collaborator removal after migration.
-      await tx.tenancy.update({ where: { id: record.tenancy.id }, data: { agentId: record.stranger.id } })
+      // Removal deletes the grant without changing the locked tenancy row. The
+      // waiting request must read the new grant state, not a pre-lock snapshot.
+      await tx.tenancyCollaborator.deleteMany({ where: { tenancyId: record.tenancy.id, stakeholderId: record.agent.id } })
     })
     await locksHeld
     const operations = {
@@ -217,6 +221,81 @@ describe('finding-owned photos', () => {
     const next = await intent(record, randomUUID(), findingId)
     await discardFindingPhotoDraft(record.inspection.id, next.draftId, record.agent.id)
     await expect(publishAssessment(record.inspection.id)).resolves.toMatchObject({ version: 1 })
+  })
+
+  it.each(['collaborator', 'inspection grant'] as const)('preserves revoked %s drafts without blocking publication, then blocks again if access returns', async (access) => {
+    const record = await fixture()
+    const actorId = record.conductor.id
+    if (access === 'collaborator') {
+      await db.inspectionAccessGrant.deleteMany({ where: { inspectionId: record.inspection.id, stakeholderId: actorId } })
+      await db.tenancyCollaborator.create({ data: { tenancyId: record.tenancy.id, stakeholderId: actorId } })
+    }
+    const saved = await intent(record, randomUUID(), undefined, actorId)
+    await register(record, saved, actorId)
+    as(record.conductor)
+    const findingId = await createFinding(record.inspection.id, fields(record, saved.draftId))
+    const pending = await intent(record, randomUUID(), findingId, actorId)
+    await register(record, pending, actorId)
+    const inFlight = await intent(record, pending.draftId, findingId, actorId)
+    as(record.agent)
+    await expect(publishAssessment(record.inspection.id)).rejects.toThrow('unsaved changes')
+
+    const draftBefore = await db.findingPhotoDraft.findUniqueOrThrow({ where: { id: pending.draftId } })
+    const photosBefore = await db.findingPhoto.findMany({ where: { draftId: pending.draftId }, orderBy: { clientId: 'asc' } })
+    await removeTenancyCollaborator(record.tenancy.id, actorId)
+    objects.add(inFlight.storagePath) // A previously authorized PUT completes after removal.
+    // A sibling inspection grant and conductor attribution must not restore access.
+    const sibling = await db.inspection.create({ data: { tenancyId: record.tenancy.id, kind: 'CHECK_IN', status: 'COMPLETED' } })
+    await db.inspectionAccessGrant.create({ data: { inspectionId: sibling.id, stakeholderId: actorId } })
+    await expect(findingPhotoDraft(record.inspection.id, pending.draftId, actorId)).rejects.toThrow('Inspection not found')
+    await expect(register(record, inFlight, actorId)).rejects.toThrow('Inspection not found')
+    await expect(editFindingPhoto(record.inspection.id, actorId, pending.clientId, { draftId: pending.draftId }, { note: 'After removal' })).rejects.toThrow('Inspection not found')
+    as(record.conductor)
+    await expect(updateFinding(findingId, record.inspection.id, { photoDraftId: pending.draftId })).rejects.toThrow('Inspection not found')
+    await expect(publishAssessment(record.inspection.id)).rejects.toThrow('Inspection not found')
+
+    as(record.agent)
+    // Saved evidence must still be complete regardless of its creator's access.
+    const savedPhoto = await db.findingPhoto.findUniqueOrThrow({ where: { clientId: saved.clientId } })
+    await db.findingPhoto.update({ where: { clientId: saved.clientId }, data: { registeredAt: null } })
+    await expect(publishAssessment(record.inspection.id)).rejects.toThrow('Finding photos are still uploading')
+    await db.findingPhoto.update({ where: { clientId: saved.clientId }, data: { registeredAt: savedPhoto.registeredAt } })
+    await expect(publishAssessment(record.inspection.id)).resolves.toMatchObject({ version: 1 })
+    const version = await db.assessmentVersion.findFirstOrThrow({ where: { inspectionId: record.inspection.id } })
+    const snapshot = assessmentSnapshotSchema.parse(version.snapshot)
+    expect(snapshot.findings).toHaveLength(1)
+    expect(snapshot.findings[0].photos?.map((photo) => photo.id)).toEqual([saved.clientId])
+    expect(await db.findingPhotoDraft.findUniqueOrThrow({ where: { id: pending.draftId } })).toEqual(draftBefore)
+    expect(await db.findingPhoto.findMany({ where: { draftId: pending.draftId }, orderBy: { clientId: 'asc' } })).toEqual(photosBefore)
+    expect(objects.has(pending.storagePath)).toBe(true)
+    expect(objects.has(inFlight.storagePath)).toBe(true)
+    expect(await db.storagePurge.count({ where: { path: { in: [pending.storagePath, inFlight.storagePath] } } })).toBe(0)
+
+    if (access === 'collaborator') await db.tenancyCollaborator.create({ data: { tenancyId: record.tenancy.id, stakeholderId: actorId } })
+    else await db.inspectionAccessGrant.create({ data: { inspectionId: record.inspection.id, stakeholderId: actorId } })
+    await expect(publishAssessment(record.inspection.id)).rejects.toThrow('unsaved changes')
+    expect(await findingPhotoDraft(record.inspection.id, pending.draftId, actorId)).toMatchObject({ state: 'OPEN', findingId })
+    expect(await db.assessmentVersion.count({ where: { inspectionId: record.inspection.id } })).toBe(1)
+  })
+
+  it('serializes simultaneous publication of one photo snapshot into one assessment and one notice per party', async () => {
+    const record = await fixture()
+    const photo = await intent(record)
+    await register(record, photo)
+    await createFinding(record.inspection.id, fields(record, photo.draftId))
+    const results = await Promise.all([
+      publishAssessment(record.inspection.id),
+      publishAssessment(record.inspection.id),
+      publishAssessment(record.inspection.id),
+    ])
+    expect(results.map((result) => result.version)).toEqual([1, 1, 1])
+    expect(results.every((result) => result.publishedAt.getTime() === results[0].publishedAt.getTime())).toBe(true)
+    const versions = await db.assessmentVersion.findMany({ where: { inspectionId: record.inspection.id } })
+    expect(versions).toHaveLength(1)
+    expect(assessmentSnapshotSchema.parse(versions[0].snapshot).findings[0].photos).toMatchObject([{ id: photo.clientId, storagePath: photo.storagePath }])
+    const notices = await db.notification.findMany({ where: { tenancyId: record.tenancy.id, kind: 'REPORT_UPDATED' } })
+    expect(notices.map((notice) => notice.recipientId).sort()).toEqual([record.landlord.id, record.tenant.id].sort())
+    expect((await db.findingPhoto.findUniqueOrThrow({ where: { clientId: photo.clientId } })).publishedAt).not.toBeNull()
   })
 
   it('touches the saved finding on marks/removal and protects bytes referenced in any immutable assessment', async () => {

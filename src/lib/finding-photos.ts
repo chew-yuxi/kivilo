@@ -144,11 +144,19 @@ export async function claimFindingPhotoDraft(tx: Prisma.TransactionClient, inspe
 }
 
 export async function assertFindingPhotoDraftsReady(tx: Prisma.TransactionClient, inspectionId: string) {
-  const pending = await tx.findingPhotoDraft.findFirst({
-    where: { inspectionId, findingId: { not: null }, savedAt: null, discardedAt: null, photos: { some: { deletedAt: null } } }, select: { id: true },
+  const pending = await tx.findingPhotoDraft.findMany({
+    where: { inspectionId, findingId: { not: null }, savedAt: null, discardedAt: null, photos: { some: { deletedAt: null } } },
+    select: { createdById: true }, distinct: ['createdById'],
   })
   const incomplete = await tx.findingPhoto.findFirst({ where: { finding: { inspectionId }, deletedAt: null, registeredAt: null }, select: { clientId: true } })
-  if (pending || incomplete) throw new Error('Finding photos are still uploading or have unsaved changes')
+  if (incomplete) throw new Error('Finding photos are still uploading or have unsaved changes')
+  // Publication holds the tenancy and inspection locks. Revoked agents' personal
+  // drafts stay intact, but cannot prevent publishing the saved shared findings.
+  for (const draft of pending) {
+    if (await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(draft.createdById) }, select: { id: true } })) {
+      throw new Error('Finding photos are still uploading or have unsaved changes')
+    }
+  }
 }
 
 async function retirePhotos(tx: Prisma.TransactionClient, photos: FindingPhoto[]) {
