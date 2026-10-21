@@ -18,6 +18,7 @@ class FakeBackend implements CaptureBackend {
     this.rejectEdits = false,
     this.rejectDeletes = false,
     this.acceptInitialAnnotations = true,
+    this.acceptItemLink = true,
     this.expireFirstCredential = false,
   });
 
@@ -28,10 +29,12 @@ class FakeBackend implements CaptureBackend {
   final bool rejectEdits;
   final bool rejectDeletes;
   final bool acceptInitialAnnotations;
+  bool acceptItemLink;
   final bool expireFirstCredential;
   final calls = <String>[];
   final notes = <String?>[];
   final registeredNotes = <String?>[];
+  final registeredItemIds = <String?>[];
   final annotations = <Map<String, dynamic>?>[];
   final ids = <String, String>{};
   bool uploadUrlsAllowed = true;
@@ -85,7 +88,8 @@ class FakeBackend implements CaptureBackend {
   }
 
   @override
-  Future<({String id, bool annotationsApplied})> registerCapture({
+  Future<({String id, bool annotationsApplied, bool itemApplied})>
+  registerCapture({
     required String inspectionId,
     required String roomId,
     required String kind,
@@ -94,6 +98,7 @@ class FakeBackend implements CaptureBackend {
     required String mimeType,
     required int sizeBytes,
     int? durationSec,
+    String? itemId,
     String? note,
     Map<String, dynamic>? annotations,
   }) async {
@@ -103,6 +108,7 @@ class FakeBackend implements CaptureBackend {
       return 'cap_$registrations';
     });
     registeredNotes.add(note);
+    registeredItemIds.add(itemId);
     if (duringRegister != null) await duringRegister!();
     if (loseRegisterResponse) {
       loseRegisterResponse = false;
@@ -112,6 +118,7 @@ class FakeBackend implements CaptureBackend {
     return (
       id: id,
       annotationsApplied: annotations == null || acceptInitialAnnotations,
+      itemApplied: itemId == null || acceptItemLink,
     );
   }
 
@@ -177,6 +184,8 @@ void main() {
     String owner = 'owner-a',
     String? note,
     String? annotations,
+    String? itemId,
+    bool awaitingMarkup = false,
     bool withFile = true,
   }) async {
     count++;
@@ -192,6 +201,8 @@ void main() {
         clientId: Value('client-$count'),
         roomId: 'room-1',
         inspectionId: 'insp-1',
+        itemId: Value(itemId),
+        awaitingMarkup: Value(awaitingMarkup),
         kind: 'PHOTO',
         relativePath: relative,
         filename: 'photo-$count.jpg',
@@ -206,6 +217,71 @@ void main() {
 
   Uploader uploader(CaptureBackend backend, {String owner = 'owner-a'}) =>
       Uploader(queue: queue, backend: backend, root: root, ownerId: owner);
+
+  test('item photo uploads with completed marks only after Done', () async {
+    final id = await queued(itemId: 'item-a', awaitingMarkup: true);
+    final backend = FakeBackend();
+    expect(await uploader(backend).drain(), isFalse);
+    expect(backend.calls, isEmpty);
+
+    const marks = '{"w":640,"h":480,"marks":[]}';
+    await queue.setAnnotations(id, marks);
+    await queue.finishMarkup(id);
+    expect(await uploader(backend).drain(), isTrue);
+    expect(backend.registeredItemIds, ['item-a']);
+    expect(backend.annotations, [jsonDecode(marks)]);
+    expect(backend.calls, ['uploadUrl', 'putBytes', 'registerCapture']);
+  });
+
+  test('item association survives a lost registration response', () async {
+    final id = await queued(itemId: 'item-a');
+    final backend = FakeBackend(loseRegisterResponse: true);
+
+    expect(await uploader(backend).drain(), isFalse);
+    expect((await queue.byId(id))!.itemId, 'item-a');
+    expect(await uploader(backend).drain(), isTrue);
+    expect(backend.registeredItemIds, ['item-a', 'item-a']);
+    expect(backend.uploads, 1);
+    expect(backend.registrations, 1);
+  });
+
+  test('deleting a held photo releases its draft for deletion', () async {
+    final id = await queued(itemId: 'item-a', awaitingMarkup: true);
+    final before = (await queue.byId(id))!;
+    final backend = FakeBackend();
+
+    await queue.requestDelete(id);
+    expect(await uploader(backend).drain(), isTrue);
+    expect(backend.calls.last, 'deleteCapture');
+    expect(await queue.byId(id), isNull);
+    expect(File('${root.path}/${before.relativePath}').existsSync(), isFalse);
+  });
+
+  test(
+    'unapplied item link retains local evidence without uploading again',
+    () async {
+      final id = await queued(itemId: 'item-a');
+      final before = (await queue.byId(id))!;
+      final backend = FakeBackend(acceptItemLink: false);
+
+      expect(await uploader(backend).drain(), isFalse);
+      expect(await uploader(backend).drain(), isFalse);
+      final retained = (await queue.byId(id))!;
+      expect(retained.uploadedId, 'cap_1');
+      expect(retained.itemId, 'item-a');
+      expect(retained.registrationItemApplied, isFalse);
+      expect(retained.lastError, contains('inventory link could not be saved'));
+      expect(File('${root.path}/${before.relativePath}').existsSync(), isTrue);
+      expect(backend.uploads, 1);
+      expect(backend.registeredItemIds, ['item-a', 'item-a']);
+      backend.acceptItemLink = true;
+      expect(await uploader(backend).drain(), isTrue);
+      expect(await queue.byId(id), isNull);
+      expect(File('${root.path}/${before.relativePath}').existsSync(), isFalse);
+      expect(backend.uploads, 1);
+      expect(backend.credentials, 1);
+    },
+  );
 
   test('stores, registers, hands over, then removes the local file', () async {
     final id = await queued(note: 'Fridge rating plate');
@@ -644,6 +720,48 @@ void main() {
       throwsA(isA<DioException>()),
     );
   });
+
+  test(
+    'HTTP registration sends an item only when capture belongs to one',
+    () async {
+      final requests = <RequestOptions>[];
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.invalid'));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            requests.add(options);
+            handler.resolve(
+              Response(
+                requestOptions: options,
+                statusCode: 200,
+                data: {
+                  'id': 'photo-1',
+                  'annotationsApplied': true,
+                  'itemApplied': true,
+                },
+              ),
+            );
+          },
+        ),
+      );
+      final backend = HttpCaptureBackend(dio);
+      for (final itemId in <String?>[null, 'item-a']) {
+        final result = await backend.registerCapture(
+          inspectionId: 'inspection-a',
+          roomId: 'room-a',
+          kind: 'PHOTO',
+          storagePath: 'room-a/client.jpg',
+          clientId: 'client',
+          mimeType: 'image/jpeg',
+          sizeBytes: 123,
+          itemId: itemId,
+        );
+        expect(result.itemApplied, isTrue);
+      }
+      expect((requests.first.data as Map).containsKey('itemId'), isFalse);
+      expect((requests.last.data as Map)['itemId'], 'item-a');
+    },
+  );
 
   test(
     'maintenance evidence uses the shared queue backend with maintenance routes',

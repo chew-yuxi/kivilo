@@ -24,6 +24,8 @@ class CaptureStore {
     required String mimeType,
     int? durationSec,
     String? clientId,
+    String? itemId,
+    bool awaitingMarkup = false,
   }) async {
     final captureId = clientId ?? newCaptureId();
     final relativePath = 'captures/$ownerId/$captureId.$extension';
@@ -33,7 +35,9 @@ class CaptureStore {
       'ownerId': ownerId,
       'inspectionId': inspectionId,
       'roomId': roomId,
+      'itemId': itemId,
       'kind': kind,
+      'awaitingMarkup': awaitingMarkup,
       'relativePath': relativePath,
       'sourcePath': source.path,
       'filename': '$captureId.$extension',
@@ -109,7 +113,8 @@ class CaptureStore {
     if (existing != null) {
       if (existing.ownerId != metadata['ownerId'] ||
           existing.inspectionId != metadata['inspectionId'] ||
-          existing.roomId != metadata['roomId']) {
+          existing.roomId != metadata['roomId'] ||
+          existing.itemId != metadata['itemId']) {
         throw StateError(
           'Intake journal conflicts with another capture identity',
         );
@@ -128,7 +133,9 @@ class CaptureStore {
         clientId: Value(clientId),
         roomId: metadata['roomId'] as String,
         inspectionId: metadata['inspectionId'] as String,
+        itemId: Value(metadata['itemId'] as String?),
         kind: metadata['kind'] as String,
+        awaitingMarkup: Value(metadata['awaitingMarkup'] == true),
         relativePath: metadata['relativePath'] as String,
         filename: metadata['filename'] as String,
         mimeType: metadata['mimeType'] as String,

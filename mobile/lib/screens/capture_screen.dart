@@ -20,6 +20,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/marked_network_photo.dart';
 import 'photo_mark_screen.dart';
 import 'video_screen.dart';
 
@@ -28,18 +29,26 @@ class CaptureScreen extends StatefulWidget {
     super.key,
     required this.inspectionId,
     required this.roomId,
+    this.itemId,
+    this.itemName,
+    this.onEditItem,
     this.api,
     this.queue,
     this.ownerId,
     this.supportDirectory,
+    this.picker,
   });
 
   final String inspectionId;
   final String roomId;
+  final String? itemId;
+  final String? itemName;
+  final Future<void> Function(InventoryItem, List<EvidenceCapture>)? onEditItem;
   final Api? api;
   final CaptureQueue? queue;
   final String? ownerId;
   final Future<Directory> Function()? supportDirectory;
+  final ImagePicker? picker;
 
   @override
   State<CaptureScreen> createState() => _CaptureScreenState();
@@ -48,7 +57,7 @@ class CaptureScreen extends StatefulWidget {
 class _CaptureScreenState extends State<CaptureScreen> {
   late final _api = widget.api ?? Api();
   late final _queue = widget.queue ?? CaptureQueue();
-  final _picker = ImagePicker();
+  late final _picker = widget.picker ?? ImagePicker();
   late final _backend = RoutingEvidenceBackend(_api.dio);
   late final String _ownerId =
       widget.ownerId ?? Supabase.instance.client.auth.currentUser!.id;
@@ -56,7 +65,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
   RoomDetail? _room;
   Future<void>? _uploading;
   bool _videoMode = false;
-  bool _busy = false;
+  bool _busy = true;
   bool _leaving = false;
   bool _finishing = false;
   bool _loadingRoom = false;
@@ -70,14 +79,35 @@ class _CaptureScreenState extends State<CaptureScreen> {
   StreamSubscription<EvidenceSyncUpdate>? _syncSubscription;
   final Map<String, EvidenceSyncUpdate> _syncUpdates = {};
 
+  InventoryItem? get _item =>
+      _room?.items.where((item) => item.id == widget.itemId).firstOrNull;
+
+  List<EvidenceCapture> get _visibleCaptures {
+    final captures = _room?.captures ?? const <EvidenceCapture>[];
+    if (widget.itemId == null) return captures;
+    final item = _item;
+    if (item == null) return const [];
+    return captures
+        .where(
+          (capture) =>
+              item.evidenceCaptureIds.contains(capture.id) ||
+              item.sourceCaptureId == capture.id,
+        )
+        .toList();
+  }
+
   @override
   void initState() {
     super.initState();
     _captureSubscription = _queue
         .watch(widget.roomId, ownerId: _ownerId)
         .listen((captures) {
+          final remaining = captures.map((capture) => capture.id).toSet();
           final handedOver =
-              _pendingCaptures?.isNotEmpty == true && captures.isEmpty;
+              _pendingCaptures?.any(
+                (capture) => !remaining.contains(capture.id),
+              ) ==
+              true;
           if (mounted) setState(() => _pendingCaptures = captures);
           if (mounted && handedOver) unawaited(_loadRoom());
         }, onError: _queueError);
@@ -133,6 +163,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
       unawaited(_drain());
     } catch (error) {
       if (mounted) setState(() => _error = error.toString());
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -195,6 +227,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       _error = null;
     });
     try {
+      await _beginPicker();
       final picked = _videoMode
           ? await _picker.pickVideo(source: ImageSource.camera)
           : await _picker.pickImage(
@@ -202,7 +235,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               imageQuality: 95,
               requestFullMetadata: false,
             );
-      if (picked != null) await _savePickedFile(picked, video: _videoMode);
+      await _saveSelection(picked == null ? [] : [picked], video: _videoMode);
     } catch (error) {
       if (mounted) {
         setState(
@@ -224,17 +257,16 @@ class _CaptureScreenState extends State<CaptureScreen> {
       _error = null;
     });
     try {
+      await _beginPicker();
       if (_videoMode) {
         final picked = await _picker.pickVideo(source: ImageSource.gallery);
-        if (picked != null) await _savePickedFile(picked, video: true);
+        await _saveSelection(picked == null ? [] : [picked], video: true);
       } else {
         final picked = await _picker.pickMultiImage(
           imageQuality: 95,
           requestFullMetadata: false,
         );
-        for (final file in picked) {
-          await _savePickedFile(file, video: false);
-        }
+        await _saveSelection(picked, video: false);
       }
     } catch (error) {
       if (mounted) {
@@ -249,33 +281,131 @@ class _CaptureScreenState extends State<CaptureScreen> {
   }
 
   Future<void> _recoverLostPickerData() async {
-    if (!Platform.isAndroid) return;
+    Map<String, dynamic>? intent;
+    if (await _pickerJournal.exists()) {
+      intent =
+          jsonDecode(await _pickerJournal.readAsString())
+              as Map<String, dynamic>;
+      if (intent['ownerId'] != _ownerId) return;
+      if (intent['files'] != null) {
+        await _persistSelection(intent);
+        return;
+      }
+    }
+    if (!Platform.isAndroid) {
+      if (intent != null) await _pickerJournal.delete();
+      return;
+    }
     final response = await _picker.retrieveLostData();
-    if (response.isEmpty) return;
+    if (response.isEmpty) {
+      if (intent != null) await _pickerJournal.delete();
+      return;
+    }
     if (response.exception != null) {
       throw StateError(
         'Could not recover the interrupted selection: ${response.exception}',
       );
     }
     final video = response.type == RetrieveType.video;
-    for (final file in response.files ?? const <XFile>[]) {
-      await _savePickedFile(file, video: video);
+    if (intent == null) {
+      // A selection interrupted in an older build has no item provenance.
+      // Keep it as room evidence instead of guessing the item now on screen.
+      await _writePickerIntent({
+        'ownerId': _ownerId,
+        'inspectionId': widget.inspectionId,
+        'roomId': widget.roomId,
+      });
     }
+    await _saveSelection(response.files ?? const <XFile>[], video: video);
   }
 
-  Future<void> _savePickedFile(XFile picked, {required bool video}) async {
-    final path = picked.path.toLowerCase();
-    final extension = _extensionFor(path, video: video);
-    await CaptureStore(queue: _queue, root: _root!).save(
-      source: File(picked.path),
-      ownerId: _ownerId,
-      inspectionId: widget.inspectionId,
-      roomId: widget.roomId,
-      kind: video ? 'VIDEO' : 'PHOTO',
-      extension: extension,
-      mimeType: picked.mimeType ?? _mimeTypeFor(extension, video: video),
-      clientId: newCaptureId(),
-    );
+  File get _pickerJournal => File('${_root!.path}/capture-picker.json');
+
+  Future<void> _writePickerIntent(Map<String, dynamic> intent) async {
+    final temporary = File('${_pickerJournal.path}.tmp');
+    await temporary.writeAsString(jsonEncode(intent), flush: true);
+    await temporary.rename(_pickerJournal.path);
+  }
+
+  Future<void> _beginPicker() async {
+    if (await _pickerJournal.exists()) {
+      throw StateError(
+        'A previous camera selection still needs recovery. Reopen its room before taking another photo.',
+      );
+    }
+    await _writePickerIntent({
+      'ownerId': _ownerId,
+      'inspectionId': widget.inspectionId,
+      'roomId': widget.roomId,
+      'itemId': widget.itemId,
+    });
+  }
+
+  Future<void> _saveSelection(List<XFile> files, {required bool video}) async {
+    final intent =
+        jsonDecode(await _pickerJournal.readAsString()) as Map<String, dynamic>;
+    intent['video'] = video;
+    intent['files'] = [
+      for (final file in files)
+        {
+          'path': file.path,
+          'mimeType': file.mimeType,
+          'clientId': newCaptureId(),
+        },
+    ];
+    await _writePickerIntent(intent);
+    await _persistSelection(intent);
+  }
+
+  Future<void> _persistSelection(Map<String, dynamic> intent) async {
+    final video = intent['video'] as bool;
+    final ids = <int>[];
+    // Save the entire library selection before opening its first editor. A crash
+    // during marking must not strand the remaining photos in the picker cache.
+    for (final entry
+        in (intent['files'] as List).cast<Map<String, dynamic>>()) {
+      final clientId = entry['clientId'] as String;
+      if (await _queue.serverIdForClient(
+            _ownerId,
+            intent['inspectionId'] as String,
+            clientId,
+          ) !=
+          null) {
+        continue;
+      }
+      final extension = _extensionFor(
+        (entry['path'] as String).toLowerCase(),
+        video: video,
+      );
+      ids.add(
+        await CaptureStore(queue: _queue, root: _root!).save(
+          source: File(entry['path'] as String),
+          ownerId: _ownerId,
+          inspectionId: intent['inspectionId'] as String,
+          roomId: intent['roomId'] as String,
+          itemId: intent['itemId'] as String?,
+          kind: video ? 'VIDEO' : 'PHOTO',
+          extension: extension,
+          mimeType:
+              entry['mimeType'] as String? ??
+              _mimeTypeFor(extension, video: video),
+          clientId: clientId,
+          awaitingMarkup: !video,
+        ),
+      );
+    }
+    await _pickerJournal.delete();
+    if (!video &&
+        intent['roomId'] == widget.roomId &&
+        intent['itemId'] == widget.itemId) {
+      for (final id in ids) {
+        if (!mounted) break;
+        final capture = await _queue.byId(id);
+        if (capture != null && capture.awaitingMarkup) {
+          await _markQueued(capture);
+        }
+      }
+    }
     unawaited(_drain());
   }
 
@@ -526,10 +656,25 @@ class _CaptureScreenState extends State<CaptureScreen> {
     final result = await Navigator.push<PhotoMarksResult>(
       context,
       MaterialPageRoute(
-        builder: (_) => PhotoMarkScreen(image: image, annotations: previous),
+        builder: (_) => PhotoMarkScreen(
+          image: image,
+          annotations: previous,
+          saveLabel: capture.awaitingMarkup ? 'Save photo' : 'Save',
+          onChanged: capture.awaitingMarkup
+              ? (annotations) => _queue.setAnnotations(
+                  capture.id,
+                  annotations == null ? null : jsonEncode(annotations),
+                )
+              : null,
+        ),
       ),
     );
     if (result == null) return;
+    if (capture.awaitingMarkup) {
+      await _queue.finishMarkup(capture.id);
+      unawaited(_drain());
+      return;
+    }
     if (identical(result.annotations, previous)) return;
     final encoded = result.annotations == null
         ? null
@@ -699,14 +844,17 @@ class _CaptureScreenState extends State<CaptureScreen> {
         capture.uploadedId != null &&
         !capture.registrationAnnotationsApplied &&
         capture.annotations != null;
-    final stage = annotationError
+    final stage = capture.awaitingMarkup
+        ? 'Ready to mark'
+        : annotationError
         ? 'Marks need attention'
         : capture.lastError != null
         ? 'Upload paused'
         : switch (update?.stage) {
             EvidenceSyncStage.preparing => 'Preparing secure upload',
             EvidenceSyncStage.uploading => 'Uploading',
-            EvidenceSyncStage.registering => 'Adding to room',
+            EvidenceSyncStage.registering =>
+              widget.itemId == null ? 'Adding to room' : 'Adding to item',
             EvidenceSyncStage.finalizing => 'Uploading notes and marks',
             EvidenceSyncStage.failed => 'Upload paused',
             _ =>
@@ -729,6 +877,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
       child: Column(
         children: [
           ListTile(
+            onTap: capture.kind == 'PHOTO'
+                ? () => unawaited(_markQueued(capture))
+                : null,
             contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 0),
             leading: capture.kind == 'PHOTO' && _root != null
                 ? ClipRRect(
@@ -764,47 +915,57 @@ class _CaptureScreenState extends State<CaptureScreen> {
               tooltip: 'Media actions',
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                KiviloProgressBar(
-                  value: capture.lastError == null ? progress : null,
-                  color: color,
-                ),
-                const SizedBox(height: 6),
-                if (message != null)
-                  Text(message, style: detailStyle)
-                else
-                  // The figures roll digit by digit, NumberFlow style, rather than
-                  // flickering as each progress event lands.
-                  Row(
-                    children: [
-                      // All of the line is NumberFlow's own text: beside a plain Text
-                      // its glyphs sit a pixel higher.
-                      NumberFlow(
-                        value: (progress * 100).round(),
-                        suffix: '% · ',
-                        style: detailStyle,
-                        tabularNums: true,
-                      ),
-                      NumberFlow(
-                        value: sent.value,
-                        format: NumberFlowFormat.decimal(
-                          minFraction: sent.digits,
-                          maxFraction: sent.digits,
-                        ),
-                        suffix:
-                            ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
-                        style: detailStyle,
-                        tabularNums: true,
-                      ),
-                    ],
-                  ),
-              ],
+          if (capture.awaitingMarkup)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: OutlinedButton.icon(
+                onPressed: () => _markQueued(capture),
+                icon: const Icon(Icons.gesture_outlined),
+                label: const Text('Finish marking'),
+              ),
             ),
-          ),
+          if (!capture.awaitingMarkup)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  KiviloProgressBar(
+                    value: capture.lastError == null ? progress : null,
+                    color: color,
+                  ),
+                  const SizedBox(height: 6),
+                  if (message != null)
+                    Text(message, style: detailStyle)
+                  else
+                    // The figures roll digit by digit, NumberFlow style, rather than
+                    // flickering as each progress event lands.
+                    Row(
+                      children: [
+                        // All of the line is NumberFlow's own text: beside a plain Text
+                        // its glyphs sit a pixel higher.
+                        NumberFlow(
+                          value: (progress * 100).round(),
+                          suffix: '% · ',
+                          style: detailStyle,
+                          tabularNums: true,
+                        ),
+                        NumberFlow(
+                          value: sent.value,
+                          format: NumberFlowFormat.decimal(
+                            minFraction: sent.digits,
+                            maxFraction: sent.digits,
+                          ),
+                          suffix:
+                              ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
+                          style: detailStyle,
+                          tabularNums: true,
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -828,7 +989,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pending = _pendingCaptures;
+    final pending = _pendingCaptures
+        ?.where(
+          (capture) => widget.itemId == null || capture.itemId == widget.itemId,
+        )
+        .toList();
+    final item = _item;
+    final uploadedCaptures = _visibleCaptures;
     final roomEdits = _roomEdits;
     final waiting =
         _loadingRoom ||
@@ -837,12 +1004,16 @@ class _CaptureScreenState extends State<CaptureScreen> {
         pending.isNotEmpty ||
         roomEdits.isNotEmpty ||
         _unresolved.isNotEmpty;
-    final hasMedia =
-        pending?.isNotEmpty == true || _room?.captures.isNotEmpty == true;
+    final hasMedia = pending?.isNotEmpty == true || uploadedCaptures.isNotEmpty;
     final checkIn = _room?.checkIn;
+    final baseline = checkIn?.lines
+        .where((line) => line.key == item?.baselineKey)
+        .firstOrNull;
     final scaffold = Scaffold(
       appBar: AppBar(
-        title: Text(_room?.name ?? 'Capture room'),
+        title: Text(
+          item?.name ?? widget.itemName ?? _room?.name ?? 'Room media',
+        ),
         leading: BackButton(onPressed: () => unawaited(_leaveAfterSaving())),
         actions: [
           // On a check-out, the room as it was at check-in, one tap from the camera.
@@ -878,13 +1049,86 @@ class _CaptureScreenState extends State<CaptureScreen> {
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 840;
             final controls = <Widget>[
+              if (widget.itemId != null && item != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${item.category} · ${item.condition} · Qty ${item.quantity}',
+                        ),
+                        if (baseline != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'At check-in: ${baseline.name} · ${baseline.condition} · Qty ${baseline.quantity}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          if (baseline.identifier?.isNotEmpty == true)
+                            Text(
+                              'Serial / model at check-in: ${baseline.identifier}',
+                            ),
+                          if (baseline.meterReading?.isNotEmpty == true)
+                            Text('Meter at check-in: ${baseline.meterReading}'),
+                          if (baseline.notes?.isNotEmpty == true)
+                            Text('Check-in notes: ${baseline.notes}'),
+                        ],
+                        if (item.identifier?.isNotEmpty == true)
+                          Text('Serial / model: ${item.identifier}'),
+                        if (item.meterReading?.isNotEmpty == true)
+                          Text('Meter reading: ${item.meterReading}'),
+                        if (item.notes?.isNotEmpty == true) ...[
+                          const SizedBox(height: 8),
+                          Text(item.notes!),
+                        ],
+                        if (widget.onEditItem != null)
+                          TextButton.icon(
+                            onPressed: _busy
+                                ? null
+                                : () async {
+                                    setState(() => _busy = true);
+                                    try {
+                                      await widget.onEditItem!(
+                                        item,
+                                        _room!.captures,
+                                      );
+                                      if (mounted) await _loadRoom();
+                                    } catch (error) {
+                                      if (mounted) {
+                                        setState(
+                                          () => _error = plainError(error),
+                                        );
+                                      }
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() => _busy = false);
+                                      }
+                                    }
+                                  },
+                            icon: const Icon(Icons.edit_outlined),
+                            label: const Text('Edit details'),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               Text(
-                'Capture this room',
+                widget.itemId == null ? 'Room media' : 'Photos & video',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 6),
               Text(
-                'Narrate a walkthrough, then photograph labels and details.',
+                widget.itemId == null
+                    ? 'Record a room walkthrough or manage existing room media.'
+                    : 'Take a photo, add any marks, then save. It is attached to this item automatically.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
@@ -936,7 +1180,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: _busy || _leaving || _finishing || _room == null
+                onPressed:
+                    _busy ||
+                        _leaving ||
+                        _finishing ||
+                        _room == null ||
+                        (widget.itemId != null && item == null)
                     ? null
                     : _openSystemCamera,
                 icon: Icon(_videoMode ? Icons.videocam : Icons.photo_camera),
@@ -950,7 +1199,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ),
               const SizedBox(height: 10),
               OutlinedButton.icon(
-                onPressed: _busy || _leaving || _finishing || _room == null
+                onPressed:
+                    _busy ||
+                        _leaving ||
+                        _finishing ||
+                        _room == null ||
+                        (widget.itemId != null && item == null)
                     ? null
                     : _chooseFromLibrary,
                 icon: const Icon(Icons.add_photo_alternate_outlined),
@@ -959,12 +1213,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
             ];
             final queued = (pending ?? const <PendingCapture>[]).reversed
                 .toList();
-            final uploaded = (_room?.captures ?? const <EvidenceCapture>[])
-                .reversed
-                .toList();
+            final uploaded = uploadedCaptures.reversed.toList();
             final media = <Widget>[
-              const KiviloSectionHeading(
-                title: 'Media',
+              KiviloSectionHeading(
+                title: widget.itemId == null ? 'Media' : 'Item media',
                 subtitle: 'Saved on your phone first, then added to the report',
               ),
               const SizedBox(height: 12),
@@ -1031,25 +1283,32 @@ class _CaptureScreenState extends State<CaptureScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (waiting) ...[
+                if (widget.itemId == null && waiting) ...[
                   const Text(
                     'Review opens once this room’s photos, videos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                 ],
-                OutlinedButton.icon(
-                  onPressed:
-                      _room == null ||
-                          _busy ||
-                          _leaving ||
-                          _finishing ||
-                          waiting
-                      ? null
-                      : _finishRoom,
-                  icon: const Icon(Icons.check_rounded),
-                  label: const Text('Review room'),
-                ),
+                if (widget.itemId != null)
+                  FilledButton.icon(
+                    onPressed: _busy || _leaving ? null : _leaveAfterSaving,
+                    icon: const Icon(Icons.check_rounded),
+                    label: const Text('Done'),
+                  )
+                else
+                  OutlinedButton.icon(
+                    onPressed:
+                        _room == null ||
+                            _busy ||
+                            _leaving ||
+                            _finishing ||
+                            waiting
+                        ? null
+                        : _finishRoom,
+                    icon: const Icon(Icons.check_rounded),
+                    label: const Text('Review room'),
+                  ),
               ],
             ),
           ),
@@ -1059,11 +1318,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
     return ProductScreen(
       screen: ProductScreenName.capture,
       child: PopScope(
-      canPop: !_busy && !_leaving && !_finishing,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) unawaited(_leaveAfterSaving());
-      },
-      child: scaffold,
+        canPop: !_busy && !_leaving && !_finishing,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) unawaited(_leaveAfterSaving());
+        },
+        child: scaffold,
       ),
     );
   }
@@ -1075,13 +1334,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
         width: wide ? 112 : 56,
         height: wide ? 84 : 56,
         child: capture.kind == 'PHOTO'
-            ? Image.network(
-                capture.url,
+            ? MarkedNetworkPhoto(
+                url: capture.url,
+                annotations: capture.annotations,
                 cacheWidth:
                     ((wide ? 112 : 56) * MediaQuery.devicePixelRatioOf(context))
                         .ceil(),
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const Icon(Icons.image),
+                fit: BoxFit.contain,
               )
             : VideoPoster(posterUrl: capture.posterUrl, iconSize: 24),
       ),
@@ -1127,6 +1386,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ),
             )
           : ListTile(
+              onTap: capture.kind == 'PHOTO'
+                  ? () => unawaited(_markServer(capture))
+                  : () => unawaited(_openServerActions(capture)),
               contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
               leading: preview,
               title: title,

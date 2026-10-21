@@ -80,6 +80,47 @@ void main() {
     },
   );
 
+  test('item photo and unfinished marking survive intake recovery', () async {
+    await queue.close();
+    queue = _FailOnceCaptureQueue();
+    final store = CaptureStore(queue: queue, root: root);
+    final source = File('${root.path}/camera-item.jpg')
+      ..writeAsBytesSync(List.filled(64, 5));
+
+    await expectLater(
+      store.save(
+        source: source,
+        ownerId: 'owner-a',
+        inspectionId: 'inspection-a',
+        roomId: 'room-a',
+        itemId: 'item-a',
+        awaitingMarkup: true,
+        kind: 'PHOTO',
+        extension: 'jpg',
+        mimeType: 'image/jpeg',
+        clientId: 'item-photo',
+      ),
+      throwsStateError,
+    );
+
+    expect(await store.reconcile('owner-a'), isEmpty);
+    final recovered = (await queue.byClientId('item-photo'))!;
+    expect(recovered.itemId, 'item-a');
+    expect(recovered.awaitingMarkup, isTrue);
+    expect(await queue.claimNext(DateTime.now(), ownerId: 'owner-a'), isNull);
+
+    const marks = '{"w":640,"h":480,"marks":[]}';
+    await queue.setAnnotations(recovered.id, marks);
+    await queue.setNote(recovered.id, 'Chip on the front');
+    await queue.finishMarkup(recovered.id);
+    final ready = (await queue.claimNext(DateTime.now(), ownerId: 'owner-a'))!;
+    expect(ready.itemId, 'item-a');
+    expect(ready.annotations, marks);
+    expect(ready.note, 'Chip on the front');
+    expect(ready.awaitingMarkup, isFalse);
+    expect(File('${root.path}/${ready.relativePath}').lengthSync(), 64);
+  });
+
   test(
     'a crash after file rename but before SQLite insert recovers on restart',
     () async {

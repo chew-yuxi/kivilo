@@ -12,6 +12,27 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Inventory-first room capture: unreleased source
+
+Rooms now lead with inventory. Opening an item shows its details and media; new
+photos open the mark editor immediately and attach to that item automatically.
+Room walkthroughs and existing media remain available through the secondary room
+media action. Room review checks pending photos and edits before finishing capture.
+
+The original photo is saved locally before editing. Completed marks autosave beside
+it, and upload waits for Save photo; an interrupted editor resumes through Finish
+marking. Queue schema 7 preserves the item ID and this hold across restarts. Picker
+intake also preserves the original owner/room/item and the entire library selection.
+
+Deploy the backend's optional capture `itemId` and `itemApplied` acknowledgement
+before releasing the app patch. No server migration, plugin, native configuration,
+version or asset change is needed. This source has not been deployed or published
+as a Shorebird patch. The iOS review freeze remains in force.
+
+Verification: clean Flutter analysis, 238 mobile tests, server typecheck/lint/build,
+98 unit tests and 160 integration tests. All 14 end-to-end cases passed, with one
+email-code timing failure passing on retry. Physical-device interaction is unverified.
+
 ## Current releases: 18 October 2026 Singapore time
 
 Android production build `25` is published. Google approved it after submission;

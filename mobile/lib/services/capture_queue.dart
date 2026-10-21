@@ -30,7 +30,13 @@ class PendingCaptures extends Table {
 
   TextColumn get roomId => text()();
   TextColumn get inspectionId => text()();
+  TextColumn get itemId => text().nullable()();
   TextColumn get kind => text()();
+
+  /// A new photo stays local until its inspector finishes the immediate mark editor.
+  /// This survives process death: reopening the item resumes the saved draft.
+  BoolColumn get awaitingMarkup =>
+      boolean().withDefault(const Constant(false))();
 
   /// Relative to the app support directory, never absolute: iOS moves the container
   /// between launches and an absolute path recorded yesterday points nowhere today.
@@ -58,6 +64,8 @@ class PendingCaptures extends Table {
   TextColumn get registrationNote => text().nullable()();
   TextColumn get registrationAnnotations => text().nullable()();
   BoolColumn get registrationAnnotationsApplied =>
+      boolean().withDefault(const Constant(true))();
+  BoolColumn get registrationItemApplied =>
       boolean().withDefault(const Constant(true))();
 
   /// Remember the object path as soon as a credential is issued. If the storage PUT
@@ -126,7 +134,7 @@ class CaptureQueue extends _$CaptureQueue {
       );
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -164,6 +172,14 @@ class CaptureQueue extends _$CaptureQueue {
         await m.addColumn(
           pendingCaptures,
           pendingCaptures.registrationAnnotationsApplied,
+        );
+      }
+      if (from < 7) {
+        await m.addColumn(pendingCaptures, pendingCaptures.itemId);
+        await m.addColumn(pendingCaptures, pendingCaptures.awaitingMarkup);
+        await m.addColumn(
+          pendingCaptures,
+          pendingCaptures.registrationItemApplied,
         );
       }
     },
@@ -275,6 +291,7 @@ class CaptureQueue extends _$CaptureQueue {
                       (ownerId == null
                           ? const Constant(true)
                           : row.ownerId.equals(ownerId)) &
+                      row.awaitingMarkup.equals(false) &
                       row.id.isNotIn(exclude),
                 )
                 ..orderBy([
@@ -340,6 +357,7 @@ class CaptureQueue extends _$CaptureQueue {
     String captureId, {
     String? leaseId,
     bool annotationsApplied = true,
+    bool itemApplied = true,
   }) async {
     await transaction(() async {
       final row = await byId(id);
@@ -374,6 +392,7 @@ class CaptureQueue extends _$CaptureQueue {
         PendingCapturesCompanion(
           uploadedId: Value(captureId),
           registrationAnnotationsApplied: Value(annotationsApplied),
+          registrationItemApplied: Value(itemApplied),
         ),
       );
     });
@@ -410,9 +429,19 @@ class CaptureQueue extends _$CaptureQueue {
         PendingCapturesCompanion(annotations: Value(annotations)),
       );
 
+  /// Call only after the editor's pending note and mark writes have completed.
+  /// Other queue handles and app launches must never release an unfinished draft.
+  Future<void> finishMarkup(int id) =>
+      (update(pendingCaptures)..where((row) => row.id.equals(id))).write(
+        const PendingCapturesCompanion(awaitingMarkup: Value(false)),
+      );
+
   Future<void> requestDelete(int id) =>
       (update(pendingCaptures)..where((row) => row.id.equals(id))).write(
-        const PendingCapturesCompanion(deleteRequested: Value(true)),
+        const PendingCapturesCompanion(
+          deleteRequested: Value(true),
+          awaitingMarkup: Value(false),
+        ),
       );
 
   Future<PendingRemoteEdit?> remoteEdit(String captureId) => (select(
@@ -641,6 +670,8 @@ class CaptureQueue extends _$CaptureQueue {
           current.leaseId != leaseId ||
           current.note != sent.note ||
           current.annotations != sent.annotations ||
+          current.awaitingMarkup ||
+          current.registrationItemApplied != sent.registrationItemApplied ||
           current.deleteRequested != sent.deleteRequested ||
           current.uploadedId != sent.uploadedId) {
         return null;
@@ -678,7 +709,9 @@ class CaptureQueue extends _$CaptureQueue {
           clientId: Value(row.clientId),
           roomId: Value(row.roomId),
           inspectionId: Value(row.inspectionId),
+          itemId: Value(row.itemId),
           kind: Value(row.kind),
+          awaitingMarkup: Value(row.awaitingMarkup),
           relativePath: Value(row.relativePath),
           filename: Value(row.filename),
           mimeType: Value(row.mimeType),
@@ -693,6 +726,7 @@ class CaptureQueue extends _$CaptureQueue {
           registrationAnnotationsApplied: Value(
             row.registrationAnnotationsApplied,
           ),
+          registrationItemApplied: Value(row.registrationItemApplied),
           storagePath: Value(row.storagePath),
           deleteRequested: Value(row.deleteRequested),
           claimedAt: const Value(null),

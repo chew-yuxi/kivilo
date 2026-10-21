@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-
 import 'api_failure.dart';
 import 'capture_backend.dart';
 import 'capture_queue.dart';
@@ -91,10 +90,7 @@ class Uploader {
         if (await queue.finishRemoteEdit(current)) return true;
       }
     } catch (error) {
-      await queue.failRemoteEdit(
-        edit,
-        plainError(error),
-      );
+      await queue.failRemoteEdit(edit, plainError(error));
       return false;
     } finally {
       heartbeat.cancel();
@@ -108,7 +104,8 @@ class Uploader {
     });
     try {
       var serverId = capture.uploadedId;
-      if (serverId == null) {
+      if (serverId == null ||
+          (!capture.registrationItemApplied && !capture.deleteRequested)) {
         final clientId = capture.clientId;
         if (clientId == null) {
           // Rows created by an old client before account isolation cannot be safely
@@ -126,7 +123,8 @@ class Uploader {
           // A prior registration may already have succeeded even though its HTTP
           // response was lost. Retry that same call before asking for a new upload
           // token: issuing tokens is forbidden after countersignature, but returning
-          // the existing capture by clientId is still safe and supported.
+          // the existing capture by clientId is still safe and supported. This also
+          // rechecks a previously refused item link without resending the bytes.
           storagePath = capture.storagePath!;
           prepared = capture;
         } else {
@@ -181,6 +179,7 @@ class Uploader {
           mimeType: capture.mimeType,
           sizeBytes: capture.sizeBytes,
           durationSec: capture.durationSec,
+          itemId: capture.itemId,
           note: prepared.registrationNote,
           annotations: _decode(prepared.registrationAnnotations),
         );
@@ -190,6 +189,7 @@ class Uploader {
           serverId,
           leaseId: leaseId,
           annotationsApplied: registered.annotationsApplied,
+          itemApplied: registered.itemApplied,
         );
       }
 
@@ -208,6 +208,13 @@ class Uploader {
         if (current.deleteRequested) {
           await backend.deleteCapture(capture.inspectionId, serverId);
         } else {
+          if (!current.registrationItemApplied) {
+            throw const ApiFailure(
+              'Photo uploaded, but its inventory link could not be saved. '
+              'The photo and its item are still saved on this phone.',
+              null,
+            );
+          }
           // Unchanged late evidence may register after Send for Signature, when
           // report edits are frozen. Only a change since registration needs PATCH.
           if (current.note != current.registrationNote) {

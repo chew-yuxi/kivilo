@@ -108,9 +108,20 @@ void main() {
     );
     await tester.tap(find.text('Open capture'));
     await tester.pump();
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
-    );
+    final choosePhotos = find.widgetWithText(OutlinedButton, 'Choose photos');
+    for (var attempt = 0; attempt < 100; attempt++) {
+      if (choosePhotos.evaluate().isNotEmpty &&
+          tester.widget<OutlinedButton>(choosePhotos).onPressed != null) {
+        break;
+      }
+      // Intake and picker recovery each await the real filesystem. Pump between
+      // those completions so readiness, rather than machine speed, gates the test.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    expect(tester.widget<OutlinedButton>(choosePhotos).onPressed, isNotNull);
     await tester.pump(const Duration(milliseconds: 600));
   }
 

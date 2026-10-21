@@ -14,12 +14,14 @@ class MarkedNetworkPhoto extends StatelessWidget {
     this.annotations,
     this.fit = BoxFit.cover,
     this.semanticLabel,
+    this.cacheWidth,
   });
 
   final String url;
   final Map<String, dynamic>? annotations;
   final BoxFit fit;
   final String? semanticLabel;
+  final int? cacheWidth;
 
   List<Map<String, dynamic>> get _marks =>
       ((annotations?['marks'] as List<dynamic>?) ?? const [])
@@ -27,6 +29,7 @@ class MarkedNetworkPhoto extends StatelessWidget {
 
   Widget _image(BoxFit imageFit) => Image.network(
     url,
+    cacheWidth: cacheWidth,
     fit: imageFit,
     gaplessPlayback: true,
     semanticLabel: semanticLabel,

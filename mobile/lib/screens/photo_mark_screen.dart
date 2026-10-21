@@ -20,10 +20,20 @@ typedef _MarkEditResult = ({_MarkEditAction action, String note});
 /// Marks are normalized beside the original photo. They are never painted into its
 /// bytes; the same geometry renders in the shared report.
 class PhotoMarkScreen extends StatefulWidget {
-  const PhotoMarkScreen({super.key, required this.image, this.annotations});
+  const PhotoMarkScreen({
+    super.key,
+    required this.image,
+    this.annotations,
+    this.onChanged,
+    this.saveLabel = 'Save',
+  });
 
   final ImageProvider image;
   final Map<String, dynamic>? annotations;
+
+  /// New captures persist each completed mark locally before upload is released.
+  final Future<void> Function(Map<String, dynamic>?)? onChanged;
+  final String saveLabel;
 
   @override
   State<PhotoMarkScreen> createState() => _PhotoMarkScreenState();
@@ -43,6 +53,57 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   final List<Offset> _gesture = [];
   final List<List<Map<String, dynamic>>> _undoHistory = [];
   final List<List<Map<String, dynamic>>> _redoHistory = [];
+  Future<void> _writes = Future.value();
+  bool _saving = false;
+  bool _canClose = false;
+  bool _imageFailed = false;
+  String? _saveError;
+
+  Map<String, dynamic>? _annotations(ui.Image photo) => !_dirty
+      ? widget.annotations
+      : _marks.isEmpty
+      ? null
+      : {'w': photo.width, 'h': photo.height, 'marks': _snapshotMarks()};
+
+  void _persistDraft() {
+    final persist = widget.onChanged;
+    if (persist == null) return;
+    // Snapshot before another gesture or note changes the same maps.
+    final marks = _snapshotMarks();
+    _writes = _writes.then((_) async {
+      try {
+        final photo = await _imageFuture!;
+        await persist(
+          marks.isEmpty
+              ? null
+              : {'w': photo.width, 'h': photo.height, 'marks': marks},
+        );
+        if (mounted) setState(() => _saveError = null);
+      } catch (error) {
+        if (mounted) setState(() => _saveError = plainError(error));
+      }
+    });
+  }
+
+  Future<void> _saveAndClose() async {
+    if (_saving) return;
+    setState(() => _saving = true);
+    try {
+      final photo = await _imageFuture!;
+      await _writes;
+      final annotations = _annotations(photo);
+      await widget.onChanged?.call(annotations);
+      if (!mounted) return;
+      setState(() => _canClose = true);
+      // PopScope must rebuild before Android's back action can complete.
+      await WidgetsBinding.instance.endOfFrame;
+      if (mounted) Navigator.pop(context, PhotoMarksResult(annotations));
+    } catch (error) {
+      if (mounted) setState(() => _saveError = plainError(error));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   List<Map<String, dynamic>> _snapshotMarks() => [
     for (final mark in _marks) Map<String, dynamic>.from(mark),
@@ -69,6 +130,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
       _redoHistory.add(_snapshotMarks());
       _restoreMarks(_undoHistory.removeLast());
     });
+    _persistDraft();
   }
 
   void _redo() {
@@ -77,6 +139,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
       _undoHistory.add(_snapshotMarks());
       _restoreMarks(_redoHistory.removeLast());
     });
+    _persistDraft();
   }
 
   @override
@@ -96,6 +159,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
       },
       onError: (Object error, StackTrace? stack) {
         stream.removeListener(listener);
+        if (mounted) setState(() => _imageFailed = true);
         if (!result.isCompleted) result.completeError(error, stack);
       },
     );
@@ -161,6 +225,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
       _selectedIndex = index;
       _dirty = true;
     });
+    _persistDraft();
     await _editMark(index, newMark: existingNote == null);
   }
 
@@ -299,6 +364,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
         _selectedIndex = null;
         _dirty = true;
       });
+      _persistDraft();
       return;
     }
     if (result?.action == _MarkEditAction.redraw) {
@@ -323,219 +389,231 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
         _selectedIndex = index;
         _dirty = true;
       });
+      _persistDraft();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mark photo'),
-        actions: [
-          FutureBuilder<ui.Image>(
+    return PopScope(
+      canPop:
+          _canClose || (!_saving && (widget.onChanged == null || _imageFailed)),
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) unawaited(_saveAndClose());
+      },
+      child: AbsorbPointer(
+        absorbing: _saving,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Mark photo'),
+            actions: [
+              FutureBuilder<ui.Image>(
+                future: _imageFuture,
+                builder: (context, snapshot) {
+                  final photo = snapshot.data;
+                  return TextButton(
+                    onPressed: photo == null || _saving ? null : _saveAndClose,
+                    child: Text(_saving ? 'Saving…' : widget.saveLabel),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: FutureBuilder<ui.Image>(
             future: _imageFuture,
             builder: (context, snapshot) {
-              final photo = snapshot.data;
-              return TextButton(
-                onPressed: photo == null
-                    ? null
-                    : () {
-                        Navigator.pop(
-                          context,
-                          PhotoMarksResult(
-                            !_dirty
-                                ? widget.annotations
-                                : _marks.isEmpty
-                                ? null
-                                : {
-                                    'w': photo.width,
-                                    'h': photo.height,
-                                    'marks': _marks,
-                                  },
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Could not open this photo. ${plainError(snapshot.error!)}',
+                  ),
+                );
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final photo = snapshot.data!;
+              return Column(
+                children: [
+                  if (_saveError != null)
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        'Could not save marks. $_saveError',
+                        style: const TextStyle(color: KiviloColors.red),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                    child: Text(
+                      _redrawIndex != null
+                          ? 'Redraw mark ${_redrawIndex! + 1}.'
+                          : _shape == 'ring'
+                          ? 'Draw around an issue with your finger. Kivilo will smooth it into a clean circle.'
+                          : _shape == 'arrow'
+                          ? 'Draw from open space toward the issue. Tap any existing mark to edit it.'
+                          : 'Draw directly over the detail. Your freehand stroke stays exactly where you draw it.',
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: LayoutBuilder(
+                        builder: (context, limits) {
+                          final aspect = photo.width / photo.height;
+                          final width = math.min(
+                            limits.maxWidth,
+                            limits.maxHeight * aspect,
+                          );
+                          final height = width / aspect;
+                          final size = Size(width, height);
+                          return SizedBox(
+                            width: width,
+                            height: height,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTapUp: (details) =>
+                                  _selectMark(details.localPosition, size),
+                              onPanStart: (details) =>
+                                  _startGesture(details.localPosition),
+                              onPanUpdate: (details) =>
+                                  _updateGesture(details.localPosition),
+                              onPanEnd: (_) => unawaited(_finishGesture(size)),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image(image: widget.image, fit: BoxFit.fill),
+                                  CustomPaint(
+                                    painter: MarkPainter(
+                                      _marks,
+                                      selectedIndex: _selectedIndex,
+                                      previewShape: _shape,
+                                      previewPoints: _gesture,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      child: Column(
+                        children: [
+                          KiviloSegmentedControl<String>(
+                            options: const [
+                              KiviloSegmentOption(
+                                value: 'ring',
+                                icon: Icons.circle_outlined,
+                                label: 'Circle',
+                              ),
+                              KiviloSegmentOption(
+                                value: 'arrow',
+                                icon: Icons.arrow_outward,
+                                label: 'Arrow',
+                              ),
+                              KiviloSegmentOption(
+                                value: 'freehand',
+                                icon: Icons.gesture,
+                                label: 'Freehand',
+                              ),
+                            ],
+                            value: _shape,
+                            onChanged: _redrawIndex == null
+                                ? (value) => setState(() => _shape = value!)
+                                : null,
                           ),
-                        );
-                      },
-                child: const Text('Save'),
-              );
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<ui.Image>(
-        future: _imageFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Could not open this photo. ${plainError(snapshot.error!)}'),
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final photo = snapshot.data!;
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                child: Text(
-                  _redrawIndex != null
-                      ? 'Redraw mark ${_redrawIndex! + 1}.'
-                      : _shape == 'ring'
-                      ? 'Draw around an issue with your finger. Kivilo will smooth it into a clean circle.'
-                      : _shape == 'arrow'
-                      ? 'Draw from open space toward the issue. Tap any existing mark to edit it.'
-                      : 'Draw directly over the detail. Your freehand stroke stays exactly where you draw it.',
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: LayoutBuilder(
-                    builder: (context, limits) {
-                      final aspect = photo.width / photo.height;
-                      final width = math.min(
-                        limits.maxWidth,
-                        limits.maxHeight * aspect,
-                      );
-                      final height = width / aspect;
-                      final size = Size(width, height);
-                      return SizedBox(
-                        width: width,
-                        height: height,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTapUp: (details) =>
-                              _selectMark(details.localPosition, size),
-                          onPanStart: (details) =>
-                              _startGesture(details.localPosition),
-                          onPanUpdate: (details) =>
-                              _updateGesture(details.localPosition),
-                          onPanEnd: (_) => unawaited(_finishGesture(size)),
-                          child: Stack(
-                            fit: StackFit.expand,
+                          const SizedBox(height: 8),
+                          Row(
                             children: [
-                              Image(image: widget.image, fit: BoxFit.fill),
-                              CustomPaint(
-                                painter: MarkPainter(
-                                  _marks,
-                                  selectedIndex: _selectedIndex,
-                                  previewShape: _shape,
-                                  previewPoints: _gesture,
+                              Expanded(
+                                child: TextButton.icon(
+                                  onPressed: _undoHistory.isEmpty
+                                      ? null
+                                      : _undo,
+                                  icon: const Icon(Icons.undo),
+                                  label: const Text('Undo'),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextButton.icon(
+                                  onPressed: _redoHistory.isEmpty
+                                      ? null
+                                      : _redo,
+                                  icon: const Icon(Icons.redo),
+                                  label: const Text('Redo'),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                  child: Column(
-                    children: [
-                      KiviloSegmentedControl<String>(
-                        options: const [
-                          KiviloSegmentOption(
-                            value: 'ring',
-                            icon: Icons.circle_outlined,
-                            label: 'Circle',
-                          ),
-                          KiviloSegmentOption(
-                            value: 'arrow',
-                            icon: Icons.arrow_outward,
-                            label: 'Arrow',
-                          ),
-                          KiviloSegmentOption(
-                            value: 'freehand',
-                            icon: Icons.gesture,
-                            label: 'Freehand',
+                          if (_marks.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 42,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _marks.length,
+                                separatorBuilder: (_, _) =>
+                                    const SizedBox(width: 8),
+                                itemBuilder: (context, index) {
+                                  final note = _marks[index]['note'] as String?;
+                                  return ChoiceChip(
+                                    selected: _selectedIndex == index,
+                                    selectedColor: KiviloColors.pinkSoft,
+                                    backgroundColor: Colors.white,
+                                    side: BorderSide(
+                                      color: _selectedIndex == index
+                                          ? KiviloColors.pink
+                                          : KiviloColors.border,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    labelStyle: TextStyle(
+                                      color: _selectedIndex == index
+                                          ? KiviloColors.pinkDark
+                                          : KiviloColors.body,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    avatar: Icon(
+                                      switch (_marks[index]['shape']) {
+                                        'ring' => Icons.circle_outlined,
+                                        'arrow' => Icons.arrow_outward,
+                                        _ => Icons.gesture,
+                                      },
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      note == null || note.isEmpty
+                                          ? 'Mark ${index + 1}'
+                                          : '${index + 1}. $note',
+                                    ),
+                                    onSelected: (_) =>
+                                        unawaited(_editMark(index)),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          Text(
+                            '${_marks.length} of 12 marks',
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
-                        value: _shape,
-                        onChanged: _redrawIndex == null
-                            ? (value) => setState(() => _shape = value!)
-                            : null,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextButton.icon(
-                              onPressed: _undoHistory.isEmpty ? null : _undo,
-                              icon: const Icon(Icons.undo),
-                              label: const Text('Undo'),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextButton.icon(
-                              onPressed: _redoHistory.isEmpty ? null : _redo,
-                              icon: const Icon(Icons.redo),
-                              label: const Text('Redo'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (_marks.isNotEmpty) ...[
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 42,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _marks.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(width: 8),
-                            itemBuilder: (context, index) {
-                              final note = _marks[index]['note'] as String?;
-                              return ChoiceChip(
-                                selected: _selectedIndex == index,
-                                selectedColor: KiviloColors.pinkSoft,
-                                backgroundColor: Colors.white,
-                                side: BorderSide(
-                                  color: _selectedIndex == index
-                                      ? KiviloColors.pink
-                                      : KiviloColors.border,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                labelStyle: TextStyle(
-                                  color: _selectedIndex == index
-                                      ? KiviloColors.pinkDark
-                                      : KiviloColors.body,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                avatar: Icon(switch (_marks[index]['shape']) {
-                                  'ring' => Icons.circle_outlined,
-                                  'arrow' => Icons.arrow_outward,
-                                  _ => Icons.gesture,
-                                }, size: 18),
-                                label: Text(
-                                  note == null || note.isEmpty
-                                      ? 'Mark ${index + 1}'
-                                      : '${index + 1}. $note',
-                                ),
-                                onSelected: (_) => unawaited(_editMark(index)),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 8),
-                      Text(
-                        '${_marks.length} of 12 marks',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }

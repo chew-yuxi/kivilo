@@ -362,6 +362,9 @@ export async function registerCapture(input: {
   roomId: string
   inspectionId: string
   clientId?: string
+  /// The inventory line this evidence was taken for. It must still belong to this
+  /// room, and can only gain evidence before the report is sent for signature.
+  itemId?: string
   kind: CaptureKind
   storagePath: string
   mimeType: string
@@ -419,6 +422,13 @@ export async function registerCapture(input: {
         select: { id: true },
       })
       if (!currentRoom) throw new Error('Room not found')
+      if (input.itemId && inspection.status !== 'AWAITING_SIGNATURE') {
+        const item = await tx.inspectionItem.findFirst({
+          where: { id: input.itemId, roomId: input.roomId },
+          select: { id: true },
+        })
+        if (!item) throw new Error('Item not found')
+      }
       if (await tx.storagePurge.findUnique({
         where: { path: input.storagePath },
         select: { id: true },
@@ -447,6 +457,9 @@ export async function registerCapture(input: {
           durationSec: input.durationSec,
           note: input.note,
           annotations,
+          itemEvidence: input.itemId && inspection.status !== 'AWAITING_SIGNATURE'
+            ? { create: { itemId: input.itemId } }
+            : undefined,
         },
       })
       // A late upload cannot move a finished room back to CAPTURING.

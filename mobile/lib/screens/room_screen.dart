@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/inspection.dart';
@@ -8,6 +11,7 @@ import '../services/api.dart';
 import '../services/product_events.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
+import '../services/capture_store.dart';
 import '../ui/check_in_reference_view.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
@@ -25,12 +29,18 @@ class RoomScreen extends StatefulWidget {
     required this.roomId,
     required this.editable,
     this.api,
+    this.queue,
+    this.ownerId,
+    this.supportDirectory,
   });
 
   final String inspectionId;
   final String roomId;
   final bool editable;
   final Api? api;
+  final CaptureQueue? queue;
+  final String? ownerId;
+  final Future<Directory> Function()? supportDirectory;
 
   @override
   State<RoomScreen> createState() => _RoomScreenState();
@@ -56,6 +66,7 @@ class _RoomScreenState extends State<RoomScreen> {
 
   late Future<RoomDetail> _future = _load();
   bool _busy = false;
+  bool _addingItem = false;
   bool _newestFirst = true;
 
   /// The check-in reference starts closed, as on the web, so the inventory is what the
@@ -135,6 +146,10 @@ class _RoomScreenState extends State<RoomScreen> {
         builder: (_) => CaptureScreen(
           inspectionId: widget.inspectionId,
           roomId: widget.roomId,
+          api: _api,
+          queue: widget.queue,
+          ownerId: widget.ownerId,
+          supportDirectory: widget.supportDirectory,
         ),
       ),
     );
@@ -315,12 +330,69 @@ class _RoomScreenState extends State<RoomScreen> {
     InventoryItem item,
     List<EvidenceCapture> captures,
   ) async {
-    final data = await showKiviloDrawer<Map<String, dynamic>>(
+    final canLinkExistingMedia =
+        captures.isEmpty ||
+        await _mediaUploaded(captures.map((capture) => capture.id));
+    // A capture may have finished uploading just before this drawer opened.
+    // Start the optional media selector from that committed attachment state.
+    final latest = canLinkExistingMedia && captures.isNotEmpty
+        ? await _api.room(widget.inspectionId, widget.roomId)
+        : null;
+    if (!mounted) return;
+    await showKiviloDrawer<void>(
       context: context,
-      builder: (context) => ItemEditor(item: item, captures: captures),
+      builder: (context) => ItemEditor(
+        item: latest == null
+            ? item
+            : latest.items.firstWhere((current) => current.id == item.id),
+        captures: latest?.captures ?? captures,
+        canLinkExistingMedia: canLinkExistingMedia,
+        onSave: (data) => _api.updateItem(widget.inspectionId, item.id, data),
+      ),
     );
-    if (data != null) {
-      await _run(() => _api.updateItem(widget.inspectionId, item.id, data));
+  }
+
+  Future<void> _openItem(InventoryItem item) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => CaptureScreen(
+          inspectionId: widget.inspectionId,
+          roomId: widget.roomId,
+          itemId: item.id,
+          itemName: item.name,
+          api: _api,
+          onEditItem: _editItem,
+          queue: widget.queue,
+          ownerId: widget.ownerId,
+          supportDirectory: widget.supportDirectory,
+        ),
+      ),
+    );
+    if (mounted) await _refresh();
+  }
+
+  Future<void> _addItem() async {
+    if (_busy || _addingItem) return;
+    _addingItem = true;
+    InventoryItem? added;
+    List<EvidenceCapture> captures = const [];
+    await _run(() async {
+      final id = await _api.addItem(widget.inspectionId, widget.roomId);
+      final room = await _load();
+      added = room.items.firstWhere((item) => item.id == id);
+      captures = room.captures;
+    });
+    if (!mounted || added == null) {
+      if (mounted) setState(() => _addingItem = false);
+      return;
+    }
+    try {
+      await _editItem(added!, captures);
+      if (mounted) await _openItem(added!);
+    } catch (error) {
+      if (mounted) setState(() => _error = plainError(error));
+    } finally {
+      if (mounted) setState(() => _addingItem = false);
     }
   }
 
@@ -343,7 +415,11 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
     if (confirmed == true) {
-      await _run(() => _api.deleteItem(widget.inspectionId, item.id));
+      await _run(() async {
+        final room = await _api.room(widget.inspectionId, widget.roomId);
+        if (!await _ensureMediaUploaded(room, itemId: item.id)) return;
+        await _api.deleteItem(widget.inspectionId, item.id);
+      });
     }
   }
 
@@ -372,14 +448,102 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
     if (confirmed == true) {
-      await _run(
-        () => _api.markRoomReviewed(
+      await _reviewRoom(nothingToRecord: true);
+    }
+  }
+
+  Future<void> _reviewRoom({bool nothingToRecord = false}) => _run(() async {
+    final room = await _api.room(widget.inspectionId, widget.roomId);
+    if (!await _ensureMediaUploaded(room)) return;
+    if (room.status != 'REVIEW' && room.status != 'REVIEWED') {
+      await _api.finishRoom(widget.inspectionId, widget.roomId);
+    }
+    await _api.markRoomReviewed(
+      widget.inspectionId,
+      widget.roomId,
+      nothingToRecord: nothingToRecord,
+    );
+  });
+
+  Future<bool> _mediaUploaded(
+    Iterable<String> serverCaptureIds, {
+    String? itemId,
+  }) async {
+    final ownerId =
+        widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id;
+    if (ownerId == null) {
+      throw const ApiFailure('Sign in again to continue.', 401);
+    }
+    final queue = widget.queue ?? CaptureQueue();
+    late final ({int captures, int edits}) pending;
+    late final List<String> unresolved;
+    try {
+      final root =
+          await (widget.supportDirectory ?? getApplicationSupportDirectory)();
+      final pickerIntent = File('${root.path}/capture-picker.json');
+      if (await pickerIntent.exists()) {
+        final intent =
+            jsonDecode(await pickerIntent.readAsString())
+                as Map<String, dynamic>;
+        if (intent['ownerId'] == ownerId &&
+            intent['inspectionId'] == widget.inspectionId &&
+            intent['roomId'] == widget.roomId &&
+            (itemId == null || intent['itemId'] == itemId)) {
+          return false;
+        }
+      }
+      unresolved = await CaptureStore(
+        queue: queue,
+        root: root,
+      ).reconcile(ownerId, roomId: widget.roomId);
+      if (itemId == null) {
+        pending = await queue.pendingForRoom(
           widget.inspectionId,
           widget.roomId,
-          nothingToRecord: true,
-        ),
-      );
+          ownerId,
+          serverCaptureIds,
+        );
+      } else {
+        final captures = await queue.forRoom(widget.roomId, ownerId);
+        pending = (
+          captures: captures
+              .where((capture) => capture.itemId == itemId)
+              .length,
+          edits: 0,
+        );
+      }
+    } finally {
+      if (widget.queue == null) await queue.close();
     }
+    return pending.captures == 0 && pending.edits == 0 && unresolved.isEmpty;
+  }
+
+  Future<bool> _ensureMediaUploaded(RoomDetail room, {String? itemId}) async {
+    if (await _mediaUploaded(
+      room.captures.map((capture) => capture.id),
+      itemId: itemId,
+    )) {
+      return true;
+    }
+    if (!mounted) return false;
+    await showKiviloDrawer<void>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: const Text('Still uploading'),
+        content: const Text(
+          'Some photos, videos or changes in this room have not uploaded yet. '
+          'Open the item or Room media & walkthrough to finish any photo marks '
+          'and retry uploads before continuing.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    return false;
   }
 
   Future<void> _rename(RoomDetail room) async {
@@ -462,44 +626,9 @@ class _RoomScreenState extends State<RoomScreen> {
       _error = null;
     });
     try {
-      final ownerId = Supabase.instance.client.auth.currentUser?.id;
-      if (ownerId == null) {
-        throw StateError('Sign in again before deleting this room.');
-      }
       final room = await _api.room(widget.inspectionId, widget.roomId);
-      final queue = CaptureQueue();
-      late final ({int captures, int edits}) pending;
-      try {
-        pending = await queue.pendingForRoom(
-          widget.inspectionId,
-          widget.roomId,
-          ownerId,
-          room.captures.map((capture) => capture.id),
-        );
-      } finally {
-        await queue.close();
-      }
+      if (!await _ensureMediaUploaded(room)) return;
       if (!mounted) return;
-      if (pending.captures > 0 || pending.edits > 0) {
-        await showKiviloDrawer<void>(
-          context: context,
-          builder: (context) => KiviloDrawer(
-            title: const Text('Still uploading'),
-            content: Text(
-              'Some photos, videos or changes in this room have not uploaded '
-              'yet. Open camera & media and tap Retry uploads before deleting '
-              'the room.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-        return;
-      }
       final confirmed = await showKiviloDrawer<bool>(
         context: context,
         builder: (context) => KiviloDrawer(
@@ -533,281 +662,383 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.room,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Room')),
-    body: KiviloContent(
-      maxWidth: 1200,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 840;
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: FutureBuilder<RoomDetail>(
-              future: _future,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData && !snapshot.hasError) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return ListView(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                          'Could not open this room. ${plainError(snapshot.error!)}',
+      appBar: AppBar(title: const Text('Room')),
+      body: KiviloContent(
+        maxWidth: 1200,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 840;
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: FutureBuilder<RoomDetail>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData && !snapshot.hasError) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return ListView(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            'Could not open this room. ${plainError(snapshot.error!)}',
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  final room = snapshot.data!;
+                  final photos = room.captures
+                      .where((capture) => capture.kind == 'PHOTO')
+                      .length;
+                  final videos = room.captures.length - photos;
+                  final checkIn = room.checkIn;
+                  final inventory = <Widget>[
+                    if (checkIn != null) ...[
+                      KiviloSectionHeading(
+                        title: 'At check-in',
+                        subtitle: checkIn.conductedAt == null
+                            ? 'This room as it was signed'
+                            : 'This room as it was signed on ${shortDate(checkIn.conductedAt!)}',
+                        action: TextButton(
+                          onPressed: () =>
+                              setState(() => _showCheckIn = !_showCheckIn),
+                          child: Text(_showCheckIn ? 'Hide' : 'Show'),
                         ),
                       ),
+                      if (_showCheckIn) ...[
+                        const SizedBox(height: 12),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+                            child: CheckInReferenceView(reference: checkIn),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
                     ],
-                  );
-                }
-                final room = snapshot.data!;
-                final photos = room.captures
-                    .where((capture) => capture.kind == 'PHOTO')
-                    .length;
-                final videos = room.captures.length - photos;
-                final checkIn = room.checkIn;
-                final inventory = <Widget>[
-                  if (checkIn != null) ...[
                     KiviloSectionHeading(
-                      title: 'At check-in',
-                      subtitle: checkIn.conductedAt == null
-                          ? 'This room as it was signed'
-                          : 'This room as it was signed on ${shortDate(checkIn.conductedAt!)}',
-                      action: TextButton(
-                        onPressed: () =>
-                            setState(() => _showCheckIn = !_showCheckIn),
-                        child: Text(_showCheckIn ? 'Hide' : 'Show'),
-                      ),
+                      title: 'Inventory',
+                      subtitle:
+                          '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
+                      action: widget.editable
+                          ? TextButton.icon(
+                              onPressed: _busy || _addingItem ? null : _addItem,
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add'),
+                            )
+                          : null,
                     ),
-                    if (_showCheckIn) ...[
-                      const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                    if (room.items.isEmpty)
                       Card(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-                          child: CheckInReferenceView(reference: checkIn),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                  ],
-                  KiviloSectionHeading(
-                    title: 'Inventory',
-                    subtitle:
-                        '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
-                    action: widget.editable
-                        ? TextButton.icon(
-                            onPressed: _busy
-                                ? null
-                                : () => _run(
-                                    () => _api.addItem(
-                                      widget.inspectionId,
-                                      widget.roomId,
-                                    ),
-                                  ),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add'),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  if (room.items.isEmpty)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 28,
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.inventory_2_outlined,
-                              size: 32,
-                              color: KiviloColors.subtle,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'No inventory items yet',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Add each item you see in this room.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  for (final item in room.items) ...[
-                    _inventoryCard(
-                      item,
-                      room.captures,
-                      checkIn?.lines
-                          .where((line) => line.key == item.baselineKey)
-                          .firstOrNull,
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ];
-                final media = <Widget>[
-                  KiviloSectionHeading(
-                    title: 'Media',
-                    subtitle: room.captures.isEmpty
-                        ? 'Photos and videos of this room'
-                        : room.captures.length == 1
-                        ? '1 photo or video'
-                        : '${room.captures.length} photos and videos',
-                    action: room.captures.length > 1
-                        ? TextButton(
-                            onPressed: () =>
-                                setState(() => _newestFirst = !_newestFirst),
-                            child: Text(
-                              _newestFirst ? 'Newest first' : 'Oldest first',
-                            ),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  if (room.captures.isEmpty)
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 28,
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.photo_camera_back_outlined,
-                              size: 32,
-                              color: KiviloColors.subtle,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'No photos or videos yet',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Photos and videos appear here once they upload.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (room.captures.isNotEmpty)
-                    if (wide)
-                      SizedBox(
-                        height: (constraints.maxHeight * .65).clamp(360, 560),
-                        child: GridView.builder(
-                          key: PageStorageKey('room-media-${widget.roomId}'),
-                          primary: false,
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 220,
-                                childAspectRatio: 1.15,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                              ),
-                          itemCount: room.captures.length,
-                          itemBuilder: (_, index) {
-                            final number = _newestFirst
-                                ? room.captures.length - index
-                                : index + 1;
-                            return _evidenceCard(
-                              room.captures[number - 1],
-                              number,
-                            );
-                          },
-                        ),
-                      )
-                    else
-                      SizedBox(
-                        height: 132,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: room.captures.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 10),
-                          itemBuilder: (_, index) {
-                            // A capture keeps the number it was added with in either order.
-                            final number = _newestFirst
-                                ? room.captures.length - index
-                                : index + 1;
-                            return _evidenceCard(
-                              room.captures[number - 1],
-                              number,
-                            );
-                          },
-                        ),
-                      ),
-                  if (widget.editable && room.status == 'REVIEW') ...[
-                    const SizedBox(height: 10),
-                    Card(
-                      color: KiviloColors.pinkSoft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Finish this room',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              room.items.isEmpty
-                                  ? 'Add an item, or confirm there is nothing to record in this room.'
-                                  : 'Check every item against the photos and video. Your review makes this room ready for the report.',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 14),
-                            FilledButton.icon(
-                              onPressed: _busy || room.items.isEmpty
-                                  ? null
-                                  : () => _run(
-                                      () => _api.markRoomReviewed(
-                                        widget.inspectionId,
-                                        widget.roomId,
-                                      ),
-                                    ),
-                              icon: const Icon(Icons.check_rounded),
-                              label: const Text('I reviewed this room'),
-                            ),
-                            if (room.items.isEmpty) ...[
-                              const SizedBox(height: 8),
-                              OutlinedButton(
-                                onPressed: _busy
-                                    ? null
-                                    : () => _nothingToRecord(room),
-                                child: const Text('Nothing to record'),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ];
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
-                  children: [
-                    if (_api.offlineCopy) ...[
-                      Card(
-                        color: KiviloColors.amberSoft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Row(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 28,
+                          ),
+                          child: Column(
                             children: [
                               const Icon(
-                                Icons.cloud_off_outlined,
-                                color: KiviloColors.amber,
+                                Icons.inventory_2_outlined,
+                                size: 32,
+                                color: KiviloColors.subtle,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'No inventory items yet',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Add an item, then open it to take photos and mark details.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    for (final item in room.items) ...[
+                      _inventoryCard(
+                        item,
+                        room.captures,
+                        checkIn?.lines
+                            .where((line) => line.key == item.baselineKey)
+                            .firstOrNull,
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ];
+                  final media = <Widget>[
+                    KiviloSectionHeading(
+                      title: 'Media',
+                      subtitle: room.captures.isEmpty
+                          ? 'Photos and videos of this room'
+                          : room.captures.length == 1
+                          ? '1 photo or video'
+                          : '${room.captures.length} photos and videos',
+                      action: room.captures.length > 1
+                          ? TextButton(
+                              onPressed: () =>
+                                  setState(() => _newestFirst = !_newestFirst),
+                              child: Text(
+                                _newestFirst ? 'Newest first' : 'Oldest first',
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
+                    if (widget.editable) ...[
+                      OutlinedButton.icon(
+                        onPressed: _busy ? null : _capture,
+                        icon: const Icon(Icons.videocam_outlined),
+                        label: const Text('Room media & walkthrough'),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    if (room.captures.isEmpty)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 28,
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.photo_camera_back_outlined,
+                                size: 32,
+                                color: KiviloColors.subtle,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'No photos or videos yet',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Photos and videos appear here once they upload.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (room.captures.isNotEmpty)
+                      if (wide)
+                        SizedBox(
+                          height: (constraints.maxHeight * .65).clamp(360, 560),
+                          child: GridView.builder(
+                            key: PageStorageKey('room-media-${widget.roomId}'),
+                            primary: false,
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 220,
+                                  childAspectRatio: 1.15,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                            itemCount: room.captures.length,
+                            itemBuilder: (_, index) {
+                              final number = _newestFirst
+                                  ? room.captures.length - index
+                                  : index + 1;
+                              return _evidenceCard(
+                                room.captures[number - 1],
+                                number,
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        SizedBox(
+                          height: 132,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: room.captures.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(width: 10),
+                            itemBuilder: (_, index) {
+                              // A capture keeps the number it was added with in either order.
+                              final number = _newestFirst
+                                  ? room.captures.length - index
+                                  : index + 1;
+                              return _evidenceCard(
+                                room.captures[number - 1],
+                                number,
+                              );
+                            },
+                          ),
+                        ),
+                    if (widget.editable && room.status != 'REVIEWED') ...[
+                      const SizedBox(height: 10),
+                      Card(
+                        color: KiviloColors.pinkSoft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'Finish this room',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                room.items.isEmpty
+                                    ? 'Add an item, or confirm there is nothing to record in this room.'
+                                    : 'Check every item against the photos and video. Your review makes this room ready for the report.',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 14),
+                              FilledButton.icon(
+                                onPressed: _busy || room.items.isEmpty
+                                    ? null
+                                    : _reviewRoom,
+                                icon: const Icon(Icons.check_rounded),
+                                label: const Text('I reviewed this room'),
+                              ),
+                              if (room.items.isEmpty) ...[
+                                const SizedBox(height: 8),
+                                OutlinedButton(
+                                  onPressed: _busy
+                                      ? null
+                                      : () => _nothingToRecord(room),
+                                  child: const Text('Nothing to record'),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ];
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+                    children: [
+                      if (_api.offlineCopy) ...[
+                        Card(
+                          color: KiviloColors.amberSoft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.cloud_off_outlined,
+                                  color: KiviloColors.amber,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Offline copy. Keep capturing; review edits need a connection.',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                      ],
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: KiviloColors.pinkSoft,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.meeting_room_outlined,
+                              color: KiviloColors.pinkDark,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'ROOM RECORD',
+                                  style: TextStyle(
+                                    color: KiviloColors.pinkDark,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.1,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  room.name,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (widget.editable)
+                            IconButton(
+                              onPressed: _busy
+                                  ? null
+                                  : () => unawaited(_openRoomActions(room)),
+                              icon: const Icon(Icons.more_horiz),
+                              tooltip: 'Room actions',
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          KiviloStatusPill(status: room.status),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} · $photos photos · $videos videos',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Card(
+                        color: KiviloColors.canvas,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                room.status == 'REVIEWED'
+                                    ? Icons.check_circle_outline
+                                    : Icons.info_outline,
+                                size: 20,
+                                color: room.status == 'REVIEWED'
+                                    ? KiviloColors.green
+                                    : KiviloColors.muted,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'Offline copy. Keep capturing; review edits need a connection.',
+                                  !widget.editable
+                                      ? 'This inventory is fixed for signing. Media remains available below.'
+                                      : switch (room.status) {
+                                          'PENDING' =>
+                                            'Start with the inventory. Open an item to add photos and mark details.',
+                                          'REVIEW' =>
+                                            'Open each inventory item to check its details and add photos, then mark this room reviewed.',
+                                          'REVIEWED' =>
+                                            'This room has been reviewed. Open an item to update its details or add photos.',
+                                          _ =>
+                                            'Add each item to the inventory, then open it to take photos and mark details.',
+                                        },
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ),
@@ -815,167 +1046,57 @@ class _RoomScreenState extends State<RoomScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
-                    ],
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: KiviloColors.pinkSoft,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(
-                            Icons.meeting_room_outlined,
-                            color: KiviloColors.pinkDark,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'ROOM RECORD',
-                                style: TextStyle(
-                                  color: KiviloColors.pinkDark,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                room.name,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium,
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (widget.editable)
-                          IconButton(
-                            onPressed: _busy
-                                ? null
-                                : () => unawaited(_openRoomActions(room)),
-                            icon: const Icon(Icons.more_horiz),
-                            tooltip: 'Room actions',
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        KiviloStatusPill(status: room.status),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} · $photos photos · $videos videos',
-                            style: Theme.of(context).textTheme.bodySmall,
+                      if (_error != null) ...[
+                        const SizedBox(height: 12),
+                        Card(
+                          color: KiviloColors.redSoft,
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Text(
+                              _error!,
+                              style: const TextStyle(color: KiviloColors.red),
+                            ),
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 18),
-                    Card(
-                      color: KiviloColors.canvas,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
+                      const SizedBox(height: 30),
+                      if (wide)
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              room.status == 'REVIEWED'
-                                  ? Icons.check_circle_outline
-                                  : Icons.info_outline,
-                              size: 20,
-                              color: room.status == 'REVIEWED'
-                                  ? KiviloColors.green
-                                  : KiviloColors.muted,
-                            ),
-                            const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                !widget.editable
-                                    ? 'This inventory is fixed for signing. Media remains available below.'
-                                    : switch (room.status) {
-                                        'PENDING' =>
-                                          'Start with a narrated walkthrough, then photograph labels and details.',
-                                        'REVIEW' =>
-                                          'Add each item you see, checked against the media, then mark this room reviewed.',
-                                        'REVIEWED' =>
-                                          'This room has been reviewed. You can still add media while the report is open.',
-                                        _ =>
-                                          'Keep capturing. When you are done, write the room inventory from your photos and videos.',
-                                      },
-                                style: Theme.of(context).textTheme.bodyMedium,
+                              flex: 3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: inventory,
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: media,
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                    ),
-                    if (_error != null) ...[
-                      const SizedBox(height: 12),
-                      Card(
-                        color: KiviloColors.redSoft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Text(
-                            _error!,
-                            style: const TextStyle(color: KiviloColors.red),
-                          ),
-                        ),
-                      ),
+                        )
+                      else ...[
+                        ...inventory,
+                        const SizedBox(height: 20),
+                        ...media,
+                      ],
+                      if (_busy)
+                        const Center(child: CircularProgressIndicator()),
                     ],
-                    if (widget.editable) ...[
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        onPressed: _busy ? null : _capture,
-                        icon: const Icon(Icons.camera_alt_outlined),
-                        label: const Text('Open camera & media'),
-                      ),
-                    ],
-                    const SizedBox(height: 30),
-                    if (wide)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: inventory,
-                            ),
-                          ),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: media,
-                            ),
-                          ),
-                        ],
-                      )
-                    else ...[
-                      ...inventory,
-                      const SizedBox(height: 20),
-                      ...media,
-                    ],
-                    if (_busy) const Center(child: CircularProgressIndicator()),
-                  ],
-                );
-              },
-            ),
-          );
-        },
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
     ),
-  ),
   );
 
   Widget _evidenceCard(EvidenceCapture capture, int number) => Semantics(
@@ -1077,89 +1198,96 @@ class _RoomScreenState extends State<RoomScreen> {
             ].join(' · '),
           ].join(' ');
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    item.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                if (widget.editable) ...[
-                  IconButton(
-                    tooltip: 'Edit item',
-                    visualDensity: VisualDensity.compact,
-                    icon: const Icon(Icons.edit_outlined, size: 20),
-                    onPressed: _busy ? null : () => _editItem(item, captures),
-                  ),
-                  IconButton(
-                    tooltip: 'Delete item',
-                    visualDensity: VisualDensity.compact,
-                    icon: const Icon(Icons.delete_outline, size: 20),
-                    onPressed: _busy ? null : () => _deleteItem(item),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 5),
-            Wrap(
-              spacing: 7,
-              runSpacing: 7,
-              children: [
-                _itemTag(item.category.replaceAll('_', ' ')),
-                _itemTag(item.condition.replaceAll('_', ' ')),
-                _itemTag('Qty ${item.quantity}'),
-              ],
-            ),
-            if (item.identifier != null) ...[
-              const SizedBox(height: 10),
-              Text(
-                'Identifier  ${item.identifier}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            if (item.meterReading != null) ...[
-              const SizedBox(height: 5),
-              Text(
-                'Reading  ${item.meterReading}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            if (item.notes != null) ...[
-              const SizedBox(height: 9),
-              Text(item.notes!, style: Theme.of(context).textTheme.bodyMedium),
-            ],
-            if (atCheckIn != null) ...[
-              const SizedBox(height: 9),
-              Text(atCheckIn, style: Theme.of(context).textTheme.bodySmall),
-            ],
-            if (attached.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Attached media',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              const SizedBox(height: 7),
-              Wrap(
-                spacing: 9,
-                runSpacing: 9,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: widget.editable && !_busy ? () => _openItem(item) : null,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final capture in attached)
-                    _attachedMediaPreview(
-                      item,
-                      capture,
-                      captures.indexOf(capture) + 1,
+                  Expanded(
+                    child: Text(
+                      item.name,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
+                  ),
+                  if (widget.editable) ...[
+                    IconButton(
+                      tooltip: 'Open item',
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.chevron_right, size: 22),
+                      onPressed: _busy ? null : () => _openItem(item),
+                    ),
+                    IconButton(
+                      tooltip: 'Delete item',
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      onPressed: _busy ? null : () => _deleteItem(item),
+                    ),
+                  ],
                 ],
               ),
+              const SizedBox(height: 5),
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: [
+                  _itemTag(item.category.replaceAll('_', ' ')),
+                  _itemTag(item.condition.replaceAll('_', ' ')),
+                  _itemTag('Qty ${item.quantity}'),
+                ],
+              ),
+              if (item.identifier != null) ...[
+                const SizedBox(height: 10),
+                Text(
+                  'Identifier  ${item.identifier}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+              if (item.meterReading != null) ...[
+                const SizedBox(height: 5),
+                Text(
+                  'Reading  ${item.meterReading}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+              if (item.notes != null) ...[
+                const SizedBox(height: 9),
+                Text(
+                  item.notes!,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+              if (atCheckIn != null) ...[
+                const SizedBox(height: 9),
+                Text(atCheckIn, style: Theme.of(context).textTheme.bodySmall),
+              ],
+              if (attached.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Attached media',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: 7),
+                Wrap(
+                  spacing: 9,
+                  runSpacing: 9,
+                  children: [
+                    for (final capture in attached)
+                      _attachedMediaPreview(
+                        item,
+                        capture,
+                        captures.indexOf(capture) + 1,
+                      ),
+                  ],
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -1306,9 +1434,17 @@ class _EvidenceNoteDrawerState extends State<_EvidenceNoteDrawer> {
 }
 
 class ItemEditor extends StatefulWidget {
-  const ItemEditor({super.key, required this.item, required this.captures});
+  const ItemEditor({
+    super.key,
+    required this.item,
+    required this.captures,
+    required this.onSave,
+    this.canLinkExistingMedia = true,
+  });
   final InventoryItem item;
   final List<EvidenceCapture> captures;
+  final Future<void> Function(Map<String, dynamic>) onSave;
+  final bool canLinkExistingMedia;
 
   @override
   State<ItemEditor> createState() => _ItemEditorState();
@@ -1327,6 +1463,9 @@ class _ItemEditorState extends State<ItemEditor> {
   late final Set<String> _evidenceCaptureIds = {
     ...widget.item.evidenceCaptureIds,
   };
+  bool _showExistingMedia = false;
+  bool _evidenceChanged = false;
+  bool _saving = false;
   String? _error;
 
   @override
@@ -1343,7 +1482,8 @@ class _ItemEditorState extends State<ItemEditor> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
+    if (_saving) return;
     final count = int.tryParse(_quantity.text.trim());
     if (_name.text.trim().isEmpty || count == null || count < 1) {
       setState(
@@ -1351,7 +1491,7 @@ class _ItemEditorState extends State<ItemEditor> {
       );
       return;
     }
-    Navigator.pop(context, <String, dynamic>{
+    final data = <String, dynamic>{
       'name': _name.text.trim(),
       'quantity': count,
       'category': _category,
@@ -1363,203 +1503,251 @@ class _ItemEditorState extends State<ItemEditor> {
       'meterReading': _meterReading.text.trim().isEmpty
           ? null
           : _meterReading.text.trim(),
-      'evidenceCaptureIds': _evidenceCaptureIds.toList(),
+      if (_evidenceChanged) 'evidenceCaptureIds': _evidenceCaptureIds.toList(),
+    };
+    setState(() {
+      _saving = true;
+      _error = null;
     });
+    try {
+      await widget.onSave(data);
+      if (!mounted) return;
+      setState(() => _saving = false);
+      Navigator.pop(context);
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _error = plainError(error);
+        });
+      }
+    }
   }
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.fromLTRB(
-      20,
-      12,
-      20,
-      MediaQuery.viewInsetsOf(context).bottom + 24,
-    ),
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 34,
-              height: 4,
-              decoration: BoxDecoration(
-                color: KiviloColors.border,
-                borderRadius: BorderRadius.circular(4),
+  Widget build(BuildContext context) => PopScope(
+    canPop: !_saving,
+    child: AbsorbPointer(
+      absorbing: _saving,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          12,
+          20,
+          MediaQuery.viewInsetsOf(context).bottom + 24,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 34,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: KiviloColors.border,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Edit inventory item',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Confirm the details against the room\'s media.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
-          TextField(
-            controller: _name,
-            decoration: const InputDecoration(labelText: 'Name'),
-          ),
-          const SizedBox(height: 12),
-          KiviloSelectField<String>(
-            label: 'Category',
-            value: _category,
-            options: const [
-              KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-              KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-              KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-              KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-              KiviloSelectOption(value: 'METER', label: 'Meter'),
-            ],
-            onChanged: (value) => setState(() => _category = value),
-          ),
-          const SizedBox(height: 12),
-          KiviloSelectField<String>(
-            label: 'Condition',
-            value: _condition,
-            options: const [
-              KiviloSelectOption(value: 'NEW', label: 'New'),
-              KiviloSelectOption(value: 'GOOD', label: 'Good'),
-              KiviloSelectOption(value: 'FAIR', label: 'Fair'),
-              KiviloSelectOption(value: 'POOR', label: 'Poor'),
-              KiviloSelectOption(value: 'DAMAGED', label: 'Damaged'),
-            ],
-            onChanged: (value) => setState(() => _condition = value),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _quantity,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Quantity'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _identifier,
-            decoration: const InputDecoration(
-              labelText: 'Make, model or serial',
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _meterReading,
-            decoration: const InputDecoration(labelText: 'Meter reading'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _notes,
-            minLines: 2,
-            maxLines: 4,
-            decoration: const InputDecoration(labelText: 'Notes'),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Attached media',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Choose the room photos and videos that support this inventory line. Their notes and photo marks stay attached.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 10),
-          if (widget.captures.isEmpty)
-            const Text('No media in this room yet.')
-          else
-            ...widget.captures.indexed.map((entry) {
-              final (index, capture) = entry;
-              final selected = _evidenceCaptureIds.contains(capture.id);
-              final detail = [
-                if (capture.note?.trim().isNotEmpty ?? false)
-                  capture.note!.trim(),
-                if (capture.annotations != null) 'Has photo marks',
-              ].join(' · ');
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Material(
-                  color: selected ? KiviloColors.pinkSoft : KiviloColors.canvas,
-                  borderRadius: BorderRadius.circular(14),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
-                    onTap: () => setState(() {
-                      if (selected) {
-                        _evidenceCaptureIds.remove(capture.id);
-                      } else {
-                        _evidenceCaptureIds.add(capture.id);
-                      }
-                    }),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: SizedBox(
-                              width: 54,
-                              height: 54,
-                              child: ColoredBox(
-                                color: Colors.white,
-                                child: capture.kind == 'PHOTO'
-                                    ? MarkedNetworkPhoto(
-                                        url: capture.url,
-                                        annotations: capture.annotations,
-                                      )
-                                    : VideoPoster(
-                                        posterUrl: capture.posterUrl,
-                                        iconSize: 24,
-                                      ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 20),
+              Text(
+                'Edit inventory item',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Describe this item. Take photos from its inventory page.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _name,
+                decoration: const InputDecoration(labelText: 'Name'),
+              ),
+              const SizedBox(height: 12),
+              KiviloSelectField<String>(
+                label: 'Category',
+                value: _category,
+                options: const [
+                  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
+                  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
+                  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
+                  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
+                  KiviloSelectOption(value: 'METER', label: 'Meter'),
+                ],
+                onChanged: (value) => setState(() => _category = value),
+              ),
+              const SizedBox(height: 12),
+              KiviloSelectField<String>(
+                label: 'Condition',
+                value: _condition,
+                options: const [
+                  KiviloSelectOption(value: 'NEW', label: 'New'),
+                  KiviloSelectOption(value: 'GOOD', label: 'Good'),
+                  KiviloSelectOption(value: 'FAIR', label: 'Fair'),
+                  KiviloSelectOption(value: 'POOR', label: 'Poor'),
+                  KiviloSelectOption(value: 'DAMAGED', label: 'Damaged'),
+                ],
+                onChanged: (value) => setState(() => _condition = value),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _quantity,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Quantity'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _identifier,
+                decoration: const InputDecoration(
+                  labelText: 'Make, model or serial',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _meterReading,
+                decoration: const InputDecoration(labelText: 'Meter reading'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _notes,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Notes'),
+              ),
+              if (widget.captures.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                if (widget.canLinkExistingMedia)
+                  TextButton.icon(
+                    onPressed: () => setState(
+                      () => _showExistingMedia = !_showExistingMedia,
+                    ),
+                    icon: const Icon(Icons.link_outlined),
+                    label: Text(
+                      _showExistingMedia
+                          ? 'Hide existing room media'
+                          : 'Link existing room media',
+                    ),
+                  )
+                else
+                  const Text(
+                    'Finish uploading this room’s photos before linking existing media.',
+                  ),
+              ],
+              if (_showExistingMedia) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Choose the room photos and videos that support this inventory line. Their notes and photo marks stay attached.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 10),
+                if (widget.captures.isEmpty)
+                  const Text('No media in this room yet.')
+                else
+                  ...widget.captures.indexed.map((entry) {
+                    final (index, capture) = entry;
+                    final selected = _evidenceCaptureIds.contains(capture.id);
+                    final detail = [
+                      if (capture.note?.trim().isNotEmpty ?? false)
+                        capture.note!.trim(),
+                      if (capture.annotations != null) 'Has photo marks',
+                    ].join(' · ');
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Material(
+                        color: selected
+                            ? KiviloColors.pinkSoft
+                            : KiviloColors.canvas,
+                        borderRadius: BorderRadius.circular(14),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => setState(() {
+                            _evidenceChanged = true;
+                            if (selected) {
+                              _evidenceCaptureIds.remove(capture.id);
+                            } else {
+                              _evidenceCaptureIds.add(capture.id);
+                            }
+                          }),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
                               children: [
-                                Text(
-                                  '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} ${index + 1}',
-                                  style: Theme.of(context).textTheme.labelLarge,
-                                ),
-                                if (detail.isNotEmpty) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    detail,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: SizedBox(
+                                    width: 54,
+                                    height: 54,
+                                    child: ColoredBox(
+                                      color: Colors.white,
+                                      child: capture.kind == 'PHOTO'
+                                          ? MarkedNetworkPhoto(
+                                              url: capture.url,
+                                              annotations: capture.annotations,
+                                            )
+                                          : VideoPoster(
+                                              posterUrl: capture.posterUrl,
+                                              iconSize: 24,
+                                            ),
+                                    ),
                                   ),
-                                ],
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} ${index + 1}',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelLarge,
+                                      ),
+                                      if (detail.isNotEmpty) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          detail,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  selected
+                                      ? Icons.check_circle
+                                      : Icons.circle_outlined,
+                                  color: selected
+                                      ? KiviloColors.pink
+                                      : KiviloColors.subtle,
+                                ),
                               ],
                             ),
                           ),
-                          Icon(
-                            selected
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: selected
-                                ? KiviloColors.pink
-                                : KiviloColors.subtle,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          if (_error != null) ...[
-            const SizedBox(height: 10),
-            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
-          ],
-          const SizedBox(height: 20),
-          FilledButton(onPressed: _save, child: const Text('Save changes')),
-        ],
+                    );
+                  }),
+              ],
+              if (_error != null) ...[
+                const SizedBox(height: 10),
+                Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+              ],
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _saving ? null : _save,
+                child: Text(_saving ? 'Saving…' : 'Save changes'),
+              ),
+            ],
+          ),
+        ),
       ),
     ),
   );

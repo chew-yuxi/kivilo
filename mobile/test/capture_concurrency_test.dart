@@ -57,6 +57,76 @@ void main() {
     expect((await second.byId(claimed.id))!.leaseId, claimed.leaseId);
   });
 
+  test('version 6 upgrade preserves existing queued evidence', () async {
+    final id = await enqueue();
+    await first.setNote(id, 'Existing room evidence');
+    await first.setAnnotations(id, '{"w":640,"h":480,"marks":[]}');
+    // Remove only the additive version 7 columns to recreate the shipped schema.
+    for (final column in [
+      'item_id',
+      'awaiting_markup',
+      'registration_item_applied',
+    ]) {
+      await first.customStatement(
+        'ALTER TABLE pending_captures DROP COLUMN $column',
+      );
+    }
+    await first.customStatement('PRAGMA user_version = 6');
+    await first.close();
+    first = CaptureQueue(
+      NativeDatabase.createInBackground(File('${directory.path}/queue.sqlite')),
+    );
+
+    final migrated = (await first.byId(id))!;
+    expect(migrated.clientId, 'capture-a');
+    expect(migrated.note, 'Existing room evidence');
+    expect(migrated.annotations, '{"w":640,"h":480,"marks":[]}');
+    expect(migrated.itemId, isNull);
+    expect(migrated.awaitingMarkup, isFalse);
+    expect(migrated.registrationItemApplied, isTrue);
+    expect(
+      await first.claimNext(DateTime.now(), ownerId: 'owner-a'),
+      isNotNull,
+    );
+  });
+
+  test('unfinished item marks stay held across workers and restarts', () async {
+    final id = await first.enqueue(
+      PendingCapturesCompanion.insert(
+        ownerId: const Value('owner-a'),
+        clientId: const Value('item-capture'),
+        inspectionId: 'inspection-a',
+        roomId: 'room-a',
+        itemId: const Value('item-a'),
+        awaitingMarkup: const Value(true),
+        kind: 'PHOTO',
+        relativePath: 'captures/owner-a/item-capture.jpg',
+        filename: 'item-capture.jpg',
+        mimeType: 'image/jpeg',
+        sizeBytes: 128,
+        createdAt: DateTime.utc(2026, 10, 21),
+      ),
+    );
+    const marks = '{"w":640,"h":480,"marks":[]}';
+    await first.setAnnotations(id, marks);
+    expect(await second.claimNext(DateTime.now(), ownerId: 'owner-a'), isNull);
+
+    await first.close();
+    first = CaptureQueue(
+      NativeDatabase.createInBackground(File('${directory.path}/queue.sqlite')),
+    );
+    expect(await first.claimNext(DateTime.now(), ownerId: 'owner-a'), isNull);
+    final draft = (await first.byId(id))!;
+    expect(draft.itemId, 'item-a');
+    expect(draft.annotations, marks);
+    expect(draft.awaitingMarkup, isTrue);
+
+    await first.finishMarkup(id);
+    final ready = (await second.claimNext(DateTime.now(), ownerId: 'owner-a'))!;
+    expect(ready.itemId, 'item-a');
+    expect(ready.annotations, marks);
+  });
+
   test(
     'renewal and stale-worker fencing hold across SQLite connections',
     () async {

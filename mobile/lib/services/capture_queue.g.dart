@@ -65,6 +65,15 @@ class $PendingCapturesTable extends PendingCaptures
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+    'item_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _kindMeta = const VerificationMeta('kind');
   @override
   late final GeneratedColumn<String> kind = GeneratedColumn<String>(
@@ -73,6 +82,21 @@ class $PendingCapturesTable extends PendingCaptures
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _awaitingMarkupMeta = const VerificationMeta(
+    'awaitingMarkup',
+  );
+  @override
+  late final GeneratedColumn<bool> awaitingMarkup = GeneratedColumn<bool>(
+    'awaiting_markup',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("awaiting_markup" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
   );
   static const VerificationMeta _relativePathMeta = const VerificationMeta(
     'relativePath',
@@ -211,6 +235,21 @@ class $PendingCapturesTable extends PendingCaptures
         ),
         defaultValue: const Constant(true),
       );
+  static const VerificationMeta _registrationItemAppliedMeta =
+      const VerificationMeta('registrationItemApplied');
+  @override
+  late final GeneratedColumn<bool> registrationItemApplied =
+      GeneratedColumn<bool>(
+        'registration_item_applied',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("registration_item_applied" IN (0, 1))',
+        ),
+        defaultValue: const Constant(true),
+      );
   static const VerificationMeta _storagePathMeta = const VerificationMeta(
     'storagePath',
   );
@@ -300,7 +339,9 @@ class $PendingCapturesTable extends PendingCaptures
     clientId,
     roomId,
     inspectionId,
+    itemId,
     kind,
+    awaitingMarkup,
     relativePath,
     filename,
     mimeType,
@@ -313,6 +354,7 @@ class $PendingCapturesTable extends PendingCaptures
     registrationNote,
     registrationAnnotations,
     registrationAnnotationsApplied,
+    registrationItemApplied,
     storagePath,
     deleteRequested,
     claimedAt,
@@ -367,6 +409,12 @@ class $PendingCapturesTable extends PendingCaptures
     } else if (isInserting) {
       context.missing(_inspectionIdMeta);
     }
+    if (data.containsKey('item_id')) {
+      context.handle(
+        _itemIdMeta,
+        itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta),
+      );
+    }
     if (data.containsKey('kind')) {
       context.handle(
         _kindMeta,
@@ -374,6 +422,15 @@ class $PendingCapturesTable extends PendingCaptures
       );
     } else if (isInserting) {
       context.missing(_kindMeta);
+    }
+    if (data.containsKey('awaiting_markup')) {
+      context.handle(
+        _awaitingMarkupMeta,
+        awaitingMarkup.isAcceptableOrUnknown(
+          data['awaiting_markup']!,
+          _awaitingMarkupMeta,
+        ),
+      );
     }
     if (data.containsKey('relative_path')) {
       context.handle(
@@ -476,6 +533,15 @@ class $PendingCapturesTable extends PendingCaptures
         ),
       );
     }
+    if (data.containsKey('registration_item_applied')) {
+      context.handle(
+        _registrationItemAppliedMeta,
+        registrationItemApplied.isAcceptableOrUnknown(
+          data['registration_item_applied']!,
+          _registrationItemAppliedMeta,
+        ),
+      );
+    }
     if (data.containsKey('storage_path')) {
       context.handle(
         _storagePathMeta,
@@ -555,9 +621,17 @@ class $PendingCapturesTable extends PendingCaptures
         DriftSqlType.string,
         data['${effectivePrefix}inspection_id'],
       )!,
+      itemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_id'],
+      ),
       kind: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}kind'],
+      )!,
+      awaitingMarkup: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}awaiting_markup'],
       )!,
       relativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -607,6 +681,10 @@ class $PendingCapturesTable extends PendingCaptures
         DriftSqlType.bool,
         data['${effectivePrefix}registration_annotations_applied'],
       )!,
+      registrationItemApplied: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}registration_item_applied'],
+      )!,
       storagePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}storage_path'],
@@ -655,7 +733,12 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
   final String? clientId;
   final String roomId;
   final String inspectionId;
+  final String? itemId;
   final String kind;
+
+  /// A new photo stays local until its inspector finishes the immediate mark editor.
+  /// This survives process death: reopening the item resumes the saved draft.
+  final bool awaitingMarkup;
 
   /// Relative to the app support directory, never absolute: iOS moves the container
   /// between launches and an absolute path recorded yesterday points nowhere today.
@@ -681,6 +764,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
   final String? registrationNote;
   final String? registrationAnnotations;
   final bool registrationAnnotationsApplied;
+  final bool registrationItemApplied;
 
   /// Remember the object path as soon as a credential is issued. If the storage PUT
   /// succeeds but its response is lost, the retry uses the same path and clientId.
@@ -701,7 +785,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     this.clientId,
     required this.roomId,
     required this.inspectionId,
+    this.itemId,
     required this.kind,
+    required this.awaitingMarkup,
     required this.relativePath,
     required this.filename,
     required this.mimeType,
@@ -714,6 +800,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     this.registrationNote,
     this.registrationAnnotations,
     required this.registrationAnnotationsApplied,
+    required this.registrationItemApplied,
     this.storagePath,
     required this.deleteRequested,
     this.claimedAt,
@@ -734,7 +821,11 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     }
     map['room_id'] = Variable<String>(roomId);
     map['inspection_id'] = Variable<String>(inspectionId);
+    if (!nullToAbsent || itemId != null) {
+      map['item_id'] = Variable<String>(itemId);
+    }
     map['kind'] = Variable<String>(kind);
+    map['awaiting_markup'] = Variable<bool>(awaitingMarkup);
     map['relative_path'] = Variable<String>(relativePath);
     map['filename'] = Variable<String>(filename);
     map['mime_type'] = Variable<String>(mimeType);
@@ -763,6 +854,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     map['registration_annotations_applied'] = Variable<bool>(
       registrationAnnotationsApplied,
     );
+    map['registration_item_applied'] = Variable<bool>(registrationItemApplied);
     if (!nullToAbsent || storagePath != null) {
       map['storage_path'] = Variable<String>(storagePath);
     }
@@ -792,7 +884,11 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           : Value(clientId),
       roomId: Value(roomId),
       inspectionId: Value(inspectionId),
+      itemId: itemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(itemId),
       kind: Value(kind),
+      awaitingMarkup: Value(awaitingMarkup),
       relativePath: Value(relativePath),
       filename: Value(filename),
       mimeType: Value(mimeType),
@@ -815,6 +911,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           ? const Value.absent()
           : Value(registrationAnnotations),
       registrationAnnotationsApplied: Value(registrationAnnotationsApplied),
+      registrationItemApplied: Value(registrationItemApplied),
       storagePath: storagePath == null && nullToAbsent
           ? const Value.absent()
           : Value(storagePath),
@@ -844,7 +941,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
       clientId: serializer.fromJson<String?>(json['clientId']),
       roomId: serializer.fromJson<String>(json['roomId']),
       inspectionId: serializer.fromJson<String>(json['inspectionId']),
+      itemId: serializer.fromJson<String?>(json['itemId']),
       kind: serializer.fromJson<String>(json['kind']),
+      awaitingMarkup: serializer.fromJson<bool>(json['awaitingMarkup']),
       relativePath: serializer.fromJson<String>(json['relativePath']),
       filename: serializer.fromJson<String>(json['filename']),
       mimeType: serializer.fromJson<String>(json['mimeType']),
@@ -862,6 +961,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
       ),
       registrationAnnotationsApplied: serializer.fromJson<bool>(
         json['registrationAnnotationsApplied'],
+      ),
+      registrationItemApplied: serializer.fromJson<bool>(
+        json['registrationItemApplied'],
       ),
       storagePath: serializer.fromJson<String?>(json['storagePath']),
       deleteRequested: serializer.fromJson<bool>(json['deleteRequested']),
@@ -881,7 +983,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
       'clientId': serializer.toJson<String?>(clientId),
       'roomId': serializer.toJson<String>(roomId),
       'inspectionId': serializer.toJson<String>(inspectionId),
+      'itemId': serializer.toJson<String?>(itemId),
       'kind': serializer.toJson<String>(kind),
+      'awaitingMarkup': serializer.toJson<bool>(awaitingMarkup),
       'relativePath': serializer.toJson<String>(relativePath),
       'filename': serializer.toJson<String>(filename),
       'mimeType': serializer.toJson<String>(mimeType),
@@ -897,6 +1001,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
       ),
       'registrationAnnotationsApplied': serializer.toJson<bool>(
         registrationAnnotationsApplied,
+      ),
+      'registrationItemApplied': serializer.toJson<bool>(
+        registrationItemApplied,
       ),
       'storagePath': serializer.toJson<String?>(storagePath),
       'deleteRequested': serializer.toJson<bool>(deleteRequested),
@@ -914,7 +1021,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     Value<String?> clientId = const Value.absent(),
     String? roomId,
     String? inspectionId,
+    Value<String?> itemId = const Value.absent(),
     String? kind,
+    bool? awaitingMarkup,
     String? relativePath,
     String? filename,
     String? mimeType,
@@ -927,6 +1036,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     Value<String?> registrationNote = const Value.absent(),
     Value<String?> registrationAnnotations = const Value.absent(),
     bool? registrationAnnotationsApplied,
+    bool? registrationItemApplied,
     Value<String?> storagePath = const Value.absent(),
     bool? deleteRequested,
     Value<DateTime?> claimedAt = const Value.absent(),
@@ -940,7 +1050,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     clientId: clientId.present ? clientId.value : this.clientId,
     roomId: roomId ?? this.roomId,
     inspectionId: inspectionId ?? this.inspectionId,
+    itemId: itemId.present ? itemId.value : this.itemId,
     kind: kind ?? this.kind,
+    awaitingMarkup: awaitingMarkup ?? this.awaitingMarkup,
     relativePath: relativePath ?? this.relativePath,
     filename: filename ?? this.filename,
     mimeType: mimeType ?? this.mimeType,
@@ -958,6 +1070,8 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
         : this.registrationAnnotations,
     registrationAnnotationsApplied:
         registrationAnnotationsApplied ?? this.registrationAnnotationsApplied,
+    registrationItemApplied:
+        registrationItemApplied ?? this.registrationItemApplied,
     storagePath: storagePath.present ? storagePath.value : this.storagePath,
     deleteRequested: deleteRequested ?? this.deleteRequested,
     claimedAt: claimedAt.present ? claimedAt.value : this.claimedAt,
@@ -975,7 +1089,11 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
       inspectionId: data.inspectionId.present
           ? data.inspectionId.value
           : this.inspectionId,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
       kind: data.kind.present ? data.kind.value : this.kind,
+      awaitingMarkup: data.awaitingMarkup.present
+          ? data.awaitingMarkup.value
+          : this.awaitingMarkup,
       relativePath: data.relativePath.present
           ? data.relativePath.value
           : this.relativePath,
@@ -1005,6 +1123,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           data.registrationAnnotationsApplied.present
           ? data.registrationAnnotationsApplied.value
           : this.registrationAnnotationsApplied,
+      registrationItemApplied: data.registrationItemApplied.present
+          ? data.registrationItemApplied.value
+          : this.registrationItemApplied,
       storagePath: data.storagePath.present
           ? data.storagePath.value
           : this.storagePath,
@@ -1027,7 +1148,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           ..write('clientId: $clientId, ')
           ..write('roomId: $roomId, ')
           ..write('inspectionId: $inspectionId, ')
+          ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
+          ..write('awaitingMarkup: $awaitingMarkup, ')
           ..write('relativePath: $relativePath, ')
           ..write('filename: $filename, ')
           ..write('mimeType: $mimeType, ')
@@ -1042,6 +1165,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           ..write(
             'registrationAnnotationsApplied: $registrationAnnotationsApplied, ',
           )
+          ..write('registrationItemApplied: $registrationItemApplied, ')
           ..write('storagePath: $storagePath, ')
           ..write('deleteRequested: $deleteRequested, ')
           ..write('claimedAt: $claimedAt, ')
@@ -1060,7 +1184,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     clientId,
     roomId,
     inspectionId,
+    itemId,
     kind,
+    awaitingMarkup,
     relativePath,
     filename,
     mimeType,
@@ -1073,6 +1199,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
     registrationNote,
     registrationAnnotations,
     registrationAnnotationsApplied,
+    registrationItemApplied,
     storagePath,
     deleteRequested,
     claimedAt,
@@ -1090,7 +1217,9 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           other.clientId == this.clientId &&
           other.roomId == this.roomId &&
           other.inspectionId == this.inspectionId &&
+          other.itemId == this.itemId &&
           other.kind == this.kind &&
+          other.awaitingMarkup == this.awaitingMarkup &&
           other.relativePath == this.relativePath &&
           other.filename == this.filename &&
           other.mimeType == this.mimeType &&
@@ -1104,6 +1233,7 @@ class PendingCapture extends DataClass implements Insertable<PendingCapture> {
           other.registrationAnnotations == this.registrationAnnotations &&
           other.registrationAnnotationsApplied ==
               this.registrationAnnotationsApplied &&
+          other.registrationItemApplied == this.registrationItemApplied &&
           other.storagePath == this.storagePath &&
           other.deleteRequested == this.deleteRequested &&
           other.claimedAt == this.claimedAt &&
@@ -1119,7 +1249,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
   final Value<String?> clientId;
   final Value<String> roomId;
   final Value<String> inspectionId;
+  final Value<String?> itemId;
   final Value<String> kind;
+  final Value<bool> awaitingMarkup;
   final Value<String> relativePath;
   final Value<String> filename;
   final Value<String> mimeType;
@@ -1132,6 +1264,7 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
   final Value<String?> registrationNote;
   final Value<String?> registrationAnnotations;
   final Value<bool> registrationAnnotationsApplied;
+  final Value<bool> registrationItemApplied;
   final Value<String?> storagePath;
   final Value<bool> deleteRequested;
   final Value<DateTime?> claimedAt;
@@ -1145,7 +1278,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     this.clientId = const Value.absent(),
     this.roomId = const Value.absent(),
     this.inspectionId = const Value.absent(),
+    this.itemId = const Value.absent(),
     this.kind = const Value.absent(),
+    this.awaitingMarkup = const Value.absent(),
     this.relativePath = const Value.absent(),
     this.filename = const Value.absent(),
     this.mimeType = const Value.absent(),
@@ -1158,6 +1293,7 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     this.registrationNote = const Value.absent(),
     this.registrationAnnotations = const Value.absent(),
     this.registrationAnnotationsApplied = const Value.absent(),
+    this.registrationItemApplied = const Value.absent(),
     this.storagePath = const Value.absent(),
     this.deleteRequested = const Value.absent(),
     this.claimedAt = const Value.absent(),
@@ -1172,7 +1308,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     this.clientId = const Value.absent(),
     required String roomId,
     required String inspectionId,
+    this.itemId = const Value.absent(),
     required String kind,
+    this.awaitingMarkup = const Value.absent(),
     required String relativePath,
     required String filename,
     required String mimeType,
@@ -1185,6 +1323,7 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     this.registrationNote = const Value.absent(),
     this.registrationAnnotations = const Value.absent(),
     this.registrationAnnotationsApplied = const Value.absent(),
+    this.registrationItemApplied = const Value.absent(),
     this.storagePath = const Value.absent(),
     this.deleteRequested = const Value.absent(),
     this.claimedAt = const Value.absent(),
@@ -1206,7 +1345,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     Expression<String>? clientId,
     Expression<String>? roomId,
     Expression<String>? inspectionId,
+    Expression<String>? itemId,
     Expression<String>? kind,
+    Expression<bool>? awaitingMarkup,
     Expression<String>? relativePath,
     Expression<String>? filename,
     Expression<String>? mimeType,
@@ -1219,6 +1360,7 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     Expression<String>? registrationNote,
     Expression<String>? registrationAnnotations,
     Expression<bool>? registrationAnnotationsApplied,
+    Expression<bool>? registrationItemApplied,
     Expression<String>? storagePath,
     Expression<bool>? deleteRequested,
     Expression<DateTime>? claimedAt,
@@ -1233,7 +1375,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
       if (clientId != null) 'client_id': clientId,
       if (roomId != null) 'room_id': roomId,
       if (inspectionId != null) 'inspection_id': inspectionId,
+      if (itemId != null) 'item_id': itemId,
       if (kind != null) 'kind': kind,
+      if (awaitingMarkup != null) 'awaiting_markup': awaitingMarkup,
       if (relativePath != null) 'relative_path': relativePath,
       if (filename != null) 'filename': filename,
       if (mimeType != null) 'mime_type': mimeType,
@@ -1249,6 +1393,8 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
         'registration_annotations': registrationAnnotations,
       if (registrationAnnotationsApplied != null)
         'registration_annotations_applied': registrationAnnotationsApplied,
+      if (registrationItemApplied != null)
+        'registration_item_applied': registrationItemApplied,
       if (storagePath != null) 'storage_path': storagePath,
       if (deleteRequested != null) 'delete_requested': deleteRequested,
       if (claimedAt != null) 'claimed_at': claimedAt,
@@ -1265,7 +1411,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     Value<String?>? clientId,
     Value<String>? roomId,
     Value<String>? inspectionId,
+    Value<String?>? itemId,
     Value<String>? kind,
+    Value<bool>? awaitingMarkup,
     Value<String>? relativePath,
     Value<String>? filename,
     Value<String>? mimeType,
@@ -1278,6 +1426,7 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     Value<String?>? registrationNote,
     Value<String?>? registrationAnnotations,
     Value<bool>? registrationAnnotationsApplied,
+    Value<bool>? registrationItemApplied,
     Value<String?>? storagePath,
     Value<bool>? deleteRequested,
     Value<DateTime?>? claimedAt,
@@ -1292,7 +1441,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
       clientId: clientId ?? this.clientId,
       roomId: roomId ?? this.roomId,
       inspectionId: inspectionId ?? this.inspectionId,
+      itemId: itemId ?? this.itemId,
       kind: kind ?? this.kind,
+      awaitingMarkup: awaitingMarkup ?? this.awaitingMarkup,
       relativePath: relativePath ?? this.relativePath,
       filename: filename ?? this.filename,
       mimeType: mimeType ?? this.mimeType,
@@ -1307,6 +1458,8 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
           registrationAnnotations ?? this.registrationAnnotations,
       registrationAnnotationsApplied:
           registrationAnnotationsApplied ?? this.registrationAnnotationsApplied,
+      registrationItemApplied:
+          registrationItemApplied ?? this.registrationItemApplied,
       storagePath: storagePath ?? this.storagePath,
       deleteRequested: deleteRequested ?? this.deleteRequested,
       claimedAt: claimedAt ?? this.claimedAt,
@@ -1335,8 +1488,14 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
     if (inspectionId.present) {
       map['inspection_id'] = Variable<String>(inspectionId.value);
     }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
+    }
+    if (awaitingMarkup.present) {
+      map['awaiting_markup'] = Variable<bool>(awaitingMarkup.value);
     }
     if (relativePath.present) {
       map['relative_path'] = Variable<String>(relativePath.value);
@@ -1378,6 +1537,11 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
         registrationAnnotationsApplied.value,
       );
     }
+    if (registrationItemApplied.present) {
+      map['registration_item_applied'] = Variable<bool>(
+        registrationItemApplied.value,
+      );
+    }
     if (storagePath.present) {
       map['storage_path'] = Variable<String>(storagePath.value);
     }
@@ -1410,7 +1574,9 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
           ..write('clientId: $clientId, ')
           ..write('roomId: $roomId, ')
           ..write('inspectionId: $inspectionId, ')
+          ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
+          ..write('awaitingMarkup: $awaitingMarkup, ')
           ..write('relativePath: $relativePath, ')
           ..write('filename: $filename, ')
           ..write('mimeType: $mimeType, ')
@@ -1425,6 +1591,7 @@ class PendingCapturesCompanion extends UpdateCompanion<PendingCapture> {
           ..write(
             'registrationAnnotationsApplied: $registrationAnnotationsApplied, ',
           )
+          ..write('registrationItemApplied: $registrationItemApplied, ')
           ..write('storagePath: $storagePath, ')
           ..write('deleteRequested: $deleteRequested, ')
           ..write('claimedAt: $claimedAt, ')
@@ -2569,7 +2736,9 @@ typedef $$PendingCapturesTableCreateCompanionBuilder =
       Value<String?> clientId,
       required String roomId,
       required String inspectionId,
+      Value<String?> itemId,
       required String kind,
+      Value<bool> awaitingMarkup,
       required String relativePath,
       required String filename,
       required String mimeType,
@@ -2582,6 +2751,7 @@ typedef $$PendingCapturesTableCreateCompanionBuilder =
       Value<String?> registrationNote,
       Value<String?> registrationAnnotations,
       Value<bool> registrationAnnotationsApplied,
+      Value<bool> registrationItemApplied,
       Value<String?> storagePath,
       Value<bool> deleteRequested,
       Value<DateTime?> claimedAt,
@@ -2597,7 +2767,9 @@ typedef $$PendingCapturesTableUpdateCompanionBuilder =
       Value<String?> clientId,
       Value<String> roomId,
       Value<String> inspectionId,
+      Value<String?> itemId,
       Value<String> kind,
+      Value<bool> awaitingMarkup,
       Value<String> relativePath,
       Value<String> filename,
       Value<String> mimeType,
@@ -2610,6 +2782,7 @@ typedef $$PendingCapturesTableUpdateCompanionBuilder =
       Value<String?> registrationNote,
       Value<String?> registrationAnnotations,
       Value<bool> registrationAnnotationsApplied,
+      Value<bool> registrationItemApplied,
       Value<String?> storagePath,
       Value<bool> deleteRequested,
       Value<DateTime?> claimedAt,
@@ -2653,8 +2826,18 @@ class $$PendingCapturesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get kind => $composableBuilder(
     column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get awaitingMarkup => $composableBuilder(
+    column: $table.awaitingMarkup,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2715,6 +2898,11 @@ class $$PendingCapturesTableFilterComposer
 
   ColumnFilters<bool> get registrationAnnotationsApplied => $composableBuilder(
     column: $table.registrationAnnotationsApplied,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get registrationItemApplied => $composableBuilder(
+    column: $table.registrationItemApplied,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2788,8 +2976,18 @@ class $$PendingCapturesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get kind => $composableBuilder(
     column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get awaitingMarkup => $composableBuilder(
+    column: $table.awaitingMarkup,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2854,6 +3052,11 @@ class $$PendingCapturesTableOrderingComposer
         builder: (column) => ColumnOrderings(column),
       );
 
+  ColumnOrderings<bool> get registrationItemApplied => $composableBuilder(
+    column: $table.registrationItemApplied,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get storagePath => $composableBuilder(
     column: $table.storagePath,
     builder: (column) => ColumnOrderings(column),
@@ -2916,8 +3119,16 @@ class $$PendingCapturesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<bool> get awaitingMarkup => $composableBuilder(
+    column: $table.awaitingMarkup,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get relativePath => $composableBuilder(
     column: $table.relativePath,
@@ -2971,6 +3182,11 @@ class $$PendingCapturesTableAnnotationComposer
         column: $table.registrationAnnotationsApplied,
         builder: (column) => column,
       );
+
+  GeneratedColumn<bool> get registrationItemApplied => $composableBuilder(
+    column: $table.registrationItemApplied,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get storagePath => $composableBuilder(
     column: $table.storagePath,
@@ -3040,7 +3256,9 @@ class $$PendingCapturesTableTableManager
                 Value<String?> clientId = const Value.absent(),
                 Value<String> roomId = const Value.absent(),
                 Value<String> inspectionId = const Value.absent(),
+                Value<String?> itemId = const Value.absent(),
                 Value<String> kind = const Value.absent(),
+                Value<bool> awaitingMarkup = const Value.absent(),
                 Value<String> relativePath = const Value.absent(),
                 Value<String> filename = const Value.absent(),
                 Value<String> mimeType = const Value.absent(),
@@ -3054,6 +3272,7 @@ class $$PendingCapturesTableTableManager
                 Value<String?> registrationAnnotations = const Value.absent(),
                 Value<bool> registrationAnnotationsApplied =
                     const Value.absent(),
+                Value<bool> registrationItemApplied = const Value.absent(),
                 Value<String?> storagePath = const Value.absent(),
                 Value<bool> deleteRequested = const Value.absent(),
                 Value<DateTime?> claimedAt = const Value.absent(),
@@ -3067,7 +3286,9 @@ class $$PendingCapturesTableTableManager
                 clientId: clientId,
                 roomId: roomId,
                 inspectionId: inspectionId,
+                itemId: itemId,
                 kind: kind,
+                awaitingMarkup: awaitingMarkup,
                 relativePath: relativePath,
                 filename: filename,
                 mimeType: mimeType,
@@ -3080,6 +3301,7 @@ class $$PendingCapturesTableTableManager
                 registrationNote: registrationNote,
                 registrationAnnotations: registrationAnnotations,
                 registrationAnnotationsApplied: registrationAnnotationsApplied,
+                registrationItemApplied: registrationItemApplied,
                 storagePath: storagePath,
                 deleteRequested: deleteRequested,
                 claimedAt: claimedAt,
@@ -3095,7 +3317,9 @@ class $$PendingCapturesTableTableManager
                 Value<String?> clientId = const Value.absent(),
                 required String roomId,
                 required String inspectionId,
+                Value<String?> itemId = const Value.absent(),
                 required String kind,
+                Value<bool> awaitingMarkup = const Value.absent(),
                 required String relativePath,
                 required String filename,
                 required String mimeType,
@@ -3109,6 +3333,7 @@ class $$PendingCapturesTableTableManager
                 Value<String?> registrationAnnotations = const Value.absent(),
                 Value<bool> registrationAnnotationsApplied =
                     const Value.absent(),
+                Value<bool> registrationItemApplied = const Value.absent(),
                 Value<String?> storagePath = const Value.absent(),
                 Value<bool> deleteRequested = const Value.absent(),
                 Value<DateTime?> claimedAt = const Value.absent(),
@@ -3122,7 +3347,9 @@ class $$PendingCapturesTableTableManager
                 clientId: clientId,
                 roomId: roomId,
                 inspectionId: inspectionId,
+                itemId: itemId,
                 kind: kind,
+                awaitingMarkup: awaitingMarkup,
                 relativePath: relativePath,
                 filename: filename,
                 mimeType: mimeType,
@@ -3135,6 +3362,7 @@ class $$PendingCapturesTableTableManager
                 registrationNote: registrationNote,
                 registrationAnnotations: registrationAnnotations,
                 registrationAnnotationsApplied: registrationAnnotationsApplied,
+                registrationItemApplied: registrationItemApplied,
                 storagePath: storagePath,
                 deleteRequested: deleteRequested,
                 claimedAt: claimedAt,

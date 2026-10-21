@@ -84,7 +84,8 @@ abstract class CaptureBackend {
     String clientId,
   );
 
-  Future<({String id, bool annotationsApplied})> registerCapture({
+  Future<({String id, bool annotationsApplied, bool itemApplied})>
+  registerCapture({
     required String inspectionId,
     required String roomId,
     required String kind,
@@ -93,6 +94,7 @@ abstract class CaptureBackend {
     required String mimeType,
     required int sizeBytes,
     int? durationSec,
+    String? itemId,
     String? note,
     Map<String, dynamic>? annotations,
   });
@@ -246,7 +248,8 @@ class HttpCaptureBackend implements CaptureBackend {
   }
 
   @override
-  Future<({String id, bool annotationsApplied})> registerCapture({
+  Future<({String id, bool annotationsApplied, bool itemApplied})>
+  registerCapture({
     required String inspectionId,
     required String roomId,
     required String kind,
@@ -255,6 +258,7 @@ class HttpCaptureBackend implements CaptureBackend {
     required String mimeType,
     required int sizeBytes,
     int? durationSec,
+    String? itemId,
     String? note,
     Map<String, dynamic>? annotations,
   }) async {
@@ -268,6 +272,7 @@ class HttpCaptureBackend implements CaptureBackend {
           'mimeType': mimeType,
           'sizeBytes': sizeBytes,
           'durationSec': durationSec,
+          'itemId': ?itemId,
           'note': note,
           'annotations': annotations,
         },
@@ -278,6 +283,8 @@ class HttpCaptureBackend implements CaptureBackend {
     return (
       id: response.data!['id'] as String,
       annotationsApplied: response.data!['annotationsApplied'] as bool,
+      // Older servers cannot promise an item link they do not understand.
+      itemApplied: response.data!['itemApplied'] == true || itemId == null,
     );
   }
 
@@ -357,7 +364,8 @@ class RoutingEvidenceBackend implements CaptureBackend {
   ) => _captures.putBytes(signedUrl, file, mimeType, clientId);
 
   @override
-  Future<({bool annotationsApplied, String id})> registerCapture({
+  Future<({bool annotationsApplied, bool itemApplied, String id})>
+  registerCapture({
     required String inspectionId,
     required String roomId,
     required String kind,
@@ -366,6 +374,7 @@ class RoutingEvidenceBackend implements CaptureBackend {
     required String mimeType,
     required int sizeBytes,
     int? durationSec,
+    String? itemId,
     String? note,
     Map<String, dynamic>? annotations,
   }) => _for(inspectionId).registerCapture(
@@ -377,6 +386,7 @@ class RoutingEvidenceBackend implements CaptureBackend {
     mimeType: mimeType,
     sizeBytes: sizeBytes,
     durationSec: durationSec,
+    itemId: itemId,
     note: note,
     annotations: annotations,
   );
@@ -453,7 +463,8 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
   ) => HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
 
   @override
-  Future<({bool annotationsApplied, String id})> registerCapture({
+  Future<({bool annotationsApplied, bool itemApplied, String id})>
+  registerCapture({
     required String inspectionId,
     required String roomId,
     required String kind,
@@ -462,6 +473,7 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
     required String mimeType,
     required int sizeBytes,
     int? durationSec,
+    String? itemId,
     String? note,
     Map<String, dynamic>? annotations,
   }) async {
@@ -482,7 +494,11 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
       ),
       _metadataDeadline,
     );
-    return (id: response.data!['id'] as String, annotationsApplied: true);
+    return (
+      id: response.data!['id'] as String,
+      annotationsApplied: true,
+      itemApplied: true,
+    );
   }
 
   Never _immutable() => throw StateError('Maintenance evidence is immutable.');
@@ -562,7 +578,8 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
   ) => HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
 
   @override
-  Future<({bool annotationsApplied, String id})> registerCapture({
+  Future<({bool annotationsApplied, bool itemApplied, String id})>
+  registerCapture({
     required String inspectionId,
     required String roomId,
     required String kind,
@@ -571,6 +588,7 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
     required String mimeType,
     required int sizeBytes,
     int? durationSec,
+    String? itemId,
     String? note,
     Map<String, dynamic>? annotations,
   }) async {
@@ -588,7 +606,11 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
       ),
       _metadataDeadline,
     );
-    return (id: response.data!['id'] as String, annotationsApplied: true);
+    return (
+      id: response.data!['id'] as String,
+      annotationsApplied: true,
+      itemApplied: true,
+    );
   }
 
   Never _immutable() => throw StateError(

@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic'
 
 const body = z.object({
   clientId: z.uuid().optional(),
+  itemId: z.string().min(1).optional(),
   kind: z.enum(['PHOTO', 'VIDEO']),
   storagePath: z.string().min(1),
   mimeType: z.string().min(1),
@@ -27,6 +28,7 @@ export const POST = authed(
       roomId,
       inspectionId: id,
       clientId: input.clientId,
+      itemId: input.itemId,
       kind: input.kind,
       storagePath: input.storagePath,
       mimeType: input.mimeType,
@@ -37,11 +39,15 @@ export const POST = authed(
     })
     const persisted = await db.capture.findUniqueOrThrow({
       where: { id: captureId },
-      select: { annotations: true },
+      select: {
+        annotations: true,
+        itemEvidence: { where: { itemId: input.itemId }, select: { itemId: true }, take: 1 },
+      },
     })
     const stored = toAnnotations(persisted.annotations)
     return {
       id: captureId,
+      itemApplied: !input.itemId || persisted.itemEvidence.some(({ itemId }) => itemId === input.itemId),
       annotationsApplied: !input.annotations || !!stored && isDeepStrictEqual(
         { w: stored.w, h: stored.h, marks: stored.marks },
         input.annotations,

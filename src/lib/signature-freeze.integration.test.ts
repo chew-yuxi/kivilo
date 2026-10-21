@@ -17,11 +17,11 @@ vi.mock('@/lib/auth', async (importActual) => {
   // Only the session lookup is faked. The authorization boundary itself, which is what
   // these tests exercise, is the real one.
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireAgent: vi.fn() }
+  return { ...actual, requireAgent: vi.fn(), currentStakeholder: vi.fn() }
 })
 
 import { db } from '@/lib/db'
-import { requireAgent } from '@/lib/auth'
+import { requireAgent, currentStakeholder } from '@/lib/auth'
 import { captureExists } from '@/lib/storage'
 import {
   addRoom,
@@ -42,6 +42,7 @@ import {
   startCheckOut,
 } from '@/lib/actions'
 import type { InspectionStatus } from '@/generated/prisma'
+import { POST as registerCaptureRoute } from '@/app/api/v1/inspections/[id]/rooms/[roomId]/captures/route'
 
 const SENT = 'This report has been sent for signature and can no longer be changed'
 const SIGNED = 'This report has been countersigned and can no longer be changed'
@@ -85,6 +86,7 @@ async function deal(label: string, status: InspectionStatus) {
   })
 
   vi.mocked(requireAgent).mockResolvedValue(agent)
+  vi.mocked(currentStakeholder).mockResolvedValue(agent)
   return { agent, inspection, room, capture, item }
 }
 
@@ -104,6 +106,7 @@ afterAll(async () => {
 
 beforeEach(() => {
   vi.mocked(requireAgent).mockReset()
+  vi.mocked(currentStakeholder).mockReset()
   vi.mocked(captureExists).mockReset()
   vi.mocked(captureExists).mockResolvedValue(false)
 })
@@ -263,6 +266,125 @@ describe('native action boundaries', () => {
     expect(await registerCapture(input)).toBe(first)
     expect(await db.capture.count({ where: { clientId } })).toBe(1)
     await expect(registerCapture({ ...input, sizeBytes: 21 })).rejects.toThrow('different media')
+  })
+
+  it('registers item evidence and its marks together, and reports them on a lost-response retry', async () => {
+    const d = await deal('ITEM-CAPTURE', 'REVIEW')
+    const clientId = randomUUID()
+    const annotations = { w: 100, h: 100, marks: [{ shape: 'ring', cx: 0.5, cy: 0.5, rx: 0.1, ry: 0.1 }] }
+    const input = {
+      itemId: d.item.id,
+      clientId,
+      kind: 'PHOTO',
+      storagePath: `${d.room.id}/${clientId}.jpg`,
+      mimeType: 'image/jpeg',
+      sizeBytes: 20,
+      annotations,
+    }
+    const request = () => new Request('http://localhost/api/v1/captures', {
+      method: 'POST', body: JSON.stringify(input),
+    })
+    const context = { params: Promise.resolve({ id: d.inspection.id, roomId: d.room.id }) }
+
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    const first = await registerCaptureRoute(request(), context)
+    expect(first.status).toBe(200)
+    const registered = await first.json()
+    expect(registered).toEqual({ id: expect.any(String), itemApplied: true, annotationsApplied: true })
+    expect(await db.itemEvidence.findMany({ where: { itemId: d.item.id } })).toMatchObject([
+      { itemId: d.item.id, captureId: registered.id },
+    ])
+    expect((await db.capture.findUniqueOrThrow({ where: { id: registered.id } })).annotations)
+      .toMatchObject({ ...annotations, by: d.agent.id })
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEW')
+
+    // A response can be lost just before Send; retrying must confirm the existing
+    // capture without touching the frozen content.
+    await markRoomReviewed(d.room.id, d.inspection.id)
+    await completeReview(d.inspection.id)
+    const retry = await registerCaptureRoute(request(), context)
+    expect(await retry.json()).toEqual(registered)
+    expect(await db.capture.count({ where: { clientId } })).toBe(1)
+    expect(await db.itemEvidence.count({ where: { captureId: registered.id } })).toBe(1)
+  })
+
+  it('rejects missing and other-room inventory targets without registering their captures', async () => {
+    const d = await deal('CAPTURE-TARGET', 'REVIEW')
+    const otherRoom = await db.room.create({
+      data: { inspectionId: d.inspection.id, name: 'Bedroom', order: 1 },
+    })
+    const otherItem = await db.inspectionItem.create({
+      data: { roomId: otherRoom.id, name: 'Bed', category: 'FURNITURE', condition: 'GOOD' },
+    })
+    vi.mocked(captureExists).mockResolvedValue(true)
+    for (const itemId of [otherItem.id, 'missing-item']) {
+      const response = await registerCaptureRoute(new Request('http://localhost/api/v1/captures', {
+        method: 'POST',
+        body: JSON.stringify({
+          itemId,
+          kind: 'PHOTO',
+          storagePath: `${d.room.id}/${itemId}.jpg`,
+          mimeType: 'image/jpeg',
+          sizeBytes: 20,
+        }),
+      }), { params: Promise.resolve({ id: d.inspection.id, roomId: d.room.id }) })
+      expect(response.status).toBe(404)
+      expect(await response.json()).toEqual({ error: 'not_found' })
+    }
+    expect(await db.capture.count({ where: { roomId: d.room.id } })).toBe(1)
+    expect(await db.itemEvidence.count({ where: { itemId: otherItem.id } })).toBe(0)
+  })
+
+  it('keeps late item media in storage without changing evidence or marks after Send', async () => {
+    const d = await deal('ITEM-AFTER-SEND', 'AWAITING_SIGNATURE')
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    const response = await registerCaptureRoute(new Request('http://localhost/api/v1/captures', {
+      method: 'POST',
+      body: JSON.stringify({
+        itemId: d.item.id,
+        kind: 'PHOTO',
+        storagePath: `${d.room.id}/late-item.jpg`,
+        mimeType: 'image/jpeg',
+        sizeBytes: 20,
+        annotations: { w: 100, h: 100, marks: [{ shape: 'ring', cx: 0.5, cy: 0.5, rx: 0.1, ry: 0.1 }] },
+      }),
+    }), { params: Promise.resolve({ id: d.inspection.id, roomId: d.room.id }) })
+    expect(response.status).toBe(200)
+    const registered = await response.json()
+    expect(registered).toEqual({ id: expect.any(String), itemApplied: false, annotationsApplied: false })
+    expect(await db.itemEvidence.count({ where: { itemId: d.item.id } })).toBe(0)
+    expect(await db.capture.findUniqueOrThrow({ where: { id: registered.id } }))
+      .toMatchObject({ annotations: null, processedAt: null })
+    expect((await db.room.findUniqueOrThrow({ where: { id: d.room.id } })).status).toBe('REVIEWED')
+  })
+
+  it('does not use a registration retry to move evidence onto another inventory item', async () => {
+    const d = await deal('ITEM-RETRY', 'REVIEW')
+    const otherItem = await db.inspectionItem.create({
+      data: { roomId: d.room.id, name: 'Hob', category: 'APPLIANCE', condition: 'GOOD' },
+    })
+    const clientId = randomUUID()
+    const input = {
+      inspectionId: d.inspection.id,
+      roomId: d.room.id,
+      itemId: d.item.id,
+      clientId,
+      kind: 'PHOTO' as const,
+      storagePath: `${d.room.id}/${clientId}.jpg`,
+      mimeType: 'image/jpeg',
+      sizeBytes: 20,
+      durationSec: null,
+      note: null,
+    }
+    vi.mocked(captureExists).mockResolvedValueOnce(true)
+    const id = await registerCapture(input)
+    const response = await registerCaptureRoute(new Request('http://localhost/api/v1/captures', {
+      method: 'POST', body: JSON.stringify({ ...input, itemId: otherItem.id }),
+    }), { params: Promise.resolve({ id: d.inspection.id, roomId: d.room.id }) })
+    expect(await response.json()).toEqual({ id, itemApplied: false, annotationsApplied: true })
+    expect(await db.itemEvidence.findMany({ where: { captureId: id } })).toMatchObject([
+      { itemId: d.item.id },
+    ])
   })
 
   it('recognizes an already uploaded native object without issuing an overwrite token', async () => {

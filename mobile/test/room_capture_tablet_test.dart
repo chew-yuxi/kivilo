@@ -203,6 +203,20 @@ void main() {
     );
     // Paused uploads have an indeterminate progress bar, which keeps animating.
     await tester.pump(const Duration(milliseconds: 600));
+    // Initial recovery now holds the camera while it checks for interrupted
+    // photo markup. Wait for that work before changing capture mode.
+    final camera = find.widgetWithText(FilledButton, 'Take another photo');
+    for (
+      var attempt = 0;
+      attempt < 20 && tester.widget<FilledButton>(camera).onPressed == null;
+      attempt++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(tester.widget<FilledButton>(camera).onPressed, isNotNull);
     await tester.tap(find.text('Video').first);
     await tester.pump(const Duration(milliseconds: 600));
 
@@ -215,7 +229,7 @@ void main() {
       final review = find.widgetWithText(OutlinedButton, 'Review room');
       expect(tester.widget<OutlinedButton>(review).onPressed, isNull);
       expect(tester.getSize(review).width, lessThanOrEqualTo(688));
-      final controls = tester.getRect(find.text('Capture this room'));
+      final controls = tester.getRect(find.text('Room media'));
       final media = tester.getRect(find.text('Media'));
       if (width >= 840) {
         expect(media.left, greaterThan(controls.left + 320));

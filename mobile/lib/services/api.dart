@@ -524,8 +524,11 @@ class Api {
     );
   });
 
-  Future<void> addItem(String inspectionId, String roomId) => _call(() async {
-    await _dio.post('/api/v1/inspections/$inspectionId/rooms/$roomId/items');
+  Future<String> addItem(String inspectionId, String roomId) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/inspections/$inspectionId/rooms/$roomId/items',
+    );
+    return response.data!['id'] as String;
   });
 
   Future<void> updateItem(
