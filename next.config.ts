@@ -31,6 +31,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Public decorative art, with a content hash in every filename. Never
+        // overwrite these URLs: installed native app versions cache them on disk.
+        source: '/illustrations/:file',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
         source: '/:path*',
         headers: [
           // The app is only ever framed by itself; a condition report inside someone

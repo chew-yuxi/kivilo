@@ -1,0 +1,25 @@
+{
+  "generatedWith": "Built-in image_gen tool, authorized by the user for this set",
+  "generatedOn": "2026-10-21",
+  "transparentBackground": true,
+  "promptComposition": "sharedStyle + '\\nScene: ' + scenePrompt",
+  "sharedStyle": "Use case: illustration-story. Asset type: original editorial illustration for Kivilo, a property handover app. Visual language: sophisticated, charming hand-drawn ink illustration, fluid thin near-black #111827 outlines with gently imperfect stroke, mostly white interiors, very restrained soft blush #FDF2F8 areas and a few vivid pink #EC4899 accents. Human, warm, clever and airy; a polished consumer brand illustration, not clip art, not a material icon, not 3D, not a corporate vector blob style. People have natural simple proportions, minimal facial details, expressive everyday poses. No text, no lettering, no numbers, no logo, no watermark. Genuine transparent background outside the drawing. Keep all people and objects completely inside the canvas with generous margins, no hard cut-offs. Keep the drawing legible at small mobile UI sizes. Sparse composition, strong silhouette, no shadows or unnecessary decorative confetti. Original characters and composition, do not copy any existing brand's illustrations.",
+  "scenes": [
+    {
+      "asset": "design/illustrations/handover.png",
+      "scenePrompt": "Wide landscape scene, approximately 2:1 composition. An open apartment doorway frames a glimpse of a tidy home: a simple sideboard and one leafy plant. Two adults stand by the doorway: an inspector with short black hair and a bright pink crossbody bag holds a phone ready to record; the resident with curly hair offers a small keyring. A warm moment before a property handover. Black ink drawing with white bodies and pink details only. The people are the focus, door and plant lightly suggested behind. No roof or giant house icon; this is an apartment. Every element connects into one coherent scene."
+    },
+    {
+      "asset": "design/illustrations/capture.png",
+      "scenePrompt": "Compact landscape vignette, approximately 3:2 composition. The same inspector with short black hair, white shirt and a small vivid pink crossbody bag crouches slightly and deliberately photographs a small scuff on the lower corner of a kitchen cabinet using a smartphone. Show the phone directed towards the scuff, a short cabinet with only two doors and a sparse houseplant, nothing else. Human action clearly readable at thumbnail size. Near-black ink lines, white interiors, pink only on bag and tiny phone camera detail. No text."
+    },
+    {
+      "asset": "design/illustrations/inventory.png",
+      "scenePrompt": "Compact landscape vignette, approximately 3:2 composition. The same short-black-haired inspector in a white shirt, pink crossbody bag draped by the chair, sits at a small table carefully comparing a phone photo with an inventory sheet and writing a condition note by hand. One hand holds a pencil above the sheet, the other props the phone. On the sheet show only a few abstract horizontal strokes, absolutely no legible writing or characters. A thoughtful human author, not an automated process. Sparse side-on scene with clean silhouette; near-black ink lines, white interiors, a few pink details."
+    },
+    {
+      "asset": "design/illustrations/sign.png",
+      "scenePrompt": "Compact landscape vignette, approximately 3:2 composition. Two adult residents standing together review a report on one large smartphone held between them; one holds it steady and the other uses a finger to sign on its screen. Their heads lean slightly toward the same record, calm agreement, friendly but not exaggerated. One person has curly dark hair, the other straight dark hair. Simple white clothes with one vivid pink sleeve accent. Draw hands clearly and naturally. One small leafy plant beside them anchors the scene. No text or readable screen content; only a couple of abstract lines on the screen. Sparse near-black ink drawing."
+    }
+  ]
+}

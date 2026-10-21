@@ -462,7 +462,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Edit'), 200);
+    await tester.scrollUntilVisible(find.text('Edit').hitTestable(), 200);
     await tester.tap(find.text('Edit'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), '0');

@@ -18,6 +18,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
+import '../ui/page_context_title.dart';
 import 'capture_screen.dart';
 import 'photo_mark_screen.dart';
 import 'video_screen.dart';
@@ -28,6 +29,8 @@ class RoomScreen extends StatefulWidget {
     required this.inspectionId,
     required this.roomId,
     required this.editable,
+    this.property,
+    this.inspectionKind,
     this.api,
     this.queue,
     this.ownerId,
@@ -37,6 +40,8 @@ class RoomScreen extends StatefulWidget {
   final String inspectionId;
   final String roomId;
   final bool editable;
+  final String? property;
+  final String? inspectionKind;
   final Api? api;
   final CaptureQueue? queue;
   final String? ownerId;
@@ -662,7 +667,23 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.room,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Room')),
+      appBar: AppBar(
+        centerTitle: false,
+        toolbarHeight: 72,
+        title: FutureBuilder<RoomDetail>(
+          future: _future,
+          builder: (context, snapshot) => PageContextTitle(
+            title: snapshot.data?.name ?? 'Room',
+            contextLabel: [
+              if (widget.inspectionKind != null)
+                widget.inspectionKind == 'CHECK_OUT' ? 'Check-out' : 'Check-in',
+              if (widget.property != null) widget.property!,
+              if (widget.inspectionKind == null && widget.property == null)
+                'Room inventory',
+            ].join(' · '),
+          ),
+        ),
+      ),
       body: KiviloContent(
         maxWidth: 1200,
         child: LayoutBuilder(
