@@ -4,8 +4,15 @@ import 'kivilo_illustration.dart';
 import 'kivilo_theme.dart';
 
 /// Small, available-on-demand lessons beside the inspector's work.
-class HandoverGuide extends StatelessWidget {
+class HandoverGuide extends StatefulWidget {
   const HandoverGuide({super.key});
+
+  @override
+  State<HandoverGuide> createState() => _HandoverGuideState();
+}
+
+class _HandoverGuideState extends State<HandoverGuide> {
+  final _expanded = <String>{};
 
   @override
   Widget build(BuildContext context) {
@@ -71,41 +78,65 @@ class HandoverGuide extends StatelessWidget {
                   'phone or through their emailed link. Once both sign, the PDF is ready.',
               KiviloScene.sign,
             ),
-          ])
-            ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 4,
-              ),
-              childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              shape: const Border(),
-              collapsedShape: const Border(),
-              leading: KiviloIllustration(
-                scene: step.$5,
-                width: 56,
-                height: 56,
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    step.$1,
-                    style: text.bodySmall?.copyWith(
-                      color: KiviloColors.pinkDark,
-                      fontWeight: FontWeight.w700,
+          ]) ...[
+            Semantics(
+              expanded: _expanded.contains(step.$1),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
+                onTap: () => setState(() {
+                  if (!_expanded.add(step.$1)) _expanded.remove(step.$1);
+                }),
+                leading: KiviloIllustration(
+                  scene: step.$5,
+                  width: 56,
+                  height: 56,
+                ),
+                trailing: AnimatedRotation(
+                  turns: _expanded.contains(step.$1) ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(Icons.arrow_drop_down),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      step.$1,
+                      style: text.bodySmall?.copyWith(
+                        color: KiviloColors.pinkDark,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(step.$2, style: text.titleMedium),
-                ],
+                    const SizedBox(height: 2),
+                    Text(step.$2, style: text.titleMedium),
+                  ],
+                ),
+                subtitle: Text(step.$3, style: text.bodySmall),
               ),
-              subtitle: Text(step.$3, style: text.bodySmall),
-              children: [
-                KiviloIllustration(scene: step.$5, width: 240, height: 144),
-                const SizedBox(height: 12),
-                Text(step.$4, style: text.bodyMedium),
-              ],
             ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              alignment: Alignment.topCenter,
+              child: _expanded.contains(step.$1)
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      child: Column(
+                        children: [
+                          KiviloIllustration(
+                            scene: step.$5,
+                            width: 240,
+                            height: 144,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(step.$4, style: text.bodyMedium),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
           const SizedBox(height: 8),
         ],
       ),

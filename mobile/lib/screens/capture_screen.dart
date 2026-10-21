@@ -1192,7 +1192,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
                         (widget.itemId != null && item == null)
                     ? null
                     : _openSystemCamera,
-                icon: Icon(_videoMode ? Icons.videocam : Icons.photo_camera),
+                icon: Icon(
+                  _videoMode ? Icons.videocam : Icons.camera_alt_outlined,
+                ),
                 label: Text(
                   _videoMode
                       ? 'Record video'
@@ -1211,7 +1213,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                         (widget.itemId != null && item == null)
                     ? null
                     : _chooseFromLibrary,
-                icon: const Icon(Icons.add_photo_alternate_outlined),
+                icon: const Icon(Icons.image),
                 label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
               ),
             ];
