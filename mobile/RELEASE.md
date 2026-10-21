@@ -14,7 +14,8 @@ carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
 ## Shared evidence photos: feature branch, not deployed
 
-The 21 October work is on **`codex/evidence-photo-flow`**, not `main` or live.
+The 21 October work is pushed in [draft PR #2](https://github.com/chew-yuxi/kivilo/pull/2),
+source `7e4533b` on **`codex/evidence-photo-flow`**, not `main` or live.
 Findings now save their draft before **Save & add photos** opens the shared photo
 flow. Finding, maintenance and draft-addendum photos preserve original bytes locally,
 then offer marks, a whole-photo note and per-mark notes before upload. Metadata stays
@@ -24,7 +25,7 @@ app, web and PDF. The signed room inventory is unchanged.
 **Apply `20261021120000_finding_photo_evidence` in production before merge and backend
 deployment.** It adds finding-photo records/upload intents and evidence annotations.
 The migration has run only on disposable local PostgreSQL. This environment has no
-production credentials; prepare a draft PR for the production owner rather than
+production credentials; the draft PR is ready for the production owner rather than
 merging ahead of the schema. Verify the deployed backend before releasing its native
 patch. No production migration or feature deployment has occurred here.
 

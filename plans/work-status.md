@@ -4,10 +4,11 @@ Updated 21 October 2026. This conversation coordinates the work below. Yuxi has
 authorized publishing the native patch once the artwork deployment is live; that
 deployment is now verified. This does not authorize a new iOS store submission.
 
-The newer evidence-photo flow is being prepared on **`codex/evidence-photo-flow`**.
+The newer evidence-photo flow is pushed on **`codex/evidence-photo-flow`**, source
+`7e4533b`, in [draft PR #2](https://github.com/chew-yuxi/kivilo/pull/2).
 It is **not on `main` or live**. Production migration
 `20261021120000_finding_photo_evidence` must run before merge and backend deployment.
-Production credentials are unavailable here; the handoff is a draft PR for the
+Production credentials are unavailable here; the draft PR is the handoff for the
 configured release machine, followed by patches on the existing native releases.
 
 ## Current execution queue
