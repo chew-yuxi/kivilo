@@ -12,6 +12,45 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Shared evidence photos: feature branch, not deployed
+
+The 21 October work is on **`codex/evidence-photo-flow`**, not `main` or live.
+Findings now save their draft before **Save & add photos** opens the shared photo
+flow. Finding, maintenance and draft-addendum photos preserve original bytes locally,
+then offer marks, a whole-photo note and per-mark notes before upload. Metadata stays
+beside the original, and published assessment/addendum snapshots carry it through the
+app, web and PDF. The signed room inventory is unchanged.
+
+**Apply `20261021120000_finding_photo_evidence` in production before merge and backend
+deployment.** It adds finding-photo records/upload intents and evidence annotations.
+The migration has run only on disposable local PostgreSQL. This environment has no
+production credentials; prepare a draft PR for the production owner rather than
+merging ahead of the schema. Verify the deployed backend before releasing its native
+patch. No production migration or feature deployment has occurred here.
+
+Originals, completed marks and captions survive interrupted editing. **Save photo**
+and Back both persist successfully before releasing the upload hold; a failed save
+keeps the editor open. Force-quitting before completion keeps the photo held for
+**Finish marking**. Publication checks must include pending picker/intake journals,
+not just queued rows. Registration retries preserve the same photo and metadata.
+
+All 309 Flutter tests and full Flutter analysis passed. Server typecheck, lint,
+production build and 99 unit tests passed. Integration tests
+passed 158 checks; 12 need the unavailable real local Supabase Auth/Storage stack.
+Browser end-to-end tests were not run. Source icon checks add no icon names beyond
+iOS `7161f53` or Android `ce0d8e3`; compiled Shorebird checks are still required.
+Physical-device capture, recovery, original-byte comparison and patch delivery remain
+pending in [the rehearsal checklist](../plans/rehearsal-checklist.md).
+
+Unsupported or corrupt originals remain held locally and block publication until
+recovered with support. They are never discarded automatically. Verify camera and
+library formats on both devices before release (accepted: JPEG, PNG, WebP).
+
+Native changes add no plugin, bundled asset or native configuration. Use the other
+configured release machine to build from a pinned verified commit for iOS `1.0.0+24`
+and Android `1.0.0+25` (retain `--build-number=25`), with production configuration and
+all Shorebird compatibility checks. No patch or store build has been published here.
+
 ## Illustrated onboarding: artwork live, native changes unreleased
 
 The native Home, handover guide and empty states load public decorative artwork from
@@ -60,8 +99,9 @@ Room walkthroughs and existing media remain available through the secondary room
 media action. Room review checks pending photos and edits before finishing capture.
 
 The original photo is saved locally before editing. Completed marks autosave beside
-it, and upload waits for Save photo; an interrupted editor resumes through Finish
-marking. Queue schema 7 preserves the item ID and this hold across restarts. Picker
+it, and upload waits for Save photo or a successful Back autosave; force-quitting
+keeps the hold and an interrupted editor resumes through Finish marking. Queue schema
+7 preserves the item ID and this hold across restarts. Picker
 intake also preserves the original owner/room/item and the entire library selection.
 
 The backend's optional capture `itemId` and `itemApplied` acknowledgement are included

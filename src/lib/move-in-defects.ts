@@ -1,11 +1,12 @@
 import { z } from 'zod'
+import { toAnnotations } from '@/lib/annotations'
 import { db } from '@/lib/db'
 import { tenancyScope, type TenancyRole } from '@/lib/auth'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { addendumHash, addendumSnapshotSchema, currentState, type AddendumSnapshot } from '@/lib/addenda'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
-import type { Prisma } from '@/generated/prisma'
+import { Prisma } from '@/generated/prisma'
 
 export class MoveInDefectStaleTargetError extends Error {
   constructor() {
@@ -192,6 +193,7 @@ export async function publishMoveInDefect(caseId: string, stakeholderId: string,
           create: photos.map((photo) => ({
             storagePath: photo.storagePath, mimeType: photo.mimeType, sizeBytes: photo.sizeBytes,
             note: photo.note, label: 'Reported at move-in', maintenanceEvidenceId: photo.id,
+            annotations: toAnnotations(photo.annotations) ?? Prisma.DbNull,
           })),
         },
       },
@@ -215,6 +217,7 @@ export async function publishMoveInDefect(caseId: string, stakeholderId: string,
         maintenanceCase: { id: item.id, title: item.title },
         photos: entry.photos.map((photo) => ({
           id: photo.id, storagePath: photo.storagePath, mimeType: photo.mimeType, note: photo.note, label: photo.label,
+          annotations: toAnnotations(photo.annotations),
         })),
       }],
     }

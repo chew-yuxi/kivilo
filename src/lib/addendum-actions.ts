@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
+import { annotationInputSchema, toAnnotations } from '@/lib/annotations'
 import { db } from '@/lib/db'
 import {
   authorizeAddendum,
@@ -19,7 +20,7 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { ADDENDUM_PHOTO_TYPES, addendumHash, addendumSnapshotSchema, currentState, type AddendumSnapshot } from '@/lib/addenda'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import type { StateLine } from '@/lib/addenda-state'
-import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
+import { Prisma, type AcknowledgementMethod, type ItemCategory } from '@/generated/prisma'
 import { assertNoSignedCheckOut, lockMoveInDefectTenancy, MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 
 // Addenda: dated updates to a countersigned check-in, written and published by the agent
@@ -247,6 +248,7 @@ const photoInput = uploadInput.extend({
   storagePath: z.string(),
   sizeBytes: z.number().int().positive().max(50_000_000),
   note: z.string().trim().max(500).nullable().default(null),
+  annotations: annotationInputSchema.nullable().default(null),
 })
 
 export async function registerAddendumPhoto(entryId: string, addendumId: string, raw: unknown) {
@@ -263,15 +265,25 @@ export async function registerAddendumPhoto(entryId: string, addendumId: string,
     }
     const existing = await tx.reportAddendumPhoto.findFirst({
       where: { entryId, storagePath: input.storagePath },
-      select: { id: true },
+      select: { id: true, note: true, annotations: true },
     })
-    return existing ?? tx.reportAddendumPhoto.create({
+    if (existing) {
+      const stored = annotationInputSchema.safeParse(existing.annotations)
+      if (existing.note !== (input.note || null) || JSON.stringify(stored.success ? stored.data : null) !== JSON.stringify(input.annotations)) {
+        throw new Error('This photo was already registered with different notes or marks')
+      }
+      return existing
+    }
+    return tx.reportAddendumPhoto.create({
       data: {
         entryId,
         storagePath: input.storagePath,
         mimeType: input.mimeType,
         sizeBytes: input.sizeBytes,
         note: input.note || null,
+        annotations: input.annotations
+          ? { ...input.annotations, v: 1, by: agent.id, at: new Date().toISOString() }
+          : Prisma.DbNull,
       },
     })
   })
@@ -352,6 +364,7 @@ export async function addendumFromMaintenanceCase(caseId: string) {
               mimeType: item.mimeType,
               sizeBytes: item.sizeBytes,
               note: item.note,
+              annotations: toAnnotations(item.annotations) ?? Prisma.DbNull,
               label: item.purpose === 'BEFORE' ? 'Before' : 'After',
               maintenanceEvidenceId: item.id,
             })),
@@ -460,6 +473,7 @@ export async function publishAddendum(addendumId: string) {
           storagePath: photo.storagePath,
           mimeType: photo.mimeType,
           note: photo.note,
+          annotations: toAnnotations(photo.annotations),
           label: photo.label,
         })),
       })

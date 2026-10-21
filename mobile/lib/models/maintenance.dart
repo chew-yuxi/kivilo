@@ -267,6 +267,7 @@ class MaintenanceEvidenceModel {
     required this.createdAt,
     this.visitId,
     this.note,
+    this.annotations,
   });
 
   final String id;
@@ -276,6 +277,11 @@ class MaintenanceEvidenceModel {
   final String createdAt;
   final String? visitId;
   final String? note;
+  final Map<String, dynamic>? annotations;
+
+  List<Map<String, dynamic>> get marks =>
+      ((annotations?['marks'] as List<dynamic>?) ?? const [])
+          .cast<Map<String, dynamic>>();
 
   bool get isImage => mimeType.startsWith('image/');
   bool get isVideo => mimeType.startsWith('video/');
@@ -289,6 +295,7 @@ class MaintenanceEvidenceModel {
         createdAt: json['createdAt'] as String,
         visitId: json['visitId'] as String?,
         note: json['note'] as String?,
+        annotations: json['annotations'] as Map<String, dynamic>?,
       );
 }
 

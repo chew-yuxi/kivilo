@@ -9,8 +9,9 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 
 class PhotoMarksResult {
-  const PhotoMarksResult(this.annotations);
+  const PhotoMarksResult(this.annotations, {this.note});
   final Map<String, dynamic>? annotations;
+  final String? note;
 }
 
 enum _MarkEditAction { done, redraw, delete }
@@ -25,6 +26,8 @@ class PhotoMarkScreen extends StatefulWidget {
     required this.image,
     this.annotations,
     this.onChanged,
+    this.note,
+    this.onNoteChanged,
     this.saveLabel = 'Save',
   });
 
@@ -33,6 +36,8 @@ class PhotoMarkScreen extends StatefulWidget {
 
   /// New captures persist each completed mark locally before upload is released.
   final Future<void> Function(Map<String, dynamic>?)? onChanged;
+  final String? note;
+  final Future<void> Function(String?)? onNoteChanged;
   final String saveLabel;
 
   @override
@@ -58,6 +63,25 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   bool _canClose = false;
   bool _imageFailed = false;
   String? _saveError;
+  late String? _note = widget.note;
+
+  void _changeNote(String value) {
+    final note = value.trim().isEmpty ? null : value.trim();
+    setState(() => _note = note);
+    _writes = _writes.then((_) async {
+      try {
+        await widget.onNoteChanged!(note);
+        if (mounted) setState(() => _saveError = null);
+      } catch (error) {
+        if (mounted) setState(() => _saveError = plainError(error));
+      }
+    });
+  }
+
+  Future<void> _editPhotoNote() => showKiviloDrawer<void>(
+    context: context,
+    builder: (_) => _PhotoNoteDrawer(note: _note, onChanged: _changeNote),
+  );
 
   Map<String, dynamic>? _annotations(ui.Image photo) => !_dirty
       ? widget.annotations
@@ -93,11 +117,14 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
       await _writes;
       final annotations = _annotations(photo);
       await widget.onChanged?.call(annotations);
+      await widget.onNoteChanged?.call(_note);
       if (!mounted) return;
       setState(() => _canClose = true);
       // PopScope must rebuild before Android's back action can complete.
       await WidgetsBinding.instance.endOfFrame;
-      if (mounted) Navigator.pop(context, PhotoMarksResult(annotations));
+      if (mounted) {
+        Navigator.pop(context, PhotoMarksResult(annotations, note: _note));
+      }
     } catch (error) {
       if (mounted) setState(() => _saveError = plainError(error));
     } finally {
@@ -397,7 +424,10 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop:
-          _canClose || (!_saving && (widget.onChanged == null || _imageFailed)),
+          _canClose ||
+          (!_saving &&
+              ((widget.onChanged == null && widget.onNoteChanged == null) ||
+                  _imageFailed)),
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_saveAndClose());
       },
@@ -439,7 +469,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                     Padding(
                       padding: const EdgeInsets.all(12),
                       child: Text(
-                        'Could not save marks. $_saveError',
+                        'Could not save ${widget.onNoteChanged == null ? 'marks' : 'photo details'}. $_saveError',
                         style: const TextStyle(color: KiviloColors.red),
                       ),
                     ),
@@ -504,6 +534,14 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                       child: Column(
                         children: [
+                          if (widget.onNoteChanged != null)
+                            TextButton.icon(
+                              onPressed: _editPhotoNote,
+                              icon: const Icon(Icons.notes_outlined),
+                              label: Text(
+                                _note == null ? 'Add photo note' : 'Edit photo note',
+                              ),
+                            ),
                           KiviloSegmentedControl<String>(
                             options: const [
                               KiviloSegmentOption(
@@ -617,6 +655,49 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
       ),
     );
   }
+}
+
+class _PhotoNoteDrawer extends StatefulWidget {
+  const _PhotoNoteDrawer({required this.note, required this.onChanged});
+  final String? note;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_PhotoNoteDrawer> createState() => _PhotoNoteDrawerState();
+}
+
+class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
+  late final _controller = TextEditingController(text: widget.note);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => KiviloDrawer(
+    title: const Text('Photo note'),
+    content: TextField(
+      controller: _controller,
+      autofocus: true,
+      minLines: 3,
+      maxLines: 6,
+      maxLength: 500,
+      decoration: const InputDecoration(
+        labelText: 'Note',
+        hintText: 'Describe what this photo shows',
+        alignLabelWithHint: true,
+      ),
+      onChanged: widget.onChanged,
+    ),
+    actions: [
+      FilledButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Done'),
+      ),
+    ],
+  );
 }
 
 class _MarkEditorDrawer extends StatefulWidget {

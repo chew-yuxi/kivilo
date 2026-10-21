@@ -149,7 +149,7 @@ class ReportPhoto {
   final String url;
   final String? note;
 
-  /// Marks drawn beside the photo, never into it: `{width, height, marks}`, with every
+  /// Marks drawn beside the photo, never into it: `{w, h, marks}`, with every
   /// coordinate normalized against that upright box.
   final Map<String, dynamic>? annotations;
 
@@ -309,7 +309,8 @@ class ReportFinding {
     this.estimatedCost,
     required this.rationale,
     this.maintenanceTitle,
-    required this.evidenceImageUrls,
+    this.photos = const [],
+    required this.evidencePhotos,
   });
   final String id;
   final String itemLabel;
@@ -317,7 +318,8 @@ class ReportFinding {
   final String? estimatedCost;
   final String rationale;
   final String? maintenanceTitle;
-  final List<String> evidenceImageUrls;
+  final List<ReportPhoto> photos;
+  final List<ReportPhoto> evidencePhotos;
 
   factory ReportFinding.fromJson(Map<String, dynamic> json) => ReportFinding(
     id: json['id'] as String,
@@ -326,10 +328,14 @@ class ReportFinding {
     estimatedCost: json['estimatedCost'] as String?,
     rationale: json['rationale'] as String,
     maintenanceTitle: json['maintenanceTitle'] as String?,
-    evidenceImageUrls: (json['evidence'] as List<dynamic>)
+    // Absent on reports cached before findings could carry their own photos.
+    photos: (json['photos'] as List<dynamic>? ?? const [])
+        .map((photo) => ReportPhoto.fromJson(photo as Map<String, dynamic>))
+        .toList(),
+    evidencePhotos: (json['evidence'] as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .where((e) => (e['mimeType'] as String).startsWith('image/'))
-        .map((e) => e['url'] as String)
+        .map(ReportPhoto.fromJson)
         .toList(),
   );
 }
@@ -499,6 +505,7 @@ class AddendumPhoto {
     required this.mimeType,
     this.note,
     this.label,
+    this.annotations,
   });
   final String id;
   final String url;
@@ -507,6 +514,7 @@ class AddendumPhoto {
 
   /// "Before" or "After" for a repair's evidence.
   final String? label;
+  final Map<String, dynamic>? annotations;
 
   factory AddendumPhoto.fromJson(Map<String, dynamic> json) => AddendumPhoto(
     id: json['id'] as String,
@@ -514,6 +522,7 @@ class AddendumPhoto {
     mimeType: json['mimeType'] as String,
     note: json['note'] as String?,
     label: json['label'] as String?,
+    annotations: json['annotations'] as Map<String, dynamic>?,
   );
 }
 

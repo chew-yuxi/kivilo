@@ -6,4 +6,4 @@ export const dynamic = 'force-dynamic'
 /// Registers a photo once it is in storage. Idempotent on its path, so a retry after a
 /// lost response returns the same photo.
 export const POST = authed(async (_agent, { id, entryId }: { id: string; entryId: string }, request) =>
-  ({ id: await registerAddendumPhoto(entryId, id, await request.json()) }))
+  ({ id: await registerAddendumPhoto(entryId, id, await request.json()), annotationsApplied: true }))

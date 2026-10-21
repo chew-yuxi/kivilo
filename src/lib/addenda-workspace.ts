@@ -1,4 +1,5 @@
 import { db } from '@/lib/db'
+import { toAnnotations } from '@/lib/annotations'
 import { authorizeInspection } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { addendumView, currentState } from '@/lib/addenda'
@@ -68,6 +69,7 @@ export async function addendaWorkspace(inspectionId: string, agentId: string) {
               id: photo.id,
               url: await createDownloadUrl(photo.storagePath),
               note: photo.note,
+              annotations: toAnnotations(photo.annotations),
               label: photo.label,
             }))),
           }))),

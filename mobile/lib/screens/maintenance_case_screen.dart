@@ -10,6 +10,7 @@ import '../services/capture_queue.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/marked_network_photo.dart';
 import 'addenda_screen.dart';
 import 'maintenance_evidence_screen.dart';
 import 'responsibility_card.dart';
@@ -341,6 +342,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
           caseId: caseId,
           purpose: purpose,
           visitId: visitId,
+          api: _api,
         ),
       ),
     );
@@ -989,8 +991,9 @@ class _EvidenceCard extends StatelessWidget {
                             child: InteractiveViewer(
                               minScale: 0.8,
                               maxScale: 5,
-                              child: Image.network(
-                                evidence.url,
+                              child: MarkedNetworkPhoto(
+                                url: evidence.url,
+                                annotations: evidence.annotations,
                                 fit: BoxFit.contain,
                               ),
                             ),
@@ -1009,12 +1012,10 @@ class _EvidenceCard extends StatelessWidget {
               Container(
                 color: KiviloColors.canvas,
                 height: 200,
-                child: Image.network(
-                  evidence.url,
+                child: MarkedNetworkPhoto(
+                  url: evidence.url,
+                  annotations: evidence.annotations,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Center(
-                    child: Text('Could not load. Pull to refresh the link.'),
-                  ),
                 ),
               ),
             Padding(
@@ -1037,6 +1038,12 @@ class _EvidenceCard extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
+                        for (final (index, mark) in evidence.marks.indexed)
+                          if (mark['note'] != null)
+                            Text(
+                              '${index + 1}. ${mark['note']}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                         const SizedBox(height: 2),
                         Text(
                           shortDate(evidence.createdAt),

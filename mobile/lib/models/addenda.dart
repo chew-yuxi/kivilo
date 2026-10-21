@@ -180,6 +180,7 @@ class DraftEntry {
             id: p['id'] as String,
             url: p['url'] as String,
             note: p['note'] as String?,
+            annotations: p['annotations'] as Map<String, dynamic>?,
             label: p['label'] as String?,
           ),
         )
@@ -192,11 +193,13 @@ class DraftPhoto {
     required this.id,
     required this.url,
     this.note,
+    this.annotations,
     this.label,
   });
   final String id;
   final String url;
   final String? note;
+  final Map<String, dynamic>? annotations;
 
   /// "Before" or "After" for a repair's evidence.
   final String? label;

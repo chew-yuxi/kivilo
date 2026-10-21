@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { renderToBuffer } from '@react-pdf/renderer'
 import sharp from 'sharp'
 import { db } from '@/lib/db'
+import { toAnnotations } from '@/lib/annotations'
 import { captureExists, createDownloadUrl, downloadCapture, removePrefix, uploadBytes } from '@/lib/storage'
 import { ReportDocument, type Bitmap, type ReportAssets } from './document'
 import { buildReportModel, loadReportRow, reportFilename, reportHash, reportPrefix, type ReportModel } from './model'
@@ -63,6 +64,7 @@ async function fetchAssets(model: ReportModel): Promise<ReportAssets> {
   // Pictures outside the room grid: a repair's evidence in the assessment, and the
   // photos of updates since signing.
   const evidence = [
+    ...(model.assessment?.findings ?? []).flatMap((finding) => finding.photos ?? []),
     ...(model.assessment?.findings ?? []).flatMap((finding) => finding.maintenanceEvidence?.evidence ?? []),
     ...model.addenda.flatMap((addendum) => addendum.entries.flatMap((entry) => entry.photos)),
   ]
@@ -70,7 +72,7 @@ async function fetchAssets(model: ReportModel): Promise<ReportAssets> {
 
   const [photoBitmaps, evidenceBitmaps, logo] = await Promise.all([
     pool(photos, (photo) => jpeg(photo.storagePath, photo.annotations ? MARKED_PHOTO_EDGE : PHOTO_EDGE)),
-    pool(evidence, (item) => jpeg(item.storagePath, PHOTO_EDGE)),
+    pool(evidence, (item) => jpeg(item.storagePath, toAnnotations(item.annotations) ? MARKED_PHOTO_EDGE : PHOTO_EDGE)),
     model.branding?.logoPath ? png(await downloadCapture(model.branding.logoPath)) : null,
   ])
 

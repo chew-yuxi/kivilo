@@ -7,6 +7,7 @@ import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
+import 'package:kivilo/ui/marked_network_photo.dart';
 
 Map<String, dynamic> reportJson({
   String status = 'AWAITING_SIGNATURE',
@@ -46,8 +47,8 @@ Map<String, dynamic> reportJson({
           'url': 'https://storage.test/photo-1.jpg',
           'note': 'Fridge door',
           'annotations': {
-            'width': 1200,
-            'height': 1600,
+            'w': 1200,
+            'h': 1600,
             'marks': [
               {
                 'shape': 'ring',
@@ -89,6 +90,54 @@ class FakeReportApi extends Api {
 }
 
 void main() {
+  testWidgets('published finding evidence retains photo and mark notes', (tester) async {
+    final json = reportJson(status: 'COMPLETED');
+    json['kind'] = 'CHECK_OUT';
+    json['rooms'] = <Map<String, dynamic>>[];
+    final annotations = {
+      'w': 1200, 'h': 1600,
+      'marks': [
+        {'shape': 'ring', 'cx': 0.4, 'cy': 0.5, 'rx': 0.1, 'ry': 0.1, 'note': 'Crack'},
+      ],
+    };
+    json['assessment'] = {
+      'version': 1,
+      'publishedAt': '2026-10-21T03:00:00.000Z',
+      'summary': null,
+      'findings': [
+        {
+          'id': 'finding-1', 'itemLabel': 'Kitchen · Worktop',
+          'verdict': 'TENANT_LIABLE', 'estimatedCost': '50.00',
+          'rationale': 'Cracked at check-out.',
+          'maintenanceTitle': null,
+          'photos': [
+            {'id': 'finding-photo', 'url': 'https://storage.test/finding.jpg',
+             'note': 'Worktop edge', 'annotations': annotations},
+          ],
+          'evidence': <Map<String, dynamic>>[],
+        },
+      ],
+    };
+    await tester.pumpWidget(MaterialApp(
+      theme: buildKiviloTheme(),
+      home: ReportScreen(id: 'inspection-1', api: FakeReportApi(json)),
+    ));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('Worktop edge'), 200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('1. Crack'), findsOneWidget);
+    final photo = find.byType(MarkedNetworkPhoto);
+    expect(tester.widget<MarkedNetworkPhoto>(photo).annotations, annotations);
+    await tester.ensureVisible(photo);
+    await tester.pumpAndSettle();
+    await tester.tap(photo);
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   test(
     'a tenancy carries its latest report, and an old response still parses',
     () {

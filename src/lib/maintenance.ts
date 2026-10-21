@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { annotationInputSchema, toAnnotations } from '@/lib/annotations'
 import { db } from '@/lib/db'
 import { agentTenancies, authorizeTenancy, tenancyScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
@@ -62,6 +63,7 @@ export const evidenceInput = evidenceUploadInput.extend({
   storagePath: z.string().min(1),
   sizeBytes: z.number().int().positive().max(250_000_000),
   note: z.string().trim().max(1000).nullable().default(null),
+  annotations: annotationInputSchema.nullable().default(null),
 })
 
 export const verificationInput = z.object({
@@ -371,6 +373,7 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     mimeType: item.mimeType,
     sizeBytes: item.sizeBytes,
     note: item.note,
+    annotations: toAnnotations(item.annotations),
     createdAt: item.createdAt.toISOString(),
     url: await createDownloadUrl(item.storagePath),
   })))
@@ -842,6 +845,7 @@ export async function requestMaintenanceEvidenceUpload(caseId: string, stakehold
 
 export async function registerMaintenanceEvidence(caseId: string, stakeholderId: string, raw: unknown) {
   const input = evidenceInput.parse(raw)
+  if (input.annotations && !input.mimeType.startsWith('image/')) throw new Error('Only photos can be marked')
   const { maintenanceCase } = await authorizeMaintenanceCase(caseId, stakeholderId)
   const expectedPath = `maintenance/${caseId}/${input.clientId}.${evidenceExtension(input.mimeType)}`
   if (input.storagePath !== expectedPath) throw new Error('Maintenance evidence path is invalid')
@@ -858,12 +862,21 @@ export async function registerMaintenanceEvidence(caseId: string, stakeholderId:
     if (existing.caseId !== caseId || existing.storagePath !== input.storagePath) {
       throw new Error('Maintenance case not found')
     }
-    return { id: existing.id }
+    const stored = annotationInputSchema.safeParse(existing.annotations)
+    if (existing.note !== input.note || JSON.stringify(stored.success ? stored.data : null) !== JSON.stringify(input.annotations)) {
+      throw new Error('This evidence was already registered with different notes or marks')
+    }
+    return { id: existing.id, annotationsApplied: true }
   }
   const created = await db.maintenanceEvidence.create({
-    data: { ...input, caseId, uploadedById: stakeholderId },
+    data: {
+      ...input, caseId, uploadedById: stakeholderId,
+      annotations: input.annotations
+        ? { ...input.annotations, v: 1, by: stakeholderId, at: new Date().toISOString() }
+        : Prisma.DbNull,
+    },
   })
-  return { id: created.id }
+  return { id: created.id, annotationsApplied: true }
 }
 
 export async function listPropertyAssets(propertyId: string, stakeholderId: string) {

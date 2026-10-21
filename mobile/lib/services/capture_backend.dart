@@ -334,16 +334,20 @@ class RoutingEvidenceBackend implements CaptureBackend {
   RoutingEvidenceBackend(Dio dio)
     : _captures = HttpCaptureBackend(dio),
       _maintenance = HttpMaintenanceEvidenceBackend(dio),
-      _addenda = HttpAddendumPhotoBackend(dio);
+      _addenda = HttpAddendumPhotoBackend(dio),
+      _findings = HttpFindingPhotoBackend(dio);
 
   final HttpCaptureBackend _captures;
   final HttpMaintenanceEvidenceBackend _maintenance;
   final HttpAddendumPhotoBackend _addenda;
+  final HttpFindingPhotoBackend _findings;
 
   CaptureBackend _for(String ownerId) => ownerId.startsWith('maintenance:')
       ? _maintenance
       : ownerId.startsWith(addendumQueueOwnerPrefix)
       ? _addenda
+      : ownerId.startsWith('finding:')
+      ? _findings
       : _captures;
 
   @override
@@ -433,7 +437,7 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
           'clientId': clientId,
           'purpose': _target(roomId).purpose,
           'visitId': _target(roomId).visitId,
-          'mimeType': 'image/jpeg',
+          'mimeType': addendumPhotoMimeType(filename),
         },
         cancelToken: cancel,
       ),
@@ -489,6 +493,7 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
           'mimeType': mimeType,
           'sizeBytes': sizeBytes,
           'note': note,
+          'annotations': annotations,
         },
         cancelToken: cancel,
       ),
@@ -496,7 +501,8 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
     );
     return (
       id: response.data!['id'] as String,
-      annotationsApplied: true,
+      annotationsApplied:
+          annotations == null || response.data!['annotationsApplied'] == true,
       itemApplied: true,
     );
   }
@@ -601,6 +607,7 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
           'storagePath': storagePath,
           'sizeBytes': sizeBytes,
           'note': note,
+          'annotations': annotations,
         },
         cancelToken: cancel,
       ),
@@ -608,7 +615,8 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
     );
     return (
       id: response.data!['id'] as String,
-      annotationsApplied: true,
+      annotationsApplied:
+          annotations == null || response.data!['annotationsApplied'] == true,
       itemApplied: true,
     );
   }
@@ -616,6 +624,107 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
   Never _immutable() => throw StateError(
     'An update photo is removed from the draft, not edited.',
   );
+  @override
+  Future<void> updateNote(
+    String inspectionId,
+    String captureId,
+    String? note,
+  ) async => _immutable();
+  @override
+  Future<void> annotate(
+    String inspectionId,
+    String captureId,
+    Map<String, dynamic>? annotations,
+  ) async => _immutable();
+  @override
+  Future<void> deleteCapture(String inspectionId, String captureId) async =>
+      _immutable();
+}
+
+/// Finding evidence is separate from the frozen room inventory and is included in
+/// an assessment only when its current draft is published.
+class HttpFindingPhotoBackend implements CaptureBackend {
+  HttpFindingPhotoBackend(this._dio);
+  final Dio _dio;
+
+  String _base(String owner, String findingId) =>
+      '/api/v1/inspections/${owner.substring('finding:'.length)}/findings/$findingId';
+
+  @override
+  Future<({bool alreadyUploaded, String? signedUrl, String storagePath})>
+  uploadUrl(
+    String inspectionId,
+    String roomId,
+    String filename,
+    String clientId,
+  ) async {
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '${_base(inspectionId, roomId)}/upload-url',
+        data: {
+          'clientId': clientId,
+          'mimeType': addendumPhotoMimeType(filename),
+        },
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
+    );
+    final data = response.data!;
+    final signedUrl = data['signedUrl'] as String?;
+    return (
+      storagePath: data['storagePath'] as String,
+      signedUrl: signedUrl,
+      alreadyUploaded: data['alreadyUploaded'] == true || signedUrl == null,
+    );
+  }
+
+  @override
+  Future<void> putBytes(
+    String signedUrl,
+    File file,
+    String mimeType,
+    String clientId,
+  ) => HttpCaptureBackend(_dio).putBytes(signedUrl, file, mimeType, clientId);
+
+  @override
+  Future<({String id, bool annotationsApplied, bool itemApplied})>
+  registerCapture({
+    required String inspectionId,
+    required String roomId,
+    required String kind,
+    required String storagePath,
+    required String clientId,
+    required String mimeType,
+    required int sizeBytes,
+    int? durationSec,
+    String? itemId,
+    String? note,
+    Map<String, dynamic>? annotations,
+  }) async {
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '${_base(inspectionId, roomId)}/photos',
+        data: {
+          'clientId': clientId,
+          'storagePath': storagePath,
+          'mimeType': mimeType,
+          'sizeBytes': sizeBytes,
+          'note': note,
+          'annotations': annotations,
+        },
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
+    );
+    return (
+      id: response.data!['id'] as String,
+      annotationsApplied:
+          annotations == null || response.data!['annotationsApplied'] == true,
+      itemApplied: true,
+    );
+  }
+
+  Never _immutable() => throw StateError('A saved finding photo is immutable.');
   @override
   Future<void> updateNote(
     String inspectionId,

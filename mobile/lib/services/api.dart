@@ -10,6 +10,7 @@ import '../models/maintenance.dart';
 import '../models/report.dart';
 import '../models/renewal.dart';
 import 'api_failure.dart';
+import 'evidence_auth.dart';
 import 'read_cache.dart';
 
 export 'api_failure.dart';
@@ -18,7 +19,8 @@ export 'api_failure.dart';
 class Api {
   Api({Dio? dio, ReadCache? cache, bool attachAuth = true})
     : _dio = dio ?? Dio(BaseOptions(baseUrl: Config.apiBase)),
-      _cache = cache ?? ReadCache() {
+      _cache = cache ?? ReadCache(),
+      _attachAuth = attachAuth {
     if (!attachAuth) return;
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -48,8 +50,11 @@ class Api {
 
   final Dio _dio;
   final ReadCache _cache;
+  final bool _attachAuth;
   bool offlineCopy = false;
   Dio get dio => _dio;
+  Dio evidenceDio(String ownerId) =>
+      _attachAuth ? ownerBoundEvidenceDio(ownerId) : _dio;
 
   Future<T> _call<T>(Future<T> Function() request) async {
     try {
@@ -718,13 +723,25 @@ class Api {
     return response.data!['id'] as String;
   });
 
-  Future<void> createFinding(String inspectionId, Map<String, dynamic> data) =>
+  Future<String> createFinding(String inspectionId, Map<String, dynamic> data) =>
       _call(() async {
-        await _dio.post(
+        final response = await _dio.post<Map<String, dynamic>>(
           '/api/v1/inspections/$inspectionId/findings',
           data: data,
         );
+        return response.data!['id'] as String;
       });
+
+  Future<List<Map<String, dynamic>>> findingPhotos(
+    String inspectionId,
+    String findingId,
+  ) async {
+    final data = await _read(
+      '/api/v1/inspections/$inspectionId/findings/$findingId/photos',
+      'finding-photos:$inspectionId:$findingId',
+    ) as Map<String, dynamic>;
+    return (data['photos'] as List).cast<Map<String, dynamic>>();
+  }
 
   Future<void> deleteFinding(String inspectionId, String findingId) =>
       _call(() async {

@@ -1,7 +1,7 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'api.dart';
+import 'evidence_auth.dart';
 import 'capture_backend.dart';
 import 'capture_queue.dart';
 import 'capture_store.dart';
@@ -16,7 +16,7 @@ Future<List<String>> resumePendingCaptures() async {
   final queue = CaptureQueue();
   try {
     final unresolved = await CaptureStore(queue: queue, root: root).reconcile(ownerId);
-    await Uploader(queue: queue, backend: RoutingEvidenceBackend(Api().dio),
+    await Uploader(queue: queue, backend: RoutingEvidenceBackend(ownerBoundEvidenceDio(ownerId)),
       root: root, ownerId: ownerId).drain();
     return unresolved;
   } finally {

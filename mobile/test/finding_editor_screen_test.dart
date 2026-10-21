@@ -163,6 +163,7 @@ Future<void> _enter(WidgetTester tester, String label, String value) async {
 Future<void> _open(
   WidgetTester tester, {
   required Future<void> Function(Map<String, dynamic>) onSave,
+  Future<void> Function(Map<String, dynamic>)? onSaveAndAddPhotos,
   Finding? finding,
   List<ComparableItem>? checkOutItems,
   List<ComparableItem>? checkInItems,
@@ -193,6 +194,7 @@ Future<void> _open(
                       checkOutItems: checkOutItems ?? _outItems(),
                       checkInItems: checkInItems ?? _inItems(),
                       onSave: onSave,
+                      onSaveAndAddPhotos: onSaveAndAddPhotos,
                       onRemove: onRemove,
                     ),
                   ),
@@ -220,6 +222,33 @@ Future<void> _chooseSerial(WidgetTester tester, String serial) async {
 }
 
 void main() {
+  testWidgets('save and add photos validates and retains the draft on failure', (tester) async {
+    final saved = <Map<String, dynamic>>[];
+    var shouldFail = true;
+    await _open(
+      tester,
+      onSave: (_) async => fail('Normal save must not run'),
+      onSaveAndAddPhotos: (body) async {
+        saved.add(body);
+        if (shouldFail) throw const ApiFailure('No connection', null);
+      },
+    );
+    await _chooseSerial(tester, _kitchenSerial);
+    await _tapButton(tester, 'Save & add photos');
+    expect(saved, isEmpty);
+    expect(find.text('Describe what changed and why.'), findsOneWidget);
+    await _enter(tester, 'Rationale', 'The lower door is dented.');
+    await _tapButton(tester, 'Save & add photos');
+    expect(saved.single['itemId'], 'out-kitchen');
+    expect(find.byType(FindingEditorScreen), findsOneWidget);
+    expect(find.text('No connection'), findsOneWidget);
+    shouldFail = false;
+    await _tapButton(tester, 'Save & add photos');
+    expect(saved, hasLength(2));
+    expect(saved.last, saved.first);
+    expect(find.text('Assessment home'), findsOneWidget);
+  });
+
   testWidgets(
     'room and serial search distinguish two items with the same name',
     (tester) async {

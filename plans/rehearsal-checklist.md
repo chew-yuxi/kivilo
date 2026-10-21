@@ -1,15 +1,19 @@
 # Native app rehearsal on physical devices
 
 The outstanding full-flow rehearsal in `DEPLOYING.md`, updated for the consolidated
-design and inventory-first capture changes. **All checks below are pending until
-someone records a physical-device result.** Automated tests, generated previews and
+design, inventory-first capture and shared evidence-photo changes. **All checks below
+are pending until someone records a physical-device result.** Automated tests, generated previews and
 a successful patch upload do not complete this checklist.
 
 Target the existing releases: **iOS `1.0.0+24` and Android `1.0.0+25`**, with the exact
 consolidated patch recorded below. Follow `mobile/RELEASE.md` for patch delivery.
 The iOS store freeze still applies; this rehearsal needs no new store build.
-The consolidated source candidate is `3a11313`; its new patches have not been built
-or published. Record their eventual numbers before running delivery checks.
+The design consolidation includes `3a11313`. The newer evidence-photo work is on
+`codex/evidence-photo-flow`, **not `main` or live**. Apply production migration
+`20261021120000_finding_photo_evidence` before merging/deploying that backend, then
+build the native patch from the verified source. The feature needs no new plugins,
+assets or native configuration. Record the actual source and patch before delivery
+checks; the configured release machine and physical devices are still required.
 
 ## Owner prerequisites and results
 
@@ -91,13 +95,20 @@ photos are detectable.
 - [ ] **B5 — Room walkthrough.** **Room media & walkthrough** records a short video
   and opens existing room media. Video plays with audio and does not open the photo
   mark editor. Back/Done returns to the right room/item without moving evidence.
+- [ ] **B6 — Finding, repair and update photos.** In controlled fixtures, use
+  **Save & add photos** on a finding, and take/choose photos for repair evidence and
+  a draft report update. The finding saves before its photo actions open. Each photo
+  offers the same mark editor, whole-photo note and per-mark notes. Save with and
+  without marks; captions and overlays remain attached to the correct record.
 
 ## C. Offline, restart and photo-loss checks
 
 - [ ] **C1 — Interrupted editor.** Take an item photo, complete a mark, then terminate
   the app before **Save photo**. Reopen: original and completed mark remain;
-  **Finish marking** resumes it. Upload waits for **Save photo**. Repeat by backing
-  out of the editor instead of terminating the app.
+  **Finish marking** resumes it and upload remains held. Repeat with a whole-photo
+  note and a finding/repair/update photo. Separately press Back: successful autosave
+  closes the editor and releases the upload hold, just as **Save photo** does.
+  A save failure must keep the editor open and the original held for retry.
 - [ ] **C2 — Interrupted batch.** Choose three library photos, terminate from the
   first editor, then reopen. Every selected original is recoverable, including photos
   never opened in an editor. Finish them: each uploads once to its original item/room.
@@ -122,6 +133,12 @@ photos are detectable.
   low free storage and an expired session with queued media on a dedicated test phone.
   Record these separately; a short video does not verify them. Do not deliberately
   exhaust storage on someone's working phone.
+- [ ] **C8 — Pending picker before publication.** Interrupt camera/library intake
+  for a finding or report update before its queue row appears, then reopen its parent.
+  Assessment/update publication must wait for that matching selection to recover and
+  upload; finding deletion must also refuse while its photo is pending. Recover in the
+  original photo screen, finish marking and retry. Another account, inspection or
+  update must neither consume the selection nor be counted as its destination.
 
 ## D. Existing fixtures: reports, references and access
 
@@ -133,7 +150,11 @@ fixture for D3. Do not edit a report that has already been sent for signature.
   without tapping Send, resend or sign.
 - [ ] **D2 — Report and PDF.** Compare a controlled completed report's wording,
   evidence, marks and signatures across app, web and PDF. Check small identifiers and
-  mark alignment on differently shaped photos. Open an existing controlled share link
+  mark alignment on differently shaped photos, including published finding, repair
+  and addendum evidence. Whole-photo and per-mark notes agree across renderers. Compare
+  the private stored original with the captured file: adding marks must not alter its
+  bytes; PDF image resizing is a separate rendering step. Open an existing controlled
+  share link
   signed out; keep its bearer URL out of screenshots and notes.
 - [ ] **D3 — Check-out reference.** In the editable check-out fixture, open
   **At check-in** and a copied check-out item:
@@ -156,13 +177,16 @@ both intended patched release binaries.
   frozen report in app/web/PDF. Late bytes must not silently join the photos agreed
   at Send.
 - [ ] **E2 — Check-out and publication.** Start from that signed check-in. Verify
-  copied inventory/reference, record a changed item/finding, finish reviews/signatures
-  and publish. With a second fixture, exercise **Publish: no damage found**. Each
+  copied inventory/reference, record a changed item/finding with marked photos and
+  notes, finish reviews/signatures and publish after uploads complete. With a second
+  fixture, exercise **Publish: no damage found**. Each
   assessment appears on the intended report without changing the original check-in.
 - [ ] **E3 — Repair regression.** Tenant reports a sample issue with a before photo;
   the parties propose/counterpropose/accept costs; agent records repair and actual
   cost; tenant confirms fixed. Verify allocation, property history and notification
-  routing in foreground/background on both phones.
+  routing in foreground/background on both phones. Publish a controlled move-in notice
+  or report update with marked repair evidence; verify its frozen notes/marks and,
+  after the required acknowledgements, the next check-out's agreed reference photos.
 - [ ] **E4 — Email and access.** Check code sign-in, signing requests, each party's
   own-account signing and final PDF delivery only to the arranged inboxes. An unrelated
   account cannot open/edit the inspection. Revoke a controlled share link and verify

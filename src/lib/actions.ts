@@ -3,6 +3,7 @@
 import { randomBytes } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
+import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom } from '@/lib/auth'
 import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
@@ -14,6 +15,7 @@ import { reportFingerprint } from '@/lib/report-fingerprint'
 import { queueSignatureRequests, queueSignedCopies, queueTenantHandover, signingParties } from '@/lib/report-email'
 import { currentState } from '@/lib/addenda'
 import { checkInPhotoUrls, roomBaselines } from '@/lib/check-in-reference'
+import { deleteFindingDraft } from '@/lib/finding-photos'
 import { Prisma } from '@/generated/prisma'
 import type {
   ChangeType,
@@ -825,6 +827,7 @@ async function recordSignature(
 export async function createFinding(
   inspectionId: string,
   data: {
+    clientId?: string
     itemId: string | null
     baselineItemId: string | null
     changeType: ChangeType
@@ -838,6 +841,7 @@ export async function createFinding(
   if (inspection.kind !== 'CHECK_OUT' || !['AWAITING_SIGNATURE', 'COMPLETED'].includes(inspection.status)) {
     throw new Error('Findings require a reviewed check-out')
   }
+  if (data.clientId) z.string().uuid().parse(data.clientId)
   if (!data.itemId && !data.baselineItemId) throw new Error('Item not found')
   const { baselineId } = await db.inspection.findUniqueOrThrow({
     where: { id: inspectionId },
@@ -879,29 +883,41 @@ export async function createFinding(
     baselineItemId = match?.id ?? null
   }
 
-  const finding = await db.finding.create({
-    data: {
-      inspectionId,
-      itemId: data.itemId,
-      baselineItemId,
-      changeType: data.changeType,
-      verdict: data.verdict,
-      rationale: data.rationale,
-      estimatedCost: data.estimatedCost,
-      editedByHuman: true,
-    },
+  const finding = await db.$transaction(async (tx) => {
+    await lockInspection(tx, inspectionId)
+    if (data.clientId) {
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${`finding-create:${data.clientId}`}))::text`
+      const existing = await tx.finding.findUnique({ where: { clientId: data.clientId } })
+      if (existing) {
+        if (existing.inspectionId !== inspectionId) throw new Error('Finding not found')
+        if (existing.itemId !== data.itemId || existing.baselineItemId !== baselineItemId ||
+            existing.changeType !== data.changeType || existing.verdict !== data.verdict || existing.rationale !== data.rationale ||
+            (existing.estimatedCost === null ? data.estimatedCost !== null : data.estimatedCost === null || !existing.estimatedCost.equals(data.estimatedCost))) {
+          throw new Error('Finding client id already registered with different content')
+        }
+        return existing
+      }
+    }
+    return tx.finding.create({
+      data: {
+        clientId: data.clientId,
+        inspectionId,
+        itemId: data.itemId,
+        baselineItemId,
+        changeType: data.changeType,
+        verdict: data.verdict,
+        rationale: data.rationale,
+        estimatedCost: data.estimatedCost,
+        editedByHuman: true,
+      },
+    })
   })
   revalidate(inspectionId)
   return finding.id
 }
 
 export async function deleteFinding(findingId: string, inspectionId: string) {
-  const agent = await requireAgent()
-  const finding = await db.finding.findUnique({ where: { id: findingId }, select: { inspectionId: true } })
-  if (!finding || finding.inspectionId !== inspectionId) throw new Error('Finding not found')
-  await authorizeInspection(inspectionId, agent.id)
-
-  await db.finding.delete({ where: { id: findingId } })
+  await deleteFindingDraft(findingId, inspectionId)
   revalidate(inspectionId)
 }
 
@@ -932,9 +948,12 @@ export async function updateFinding(
     if (!maintenanceCase) throw new Error('Maintenance case not found')
   }
 
-  await db.finding.update({
-    where: { id: findingId },
-    data: { ...data, editedByHuman: true, confidence: null },
+  await db.$transaction(async (tx) => {
+    await lockInspection(tx, inspectionId)
+    await tx.finding.update({
+      where: { id: findingId },
+      data: { ...data, editedByHuman: true, confidence: null },
+    })
   })
   revalidate(inspectionId)
 }

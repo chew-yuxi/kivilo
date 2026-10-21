@@ -47,6 +47,11 @@ export async function purgeStorageEntry(purge: StoragePurge) {
     return 'waiting'
   }
   if (purge.isPrefix) {
+    // Finding rows can be deleted while their photos remain in immutable assessment
+    // versions. Their cleanup is always per object, never by the whole prefix.
+    if (purge.path.startsWith('findings/')) {
+      throw new Error(`Finding evidence requires an individual object purge`)
+    }
     const addendumId = /^addenda\/([A-Za-z0-9]+)$/.exec(purge.path)?.[1]
     const inUse = () => addendumId
       ? db.reportAddendum.findUnique({ where: { id: addendumId }, select: { id: true } })
@@ -66,7 +71,13 @@ export async function purgeStorageEntry(purge: StoragePurge) {
         select: { id: true },
       }) ?? await db.reportAddendumPhoto.findFirst({
         where: { storagePath: purge.path }, select: { id: true },
-      })
+      }) ?? await db.findingPhoto.findFirst({
+        where: { storagePath: purge.path }, select: { id: true },
+      }) ?? (purge.path.startsWith('findings/') ? (await db.$queryRaw<{ id: string }[]>`
+        SELECT "id" FROM "AssessmentVersion"
+        WHERE "snapshot" @> ${JSON.stringify({ findings: [{ photos: [{ storagePath: purge.path }] }] })}::jsonb
+        LIMIT 1
+      `)[0] : null)
     if (await inUse()) {
       throw new Error(`Object ${purge.path} still belongs to a report; refusing object purge`)
     }

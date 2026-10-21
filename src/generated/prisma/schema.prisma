@@ -576,6 +576,7 @@ model MaintenanceEvidence {
   mimeType     String
   sizeBytes    Int
   note         String?
+  annotations  Json?
   createdAt    DateTime                   @default(now())
 
   maintenanceCase MaintenanceCase   @relation(fields: [caseId], references: [id], onDelete: Cascade)
@@ -776,6 +777,8 @@ enum Verdict {
 /// Check-out only. The dispute moment, drafted by the model and owned by a human.
 model Finding {
   id                String     @id @default(cuid())
+  /// Stable native draft id, so retrying Save after a lost response is safe.
+  clientId          String?    @unique
   inspectionId      String
   itemId            String?
   baselineItemId    String?
@@ -787,6 +790,8 @@ model Finding {
   estimatedCost     Decimal?   @db.Decimal(10, 2)
   confidence        Float?
   editedByHuman     Boolean    @default(false)
+  /// Durable signed-upload intents, including bytes not yet registered.
+  uploadPaths       String[]   @default([])
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
@@ -794,9 +799,28 @@ model Finding {
   item            InspectionItem?  @relation("FindingItem", fields: [itemId], references: [id], onDelete: SetNull)
   baselineItem    InspectionItem?  @relation("FindingBaselineItem", fields: [baselineItemId], references: [id], onDelete: SetNull)
   maintenanceCase MaintenanceCase? @relation(fields: [maintenanceCaseId], references: [id], onDelete: SetNull)
+  photos          FindingPhoto[]
 
   @@index([inspectionId])
   @@index([maintenanceCaseId])
+}
+
+/// Assessment evidence, separate from the inventory the parties signed. Registered
+/// photos are immutable; a published assessment freezes their metadata in its snapshot.
+model FindingPhoto {
+  id          String   @id @default(cuid())
+  clientId    String   @unique
+  findingId   String
+  storagePath String   @unique
+  mimeType    String
+  sizeBytes   Int
+  note        String?
+  annotations Json?
+  createdAt   DateTime @default(now())
+
+  finding Finding @relation(fields: [findingId], references: [id], onDelete: Cascade)
+
+  @@index([findingId, createdAt])
 }
 
 model Signature {
@@ -960,6 +984,7 @@ model ReportAddendumPhoto {
   mimeType              String
   sizeBytes             Int?
   note                  String?
+  annotations           Json?
   /// "Before" or "After" for a repair's evidence.
   label                 String?
   /// Provenance only, so the same evidence is not attached twice.

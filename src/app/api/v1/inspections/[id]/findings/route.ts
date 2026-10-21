@@ -6,6 +6,7 @@ import { CHANGE_TYPES, VERDICTS } from '@/lib/inspection/schema'
 export const dynamic = 'force-dynamic'
 
 const body = z.object({
+  clientId: z.string().uuid().optional(),
   itemId: z.string().min(1).nullable(),
   baselineItemId: z.string().min(1).nullable(),
   changeType: z.enum(CHANGE_TYPES),

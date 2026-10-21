@@ -28,6 +28,10 @@ class ApiFailure implements Exception {
         'Open and confirm every finding before publishing the assessment.',
       'no_damage_unconfirmed' =>
         'Add a finding, or confirm that no damage was found, before publishing.',
+      'finding_photos_pending' =>
+        'Finish uploading finding photos before publishing the assessment.',
+      'finding_conflict' =>
+        'This finding was already saved. Reopen it from the assessment to review or change it.',
       'invalid_state' => 'This cannot be done at this stage of the report.',
       'capture_conflict' =>
         'This photo or video clashes with one already in the report. Refresh the room and check it.',

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text -- @react-pdf's Image draws into the PDF and has no alt prop. */
 import { Document, Font, Image, Link, Page, Path, StyleSheet, Svg, Text, View } from '@react-pdf/renderer'
 import type { ItemCondition } from '@/generated/prisma'
-import { markPath } from '@/lib/annotations'
+import { markPath, toAnnotations } from '@/lib/annotations'
 import { sgd } from '@/lib/format'
 import { depositStatement } from '@/lib/assessment-schema'
 import { entryHeading, type AddendumView } from '@/lib/addenda'
@@ -449,6 +449,36 @@ function MarkedImage({ photo, bitmap }: { photo: ReportPhoto; bitmap: Bitmap }) 
   )
 }
 
+/// Non-inventory evidence uses the same original-photo/vector-mark renderer. Rows
+/// can move to the next page independently, so a finding with many photos fits.
+function EvidencePhotos({ photos, assets }: {
+  photos: { id: string; storagePath: string; mimeType: string; note: string | null; label?: string | null; annotations?: unknown }[]
+  assets: ReportAssets
+}) {
+  const rows = Array.from({ length: Math.ceil(photos.length / 3) }, (_, index) => photos.slice(index * 3, index * 3 + 3))
+  return <>
+    {rows.map((row) => (
+      <View key={row[0].id} style={[s.photoRow, { marginTop: 6 }]} wrap={false}>
+        {row.map((photo) => photo.mimeType.startsWith('image/') ? (
+          <PhotoTile key={photo.id} photo={{
+            ref: photo.label ?? '',
+            anchor: `evidence-${photo.id}`,
+            storagePath: photo.storagePath,
+            note: photo.note,
+            annotations: toAnnotations(photo.annotations),
+            shows: [],
+          }} bitmap={assets.evidence.get(photo.storagePath) ?? null} />
+        ) : (
+          <View key={photo.id} style={{ width: TILE }}>
+            <Text style={s.small}>{photo.label ?? 'Attached'} evidence ({photo.mimeType})</Text>
+            {photo.note && <Text style={s.small}>{photo.note}</Text>}
+          </View>
+        ))}
+      </View>
+    ))}
+  </>
+}
+
 function Agreement({ model, assets }: { model: ReportModel; assets: ReportAssets }) {
   return (
     <View id="agreement">
@@ -530,7 +560,7 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
         </Text>
       )}
       {assessment.findings.map((finding) => (
-        <View key={finding.id} style={[s.row, { flexDirection: 'column' }]} wrap={false}>
+        <View key={finding.id} style={[s.row, { flexDirection: 'column' }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={s.bold}>{finding.itemLabel}</Text>
             <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 8, color: finding.verdict === 'TENANT_LIABLE' ? DEFECT : MUTED }}>
@@ -538,22 +568,11 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
             </Text>
           </View>
           <Text style={{ color: '#374151' }}>{finding.rationale}</Text>
+          <EvidencePhotos photos={(finding.photos ?? []).map((photo, index) => ({ ...photo, label: `F${assessment.findings.indexOf(finding) + 1}.${index + 1}` }))} assets={assets} />
           {finding.maintenanceEvidence && (
             <View style={{ marginTop: 6 }}>
               <Text style={s.small}>Maintenance record: {finding.maintenanceEvidence.title}</Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                {finding.maintenanceEvidence.evidence.map((item) => {
-                  const bitmap = assets.evidence.get(item.storagePath)
-                  return bitmap ? (
-                    <View key={item.id} style={{ width: 110 }}>
-                      <Image src={bitmap} style={{ width: 110, height: 82, objectFit: 'contain', backgroundColor: TILE_BG }} />
-                      <Text style={s.small}>{item.purpose.toLowerCase()}{item.note && `: ${item.note}`}</Text>
-                    </View>
-                  ) : (
-                    <Text key={item.id} style={s.small}>{item.purpose.toLowerCase()} evidence ({item.mimeType})</Text>
-                  )
-                })}
-              </View>
+              <EvidencePhotos photos={finding.maintenanceEvidence.evidence.map((photo) => ({ ...photo, label: photo.purpose.toLowerCase() }))} assets={assets} />
             </View>
           )}
         </View>
@@ -597,7 +616,7 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
       </Text>
 
       {addendum.entries.map((entry) => (
-        <View key={entry.id} style={[s.row, { flexDirection: 'column', paddingVertical: 6 }]} wrap={false}>
+        <View key={entry.id} style={[s.row, { flexDirection: 'column', paddingVertical: 6 }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={s.bold}>{entryHeading(entry, addendum.source)}</Text>
             <Text style={s.small}>{entry.roomName}</Text>
@@ -618,25 +637,7 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
           {entry.line?.identifier && <Text style={{ fontFamily: 'Courier', fontSize: 7.5, color: MUTED }}>{entry.line.identifier}</Text>}
           {entry.notes && <Text style={{ color: '#374151' }}>{entry.notes}</Text>}
           {entry.maintenanceCase && <Text style={s.small}>From the repair record: {entry.maintenanceCase.title}</Text>}
-          {entry.photos.length > 0 && (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: GRID_GAP, marginTop: 6 }}>
-              {entry.photos.map((photo) => {
-                const bitmap = assets.evidence.get(photo.storagePath)
-                return (
-                  <View key={photo.id} style={{ width: TILE }}>
-                    <View style={[s.tileBox, { height: 140 }]}>
-                      {bitmap
-                        ? <Image src={bitmap} style={{ width: TILE, height: 140, objectFit: 'contain' }} />
-                        : <Text style={s.small}>Photo unavailable</Text>}
-                    </View>
-                    {(photo.label || photo.note) && (
-                      <Text style={[s.small, { marginTop: 3 }]}>{[photo.label, photo.note].filter(Boolean).join(': ')}</Text>
-                    )}
-                  </View>
-                )
-              })}
-            </View>
-          )}
+          <EvidencePhotos photos={entry.photos} assets={assets} />
         </View>
       ))}
 
