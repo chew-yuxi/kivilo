@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
+import { setTimeout as delay } from 'node:timers/promises'
 
 /// Local Supabase delivers auth email to mailpit; the six digit code is read back
 /// out of its API, so sign-in in the suite is the same flow an agent uses.
@@ -9,11 +10,29 @@ export function freshEmail(label: string) {
   return `e2e-${label}-${Date.now().toString(36)}@kivilo.test`
 }
 
-export async function latestCodeFor(email: string): Promise<string | null> {
+async function latestMessageFor(email: string) {
   const list = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`)
-  const { messages } = (await list.json()) as { messages: { ID: string }[] }
-  if (!messages?.length) return null
-  const message = await fetch(`${MAILPIT}/api/v1/message/${messages[0].ID}`)
+  if (!list.ok) throw new Error(`Mailpit search failed: ${list.status}`)
+  const { messages } = (await list.json()) as { messages: { ID: string; Created: string }[] }
+  return messages[0] ?? null
+}
+
+async function prepareCodeRequest(email: string) {
+  const previous = await latestMessageFor(email)
+  if (previous) {
+    // Match auth.email.max_frequency = "1s" in supabase/config.toml. Delivery is
+    // after Supabase issued the code, so its timestamp safely bounds the cooldown.
+    const remaining = Date.parse(previous.Created) + 1000 - Date.now()
+    if (remaining > 0) await delay(remaining)
+  }
+  return previous?.ID
+}
+
+export async function latestCodeFor(email: string, previousMessageId?: string): Promise<string | null> {
+  const latest = await latestMessageFor(email)
+  if (!latest || latest.ID === previousMessageId) return null
+  const message = await fetch(`${MAILPIT}/api/v1/message/${latest.ID}`)
+  if (!message.ok) throw new Error(`Mailpit message failed: ${message.status}`)
   const { Text } = (await message.json()) as { Text: string }
   return Text.match(/\b(\d{6})\b/)?.[1] ?? null
 }
@@ -21,11 +40,12 @@ export async function latestCodeFor(email: string): Promise<string | null> {
 export async function signIn(page: Page, email: string) {
   await page.goto('/login')
   await page.getByLabel('Email').fill(email)
+  const previousMessageId = await prepareCodeRequest(email)
   await page.getByRole('button', { name: 'Email me a code' }).click()
   await expect(page.getByLabel('Six digit code')).toBeVisible()
 
-  await expect.poll(() => latestCodeFor(email), { timeout: 20_000 }).not.toBeNull()
-  const code = (await latestCodeFor(email))!
+  await expect.poll(() => latestCodeFor(email, previousMessageId), { timeout: 20_000 }).not.toBeNull()
+  const code = (await latestCodeFor(email, previousMessageId))!
   await page.getByLabel('Six digit code').fill(code)
   await page.getByRole('button', { name: 'Sign in' }).click()
   await expect(page.getByRole('heading', { name: 'Inspections' })).toBeVisible()
@@ -43,11 +63,13 @@ export async function accessTokenFor(email: string): Promise<string> {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { auth: { persistSession: false } },
   )
-  await supabase.auth.signInWithOtp({ email })
-  await expect.poll(() => latestCodeFor(email), { timeout: 20_000 }).not.toBeNull()
+  const previousMessageId = await prepareCodeRequest(email)
+  const { error: sendError } = await supabase.auth.signInWithOtp({ email })
+  if (sendError) throw sendError
+  await expect.poll(() => latestCodeFor(email, previousMessageId), { timeout: 20_000 }).not.toBeNull()
   const { data, error } = await supabase.auth.verifyOtp({
     email,
-    token: (await latestCodeFor(email))!,
+    token: (await latestCodeFor(email, previousMessageId))!,
     type: 'email',
   })
   if (error) throw error

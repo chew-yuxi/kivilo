@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "mobile/build/**",
+    // Playwright traces include copied browser bundles, not application source.
+    "test-results/**",
+    "playwright-report/**",
     "next-env.d.ts",
     // Prisma's generated client.
     "src/generated/**",
