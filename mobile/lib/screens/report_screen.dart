@@ -413,18 +413,18 @@ class _ReportScreenState extends State<ReportScreen> {
       builder: (context, snapshot) {
         final report = snapshot.data;
         return Scaffold(
-        appBar: AppBar(
-          centerTitle: false,
-          toolbarHeight: 72,
-          title: PageContextTitle(
-            title: report == null
-                ? 'Report'
-                : report.isCheckOut
-                ? 'Check-out report'
-                : 'Check-in report',
-            contextLabel: report?.property ?? 'Property report',
+          appBar: AppBar(
+            centerTitle: false,
+            toolbarHeight: 72,
+            title: PageContextTitle(
+              title: report == null
+                  ? 'Report'
+                  : report.isCheckOut
+                  ? 'Check-out report'
+                  : 'Check-in report',
+              contextLabel: report?.property ?? 'Property report',
+            ),
           ),
-        ),
           body: KiviloContent(
             maxWidth: 960,
             child: snapshot.hasError

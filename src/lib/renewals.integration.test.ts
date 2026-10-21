@@ -9,7 +9,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 })
 
 import { db } from '@/lib/db'
-import { requireAgent } from '@/lib/auth'
+import { requireAgent, authorizeInspection } from '@/lib/auth'
 import { dueRenewals, queueRenewalReminders } from '@/lib/renewals'
 import { respondToRenewal, createRenewal } from '@/lib/renewal-actions'
 
@@ -61,16 +61,19 @@ describe('renewal reminders and next term', () => {
     for (const item of [early, expired, checkedOut]) expect(await dueRenewals(item.agent.id, now)).toEqual([])
   })
 
-  it('lets teammates snooze and dismiss without giving the parties or another agent access', async () => {
+  it('keeps renewal decisions with the lead even when the current term is shared', async () => {
     const { agent, landlord, tenancy } = await fixture()
     const team = await db.team.create({ data: { name: `Renewal team ${tag}` } })
     const teammate = await db.stakeholder.create({ data: { name: 'Renewal teammate', teamId: team.id } })
     created.push(teammate.id)
     await db.stakeholder.update({ where: { id: agent.id }, data: { teamId: team.id } })
-    expect(await dueRenewals(teammate.id, now)).toMatchObject([{ id: tenancy.id }])
+    await db.tenancyCollaborator.create({ data: { tenancyId: tenancy.id, stakeholderId: teammate.id, grantedById: agent.id } })
+    expect(await dueRenewals(teammate.id, now)).toEqual([])
     vi.mocked(requireAgent).mockResolvedValueOnce(landlord)
     await expect(respondToRenewal(tenancy.id, 'DISMISSED')).rejects.toThrow('Tenancy not found')
     vi.mocked(requireAgent).mockResolvedValueOnce(teammate)
+    await expect(respondToRenewal(tenancy.id, 'DISMISSED')).rejects.toThrow('Tenancy not found')
+    vi.mocked(requireAgent).mockResolvedValueOnce(agent)
     const clock = vi.spyOn(Date, 'now').mockReturnValue(now.getTime())
     await respondToRenewal(tenancy.id, 'LATER')
     clock.mockRestore()
@@ -78,7 +81,7 @@ describe('renewal reminders and next term', () => {
     expect(snoozed.renewalSnoozedUntil!.getTime()).toBe(now.getTime() + 7 * 86400000)
     expect(await dueRenewals(agent.id, now)).toEqual([])
     expect(await dueRenewals(agent.id, new Date(now.getTime() + 7 * 86400000))).toMatchObject([{ id: tenancy.id }])
-    vi.mocked(requireAgent).mockResolvedValueOnce(teammate)
+    vi.mocked(requireAgent).mockResolvedValueOnce(agent)
     await respondToRenewal(tenancy.id, 'NOT_RENEWING')
     expect(await dueRenewals(agent.id, now)).toEqual([])
     await db.stakeholder.updateMany({ where: { teamId: team.id }, data: { teamId: null } })
@@ -113,5 +116,25 @@ describe('renewal reminders and next term', () => {
     await queueRenewalReminders(now)
     expect(await db.notification.count({ where: { recipientId: agent.id } })).toBe(0)
     await db.accountDeletionRequest.delete({ where: { stakeholderId: agent.id } })
+  })
+
+  it.each([false, true])('shares the next term only with explicit lead consent (keep=%s)', async (keepCollaborators) => {
+    const { agent, tenancy } = await fixture()
+    const colleague = await db.stakeholder.create({ data: { name: `Renewal collaborator ${tag}` } })
+    created.push(colleague.id)
+    await db.tenancyCollaborator.create({ data: {
+      tenancyId: tenancy.id, stakeholderId: colleague.id, grantedById: agent.id,
+    } })
+    const input = { startDate: '2071-01-18', endDate: '2073-01-17', monthlyRent: '3300', deposit: '6600' }
+    vi.mocked(requireAgent).mockResolvedValueOnce(colleague)
+    await expect(createRenewal(tenancy.id, { ...input, keepCollaborators: true })).rejects.toThrow('Tenancy not found')
+    vi.mocked(requireAgent).mockResolvedValueOnce(agent)
+    const id = await createRenewal(tenancy.id, keepCollaborators ? { ...input, keepCollaborators } : input)
+    if (keepCollaborators) {
+      await expect(authorizeInspection(id, colleague.id)).resolves.toMatchObject({ id })
+    } else {
+      await expect(authorizeInspection(id, colleague.id)).rejects.toThrow('Inspection not found')
+    }
+    await expect(authorizeInspection(tenancy.inspections[0].id, colleague.id)).resolves.toBeTruthy()
   })
 })

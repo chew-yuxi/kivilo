@@ -78,7 +78,7 @@ describe('authorization boundary', () => {
     await expect(authorizeRoom(theirs.room.id, mine.agent.id)).rejects.toThrow()
   })
 
-  it('reaches an inspection the agent conducted even on a deal they do not hold', async () => {
+  it('does not treat historical inspection attribution as ongoing access', async () => {
     const other = await agentWithInspection('H')
     const conductor = await db.stakeholder.create({ data: { name: 'Standing in' } })
     await db.inspection.update({
@@ -87,7 +87,7 @@ describe('authorization boundary', () => {
     })
     await expect(
       authorizeInspection(other.inspection.id, conductor.id),
-    ).resolves.toBeTruthy()
+    ).rejects.toThrow('Inspection not found')
   })
 
   it('scopes a list query to the agent, hiding everyone else', async () => {

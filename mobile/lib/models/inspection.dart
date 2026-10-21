@@ -1,4 +1,5 @@
 import 'report.dart' show ReportPhoto;
+import 'tenancy_access.dart';
 
 class InspectionSummary {
   const InspectionSummary({
@@ -37,6 +38,7 @@ class InspectionDetail {
   const InspectionDetail({
     required this.id,
     this.tenancyRecordId,
+    this.access,
     required this.kind,
     required this.status,
     required this.property,
@@ -62,6 +64,7 @@ class InspectionDetail {
 
   final String id;
   final String? tenancyRecordId;
+  final TenancyAccess? access;
   final String kind;
   final String status;
   final String property;
@@ -94,6 +97,9 @@ class InspectionDetail {
       InspectionDetail(
         id: json['id'] as String,
         tenancyRecordId: json['tenancyRecordId'] as String?,
+        access: json['access'] == null
+            ? null
+            : TenancyAccess.fromJson(json['access'] as Map<String, dynamic>),
         kind: json['kind'] as String,
         status: json['status'] as String,
         property: json['property'] as String,

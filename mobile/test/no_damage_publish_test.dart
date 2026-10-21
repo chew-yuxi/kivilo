@@ -5,6 +5,16 @@ import 'package:kivilo/screens/inspection_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class _EmptyAuthStorage extends GotrueAsyncStorage {
+  @override
+  Future<String?> getItem({required String key}) async => null;
+  @override
+  Future<void> setItem({required String key, required String value}) async {}
+  @override
+  Future<void> removeItem({required String key}) async {}
+}
 
 class _FakeApi extends Api {
   _FakeApi() : super(attachAuth: false, cache: ReadCache());
@@ -48,6 +58,21 @@ class _FakeApi extends Api {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    await Supabase.initialize(
+      url: 'https://kivilo.test',
+      publishableKey: 'publishable',
+      authOptions: FlutterAuthClientOptions(
+        localStorage: const EmptyLocalStorage(),
+        pkceAsyncStorage: _EmptyAuthStorage(),
+        detectSessionInUri: false,
+        autoRefreshToken: false,
+      ),
+    );
+  });
+  tearDownAll(() => Supabase.instance.dispose());
+
   testWidgets(
     'publishing with no findings is an explicit no-damage statement',
     (tester) async {

@@ -1,5 +1,4 @@
 import { db } from '@/lib/db'
-import { agentTenancies } from '@/lib/auth'
 import type { Prisma, Stakeholder } from '@/generated/prisma'
 
 /// What a plan allows, decided here and nowhere else. A plan belongs to a workspace: the
@@ -26,12 +25,13 @@ export function workspaceKey(agent: Pick<Stakeholder, 'id' | 'teamId'>) {
   return agent.teamId ? { teamId: agent.teamId } : { stakeholderId: agent.id }
 }
 
-/// A property the workspace is still working: through `agentTenancies`, so a teammate's
-/// deal counts against the team exactly as it is visible to the team.
-function activeTenancy(agentId: string): Prisma.TenancyWhereInput {
+/// Count ownership in the billing workspace independently of visibility. Private deals
+/// count toward their lead's workspace; sharing never charges the collaborator's plan.
+function activeTenancy(agent: Pick<Stakeholder, 'id' | 'teamId'>): Prisma.TenancyWhereInput {
   return {
     AND: [
-      agentTenancies(agentId),
+      agent.teamId ? { agent: { teamId: agent.teamId } } : { agentId: agent.id },
+      { endDate: { gte: new Date() } },
       { inspections: { none: { kind: 'CHECK_OUT', status: 'COMPLETED' } } },
     ],
   }
@@ -43,7 +43,7 @@ export async function workspacePlan(agent: Pick<Stakeholder, 'id' | 'teamId'>) {
       where: workspaceKey(agent),
       include: { managedBy: { select: { id: true, name: true } } },
     }),
-    db.property.count({ where: { tenancies: { some: activeTenancy(agent.id) } } }),
+    db.property.count({ where: { tenancies: { some: activeTenancy(agent) } } }),
     agent.teamId
       ? db.team.findUniqueOrThrow({ where: { id: agent.teamId }, select: { name: true } })
       : null,

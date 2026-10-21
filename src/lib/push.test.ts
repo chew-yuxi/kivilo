@@ -7,6 +7,8 @@ const {
   pendingFindMany,
   claimMany,
   notificationFindMany,
+  notificationFindFirst,
+  notificationDeleteMany,
   send,
 } = vi.hoisted(() => ({
   upsert: vi.fn(),
@@ -15,6 +17,8 @@ const {
   pendingFindMany: vi.fn(),
   claimMany: vi.fn(),
   notificationFindMany: vi.fn(),
+  notificationFindFirst: vi.fn(),
+  notificationDeleteMany: vi.fn(),
   send: vi.fn(),
 }))
 
@@ -32,7 +36,7 @@ vi.mock('@/lib/db', () => ({
       notificationPushDelivery: { deleteMany },
     }),
     deviceInstallation: { upsert, updateMany },
-    notification: { findMany: notificationFindMany },
+    notification: { findMany: notificationFindMany, findFirst: notificationFindFirst, deleteMany: notificationDeleteMany },
     notificationPushDelivery: {
       deleteMany,
       findMany: pendingFindMany,
@@ -52,6 +56,8 @@ describe('push installations', () => {
     vi.clearAllMocks()
     delete process.env.FIREBASE_SERVICE_ACCOUNT_JSON
     notificationFindMany.mockResolvedValue([])
+    notificationFindFirst.mockResolvedValue({ id: 'notification-1' })
+    notificationDeleteMany.mockResolvedValue({ count: 1 })
     pendingFindMany.mockResolvedValue([])
     deleteMany.mockResolvedValue({ count: 0 })
     claimMany.mockResolvedValue({ count: 1 })
@@ -167,6 +173,23 @@ describe('push installations', () => {
     expect(payload).not.toHaveProperty('data')
     expect(JSON.stringify(payload)).not.toContain('Private repair')
     expect(JSON.stringify(payload)).not.toContain('private-case')
+  })
+
+  it('withdraws a queued delivery when tenancy access was revoked after it was claimed', async () => {
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON = '{}'
+    pendingFindMany.mockResolvedValue([{
+      id: 'delivery-1', installationId: 'device-1',
+      notification: { id: 'notification-1', recipientId: 'former-collaborator' },
+      installation: { id: 'device-1', stakeholderId: 'former-collaborator', token: 'd'.repeat(64) },
+    }])
+    notificationFindFirst.mockResolvedValue(null)
+
+    await expect(deliverPushOutbox()).resolves.toMatchObject({ sent: 0, failed: [] })
+
+    expect(notificationDeleteMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ id: 'notification-1', NOT: expect.any(Object) }),
+    }))
+    expect(send).not.toHaveBeenCalled()
   })
 
   it('leaves durable notifications untouched until FCM is configured', async () => {

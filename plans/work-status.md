@@ -1,77 +1,92 @@
 # Kivilo work tracker
 
-Updated 21 October 2026. This conversation coordinates the work below. Yuxi has
-authorized publishing the native patch once the artwork deployment is live; that
-deployment is now verified. This does not authorize a new iOS store submission.
+Updated 21 October 2026. This tracker now combines the cloud design session with the
+mobility/Kivilo sessions on the release Mac. Work is being integrated on
+`codex/consolidate-kivilo-20261021`; production is still the separately verified
+`ddd1e62`. A completed source change is not evidence of app delivery.
 
 ## Current execution queue
 
-| Work | Status | Owner | Completion evidence / next step |
-| --- | --- | --- | --- |
-| Host optimized illustrations | **Done, live** | Coordinator | `ddb4012`; all eight public WebPs verified on the Kivilo domain, including hashes, transparency and one-year immutable caching. 253,874 bytes total. |
-| Combine Home, navigation and teaching redesign with the latest room flow | **Done, verified source** | Integration agent | `3a11313`, based on current `main`. Preserves `292a0b5` inventory-first capture and immediate photo markup; guidance teaches that same flow. |
-| Remove the new icon-font dependency from the redesign | **Done in candidate** | Integration agent | Reused existing icons; no missing glyph names against iOS `7161f53` or Android `ce0d8e3`. The actual Shorebird asset/native checks remain required. |
-| Review and verify the combined candidate | **Done** | Integration agent + independent reviewer | 276 Flutter tests, clean analysis, web typecheck/lint/build and 98 unit tests. Independent review found no material regression in routing, guidance or the preserved capture/markup/queue logic. |
-| Refresh the phone rehearsal | **Done** | Release agent | [rehearsal-checklist.md](rehearsal-checklist.md) now targets iOS 24 / Android 25 and the combined workflow. All physical results remain pending. |
-| Publish Android patch for `1.0.0+25` | **Waiting for release environment** | Release agent, coordinator publishes | User approval exists. Need the existing production configuration, Shorebird identity, Android build/signing tools and a pinned verified source. Preserve `--build-number=25`. |
-| Publish iOS patch for `1.0.0+24` | **Waiting for release Mac** | Release agent, coordinator publishes | User approval exists. Need the configured Mac/Xcode/Shorebird/signing environment; check App Store state read-only and preserve the store freeze. |
-| Device smoke checks and delivery verification | **Waiting for devices** | Release agent + device owner | Follow the refreshed checklist, including restart to apply the patch, offline captures and no media loss. Record any checks that cannot be run. |
-| Other computer's sessions | **Outside this workspace** | Session-audit agent | Yuxi confirmed those sessions are on another computer and cannot be accessed here. They are excluded from this execution queue; no further access request is pending. |
+| Work | Status | Completion evidence / next step |
+| --- | --- | --- |
+| Inventory-first room capture and immediate markup | **Implemented; backend live; native release pending** | `292a0b5`. Preserved in the integrated candidate. Photos carry their item and completed marks through the durable queue. |
+| Guided Home, navigation and onboarding artwork | **Implemented; artwork live; native release pending** | `ddb4012`, `3a11313`, `ddd1e62`. The eight public WebPs were verified for hashes, transparency and immutable caching. Native assets/configuration remain unchanged. |
+| Photos and markup inside Add finding | **Integrated; verification running** | Recovered interrupted session as `85b2e2b`. Choose item, capture/select photo, mark immediately, save finding; resumable personal drafts, retry-safe uploads and immutable published evidence in app/web/PDF. Recovery and access-removal regressions added. |
+| Private tenancies and selected collaboration | **Integrated; verification running** | Existing completed branch `9697a67` incorporated without rebuilding it. Lead shares selected tenancies; both work on them; only lead manages access. Removal preserves work, renewal sharing is opt-in, billing teams no longer imply access. |
+| Combined regression checks | **Running** | Isolated local DB `kivilo_consolidation_20261021`; both migrations applied successfully. Logs and rendered finding-photo PDF fixture under `build/consolidation-20261021/`. |
+| Coordinated backend release | **Pending tested candidate** | Apply finding-photo migration, then collaboration migration, then deploy the same pinned source. Neither new migration has been applied to production by this session. |
+| Android `1.0.0+25` / iOS `1.0.0+24` patches | **Pending backend and final candidate** | This Mac has the required release tools/configuration. Build from isolated pinned checkouts, keep Android `--build-number=25`, run native/asset checks without overrides. No new patches uploaded here. |
+| Physical delivery and full-flow rehearsal | **Needs devices** | [rehearsal-checklist.md](rehearsal-checklist.md); record exact patch/device, offline capture, interrupted markup, account isolation and push. Automated tests do not complete this. |
+| Optional payment proof / supporting documents | **Queued; flow discussion only** | Latest proposal: agent requests an optional private document; tenant uploads; show submitter/time; no payment ledger, no signing block, excluded from public condition reports. No implementation existed. Scope question asked during consolidation; default is to finish existing implementations first. |
+| Exposed production database credential | **Needs coordinated rotation** | Prior demo session recorded accidental exposure in a tool log. Rotate with all dependent connection settings updated and verified together; do not copy the credential into this tracker or rotate one consumer alone. |
+| Apple approval | **Waiting for Apple** | Fresh App Store Connect read on 21 October: `WAITING_FOR_REVIEW` for 1.0.0. Store-build/submission/metadata freeze remains in force. |
+| Historical iOS reviewer push failures | **Needs project access/device evidence** | Four old failures on two reviewer installations; successful iOS pushes existed in the same batch. Cached Firebase account lacks Kivilo access. No universal APNs outage established; do not rotate a working key on this evidence. |
 
-## Consolidation evidence
+## Release facts and order
 
-- Combined native source: `3a11313819354e1f1be9b61795c36a4fa8ba4aac`, based on
-  `ddb4012a61a747fab81c86197468645ea508c492`. The tracker/checklist follow as a
-  documentation-only commit; release from a pinned commit containing both.
-- The other recent feature is `292a0b5`: inventory-first room capture, item-linked
-  photos and immediate markup. Its backend is deployed; its native changes were
-  recorded as unreleased and belong in the same candidate as this redesign.
-- The session audit inspected local Paseo, Codex live/archive metadata and Claude
-  project history. It found one independent mobility conversation: this one,
-  Codex `01a15d33-adb4-71b1-8605-96a353359adb`, Paseo
-  `ab716db0-e680-40d3-9a53-b1907c425631`. The other matching records were this
-  conversation's subagents and approval reviews. The detailed local audit is at
-  `/tmp/kivilo-session-audit.json`. Yuxi subsequently confirmed the other sessions
-  are on another computer, so this tracker covers the work available here.
-- The old `feat/kivilo-mobile-release` branch has no commits ahead of `main`; it
-  contains no separate unmerged feature to bring in.
-- Recorded stable patches before this work are Android patch 3 and iOS patch 4.
-  Those are release-note records, **not a fresh Shorebird read-back**. Live state
-  must be checked before creating/promoting another patch.
-- Artwork production deployment: Vercel `9bkzYZALRdaRR5sXBnJt8iyUFeWn`, GitHub
-  deployment `7221229836`. Live receipt: `/tmp/kivilo-hosted-illustrations-live.json`.
+Fresh read-only release checks on 21 October:
 
-## Verification and release record
+- Production custom domain: Vercel `dpl_J4WnCWnS83pCzgKkmkLQRgBfP8uX`, Ready in
+  `sin1`, source `ddd1e62` (GitHub deployment `7221559116`). It includes the optional
+  capture `itemId` and `itemApplied` acknowledgement needed by inventory-first capture.
+- iOS `1.0.0+24`: latest patch **4**, ID `734035`, stable.
+- Android `1.0.0+25`: latest patch **3**, ID `734030`, stable.
+- No newer staging patch existed at that read-back. Xcode, Shorebird, release Flutter
+  3.47.2, production configuration and signing setup are present on this Mac.
+- Native-design publication was already authorized in the cloud session once artwork
+  was live. That permission was recorded in `mobile/RELEASE.md`. Findings and tenancy
+  collaboration add backend migrations to the coordinated candidate; stable promotion
+  still follows the go requirement in `AGENTS.md` and `mobile/RELEASE.md`.
 
-The combined native source passed **276 Flutter tests** and clean analysis.
-Both release icon comparisons are empty, and native configuration, dependencies,
-version and bundled assets are unchanged. The web passed typecheck, lint,
-production build and **98 unit tests**. Independent review confirmed that capture,
-photo markup and queue implementations remain the upstream versions.
+Release the expanded candidate in this order:
 
-Database integration/browser end-to-end tests were not rerun here: this environment
-has no local Supabase/Docker stack. Physical-device tests and Shorebird's actual
-native/asset build checks remain outstanding. The local Next build used non-production
-configuration for compilation; it was not uploaded as a production build.
+1. Finish combined checks and pin the exact source commit.
+2. Apply `20261021090000_finding_photos`, then
+   `20261021130000_tenancy_collaborators` to production. Collaboration backfills
+   existing team permissions as explicit grants and preserves narrower historical
+   inspection access; it must not silently remove existing access.
+3. Deploy that backend and verify authenticated new routes and private evidence.
+4. Build staging patches from separate pinned checkouts. Compare icons with iOS
+   `7161f53` and Android `ce0d8e3`; pass Shorebird native/asset checks without overrides.
+5. Record patch receipts and remaining device checks, then promote with Yuxi's go.
+   Never upload a new iOS store build or change its pending submission.
 
-No native patch has been uploaded or promoted by this conversation. No store
-build, submission, metadata or screenshots have been changed.
+## Completed or superseded sessions
 
-The current Linux environment has Flutter 3.47.2 but no configured release Mac,
-Shorebird credentials, Android SDK/signing setup, production `mobile/env.json`, or
-App Store Connect signer. Those are execution dependencies, not missing user
-approval. Never substitute development configuration in a production patch.
-
-## Reviewed items outside this patch
-
-| Item | Disposition |
+| Session/request | Disposition |
 | --- | --- |
-| [ImgBot PR #1](https://github.com/chew-yuxi/kivilo/pull/1) | Do not merge into this patch: it changes native icon/launch assets and store screenshots. Revisit with an authorized store release after the freeze. |
-| Physical full-flow rehearsal | Still required; automated test results do not imply phone delivery, background upload or force-quit checks passed. Use the updated checklist. |
-| Stripe live billing | Existing launch dependency in `AGENTS.md`/`plans/billing.md`: needs the business's live Stripe configuration. It is not required for this design patch. |
-| Tenant-view expansion and Singapore-specific servicing features | Explicitly deferred product designs in `plans/ux-competitive-review.md`; not silently added to the current execution queue. |
-| Old AI-era plans and schema fields | Historical plans are not new tasks. The product remains human-authored; the retained columns require a separately scoped cleanup migration. |
+| Jacwong demo portfolio | Already seeded and verified: five properties, seven inspections, 21 photos, 11 marked; two PDF verifications. Evidence in `build/demo-jacwong-20261021/`. The untracked seed script is not an instruction to seed again. |
+| Shelvin / Jacqueline / Nimin TestFlight and accounts | Completed; no repeat invitations or account creation. |
+| Earlier eleven product/release decisions | Completed and superseded by current releases: furnishing/templates, required fields, renewal reminders, upload progress, review hierarchy, sharing, analytics and plan limits. Demo tunnels already stopped. |
+| Rich check-out finding chooser | Live since `4e5fe87`, Android25 patch3 / iOS24 patch4. New finding capture extends it. |
+| Deposit statements, report verification and competitive UX fixes | Implemented and shipped; deposit statement also exists in the app. Do not reimplement stale plan items. |
+| Tenant handover, move-in notices and native analytics | Shipped from `18bb3f1`; distinct from the deferred larger tenant-home redesign. |
+| Check-in references, report PDF/branding, emailed signing, addenda, iPad fixes | Existing feature branches have no unique unmerged commits. Preserve their implementation and tests. |
+| Previous session cleanup | Completed sessions can reappear due to Paseo archival persistence. Being visible/idle does not mean unfinished. No sessions deleted or archived during this consolidation. |
 
-As additional sessions become accessible, add only their unfinished, still-current
-requests, with source evidence and an owner. Mark superseded or already-shipped
-requests as such instead of executing them twice.
+## Deliberately outside the current implementation
+
+- Stripe live billing: user explicitly deferred activation. Existing email-us fallback
+  remains until business live configuration is supplied and activation is requested.
+- Broader tenant-home design, Singapore servicing/CEA features, universal email-to-app
+  links, 360 capture and AI-era schema cleanup require separate product work.
+- Dictation and serial copying use the phone keyboard/OS tools; the product has no AI.
+- [ImgBot PR #1](https://github.com/chew-yuxi/kivilo/pull/1) changes native assets/store
+  screenshots; leave it for an authorized store release after the freeze.
+
+## Audit and verification evidence
+
+The Mac audit checked 412 matching local Codex records (18 independent top-level
+conversations, plus subagents/reviews), matching Paseo histories, all worktrees and
+feature branches, current source and release records. Only tenancy collaboration
+contained a separate unmerged feature; finding photos were the interrupted dirty work.
+The clean `finding-photo-build` checkout held no additional implementation.
+
+The cloud session is Codex `01a15d33-adb4-71b1-8605-96a353359adb` / Paseo
+`ab716db0-e680-40d3-9a53-b1907c425631`; its history is not available on this Mac, so its
+pushed tracker/release notes supply that part of the evidence. Its 276-test native
+verification remains historical evidence; the combined candidate is tested again here.
+
+Local audit reports: `/tmp/kivilo-session-audit.md` and
+`/tmp/kivilo-release-preflight.md`. Do not place credentials, live report tokens or
+production connection strings in any evidence or tracker.

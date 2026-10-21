@@ -1,11 +1,14 @@
 import { z } from 'zod'
 import { authed } from '@/lib/api/route'
 import { createRenewal, respondToRenewal } from '@/lib/renewal-actions'
-import { authorizeAgentTenancy } from '@/lib/auth'
+import { authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
+import { tenancyAccess } from '@/lib/tenancy-access'
 import { propertyLabel } from '@/lib/format'
 
 export const GET = authed<{ tenancyId: string }>(async (agent, { tenancyId }) => {
+  await authorizeLeadTenancy(tenancyId, agent.id)
   const tenancy = await authorizeAgentTenancy(tenancyId, agent.id)
+  const access = await tenancyAccess(tenancyId, agent.id)
   return {
     id: tenancy.id,
     property: propertyLabel(tenancy.property),
@@ -13,6 +16,7 @@ export const GET = authed<{ tenancyId: string }>(async (agent, { tenancyId }) =>
     endDate: tenancy.endDate.toISOString().slice(0, 10),
     monthlyRent: tenancy.monthlyRent.toString(),
     deposit: tenancy.deposit.toString(),
+    collaborators: access.collaborators.map(({ stakeholderId, name, email }) => ({ stakeholderId, name, email })),
   }
 })
 

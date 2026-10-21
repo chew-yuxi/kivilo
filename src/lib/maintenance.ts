@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { agentTenancies, authorizeTenancy, tenancyScope, type TenancyRole } from '@/lib/auth'
+import { agentTenancies, authorizeTenancy, tenancyScope, notificationScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { Prisma } from '@/generated/prisma'
 import { moveInDefectIntent, moveInDefectOptions } from '@/lib/move-in-defects'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
+import { tenancyAccess } from '@/lib/tenancy-access'
 
 const category = z.enum([
   'APPLIANCE', 'PLUMBING', 'LOCKSMITH', 'ELECTRICAL',
@@ -200,7 +201,13 @@ function caseInclude() {
   return {
     propertyAsset: true,
     reportedBy: { select: { id: true, name: true } },
-    tenancy: { include: { property: true, landlord: { select: { name: true } } } },
+    tenancy: {
+      include: {
+        property: true,
+        landlord: { select: { name: true } },
+        collaborators: { select: { stakeholderId: true } },
+      },
+    },
     events: {
       orderBy: { createdAt: 'asc' as const },
       include: { actor: { select: { id: true, name: true } } },
@@ -236,15 +243,19 @@ export async function authorizeMaintenanceCase(caseId: string, stakeholderId: st
 }
 
 function notificationRows(
-  tenancy: { landlordId: string; tenantId: string; agentId: string | null; endDate: Date },
+  tenancy: { id: string; landlordId: string; tenantId: string; agentId: string | null; endDate: Date; collaborators: { stakeholderId: string }[] },
   excludeId: string,
   input: { kind: 'MAINTENANCE_REPORTED' | 'MAINTENANCE_STATUS' | 'MAINTENANCE_VISIT' | 'MAINTENANCE_VERIFICATION' | 'MAINTENANCE_RESPONSIBILITY' | 'REPEAT_REPAIR'; title: string; body: string; href: string; dedupeKey?: string },
 ) {
   const ids = [tenancy.landlordId, tenancy.tenantId]
-  if (tenancy.agentId && tenancy.endDate >= new Date()) ids.push(tenancy.agentId)
+  if (tenancy.endDate >= new Date()) {
+    if (tenancy.agentId) ids.push(tenancy.agentId)
+    ids.push(...tenancy.collaborators.map((person) => person.stakeholderId))
+  }
   return [...new Set(ids)].filter((id) => id !== excludeId).map((recipientId) => ({
     ...input,
     recipientId,
+    tenancyId: tenancy.id,
     dedupeKey: input.dedupeKey ? `${input.dedupeKey}:${recipientId}` : null,
   }))
 }
@@ -329,6 +340,7 @@ export async function tenancyDetail(tenancyId: string, stakeholderId: string) {
     minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
     agentMayAgreeCosts: tenancy.agentMayAgreeCosts,
     moveInDefects,
+    access: role === 'AGENT' ? await tenancyAccess(tenancyId, stakeholderId) : null,
     capabilities: {
       report: true,
       manage: canManage(role),
@@ -604,11 +616,18 @@ async function createRepeatRepairAlerts(assetId: string, tenancyId: string, case
     where: { completedAt: { gte: since }, maintenanceCase: { propertyAssetId: assetId } },
   })
   if (!repeatRepairThresholdReached(count)) return
-  const tenancy = await db.tenancy.findUniqueOrThrow({ where: { id: tenancyId } })
+  const tenancy = await db.tenancy.findUniqueOrThrow({
+    where: { id: tenancyId },
+    include: { collaborators: { select: { stakeholderId: true } } },
+  })
   const recipients = [tenancy.landlordId]
-  if (tenancy.agentId && tenancy.endDate >= new Date()) recipients.push(tenancy.agentId)
+  if (tenancy.endDate >= new Date()) {
+    if (tenancy.agentId) recipients.push(tenancy.agentId)
+    recipients.push(...tenancy.collaborators.map((person) => person.stakeholderId))
+  }
   await createNotificationRows(db, [...new Set(recipients)].map((recipientId) => ({
     recipientId,
+    tenancyId,
     kind: 'REPEAT_REPAIR' as const,
     title: 'Repeated repair history',
     body: `This asset has had ${count} completed repair visits in the last 365 days.`,
@@ -919,7 +938,7 @@ export async function listServiceProviders(categoryFilter?: string, postalSector
 
 export async function listNotifications(stakeholderId: string) {
   const notifications = await db.notification.findMany({
-    where: { recipientId: stakeholderId }, orderBy: { createdAt: 'desc' }, take: 100,
+    where: notificationScope(stakeholderId), orderBy: { createdAt: 'desc' }, take: 100,
   })
   return notifications.map((item) => ({
     id: item.id, kind: item.kind, title: item.title, body: item.body, href: item.href,
@@ -929,7 +948,7 @@ export async function listNotifications(stakeholderId: string) {
 
 export async function markNotificationRead(notificationId: string, stakeholderId: string) {
   const result = await db.notification.updateMany({
-    where: { id: notificationId, recipientId: stakeholderId },
+    where: { id: notificationId, AND: [notificationScope(stakeholderId)] },
     data: { readAt: new Date() },
   })
   if (result.count === 0) throw new Error('Notification not found')

@@ -138,6 +138,7 @@ export async function publishAssessment(
     await tx.notification.createMany({
       data: recipients.map((recipientId) => ({
         recipientId,
+        tenancyId: inspection.tenancyId,
         kind: 'REPORT_UPDATED' as const,
         title: `Deposit statement for ${propertyLabel(property)}`,
         body: `The check-out assessment proposes deductions of ${sgd(statement.deductions)} from the deposit of ${sgd(statement.deposit)}. Agree or dispute it.`,

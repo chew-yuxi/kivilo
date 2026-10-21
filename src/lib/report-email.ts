@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
+import { inspectionScope } from '@/lib/auth'
 import type { Prisma } from '@/generated/prisma'
 
 /// The report emails: "please review and sign" when a report is sent for signature, and
@@ -50,7 +51,11 @@ export async function queueSignedCopies(tx: Prisma.TransactionClient, inspection
     },
   })
   const { tenancy } = inspection
-  const agentId = inspection.conductedById ?? tenancy.agentId
+  const conductorStillHasAccess = inspection.conductedById && await tx.inspection.findFirst({
+    where: { id: inspectionId, ...inspectionScope(inspection.conductedById) },
+    select: { id: true },
+  })
+  const agentId = conductorStillHasAccess ? inspection.conductedById : tenancy.agentId
   const ids = [tenancy.landlordId, tenancy.tenantId, ...(agentId ? [agentId] : [])]
   const withEmail = await tx.stakeholder.findMany({
     where: { id: { in: ids }, email: { not: null } },

@@ -1,8 +1,8 @@
 import { db } from '@/lib/db'
-import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder } from '@/lib/email'
+import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder, sendPropertySharedNotification } from '@/lib/email'
 import { queueRenewalReminders } from '@/lib/renewals'
 import { deliverPushOutbox } from '@/lib/push'
-import { activeNotificationRecipients } from '@/lib/notification-recipients'
+import { activeNotificationRecipients, notificationCanBeDelivered } from '@/lib/notification-recipients'
 
 /// Creates reminders and delivers the durable email and push outboxes. In-app
 /// notifications are already committed with the domain change; transports retry alone.
@@ -13,22 +13,26 @@ export async function deliverNotificationOutbox(limit = 25) {
       status: 'REPORTED',
       createdAt: { lte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     },
-    include: { tenancy: true },
+    include: { tenancy: { include: { collaborators: { select: { stakeholderId: true } } } } },
     take: 100,
   })
   const activeRecipients = new Set(await activeNotificationRecipients(
     db,
-    overdue.flatMap((item) => [item.tenancy.landlordId, item.tenancy.agentId].filter(
+    overdue.flatMap((item) => [item.tenancy.landlordId, item.tenancy.agentId, ...item.tenancy.collaborators.map((person) => person.stakeholderId)].filter(
       (id): id is string => Boolean(id),
     )),
   ))
   for (const item of overdue) {
     const recipients = [item.tenancy.landlordId]
-    if (item.tenancy.agentId && item.tenancy.endDate >= new Date()) recipients.push(item.tenancy.agentId)
+    if (item.tenancy.endDate >= new Date()) {
+      if (item.tenancy.agentId) recipients.push(item.tenancy.agentId)
+      recipients.push(...item.tenancy.collaborators.map((person) => person.stakeholderId))
+    }
     const active = recipients.filter((id) => activeRecipients.has(id))
     if (active.length) await db.notification.createMany({
       data: active.map((recipientId) => ({
         recipientId,
+        tenancyId: item.tenancyId,
         kind: 'MAINTENANCE_STATUS' as const,
         title: 'Maintenance report needs acknowledgement',
         body: item.title,
@@ -56,7 +60,10 @@ export async function deliverNotificationOutbox(limit = 25) {
   const failures: string[] = []
   for (const notification of pending) {
     try {
-      if (notification.kind === 'REPORT_UPDATED') {
+      if (!await notificationCanBeDelivered(db, notification)) continue
+      if (notification.kind === 'PROPERTY_SHARED') {
+        await sendPropertySharedNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+      } else if (notification.kind === 'REPORT_UPDATED') {
         await sendReportUpdateNotification(notification.recipient.email!, { ...notification, href: notification.href! })
       } else if (notification.kind === 'RENEWAL_DUE') {
         await sendRenewalReminder(notification.recipient.email!, notification)

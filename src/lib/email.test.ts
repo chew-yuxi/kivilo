@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { signInEmail, signatureRequestEmail, signedCopyEmail, tenantHandoverEmail } from './email'
+import { describe, expect, it, vi } from 'vitest'
+import { signInEmail, signatureRequestEmail, signedCopyEmail, tenantHandoverEmail, propertySharedEmail } from './email'
 import { shortFingerprint } from './report-fingerprint'
 
 describe('signInEmail', () => {
@@ -18,6 +18,21 @@ describe('signInEmail', () => {
     expect(html).not.toContain('href=')
     expect(text).not.toContain('http')
   })
+})
+
+it('property sharing links require the invited mailbox and contain no bearer credential', () => {
+  vi.stubEnv('KIVILO_APP_URL', 'https://kivilo.test')
+  try {
+    const { text } = propertySharedEmail({
+      title: 'Jac shared a property with you', body: '12 Shared Grove', href: '/inspections/example',
+    })
+    expect(text).toContain('https://kivilo.test/inspections/example')
+    expect(text).toContain('email address this message was sent to')
+    expect(text).not.toContain('/reports/')
+    expect(text).not.toContain('token=')
+  } finally {
+    vi.unstubAllEnvs()
+  }
 })
 
 describe('signatureRequestEmail', () => {

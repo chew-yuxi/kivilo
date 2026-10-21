@@ -215,7 +215,7 @@ describe('finding chooser comparables', () => {
     expect(signPhotos.mock.calls[0][0]).not.toContain(record.photos[0].storagePath)
   })
 
-  it('uses legacy name matching only for keyless rows and never exposes a check-in to its check-out-only conductor', async () => {
+  it('uses legacy name matching only for keyless rows and independently authorizes a linked check-in on another tenancy', async () => {
     const record = await fixture()
     const wallCopy = record.checkoutKitchen.items.find((item) => item.baselineKey === `item:${record.wall.id}`)!
     await db.inspectionItem.update({ where: { id: wallCopy.id }, data: { baselineKey: null } })
@@ -226,9 +226,21 @@ describe('finding chooser comparables', () => {
       inspectionId: record.checkOutId, itemId: record.checkoutHob.id, baselineItemId: record.hob.id,
       changeType: 'DAMAGE', verdict: 'UNDECIDED', rationale: 'Crack at check-out', editedByHuman: true,
     } })
+    // Even a linked baseline must pass its own scope: a collaboration grant on the
+    // check-out's term cannot expose another term's agreed inventory or photos.
+    const original = await db.tenancy.findUniqueOrThrow({ where: { id: record.checkIn.tenancyId } })
+    const checkOutTenancy = await db.tenancy.create({ data: {
+      propertyId: original.propertyId, landlordId: original.landlordId, tenantId: original.tenantId,
+      agentId: original.agentId, startDate: original.startDate, endDate: original.endDate,
+      monthlyRent: original.monthlyRent, deposit: original.deposit,
+      collaborators: { create: { stakeholderId: record.conductor.id, grantedById: record.agent.id } },
+    } })
+    await db.inspection.update({ where: { id: record.checkOutId }, data: { tenancyId: checkOutTenancy.id } })
     signPhotos.mockClear()
     as(record.conductor)
-    body = await (await get(record.checkOutId)).json() as ResponseBody
+    const response = await get(record.checkOutId)
+    expect(response.status).toBe(200)
+    body = await response.json() as ResponseBody
     expect(body.checkInItems).toEqual([])
     expect(body.checkOutItems.every((item) => item.checkIn === null)).toBe(true)
     expect(body.findings[0]).toMatchObject({ baselineLabel: null, baselineCondition: null })

@@ -114,16 +114,33 @@ export const requireAgent = requireStakeholder
 
 export type TenancyRole = 'LANDLORD' | 'TENANT' | 'AGENT'
 
-/// The agents who stand where `stakeholderId` does: themselves, and everyone on their
-/// team. Small teams cover each other's handovers and check-outs, so a teammate acts on a
-/// deal exactly as its own agent would. Every agent rule goes through this.
-function actsAsAgent(stakeholderId: string): Prisma.TenancyWhereInput {
+/// The lead and explicitly invited collaborators work a tenancy. Team membership is
+/// billing only, and conducting an inspection records attribution, never lasting access.
+/// Every full tenancy permission goes through this. Migrated inspection-only grants
+/// preserve their narrower scope separately in inspectionScope.
+export function actsAsAgent(stakeholderId: string): Prisma.TenancyWhereInput {
   return {
     OR: [
       { agentId: stakeholderId },
-      { agent: { team: { members: { some: { id: stakeholderId } } } } },
+      { collaborators: { some: { stakeholderId } } },
     ],
   }
+}
+
+/// Only the lead may grant or revoke access, or carry it into a new tenancy.
+export function leadTenancies(stakeholderId: string): Prisma.TenancyWhereInput {
+  return { agentId: stakeholderId }
+}
+
+/// Accept a transaction so ownership is rechecked while holding the tenancy row lock.
+export async function authorizeLeadTenancy(
+  tenancyId: string,
+  stakeholderId: string,
+  client: Prisma.TransactionClient = db,
+) {
+  const tenancy = await client.tenancy.findFirst({ where: { AND: [{ id: tenancyId }, leadTenancies(stakeholderId)] } })
+  if (!tenancy) throw new Error('Tenancy not found')
+  return tenancy
 }
 
 /// The tenancies someone works as an agent: while the tenancy runs, as with maintenance.
@@ -131,7 +148,7 @@ export function agentTenancies(stakeholderId: string, now = new Date()): Prisma.
   return { AND: [actsAsAgent(stakeholderId), { endDate: { gte: now } }] }
 }
 
-/// Renewal changes are for the tenancy's agent or their teammate. Being its landlord
+/// Renewal changes are for the tenancy's lead or collaborators. Being its landlord
 /// or tenant alone never grants access to the agent's reminder or the next deal.
 export async function authorizeAgentTenancy(tenancyId: string, stakeholderId: string) {
   const tenancy = await db.tenancy.findFirst({
@@ -162,7 +179,7 @@ export function tenancyScope(stakeholderId: string, now = new Date()): Prisma.Te
 export async function authorizeTenancy(tenancyId: string, stakeholderId: string) {
   const tenancy = await db.tenancy.findFirst({
     where: { AND: [{ id: tenancyId }, tenancyScope(stakeholderId)] },
-    include: { property: true, landlord: true, tenant: true, agent: true },
+    include: { property: true, landlord: true, tenant: true, agent: true, collaborators: { select: { stakeholderId: true } } },
   })
   if (!tenancy) throw new Error('Tenancy not found')
 
@@ -174,19 +191,45 @@ export async function authorizeTenancy(tenancyId: string, stakeholderId: string)
   return { tenancy, role }
 }
 
-/// The scope every inspection query is filtered by. An agent sees a deal they or a
-/// teammate are the agent on, or an inspection they personally conducted. Nothing else.
+/// Full tenancy access or an exact historical inspection grant. Attribution alone
+/// grants nothing, and the lead can revoke either kind through Manage access.
 export function inspectionScope(agentId: string): Prisma.InspectionWhereInput {
+  return { OR: [{ tenancy: actsAsAgent(agentId) }, { accessGrants: { some: { stakeholderId: agentId } } }] }
+}
+
+/// Access details accompany the inspection someone may open, including ended terms
+/// and old inspection-only access. This is never authorization to work on the tenancy.
+export function tenancyAccessScope(stakeholderId: string): Prisma.TenancyWhereInput {
+  return { OR: [actsAsAgent(stakeholderId), { inspections: { some: { accessGrants: { some: { stakeholderId } } } } }] }
+}
+
+/// A queued message never outlives its recipient's current access. Exact historical
+/// inspection grants do not admit tenancy repair messages or new sharing invitations.
+export function notificationScope(stakeholderId: string): Prisma.NotificationWhereInput {
   return {
-    OR: [{ tenancy: actsAsAgent(agentId) }, { conductedById: agentId }],
+    recipientId: stakeholderId,
+    recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
+    OR: [
+      { tenancyId: null },
+      { kind: 'PROPERTY_SHARED', tenancy: actsAsAgent(stakeholderId) },
+      { kind: 'RENEWAL_DUE', tenancy: leadTenancies(stakeholderId) },
+      { kind: 'REPORT_UPDATED', tenancy: { OR: [
+        { landlordId: stakeholderId }, { tenantId: stakeholderId }, actsAsAgent(stakeholderId),
+      ] } },
+      { kind: { notIn: ['PROPERTY_SHARED', 'RENEWAL_DUE', 'REPORT_UPDATED'] }, tenancy: tenancyScope(stakeholderId) },
+    ],
   }
 }
 
 /// Loads an inspection the agent is allowed to see, or throws. Use this instead of a
 /// bare findUnique anywhere an id arrives from the client, which is everywhere.
-export async function authorizeInspection(inspectionId: string, agentId: string) {
-  const inspection = await db.inspection.findFirst({
-    where: { AND: [{ id: inspectionId }, inspectionScope(agentId)] },
+export async function authorizeInspection(
+  inspectionId: string,
+  agentId: string,
+  options: { fullTenancyOnly?: boolean; client?: Prisma.TransactionClient } = {},
+) {
+  const inspection = await (options.client ?? db).inspection.findFirst({
+    where: { AND: [{ id: inspectionId }, options.fullTenancyOnly ? { tenancy: actsAsAgent(agentId) } : inspectionScope(agentId)] },
     select: { id: true, status: true, kind: true, tenancyId: true, fullyFurnished: true },
   })
   if (!inspection) {
@@ -258,7 +301,7 @@ export async function signingRole(inspectionId: string, stakeholderId: string) {
 }
 
 /// An addendum the agent may write and publish: one on an inspection `inspectionScope`
-/// admits, so the deal's agent, a teammate, or the conductor. Never a landlord or tenant.
+/// admits, including exact migrated grants. Never a landlord or tenant alone.
 export async function authorizeAddendum(addendumId: string, agentId: string) {
   const addendum = await db.reportAddendum.findFirst({
     where: { id: addendumId, inspection: inspectionScope(agentId) },

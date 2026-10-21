@@ -14,6 +14,7 @@ import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
 import 'property_timeline_screen.dart';
 import 'service_directory_screen.dart';
+import 'tenancy_access_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
   const TenancyScreen({
@@ -285,21 +286,23 @@ class _TenancyScreenState extends State<TenancyScreen> {
         contextLabel: widget.tenancy.property,
       ),
     ),
-    body: KiviloContent(maxWidth: 840, child: FutureBuilder<_TenancyData>(
-      future: _future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text(plainError(snapshot.error!)));
-        }
-        final (cases, assets, terms) = snapshot.data!;
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
+    body: KiviloContent(
+      maxWidth: 840,
+      child: FutureBuilder<_TenancyData>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text(plainError(snapshot.error!)));
+          }
+          final (cases, assets, terms) = snapshot.data!;
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
                 const Text(
                   'YOUR PROPERTY',
                   style: TextStyle(
@@ -308,30 +311,60 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.1,
                   ),
-              ),
-              const SizedBox(height: 6),
-              Text(
+                ),
+                const SizedBox(height: 6),
+                Text(
                   widget.tenancy.property,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Reports, repairs and the history of this home.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: 24),
                 const KiviloSectionHeading(
                   title: 'Property record',
                   subtitle: 'The agreed condition and what has happened since',
                 ),
                 const SizedBox(height: 12),
+                if (terms.role == 'AGENT') ...[
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.person_outline),
+                      title: Text(
+                        terms.access?.canManageAccess == true
+                            ? 'Manage access'
+                            : 'Property access',
+                      ),
+                      subtitle: terms.access == null
+                          ? null
+                          : Text(terms.access!.label),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await Navigator.of(context).push<void>(
+                          MaterialPageRoute(
+                            builder: (_) => TenancyAccessScreen(
+                              tenancyId: widget.tenancy.id,
+                              property: widget.tenancy.property,
+                              api: _api,
+                            ),
+                          ),
+                        );
+                        if (mounted) await _refresh();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 if (widget.tenancy.role == 'AGENT' &&
                     widget.currentInspection != null &&
                     widget.currentInspection!.id !=
                         widget.tenancy.latestReportId &&
-                    !['AWAITING_SIGNATURE', 'COMPLETED'].contains(
-                      widget.currentInspection!.status,
-                    )) ...[
+                    ![
+                      'AWAITING_SIGNATURE',
+                      'COMPLETED',
+                    ].contains(widget.currentInspection!.status)) ...[
                   Card(
                     child: ListTile(
                       leading: const Icon(
@@ -359,7 +392,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   const SizedBox(height: 10),
                 ],
                 if (widget.tenancy.latestReportId case final reportId?) ...[
-              Card(
+                  Card(
                     child: ListTile(
                       leading: const Icon(
                         Icons.fact_check_outlined,
@@ -418,25 +451,25 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 const SizedBox(height: 12),
                 Card(
                   color: KiviloColors.canvas,
-                child: ListTile(
-                  leading: const Icon(Icons.emergency_outlined),
-                  title: const Text('Immediate danger?'),
-                  subtitle: const Text('Police 999 · Fire or ambulance 995'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ServiceDirectoryScreen(),
+                  child: ListTile(
+                    leading: const Icon(Icons.emergency_outlined),
+                    title: const Text('Immediate danger?'),
+                    subtitle: const Text('Police 999 · Fire or ambulance 995'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ServiceDirectoryScreen(),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              FilledButton.icon(
-                onPressed: () => _report(assets, terms),
-                icon: const Icon(Icons.add),
-                label: const Text('Report a problem'),
-              ),
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
+                FilledButton.icon(
+                  onPressed: () => _report(assets, terms),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Report a problem'),
+                ),
+                const SizedBox(height: 10),
                 if (terms.moveInDefects case final window?) ...[
                   Card(
                     child: ListTile(
@@ -457,90 +490,91 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                   const SizedBox(height: 10),
                 ],
-              const SizedBox(height: 24),
-              KiviloSectionHeading(
-                title: 'Maintenance',
-                subtitle: cases.isEmpty
-                    ? 'Requests for this property will appear here'
-                    : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
-              ),
-              const SizedBox(height: 12),
-              if (cases.isEmpty) _emptyMaintenance(),
-              for (var index = 0; index < cases.length; index++) ...[
-                if (index > 0) const SizedBox(height: 10),
-                Card(
-                  child: ListTile(
-                    title: Text(cases[index].title),
-                    subtitle: Text(
-                      '${cases[index].status.replaceAll('_', ' ').toLowerCase()}'
-                      '${cases[index].asset == null ? '' : ' · ${cases[index].asset}'}'
-                      '${cases[index].repairAttempts == 0 ? '' : ' · ${cases[index].repairAttempts} repair attempts'}',
-                    ),
-                    leading: Icon(
-                      cases[index].priority == 'SAFETY_EMERGENCY'
-                          ? Icons.warning_amber
-                          : Icons.build_outlined,
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) =>
-                              MaintenanceCaseScreen(caseId: cases[index].id),
-                        ),
-                      );
-                      if (mounted) await _refresh();
-                    },
-                  ),
-                ),
-              ],
-              if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
-                const SizedBox(height: 24),
-                const KiviloSectionHeading(
-                  title: 'Repair costs',
-                  subtitle: 'Terms that shape who pays for a repair',
-                ),
-                const SizedBox(height: 12),
-                _repairTerms(terms),
-              ],
-              if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
                 const SizedBox(height: 24),
                 KiviloSectionHeading(
-                  title: 'Property assets',
-                  subtitle: 'Appliances and fixtures linked to maintenance',
-                  action: widget.tenancy.role == 'TENANT'
-                      ? null
-                      : TextButton.icon(
-                          onPressed: _addAsset,
-                          icon: const Icon(Icons.add, size: 18),
-                          label: const Text('Add asset'),
-                        ),
+                  title: 'Maintenance',
+                  subtitle: cases.isEmpty
+                      ? 'Requests for this property will appear here'
+                      : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
                 ),
                 const SizedBox(height: 12),
-                if (assets.isEmpty) _emptyAssets(),
-                for (var index = 0; index < assets.length; index++) ...[
-                  if (index > 0) const Divider(height: 1),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                    title: Text(assets[index].name),
-                    subtitle: Text(
-                      [
-                        if (assets[index].roomLabel != null)
-                          assets[index].roomLabel!,
-                        '${assets[index].repairVisitsLast365Days} repairs in 365 days',
-                      ].join(' · '),
+                if (cases.isEmpty) _emptyMaintenance(),
+                for (var index = 0; index < cases.length; index++) ...[
+                  if (index > 0) const SizedBox(height: 10),
+                  Card(
+                    child: ListTile(
+                      title: Text(cases[index].title),
+                      subtitle: Text(
+                        '${cases[index].status.replaceAll('_', ' ').toLowerCase()}'
+                        '${cases[index].asset == null ? '' : ' · ${cases[index].asset}'}'
+                        '${cases[index].repairAttempts == 0 ? '' : ' · ${cases[index].repairAttempts} repair attempts'}',
+                      ),
+                      leading: Icon(
+                        cases[index].priority == 'SAFETY_EMERGENCY'
+                            ? Icons.warning_amber
+                            : Icons.build_outlined,
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                MaintenanceCaseScreen(caseId: cases[index].id),
+                          ),
+                        );
+                        if (mounted) await _refresh();
+                      },
                     ),
-                    trailing: assets[index].repairVisitsLast365Days >= 4
-                        ? const Chip(label: Text('Repeat fault'))
-                        : null,
                   ),
                 ],
+                if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
+                  const SizedBox(height: 24),
+                  const KiviloSectionHeading(
+                    title: 'Repair costs',
+                    subtitle: 'Terms that shape who pays for a repair',
+                  ),
+                  const SizedBox(height: 12),
+                  _repairTerms(terms),
+                ],
+                if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
+                  const SizedBox(height: 24),
+                  KiviloSectionHeading(
+                    title: 'Property assets',
+                    subtitle: 'Appliances and fixtures linked to maintenance',
+                    action: widget.tenancy.role == 'TENANT'
+                        ? null
+                        : TextButton.icon(
+                            onPressed: _addAsset,
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('Add asset'),
+                          ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (assets.isEmpty) _emptyAssets(),
+                  for (var index = 0; index < assets.length; index++) ...[
+                    if (index > 0) const Divider(height: 1),
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                      title: Text(assets[index].name),
+                      subtitle: Text(
+                        [
+                          if (assets[index].roomLabel != null)
+                            assets[index].roomLabel!,
+                          '${assets[index].repairVisitsLast365Days} repairs in 365 days',
+                        ].join(' · '),
+                      ),
+                      trailing: assets[index].repairVisitsLast365Days >= 4
+                          ? const Chip(label: Text('Repeat fault'))
+                          : null,
+                    ),
+                  ],
+                ],
               ],
-            ],
-          ),
-        );
-      },
-    )),
+            ),
+          );
+        },
+      ),
+    ),
   );
 
   Widget _repairTerms(TenancyDetail terms) => Card(
@@ -597,7 +631,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
-      )),
+      ),
+    ),
   );
 
   Widget _emptyAssets() => Card(
@@ -618,7 +653,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
             ),
           ),
         ],
-      )),
+      ),
+    ),
   );
 }
 

@@ -16,7 +16,18 @@ export default async function InspectionsPage() {
     where: inspectionScope(agent.id),
     orderBy: { createdAt: 'desc' },
     include: {
-      tenancy: { include: { property: true, tenant: true } },
+      tenancy: {
+        include: {
+          property: true,
+          tenant: true,
+          agent: { select: { id: true, name: true } },
+          collaborators: {
+            orderBy: { createdAt: 'asc' },
+            select: { stakeholderId: true, stakeholder: { select: { name: true } } },
+          },
+        },
+      },
+      accessGrants: { select: { stakeholderId: true, stakeholder: { select: { name: true } } } },
       _count: { select: { rooms: true } },
     },
   })
@@ -57,27 +68,47 @@ export default async function InspectionsPage() {
         </div>
       ) : (
         <ul className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white">
-          {inspections.map((inspection) => (
-            <li key={inspection.id}>
-              <Link
-                href={`/inspections/${inspection.id}`}
-                className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">
-                    {propertyLabel(inspection.tenancy.property)}
-                  </p>
-                  <p className="mt-0.5 text-xs text-gray-500">
-                    {inspection.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} ·{' '}
-                    {inspection.tenancy.tenant.name}
-                    {inspection._count.rooms > 0 &&
-                      ` · ${inspection._count.rooms} room${inspection._count.rooms === 1 ? '' : 's'}`}
-                  </p>
-                </div>
-                <StatusBadge status={inspection.status} />
-              </Link>
-            </li>
-          ))}
+          {inspections.map((inspection) => {
+            const { tenancy } = inspection
+            const fullAccess = new Set([tenancy.agentId, ...tenancy.collaborators.map((person) => person.stakeholderId)])
+            const inspectionOnly = inspection.accessGrants.filter((person) => !fullAccess.has(person.stakeholderId))
+            const sharedWith = [
+              ...(tenancy.agent && tenancy.agent.id !== agent.id ? [tenancy.agent.name] : []),
+              ...tenancy.collaborators.filter((person) => person.stakeholderId !== agent.id)
+                .map((person) => person.stakeholder.name),
+            ]
+            const accessLabel = !fullAccess.has(agent.id)
+              ? 'Access to previous reports'
+              : tenancy.collaborators.length
+                ? sharedWith.length ? `Shared with ${sharedWith.join(', ')}` : 'Shared tenancy'
+                : inspectionOnly.length
+                  ? `Previous report shared with ${inspectionOnly.map((person) => person.stakeholder.name).join(', ')}`
+                  : 'Private'
+            return (
+              <li key={inspection.id}>
+                <Link
+                  href={`/inspections/${inspection.id}`}
+                  className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">
+                      {propertyLabel(inspection.tenancy.property)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {inspection.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} ·{' '}
+                      {inspection.tenancy.tenant.name}
+                      {inspection._count.rooms > 0 &&
+                        ` · ${inspection._count.rooms} room${inspection._count.rooms === 1 ? '' : 's'}`}
+                    </p>
+                    <span className="mt-2 inline-block rounded-md bg-gray-100 px-2 py-1 text-xs break-words text-gray-600">
+                      {accessLabel}
+                    </span>
+                  </div>
+                  <StatusBadge status={inspection.status} />
+                </Link>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>

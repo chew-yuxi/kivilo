@@ -9,6 +9,7 @@ import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../models/report.dart';
 import '../models/renewal.dart';
+import '../models/tenancy_access.dart';
 import 'api_failure.dart';
 import 'read_cache.dart';
 
@@ -276,6 +277,31 @@ class Api {
     );
     return TenancyDetail.fromJson(data as Map<String, dynamic>);
   }
+
+  /// Access is read fresh; a cached copy cannot confirm who may collaborate now.
+  Future<TenancyAccess> tenancyAccess(String tenancyId) async {
+    final response = await _get<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/access',
+    );
+    return TenancyAccess.fromJson(response.data!);
+  }
+
+  Future<void> addTenancyCollaborator(String tenancyId, String email) =>
+      _call(() async {
+        await _dio.post<Object>(
+          '/api/v1/tenancies/$tenancyId/access',
+          data: {'email': email.trim().toLowerCase()},
+        );
+      });
+
+  Future<void> removeTenancyCollaborator(
+    String tenancyId,
+    String stakeholderId,
+  ) => _call(() async {
+    await _dio.delete<Object>(
+      '/api/v1/tenancies/$tenancyId/access/$stakeholderId',
+    );
+  });
 
   Future<TenantHandover?> handover(String inspectionId) async {
     try {

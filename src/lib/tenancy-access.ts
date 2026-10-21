@@ -1,0 +1,70 @@
+import { db } from '@/lib/db'
+import { tenancyAccessScope } from '@/lib/auth'
+
+/// Access can be reviewed for an ended tenancy too, alongside its historical reports.
+/// The landlord and tenant's report access does not expose collaborators' addresses.
+export async function tenancyAccess(tenancyId: string, viewerId: string) {
+  const tenancy = await db.tenancy.findFirst({
+    where: { AND: [{ id: tenancyId }, tenancyAccessScope(viewerId)] },
+    select: {
+      id: true,
+      agentId: true,
+      agent: { select: { id: true, name: true, email: true } },
+      collaborators: {
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        select: {
+          stakeholderId: true,
+          createdAt: true,
+          stakeholder: { select: { name: true, email: true } },
+        },
+      },
+      inspections: {
+        where: { accessGrants: { some: {} } },
+        orderBy: { id: 'asc' },
+        select: {
+          id: true,
+          accessGrants: {
+            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+            select: { stakeholderId: true, stakeholder: { select: { name: true, email: true } } },
+          },
+        },
+      },
+    },
+  })
+  if (!tenancy) throw new Error('Tenancy not found')
+
+  const fullAccess = new Set([tenancy.agentId, ...tenancy.collaborators.map(({ stakeholderId }) => stakeholderId)])
+  const hasFullAccess = fullAccess.has(viewerId)
+  const inspectionOnly = new Map<string, { stakeholderId: string; name: string; email: string | null; inspectionIds: string[] }>()
+  for (const inspection of tenancy.inspections) {
+    for (const grant of inspection.accessGrants) {
+      if (fullAccess.has(grant.stakeholderId)) continue
+      if (!hasFullAccess && grant.stakeholderId !== viewerId) continue
+      const existing = inspectionOnly.get(grant.stakeholderId)
+      if (existing) existing.inspectionIds.push(inspection.id)
+      else inspectionOnly.set(grant.stakeholderId, {
+        stakeholderId: grant.stakeholderId,
+        name: grant.stakeholder.name,
+        email: grant.stakeholder.email,
+        inspectionIds: [inspection.id],
+      })
+    }
+  }
+
+  return {
+    tenancyId: tenancy.id,
+    visibility: tenancy.collaborators.length || inspectionOnly.size ? 'SHARED' as const : 'PRIVATE' as const,
+    scope: hasFullAccess ? 'TENANCY' as const : 'INSPECTION' as const,
+    canManageAccess: tenancy.agentId === viewerId,
+    leadAgent: tenancy.agent,
+    collaborators: hasFullAccess ? tenancy.collaborators.map((collaborator) => ({
+      stakeholderId: collaborator.stakeholderId,
+      name: collaborator.stakeholder.name,
+      email: collaborator.stakeholder.email,
+      addedAt: collaborator.createdAt.toISOString(),
+    })) : [],
+    inspectionOnly: [...inspectionOnly.values()],
+  }
+}
+
+export type TenancyAccess = Awaited<ReturnType<typeof tenancyAccess>>

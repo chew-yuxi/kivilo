@@ -6,6 +6,7 @@ import { sendSignatureRequest, sendSignedCopy, sendTenantHandover } from '@/lib/
 import { MAX_ATTEMPTS } from '@/lib/report-email'
 import { handoverUrl } from '@/lib/handover'
 import { moveInDefectWindow } from '@/lib/move-in-defect-window'
+import { inspectionScope } from '@/lib/auth'
 
 /// Resend refuses a message over 40 MB, counted after base64, which grows a file by a
 /// third: an attachment of 30 MB already reaches 40 MB before the body and headers. 25 MB
@@ -122,6 +123,17 @@ export async function deliverReportEmails(limit = 20) {
         // Too large to attach: a link to where the recipient can download it once signed
         // in, which for a party is the signing page and for the agent the inspection.
         const party = recipient.id === tenancy.landlordId || recipient.id === tenancy.tenantId
+        const pdf = await pdfFor(inspection.id)
+        // An outbox row is not an access grant. A collaborator may have been removed
+        // while a large PDF was rendering or downloading, so check once it is ready.
+        if (!party && !await db.inspection.findFirst({
+          where: { id: inspection.id, ...inspectionScope(recipient.id) },
+          select: { id: true },
+        })) {
+          await db.reportEmail.delete({ where: { id: row.id } })
+          withdrawn += 1
+          continue
+        }
         const link = new URL(party ? `/sign/${inspection.id}` : `/inspections/${inspection.id}`, appUrl())
         link.searchParams.set('email', to)
         await sendSignedCopy(to, {
@@ -134,7 +146,7 @@ export async function deliverReportEmails(limit = 20) {
             role: signature.stakeholderId === tenancy.landlordId ? 'Landlord' : 'Tenant',
             signedAt: signature.signedAt,
           })),
-        }, (await pdfFor(inspection.id)) ?? { link: link.toString() })
+        }, pdf ?? { link: link.toString() })
       }
       await db.reportEmail.update({
         where: { id: row.id },

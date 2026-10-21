@@ -15,7 +15,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 })
 
 import { db } from '@/lib/db'
-import { requireAgent } from '@/lib/auth'
+import { authorizeInspection, requireAgent } from '@/lib/auth'
 import { addRoom, createFinding, renameRoom, startCheckOut } from '@/lib/actions'
 import { checkInPhotoUrls, checkInReference, signedCheckInReference } from '@/lib/check-in-reference'
 
@@ -300,12 +300,24 @@ describe('check-in reference', () => {
     expect(await checkInReference(bathroom.id, checkIn.agentId)).toMatchObject({ photos: [] })
   })
 
-  it('shows nothing to an agent who conducts the check-out but may not see the check-in', async () => {
+  it('shows nothing when access to the check-out tenancy does not include its linked check-in tenancy', async () => {
     const checkIn = await signedCheckIn('REFERENCE-CONDUCTOR')
     const checkOutId = await startCheckOut(checkIn.id)
     const [kitchen] = await checkOutRooms(checkOutId)
     const conductor = await db.stakeholder.create({ data: { name: 'Conductor REFERENCE-CONDUCTOR' } })
-    await db.inspection.update({ where: { id: checkOutId }, data: { conductedById: conductor.id } })
+    const original = await db.tenancy.findUniqueOrThrow({ where: { id: checkIn.tenancyId } })
+    const checkOutTenancy = await db.tenancy.create({ data: {
+      propertyId: original.propertyId, landlordId: original.landlordId, tenantId: original.tenantId,
+      agentId: original.agentId, startDate: original.startDate, endDate: original.endDate,
+      monthlyRent: original.monthlyRent, deposit: original.deposit,
+      collaborators: { create: { stakeholderId: conductor.id, grantedById: checkIn.agentId } },
+    } })
+    await db.inspection.update({
+      where: { id: checkOutId },
+      data: { tenancyId: checkOutTenancy.id, conductedById: conductor.id },
+    })
+    await expect(authorizeInspection(checkOutId, conductor.id)).resolves.toBeTruthy()
+    await expect(authorizeInspection(checkIn.id, conductor.id)).rejects.toThrow('Inspection not found')
 
     expect(await checkInReference(kitchen.id, conductor.id)).toBeNull()
     expect(await checkInPhotoUrls(kitchen.id, conductor.id)).toEqual({})

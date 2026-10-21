@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom, inspectionScope } from '@/lib/auth'
+import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom, inspectionScope, tenancyScope } from '@/lib/auth'
 import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
@@ -851,10 +851,11 @@ export async function createFinding(
       throw new Error('Inspection not found')
     }
     if (!data.itemId && !data.baselineItemId) throw new Error('Item not found')
-    const { baselineId } = await tx.inspection.findUniqueOrThrow({
+    const { baseline } = await tx.inspection.findUniqueOrThrow({
       where: { id: inspectionId },
-      select: { baselineId: true },
+      select: { baseline: { where: inspectionScope(agent.id), select: { id: true } } },
     })
+    const baselineId = baseline?.id ?? null
 
     const item = data.itemId
       ? await tx.inspectionItem.findFirst({
@@ -968,7 +969,7 @@ export async function updateFinding(
 
   if (data.maintenanceCaseId) {
     const maintenanceCase = await db.maintenanceCase.findFirst({
-      where: { id: data.maintenanceCaseId, tenancyId: finding.inspection.tenancyId },
+      where: { id: data.maintenanceCaseId, tenancyId: finding.inspection.tenancyId, tenancy: tenancyScope(agent.id) },
       select: { id: true },
     })
     if (!maintenanceCase) throw new Error('Maintenance case not found')
@@ -1056,13 +1057,17 @@ export async function checkInPhotoLinks(roomId: string) {
 /// same property record and the diff has a baseline to measure from.
 export async function startCheckOut(baselineId: string) {
   const agent = await requireAgent()
-  const authorized = await authorizeInspection(baselineId, agent.id)
+  const authorized = await authorizeInspection(baselineId, agent.id, { fullTenancyOnly: true })
   if (authorized.kind !== 'CHECK_IN' || authorized.status !== 'COMPLETED') {
     throw new Error('Only a completed check-in can start check-out')
   }
 
   try {
     const checkOutId = await db.$transaction(async (tx) => {
+      // Creating a sibling report needs full tenancy access. Serialize with access
+      // removal, then recheck before copying any baseline into the new inspection.
+      await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${authorized.tenancyId} FOR UPDATE`
+      await authorizeInspection(baselineId, agent.id, { fullTenancyOnly: true, client: tx })
       // Answering a move-in notice takes this same lock, so the copy contains every
       // agreement made before this snapshot, with its lines and photos together.
       const current = await lockInspection(tx, baselineId)

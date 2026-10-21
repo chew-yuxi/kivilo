@@ -3,6 +3,8 @@ import { getMessaging } from 'firebase-admin/messaging'
 import { z } from 'zod'
 
 import { db } from '@/lib/db'
+import { notificationScope } from '@/lib/auth'
+import { notificationCanBeDelivered } from '@/lib/notification-recipients'
 
 const installationInput = z.object({
   token: z.string().trim().min(20).max(4096),
@@ -80,6 +82,7 @@ export async function deliverPushOutbox(limit = 50) {
   })
   for (const notification of unexpanded) {
     await db.$transaction(async (tx) => {
+      if (!await notificationCanBeDelivered(tx, notification)) return
       const installations = await tx.deviceInstallation.findMany({
         where: {
           stakeholderId: notification.recipientId,
@@ -143,15 +146,19 @@ export async function deliverPushOutbox(limit = 50) {
           disabledAt: null,
         },
         notification: {
-          recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
+          AND: [notificationScope(delivery.notification.recipientId)],
         },
         OR: [{ claimedAt: null }, { claimedAt: { lt: leaseCutoff } }],
       },
       data: { claimedAt: new Date() },
     })
-    if (claimed.count === 0) continue
+    if (claimed.count === 0) {
+      await notificationCanBeDelivered(db, delivery.notification)
+      continue
+    }
 
     try {
+      if (!await notificationCanBeDelivered(db, delivery.notification)) continue
       await messaging.send({
         token: delivery.installation.token,
         notification: {

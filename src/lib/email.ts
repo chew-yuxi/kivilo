@@ -111,6 +111,32 @@ export async function sendRenewalReminder(
   if (error) throw new Error(`Resend refused the renewal reminder: ${error.message}`)
 }
 
+/// Sharing names a verified mailbox; this link still requires the recipient's own
+/// sign-in and carries neither a session token nor a public report credential.
+export function propertySharedEmail(notification: { title: string; body: string; href: string }) {
+  const origin = process.env.KIVILO_APP_URL
+  if (!origin) throw new Error('KIVILO_APP_URL must be set')
+  return {
+    subject: notification.title,
+    text: [notification.body, '',
+      `Open the property: ${new URL(notification.href, origin).href}`,
+      '', 'Sign in to Kivilo using the email address this message was sent to.',
+      'You can work on this tenancy together, including photos, inventories and repairs.',
+    ].join('\n'),
+  }
+}
+
+export async function sendPropertySharedNotification(
+  to: string,
+  notification: { id: string; title: string; body: string; href: string },
+) {
+  const { subject, text } = propertySharedEmail(notification)
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
+    idempotencyKey: `property-shared-${notification.id}`,
+  })
+  if (error) throw new Error(`Resend refused the property sharing email: ${error.message}`)
+}
+
 /// To a landlord or tenant, when the agent publishes an update to their signed report.
 /// The link is the update page, which asks them to sign in, so it carries no credential.
 export function reportUpdateEmail(notification: { title: string; body: string; href: string }) {

@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
 import { db } from '@/lib/db'
+import { notificationCanBeDelivered } from '@/lib/notification-recipients'
 import {
   addMaintenanceVisit,
   answerResponsibility,
@@ -7,6 +8,8 @@ import {
   createMaintenanceCase,
   createPropertyAsset,
   listPropertyAssets,
+  listNotifications,
+  markNotificationRead,
   maintenanceCaseDetail,
   proposeResponsibility,
   updateMaintenanceCase,
@@ -46,6 +49,40 @@ afterAll(async () => {
 })
 
 describe('maintenance history', () => {
+  it('notifies current collaborators, excludes historical report-only access, and hides revoked messages', async () => {
+    const record = await fixture('collaboration-notifications')
+    const colleague = await db.stakeholder.create({ data: { name: 'M5 notification colleague' } })
+    const historical = await db.stakeholder.create({ data: { name: 'M5 historical reporter' } })
+    await db.tenancyCollaborator.create({ data: { tenancyId: record.tenancy.id, stakeholderId: colleague.id } })
+    await db.inspection.create({
+      data: {
+        tenancyId: record.tenancy.id, kind: 'CHECK_IN', conductedById: historical.id,
+        accessGrants: { create: { stakeholderId: historical.id } },
+      },
+    })
+    await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      category: 'PLUMBING', title: 'Private leaking tap', description: 'The kitchen tap leaks.',
+    })
+    const notifications = await db.notification.findMany({ where: { tenancyId: record.tenancy.id } })
+    expect(notifications.map((row) => row.recipientId).sort()).toEqual([
+      record.landlord.id, record.agent.id, colleague.id,
+    ].sort())
+    const notice = notifications.find((row) => row.recipientId === colleague.id)!
+    expect(await listNotifications(colleague.id)).toEqual([expect.objectContaining({ id: notice.id })])
+    expect(await notificationCanBeDelivered(db, notice)).toBe(true)
+    expect(await listNotifications(historical.id)).toEqual([])
+
+    // Leave the durable row in place to prove authorization, independently of the
+    // removal action's queue cleanup. Mark-read must refuse the same stale id too.
+    await db.tenancyCollaborator.deleteMany({ where: { tenancyId: record.tenancy.id, stakeholderId: colleague.id } })
+    expect(await db.notification.findUnique({ where: { id: notice.id } })).not.toBeNull()
+    expect(await listNotifications(colleague.id)).toEqual([])
+    await expect(markNotificationRead(notice.id, colleague.id)).rejects.toThrow('Notification not found')
+    await expect(markNotificationRead('missing-notification', colleague.id)).rejects.toThrow('Notification not found')
+    expect(await notificationCanBeDelivered(db, notice)).toBe(false)
+    expect(await db.notification.findUnique({ where: { id: notice.id } })).toBeNull()
+  })
+
   it('does not recreate notifications for a deleted account retained on a shared tenancy', async () => {
     const record = await fixture('deleted-recipient')
     await db.accountDeletionRequest.create({

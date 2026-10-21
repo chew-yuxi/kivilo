@@ -226,7 +226,7 @@ export async function publishMoveInDefect(caseId: string, stakeholderId: string,
     const recipients = await activeNotificationRecipients(tx, [item.tenancy.landlordId])
     await tx.notification.createMany({
       data: recipients.map((recipientId) => ({
-        recipientId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
+        recipientId, tenancyId: item.tenancyId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
         body: 'The tenant reported this condition as present at move-in. Please acknowledge or dispute the dated notice.',
         href: `/updates/${addendum.id}`, dedupeKey: `move-in-defect:${addendum.id}:${recipientId}`,
       })),
@@ -271,7 +271,7 @@ export async function disputeMoveInDefect(addendumId: string, stakeholderId: str
     const recipients = await activeNotificationRecipients(tx, [row.inspection.tenancy.tenantId])
     await tx.notification.createMany({
       data: recipients.map((recipientId) => ({
-        recipientId, kind: 'REPORT_UPDATED' as const, title: snapshot.title,
+        recipientId, tenancyId: row.inspection.tenancy.id, kind: 'REPORT_UPDATED' as const, title: snapshot.title,
         body: `The landlord disputed the move-in notice: ${input.reason}`,
         href: `/updates/${addendumId}`, dedupeKey: `move-in-defect-disputed:${addendumId}:${recipientId}`,
       })),

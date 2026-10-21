@@ -196,6 +196,14 @@ exports.Prisma.TenancyScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TenancyCollaboratorScalarFieldEnum = {
+  id: 'id',
+  tenancyId: 'tenancyId',
+  stakeholderId: 'stakeholderId',
+  grantedById: 'grantedById',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.InspectionScalarFieldEnum = {
   id: 'id',
   tenancyId: 'tenancyId',
@@ -213,6 +221,13 @@ exports.Prisma.InspectionScalarFieldEnum = {
   aiConsentById: 'aiConsentById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InspectionAccessGrantScalarFieldEnum = {
+  id: 'id',
+  inspectionId: 'inspectionId',
+  stakeholderId: 'stakeholderId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.CaptureScalarFieldEnum = {
@@ -395,6 +410,7 @@ exports.Prisma.DeviceInstallationScalarFieldEnum = {
 exports.Prisma.NotificationScalarFieldEnum = {
   id: 'id',
   recipientId: 'recipientId',
+  tenancyId: 'tenancyId',
   kind: 'kind',
   title: 'title',
   body: 'body',
@@ -830,6 +846,7 @@ exports.DevicePlatform = exports.$Enums.DevicePlatform = {
 };
 
 exports.NotificationKind = exports.$Enums.NotificationKind = {
+  PROPERTY_SHARED: 'PROPERTY_SHARED',
   MAINTENANCE_REPORTED: 'MAINTENANCE_REPORTED',
   MAINTENANCE_STATUS: 'MAINTENANCE_STATUS',
   MAINTENANCE_VISIT: 'MAINTENANCE_VISIT',
@@ -903,7 +920,9 @@ exports.Prisma.ModelName = {
   AgentBranding: 'AgentBranding',
   Property: 'Property',
   Tenancy: 'Tenancy',
+  TenancyCollaborator: 'TenancyCollaborator',
   Inspection: 'Inspection',
+  InspectionAccessGrant: 'InspectionAccessGrant',
   Capture: 'Capture',
   Room: 'Room',
   InspectionItem: 'InspectionItem',
