@@ -1,0 +1,93 @@
+{
+  "format": "webp",
+  "quality": 86,
+  "alphaQuality": 100,
+  "metadata": "stripped",
+  "cacheControl": "public, max-age=31536000, immutable",
+  "scenes": [
+    {
+      "name": "handover",
+      "source": "mobile/design/illustrations/handover.png",
+      "sourceBytes": 1016724,
+      "variants": [
+        {
+          "path": "/illustrations/handover-192-a2c0aa072bfb.webp",
+          "width": 192,
+          "height": 96,
+          "bytes": 7242,
+          "sha256": "a2c0aa072bfb3603245aec0c3c78b5f32e8c97a2a8fed37ea108c9ff56b3e342"
+        },
+        {
+          "path": "/illustrations/handover-768-ea8147d471c4.webp",
+          "width": 768,
+          "height": 384,
+          "bytes": 44436,
+          "sha256": "ea8147d471c4a100b45c59e22494b6007fcb25ee3b75bfe7c2f2028473ca9d45"
+        }
+      ]
+    },
+    {
+      "name": "capture",
+      "source": "mobile/design/illustrations/capture.png",
+      "sourceBytes": 1436207,
+      "variants": [
+        {
+          "path": "/illustrations/capture-192-8eb52fcd35f7.webp",
+          "width": 192,
+          "height": 128,
+          "bytes": 8788,
+          "sha256": "8eb52fcd35f7e8e672b89c35d15eff71dc556d725f6e22befad49ca1b60ec221"
+        },
+        {
+          "path": "/illustrations/capture-768-7282a81449e3.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 50566,
+          "sha256": "7282a81449e39dfa7ac12829d4946d0da350d19f4409867772671a42506aabd9"
+        }
+      ]
+    },
+    {
+      "name": "inventory",
+      "source": "mobile/design/illustrations/inventory.png",
+      "sourceBytes": 1545264,
+      "variants": [
+        {
+          "path": "/illustrations/inventory-192-51b47a2cc5cc.webp",
+          "width": 192,
+          "height": 128,
+          "bytes": 10500,
+          "sha256": "51b47a2cc5cc2a64c1945a7961cd05a7ba7e3e8647f76e0cd36c98e84204b33e"
+        },
+        {
+          "path": "/illustrations/inventory-768-4a57537a634d.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 65282,
+          "sha256": "4a57537a634dc2401974e8064afab20e65221c6fd25efc9278b4a9bca1f11b8a"
+        }
+      ]
+    },
+    {
+      "name": "sign",
+      "source": "mobile/design/illustrations/sign.png",
+      "sourceBytes": 1441713,
+      "variants": [
+        {
+          "path": "/illustrations/sign-192-db573d5d986f.webp",
+          "width": 192,
+          "height": 128,
+          "bytes": 8884,
+          "sha256": "db573d5d986fb5599329dfead746cd69dac1cc165196d91cc94a0be290506db2"
+        },
+        {
+          "path": "/illustrations/sign-768-8d977bcfeef9.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 58176,
+          "sha256": "8d977bcfeef91a5e729cb4af9a1ee0bf00883003906f1497e008ae7d61aa546e"
+        }
+      ]
+    }
+  ]
+}

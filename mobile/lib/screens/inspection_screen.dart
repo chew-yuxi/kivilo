@@ -14,6 +14,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
+import '../ui/page_context_title.dart';
 import '../ui/tenant_handover.dart';
 import 'addenda_screen.dart';
 import 'finding_editor_screen.dart';
@@ -98,13 +99,16 @@ class _InspectionScreenState extends State<InspectionScreen> {
     }
   }
 
-  Future<void> _openRoom(RoomSummary room, bool editable) async {
+  Future<void> _openRoom(RoomSummary room, InspectionDetail inspection) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => RoomScreen(
           inspectionId: widget.id,
           roomId: room.id,
-          editable: editable,
+          editable: inspection.isOpen,
+          property: inspection.property,
+          inspectionKind: inspection.kind,
+          api: _api,
         ),
       ),
     );
@@ -373,7 +377,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.inspection,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Inspection')),
+    appBar: AppBar(
+      centerTitle: false,
+      toolbarHeight: 72,
+      title: FutureBuilder<InspectionDetail>(
+        future: _future,
+        builder: (context, snapshot) => PageContextTitle(
+          title: snapshot.data == null
+              ? 'Inspection'
+              : snapshot.data!.kind == 'CHECK_IN'
+              ? 'Check-in'
+              : 'Check-out',
+          contextLabel: snapshot.data?.property ?? 'Inspections',
+        ),
+      ),
+    ),
     body: KiviloContent(maxWidth: 1120, child: RefreshIndicator(
       onRefresh: _refresh,
       child: FutureBuilder<InspectionDetail>(
@@ -399,6 +417,22 @@ class _InspectionScreenState extends State<InspectionScreen> {
               .where((room) => room.status == 'REVIEWED')
               .length;
           final isCheckIn = inspection.kind == 'CHECK_IN';
+          final signed = inspection.status == 'COMPLETED';
+          final sent = !inspection.isOpen;
+          final nextRoom = inspection.rooms
+              .where((room) => room.status != 'REVIEWED')
+              .firstOrNull;
+          final recording =
+              inspection.rooms.isEmpty ||
+              inspection.rooms.any(
+                (room) => const ['PENDING', 'CAPTURING', 'PROCESSING', 'FAILED']
+                    .contains(room.status),
+              );
+          final stage = sent
+              ? 2
+              : recording
+              ? 0
+              : 1;
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
             children: [
@@ -482,6 +516,158 @@ class _InspectionScreenState extends State<InspectionScreen> {
               Card(
                 color: KiviloColors.canvas,
                 child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          for (var index = 0; index < 3; index++) ...[
+                            if (index > 0)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(
+                                  Icons.chevron_right,
+                                  size: 16,
+                                  color: KiviloColors.subtle,
+                                ),
+                              ),
+                            Expanded(
+                              child: Semantics(
+                                selected: !signed && stage == index,
+                                label:
+                                    'Step ${index + 1} of 3: '
+                                    '${['Rooms', 'Review', 'Sign'][index]}'
+                                    '${signed || index < stage
+                                        ? ', complete'
+                                        : stage == index
+                                        ? ', current'
+                                        : ''}',
+                                excludeSemantics: true,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 28,
+                                      height: 28,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: signed || index < stage
+                                            ? KiviloColors.greenSoft
+                                            : index == stage
+                                            ? KiviloColors.pinkSoft
+                                            : Colors.white,
+                                      ),
+                                      child: signed || index < stage
+                                          ? const Icon(
+                                              Icons.check_rounded,
+                                              size: 16,
+                                              color: KiviloColors.green,
+                                            )
+                                          : Text(
+                                              '${index + 1}',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                                color: index == stage
+                                                    ? KiviloColors.pinkDark
+                                                    : KiviloColors.muted,
+                                              ),
+                                            ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      ['Rooms', 'Review', 'Sign'][index],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: !signed && index == stage
+                                            ? KiviloColors.pinkDark
+                                            : KiviloColors.body,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        signed
+                            ? 'Signed and safely recorded.'
+                            : sent
+                            ? 'Ready for both parties to sign.'
+                            : inspection.allRoomsReviewed
+                            ? 'Your rooms are ready. Review, then send.'
+                            : recording
+                            ? 'Build the record, room by room.'
+                            : 'Check each room before you send.',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        signed
+                            ? 'Both parties have signed. The agreed report is ready to view and share.'
+                            : sent
+                            ? 'The report is fixed. Collect signatures below, in person or by email.'
+                            : inspection.allRoomsReviewed
+                            ? 'Sending fixes the inventory, captions and photo marks for both parties to sign.'
+                            : recording
+                            ? 'Start with the room inventory. Open each item to record its condition, take photos and mark details.'
+                            : 'Check the inventory against your photos and videos, then mark each room reviewed.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      if (inspection.isOpen) ...[
+                        const SizedBox(height: 16),
+                        KiviloProgressBar(
+                          minHeight: 5,
+                          value: inspection.rooms.isEmpty
+                              ? 0
+                              : reviewed / inspection.rooms.length,
+                          color: KiviloColors.pink,
+                        ),
+                        const SizedBox(height: 8),
+                        NumberFlow(
+                          value: reviewed,
+                          suffix: '/${inspection.rooms.length} rooms reviewed',
+                          style: Theme.of(context).textTheme.bodySmall,
+                          tabularNums: true,
+                        ),
+                        const SizedBox(height: 14),
+                        OutlinedButton.icon(
+                          onPressed: _busy
+                              ? null
+                              : inspection.rooms.isEmpty
+                              ? _addRoom
+                              : inspection.allRoomsReviewed
+                              ? () => _sendForSignature(inspection)
+                              : () => _openRoom(nextRoom!, inspection),
+                          icon: Icon(
+                            inspection.rooms.isEmpty
+                                ? Icons.add
+                                : inspection.allRoomsReviewed
+                                ? Icons.draw_outlined
+                                : Icons.chevron_right,
+                          ),
+                          label: Text(
+                            inspection.rooms.isEmpty
+                                ? 'Add your first room'
+                                : inspection.allRoomsReviewed
+                                ? 'Send for signature'
+                                : 'Continue ${nextRoom!.name}',
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                color: KiviloColors.canvas,
+                child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,65 +677,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 12),
-                      _personRow(
-                        Icons.person_outline,
-                        'Landlord',
-                        inspection.landlord,
-                      ),
+                      _personRow(Icons.person_outline, 'Landlord', inspection.landlord),
                       const SizedBox(height: 10),
-                      _personRow(
-                        Icons.person_outline,
-                        'Tenant',
-                        inspection.tenant,
-                      ),
+                      _personRow(Icons.person_outline, 'Tenant', inspection.tenant),
                     ],
                   ),
                 ),
               ),
-              if (inspection.isOpen) ...[
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Walkthrough progress',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                            NumberFlow(
-                              value: reviewed,
-                              suffix: '/${inspection.rooms.length} reviewed',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              tabularNums: true,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        KiviloProgressBar(
-                          minHeight: 7,
-                          value: inspection.rooms.isEmpty
-                              ? 0
-                              : reviewed / inspection.rooms.length,
-                          color: KiviloColors.pink,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          inspection.allRoomsReviewed
-                              ? 'Every room is reviewed. The inventory is ready to send.'
-                              : 'Capture each room, write and review its inventory, then send the report for signatures.',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
               if (isCheckIn &&
                     inspection.signatures.any(
                       (signature) =>
@@ -649,7 +783,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Add a room to start the walkthrough.',
+                          'Add a room to start the inventory.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -669,44 +803,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       for (final room in inspection.rooms)
                         SizedBox(
                           width: width,
-                          child: _roomCard(room, inspection.isOpen),
+                          child: _roomCard(room, inspection),
                         ),
                     ],
                   );
                 },
               ),
               if (inspection.rooms.isNotEmpty) const SizedBox(height: 10),
-              if (inspection.isOpen && inspection.allRoomsReviewed) ...[
-                const SizedBox(height: 8),
-                Card(
-                  color: KiviloColors.pinkSoft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'Ready for signatures',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Sending freezes inventory, captions and photo marks for both parties.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 14),
-                        FilledButton.icon(
-                          onPressed: _busy
-                              ? null
-                              : () => _sendForSignature(inspection),
-                          icon: const Icon(Icons.draw_outlined),
-                          label: const Text('Send for signature'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
               if (inspection.status == 'AWAITING_SIGNATURE' ||
                   inspection.status == 'COMPLETED') ...[
                 const SizedBox(height: 28),
@@ -1000,10 +1103,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
     ],
   );
 
-  Widget _roomCard(RoomSummary room, bool editable) => Card(
+  Widget _roomCard(RoomSummary room, InspectionDetail inspection) => Card(
     child: InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => _openRoom(room, editable),
+      onTap: () => _openRoom(room, inspection),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

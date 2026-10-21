@@ -4,6 +4,7 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/page_context_title.dart';
 import 'inspection_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
@@ -50,7 +51,17 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Timeline')),
+    appBar: AppBar(
+      centerTitle: false,
+      toolbarHeight: 72,
+      title: FutureBuilder<PropertyTimeline>(
+        future: _future,
+        builder: (context, snapshot) => PageContextTitle(
+          title: 'Property timeline',
+          contextLabel: snapshot.data?.property ?? 'Property history',
+        ),
+      ),
+    ),
     body: KiviloContent(maxWidth: 840, child: FutureBuilder<PropertyTimeline>(
       future: _future,
       builder: (context, snapshot) {

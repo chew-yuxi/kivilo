@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 
+import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/kivilo_format.dart';
+import '../ui/page_context_title.dart';
+import 'inspection_screen.dart';
+import 'report_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
 import 'property_timeline_screen.dart';
 import 'service_directory_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
-  const TenancyScreen({super.key, required this.tenancy, this.api});
+  const TenancyScreen({
+    super.key,
+    required this.tenancy,
+    this.currentInspection,
+    this.api,
+  });
   final TenancySummary tenancy;
+  final InspectionSummary? currentInspection;
   final Api? api;
 
   @override
@@ -267,7 +277,14 @@ class _TenancyScreenState extends State<TenancyScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(widget.tenancy.property)),
+    appBar: AppBar(
+      centerTitle: false,
+      toolbarHeight: 72,
+      title: PageContextTitle(
+        title: 'Property',
+        contextLabel: widget.tenancy.property,
+      ),
+    ),
     body: KiviloContent(maxWidth: 840, child: FutureBuilder<_TenancyData>(
       future: _future,
       builder: (context, snapshot) {
@@ -283,18 +300,124 @@ class _TenancyScreenState extends State<TenancyScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Text(
-                'Property care',
-                style: Theme.of(context).textTheme.headlineMedium,
+                const Text(
+                  'YOUR PROPERTY',
+                  style: TextStyle(
+                    color: KiviloColors.pinkDark,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                  ),
               ),
               const SizedBox(height: 6),
               Text(
-                'Report and track maintenance for this tenancy.',
+                  widget.tenancy.property,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Reports, repairs and the history of this home.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 24),
+                const KiviloSectionHeading(
+                  title: 'Property record',
+                  subtitle: 'The agreed condition and what has happened since',
+                ),
+                const SizedBox(height: 12),
+                if (widget.tenancy.role == 'AGENT' &&
+                    widget.currentInspection != null &&
+                    widget.currentInspection!.id !=
+                        widget.tenancy.latestReportId &&
+                    !['AWAITING_SIGNATURE', 'COMPLETED'].contains(
+                      widget.currentInspection!.status,
+                    )) ...[
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.edit_outlined,
+                        color: KiviloColors.pinkDark,
+                      ),
+                      title: Text(
+                        'Open ${widget.currentInspection!.kindLabel.toLowerCase()}',
+                      ),
+                      subtitle: const Text('Rooms, inventory and signatures'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await Navigator.of(context).push<void>(
+                          MaterialPageRoute(
+                            builder: (_) => InspectionScreen(
+                              id: widget.currentInspection!.id,
+                              api: _api,
+                            ),
+                          ),
+                        );
+                        if (mounted) await _refresh();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (widget.tenancy.latestReportId case final reportId?) ...[
               Card(
-                color: Theme.of(context).colorScheme.errorContainer,
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.fact_check_outlined,
+                        color: KiviloColors.pinkDark,
+                      ),
+                      title: Text(
+                        widget.tenancy.latestReportKind == 'CHECK_OUT'
+                            ? 'Latest check-out report'
+                            : 'Latest check-in report',
+                      ),
+                      subtitle: const Text('View the condition report'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await Navigator.of(context).push<void>(
+                          MaterialPageRoute(
+                            builder: (_) => widget.tenancy.role == 'AGENT'
+                                ? InspectionScreen(id: reportId, api: _api)
+                                : ReportScreen(id: reportId, api: _api),
+                          ),
+                        );
+                        if (mounted) await _refresh();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                Card(
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.history,
+                      color: KiviloColors.pinkDark,
+                    ),
+                    title: const Text('Property timeline'),
+                    subtitle: const Text(
+                      'Signed reports, repairs and agreed costs at this address',
+                    ),
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: KiviloColors.subtle,
+                    ),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => PropertyTimelineScreen(
+                          propertyId: widget.tenancy.propertyId,
+                          api: _api,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const KiviloSectionHeading(
+                  title: 'Property care',
+                  subtitle: 'Report a problem and follow each repair through',
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  color: KiviloColors.canvas,
                 child: ListTile(
                   leading: const Icon(Icons.emergency_outlined),
                   title: const Text('Immediate danger?'),
@@ -334,29 +457,6 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                   const SizedBox(height: 10),
                 ],
-              Card(
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.history,
-                    color: KiviloColors.pinkDark,
-                  ),
-                  title: const Text('Property timeline'),
-                  subtitle: const Text(
-                    'Signed reports, repairs and agreed costs at this address',
-                  ),
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: KiviloColors.subtle,
-                  ),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => PropertyTimelineScreen(
-                        propertyId: widget.tenancy.propertyId,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
               const SizedBox(height: 24),
               KiviloSectionHeading(
                 title: 'Maintenance',

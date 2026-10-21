@@ -95,7 +95,10 @@ void main() {
       final scrollable = tester.state<ScrollableState>(
         find.descendant(
           of: find.byType(InspectionsScreen),
-          matching: find.byType(Scrollable),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Scrollable &&
+                axisDirectionToAxis(widget.axisDirection) == Axis.vertical,
+          ),
         ),
       );
       await tester.drag(find.byType(ListView), const Offset(0, -400));

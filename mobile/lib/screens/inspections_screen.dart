@@ -5,10 +5,34 @@ import '../services/api.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_illustration.dart';
 import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'new_inspection_screen.dart';
 import 'renewal_reminders.dart';
+
+enum _InspectionFilter {
+  all('All'),
+  inProgress('In progress'),
+  awaitingSignature('Awaiting signature'),
+  completed('Completed');
+
+  const _InspectionFilter(this.label);
+  final String label;
+
+  bool includes(String status) => switch (this) {
+    all => true,
+    inProgress => const {
+      'DRAFT',
+      'CAPTURING',
+      'PROCESSING',
+      'REVIEW',
+      'FAILED',
+    }.contains(status),
+    awaitingSignature => status == 'AWAITING_SIGNATURE',
+    completed => status == 'COMPLETED',
+  };
+}
 
 class InspectionsScreen extends StatefulWidget {
   const InspectionsScreen({super.key, this.api, this.trackView = true});
@@ -22,7 +46,15 @@ class InspectionsScreen extends StatefulWidget {
 class _InspectionsScreenState extends State<InspectionsScreen> {
   late final _api = widget.api ?? Api();
   late Future<List<InspectionSummary>> _future = _api.inspections();
+  final _search = TextEditingController();
+  _InspectionFilter _filter = _InspectionFilter.all;
   int _renewalsVersion = 0;
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
   Future<void> _refresh() async {
     final next = _api.inspections();
@@ -38,16 +70,16 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       MaterialPageRoute(builder: (_) => const NewInspectionScreen()),
     );
     if (!mounted || id == null) return;
-    await Navigator.of(
-      context,
-    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)),
+    );
     if (mounted) await _refresh();
   }
 
   Future<void> _openInspection(String id) async {
-    await Navigator.of(
-      context,
-    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)),
+    );
     if (mounted) await _refresh();
   }
 
@@ -87,12 +119,17 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             }
 
             final inspections = snapshot.data!;
-            final active = inspections
-                .where((inspection) => inspection.status != 'COMPLETED')
-                .toList();
-            final completed = inspections
-                .where((inspection) => inspection.status == 'COMPLETED')
-                .toList();
+            final query = _search.text
+                .trim()
+                .toLowerCase()
+                .replaceAll(RegExp(r'[\s_-]+'), ' ');
+            final visible = inspections.where((inspection) {
+              final text =
+                  '${inspection.property} ${inspection.tenant} ${inspection.kindLabel}'
+                      .toLowerCase()
+                      .replaceAll(RegExp(r'[\s_-]+'), ' ');
+              return _filter.includes(inspection.status) && text.contains(query);
+            }).toList();
             return LayoutBuilder(
               builder: (context, constraints) {
                 final available = constraints.maxWidth - 32;
@@ -103,13 +140,13 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 112),
                   children: [
                     Text(
-                      'Property handovers',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      'Inspections',
+                      style: Theme.of(context).textTheme.headlineLarge,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Text(
-                      'Capture each room, write its inventory, then sign.',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      'Your check-in and check-out reports, all in one place.',
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     RenewalReminders(
                       key: ValueKey(_renewalsVersion),
@@ -140,49 +177,109 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
                     if (inspections.isEmpty)
                       _messageCard()
                     else ...[
-                      if (active.isNotEmpty) ...[
-                        KiviloSectionHeading(
-                          title: 'In progress',
-                          subtitle:
-                              '${active.length} ${active.length == 1 ? 'handover' : 'handovers'}',
+                      TextField(
+                        controller: _search,
+                        onChanged: (_) => setState(() {}),
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                        decoration: InputDecoration(
+                          labelText: 'Search inspections',
+                          hintText: 'Property, tenant or check-in / check-out',
+                          suffixIcon: _search.text.isEmpty
+                              ? null
+                              : IconButton(
+                                  tooltip: 'Clear search',
+                                  onPressed: () => setState(_search.clear),
+                                  icon: const Icon(Icons.close),
+                                ),
                         ),
-                        const SizedBox(height: 12),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final filter in _InspectionFilter.values)
+                            ChoiceChip(
+                              label: Text(
+                                '${filter.label} · ${inspections.where((inspection) => filter.includes(inspection.status)).length}',
+                              ),
+                              selected: _filter == filter,
+                              onSelected: (_) => setState(() => _filter = filter),
+                              selectedColor: KiviloColors.ink,
+                              backgroundColor: Colors.white,
+                              checkmarkColor: Colors.white,
+                              labelStyle: TextStyle(
+                                color: _filter == filter
+                                    ? Colors.white
+                                    : KiviloColors.body,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              side: BorderSide(
+                                color: _filter == filter
+                                    ? KiviloColors.ink
+                                    : KiviloColors.border,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        '${visible.length} ${visible.length == 1 ? 'report' : 'reports'}'
+                        '${query.isNotEmpty || _filter != _InspectionFilter.all ? ' found' : ''}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 12),
+                      if (visible.isEmpty)
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              children: [
+                                const Icon(
+                                  Icons.inventory_2_outlined,
+                                  size: 32,
+                                  color: KiviloColors.muted,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'No matching inspections',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'Try another property or tenant, or change your filters.',
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 12),
+                                TextButton(
+                                  onPressed: () => setState(() {
+                                    _search.clear();
+                                    _filter = _InspectionFilter.all;
+                                  }),
+                                  child: const Text('Show all inspections'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (visible.isNotEmpty)
                         Wrap(
                           spacing: 16,
-                          runSpacing: 12,
+                          runSpacing: 16,
                           children: [
-                            for (final inspection in active)
+                            for (final inspection in visible)
                               SizedBox(
                                 width: cardWidth,
                                 child: _inspectionCard(inspection),
                               ),
                           ],
                         ),
-                      ],
-                      if (completed.isNotEmpty) ...[
-                        if (active.isNotEmpty) const SizedBox(height: 18),
-                        KiviloSectionHeading(
-                          title: 'Completed',
-                          subtitle:
-                              '${completed.length} signed ${completed.length == 1 ? 'report' : 'reports'}',
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 16,
-                          runSpacing: 12,
-                          children: [
-                            for (final inspection in completed)
-                              SizedBox(
-                                width: cardWidth,
-                                child: _inspectionCard(inspection),
-                              ),
-                          ],
-                        ),
-                      ],
                     ],
                   ],
                 );
@@ -200,20 +297,23 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       borderRadius: BorderRadius.circular(16),
       onTap: () => _openInspection(inspection.id),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: KiviloColors.pinkSoft,
+                color: KiviloColors.canvas,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.fact_check_outlined,
-                color: KiviloColors.pinkDark,
+              child: Icon(
+                inspection.kind == 'CHECK_IN'
+                    ? Icons.login_outlined
+                    : Icons.logout_outlined,
+                size: 21,
+                color: KiviloColors.body,
               ),
             ),
             const SizedBox(width: 14),
@@ -222,19 +322,22 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    inspection.kindLabel,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
                     inspection.property,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
-                    '${inspection.kindLabel} · ${inspection.tenant}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    inspection.tenant,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -265,10 +368,10 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          const Icon(
-            Icons.fact_check_outlined,
-            size: 36,
-            color: KiviloColors.subtle,
+          const KiviloIllustration(
+            scene: KiviloScene.handover,
+            width: 200,
+            height: 120,
           ),
           const SizedBox(height: 14),
           Text(
@@ -279,7 +382,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
           Text(
             _api.offlineCopy
                 ? 'Connect to create a new check-in.'
-                : 'Start a check-in when you next hand over a unit.',
+                : 'Start a check-in for your next handover. Your inventory, photos and signed report will live here.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -302,6 +405,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     required String body,
     required Widget action,
   }) => ListView(
+    physics: const AlwaysScrollableScrollPhysics(),
     children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(32, 80, 32, 32),

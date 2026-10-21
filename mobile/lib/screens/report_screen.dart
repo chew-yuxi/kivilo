@@ -9,6 +9,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/page_context_title.dart';
 import '../ui/tenant_handover.dart';
 import 'photo_mark_screen.dart';
 import 'signature_screen.dart';
@@ -412,12 +413,15 @@ class _ReportScreenState extends State<ReportScreen> {
       final report = snapshot.data;
       return Scaffold(
         appBar: AppBar(
-          title: Text(
-            report == null
+          centerTitle: false,
+          toolbarHeight: 72,
+          title: PageContextTitle(
+            title: report == null
                 ? 'Report'
                 : report.isCheckOut
                 ? 'Check-out report'
                 : 'Check-in report',
+            contextLabel: report?.property ?? 'Property report',
           ),
         ),
         body: KiviloContent(maxWidth: 960, child: snapshot.hasError

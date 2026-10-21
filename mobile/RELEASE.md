@@ -12,6 +12,46 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Illustrated onboarding: artwork live, native changes unreleased
+
+The native Home, handover guide and empty states load public decorative artwork from
+`<API_BASE origin>/illustrations/<content-hashed filename>.webp`. The eight files in
+`public/illustrations/` and the narrow cache header in `next.config.ts` are live on
+`https://kivilo.nottoosweetlabs.com`, deployed automatically by Vercel after commit
+`ddb4012a61a747fab81c86197468645ea508c492` was pushed to `main` on 21 October 2026.
+All eight URLs were verified without a session: HTTP 200, `image/webp`, exact hashes,
+preserved transparency and `Cache-Control: public, max-age=31536000, immutable`.
+Production deployment: `7221229836` (GitHub), Vercel `9bkzYZALRdaRR5sXBnJt8iyUFeWn`.
+Keep previously published hashed files: older installed versions still reference
+them. These are public brand images; property evidence remains in the private
+captures bucket.
+
+Original PNGs live in `mobile/design/illustrations/`, outside the app bundle and public
+hosting. Regenerate the 192px thumbnails and 768px artwork from the repository root
+with `pnpm exec tsx scripts/optimize-illustrations.ts`; sizes, dimensions and hashes
+are recorded in `mobile/design/illustration-assets.json`. Update the native rendition
+map when artwork changes. WebP preserves transparency and strips metadata. The app
+uses disk and memory caching, limits decoded pixels to the displayed size, and keeps
+the guidance and actions available if an illustration cannot load.
+
+No images, plugins or configuration are added to the installed app bundle. This
+removes the bundled-asset obstacle to a Dart-only Shorebird patch; normal native,
+asset and icon compatibility checks still apply, with no overrides. Yuxi authorized
+publication on 21 October after artwork deployment. No store submission, version or
+published patch has changed yet.
+The hosting commit was built on current production/main `292a0b5` in a clean worktree
+and contains only the eight WebPs and their cache header. Native design changes are
+integrated with the inventory-first room changes from `292a0b5` and remain unreleased.
+Build their patch from a pinned, tested commit.
+
+The unified native tree passed Flutter analysis and all **276 mobile tests** on
+21 October, including the inventory-first capture/markup tests and 12 artwork-cache
+tests. The source icon checks against iOS `7161f53` and Android `ce0d8e3` printed
+nothing. Native configuration, dependencies, version and bundled assets are unchanged
+from those releases. These source checks do not replace Shorebird's build-time native
+and asset compatibility checks. Patch building and publication await a configured
+release environment; no patch build or publication has occurred here.
+
 ## Inventory-first room capture: unreleased source
 
 Rooms now lead with inventory. Opening an item shows its details and media; new
@@ -24,10 +64,11 @@ it, and upload waits for Save photo; an interrupted editor resumes through Finis
 marking. Queue schema 7 preserves the item ID and this hold across restarts. Picker
 intake also preserves the original owner/room/item and the entire library selection.
 
-Deploy the backend's optional capture `itemId` and `itemApplied` acknowledgement
-before releasing the app patch. No server migration, plugin, native configuration,
-version or asset change is needed. This source has not been deployed or published
-as a Shorebird patch. The iOS review freeze remains in force.
+The backend's optional capture `itemId` and `itemApplied` acknowledgement are included
+in `292a0b5`, the parent of the live hosting deployment `ddb4012` recorded above. No
+server migration, plugin, native configuration, version or bundled asset change is
+needed. Native changes have not been published as a Shorebird patch. The iOS review
+freeze remains in force.
 
 Verification: clean Flutter analysis, 238 mobile tests, server typecheck/lint/build,
 98 unit tests and 160 integration tests. All 14 end-to-end cases passed, with one

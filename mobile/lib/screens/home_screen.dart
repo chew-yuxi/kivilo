@@ -7,6 +7,8 @@ import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/handover_guide.dart';
+import '../ui/kivilo_illustration.dart';
 import 'inspection_screen.dart';
 import 'inspections_screen.dart';
 import 'new_inspection_screen.dart';
@@ -72,21 +74,21 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted || id == null) return;
     await Navigator.of(
       context,
-    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
+    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)));
     if (mounted) await _refresh();
   }
 
   Future<void> _openReport(String id) async {
     await Navigator.of(
       context,
-    ).push<void>(MaterialPageRoute(builder: (_) => ReportScreen(id: id)));
+    ).push<void>(MaterialPageRoute(builder: (_) => ReportScreen(id: id, api: _api)));
     if (mounted) await _refresh();
   }
 
   Future<void> _openInspection(String id) async {
     await Navigator.of(
       context,
-    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
+    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)));
     if (mounted) await _refresh();
   }
 
@@ -113,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 titleSpacing: 16,
                 title: const Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [KiviloMark(), SizedBox(width: 10), Text('Kivilo')],
+                  children: [KiviloMark(size: 28), SizedBox(width: 10), Text('Home')],
                 ),
                 actions: [
                   IconButton(
@@ -261,10 +263,13 @@ class _HomeScreenState extends State<HomeScreen> {
               }
 
               final (profile, tenancies, inspections) = snapshot.data!;
-              final active = inspections.where(
-                (item) => item.status != 'COMPLETED',
+              final inProgress = inspections.where(
+                (item) => !['COMPLETED', 'AWAITING_SIGNATURE'].contains(item.status),
               );
-              final current = active.isEmpty ? null : active.first;
+              final awaiting = inspections.where(
+                (item) => item.status == 'AWAITING_SIGNATURE',
+              );
+              final current = inProgress.firstOrNull ?? awaiting.firstOrNull;
               final firstName = profile.name.trim().split(RegExp(r'\s+')).first;
               final hour = DateTime.now().hour;
               final greeting = hour < 12
@@ -278,12 +283,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   final available = constraints.maxWidth - 32;
                   final columns = available >= 680 ? 2 : 1;
                   final cardWidth = (available - (columns - 1) * 16) / columns;
-                  final workCard = _workCard(current);
-                  final newCheckIn = _quickAction(
-                    icon: Icons.add_home_work_outlined,
-                    title: 'New check-in',
-                    subtitle: 'Start a room-by-room property report',
-                    onTap: _create,
+                  final nextStep = Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _workCard(current),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            '${inProgress.length} in progress · ${awaiting.length} awaiting signatures',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          TextButton.icon(
+                            onPressed: () => _selectTab(1),
+                            icon: const Icon(Icons.chevron_right, size: 18),
+                            iconAlignment: IconAlignment.end,
+                            label: const Text('View inspections'),
+                          ),
+                          if (current != null)
+                            TextButton.icon(
+                              onPressed: _create,
+                              icon: const Icon(Icons.add, size: 18),
+                              label: const Text('New check-in'),
+                            ),
+                        ],
+                      ),
+                    ],
                   );
                   return ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -293,11 +321,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         '$greeting, $firstName',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         _partyOnly
                             ? 'Your reports, repairs and history, in one place.'
-                            : 'Your handovers, all in one place.',
+                            : 'A clear next step for every handover.',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 24),
@@ -306,22 +334,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: workCard),
-                              const SizedBox(width: 16),
-                              Expanded(child: newCheckIn),
+                              Expanded(child: nextStep),
+                              const SizedBox(width: 24),
+                              const Expanded(child: HandoverGuide()),
                             ],
                           )
                         else ...[
-                          workCard,
-                          const SizedBox(height: 12),
-                          newCheckIn,
+                          nextStep,
+                          const SizedBox(height: 24),
+                          const HandoverGuide(),
                         ],
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 32),
+                      ],
+                      if (tenancies.isNotEmpty) ...[
                         KiviloSectionHeading(
                           title: 'Your properties',
-                          subtitle: tenancies.isEmpty
-                              ? null
-                              : '${tenancies.length} active ${tenancies.length == 1 ? 'tenancy' : 'tenancies'}',
+                          subtitle: 'Repairs, records and the people who live there.',
                         ),
                         const SizedBox(height: 12),
                       ],
@@ -359,105 +387,123 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 
-  Widget _workCard(InspectionSummary? current) => Card(
-    color: KiviloColors.canvas,
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            current == null
-                ? 'READY FOR YOUR NEXT HANDOVER'
-                : 'PICK UP WHERE YOU LEFT OFF',
-            style: const TextStyle(
-              color: KiviloColors.muted,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            current?.property ?? 'A clearer record starts here.',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            current == null
-                ? 'Capture each room, write its inventory, then sign with both parties.'
-                : '${current.kindLabel} · ${current.tenant} · ${current.rooms} ${current.rooms == 1 ? 'room' : 'rooms'}',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
-          FilledButton(
-            onPressed: current == null
-                ? _create
-                : () => _openInspection(current.id),
-            child: Text(
-              current == null ? 'Start check-in' : 'Continue inspection',
-            ),
-          ),
-        ],
+  Widget _workCard(InspectionSummary? current) {
+    final awaiting = current?.status == 'AWAITING_SIGNATURE';
+    final firstRoom = current != null && current.rooms == 0 && !awaiting;
+    final compactArt = MediaQuery.sizeOf(context).height < 700 ||
+        MediaQuery.textScalerOf(context).scale(14) > 18;
+    final scene = awaiting
+        ? KiviloScene.sign
+        : current?.status == 'REVIEW'
+        ? KiviloScene.inventory
+        : current == null || firstRoom
+        ? KiviloScene.handover
+        : KiviloScene.capture;
+    final eyebrow = Text(
+      current == null
+          ? 'YOUR NEXT HANDOVER'
+          : awaiting
+          ? 'WAITING FOR SIGNATURES'
+          : 'YOUR NEXT STEP',
+      style: const TextStyle(
+        color: KiviloColors.pinkDark,
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.1,
       ),
-    ),
-  );
-
-  Widget _quickAction({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) => Card(
-    child: InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
+    );
+    return Card(
+      color: KiviloColors.pinkSoft,
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: KiviloColors.pinkSoft,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: KiviloColors.pinkDark),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (compactArt)
+              Row(
                 children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 3),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                  Expanded(child: eyebrow),
+                  const SizedBox(width: 12),
+                  KiviloIllustration(scene: scene, width: 96, height: 64),
                 ],
+              )
+            else ...[
+              eyebrow,
+              const SizedBox(height: 8),
+              KiviloIllustration(
+                scene: scene,
+                height: 124,
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              current == null
+                  ? 'Great handovers start\nwith a clear record.'
+                  : awaiting
+                  ? 'Bring everyone onto\nthe same page.'
+                  : firstRoom
+                  ? 'Start with the first room.'
+                  : 'One room at a time.',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            const SizedBox(height: 14),
+            if (current != null) ...[
+              Text(
+                current.property,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${current.kindLabel} · ${current.tenant}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+            ],
+            Text(
+              current == null
+                  ? 'Add the property and tenancy. We’ll guide you from the first photo to the signed report.'
+                  : awaiting
+                  ? 'The inventory is frozen. Check who still needs to sign, or send their signing email again.'
+                  : firstRoom
+                  ? 'Add a room, take photos, then write down what you find.'
+                  : 'Open a room, choose an inventory item, then add photos and check its condition before reviewing the room.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: current == null
+                  ? _create
+                  : () => _openInspection(current.id),
+              icon: const Icon(Icons.chevron_right, size: 20),
+              iconAlignment: IconAlignment.end,
+              label: Text(
+                current == null
+                    ? 'Start check-in'
+                    : awaiting
+                    ? 'Check signatures'
+                    : firstRoom
+                    ? 'Add your first room'
+                    : 'Continue inspection',
               ),
             ),
-            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _propertyCard(
     TenancySummary tenancy,
     List<InspectionSummary> inspections,
   ) {
-    final active = inspections
-        .where((inspection) => inspection.status != 'COMPLETED')
-        .firstOrNull;
-    final target = active ?? inspections.firstOrNull;
-    final actionLabel = active == null ? 'View latest report' : 'Resume';
+    final target = inspections.firstOrNull;
+    final current = inspections.where(
+      (inspection) => !['AWAITING_SIGNATURE', 'COMPLETED'].contains(inspection.status),
+    ).firstOrNull;
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: target == null
-            ? () => _openTenancy(tenancy)
-            : () => _openInspection(target.id),
+        onTap: () => _openTenancy(tenancy, currentInspection: current),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -469,18 +515,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: active == null
-                          ? KiviloColors.canvas
-                          : KiviloColors.pinkSoft,
+                      color: KiviloColors.canvas,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      active == null
-                          ? Icons.home_outlined
-                          : Icons.fact_check_outlined,
-                      color: active == null
-                          ? KiviloColors.body
-                          : KiviloColors.pinkDark,
+                      Icons.home_outlined,
+                      color: KiviloColors.body,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -496,9 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          active == null
-                              ? '${_roleLabel(tenancy.role)} · ${tenancy.inspections} ${tenancy.inspections == 1 ? 'inspection' : 'inspections'}'
-                              : '${active.kindLabel} in progress · ${active.rooms} ${active.rooms == 1 ? 'room' : 'rooms'}',
+                          '${_roleLabel(tenancy.role)} · ${tenancy.tenant}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -508,30 +546,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 14),
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
                 children: [
+                  TextButton(
+                    onPressed: () => _openTenancy(tenancy, currentInspection: current),
+                    child: const Text('Open property'),
+                  ),
                   if (target != null)
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () => _openInspection(target.id),
-                        child: Text(actionLabel),
-                      ),
+                    TextButton(
+                      onPressed: () => _openInspection(target.id),
+                      child: Text('Open ${target.kindLabel.toLowerCase()}'),
                     )
                   else if (tenancy.latestReportId != null)
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () => _openReport(tenancy.latestReportId!),
-                        child: const Text('View report'),
-                      ),
+                    TextButton(
+                      onPressed: () => _openReport(tenancy.latestReportId!),
+                      child: const Text('View report'),
                     ),
-                  if (target != null || tenancy.latestReportId != null)
-                    const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _openTenancy(tenancy),
-                      child: const Text('Maintenance'),
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -601,9 +633,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _openTenancy(TenancySummary tenancy) async {
+  Future<void> _openTenancy(
+    TenancySummary tenancy, {
+    InspectionSummary? currentInspection,
+  }) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => TenancyScreen(tenancy: tenancy)),
+      MaterialPageRoute<void>(
+        builder: (_) => TenancyScreen(
+          tenancy: tenancy,
+          currentInspection: currentInspection,
+          api: _api,
+        ),
+      ),
     );
     if (mounted) await _refresh();
   }
@@ -613,7 +654,11 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          const Icon(Icons.home_outlined, color: KiviloColors.subtle, size: 32),
+          const KiviloIllustration(
+            scene: KiviloScene.handover,
+            width: 180,
+            height: 100,
+          ),
           const SizedBox(height: 12),
           Text(
             'No properties yet',
