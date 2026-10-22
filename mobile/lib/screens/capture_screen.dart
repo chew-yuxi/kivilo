@@ -69,9 +69,16 @@ class _CaptureScreenState extends State<CaptureScreen> {
   bool _leaving = false;
   bool _finishing = false;
   bool _loadingRoom = false;
+  Future<void>? _roomLoad;
+  bool _reloadRoom = false;
   bool _offline = false;
   String? _error;
   List<PendingCapture>? _pendingCaptures;
+  // Display-only handovers keep the same card alive after SQLite confirms upload.
+  // They never keep bytes in the queue or count as unfinished uploads.
+  final Map<int, PendingCapture> _handingOver = {};
+  final Set<int> _deletedCaptures = {};
+  final List<String> _localCaptureOrder = [];
   List<PendingRemoteEdit>? _remoteEdits;
   List<String> _unresolved = const [];
   StreamSubscription<List<PendingCapture>>? _captureSubscription;
@@ -102,14 +109,32 @@ class _CaptureScreenState extends State<CaptureScreen> {
     _captureSubscription = _queue
         .watch(widget.roomId, ownerId: _ownerId)
         .listen((captures) {
+          if (!mounted) return;
           final remaining = captures.map((capture) => capture.id).toSet();
           final handedOver =
               _pendingCaptures?.any(
                 (capture) => !remaining.contains(capture.id),
               ) ==
               true;
-          if (mounted) setState(() => _pendingCaptures = captures);
-          if (mounted && handedOver) unawaited(_loadRoom());
+          setState(() {
+            for (final capture in _pendingCaptures ?? <PendingCapture>[]) {
+              if (!remaining.contains(capture.id) &&
+                  !capture.deleteRequested &&
+                  !_deletedCaptures.contains(capture.id) &&
+                  (widget.itemId == null || capture.itemId == widget.itemId)) {
+                _handingOver[capture.id] = capture;
+              }
+            }
+            for (final capture in captures) {
+              _handingOver.remove(capture.id);
+              final key = _pendingKey(capture);
+              if (!_localCaptureOrder.contains(key)) {
+                _localCaptureOrder.add(key);
+              }
+            }
+            _pendingCaptures = captures;
+          });
+          if (handedOver) unawaited(_refreshHandovers());
         }, onError: _queueError);
     _editSubscription = _queue
         .watchRemoteEditsFor(_ownerId, widget.inspectionId)
@@ -168,8 +193,52 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
-  Future<void> _loadRoom() async {
+  String _pendingKey(PendingCapture capture) =>
+      capture.clientId ?? capture.uploadedId ?? 'pending:${capture.id}';
+
+  Future<void> _refreshHandovers() async {
+    try {
+      // The stream may coalesce registration and removal into one update. Use
+      // the durable, owner-scoped receipt to distinguish uploads from discards.
+      for (final capture in _handingOver.values.toList()) {
+        if (capture.uploadedId != null) continue;
+        final serverId = capture.clientId == null
+            ? null
+            : await _queue.serverIdForClient(
+                _ownerId,
+                widget.inspectionId,
+                capture.clientId!,
+              );
+        if (!mounted) return;
+        if (serverId == null) {
+          setState(() => _handingOver.remove(capture.id));
+        }
+      }
+      await _loadRoom();
+    } catch (error) {
+      _queueError(error);
+    }
+  }
+
+  Future<void> _loadRoom() {
+    _reloadRoom = true;
+    return _roomLoad ??= _loadLatestRoom();
+  }
+
+  Future<void> _loadLatestRoom() async {
     if (mounted) setState(() => _loadingRoom = true);
+    try {
+      do {
+        _reloadRoom = false;
+        await _readRoom();
+      } while (_reloadRoom && mounted);
+    } finally {
+      _roomLoad = null;
+      if (mounted) setState(() => _loadingRoom = false);
+    }
+  }
+
+  Future<void> _readRoom() async {
     try {
       if ((widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id) !=
           _ownerId) {
@@ -180,17 +249,28 @@ class _CaptureScreenState extends State<CaptureScreen> {
           _ownerId) {
         throw const ApiFailure('Account changed. Open this room again.', 401);
       }
-      if (mounted) {
+      if (mounted && !_reloadRoom) {
         setState(() {
           _room = detail;
           _offline = _api.offlineCopy;
+          // Retire only when the saved photo is visible in this room/item. A
+          // cached or overlapping response can still lack its item association.
+          final visible = _visibleCaptures;
+          _handingOver.removeWhere(
+            (_, local) => visible.any(
+              (saved) =>
+                  saved.id == local.uploadedId ||
+                  (local.clientId != null && saved.clientId == local.clientId),
+            ),
+          );
           _error = null;
         });
       }
     } on ApiFailure catch (error) {
-      if (mounted) {
+      if (mounted && !_reloadRoom) {
         setState(() {
           _room = null;
+          if (error.statusCode != null) _handingOver.clear();
           _offline = false;
           _error = error.statusCode == null
               ? 'Room has not been loaded on this phone. Connect once to open it.'
@@ -198,13 +278,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
         });
       }
     } catch (error) {
-      if (mounted) {
+      if (mounted && !_reloadRoom) {
         setState(
           () => _error = 'Could not open this room. ${plainError(error)}',
         );
       }
-    } finally {
-      if (mounted) setState(() => _loadingRoom = false);
     }
   }
 
@@ -460,7 +538,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
           root: root,
           ownerId: _ownerId,
         ).drain().then((moved) async {
-          if (moved) await _loadRoom();
+          if (moved || _handingOver.isNotEmpty) await _loadRoom();
         });
     _uploading = future;
     try {
@@ -745,6 +823,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
       }
       await _queue.queueRemoteDelete(_ownerId, widget.inspectionId, serverId);
     }
+    if (mounted) {
+      setState(() {
+        _deletedCaptures.add(capture.id);
+        _handingOver.remove(capture.id);
+      });
+    }
     unawaited(_drain());
   }
 
@@ -834,7 +918,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
     );
   }
 
-  Widget _pendingCaptureCard(PendingCapture capture) {
+  Widget _pendingCaptureProgress(PendingCapture capture) {
     final update = capture.clientId == null
         ? null
         : _syncUpdates[capture.clientId!];
@@ -848,24 +932,6 @@ class _CaptureScreenState extends State<CaptureScreen> {
         capture.uploadedId != null &&
         !capture.registrationAnnotationsApplied &&
         capture.annotations != null;
-    final stage = capture.awaitingMarkup
-        ? 'Ready to mark'
-        : annotationError
-        ? 'Marks need attention'
-        : capture.lastError != null
-        ? 'Upload paused'
-        : switch (update?.stage) {
-            EvidenceSyncStage.preparing => 'Preparing secure upload',
-            EvidenceSyncStage.uploading => 'Uploading',
-            EvidenceSyncStage.registering =>
-              widget.itemId == null ? 'Adding to room' : 'Adding to item',
-            EvidenceSyncStage.finalizing => 'Uploading notes and marks',
-            EvidenceSyncStage.failed => 'Upload paused',
-            _ =>
-              capture.claimedAt == null
-                  ? 'Saved safely · waiting to upload'
-                  : 'Preparing secure upload',
-          };
     final message = annotationError
         ? 'The photo uploaded, but its marks did not. Try again, or edit the marks.'
         : capture.lastError;
@@ -876,102 +942,60 @@ class _CaptureScreenState extends State<CaptureScreen> {
       color: capture.lastError == null ? KiviloColors.muted : KiviloColors.red,
     );
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        children: [
-          ListTile(
-            onTap: capture.kind == 'PHOTO'
-                ? () => unawaited(_markQueued(capture))
-                : null,
-            contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 0),
-            leading: capture.kind == 'PHOTO' && _root != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File('${_root!.path}/${capture.relativePath}'),
-                      width: 56,
-                      height: 56,
-                      cacheWidth: (56 * MediaQuery.devicePixelRatioOf(context))
-                          .ceil(),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
-                    ),
-                  )
-                : const SizedBox(
-                    width: 56,
-                    child: Icon(
-                      Icons.videocam_outlined,
-                      color: KiviloColors.muted,
-                    ),
-                  ),
-            title: Text(
-              capture.note?.isNotEmpty == true
-                  ? capture.note!
-                  : capture.kind == 'PHOTO'
-                  ? 'Photo on this phone'
-                  : 'Video on this phone',
-            ),
-            subtitle: Text(stage, style: TextStyle(color: color)),
-            trailing: IconButton(
-              onPressed: () => unawaited(_openQueuedActions(capture)),
-              icon: const Icon(Icons.more_horiz),
-              tooltip: 'Media actions',
+    return Column(
+      children: [
+        if (capture.awaitingMarkup)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: OutlinedButton.icon(
+              onPressed: () => _markQueued(capture),
+              icon: const Icon(Icons.gesture_outlined),
+              label: const Text('Finish marking'),
             ),
           ),
-          if (capture.awaitingMarkup)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: OutlinedButton.icon(
-                onPressed: () => _markQueued(capture),
-                icon: const Icon(Icons.gesture_outlined),
-                label: const Text('Finish marking'),
-              ),
-            ),
-          if (!capture.awaitingMarkup)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  KiviloProgressBar(
-                    value: capture.lastError == null ? progress : null,
-                    color: color,
+        if (!capture.awaitingMarkup)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KiviloProgressBar(
+                  value: capture.lastError == null ? progress : null,
+                  color: color,
+                ),
+                const SizedBox(height: 6),
+                if (message != null)
+                  Text(message, style: detailStyle)
+                else
+                  // The figures roll digit by digit, NumberFlow style, rather than
+                  // flickering as each progress event lands.
+                  Row(
+                    children: [
+                      // All of the line is NumberFlow's own text: beside a plain Text
+                      // its glyphs sit a pixel higher.
+                      NumberFlow(
+                        value: (progress * 100).round(),
+                        suffix: '% · ',
+                        style: detailStyle,
+                        tabularNums: true,
+                      ),
+                      NumberFlow(
+                        value: sent.value,
+                        format: NumberFlowFormat.decimal(
+                          minFraction: sent.digits,
+                          maxFraction: sent.digits,
+                        ),
+                        suffix:
+                            ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
+                        style: detailStyle,
+                        tabularNums: true,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 6),
-                  if (message != null)
-                    Text(message, style: detailStyle)
-                  else
-                    // The figures roll digit by digit, NumberFlow style, rather than
-                    // flickering as each progress event lands.
-                    Row(
-                      children: [
-                        // All of the line is NumberFlow's own text: beside a plain Text
-                        // its glyphs sit a pixel higher.
-                        NumberFlow(
-                          value: (progress * 100).round(),
-                          suffix: '% · ',
-                          style: detailStyle,
-                          tabularNums: true,
-                        ),
-                        NumberFlow(
-                          value: sent.value,
-                          format: NumberFlowFormat.decimal(
-                            minFraction: sent.digits,
-                            maxFraction: sent.digits,
-                          ),
-                          suffix:
-                              ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
-                          style: detailStyle,
-                          tabularNums: true,
-                        ),
-                      ],
-                    ),
-                ],
-              ),
+              ],
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
@@ -1008,7 +1032,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
         pending.isNotEmpty ||
         roomEdits.isNotEmpty ||
         _unresolved.isNotEmpty;
-    final hasMedia = pending?.isNotEmpty == true || uploadedCaptures.isNotEmpty;
+    final hasMedia =
+        pending?.isNotEmpty == true ||
+        uploadedCaptures.isNotEmpty ||
+        _handingOver.values.any(
+          (capture) => widget.itemId == null || capture.itemId == widget.itemId,
+        );
     final checkIn = _room?.checkIn;
     final baseline = checkIn?.lines
         .where((line) => line.key == item?.baselineKey)
@@ -1217,9 +1246,43 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
               ),
             ];
-            final queued = (pending ?? const <PendingCapture>[]).reversed
-                .toList();
-            final uploaded = uploadedCaptures.reversed.toList();
+            final captures =
+                <String, ({PendingCapture? pending, EvidenceCapture? saved})>{
+                  for (final capture in uploadedCaptures.reversed)
+                    capture.clientId ?? capture.id: (
+                      pending: null,
+                      saved: capture,
+                    ),
+                };
+            for (final capture in [
+              ..._handingOver.values,
+              ...pending ?? <PendingCapture>[],
+            ]) {
+              if (widget.itemId != null && capture.itemId != widget.itemId) {
+                continue;
+              }
+              final key = _pendingKey(capture);
+              final server = captures[key]?.saved;
+              captures[key] = (pending: capture, saved: server);
+            }
+            final localKeys = _localCaptureOrder.toSet();
+            final keys = [
+              for (final key in _localCaptureOrder.reversed)
+                if (captures.containsKey(key)) key,
+              for (final key in captures.keys)
+                if (!localKeys.contains(key)) key,
+            ];
+            Widget cardAt(int index) {
+              final key = keys[index];
+              final capture = captures[key]!;
+              return _captureCard(
+                key,
+                pending: capture.pending,
+                saved: capture.saved,
+                wide: wide,
+              );
+            }
+
             final media = <Widget>[
               KiviloSectionHeading(
                 title: widget.itemId == null ? 'Media' : 'Item media',
@@ -1232,19 +1295,18 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   child: ListView.builder(
                     key: PageStorageKey('capture-media-${widget.roomId}'),
                     primary: false,
-                    itemCount: queued.length + uploaded.length,
-                    itemBuilder: (_, index) => index < queued.length
-                        ? _pendingCaptureCard(queued[index])
-                        : _serverCaptureCard(
-                            uploaded[index - queued.length],
-                            wide: true,
-                          ),
+                    itemCount: keys.length,
+                    findChildIndexCallback: (key) {
+                      final index = keys.indexOf(
+                        (key as ValueKey<String>).value,
+                      );
+                      return index < 0 ? null : index;
+                    },
+                    itemBuilder: (_, index) => cardAt(index),
                   ),
                 )
               else ...[
-                for (final capture in queued) _pendingCaptureCard(capture),
-                for (final capture in uploaded)
-                  _serverCaptureCard(capture, wide: false),
+                for (var index = 0; index < keys.length; index++) cardAt(index),
               ],
             ];
             return ListView(
@@ -1333,46 +1395,115 @@ class _CaptureScreenState extends State<CaptureScreen> {
     );
   }
 
-  Widget _serverCaptureCard(EvidenceCapture capture, {required bool wide}) {
+  Widget _captureCard(
+    String identity, {
+    required PendingCapture? pending,
+    required EvidenceCapture? saved,
+    required bool wide,
+  }) {
+    final handingOver = pending != null && _handingOver.containsKey(pending.id);
+    final kind = pending?.kind ?? saved!.kind;
+    final note = pending != null ? pending.note : saved?.note;
+    final annotations = pending != null
+        ? pending.annotations == null
+              ? null
+              : jsonDecode(pending.annotations!) as Map<String, dynamic>
+        : saved!.annotations;
     final preview = ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
         width: wide ? 112 : 56,
         height: wide ? 84 : 56,
-        child: capture.kind == 'PHOTO'
-            ? MarkedNetworkPhoto(
-                url: capture.url,
-                annotations: capture.annotations,
+        child: kind == 'PHOTO' && (pending == null || _root != null)
+            ? MarkedPhoto(
+                image: pending != null
+                    ? FileImage(File('${_root!.path}/${pending.relativePath}'))
+                    : NetworkImage(saved!.url),
+                annotations: annotations,
                 cacheWidth:
                     ((wide ? 112 : 56) * MediaQuery.devicePixelRatioOf(context))
                         .ceil(),
                 fit: BoxFit.contain,
               )
-            : VideoPoster(posterUrl: capture.posterUrl, iconSize: 24),
+            : VideoPoster(posterUrl: saved?.posterUrl, iconSize: 24),
       ),
     );
     final title = Text(
-      capture.note?.isNotEmpty == true
-          ? capture.note!
-          : (capture.kind == 'PHOTO' ? 'Photo' : 'Video'),
+      note?.isNotEmpty == true
+          ? note!
+          : pending != null
+          ? (kind == 'PHOTO' ? 'Photo on this phone' : 'Video on this phone')
+          : (kind == 'PHOTO' ? 'Photo' : 'Video'),
     );
-    const status = Text(
-      'In the report',
-      style: TextStyle(color: KiviloColors.green),
-    );
+    String status;
+    var color = KiviloColors.green;
+    if (pending == null) {
+      status = 'In the report';
+    } else if (handingOver) {
+      status = 'Uploaded · updating report';
+    } else {
+      final capture = pending;
+      final update = _syncUpdates[capture.clientId];
+      final annotationError =
+          capture.uploadedId != null &&
+          !capture.registrationAnnotationsApplied &&
+          capture.annotations != null;
+      final stage = capture.awaitingMarkup
+          ? 'Ready to mark'
+          : annotationError
+          ? 'Marks need attention'
+          : capture.lastError != null
+          ? 'Upload paused'
+          : switch (update?.stage) {
+              EvidenceSyncStage.preparing => 'Preparing secure upload',
+              EvidenceSyncStage.uploading => 'Uploading',
+              EvidenceSyncStage.registering =>
+                widget.itemId == null ? 'Adding to room' : 'Adding to item',
+              EvidenceSyncStage.finalizing => 'Uploading notes and marks',
+              EvidenceSyncStage.failed => 'Upload paused',
+              _ =>
+                capture.claimedAt == null
+                    ? 'Saved safely · waiting to upload'
+                    : 'Preparing secure upload',
+            };
+
+      status = stage;
+      color = annotationError || capture.lastError != null
+          ? KiviloColors.red
+          : KiviloColors.pink;
+    }
+    final subtitle = Text(status, style: TextStyle(color: color));
     final actions = IconButton(
-      onPressed: () => unawaited(_openServerActions(capture)),
+      onPressed: handingOver
+          ? null
+          : () => unawaited(
+              pending != null
+                  ? _openQueuedActions(pending)
+                  : _openServerActions(saved!),
+            ),
       icon: const Icon(Icons.more_horiz),
       tooltip: 'Media actions',
     );
+    final VoidCallback? open = handingOver
+        ? null
+        : kind == 'PHOTO'
+        ? () => unawaited(
+            pending != null ? _markQueued(pending) : _markServer(saved!),
+          )
+        : pending == null
+        ? () => unawaited(_openServerActions(saved!))
+        : null;
     return Card(
+      key: ValueKey(identity),
       margin: const EdgeInsets.only(bottom: 10),
-      child: wide
-          ? Padding(
+      child: Column(
+        children: [
+          if (wide)
+            Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
               child: Row(
                 children: [
-                  preview,
+                  InkWell(onTap: open, child: preview),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -1383,7 +1514,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           child: title,
                         ),
                         const SizedBox(height: 6),
-                        status,
+                        subtitle,
                       ],
                     ),
                   ),
@@ -1391,16 +1522,18 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 ],
               ),
             )
-          : ListTile(
-              onTap: capture.kind == 'PHOTO'
-                  ? () => unawaited(_markServer(capture))
-                  : () => unawaited(_openServerActions(capture)),
+          else
+            ListTile(
+              onTap: open,
               contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
               leading: preview,
               title: title,
-              subtitle: status,
+              subtitle: subtitle,
               trailing: actions,
             ),
+          if (pending != null && !handingOver) _pendingCaptureProgress(pending),
+        ],
+      ),
     );
   }
 
