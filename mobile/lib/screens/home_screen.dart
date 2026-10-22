@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
+import '../services/workspace.dart';
+import '../ui/workspace_picker.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
@@ -17,6 +19,7 @@ import 'report_screen.dart';
 import 'service_directory_screen.dart';
 import 'settings_screen.dart';
 import 'tenancy_screen.dart';
+import 'team_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.api});
@@ -28,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final _api = widget.api ?? Api();
+  late final _workspace = Workspace(_api);
   late Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _future = _load();
   int _tab = 0;
@@ -42,21 +46,77 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _load() async {
-    final profile = _api.me();
-    final tenancies = _api.tenancies();
-    final inspections = _api.inspections();
-    final loaded = (await profile, await tenancies, await inspections);
+    final profile = await _api.me();
+    final allInspections = profile.roles.contains('AGENT')
+        ? null
+        : await _api.inspections();
     final partyOnly =
-        loaded.$1.roles.isNotEmpty &&
-        !loaded.$1.roles.contains('AGENT') &&
-        loaded.$3.isEmpty;
+        profile.roles.isNotEmpty &&
+        !profile.roles.contains('AGENT') &&
+        allInspections!.isEmpty;
     if (mounted && partyOnly != _partyOnly) {
       setState(() {
         _partyOnly = partyOnly;
         _tab = 0;
       });
     }
-    return loaded;
+    if (partyOnly) return (profile, await _api.tenancies(), allInspections);
+    await _workspace.refresh();
+    if (_workspace.all) {
+      return (
+        profile,
+        await _api.tenancies(),
+        allInspections ?? await _api.inspections(),
+      );
+    }
+    final work = await Future.wait<Object>([
+      _api.tenancyWork(
+        agencyId: _workspace.agency?.id,
+        personal: _workspace.personal,
+      ),
+      _api.inspectionWork(
+        agencyId: _workspace.agency?.id,
+        personal: _workspace.personal,
+      ),
+    ]);
+    return (
+      profile,
+      work[0] as List<TenancySummary>,
+      work[1] as List<InspectionSummary>,
+    );
+  }
+
+  Future<void> _selectWorkspace(String value) async {
+    try {
+      await _workspace.select(value);
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    }
+  }
+
+  Future<void> _teams() async {
+    final selected = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => TeamScreen(api: _api, selectWorkspace: true),
+      ),
+    );
+    if (!mounted) return;
+    try {
+      await _workspace.refresh();
+      if (selected != null) await _workspace.select(selected);
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    }
   }
 
   Future<void> _refresh() async {
@@ -64,17 +124,34 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _future = next;
     });
-    await next;
+    try {
+      await next;
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    }
   }
 
   Future<void> _create() async {
     final id = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => NewInspectionScreen(api: _api)),
+      MaterialPageRoute(
+        builder: (_) => NewInspectionScreen(
+          api: _api,
+          initialAgency: _workspace.all
+              ? _workspace.index.agencies.firstOrNull
+              : _workspace.agency,
+        ),
+      ),
     );
     if (!mounted || id == null) return;
-    await Navigator.of(
-      context,
-    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)));
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => InspectionScreen(id: id, api: _api),
+      ),
+    );
     if (mounted) await _refresh();
   }
 
@@ -176,7 +253,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: switch (_tabs[_tab]) {
-                'inspections' => InspectionsScreen(api: widget.api, trackView: false),
+                'inspections' => InspectionsScreen(
+                  api: _api,
+                  trackView: false,
+                  workspace: _workspace,
+                ),
                 'account' => SettingsScreen(
                   api: _api,
                   trackView: false,
@@ -228,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
           >(
             future: _future,
             builder: (context, snapshot) {
-              if (!snapshot.hasData && !snapshot.hasError) {
+              if (snapshot.connectionState != ConnectionState.done) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
@@ -259,6 +340,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: _refresh,
                       child: const Text('Try again'),
                     ),
+                    if (!_partyOnly && !_workspace.all)
+                      TextButton(
+                        onPressed: () => _selectWorkspace('all'),
+                        child: const Text('Show all my work'),
+                      ),
                   ],
                 );
               }
@@ -331,6 +417,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
                       if (!_partyOnly) ...[
+                        WorkspacePicker(
+                          workspace: _workspace,
+                          compact: true,
+                          onChanged: _selectWorkspace,
+                          onTeams: _teams,
+                        ),
+                        if (_api.offlineCopy) ...[
+                          const Text(
+                            'Offline. Showing previously loaded work.',
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        const SizedBox(height: 12),
                         if (columns == 2)
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,7 +490,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _workCard(InspectionSummary? current) {
     final awaiting = current?.status == 'AWAITING_SIGNATURE';
     final firstRoom = current != null && current.rooms == 0 && !awaiting;
-    final compactArt = MediaQuery.sizeOf(context).height < 700 ||
+    final compactArt =
+        MediaQuery.sizeOf(context).height < 900 ||
         MediaQuery.textScalerOf(context).scale(14) > 18;
     final scene = awaiting
         ? KiviloScene.sign
@@ -431,10 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
             else ...[
               eyebrow,
               const SizedBox(height: 8),
-              KiviloIllustration(
-                scene: scene,
-                height: 124,
-              ),
+              KiviloIllustration(scene: scene, height: 124),
             ],
             const SizedBox(height: 12),
             Text(
@@ -519,10 +616,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: KiviloColors.canvas,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      Icons.home_outlined,
-                      color: KiviloColors.body,
-                    ),
+                    child: Icon(Icons.home_outlined, color: KiviloColors.body),
                   ),
                   const SizedBox(width: 14),
                   Expanded(

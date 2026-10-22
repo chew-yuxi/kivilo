@@ -7,10 +7,16 @@ export const dynamic = 'force-dynamic'
 /// The native client calls this once after sign-in to confirm the token resolves to a
 /// Stakeholder, which is also what creates one on a first-ever sign-in.
 export const GET = authed(async (stakeholder) => {
-  const tenancies = await db.tenancy.findMany({
-    where: tenancyScope(stakeholder.id),
-    select: { id: true, landlordId: true, tenantId: true, agentId: true },
-  })
+  const [tenancies, teamMember] = await Promise.all([
+    db.tenancy.findMany({
+      where: tenancyScope(stakeholder.id),
+      select: { id: true, landlordId: true, tenantId: true, agentId: true },
+    }),
+    db.agencyMembership.findFirst({
+      where: { stakeholderId: stakeholder.id, status: 'ACTIVE' },
+      select: { id: true },
+    }),
+  ])
   const roles = [...new Set(tenancies.map((tenancy) =>
     tenancy.landlordId === stakeholder.id
       ? 'LANDLORD'
@@ -18,6 +24,9 @@ export const GET = authed(async (stakeholder) => {
         ? 'TENANT'
         : 'AGENT',
   ))]
+  // Team members need their workspace even before their first assignment. This is
+  // navigation metadata; every property still goes through the shared scopes.
+  if (teamMember && !roles.includes('AGENT')) roles.push('AGENT')
   return {
     id: stakeholder.id,
     name: stakeholder.name,

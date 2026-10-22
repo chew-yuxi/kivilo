@@ -3,6 +3,7 @@ import { inspectionScope } from '@/lib/auth'
 
 export type InspectionWorkFilters = {
   agencyId?: string
+  personal?: boolean
   assigneeId?: string
   mine?: boolean
   state?: 'active' | 'archived'
@@ -18,6 +19,7 @@ export function inspectionWorkScope(actorId: string, filters: InspectionWorkFilt
   if (filters.agencyId) and.push({ tenancy: {
     agencyId: filters.agencyId, agency: { members: { some: { stakeholderId: actorId, status: 'ACTIVE' } } },
   } })
+  if (filters.personal) and.push({ tenancy: { agencyId: null } })
   if (filters.mine ?? !filters.agencyId) and.push({ OR: [
     { tenancy: { agentId: actorId } },
     { tenancy: { collaborators: { some: { stakeholderId: actorId } } } },

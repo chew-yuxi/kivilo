@@ -56,6 +56,19 @@ class _ManagementApi extends Api {
   Completer<List<InspectionSummary>>? workPending;
   Completer<List<PropertyEntry>>? propertiesPending;
   List<InspectionSummary> personalReports = const [];
+  String? preferredWorkspace;
+  @override
+  Future<String?> workspacePreference() async => preferredWorkspace;
+  @override
+  Future<void> saveWorkspacePreference(String? value) async {
+    preferredWorkspace = value;
+  }
+
+  @override
+  Future<List<RenewalReminder>> renewalWork({
+    String? agencyId,
+    bool personal = false,
+  }) => renewals();
   final changes = <Map<String, dynamic>>[];
   final answers = <bool>[];
   final assignments = <Map<String, dynamic>>[];
@@ -201,6 +214,7 @@ class _ManagementApi extends Api {
   Future<List<InspectionSummary>> inspectionWork({
     String? agencyId,
     String? assigneeId,
+    bool personal = false,
   }) async {
     queries.add((agencyId, assigneeId));
     if (workFailure != null) throw workFailure!;
@@ -448,16 +462,17 @@ void main() {
     (tester) async {
       final api = _ManagementApi();
       await _open(tester, InspectionsScreen(api: api));
-      await tester.tap(find.text('Team work'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Green Agency'));
-      await tester.pumpAndSettle();
       expect(api.queries, [('team', null)]);
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.tap(find.byType(DropdownButtonFormField<String>).last);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Working Agent').last);
       await tester.pumpAndSettle();
       expect(api.queries.last, ('team', 'agent'));
+      api.canManage = false;
+      await tester.widget<RefreshIndicator>(find.byType(RefreshIndicator)).onRefresh();
+      await tester.pumpAndSettle();
+      expect(api.queries.last, ('team', null));
+      expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
     },
   );
 
@@ -555,14 +570,10 @@ void main() {
       final api = _ManagementApi()
         ..workFailure = const ApiFailure('Team access was removed.', 404);
       await _open(tester, InspectionsScreen(api: api));
-      await tester.tap(find.text('Team work'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Green Agency'));
-      await tester.pumpAndSettle();
       expect(find.text('Team access was removed.'), findsOneWidget);
-      await tester.tap(find.text('Return to My work'));
+      await tester.tap(find.text('Show all my work'));
       await tester.pumpAndSettle();
-      expect(find.text('My work'), findsOneWidget);
+      expect(find.text('All my work'), findsOneWidget);
       expect(find.text('Team access was removed.'), findsNothing);
       expect(api.queries, [('team', null)]);
       expect(tester.takeException(), isNull);
@@ -573,6 +584,7 @@ void main() {
     'changing work scope hides prior-scope reports until the new result arrives',
     (tester) async {
       final api = _ManagementApi()
+        ..preferredWorkspace = 'all'
         ..personalReports = const [
           InspectionSummary(
             id: 'mine',
@@ -586,7 +598,7 @@ void main() {
         ..workPending = Completer<List<InspectionSummary>>();
       await _open(tester, InspectionsScreen(api: api));
       expect(find.text('Personal home'), findsOneWidget);
-      await tester.tap(find.text('Team work'));
+      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Green Agency'));
       await tester.pump(const Duration(milliseconds: 400));

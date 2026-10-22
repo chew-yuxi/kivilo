@@ -3,6 +3,7 @@ import { leadTenancies } from '@/lib/auth'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { propertyLabel } from '@/lib/format'
 import type { Prisma } from '@/generated/prisma'
+import type { InspectionWorkFilters } from '@/lib/inspection-work'
 
 /// Calendar months, clamped at month end: 31 May reminds on 28/29 February.
 /// Tenancy dates are stored at UTC midnight; no server timezone enters the calculation.
@@ -31,11 +32,22 @@ function pendingRenewals(now: Date): Prisma.TenancyWhereInput {
   }
 }
 
-/// Only the lead receives the renewal card: creating a next term decides who may work
-/// on it. The card is derived immediately, without waiting for a cron run.
-export async function dueRenewals(agentId: string, now = new Date()) {
+/// The lead and team managers can renew a tenancy. Workspace filters narrow those
+/// cards without granting access or changing the cron's lead-only delivery.
+export async function dueRenewals(
+  agentId: string,
+  now = new Date(),
+  filters: Pick<InspectionWorkFilters, 'agencyId' | 'personal' | 'mine'> = {},
+) {
+  const scope: Prisma.TenancyWhereInput[] = [leadTenancies(agentId), pendingRenewals(now)]
+  if (filters.agencyId) scope.push({
+    agencyId: filters.agencyId,
+    agency: { members: { some: { stakeholderId: agentId, status: 'ACTIVE' } } },
+  })
+  if (filters.personal) scope.push({ agencyId: null })
+  if (filters.mine) scope.push({ agentId })
   const tenancies = await db.tenancy.findMany({
-    where: { AND: [leadTenancies(agentId), pendingRenewals(now)] },
+    where: { AND: scope },
     include: { property: true, tenant: { select: { name: true } } },
     orderBy: { endDate: 'asc' },
   })

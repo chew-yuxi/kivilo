@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/inspection.dart';
+import 'package:kivilo/models/agency.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/home_screen.dart';
@@ -15,6 +16,29 @@ class _WorkspaceApi extends Api {
   int inspectionReads = 0;
   int renewalReads = 0;
 
+  @override
+  Future<AgencyIndex> agencies() async =>
+      const AgencyIndex(agencies: [], invitations: []);
+  @override
+  Future<String?> workspacePreference() async => null;
+  @override
+  Future<void> saveWorkspacePreference(String? value) async {}
+  @override
+  Future<List<InspectionSummary>> inspectionWork({
+    String? agencyId,
+    String? assigneeId,
+    bool personal = false,
+  }) => inspections();
+  @override
+  Future<List<TenancySummary>> tenancyWork({
+    String? agencyId,
+    bool personal = false,
+  }) => tenancies();
+  @override
+  Future<List<RenewalReminder>> renewalWork({
+    String? agencyId,
+    bool personal = false,
+  }) => renewals();
   @override
   Future<UserProfile> me() async => UserProfile(
     id: 'agent',
@@ -169,6 +193,8 @@ void main() {
 
       tester.view.physicalSize = const Size(768, 1024);
       await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.pumpAndSettle();
       final narrowFirst = tester.getRect(
         _cardWith('Property 1 at Cairnhill Rise'),
       );
@@ -213,6 +239,8 @@ void main() {
       expect(tester.takeException(), isNull);
 
       tester.view.physicalSize = const Size(520, 900);
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -300));
       await tester.pumpAndSettle();
       final narrowFirst = tester.getRect(
         _cardWith('Inspection 1 at a long Cairnhill Rise address'),

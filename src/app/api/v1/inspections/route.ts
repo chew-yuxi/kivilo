@@ -13,6 +13,7 @@ export const GET = authed(async (agent, _params, request) => {
   const query = new URL(request.url).searchParams
   const filters = z.object({
     agencyId: z.string().min(1).optional(),
+    personal: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
     assigneeId: z.string().min(1).optional(),
     mine: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
     state: z.enum(['active', 'archived']).optional(),

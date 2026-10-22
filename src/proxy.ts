@@ -34,7 +34,15 @@ export async function proxy(request: NextRequest) {
   if (!user) {
     const login = request.nextUrl.clone()
     login.pathname = '/login'
-    login.searchParams.set('next', request.nextUrl.pathname)
+    // Keep workspace links intact without retaining sign-in-only email hints on
+    // the destination report page.
+    const destination = request.nextUrl.clone()
+    destination.search = ''
+    const workspace = request.nextUrl.searchParams.get('workspace')
+    if (workspace && ['/inspections', '/inspections/new'].includes(destination.pathname)) {
+      destination.searchParams.set('workspace', workspace)
+    }
+    login.searchParams.set('next', destination.pathname + destination.search)
     // A signing link names the address it was sent to; carry it so the form is filled.
     const email = request.nextUrl.searchParams.get('email')
     if (email) login.searchParams.set('email', email)

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/inspection.dart';
 import '../models/agency.dart';
+import '../services/workspace.dart';
+import '../ui/workspace_picker.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
@@ -11,6 +13,7 @@ import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'new_inspection_screen.dart';
 import 'renewal_reminders.dart';
+import 'team_screen.dart';
 
 enum _InspectionFilter {
   all('All'),
@@ -36,7 +39,13 @@ enum _InspectionFilter {
 }
 
 class InspectionsScreen extends StatefulWidget {
-  const InspectionsScreen({super.key, this.api, this.trackView = true});
+  const InspectionsScreen({
+    super.key,
+    this.api,
+    this.trackView = true,
+    this.workspace,
+  });
+  final Workspace? workspace;
   final Api? api;
   final bool trackView;
 
@@ -46,15 +55,16 @@ class InspectionsScreen extends StatefulWidget {
 
 class _InspectionsScreenState extends State<InspectionsScreen> {
   late final _api = widget.api ?? Api();
-  late Future<List<InspectionSummary>> _future = _api.inspections();
+  late final _workspace = widget.workspace ?? Workspace(_api);
+  late Future<List<InspectionSummary>> _future = _load();
   final _search = TextEditingController();
   _InspectionFilter _filter = _InspectionFilter.all;
   int _renewalsVersion = 0;
-  AgencySummary? _agency;
+  bool _creating = false;
+  AgencySummary? get _agency => _workspace.agency;
   AgencyDetail? _teamDetail;
   String? _assigneeId;
   String? _workError;
-  bool _choosingTeam = false;
 
   @override
   void dispose() {
@@ -62,10 +72,31 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     super.dispose();
   }
 
-  Future<void> _refresh() async {
-    final next = _agency == null && _assigneeId == null
+  Future<List<InspectionSummary>> _load() async {
+    final previous = _workspace.value;
+    await _workspace.refresh();
+    if (_workspace.value != previous) _assigneeId = null;
+    final agency = _agency;
+    _teamDetail = agency == null ? null : await _api.agency(agency.id);
+    if (_teamDetail?.canManage != true) {
+      _assigneeId = null;
+    } else if (_assigneeId != null &&
+        !_teamDetail!.members.any(
+          (member) => member.active && member.stakeholderId == _assigneeId,
+        )) {
+      _assigneeId = null;
+    }
+    return _workspace.all
         ? _api.inspections()
-        : _api.inspectionWork(agencyId: _agency?.id, assigneeId: _assigneeId);
+        : _api.inspectionWork(
+            agencyId: agency?.id,
+            personal: _workspace.personal,
+            assigneeId: _assigneeId,
+          );
+  }
+
+  Future<void> _refresh() async {
+    final next = _load();
     setState(() {
       _future = next;
       _workError = null;
@@ -74,86 +105,70 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     try {
       await next;
     } catch (error) {
-      // The FutureBuilder shows the failed request; callbacks such as filter
-      // changes must also finish without an unhandled asynchronous failure.
+      // FutureBuilder renders the failure; callback errors also need handling.
       if (mounted && identical(_future, next)) {
         setState(() => _workError = plainError(error));
       }
     }
   }
 
-  Future<void> _returnToMyWork() async {
-    setState(() {
-      _agency = null;
-      _teamDetail = null;
-      _assigneeId = null;
-      _workError = null;
-    });
-    await _refresh();
-  }
-
-  Future<void> _chooseTeam() async {
-    if (_choosingTeam) return;
-    setState(() {
-      _choosingTeam = true;
-      _workError = null;
-    });
+  Future<void> _selectWorkspace(String value) async {
     try {
-      final index = await _api.agencies();
+      await _workspace.select(value);
       if (!mounted) return;
-      setState(() => _choosingTeam = false);
-      final agency = await showKiviloDrawer<AgencySummary>(
-        context: context,
-        builder: (context) => KiviloDrawer(
-          title: const Text('Choose a team'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (index.agencies.isEmpty)
-                const Text('Create or join a team in Account → Team.'),
-              for (final agency in index.agencies)
-                ListTile(
-                  title: Text(agency.name),
-                  subtitle: Text(agencyRoleLabel(agency.role)),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.pop(context, agency),
-                ),
-            ],
-          ),
-          actions: [
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-          ],
-        ),
-      );
-      if (agency == null || !mounted) return;
-      setState(() => _choosingTeam = true);
-      final detail = await _api.agency(agency.id);
-      if (!mounted) return;
-      setState(() {
-        _agency = agency;
-        _teamDetail = detail;
-        _assigneeId = null;
-      });
+      _assigneeId = null;
       await _refresh();
     } catch (error) {
       if (mounted) setState(() => _workError = plainError(error));
-    } finally {
-      if (mounted) setState(() => _choosingTeam = false);
+    }
+  }
+
+  Future<void> _teams() async {
+    final selected = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => TeamScreen(api: _api, selectWorkspace: true),
+      ),
+    );
+    if (!mounted) return;
+    try {
+      await _workspace.refresh();
+      if (selected != null) await _workspace.select(selected);
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) setState(() => _workError = plainError(error));
     }
   }
 
   Future<void> _create() async {
-    final id = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => NewInspectionScreen(api: _api)),
-    );
-    if (!mounted || id == null) return;
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)),
-    );
-    if (mounted) await _refresh();
+    if (_creating) return;
+    setState(() => _creating = true);
+    try {
+      await _future;
+      if (!mounted) return;
+      final agency = _workspace.all
+          ? _workspace.index.agencies.firstOrNull
+          : _agency;
+      final id = await Navigator.of(context).push<String>(
+        MaterialPageRoute(
+          builder: (_) => NewInspectionScreen(api: _api, initialAgency: agency),
+        ),
+      );
+      if (!mounted || id == null) return;
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => InspectionScreen(id: id, api: _api),
+        ),
+      );
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
+    } finally {
+      if (mounted) setState(() => _creating = false);
+    }
   }
 
   Future<void> _openInspection(String id) async {
@@ -170,7 +185,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     child: Scaffold(
     appBar: AppBar(title: const Text('Inspections')),
     floatingActionButton: FloatingActionButton.extended(
-      onPressed: _create,
+      onPressed: _creating ? null : _create,
       backgroundColor: KiviloColors.pink,
       foregroundColor: Colors.white,
       icon: const Icon(Icons.add),
@@ -197,11 +212,11 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                       onPressed: _refresh,
                       child: const Text('Try again'),
                     ),
-                    if (_agency != null) ...[
+                    if (!_workspace.all) ...[
                       const SizedBox(height: 8),
                       OutlinedButton(
-                        onPressed: _returnToMyWork,
-                        child: const Text('Return to My work'),
+                        onPressed: () => _selectWorkspace('all'),
+                        child: const Text('Show all my work'),
                       ),
                     ],
                   ],
@@ -210,10 +225,10 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             }
 
             final inspections = snapshot.data!;
-            final query = _search.text
-                .trim()
-                .toLowerCase()
-                .replaceAll(RegExp(r'[\s_-]+'), ' ');
+              final query = _search.text.trim().toLowerCase().replaceAll(
+                RegExp(r'[\s_-]+'),
+                ' ',
+              );
             final visible = inspections.where((inspection) {
               final text =
                   '${inspection.property} ${inspection.tenant} ${inspection.kindLabel}'
@@ -240,31 +255,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 20),
-                    KiviloSegmentedControl<String>(
-                      value: _agency == null ? 'mine' : 'team',
-                      options: const [
-                        KiviloSegmentOption(value: 'mine', label: 'My work'),
-                        KiviloSegmentOption(
-                          value: 'team',
-                          label: 'Team work',
-                        ),
-                      ],
-                      onChanged: _choosingTeam
-                          ? null
-                          : (value) {
-                              if (value == 'team') {
-                                _chooseTeam();
-                              } else {
-                                _returnToMyWork();
-                              }
-                            },
+                    WorkspacePicker(
+                      workspace: _workspace,
+                      onChanged: _selectWorkspace,
+                      onTeams: _teams,
                     ),
-                    if (_agency != null) ...[
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        onPressed: _choosingTeam ? null : _chooseTeam,
-                        child: Text('Team: ${_agency!.name}'),
-                      ),
+                    if (_teamDetail?.canManage == true) ...[
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
                         key: ValueKey('assignee:${_agency!.id}:$_assigneeId'),
@@ -302,14 +298,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         style: const TextStyle(color: KiviloColors.red),
                       ),
                     ],
-                    if (_choosingTeam) ...[
-                      const SizedBox(height: 12),
-                      const LinearProgressIndicator(),
-                    ],
                     RenewalReminders(
                       key: ValueKey(_renewalsVersion),
                       api: _api,
                       onRenewed: _refresh,
+                      agencyId: _agency?.id,
+                      personal: _workspace.personal,
                     ),
                     if (_api.offlineCopy) ...[
                       const SizedBox(height: 18),
@@ -327,7 +321,9 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                               Expanded(
                                 child: Text(
                                   'Offline. Showing what was last loaded; you can keep taking photos.',
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
                                 ),
                               ),
                             ],
@@ -407,7 +403,9 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                 Text(
                                   'No matching inspections',
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.titleMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(

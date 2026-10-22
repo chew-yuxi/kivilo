@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import Link from 'next/link'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createInspection } from '@/lib/actions'
 import type { PropertyType } from '@/generated/prisma'
+import { rememberWorkspace, type WorkspaceTeam } from '@/lib/web-workspace'
 
 const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
   { value: 'PRIVATE_NON_LANDED', label: 'Private, non-landed' },
@@ -26,10 +28,19 @@ function defaultDates() {
   return { start: iso(start), end: iso(end) }
 }
 
-export function NewInspectionForm() {
+export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberInitial }: {
+  agentId: string
+  teams: WorkspaceTeam[]
+  initialWorkspace: string
+  rememberInitial: boolean
+}) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [workspace, setWorkspace] = useState(initialWorkspace)
+  useEffect(() => {
+    if (rememberInitial) rememberWorkspace(agentId, initialWorkspace)
+  }, [agentId, initialWorkspace, rememberInitial])
   const dates = defaultDates()
 
   function dismissKeyboard() {
@@ -48,6 +59,7 @@ export function NewInspectionForm() {
     startTransition(async () => {
       try {
         const id = await createInspection({
+          ...(workspace !== 'personal' && { agencyId: workspace }),
           line1: value('line1'),
           unit: value('unit') || null,
           postalCode: value('postalCode'),
@@ -71,6 +83,25 @@ export function NewInspectionForm() {
 
   return (
     <form onSubmit={submit} className="mt-8 space-y-8">
+      <fieldset className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+        <legend className="text-sm font-medium">Property workspace</legend>
+        <label className="block text-xs font-medium text-gray-600">
+          Workspace
+          <select name="workspace" className={field} value={workspace} disabled={pending} onChange={(event) => {
+            setWorkspace(event.target.value)
+            rememberWorkspace(agentId, event.target.value)
+          }}>
+            {teams.map((team) => <option key={team.id} value={team.id}>{team.name}</option>)}
+            <option value="personal">Personal</option>
+          </select>
+        </label>
+        <p className="text-sm text-gray-600">
+          {workspace === 'personal'
+            ? 'This property stays in your personal workspace. You can choose to share it later.'
+            : 'This property belongs to the team and is assigned to you. Owners and managers can oversee it; other agents need an assignment.'}
+        </p>
+        <Link href="/team" className="text-link inline-flex min-h-11 items-center text-sm">Create or join a team</Link>
+      </fieldset>
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">Property</legend>
         <label className="block text-xs font-medium text-gray-600">

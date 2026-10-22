@@ -8,7 +8,8 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 
 class NewInspectionScreen extends StatefulWidget {
-  const NewInspectionScreen({super.key, this.api});
+  const NewInspectionScreen({super.key, this.api, this.initialAgency});
+  final AgencySummary? initialAgency;
   final Api? api;
 
   @override
@@ -18,7 +19,7 @@ class NewInspectionScreen extends StatefulWidget {
 class _NewInspectionScreenState extends State<NewInspectionScreen> {
   final _form = GlobalKey<FormState>();
   late final _api = widget.api ?? Api();
-  AgencySummary? _agency;
+  late AgencySummary? _agency = widget.initialAgency;
   final _fields = <String, TextEditingController>{
     for (final name in [
       'line1',
@@ -101,7 +102,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 ListTile(
                   title: Text(agency.name),
                   subtitle: const Text(
-                    'Team owners and managers can oversee this work',
+                    'Assigned agents and team owners and managers can access this work',
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.pop(context, agency.id),
@@ -238,7 +239,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           Text(
             _agency == null
                 ? 'Private to you until you share it.'
-                : 'The team owns this work. Its owners and managers can access and reassign it.',
+                : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',
           ),
           const SizedBox(height: 32),
           const KiviloSectionHeading(

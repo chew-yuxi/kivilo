@@ -108,6 +108,14 @@ Membership changes and handover are serialized in `agency-actions.ts`, remove fu
 and historical agency grants on departure, and preserve personal work elsewhere.
 An agency must retain an active owner. Historical `conductedById` never changes.
 
+Home and the inspection portfolio default to an active team workspace when there is
+one, with Personal available alongside it. New check-ins inherit that selection;
+existing personal properties never move automatically. Workspace preferences belong
+to the signed-in account and are checked against current membership. The Personal
+filter means no agency; All my work retains assigned and historical report access
+across workspaces. These filters only narrow authorization, and unfiltered API calls
+keep their existing behavior for installed app builds.
+
 `Inspection.reportAgentId` and `reportAgentFrozen` pin the report's agent at Send.
 `reportAgent` is the shared reading rule for fingerprints, web/app reports, PDF and
 signing emails, so responsible-agent handover cannot rewrite an agreed report.

@@ -7,7 +7,15 @@ import 'inspection_screen.dart';
 import 'renewal_screen.dart';
 
 class RenewalReminders extends StatefulWidget {
-  const RenewalReminders({super.key, this.onRenewed, this.api});
+  const RenewalReminders({
+    super.key,
+    this.onRenewed,
+    this.api,
+    this.agencyId,
+    this.personal = false,
+  });
+  final String? agencyId;
+  final bool personal;
   final Api? api;
   final Future<void> Function()? onRenewed;
 
@@ -17,7 +25,9 @@ class RenewalReminders extends StatefulWidget {
 
 class _RenewalRemindersState extends State<RenewalReminders> {
   late final _api = widget.api ?? Api();
-  late final _future = _api.renewals();
+  late final _future = widget.agencyId == null && !widget.personal
+      ? _api.renewals()
+      : _api.renewalWork(agencyId: widget.agencyId, personal: widget.personal);
   final _hidden = <String>{};
   String? _busy;
 

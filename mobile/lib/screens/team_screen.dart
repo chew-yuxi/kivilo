@@ -9,7 +9,8 @@ import '../ui/kivilo_theme.dart';
 import 'tenancy_access_screen.dart';
 
 class TeamScreen extends StatefulWidget {
-  const TeamScreen({super.key, this.api});
+  const TeamScreen({super.key, this.api, this.selectWorkspace = false});
+  final bool selectWorkspace;
   final Api? api;
   @override
   State<TeamScreen> createState() => _TeamScreenState();
@@ -41,7 +42,11 @@ class _TeamScreenState extends State<TeamScreen> {
         invitation.id,
         accept: accept,
       );
+      if (accept) await _api.saveWorkspacePreference(invitation.agencyId);
       await _refresh();
+      if (accept && mounted && widget.selectWorkspace) {
+        Navigator.pop(context, invitation.agencyId);
+      }
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
     } finally {
@@ -62,8 +67,10 @@ class _TeamScreenState extends State<TeamScreen> {
     });
     try {
       final agency = await _api.createAgency(name);
+      await _api.saveWorkspacePreference(agency.id);
       if (!mounted) return;
       await _open(agency.id);
+      if (mounted && widget.selectWorkspace) Navigator.pop(context, agency.id);
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
     } finally {
@@ -102,7 +109,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Invite colleagues once, assign tenancies by name, and hand work over when your team changes. Your personal properties stay personal until you move them.',
+                  'Create or join a team, invite colleagues, then add properties in its workspace. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.',
                 ),
                 if (_error != null || snapshot.hasError) ...[
                   const SizedBox(height: 16),
@@ -168,6 +175,13 @@ class _TeamScreenState extends State<TeamScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: _busy ? null : () => _open(agency.id),
                     ),
+                  ),
+                  if (widget.selectWorkspace)
+                    OutlinedButton(
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.pop(context, agency.id),
+                      child: Text('Open ${agency.name} workspace'),
                   ),
                 ],
                 const SizedBox(height: 24),
@@ -368,7 +382,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                     const SizedBox(height: 8),
                     if (agency.tenancies.isEmpty)
                       const Text(
-                        'No tenancies yet. Open Property access on an inspection to move personal work into this team.',
+                        'No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.',
                       ),
                     for (final tenancy in agency.tenancies) ...[
                       Card(

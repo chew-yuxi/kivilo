@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/inspection.dart';
+import 'package:kivilo/models/agency.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/inspections_screen.dart';
 import 'package:kivilo/services/api.dart';
@@ -49,6 +50,24 @@ class _LibraryApi extends Api {
   final List<InspectionSummary> reports;
   int inspectionReads = 0;
 
+  @override
+  Future<AgencyIndex> agencies() async =>
+      const AgencyIndex(agencies: [], invitations: []);
+  @override
+  Future<String?> workspacePreference() async => null;
+  @override
+  Future<void> saveWorkspacePreference(String? value) async {}
+  @override
+  Future<List<InspectionSummary>> inspectionWork({
+    String? agencyId,
+    String? assigneeId,
+    bool personal = false,
+  }) => inspections();
+  @override
+  Future<List<RenewalReminder>> renewalWork({
+    String? agencyId,
+    bool personal = false,
+  }) => renewals();
   @override
   Future<List<InspectionSummary>> inspections() async {
     inspectionReads++;

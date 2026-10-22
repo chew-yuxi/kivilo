@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { agencyDetail, agencyList } from '@/lib/agency'
 import { manageAgencyFromWeb } from '@/lib/agency-web-actions'
 import { StatusBadge } from '@/components/status-badge'
+import { rememberWorkspace } from '@/lib/web-workspace'
 
 type Directory = Awaited<ReturnType<typeof agencyList>>
 type Workspace = Awaited<ReturnType<typeof agencyDetail>>
@@ -32,6 +33,9 @@ function useTeamMutation() {
           return
         }
         if ('agencyId' in result && result.agencyId) router.push(`/team/${result.agencyId}`)
+        if (command.action === 'respond' && command.response === 'accept') {
+          router.push(`/inspections?workspace=${encodeURIComponent(command.agencyId)}`)
+        }
         if ('removed' in result && result.removed) {
           // Access changed: discard prefetched pages from the former membership.
           window.location.replace('/team')
@@ -87,8 +91,8 @@ export function TeamDirectory({ data }: { data: Directory }) {
                 Invited as {roleName(invite.role)} · expires {date(invite.expiresAt)}
               </p>
               <p className="mt-2 text-sm text-gray-600">
-                Joining keeps your personal work private. Move a tenancy into the team only when you
-                choose to.
+                Joining keeps your personal work private. Add new properties in the team workspace;
+                agents see only their assignments, while owners and managers oversee all team work.
               </p>
               <div className="mt-3 flex gap-2">
                 <button
@@ -160,8 +164,8 @@ export function TeamDirectory({ data }: { data: Directory }) {
       >
         <h2 className="font-semibold">Create a team</h2>
         <p className="text-sm text-gray-600">
-          Your existing personal properties stay private. Team owners and managers oversee work
-          moved into the team; agents see their assigned tenancies.
+          Invite colleagues once, then add properties to the team workspace. Owners and managers
+          oversee all team work; agents see their assignments. Existing personal properties stay private.
         </p>
         <label className="block text-sm font-medium" htmlFor="agency-name">
           Agency name
@@ -185,6 +189,7 @@ export function TeamDirectory({ data }: { data: Directory }) {
 
 export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: string }) {
   const mutation = useTeamMutation()
+  useEffect(() => rememberWorkspace(viewerId, data.id), [viewerId, data.id])
   const [name, setName] = useState(data.name)
   const [email, setEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'MANAGER' | 'AGENT'>('AGENT')
@@ -209,6 +214,10 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
             ? 'Owners and managers can oversee the team’s tenancies and manage assignments.'
             : 'Your team work shows tenancies assigned to you.'}
         </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href={`/inspections/new?workspace=${encodeURIComponent(data.id)}`} className="action-primary">New check-in</Link>
+          <Link href={`/inspections?workspace=${encodeURIComponent(data.id)}`} className="action-secondary">Open portfolio</Link>
+        </div>
       </div>
       {mutation.feedback}
       <section className="space-y-4" aria-label="Team work">
@@ -286,8 +295,11 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
           </ul>
         ) : (
           <p className="rounded-lg border border-dashed border-gray-300 bg-white p-5 text-sm text-gray-600">
-            No work matches these filters. Open a personal tenancy and choose Team and assignment to
-            move it into this workspace.
+            {data.tenancies.length
+              ? 'No work matches these filters.'
+              : data.canManage
+                ? 'Start a new check-in to add a property to this team. Invite colleagues below, then assign the people who will work on each tenancy.'
+                : 'Your assigned team properties will appear here. Start a new check-in to add a team property assigned to you.'}
           </p>
         )}
       </section>

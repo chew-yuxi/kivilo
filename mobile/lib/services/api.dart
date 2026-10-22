@@ -155,7 +155,7 @@ class Api {
     try {
       final response = await _get<Object>(
         route,
-        expectedOwnerId: expectedOwnerId,
+        expectedOwnerId: expectedOwnerId ?? owner,
       );
       _checkOwner(owner);
       if (owner != null) {
@@ -187,15 +187,18 @@ class Api {
   Future<List<InspectionSummary>> inspectionWork({
     String? agencyId,
     String? assigneeId,
+    bool personal = false,
   }) async {
-    final response = await _get<List<dynamic>>(
-      '/api/v1/inspections',
+    final route = Uri(
+      path: '/api/v1/inspections',
       queryParameters: {
-        if (agencyId != null) 'agencyId': agencyId else 'mine': 'true',
+        'agencyId': ?agencyId,
+        if (personal) 'personal': 'true',
         'assigneeId': ?assigneeId,
       },
-    );
-    return response.data!
+    ).toString();
+    final data = await _read(route, route);
+    return (data as List<dynamic>)
         .map(
           (value) => InspectionSummary.fromJson(value as Map<String, dynamic>),
         )
@@ -204,6 +207,23 @@ class Api {
 
   Future<List<RenewalReminder>> renewals() async {
     final data = await _read('/api/v1/renewals', 'renewals');
+    return (data as List<dynamic>)
+        .map((json) => RenewalReminder.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<RenewalReminder>> renewalWork({
+    String? agencyId,
+    bool personal = false,
+  }) async {
+    final route = Uri(
+      path: '/api/v1/renewals',
+      queryParameters: {
+        'agencyId': ?agencyId,
+        if (personal) 'personal': 'true',
+      },
+    ).toString();
+    final data = await _read(route, route);
     return (data as List<dynamic>)
         .map((json) => RenewalReminder.fromJson(json as Map<String, dynamic>))
         .toList();
@@ -290,6 +310,36 @@ class Api {
         .toList();
   }
 
+  Future<List<TenancySummary>> tenancyWork({
+    String? agencyId,
+    bool personal = false,
+  }) async {
+    final route = Uri(
+      path: '/api/v1/tenancies',
+      queryParameters: {
+        'agencyId': ?agencyId,
+        if (personal) 'personal': 'true',
+      },
+    ).toString();
+    final data = await _read(route, route);
+    return (data as List<dynamic>)
+        .map((json) => TenancySummary.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<String?> workspacePreference() async {
+    final owner = _cache.ownerId;
+    final value = await _cache.read('workspace');
+    _checkOwner(owner);
+    return value is String ? value : null;
+  }
+
+  Future<void> saveWorkspacePreference(String? value) async {
+    final owner = _cache.ownerId;
+    if (owner != null) await _cache.writeForOwner(owner, 'workspace', value);
+    _checkOwner(owner);
+  }
+
   Future<TenancyDetail> tenancy(String tenancyId) async {
     final data = await _read(
       '/api/v1/tenancies/$tenancyId',
@@ -299,11 +349,11 @@ class Api {
   }
 
   Future<AgencyIndex> agencies() async => AgencyIndex.fromJson(
-    (await _get<Map<String, dynamic>>('/api/v1/agencies')).data!,
+    await _read('/api/v1/agencies', 'agencies') as Map<String, dynamic>,
   );
 
   Future<AgencyDetail> agency(String id) async => AgencyDetail.fromJson(
-    (await _get<Map<String, dynamic>>('/api/v1/agencies/$id')).data!,
+    await _read('/api/v1/agencies/$id', 'agency:$id') as Map<String, dynamic>,
   );
 
   Future<AgencyDetail> createAgency(String name) => _call(

@@ -174,7 +174,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         final session =
             snapshot.data?.session ??
             Supabase.instance.client.auth.currentSession;
-        return session == null ? const SignInScreen() : const HomeScreen();
+        return session == null
+            ? const SignInScreen()
+            : HomeScreen(key: ValueKey(session.user.id));
       },
     );
   }

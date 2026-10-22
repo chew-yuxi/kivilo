@@ -5,6 +5,34 @@ Updated 22 October 2026 Singapore time. The photo upload handoff fix, source
 Native patch receipts are recorded below. Physical-device delivery and all rehearsal
 checks remain **NOT RUN**; a published patch is not evidence of delivery.
 
+## Team-first workspaces — 22 October follow-up
+
+Built on the team-management candidate below, on `feat/team-property-management`;
+**not deployed or published**. The confirmed access rule remains assigned agents
+only, with owners and managers overseeing all team properties.
+
+- Home and Inspections offer team workspaces, Personal, and All my work. The first
+  active team is the default unless the person has chosen a workspace. Team setup
+  and invitations are reachable from the working screens.
+- New check-ins inherit the workspace and allow an explicit Personal choice. No
+  existing property is moved. Web team setup leads directly to a team portfolio and
+  new check-in; mobile shares the choice between Home and Inspections.
+- Inspection, tenancy and renewal filters narrow existing authorization. API calls
+  without filters preserve installed-client behavior. Active team members get agent
+  navigation before their first assignment; that role metadata grants no property
+  access. Preferences and native offline copies are scoped to the account.
+- This follow-up adds no migration, plugin, native asset or store metadata change.
+
+Verification passed: clean production build, typecheck, zero-warning lint, **107
+unit**, **237 integration**, **20 browser scenarios** (full run plus affected-test
+reruns), and **354 mobile tests**, with clean Flutter analysis. A final 28-test mobile
+run covers the last assignee-filter correction. The team-first browser flow also
+passed against the clean production build, including a phone-width assertion for
+the workspace selector; phone screenshots were visually inspected. The clean build
+was necessary to discard stale generated CSS from the earlier local cache.
+Evidence: `build/team-workspace-20261022/`. No production data, deployment, store
+submission or stable patch was changed; device delivery remains **NOT RUN**.
+
 ## Team and property management candidate — 22 October
 
 Implemented and verified on local branch `feat/team-property-management`;

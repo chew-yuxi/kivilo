@@ -48,7 +48,12 @@ test('team and property settings links preserve their destination through sign-i
   page,
   request,
 }) => {
-  for (const destination of ['/team/invited-workspace', '/properties/draft-property/settings']) {
+  for (const destination of [
+    '/team/invited-workspace',
+    '/properties/draft-property/settings',
+    '/inspections/new?workspace=personal',
+    '/inspections/new?workspace=invited-workspace',
+  ]) {
     const response = await request.get(destination, { maxRedirects: 0 })
     expect(response.status()).toBe(307)
     const login = new URL(response.headers().location, response.url())
@@ -101,7 +106,8 @@ test('invite once, assign by name, transfer responsibility, and offboard with pr
     await signIn(colleaguePage, colleagueEmail)
     await colleaguePage.getByRole('link', { name: 'Team', exact: true }).click()
     await colleaguePage.getByRole('button', { name: 'Accept invitation' }).click()
-    await expect(colleaguePage.getByRole('link', { name: /Grove Agency/ })).toBeVisible()
+    await expect(colleaguePage).toHaveURL(`/inspections?workspace=${agencyId}`)
+    await expect(colleaguePage.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
     const colleague = { Authorization: `Bearer ${await accessTokenFor(colleagueEmail)}` }
     const colleagueId = (await (await request.get('/api/v1/me', { headers: colleague })).json())
       .id as string
@@ -235,4 +241,108 @@ test('property settings exposes archive, exact-address deletion and recovery', a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   )
+})
+
+test('team-first workspace keeps personal work separate and new team properties assigned', async ({
+  page, browser, request, baseURL,
+}) => {
+  test.setTimeout(180_000)
+  const ownerEmail = freshEmail('workspace-owner')
+  const agentEmail = freshEmail('workspace-agent')
+  const agentName = agentEmail.split('@')[0]
+  await signIn(page, ownerEmail)
+  const owner = { Authorization: `Bearer ${await accessTokenFor(ownerEmail)}` }
+  const ownerId = (await (await request.get('/api/v1/me', { headers: owner })).json()).id as string
+  expect(new URL(process.env.DATABASE_URL!).hostname).toMatch(/^(localhost|127\.0\.0\.1|\[::1\])$/)
+  await db.subscription.create({ data: { stakeholderId: ownerId, plan: 'PRO', seats: 1, status: 'comped' } })
+  const personal = await request.post('/api/v1/inspections', {
+    headers: owner, data: { ...newInspection, line1: '17 Personal Lane' },
+  })
+  expect(personal.status()).toBe(200)
+  const personalId = (await personal.json()).id as string
+
+  await page.getByRole('link', { name: 'Team', exact: true }).click()
+  await page.getByLabel('Agency name').fill('Harbour Team')
+  await page.getByRole('button', { name: 'Create team', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Harbour Team', exact: true })).toBeVisible()
+  const agencyId = page.url().split('/').pop()!
+  await page.getByLabel('Colleague email').fill(agentEmail)
+  await page.getByRole('button', { name: 'Send invitation', exact: true }).click()
+  await expect(page.getByText('Invitation pending', { exact: false })).toBeVisible()
+
+  // Selecting the team is the entry point. Existing personal work is not moved.
+  await page.goto('/inspections')
+  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
+  expect((await page.getByRole('combobox', { name: 'Workspace', exact: true }).boundingBox())!.width).toBeGreaterThanOrEqual(200)
+  await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toHaveCount(0)
+  await page.getByRole('link', { name: 'New check-in', exact: true }).first().click()
+  await expect(page).toHaveURL(`/inspections/new?workspace=${agencyId}`)
+  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
+  await page.screenshot({ path: 'build/team-workspace-20261022/new-check-in-phone.png', fullPage: true })
+  await page.getByLabel('Address').fill('41 Harbour Walk')
+  await page.getByLabel('Postal code').fill('238801')
+  await page.getByLabel('Fully furnished', { exact: true }).check()
+  await page.getByLabel('Landlord (required)').fill('Maya Lim')
+  await page.getByLabel('Tenant (required)').fill('Ravi Tan')
+  await page.getByLabel('Deposit (SGD)').fill('6400')
+  await page.getByRole('button', { name: 'Create and start capturing' }).click()
+  await expect(page).toHaveURL(/\/inspections\/c[a-z0-9]{20,}$/)
+  const teamInspectionId = page.url().split('/').pop()!
+  expect((await db.inspection.findUniqueOrThrow({
+    where: { id: teamInspectionId }, include: { tenancy: true },
+  })).tenancy.agencyId).toBe(agencyId)
+  expect((await db.inspection.findUniqueOrThrow({
+    where: { id: personalId }, include: { tenancy: true },
+  })).tenancy.agencyId).toBeNull()
+
+  await page.goto('/inspections')
+  await expect(page.getByRole('link', { name: /41 Harbour Walk/ })).toBeVisible()
+  await page.getByRole('combobox', { name: 'Workspace', exact: true }).selectOption('personal')
+  await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toBeVisible()
+  await expect(page.getByRole('link', { name: /41 Harbour Walk/ })).toHaveCount(0)
+  await page.getByRole('link', { name: 'New check-in', exact: true }).first().click()
+  await expect(page).toHaveURL('/inspections/new?workspace=personal')
+  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue('personal')
+  // Header navigation remembers the explicit personal choice across screens.
+  await page.getByRole('link', { name: 'My work', exact: true }).click()
+  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue('personal')
+
+  const agentContext = await browser.newContext({ baseURL, viewport: { width: 393, height: 851 } })
+  try {
+    const agentPage = await agentContext.newPage()
+    await signIn(agentPage, agentEmail)
+    await agentPage.getByRole('link', { name: 'Team', exact: true }).click()
+    await agentPage.getByRole('button', { name: 'Accept invitation' }).click()
+    await expect(agentPage).toHaveURL(`/inspections?workspace=${agencyId}`)
+    await expect(agentPage.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
+    await expect(agentPage.getByRole('link', { name: /41 Harbour Walk/ })).toHaveCount(0)
+    const agent = { Authorization: `Bearer ${await accessTokenFor(agentEmail)}` }
+    expect((await request.get(`/api/v1/inspections/${teamInspectionId}`, { headers: agent })).status()).toBe(404)
+
+    await page.goto(`/inspections/${teamInspectionId}`)
+    const assignment = page.getByTestId('tenancy-assignment')
+    await assignment.getByText('Manage assignment', { exact: true }).click()
+    await assignment.getByRole('checkbox', { name: new RegExp(agentName) }).check()
+    await assignment.getByRole('button', { name: 'Save assignment', exact: true }).click()
+    await expect(assignment.getByText('Team and assignment saved.', { exact: true })).toBeVisible()
+    const unassigned = await request.post('/api/v1/inspections', {
+      headers: owner, data: { ...newInspection, agencyId, line1: '52 Other Team Road' },
+    })
+    expect(unassigned.status()).toBe(200)
+    await agentPage.reload()
+    await expect(agentPage.getByRole('link', { name: /41 Harbour Walk/ })).toBeVisible()
+    await expect(agentPage.getByRole('link', { name: /52 Other Team Road/ })).toHaveCount(0)
+    await expect(agentPage.getByRole('link', { name: /17 Personal Lane/ })).toHaveCount(0)
+    expect((await request.get(`/api/v1/inspections/${personalId}`, { headers: agent })).status()).toBe(404)
+    const listed = await request.get(`/api/v1/inspections?agencyId=${agencyId}`, { headers: agent })
+    expect(await listed.json()).toEqual([expect.objectContaining({ id: teamInspectionId, assignedToMe: true })])
+
+    await page.goto(`/inspections?workspace=${agencyId}`)
+    await expect(page.getByRole('link', { name: /41 Harbour Walk/ })).toBeVisible()
+    await expect(page.getByRole('link', { name: /52 Other Team Road/ })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: 'build/team-workspace-20261022/workspace-phone.png', fullPage: true })
+  } finally {
+    await agentContext.close()
+  }
 })

@@ -273,9 +273,15 @@ async function createNotificationRows(
   if (active.length) await client.notification.createMany({ data: active, skipDuplicates: true })
 }
 
-export async function listTenancies(stakeholderId: string) {
+export async function listTenancies(stakeholderId: string, filters: { agencyId?: string; personal?: boolean } = {}) {
+  const scope: Prisma.TenancyWhereInput[] = [tenancyScope(stakeholderId)]
+  if (filters.agencyId) scope.push({
+    agencyId: filters.agencyId,
+    agency: { members: { some: { stakeholderId, status: 'ACTIVE' } } },
+  })
+  if (filters.personal) scope.push({ agencyId: null })
   const tenancies = await db.tenancy.findMany({
-    where: tenancyScope(stakeholderId),
+    where: { AND: scope },
     orderBy: { startDate: 'desc' },
     include: {
       property: true,
