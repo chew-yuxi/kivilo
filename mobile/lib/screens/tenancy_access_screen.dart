@@ -482,16 +482,19 @@ class _AssignmentDrawerState extends State<_AssignmentDrawer> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButtonFormField<String>(
-          initialValue:
+        KiviloSelectField<String?>(
+          label: 'Responsible agent',
+          value:
               widget.access.availableMembers.any((person) => person.id == _lead)
               ? _lead
               : null,
-          isExpanded: true,
-          decoration: const InputDecoration(labelText: 'Responsible agent'),
-          items: [
+          options: [
+            const KiviloSelectOption<String?>(
+              value: null,
+              label: 'Choose a member',
+            ),
             for (final person in widget.access.availableMembers)
-              DropdownMenuItem(value: person.id, child: Text(person.name)),
+              KiviloSelectOption<String?>(value: person.id, label: person.name),
           ],
           onChanged: (value) => setState(() => _lead = value),
         ),
@@ -572,13 +575,19 @@ class _MoveToTeamDrawerState extends State<_MoveToTeamDrawer> {
         if (widget.agencies.isEmpty)
           const Text('Create or join a team first in Account → Team.')
         else
-          DropdownButtonFormField<String>(
-            initialValue: _agencyId,
-            isExpanded: true,
-            decoration: const InputDecoration(labelText: 'Team'),
-            items: [
+          KiviloSelectField<String?>(
+            label: 'Team',
+            value: _agencyId,
+            options: [
+              const KiviloSelectOption<String?>(
+                value: null,
+                label: 'Choose a team',
+              ),
               for (final agency in widget.agencies)
-                DropdownMenuItem(value: agency.id, child: Text(agency.name)),
+                KiviloSelectOption<String?>(
+                  value: agency.id,
+                  label: agency.name,
+                ),
             ],
             onChanged: (value) => setState(() => _agencyId = value),
           ),

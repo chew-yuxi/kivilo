@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/workspace.dart';
+import 'kivilo_components.dart';
 
 class WorkspacePicker extends StatelessWidget {
   const WorkspacePicker({
@@ -22,29 +23,16 @@ class WorkspacePicker extends StatelessWidget {
       Row(
         children: [
           Expanded(
-            child: DropdownButtonFormField<String>(
-              key: ValueKey('workspace:${workspace.value}'),
-              initialValue: workspace.value,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Workspace'),
-              items: [
+            child: KiviloSelectField<String>(
+              label: 'Workspace',
+              value: workspace.value,
+              options: [
                 for (final agency in workspace.index.agencies)
-                  DropdownMenuItem(
-                    value: agency.id,
-                    child: Text(agency.name, overflow: TextOverflow.ellipsis),
-                  ),
-                const DropdownMenuItem(
-                  value: 'personal',
-                  child: Text('Personal'),
-                ),
-                const DropdownMenuItem(
-                  value: 'all',
-                  child: Text('All my work'),
-                ),
+                  KiviloSelectOption(value: agency.id, label: agency.name),
+                const KiviloSelectOption(value: 'personal', label: 'Personal'),
+                const KiviloSelectOption(value: 'all', label: 'All my work'),
               ],
-              onChanged: (value) {
-                if (value != null) onChanged(value);
-              },
+              onChanged: onChanged,
             ),
           ),
           if (compact) ...[

@@ -671,6 +671,13 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   only the lines you wrote, or check `git diff --stat` and redo the edit on a clean copy.
   Never `dart format lib test`: it rewrote 14 untouched files and split one-line `if`
   returns into new `curly_braces_in_flow_control_structures` lints. Name the new files.
+- The app never uses Material's `DropdownButton`, `DropdownMenu`, `PopupMenuButton` or
+  `showMenu`. Their menu is placed once, in its own overlay, from where the field was;
+  in a drawer, tapping the field closes the keyboard, the drawer slides down, and the
+  menu floats unstyled and full width above it (the team invite Role on 23 October).
+  Use `KiviloSegmentedControl` for a few options or `KiviloSelectField` for a list,
+  both in `mobile/lib/ui/kivilo_components.dart`. `test/no_platform_menus_test.dart`
+  fails on any of them.
 - A web-only look at a feature misses what the Flutter app and the PDF already do. The
   2026-10-18 UX review called photo-to-line linking missing when the app's edit sheet
   and the PDF both had it, and called the list unreachable when the logo links to it.

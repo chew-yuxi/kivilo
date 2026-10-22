@@ -13,6 +13,7 @@ import 'package:kivilo/screens/new_inspection_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/services/workspace.dart';
+import 'package:kivilo/ui/kivilo_components.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
 const _team = AgencySummary(
@@ -232,7 +233,7 @@ void main() {
       expect(find.text('Workspace: Jac and Nimin'), findsOneWidget);
       await tester.pageBack();
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.tap(find.byType(KiviloSelectField<String>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Personal').last);
       await tester.pumpAndSettle();

@@ -529,12 +529,11 @@ class _InviteDrawerState extends State<_InviteDrawer> {
           decoration: const InputDecoration(labelText: 'Email address'),
         ),
         const SizedBox(height: 16),
-        DropdownButtonFormField<String>(
-          initialValue: _role,
-          decoration: const InputDecoration(labelText: 'Role'),
-          items: const [
-            DropdownMenuItem(value: 'AGENT', child: Text('Agent')),
-            DropdownMenuItem(value: 'MANAGER', child: Text('Manager')),
+        KiviloSegmentedControl<String>(
+          value: _role,
+          options: const [
+            KiviloSegmentOption(value: 'AGENT', label: 'Agent'),
+            KiviloSegmentOption(value: 'MANAGER', label: 'Manager'),
           ],
           onChanged: (value) => setState(() => _role = value!),
         ),
@@ -620,38 +619,38 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                 'Reassign ${member.assignedTenancies} tenancies before removing this member.',
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: _replacement,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'New responsible agent',
-                ),
-                items: [
+              KiviloSelectField<String?>(
+                label: 'New responsible agent',
+                value: _replacement,
+                options: [
+                  const KiviloSelectOption<String?>(
+                    value: null,
+                    label: 'Choose a member',
+                  ),
                   for (final person in widget.agency.members.where(
                     (person) => person.active && person.id != member.id,
                   ))
-                    DropdownMenuItem(
+                    KiviloSelectOption<String?>(
                       value: person.stakeholderId,
-                      child: Text(person.name),
+                      label: person.name,
                     ),
                 ],
                 onChanged: (value) => setState(() => _replacement = value),
               ),
             ],
           ] else ...[
-            DropdownButtonFormField<String>(
-              initialValue: _role,
-              decoration: const InputDecoration(labelText: 'Role'),
-              items: [
+            KiviloSegmentedControl<String>(
+              value: _role,
+              options: [
                 for (final role in [
                   'AGENT',
                   'MANAGER',
                   if (widget.agency.role == 'OWNER' || member.role == 'OWNER')
                     'OWNER',
                 ])
-                  DropdownMenuItem(
+                  KiviloSegmentOption(
                     value: role,
-                    child: Text(agencyRoleLabel(role)),
+                    label: agencyRoleLabel(role),
                   ),
               ],
               onChanged: canChange

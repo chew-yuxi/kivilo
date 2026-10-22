@@ -262,29 +262,24 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                     ),
                     if (_teamDetail?.canManage == true) ...[
                       const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        key: ValueKey('assignee:${_agency!.id}:$_assigneeId'),
-                        initialValue: _assigneeId ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Responsible agent',
-                        ),
-                        items: [
-                          const DropdownMenuItem(
-                            value: '',
-                            child: Text('All agents'),
+                      KiviloSelectField<String?>(
+                        label: 'Responsible agent',
+                        value: _assigneeId,
+                        options: [
+                          const KiviloSelectOption<String?>(
+                            value: null,
+                            label: 'All agents',
                           ),
                           for (final member in _teamDetail!.members.where(
                             (member) => member.active,
                           ))
-                            DropdownMenuItem(
+                            KiviloSelectOption<String?>(
                               value: member.stakeholderId,
-                              child: Text(member.name),
+                              label: member.name,
                             ),
                         ],
                         onChanged: (value) {
-                          setState(
-                            () => _assigneeId = value == '' ? null : value,
-                          );
+                          setState(() => _assigneeId = value);
                           _refresh();
                         },
                       ),

@@ -14,6 +14,7 @@ import 'package:kivilo/screens/team_screen.dart';
 import 'package:kivilo/screens/tenancy_access_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/notification_route.dart';
+import 'package:kivilo/ui/kivilo_components.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
 const _owner = AgencyMember(
@@ -74,6 +75,11 @@ class _ManagementApi extends Api {
   final assignments = <Map<String, dynamic>>[];
   final queries = <(String?, String?)>[];
   final memberChanges = <Map<String, dynamic>>[];
+  final invitations = <(String, String)>[];
+
+  @override
+  Future<void> inviteAgencyMember(String id, String email, String role) async =>
+      invitations.add((email, role));
 
   @override
   Future<AgencyIndex> agencies() async => AgencyIndex(
@@ -281,6 +287,28 @@ void main() {
     },
   );
 
+  testWidgets('invite role is chosen in place inside the drawer', (
+    tester,
+  ) async {
+    final api = _ManagementApi();
+    await _open(tester, TeamDetailScreen(id: 'team', api: api));
+    await tester.tap(find.text('Invite member'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'New@Example.com');
+    await tester.tap(find.text('Manager'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Managers can see team tenancies, assign work and manage members.',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Send invitation'));
+    await tester.pumpAndSettle();
+    expect(api.invitations, [('new@example.com', 'MANAGER')]);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'offboarding requires an explicit replacement for assigned work',
     (tester) async {
@@ -298,7 +326,7 @@ void main() {
             .onPressed,
         isNull,
       );
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.tap(find.byType(KiviloSelectField<String?>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Lead Owner').last);
       await tester.pumpAndSettle();
@@ -463,7 +491,7 @@ void main() {
       final api = _ManagementApi();
       await _open(tester, InspectionsScreen(api: api));
       expect(api.queries, [('team', null)]);
-      await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+      await tester.tap(find.byType(KiviloSelectField<String?>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Working Agent').last);
       await tester.pumpAndSettle();
@@ -472,7 +500,8 @@ void main() {
       await tester.widget<RefreshIndicator>(find.byType(RefreshIndicator)).onRefresh();
       await tester.pumpAndSettle();
       expect(api.queries.last, ('team', null));
-      expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
+      expect(find.byType(KiviloSelectField<String>), findsOneWidget);
+      expect(find.byType(KiviloSelectField<String?>), findsNothing);
     },
   );
 
@@ -598,7 +627,7 @@ void main() {
         ..workPending = Completer<List<InspectionSummary>>();
       await _open(tester, InspectionsScreen(api: api));
       expect(find.text('Personal home'), findsOneWidget);
-      await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+      await tester.tap(find.byType(KiviloSelectField<String>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Green Agency'));
       await tester.pump(const Duration(milliseconds: 400));
