@@ -16,3 +16,26 @@ body {
   background: var(--color-gray-50);
   color: var(--color-gray-900);
 }
+
+:where(a, button, summary, input, select, textarea):focus-visible {
+  outline: 3px solid var(--color-brand-600);
+  outline-offset: 3px;
+}
+
+@layer base {
+  button:not(:disabled), summary { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
+
+@layer components {
+  .action-primary, .action-secondary, .action-danger {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50;
+  }
+  .action-primary { @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700; }
+  .action-secondary { @apply border-gray-300 bg-white text-gray-800 hover:bg-gray-100; }
+  .action-danger { @apply border-red-300 bg-white text-red-700 hover:bg-red-50; }
+  .text-link { @apply text-brand-700 underline decoration-1 underline-offset-4 hover:decoration-2; }
+  .nav-row { @apply flex min-h-14 items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium hover:border-brand-200 hover:bg-brand-50; }
+  .field { @apply min-h-11 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-base disabled:opacity-50; }
+  .app-shell button, .app-shell summary { min-height: 44px; }
+}

@@ -144,14 +144,21 @@ ThemeData buildKiviloTheme() {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: KiviloColors.pinkDark,
-        side: const BorderSide(color: KiviloColors.border),
+        side: const BorderSide(color: Color(0xFF9CA3AF)),
         minimumSize: const Size(0, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: KiviloColors.pinkDark),
+      style: TextButton.styleFrom(
+        foregroundColor: KiviloColors.pinkDark,
+        minimumSize: const Size(0, 48),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        side: const BorderSide(color: Color(0xFFD1D5DB)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
     ),
     dividerTheme: const DividerThemeData(color: KiviloColors.border),
     dialogTheme: const DialogThemeData(

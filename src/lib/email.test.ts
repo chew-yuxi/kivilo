@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { signInEmail, signatureRequestEmail, signedCopyEmail, tenantHandoverEmail, propertySharedEmail } from './email'
+import { signInEmail, signatureRequestEmail, signedCopyEmail, tenantHandoverEmail, propertySharedEmail, agencyInvitationEmail } from './email'
 import { shortFingerprint } from './report-fingerprint'
 
 describe('signInEmail', () => {
@@ -28,6 +28,20 @@ it('property sharing links require the invited mailbox and contain no bearer cre
     })
     expect(text).toContain('https://kivilo.test/inspections/example')
     expect(text).toContain('email address this message was sent to')
+    expect(text).not.toContain('/reports/')
+    expect(text).not.toContain('token=')
+  } finally {
+    vi.unstubAllEnvs()
+  }
+})
+
+it('team invitations require the invited account without sharing personal work or bearer links', () => {
+  vi.stubEnv('KIVILO_APP_URL', 'https://kivilo.test')
+  try {
+    const { text } = agencyInvitationEmail({ title: 'Join the agency', body: 'An invitation from Jac.', href: '/team' })
+    expect(text).toContain('https://kivilo.test/team')
+    expect(text).toContain('email address this message was sent to')
+    expect(text).toContain('does not share your personal properties')
     expect(text).not.toContain('/reports/')
     expect(text).not.toContain('token=')
   } finally {

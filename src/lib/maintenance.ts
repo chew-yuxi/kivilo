@@ -7,6 +7,7 @@ import { Prisma } from '@/generated/prisma'
 import { moveInDefectIntent, moveInDefectOptions } from '@/lib/move-in-defects'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
 import { tenancyAccess } from '@/lib/tenancy-access'
+import { lockAgencyTenancy } from '@/lib/agency'
 
 const category = z.enum([
   'APPLIANCE', 'PLUMBING', 'LOCKSMITH', 'ELECTRICAL',
@@ -499,6 +500,8 @@ export async function createMaintenanceCase(tenancyId: string, stakeholderId: st
     if (!asset) throw new Error('Property asset not found')
   }
   const created = await db.$transaction(async (tx) => {
+    await lockAgencyTenancy(tenancyId, tx)
+    if (!await tx.tenancy.findFirst({ where: { id: tenancyId, AND: [tenancyScope(stakeholderId)] }, select: { id: true } })) throw new Error('Tenancy not found')
     const moveInDefectInspectionId = input.wasPresentAtMoveIn
       ? await moveInDefectIntent(tx, tenancy, stakeholderId)
       : null
@@ -813,9 +816,10 @@ export async function updateTenancyTerms(tenancyId: string, stakeholderId: strin
   if (input.agentMayAgreeCosts !== undefined && role !== 'LANDLORD') throw new Error('Tenancy not found')
   if (input.defectWindowDays !== undefined && !canManage(role)) throw new Error('Tenancy not found')
   await db.$transaction(async (tx) => {
+    await lockAgencyTenancy(tenancyId, tx)
+    if (!await tx.tenancy.findFirst({ where: { id: tenancyId, AND: [tenancyScope(stakeholderId)] }, select: { id: true } })) throw new Error('Tenancy not found')
     if (input.defectWindowDays !== undefined) {
       await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "tenancyId" = ${tenancyId} AND "kind" = 'CHECK_IN' ORDER BY "id" FOR UPDATE`
-      await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
       const tenancy = await tx.tenancy.findUniqueOrThrow({ where: { id: tenancyId }, select: { tenantId: true, defectWindowDays: true } })
       const tenantSignature = await tx.signature.findFirst({
         where: { stakeholderId: tenancy.tenantId, inspection: { tenancyId, kind: 'CHECK_IN' } },
@@ -969,9 +973,10 @@ export async function createPropertyAsset(
   const managerTenancies = await db.tenancy.findMany({
     where: {
       propertyId,
+      property: { trashedAt: null },
       OR: [{ landlordId: stakeholderId }, agentTenancies(stakeholderId)],
     },
-    select: { landlordId: true },
+    select: { id: true, landlordId: true },
   })
   if (managerTenancies.length === 0) throw new Error('Property not found')
   const tenancyScopeForItem: Prisma.TenancyWhereInput = managerTenancies.some(
@@ -979,18 +984,25 @@ export async function createPropertyAsset(
   )
     ? { propertyId }
     : { AND: [{ propertyId }, agentTenancies(stakeholderId)] }
+  let targetInspection: { id: string; tenancyId: string } | undefined
   if (input.inspectionItemId) {
     const item = await db.inspectionItem.findFirst({
       where: { id: input.inspectionItemId, room: { inspection: { tenancy: tenancyScopeForItem } } },
-      select: { editedByHuman: true, room: { select: { inspection: { select: { status: true } } } } },
+      select: { editedByHuman: true, room: { select: { inspection: { select: { id: true, tenancyId: true, status: true } } } } },
     })
     if (!item) throw new Error('Inspection item not found')
     if (!item.editedByHuman) throw new Error('Only a human-reviewed inspection item can be linked')
     if (['AWAITING_SIGNATURE', 'COMPLETED'].includes(item.room.inspection.status)) {
       throw new Error('This report has been sent for signature and can no longer be changed')
     }
+    targetInspection = item.room.inspection
   }
   return db.$transaction(async (tx) => {
+    await lockAgencyTenancy(targetInspection?.tenancyId ?? managerTenancies[0].id, tx)
+    if (!await tx.tenancy.findFirst({ where: {
+      propertyId, property: { trashedAt: null }, OR: [{ landlordId: stakeholderId }, agentTenancies(stakeholderId)],
+    }, select: { id: true } })) throw new Error('Property not found')
+    if (targetInspection) await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "id" = ${targetInspection.id} FOR UPDATE`
     const asset = await tx.propertyAsset.create({
       data: { propertyId, name: input.name, category: input.category, roomLabel: input.roomLabel, identifier: input.identifier },
     })

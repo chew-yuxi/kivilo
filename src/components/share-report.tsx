@@ -75,7 +75,7 @@ export function ShareReport({
           type="button"
           disabled={pending}
           onClick={() => startTransition(() => void revokeReportLink(inspectionId))}
-          className="text-xs text-gray-400 hover:text-red-600 disabled:opacity-50"
+          className="action-danger px-3 text-xs"
         >
           Revoke
         </button>

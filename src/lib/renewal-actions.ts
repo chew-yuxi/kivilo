@@ -4,17 +4,22 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAgent, authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
+import { lockAgencyTenancy } from '@/lib/agency'
 
 export async function respondToRenewal(tenancyId: string, choice: 'NOT_RENEWING' | 'DISMISSED' | 'LATER') {
   const agent = await requireAgent()
   await authorizeLeadTenancy(tenancyId, agent.id)
   await authorizeAgentTenancy(tenancyId, agent.id)
   const decision = z.enum(['NOT_RENEWING', 'DISMISSED', 'LATER']).parse(choice)
-  await db.tenancy.update({
-    where: { id: tenancyId },
-    data: decision === 'LATER'
-      ? { renewalSnoozedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }
-      : { renewalDecision: decision, renewalSnoozedUntil: null },
+  await db.$transaction(async (tx) => {
+    await lockAgencyTenancy(tenancyId, tx)
+    await authorizeLeadTenancy(tenancyId, agent.id, tx)
+    await tx.tenancy.update({
+      where: { id: tenancyId },
+      data: decision === 'LATER'
+        ? { renewalSnoozedUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }
+        : { renewalDecision: decision, renewalSnoozedUntil: null },
+    })
   })
   revalidatePath('/inspections')
 }
@@ -38,7 +43,7 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
   const startDate = new Date(input.startDate)
   const endDate = new Date(input.endDate)
   const inspectionId = await db.$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
+    await lockAgencyTenancy(tenancyId, tx)
     await authorizeLeadTenancy(tenancyId, agent.id, tx)
     const source = await tx.tenancy.findUniqueOrThrow({
       where: { id: tenancyId },
@@ -62,6 +67,7 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
           landlordId: source.landlordId,
           tenantId: source.tenantId,
           agentId: source.agentId,
+          agencyId: source.agencyId,
           renewedFromId: source.id,
           startDate,
           endDate,

@@ -36,13 +36,15 @@ model Stakeholder {
   updatedAt DateTime        @updatedAt
 
   team                Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  agencyMemberships AgencyMembership[]
 
   tenanciesAsLandlord Tenancy[] @relation("LandlordTenancies")
   tenanciesAsTenant   Tenancy[] @relation("TenantTenancies")
   tenanciesAsAgent    Tenancy[] @relation("AgentTenancies")
   tenancyCollaborations TenancyCollaborator[] @relation("TenancyCollaborator")
   tenancyAccessGranted TenancyCollaborator[] @relation("TenancyAccessGrantor")
-  inspectionsRun      Inspection[]
+  inspectionsRun      Inspection[] @relation("InspectionConductor")
+  reportInspections Inspection[] @relation("InspectionReportAgent")
   inspectionAccessGrants InspectionAccessGrant[]
   signatures          Signature[]
   deletionRequests    AccountDeletionRequest[]
@@ -82,6 +84,62 @@ model Team {
 
   members      Stakeholder[]
   subscription Subscription?
+}
+
+enum AgencyRole {
+  OWNER
+  MANAGER
+  AGENT
+}
+
+enum AgencyMembershipStatus {
+  INVITED
+  ACTIVE
+  REMOVED
+}
+
+/// Operational membership is separate from the existing billing-only Team.
+model Agency {
+  id String @id @default(cuid())
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members AgencyMembership[]
+  tenancies Tenancy[]
+  activity AgencyActivity[]
+}
+
+model AgencyMembership {
+  id String @id @default(cuid())
+  agencyId String
+  stakeholderId String
+  role AgencyRole @default(AGENT)
+  status AgencyMembershipStatus @default(INVITED)
+  invitedById String?
+  expiresAt DateTime?
+  acceptedAt DateTime?
+  removedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  stakeholder Stakeholder @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
+  notifications Notification[]
+  @@unique([agencyId, stakeholderId])
+  @@index([stakeholderId, status])
+}
+
+/// Append-only history; names are retained when an account is removed.
+model AgencyActivity {
+  id String @id @default(cuid())
+  agencyId String
+  actorId String
+  actorName String
+  subjectId String?
+  subjectName String?
+  action String
+  createdAt DateTime @default(now())
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  @@index([agencyId, createdAt])
 }
 
 enum Plan {
@@ -150,6 +208,10 @@ model Property {
   type       PropertyType
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
+  archivedAt DateTime?
+  trashedAt DateTime?
+  trashExpiresAt DateTime?
+  trashedById String?
 
   tenancies Tenancy[]
   assets PropertyAsset[]
@@ -163,6 +225,7 @@ model Tenancy {
   landlordId String
   tenantId   String
   agentId    String?
+  agencyId String?
   startDate  DateTime
   endDate    DateTime
   monthlyRent Decimal @db.Decimal(10, 2)
@@ -188,6 +251,7 @@ model Tenancy {
   landlord Stakeholder  @relation("LandlordTenancies", fields: [landlordId], references: [id])
   tenant   Stakeholder  @relation("TenantTenancies", fields: [tenantId], references: [id])
   agent    Stakeholder? @relation("AgentTenancies", fields: [agentId], references: [id])
+  agency Agency? @relation(fields: [agencyId], references: [id])
 
   inspections Inspection[]
   collaborators TenancyCollaborator[]
@@ -197,6 +261,7 @@ model Tenancy {
   renewedAs Tenancy? @relation("TenancyRenewal")
 
   @@index([propertyId])
+  @@index([agencyId])
 }
 
 /// Full working access to one tenancy. Inspection conductors remain attribution only;
@@ -250,6 +315,9 @@ model Inspection {
   /// Defaults to true for check-ins created by app builds released before this field.
   fullyFurnished Boolean          @default(true)
   conductedById String?
+  /// Responsible agent frozen at Send. Handover changes Tenancy.agentId only.
+  reportAgentId String?
+  reportAgentFrozen Boolean @default(false)
   conductedAt   DateTime?
   /// A check-out points at the check-in it is measured against.
   baselineId    String?          @unique
@@ -267,7 +335,8 @@ model Inspection {
   updatedAt     DateTime         @updatedAt
 
   tenancy     Tenancy      @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
-  conductedBy Stakeholder? @relation(fields: [conductedById], references: [id])
+  conductedBy Stakeholder? @relation("InspectionConductor", fields: [conductedById], references: [id])
+  reportAgent Stakeholder? @relation("InspectionReportAgent", fields: [reportAgentId], references: [id])
   baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
   checkOut    Inspection?  @relation("Baseline")
 
@@ -724,6 +793,7 @@ model ServiceProvider {
 }
 
 enum NotificationKind {
+  AGENCY_INVITATION
   PROPERTY_SHARED
   MAINTENANCE_REPORTED
   MAINTENANCE_STATUS
@@ -761,6 +831,7 @@ model Notification {
   id          String           @id @default(cuid())
   recipientId String
   tenancyId   String?
+  agencyMembershipId String?
   kind        NotificationKind
   title       String
   body        String
@@ -776,6 +847,7 @@ model Notification {
 
   recipient Stakeholder @relation(fields: [recipientId], references: [id], onDelete: Cascade)
   tenancy Tenancy? @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  agencyMembership AgencyMembership? @relation(fields: [agencyMembershipId], references: [id], onDelete: Cascade)
   pushDeliveries NotificationPushDelivery[]
 
   @@index([recipientId, readAt, createdAt])

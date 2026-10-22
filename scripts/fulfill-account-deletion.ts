@@ -9,6 +9,7 @@ import { isLive } from '@/lib/plan'
 import { stripe } from '@/lib/stripe'
 import { CAPTURE_BUCKET, serviceClient } from '@/lib/storage'
 import type { InspectionStatus } from '@/generated/prisma'
+import { lockAgencyTenancy } from '@/lib/agency'
 
 // This is an operator command, not an automatic cascade. Each retention choice must
 // come from the company's approved policy. The request remains PROCESSING until every
@@ -30,6 +31,9 @@ async function removeAuthUser(authUserId: string) {
 
 async function deleteOwnedDraft(inspectionId: string, stakeholderId: string, requestId: string) {
   await db.$transaction(async (tx) => {
+    const source = await tx.inspection.findUnique({ where: { id: inspectionId }, select: { tenancyId: true } })
+    if (!source) return
+    await lockAgencyTenancy(source.tenancyId, tx)
     // Send for signature takes this same row lock. If Send won, nothing is purged;
     // if deletion won, Send finds no inspection. Lock the tenancy too so a party
     // cannot be changed between the sole-party check and the cascade.
@@ -45,7 +49,7 @@ async function deleteOwnedDraft(inspectionId: string, stakeholderId: string, req
              t."landlordId", t."tenantId", t."agentId"
       FROM "Inspection" i JOIN "Tenancy" t ON t."id" = i."tenancyId"
       WHERE i."id" = ${inspectionId}
-      FOR UPDATE OF i FOR SHARE OF t
+      FOR UPDATE OF i
     `
     if (rows.length === 0) return // A previous invocation completed this transaction.
     const current = rows[0]
@@ -110,6 +114,12 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
     where: { id: requestId },
     include: { stakeholder: true },
   })
+
+  // An operational workspace survives its members. Require an explicit handover
+  // before deleting an owner, even if this request predates team ownership.
+  if (await db.agencyMembership.count({ where: { stakeholderId: request.stakeholderId, role: 'OWNER', status: 'ACTIVE' } })) {
+    throw new Error('Transfer team ownership and step down as owner before fulfilling this account deletion request')
+  }
 
   if (request.status !== 'COMPLETED') {
     if (request.processingPolicyVersion && request.processingPolicyVersion !== policyVersion) {

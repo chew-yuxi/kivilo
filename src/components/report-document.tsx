@@ -8,6 +8,7 @@ import type { reportInclude } from '@/lib/report'
 import { addendumView } from '@/lib/addenda'
 import { AddendumSection } from '@/components/addendum-section'
 import type { Prisma } from '@/generated/prisma'
+import { reportAgent } from '@/lib/report-agent'
 
 const VERDICT_LABEL = {
   TENANT_LIABLE: 'Tenant liable',
@@ -80,13 +81,14 @@ export async function ReportDocument({
 
   const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long' })
   // The agent on the deal heads the report with their agency, if they have set one.
-  const branding = tenancy.agent?.branding ?? null
+  const agent = reportAgent(inspection)
+  const branding = agent?.branding ?? null
   const logoUrl = branding?.logoPath ? await createDownloadUrl(branding.logoPath, 60 * 60 * 24) : null
 
   return (
     <article className="mx-auto max-w-3xl bg-white p-5 sm:p-10 print:p-0">
       <header className="border-b border-gray-300 pb-6">
-        {branding && tenancy.agent && (
+        {branding && agent && (
           <div className="mb-6 flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
             <div className="flex min-w-0 items-center gap-3">
               {logoUrl && (
@@ -101,10 +103,10 @@ export async function ReportDocument({
               </div>
             </div>
             <div className="min-w-0 break-words text-xs leading-relaxed text-gray-600 sm:shrink-0 sm:text-right">
-              <p className="font-medium text-gray-900">{tenancy.agent.name}</p>
+              <p className="font-medium text-gray-900">{agent.name}</p>
               {branding.ceaRegistration && <p>CEA registration {branding.ceaRegistration}</p>}
               {branding.phone && <p>{branding.phone}</p>}
-              {tenancy.agent.email && <p>{tenancy.agent.email}</p>}
+              {agent.email && <p>{agent.email}</p>}
             </div>
           </div>
         )}
@@ -139,10 +141,10 @@ export async function ReportDocument({
             <dt className="text-xs uppercase tracking-wide text-gray-500">Tenant</dt>
             <dd className="mt-0.5">{tenancy.tenant.name}</dd>
           </div>
-          {tenancy.agent && (
+          {agent && (
             <div>
               <dt className="text-xs uppercase tracking-wide text-gray-500">Agent</dt>
-              <dd className="mt-0.5">{tenancy.agent.name}</dd>
+              <dd className="mt-0.5">{agent.name}</dd>
             </div>
           )}
           <div>
@@ -472,7 +474,7 @@ function PhotoRefs({ photos }: { photos: EvidencePhoto[] }) {
       {photos.map((photo, index) => (
         <span key={photo.id}>
           {index > 0 && ', '}
-          <a href={`#photo-${photo.ref.replace('.', '-')}`} className="text-brand-600 hover:underline">
+          <a href={`#photo-${photo.ref.replace('.', '-')}`} className="text-brand-600 underline underline-offset-4">
             {photo.ref}
           </a>
         </span>

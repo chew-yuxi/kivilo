@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { findMany, findFirst, deleteMany, update, maintenanceEmail, reportEmail, renewalEmail, sharedEmail } = vi.hoisted(() => ({
+const { findMany, findFirst, deleteMany, update, maintenanceEmail, reportEmail, renewalEmail, sharedEmail, agencyEmail } = vi.hoisted(() => ({
   findMany: vi.fn(), findFirst: vi.fn(), deleteMany: vi.fn(), update: vi.fn(),
-  maintenanceEmail: vi.fn(), reportEmail: vi.fn(), renewalEmail: vi.fn(), sharedEmail: vi.fn(),
+  maintenanceEmail: vi.fn(), reportEmail: vi.fn(), renewalEmail: vi.fn(), sharedEmail: vi.fn(), agencyEmail: vi.fn(),
 }))
 
 vi.mock('@/lib/db', () => ({ db: {
@@ -17,6 +17,7 @@ vi.mock('@/lib/email', () => ({
   sendReportUpdateNotification: reportEmail,
   sendRenewalReminder: renewalEmail,
   sendPropertySharedNotification: sharedEmail,
+  sendAgencyInvitationNotification: agencyEmail,
 }))
 
 import { deliverNotificationOutbox } from '@/lib/notification-outbox'
@@ -66,5 +67,19 @@ describe('notification delivery permission', () => {
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ emailSentAt: expect.any(Date), emailTo: 'colleague@example.test' }),
     }))
+  })
+
+  it('rechecks and delivers a team invitation through the durable invitation email transport', async () => {
+    findMany.mockResolvedValue([{
+      id: 'invite-notice', recipientId: 'invitee', tenancyId: null, agencyMembershipId: 'invitation',
+      kind: 'AGENCY_INVITATION', title: 'Join Team', body: 'Invite', href: '/team', recipient: { email: 'invitee@example.test' },
+    }])
+    expect((await deliverNotificationOutbox()).email.sent).toBe(1)
+    expect(agencyEmail).toHaveBeenCalledWith('invitee@example.test', expect.objectContaining({ id: 'invite-notice', href: '/team' }))
+    expect(maintenanceEmail).not.toHaveBeenCalled()
+    findFirst.mockResolvedValue(null)
+    agencyEmail.mockClear()
+    expect((await deliverNotificationOutbox()).email.sent).toBe(0)
+    expect(agencyEmail).not.toHaveBeenCalled()
   })
 })

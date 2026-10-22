@@ -21,7 +21,7 @@ export function SignOut({ email, then = '/login' }: { email: string | null; then
           // and Back would show them from that cache.
           window.location.replace(then)
         }}
-        className="text-xs text-gray-500 hover:text-gray-900 disabled:opacity-50"
+        className="action-secondary px-3 text-xs"
       >
         Sign out
       </button>

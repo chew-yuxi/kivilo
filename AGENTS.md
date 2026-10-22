@@ -88,13 +88,45 @@ specific inspection, without granting sibling reports or repairs; new `conducted
 values are attribution only. Landlords and tenants read a report through `authorizeReport`,
 never through the agent rules.
 
-The lead manages sharing by email on the web or app (`tenancy-access-actions.ts`), under
-the tenancy row lock. An unclaimed address uses the existing verified sign-in claim.
+The lead or an agency owner/manager manages sharing by email on the web or
+app (`tenancy-access-actions.ts`), under the tenancy row lock. An unclaimed address
+uses the existing verified sign-in claim.
 Adding access queues a `PROPERTY_SHARED` notification; removal deletes both full and
 historical grants while keeping saved work. Scoped inbox, email and push messages recheck
 access, and signed PDF delivery rechecks the recipient before sending. Sharing does not
-include another tenancy on the same property. Only the lead starts a renewal; its sharing
-checkbox is off by default and explicitly copies current full collaborators when checked.
+include another tenancy on the same property. A lead or agency manager starts a renewal;
+its sharing checkbox is off by default and explicitly copies current full collaborators
+when checked.
+
+Operational teams use `Agency` and `AgencyMembership`, separately from the billing
+`Team`. An invitation must be accepted by its verified account before membership
+becomes active. Owners and managers oversee agency-owned tenancies; ordinary agents
+work only their explicit assignments. Existing personal tenancies remain personal
+until their lead explicitly moves them into an agency. `managedTenancies` includes
+the lead and active agency managers; `actsAsAgent` adds collaborators.
+Membership changes and handover are serialized in `agency-actions.ts`, remove full
+and historical agency grants on departure, and preserve personal work elsewhere.
+An agency must retain an active owner. Historical `conductedById` never changes.
+
+`Inspection.reportAgentId` and `reportAgentFrozen` pin the report's agent at Send.
+`reportAgent` is the shared reading rule for fingerprints, web/app reports, PDF and
+signing emails, so responsible-agent handover cannot rewrite an agreed report.
+Legacy reports sent during a rolling deployment are frozen before any handover.
+
+Property settings are at `/properties/[id]/settings` and in the app. Archive removes
+the property from active work while retaining access to reports. Delete moves only
+draft-only properties into Recently deleted for 30 days; sent/signed/shared reports,
+published history, repairs and assets prevent deletion. Lifecycle management requires
+control over every tenancy: its personal lead, or an agency owner/manager. An agency's
+ordinary lead agent cannot delete the agency's property. Trashed properties deny all
+working access; recovery uses the separate management scope. The daily property-trash
+cron deletes expired eligible drafts and retries durable `StoragePurge` manifests.
+Never remove queued phone media as part of these actions.
+
+Keep lock order consistent: agency (shared for ordinary work, exclusive for membership
+changes), property, tenancy, inspection, then child rows. Property lifecycle takes a
+property update lock; operations that can add children to that property take a key-share
+lock before locking its tenancy/inspection. Recheck authorization after acquiring locks.
 
 **Rooms are independent.** Finishing, reviewing and re-shooting are all scoped to one
 room, so re-shooting the kitchen cannot touch a bedroom someone already reviewed. A new

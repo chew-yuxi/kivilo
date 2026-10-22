@@ -395,7 +395,7 @@ function Viewer({
                     <button
                       type="button"
                       onClick={() => setConfirmDiscard(false)}
-                      className="rounded-md px-3 py-2"
+                      className="rounded-md border border-gray-600 px-3 py-2"
                     >
                       Keep drawing
                     </button>
@@ -483,7 +483,7 @@ function Viewer({
                     <button
                       type="button"
                       onClick={() => setConfirmDelete(false)}
-                      className="rounded-md px-3 py-2"
+                      className="rounded-md border border-gray-600 px-3 py-2"
                     >
                       Keep
                     </button>
@@ -492,7 +492,7 @@ function Viewer({
                   <button
                     type="button"
                     onClick={() => setConfirmDelete(true)}
-                    className="rounded-md px-3 py-2 text-sm text-gray-300 active:bg-white/10"
+                    className="rounded-md border border-gray-600 px-3 py-2 text-sm text-gray-300 active:bg-white/10"
                   >
                     Delete
                   </button>
@@ -647,7 +647,7 @@ export function RoomCaptureScreen({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between text-sm">
-        <Link href={inspectionHref} className="text-gray-600 hover:underline">
+        <Link href={inspectionHref} className="text-link inline-flex min-h-11 items-center">
           ← All rooms
         </Link>
         <span className="text-gray-600">

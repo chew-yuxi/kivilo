@@ -42,7 +42,7 @@ export function CompleteReviewButton({
         {queueError && <p className="mt-1 text-red-700">{queueError}</p>}
       </div>
       {unsent > 0 && online && (
-        <button type="button" onClick={flush} className="text-sm font-medium text-brand-600 underline">
+        <button type="button" onClick={flush} className="action-secondary">
           Retry uploads
         </button>
       )}

@@ -119,7 +119,7 @@ export function LoginForm() {
             setCode('')
             setError(null)
           }}
-          className="w-full text-xs text-gray-500 hover:underline"
+          className="action-secondary w-full"
         >
           Use a different email
         </button>

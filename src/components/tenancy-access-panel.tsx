@@ -26,6 +26,8 @@ export function TenancyAccessPanel({ access, viewerId }: {
   ]
   const accessLabel = access.scope === 'INSPECTION'
     ? 'Access to previous reports'
+    : access.agency
+      ? `${access.agency.name} · team access`
     : access.visibility === 'PRIVATE'
       ? 'Private'
       : access.collaborators.length
@@ -41,7 +43,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
             {accessLabel}
           </span>
         </span>
-        <span className="shrink-0 text-sm font-medium text-brand-700">
+        <span className="action-secondary shrink-0 px-3 text-xs">
           {access.canManageAccess ? 'Manage access' : 'View access'}
         </span>
       </summary>
@@ -57,6 +59,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
           Collaborators can capture photos, edit inventory and manage repairs and updates.
           Access covers this tenancy&apos;s check-in, check-out and evidence. Other properties
           and previous or future tenancies are shared separately.
+          {access.agency && ' Team owners and managers also have oversight of this tenancy.'}
         </p>
 
         <ul className="divide-y divide-gray-100">
@@ -98,7 +101,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
                       setNotice(null)
                       setRemovingId(person.stakeholderId)
                     }}
-                    className="min-h-11 shrink-0 px-2 text-sm text-red-700 hover:underline disabled:opacity-50"
+                    className="action-danger shrink-0 px-3"
                   >
                     Remove
                   </button>
@@ -206,7 +209,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
             </p>
           </form>
         ) : (
-          <p className="text-sm text-gray-500">Only the lead agent can add or remove collaborators.</p>
+          <p className="text-sm text-gray-500">The responsible agent or a team owner or manager can add or remove collaborators.</p>
         )}
 
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}

@@ -13,6 +13,7 @@ import 'report_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'new_maintenance_case_screen.dart';
 import 'property_timeline_screen.dart';
+import 'property_settings_screen.dart';
 import 'service_directory_screen.dart';
 import 'tenancy_access_screen.dart';
 
@@ -436,6 +437,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => PropertyTimelineScreen(
+                          showPropertySettings: terms.role == 'AGENT',
                           propertyId: widget.tenancy.propertyId,
                           api: _api,
                         ),
@@ -443,6 +445,20 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     ),
                   ),
                 ),
+                if (terms.role == 'AGENT') ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: () async {
+                      await Navigator.of(context).push<void>(MaterialPageRoute(
+                        builder: (_) => PropertySettingsScreen(
+                          propertyId: widget.tenancy.propertyId, api: _api,
+                        ),
+                      ));
+                      if (mounted) await _refresh();
+                    },
+                    child: const Text('Property settings'),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 const KiviloSectionHeading(
                   title: 'Property care',

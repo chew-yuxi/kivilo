@@ -13,10 +13,13 @@ import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
+import 'team_screen.dart';
+import 'property_settings_screen.dart';
 import '../ui/kivilo_layout.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, this.onStartCheckIn, this.trackView = true});
+  const SettingsScreen({super.key, this.onStartCheckIn, this.trackView = true, this.api});
+  final Api? api;
   final bool trackView;
 
   /// Set for someone whose home shows only their own tenancies, so an agent who is also
@@ -28,7 +31,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _api = Api();
+  late final _api = widget.api ?? Api();
   late Future<Map<String, dynamic>> _request = _api.deletionRequest();
   late Future<AgentBranding?> _branding = _api.branding();
   late final Future<WorkspacePlan> _plan = _api.plan();
@@ -318,6 +321,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: widget.onStartCheckIn!,
               ),
             ],
+            const SizedBox(height: 28),
+            const KiviloSectionHeading(title: 'Workspace'),
+            const SizedBox(height: 12),
+            _linkCard(
+              icon: Icons.person_outline,
+              title: 'Team',
+              subtitle: 'Members, invitations and assigned work',
+              onTap: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(builder: (_) => TeamScreen(api: _api)),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _linkCard(
+              icon: Icons.home_outlined,
+              title: 'Properties',
+              subtitle: 'Property settings, archived properties and trash',
+              onTap: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(builder: (_) => PropertiesScreen(api: _api)),
+              ),
+            ),
             const SizedBox(height: 28),
             const KiviloSectionHeading(
               title: 'Report branding',

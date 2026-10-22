@@ -54,12 +54,12 @@ export default async function RoomReviewPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between text-sm">
-        <Link href={`/inspections/${id}`} className="text-gray-600 hover:underline">
+        <Link href={`/inspections/${id}`} className="text-link inline-flex min-h-11 items-center">
           ← All rooms
         </Link>
         <Link
           href={`/inspections/${id}/rooms/${room.id}/capture`}
-          className="font-medium text-brand-600 hover:underline"
+          className="action-secondary"
         >
           Add captures
         </Link>

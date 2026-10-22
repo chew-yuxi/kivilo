@@ -137,7 +137,7 @@ export function SignatureCanvas({
         className="mt-3 w-full touch-none rounded border border-dashed border-gray-300 bg-gray-50"
       />
       <div className="mt-3 flex items-center justify-between">
-        <button type="button" onClick={clear} className="text-xs text-gray-500 hover:underline">
+        <button type="button" onClick={clear} className="action-secondary px-3 text-xs">
           Clear
         </button>
         <button

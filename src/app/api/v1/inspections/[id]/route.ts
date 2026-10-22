@@ -11,6 +11,7 @@ import { findingCheckInConditions } from '@/lib/check-in-reference'
 import { comparableItemSelect, findingComparables } from '@/lib/finding-comparables'
 import { findingPhotoView } from '@/lib/finding-photos'
 import { tenancyAccess } from '@/lib/tenancy-access'
+import { propertyState } from '@/lib/property-management'
 
 export const dynamic = 'force-dynamic'
 
@@ -104,6 +105,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
   return {
     id: inspection.id,
     tenancyRecordId: inspection.tenancyId,
+    propertyId: inspection.tenancy.propertyId,
+    propertyState: propertyState(inspection.tenancy.property),
     access: await tenancyAccess(inspection.tenancyId, agent.id),
     kind: inspection.kind,
     status: inspection.status,

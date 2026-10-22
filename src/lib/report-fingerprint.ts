@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import type { Prisma } from '@/generated/prisma'
+import { reportAgent } from '@/lib/report-agent'
 
 /// What a signature agrees to, reduced to one sha256. Recorded on every signature, from
 /// every signing path (`recordSignature`), so either party can later show that the
@@ -16,6 +17,7 @@ export async function reportFingerprint(client: Prisma.TransactionClient, inspec
     include: {
       tenancy: { include: { property: true, landlord: true, tenant: true, agent: true } },
       conductedBy: true,
+      reportAgent: true,
       rooms: {
         orderBy: [{ order: 'asc' }, { id: 'asc' }],
         // The frozen check-in reference is no part of what is signed.
@@ -62,7 +64,7 @@ export async function reportFingerprint(client: Prisma.TransactionClient, inspec
       },
       landlord: party(tenancy.landlord),
       tenant: party(tenancy.tenant),
-      agent: party(tenancy.agent),
+      agent: party(reportAgent(inspection)),
     },
     rooms: inspection.rooms.map((room) => ({
       id: room.id,

@@ -79,7 +79,7 @@ export function AddendaPanel({
         <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
           {published.map((row) => (
             <li key={row.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3 text-sm">
-              <a href={`/updates/${row.id}`} className="font-medium text-brand-700 hover:underline">
+              <a href={`/updates/${row.id}`} className="text-link font-medium">
                 Update {row.number}: {row.title}
               </a>
               <span className="text-xs text-gray-500">
@@ -212,7 +212,7 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
             if (!window.confirm('Discard this draft update? Its changes and the photos uploaded to it are deleted.')) return
             run(() => discardAddendum(draft.id))
           }}
-          className="ml-3 text-sm text-gray-500 hover:text-red-600 disabled:opacity-50"
+          className="action-danger ml-3"
         >
           Discard draft
         </button>
@@ -351,7 +351,7 @@ function EntryForm({
                 setError(message(e))
               }
             })}
-            className="text-xs text-gray-400 hover:text-red-600 disabled:opacity-50"
+            className="action-danger px-3 text-xs"
           >
             Remove
           </button>
@@ -406,7 +406,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
             <figure key={photo.id} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="h-24 w-full rounded border border-gray-200 object-contain" />
-              <figcaption className="flex items-center justify-between text-xs text-gray-500">
+              <figcaption className="flex flex-wrap items-center justify-between gap-1 text-xs text-gray-500">
                 <span>{photo.label ?? ''}</span>
                 <button
                   type="button"
@@ -418,7 +418,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
                       setError(message(e))
                     }
                   })}
-                  className="text-gray-400 hover:text-red-600"
+                  className="action-danger px-2 text-xs"
                 >
                   Remove
                 </button>
@@ -427,7 +427,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
           ))}
         </div>
       )}
-      <label className="inline-block cursor-pointer text-xs font-medium text-brand-700 hover:underline">
+      <label className="action-secondary cursor-pointer px-3 text-xs">
         {pending ? 'Uploading…' : 'Add photos'}
         <input
           type="file"

@@ -28,7 +28,7 @@ export default async function RenewalPage({ params }: PageProps<'/renewals/[tena
 
   return (
     <div className="mx-auto max-w-xl">
-      <Link href="/inspections" className="text-sm text-gray-500 hover:underline">← All inspections</Link>
+      <Link href="/inspections" className="text-link inline-flex min-h-11 items-center text-sm">← All inspections</Link>
       <h1 className="mt-3 text-2xl font-semibold">Renew tenancy</h1>
       <p className="mt-2 text-sm">{propertyLabel(tenancy.property)}</p>
       <p className="mt-1 text-sm text-gray-500">{tenancy.landlord.name} · {tenancy.tenant.name}</p>

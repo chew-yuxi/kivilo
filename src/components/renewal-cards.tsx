@@ -31,12 +31,12 @@ export function RenewalCards({ renewals }: { renewals: RenewalCard[] }) {
               <p className="mt-1 text-sm">{renewal.property}</p>
               <p className="mt-1 text-xs text-gray-600">{renewal.tenant} · Tenancy ends {renewal.endDate}</p>
             </div>
-            <button type="button" aria-label={`Dismiss renewal reminder for ${renewal.property}`} disabled={pending} onClick={() => respond(renewal.id, 'DISMISSED')} className="px-2 text-gray-500 disabled:opacity-50">×</button>
+            <button type="button" aria-label={`Dismiss renewal reminder for ${renewal.property}`} disabled={pending} onClick={() => respond(renewal.id, 'DISMISSED')} className="action-secondary min-w-11 px-2">×</button>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
             <Link href={`/renewals/${renewal.id}`} className="rounded-md bg-brand-500 px-3 py-2 font-medium text-white hover:bg-brand-600">Start renewal</Link>
-            <button type="button" disabled={pending} onClick={() => respond(renewal.id, 'NOT_RENEWING')} className="font-medium disabled:opacity-50">Not renewing</button>
-            <button type="button" disabled={pending} onClick={() => respond(renewal.id, 'LATER')} className="text-gray-600 disabled:opacity-50">Remind me in a week</button>
+            <button type="button" disabled={pending} onClick={() => respond(renewal.id, 'NOT_RENEWING')} className="action-secondary">Not renewing</button>
+            <button type="button" disabled={pending} onClick={() => respond(renewal.id, 'LATER')} className="action-secondary">Remind me in a week</button>
           </div>
         </div>
       ))}

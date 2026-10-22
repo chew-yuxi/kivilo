@@ -4,6 +4,7 @@ import '../screens/maintenance_case_screen.dart';
 import '../screens/report_screen.dart';
 import '../screens/inspections_screen.dart';
 import '../screens/inspection_screen.dart';
+import '../screens/team_screen.dart';
 import 'api.dart';
 
 /// The screen a notification's href opens, for the notifications list and a tapped push
@@ -12,6 +13,7 @@ import 'api.dart';
 /// report is looked up first, through the same read scope as everything else.
 Future<Widget?> notificationScreen(String? href, Api api) async {
   final path = href ?? '';
+  if (path == '/team') return TeamScreen(api: api);
   if (path == '/inspections') return const InspectionsScreen();
   final inspection = RegExp(r'^/inspections/([^/]+)$').firstMatch(path);
   if (inspection != null) {

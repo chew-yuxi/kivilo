@@ -6,6 +6,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/page_context_title.dart';
 import 'inspection_screen.dart';
+import 'property_settings_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
 import '../ui/kivilo_layout.dart';
@@ -13,7 +14,8 @@ import '../ui/kivilo_layout.dart';
 /// Everything settled at one address, newest first. The server decides which tenancies
 /// this viewer may see; the screen only lays them out.
 class PropertyTimelineScreen extends StatefulWidget {
-  const PropertyTimelineScreen({super.key, required this.propertyId, this.api});
+  const PropertyTimelineScreen({super.key, required this.propertyId, this.api, this.showPropertySettings = false});
+  final bool showPropertySettings;
   final String propertyId;
   final Api? api;
 
@@ -96,6 +98,20 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
                 'Signed reports, repairs and agreed costs, newest first.',
                 style: text.bodyMedium,
               ),
+              if (widget.showPropertySettings) ...[
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () async {
+                    await Navigator.of(context).push<void>(MaterialPageRoute(
+                      builder: (_) => PropertySettingsScreen(
+                        propertyId: widget.propertyId, api: _api,
+                      ),
+                    ));
+                    if (mounted) await _refresh();
+                  },
+                  child: const Text('Property settings'),
+                ),
+              ],
               if (timeline.events.isEmpty) ...[
                 const SizedBox(height: 24),
                 Card(

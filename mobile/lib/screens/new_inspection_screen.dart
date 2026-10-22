@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../services/api.dart';
+import '../models/agency.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 
 class NewInspectionScreen extends StatefulWidget {
-  const NewInspectionScreen({super.key});
+  const NewInspectionScreen({super.key, this.api});
+  final Api? api;
 
   @override
   State<NewInspectionScreen> createState() => _NewInspectionScreenState();
@@ -15,7 +17,8 @@ class NewInspectionScreen extends StatefulWidget {
 
 class _NewInspectionScreenState extends State<NewInspectionScreen> {
   final _form = GlobalKey<FormState>();
-  final _api = Api();
+  late final _api = widget.api ?? Api();
+  AgencySummary? _agency;
   final _fields = <String, TextEditingController>{
     for (final name in [
       'line1',
@@ -70,6 +73,65 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     }
   }
 
+  Future<void> _chooseWorkspace() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final index = await _api.agencies();
+      if (!mounted) return;
+      final selection = await showKiviloDrawer<String>(
+        context: context,
+        builder: (context) => KiviloDrawer(
+          title: const Text('Who owns this work?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Personal'),
+                subtitle: const Text(
+                  'Private to you until you add collaborators',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.pop(context, 'personal'),
+              ),
+              for (final agency in index.agencies)
+                ListTile(
+                  title: Text(agency.name),
+                  subtitle: const Text(
+                    'Team owners and managers can oversee this work',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.pop(context, agency.id),
+                ),
+              if (index.agencies.isEmpty)
+                const Text('Create or join a team in Account → Team.'),
+            ],
+          ),
+          actions: [
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+      if (selection != null && mounted) {
+        setState(
+          () => _agency = selection == 'personal'
+              ? null
+              : index.agencies.firstWhere((agency) => agency.id == selection),
+        );
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = plainError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _create() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!_form.currentState!.validate()) return;
@@ -90,6 +152,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     try {
       String value(String key) => _fields[key]!.text.trim();
       final id = await _api.createInspection({
+        'agencyId': ?_agency?.id,
         'line1': value('line1'),
         'unit': value('unit').isEmpty ? null : value('unit'),
         'postalCode': value('postalCode'),
@@ -165,6 +228,17 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           Text(
             'Set up the property and tenancy. You can add rooms after this.',
             style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 20),
+          OutlinedButton(
+            onPressed: _busy ? null : _chooseWorkspace,
+            child: Text('Workspace: ${_agency?.name ?? 'Personal'}'),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _agency == null
+                ? 'Private to you until you share it.'
+                : 'The team owns this work. Its owners and managers can access and reassign it.',
           ),
           const SizedBox(height: 32),
           const KiviloSectionHeading(

@@ -32,6 +32,7 @@ function activeTenancy(agent: Pick<Stakeholder, 'id' | 'teamId'>): Prisma.Tenanc
     AND: [
       agent.teamId ? { agent: { teamId: agent.teamId } } : { agentId: agent.id },
       { endDate: { gte: new Date() } },
+      { property: { trashedAt: null } },
       { inspections: { none: { kind: 'CHECK_OUT', status: 'COMPLETED' } } },
     ],
   }

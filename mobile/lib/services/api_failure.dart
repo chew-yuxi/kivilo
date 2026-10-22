@@ -43,6 +43,17 @@ class ApiFailure implements Exception {
         'Someone already updated this repair. Refresh and check the timeline.',
       'move_in_defect_stale_target' =>
         'This item has since been replaced or removed. The notice cannot be agreed, but you can still dispute it.',
+      'agency_conflict' =>
+        error.response?.data is Map &&
+                (error.response!.data as Map)['message'] is String
+            ? (error.response!.data as Map)['message'] as String
+            : 'Team access has changed. Refresh and try again.',
+      'property_history' =>
+        'This property has report history and cannot be deleted. Archive it to preserve its records.',
+      'property_restore_expired' =>
+        'The recovery period has ended. This property can no longer be restored.',
+      'property_trashed' =>
+        'This property is in trash. Restore it from Account → Properties → Trash before continuing.',
       'finding_save_conflict' =>
         'This finding was already saved. Reopen it to save your latest changes. Your draft is kept on this phone.',
       _ =>

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder, sendPropertySharedNotification } from '@/lib/email'
+import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder, sendPropertySharedNotification, sendAgencyInvitationNotification } from '@/lib/email'
 import { queueRenewalReminders } from '@/lib/renewals'
 import { deliverPushOutbox } from '@/lib/push'
 import { activeNotificationRecipients, notificationCanBeDelivered } from '@/lib/notification-recipients'
@@ -61,7 +61,9 @@ export async function deliverNotificationOutbox(limit = 25) {
   for (const notification of pending) {
     try {
       if (!await notificationCanBeDelivered(db, notification)) continue
-      if (notification.kind === 'PROPERTY_SHARED') {
+      if (notification.kind === 'AGENCY_INVITATION') {
+        await sendAgencyInvitationNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+      } else if (notification.kind === 'PROPERTY_SHARED') {
         await sendPropertySharedNotification(notification.recipient.email!, { ...notification, href: notification.href! })
       } else if (notification.kind === 'REPORT_UPDATED') {
         await sendReportUpdateNotification(notification.recipient.email!, { ...notification, href: notification.href! })

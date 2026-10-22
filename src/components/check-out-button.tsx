@@ -19,7 +19,7 @@ export function CheckOutButton({
     return (
       <Link
         href={`/inspections/${existingCheckOutId}`}
-        className="inline-block text-sm text-brand-600 hover:underline"
+        className="action-secondary"
       >
         Go to the check-out for this tenancy →
       </Link>

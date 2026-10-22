@@ -2,10 +2,12 @@
 
 import { ZodError } from 'zod'
 import { addTenancyCollaborator, removeTenancyCollaborator } from '@/lib/tenancy-access-actions'
+import { AgencyActionError } from '@/lib/agency-errors'
 
 // Expected failures travel as data: production server actions redact thrown error
 // messages. Unexpected failures still throw so the server records them normally.
 function expectedAccessError(error: unknown): string {
+  if (error instanceof AgencyActionError) return error.message
   if (error instanceof ZodError) return error.issues.map((issue) => issue.message).join(' ')
   if (error instanceof Error && error.message === 'Tenancy not found') {
     return 'This tenancy is no longer available. Refresh the page to continue.'

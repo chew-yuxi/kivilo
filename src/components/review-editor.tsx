@@ -139,6 +139,7 @@ function ItemRow({
         <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${CONDITION_TONE[condition]}`}>
           {condition}
         </span>
+        <span aria-hidden="true" className="shrink-0 text-lg text-gray-500">{open ? '⌄' : '›'}</span>
       </button>
 
       {open && (
@@ -262,7 +263,7 @@ function ItemRow({
             <button
               type="button"
               onClick={() => onShowEvidence(item.sourceCaptureId!, item.sourceTimestampSec)}
-              className="font-mono text-xs text-brand-600 hover:underline"
+              className="action-secondary px-3 font-mono text-xs"
             >
               {item.sourceTimestampSec !== null ? timecode(item.sourceTimestampSec) : 'photo'}
             </button>
@@ -308,7 +309,7 @@ function ItemRow({
             <button
               type="button"
               onClick={() => startTransition(() => void deleteItem(item.id, inspectionId))}
-              className="-mx-2 px-2 py-1 text-xs text-gray-400 hover:text-red-600"
+              className="action-danger px-3 text-xs"
             >
               Remove
             </button>
@@ -522,7 +523,7 @@ export function ReviewEditor({
                 setOpenId(await addItem(roomId, inspectionId))
               })
             }
-            className="text-sm font-medium text-brand-600 hover:underline disabled:opacity-50"
+            className="action-secondary"
           >
             + Add an item
           </button>
@@ -560,7 +561,7 @@ export function ReviewEditor({
               <button
                 type="button"
                 onClick={() => setConfirmEmpty(false)}
-                className="rounded-md px-3 py-2 text-gray-600"
+                className="action-secondary"
               >
                 Cancel
               </button>

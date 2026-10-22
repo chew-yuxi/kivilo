@@ -17,6 +17,7 @@ import { currentState } from '@/lib/addenda'
 import { checkInPhotoUrls, roomBaselines } from '@/lib/check-in-reference'
 import { Prisma } from '@/generated/prisma'
 import { claimFindingPhotoDraft, retireFindingPhotos } from '@/lib/finding-photos'
+import { lockAgency, lockAgencyTenancy, requireAgencyMembership } from '@/lib/agency'
 import type {
   ChangeType,
   InspectionStatus,
@@ -66,17 +67,32 @@ async function lockInspection(tx: Prisma.TransactionClient, inspectionId: string
     SELECT "status" FROM "Inspection" WHERE "id" = ${inspectionId} FOR UPDATE
   `
   if (rows.length !== 1) throw new Error('Inspection not found')
+  // Recheck after the lock: a request authorized before deletion may have waited
+  // behind moving the property to Recently deleted. It must not send or edit it.
+  if (!await tx.inspection.findFirst({
+    where: { id: inspectionId, tenancy: { property: { trashedAt: null } } }, select: { id: true },
+  })) throw new Error('Inspection not found')
   return rows[0]
 }
 
 async function editOpenInspection<T>(
   inspectionId: string,
+  actorId: string,
   edit: (tx: Prisma.TransactionClient) => Promise<T>,
 ) {
   return db.$transaction(async (tx) => {
-    assertOpen(await lockInspection(tx, inspectionId))
+    assertOpen(await lockAgentInspection(tx, inspectionId, actorId))
     return edit(tx)
   })
+}
+
+async function lockAgentInspection(tx: Prisma.TransactionClient, inspectionId: string, actorId: string) {
+  const inspection = await tx.inspection.findUnique({ where: { id: inspectionId }, select: { tenancyId: true } })
+  if (!inspection) throw new Error('Inspection not found')
+  await lockAgencyTenancy(inspection.tenancyId, tx)
+  const current = await lockInspection(tx, inspectionId)
+  await authorizeInspection(inspectionId, actorId, { client: tx })
+  return current
 }
 
 // Every action below starts by resolving the signed-in agent and checking that the id
@@ -113,6 +129,7 @@ async function authorizeItem(itemId: string, inspectionId: string, agentId: stri
 /// it, so they see every deal that names them from the one login. The name the agent
 /// typed does not overwrite the one on file, since other deals show that name too.
 export async function createInspection(input: {
+  agencyId?: string
   line1: string
   unit: string | null
   postalCode: string
@@ -154,7 +171,12 @@ export async function createInspection(input: {
     return email ? { connectOrCreate: { where: { email }, create } } : { create }
   }
 
-  const inspection = await db.inspection.create({
+  const inspection = await db.$transaction(async (tx) => {
+    if (input.agencyId) {
+      await lockAgency(input.agencyId, tx)
+      await requireAgencyMembership(input.agencyId, agent.id, tx)
+    }
+    return tx.inspection.create({
     data: {
       kind: 'CHECK_IN',
       fullyFurnished: input.fullyFurnished,
@@ -169,6 +191,7 @@ export async function createInspection(input: {
           // connect rather than a scalar agentId: Prisma will not mix a foreign key
           // with nested relation creates in the same input.
           agent: { connect: { id: agent.id } },
+          ...(input.agencyId && { agency: { connect: { id: input.agencyId } } }),
           property: {
             create: {
               line1: input.line1.trim(),
@@ -182,6 +205,7 @@ export async function createInspection(input: {
         },
       },
     },
+    })
   })
 
   revalidatePath('/inspections')
@@ -197,7 +221,7 @@ export async function addRoom(inspectionId: string, name: string) {
   const inspection = await authorizeInspection(inspectionId, agent.id)
   assertOpen(inspection)
 
-  const room = await editOpenInspection(inspectionId, async (tx) => {
+  const room = await editOpenInspection(inspectionId, agent.id, async (tx) => {
     const last = await tx.room.findFirst({
       where: { inspectionId },
       orderBy: { order: 'desc' },
@@ -234,7 +258,7 @@ export async function renameRoom(roomId: string, inspectionId: string, name: str
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, (tx) =>
+  await editOpenInspection(inspectionId, agent.id, (tx) =>
     tx.room.update({ where: { id: roomId }, data: { name } }))
   revalidate(inspectionId)
 }
@@ -245,7 +269,7 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, async (tx) => {
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
     const current = await tx.room.findFirst({
       where: { id: roomId, inspectionId },
       select: { id: true },
@@ -274,7 +298,7 @@ export async function markRoomReviewed(
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, async (tx) => {
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
     const current = await tx.room.findUniqueOrThrow({
       where: { id: roomId },
       select: { status: true, _count: { select: { items: true } } },
@@ -343,7 +367,7 @@ export async function requestUploadUrl(
   // signed token. Otherwise an already authorized request could mint a two-hour
   // upload credential for a room after its inspection was deleted.
   return db.$transaction(async (tx) => {
-    assertNotCountersigned(await lockInspection(tx, inspectionId))
+    assertNotCountersigned(await lockAgentInspection(tx, inspectionId, agent.id))
     const currentRoom = await tx.room.findFirst({
       where: { id: roomId, inspectionId },
       select: { id: true },
@@ -417,7 +441,7 @@ export async function registerCapture(input: {
   let created: { id: string }
   try {
     created = await db.$transaction(async (tx) => {
-      const inspection = await lockInspection(tx, input.inspectionId)
+      const inspection = await lockAgentInspection(tx, input.inspectionId, agent.id)
       assertNotCountersigned(inspection)
       const currentRoom = await tx.room.findFirst({
         where: { id: input.roomId, inspectionId: input.inspectionId },
@@ -514,7 +538,7 @@ export async function updateCaptureNote(captureId: string, inspectionId: string,
   if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, (tx) =>
+  await editOpenInspection(inspectionId, agent.id, (tx) =>
     tx.capture.update({ where: { id: captureId }, data: { note } }))
   revalidate(inspectionId)
 }
@@ -543,7 +567,7 @@ export async function annotateCapture(
   // payload is a rejection, not a silent truncation.
   const parsed = input === null ? null : annotationInputSchema.parse(input)
 
-  await editOpenInspection(inspectionId, (tx) =>
+  await editOpenInspection(inspectionId, agent.id, (tx) =>
     tx.capture.update({
       where: { id: captureId },
       data: {
@@ -568,7 +592,7 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
   if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, async (tx) => {
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
     const current = await tx.capture.findUnique({
       where: { id: captureId },
       select: { roomId: true, storagePath: true, posterPath: true },
@@ -595,7 +619,7 @@ export async function finishRoomCapture(roomId: string, inspectionId: string) {
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, (tx) =>
+  await editOpenInspection(inspectionId, agent.id, (tx) =>
     tx.room.updateMany({
       where: { id: roomId, status: { not: 'REVIEWED' } },
       data: { status: 'REVIEW' },
@@ -625,7 +649,7 @@ export async function updateItem(
   const item = await authorizeItem(itemId, inspectionId, agent.id)
   const { evidenceCaptureIds, ...changes } = data
 
-  await editOpenInspection(inspectionId, async (tx) => {
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
     if (evidenceCaptureIds !== undefined) {
       const uniqueIds = [...new Set(evidenceCaptureIds)]
       const captures = await tx.capture.count({
@@ -652,7 +676,7 @@ export async function deleteItem(itemId: string, inspectionId: string) {
   const agent = await requireAgent()
   await authorizeItem(itemId, inspectionId, agent.id)
 
-  await editOpenInspection(inspectionId, async (tx) => {
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
     const { roomId } = await tx.inspectionItem.delete({ where: { id: itemId } })
     // A reviewed room emptied this way would read "Nothing recorded in this room" without
     // the inspector ever saying so. It goes back to review to be asked.
@@ -669,7 +693,7 @@ export async function addItem(roomId: string, inspectionId: string) {
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  const item = await editOpenInspection(inspectionId, (tx) =>
+  const item = await editOpenInspection(inspectionId, agent.id, (tx) =>
     tx.inspectionItem.create({
       data: {
         roomId,
@@ -691,7 +715,7 @@ export async function completeReview(inspectionId: string) {
   const agent = await requireAgent()
   assertOpen(await authorizeInspection(inspectionId, agent.id))
 
-  await editOpenInspection(inspectionId, async (tx) => {
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
     const rooms = await tx.room.count({ where: { inspectionId } })
     if (rooms === 0) throw new Error('Add and review at least one room before sending')
 
@@ -709,9 +733,10 @@ export async function completeReview(inspectionId: string) {
       throw new Error('Review every room with new captures before sending for signature')
     }
 
+    const source = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { tenancy: { select: { agentId: true } } } })
     const { tenancy } = await tx.inspection.update({
       where: { id: inspectionId },
-      data: { status: 'AWAITING_SIGNATURE' },
+      data: { status: 'AWAITING_SIGNATURE', reportAgentId: source.tenancy.agentId, reportAgentFrozen: true },
       select: { tenancy: { select: { landlordId: true, tenantId: true } } },
     })
     // In the same commit, so a report sent for signature always has its emails coming.
@@ -746,7 +771,7 @@ export async function signInspection(
   if (authorized.status !== 'AWAITING_SIGNATURE' && authorized.status !== 'COMPLETED') {
     throw new Error('Report is not awaiting signature')
   }
-  await recordSignature(inspectionId, authorized.tenancyId, stakeholderId, imageData)
+  await recordSignature(inspectionId, authorized.tenancyId, stakeholderId, imageData, agent.id)
   revalidate(inspectionId)
 }
 
@@ -764,6 +789,7 @@ async function recordSignature(
   tenancyId: string,
   stakeholderId: string,
   imageData: string,
+  agentId?: string,
 ) {
   if (!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(imageData) || imageData.length > 2_000_000) {
     throw new Error('Invalid signature image')
@@ -774,13 +800,14 @@ async function recordSignature(
     // Insert and finalization are one commit. A retry after a lost response can
     // always recover completion instead of getting stuck with two signature rows
     // and an inspection still awaiting signature.
+    await lockAgencyTenancy(tenancyId, tx)
     const current = await lockInspection(tx, inspectionId)
+    if (agentId) await authorizeInspection(inspectionId, agentId, { client: tx })
     if (current.status !== 'AWAITING_SIGNATURE' && current.status !== 'COMPLETED') {
       throw new Error('Report is not awaiting signature')
     }
     // The handover window and move-in notices use this same tenancy lock. A final
     // check-out signature must also serialize with a landlord answering a notice.
-    await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
     const tenancy = await tx.tenancy.findUniqueOrThrow({
       where: { id: tenancyId },
       select: { landlordId: true, tenantId: true },
@@ -1003,30 +1030,21 @@ export async function updateFinding(
 export async function shareReport(inspectionId: string) {
   const agent = await requireAgent()
   await authorizeInspection(inspectionId, agent.id)
-
-  const existing = await db.inspection.findUniqueOrThrow({
-    where: { id: inspectionId },
-    select: { shareToken: true, status: true },
+  const token = await db.$transaction(async (tx) => {
+    await lockAgentInspection(tx, inspectionId, agent.id)
+    const existing = await tx.inspection.findUniqueOrThrow({
+      where: { id: inspectionId }, select: { shareToken: true, status: true },
+    })
+    if (existing.status !== 'COMPLETED') throw new Error('Only a countersigned report can be shared')
+    if (existing.shareToken) return existing.shareToken
+    const token = randomBytes(32).toString('base64url')
+    await tx.inspection.update({
+      where: { id: inspectionId }, data: { shareToken: token, sharedAt: new Date() },
+    })
+    return token
   })
-
-  if (existing.status !== 'COMPLETED') {
-    throw new Error('Only a countersigned report can be shared')
-  }
-  if (existing.shareToken) return existing.shareToken
-
-  const token = randomBytes(32).toString('base64url')
-  await db.inspection.updateMany({
-    where: { id: inspectionId, shareToken: null },
-    data: { shareToken: token, sharedAt: new Date() },
-  })
-
-  const current = await db.inspection.findUniqueOrThrow({
-    where: { id: inspectionId },
-    select: { shareToken: true },
-  })
-  if (!current.shareToken) throw new Error('Share link changed; retry')
   revalidate(inspectionId)
-  return current.shareToken
+  return token
 }
 
 /// Revoking clears the token, so the old link 404s exactly like a report that never
@@ -1035,9 +1053,11 @@ export async function revokeReportLink(inspectionId: string) {
   const agent = await requireAgent()
   await authorizeInspection(inspectionId, agent.id)
 
-  await db.inspection.update({
-    where: { id: inspectionId },
-    data: { shareToken: null, sharedAt: null },
+  await db.$transaction(async (tx) => {
+    await lockAgentInspection(tx, inspectionId, agent.id)
+    await tx.inspection.update({
+      where: { id: inspectionId }, data: { shareToken: null, sharedAt: null },
+    })
   })
   // A generated PDF is a copy of the report. The link that reached it is dead now, and
   // so are the copies; the agent's next download draws a fresh one.

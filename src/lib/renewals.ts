@@ -22,6 +22,7 @@ function pendingRenewals(now: Date): Prisma.TenancyWhereInput {
   const horizon = new Date(now)
   horizon.setUTCMonth(horizon.getUTCMonth() + 4)
   return {
+    property: { archivedAt: null, trashedAt: null },
     endDate: { gte: now, lte: horizon },
     renewalDecision: null,
     renewedAs: null,

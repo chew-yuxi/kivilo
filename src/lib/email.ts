@@ -137,6 +137,25 @@ export async function sendPropertySharedNotification(
   if (error) throw new Error(`Resend refused the property sharing email: ${error.message}`)
 }
 
+export function agencyInvitationEmail(notification: { title: string; body: string; href: string }) {
+  const origin = process.env.KIVILO_APP_URL
+  if (!origin) throw new Error('KIVILO_APP_URL must be set')
+  return {
+    subject: notification.title,
+    text: [notification.body, '', `Review invitation: ${new URL(notification.href, origin).href}`, '',
+      'Sign in using the email address this message was sent to. Joining does not share your personal properties.',
+    ].join('\n'),
+  }
+}
+
+export async function sendAgencyInvitationNotification(to: string, notification: { id: string; title: string; body: string; href: string }) {
+  const { subject, text } = agencyInvitationEmail(notification)
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
+    idempotencyKey: `agency-invitation-${notification.id}`,
+  })
+  if (error) throw new Error(`Resend refused the team invitation: ${error.message}`)
+}
+
 /// To a landlord or tenant, when the agent publishes an update to their signed report.
 /// The link is the update page, which asks them to sign in, so it carries no credential.
 export function reportUpdateEmail(notification: { title: string; body: string; href: string }) {

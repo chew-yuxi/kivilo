@@ -114,22 +114,32 @@ export const requireAgent = requireStakeholder
 
 export type TenancyRole = 'LANDLORD' | 'TENANT' | 'AGENT'
 
-/// The lead and explicitly invited collaborators work a tenancy. Team membership is
-/// billing only, and conducting an inspection records attribution, never lasting access.
+/// The lead, invited collaborators and active agency managers work a tenancy. Billing
+/// Team membership grants nothing; conducting an inspection is attribution only.
 /// Every full tenancy permission goes through this. Migrated inspection-only grants
 /// preserve their narrower scope separately in inspectionScope.
 export function actsAsAgent(stakeholderId: string): Prisma.TenancyWhereInput {
   return {
+    property: { trashedAt: null },
     OR: [
-      { agentId: stakeholderId },
+      managedTenancies(stakeholderId),
       { collaborators: { some: { stakeholderId } } },
     ],
   }
 }
 
-/// Only the lead may grant or revoke access, or carry it into a new tenancy.
+/// Management scope deliberately includes trash so restore can check the same owner.
+/// Billing Team membership is never an authorization rule.
+export function managedTenancies(stakeholderId: string): Prisma.TenancyWhereInput {
+  return { OR: [
+    { agentId: stakeholderId },
+    { agency: { members: { some: { stakeholderId, status: 'ACTIVE', role: { in: ['OWNER', 'MANAGER'] } } } } },
+  ] }
+}
+
+/// The responsible lead and an agency's managers may share and renew its records.
 export function leadTenancies(stakeholderId: string): Prisma.TenancyWhereInput {
-  return { agentId: stakeholderId }
+  return { AND: [managedTenancies(stakeholderId), { property: { trashedAt: null } }] }
 }
 
 /// Accept a transaction so ownership is rechecked while holding the tenancy row lock.
@@ -168,6 +178,7 @@ export async function authorizeAgentTenancy(tenancyId: string, stakeholderId: st
 /// scope remains separate because completed reports have their own retention rules.
 export function tenancyScope(stakeholderId: string, now = new Date()): Prisma.TenancyWhereInput {
   return {
+    property: { trashedAt: null },
     OR: [
       { landlordId: stakeholderId },
       { tenantId: stakeholderId },
@@ -194,13 +205,13 @@ export async function authorizeTenancy(tenancyId: string, stakeholderId: string)
 /// Full tenancy access or an exact historical inspection grant. Attribution alone
 /// grants nothing, and the lead can revoke either kind through Manage access.
 export function inspectionScope(agentId: string): Prisma.InspectionWhereInput {
-  return { OR: [{ tenancy: actsAsAgent(agentId) }, { accessGrants: { some: { stakeholderId: agentId } } }] }
+  return { tenancy: { property: { trashedAt: null } }, OR: [{ tenancy: actsAsAgent(agentId) }, { accessGrants: { some: { stakeholderId: agentId } } }] }
 }
 
 /// Access details accompany the inspection someone may open, including ended terms
 /// and old inspection-only access. This is never authorization to work on the tenancy.
 export function tenancyAccessScope(stakeholderId: string): Prisma.TenancyWhereInput {
-  return { OR: [actsAsAgent(stakeholderId), { inspections: { some: { accessGrants: { some: { stakeholderId } } } } }] }
+  return { property: { trashedAt: null }, OR: [actsAsAgent(stakeholderId), { inspections: { some: { accessGrants: { some: { stakeholderId } } } } }] }
 }
 
 /// A queued message never outlives its recipient's current access. Exact historical
@@ -209,8 +220,10 @@ export function notificationScope(stakeholderId: string): Prisma.NotificationWhe
   return {
     recipientId: stakeholderId,
     recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
+    AND: [{ OR: [{ tenancyId: null }, { tenancy: { property: { trashedAt: null } } }] }],
     OR: [
-      { tenancyId: null },
+      { tenancyId: null, kind: { not: 'AGENCY_INVITATION' } },
+      { kind: 'AGENCY_INVITATION', agencyMembership: { stakeholderId, status: 'INVITED', expiresAt: { gt: new Date() } } },
       { kind: 'PROPERTY_SHARED', tenancy: actsAsAgent(stakeholderId) },
       { kind: 'RENEWAL_DUE', tenancy: leadTenancies(stakeholderId) },
       { kind: 'REPORT_UPDATED', tenancy: { OR: [
@@ -249,6 +262,7 @@ export async function authorizeReport(inspectionId: string, stakeholderId: strin
     where: {
       AND: [
         { id: inspectionId },
+        { tenancy: { property: { trashedAt: null } } },
         {
           OR: [
             inspectionScope(stakeholderId),
@@ -274,7 +288,7 @@ export async function authorizeOwnSignature(inspectionId: string, stakeholderId:
     where: {
       id: inspectionId,
       status: 'AWAITING_SIGNATURE',
-      tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
+      tenancy: { property: { trashedAt: null }, OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
     },
     select: { id: true, tenancyId: true },
   })
@@ -292,7 +306,7 @@ export async function signingRole(inspectionId: string, stakeholderId: string) {
     where: {
       id: inspectionId,
       status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] },
-      tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
+      tenancy: { property: { trashedAt: null }, OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] },
     },
     select: { tenancy: { select: { landlordId: true } } },
   })
@@ -318,6 +332,7 @@ export function addendumReadScope(stakeholderId: string): Prisma.ReportAddendumW
   return {
     publishedAt: { not: null },
     inspection: {
+      tenancy: { property: { trashedAt: null } },
       OR: [
         inspectionScope(stakeholderId),
         { tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] } },
@@ -335,7 +350,7 @@ export async function authorizeOwnAcknowledgement(addendumId: string, stakeholde
       id: addendumId,
       publishedAt: { not: null },
       disputedAt: null,
-      inspection: { tenancy: { OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] } },
+      inspection: { tenancy: { property: { trashedAt: null }, OR: [{ landlordId: stakeholderId }, { tenantId: stakeholderId }] } },
     },
     select: { id: true, inspectionId: true },
   })

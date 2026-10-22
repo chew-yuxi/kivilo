@@ -4,6 +4,8 @@ import { recordServerError } from '@/lib/errors'
 import type { Stakeholder } from '@/generated/prisma'
 import { ZodError } from 'zod'
 import { MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
+import { AgencyActionError } from '@/lib/agency-errors'
+import { PropertyLifecycleError } from '@/lib/property-errors'
 
 /// Transport for the native client. These handlers are deliberately thin: they resolve
 /// the agent, call the same function the web app calls, and serialise the result. No
@@ -30,8 +32,14 @@ export function authed<P>(
       // cannot be used to discover which ids are real. Nothing else is echoed back: the
       // thrown message can carry a Prisma model name or a driver error.
       const message = error instanceof Error ? error.message : ''
+      if (error instanceof PropertyLifecycleError) {
+        return Response.json({ error: error.code, message: error.message }, { status: 409 })
+      }
       if (/not found/i.test(message)) {
         return Response.json({ error: 'not_found' }, { status: 404 })
+      }
+      if (error instanceof AgencyActionError) {
+        return Response.json({ error: 'agency_conflict', message: error.message }, { status: 409 })
       }
       if (error instanceof ZodError || error instanceof SyntaxError ||
           /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Photo path|Unsupported logo|The landlord and tenant need different email addresses)/.test(message)) {

@@ -6,6 +6,7 @@ import { toAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
 import type { Prisma } from '@/generated/prisma'
+import { reportAgent } from '@/lib/report-agent'
 
 /// What a report contains, shared by the link page and the app so the two can never show
 /// different documents. Late phone uploads may finish after Send; their bytes stay safely
@@ -15,6 +16,7 @@ export const reportInclude = {
     include: { property: true, landlord: true, tenant: true, agent: { include: { branding: true } } },
   },
   conductedBy: true,
+  reportAgent: { include: { branding: true } },
   checkOut: { select: { status: true } },
   rooms: {
     orderBy: { order: 'asc' },
@@ -59,7 +61,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
     property: propertyLabel(tenancy.property),
     landlord: tenancy.landlord.name,
     tenant: tenancy.tenant.name,
-    agent: tenancy.agent?.name ?? null,
+    agent: reportAgent(inspection)?.name ?? null,
     startDate: tenancy.startDate.toISOString(),
     endDate: tenancy.endDate.toISOString(),
     deposit: tenancy.deposit.toString(),

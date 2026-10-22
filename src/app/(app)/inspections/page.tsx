@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
-import { requireAgent, inspectionScope } from '@/lib/auth'
+import { requireAgent } from '@/lib/auth'
+import { inspectionWorkScope } from '@/lib/inspection-work'
 import { propertyLabel } from '@/lib/format'
 import { StatusBadge } from '@/components/status-badge'
 import { RenewalCards } from '@/components/renewal-cards'
@@ -13,7 +14,7 @@ export default async function InspectionsPage() {
   const renewals = await dueRenewals(agent.id)
 
   const inspections = await db.inspection.findMany({
-    where: inspectionScope(agent.id),
+    where: inspectionWorkScope(agent.id, { mine: true }),
     orderBy: { createdAt: 'desc' },
     include: {
       tenancy: {
@@ -105,6 +106,7 @@ export default async function InspectionsPage() {
                     </span>
                   </div>
                   <StatusBadge status={inspection.status} />
+                  <span aria-hidden="true" className="text-xl text-gray-500">›</span>
                 </Link>
               </li>
             )

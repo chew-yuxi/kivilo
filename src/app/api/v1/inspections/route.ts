@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { inspectionScope } from '@/lib/auth'
+import { inspectionWorkScope } from '@/lib/inspection-work'
+import { propertyState } from '@/lib/property-management'
 import { propertyLabel } from '@/lib/format'
 import { createInspection } from '@/lib/actions'
 import { authed } from '@/lib/api/route'
@@ -8,12 +9,25 @@ import { authed } from '@/lib/api/route'
 export const dynamic = 'force-dynamic'
 
 /// Same query and same scope as the web list at src/app/(app)/inspections/page.tsx.
-export const GET = authed(async (agent) => {
+export const GET = authed(async (agent, _params, request) => {
+  const query = new URL(request.url).searchParams
+  const filters = z.object({
+    agencyId: z.string().min(1).optional(),
+    assigneeId: z.string().min(1).optional(),
+    mine: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
+    state: z.enum(['active', 'archived']).optional(),
+    status: z.enum(['DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW', 'AWAITING_SIGNATURE', 'COMPLETED', 'FAILED']).optional(),
+  }).parse(Object.fromEntries(query))
   const inspections = await db.inspection.findMany({
-    where: inspectionScope(agent.id),
+    where: inspectionWorkScope(agent.id, filters),
     orderBy: { createdAt: 'desc' },
     include: {
-      tenancy: { include: { property: true, tenant: true } },
+      tenancy: { include: {
+        property: true, tenant: true,
+        agency: { select: { id: true, name: true } },
+        agent: { select: { id: true, name: true } },
+        collaborators: { where: { stakeholderId: agent.id }, select: { id: true } },
+      } },
       _count: { select: { rooms: true } },
     },
   })
@@ -21,6 +35,15 @@ export const GET = authed(async (agent) => {
   return inspections.map((inspection) => ({
     id: inspection.id,
     tenancyId: inspection.tenancyId,
+    propertyId: inspection.tenancy.propertyId,
+    propertyState: propertyState(inspection.tenancy.property),
+    agency: inspection.tenancy.agency,
+    agencyId: inspection.tenancy.agencyId,
+    agencyName: inspection.tenancy.agency?.name ?? null,
+    leadAgent: inspection.tenancy.agent,
+    leadAgentId: inspection.tenancy.agentId,
+    leadAgentName: inspection.tenancy.agent?.name ?? null,
+    assignedToMe: inspection.tenancy.agentId === agent.id || inspection.tenancy.collaborators.length > 0,
     kind: inspection.kind,
     status: inspection.status,
     property: propertyLabel(inspection.tenancy.property),
@@ -31,6 +54,7 @@ export const GET = authed(async (agent) => {
 })
 
 const newInspection = z.object({
+  agencyId: z.string().min(1).optional(),
   line1: z.string().trim().min(1),
   unit: z.string().trim().nullable().default(null),
   postalCode: z.string().trim().min(1),

@@ -24,6 +24,7 @@ import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
 import 'tenancy_access_screen.dart';
+import 'property_settings_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
   const InspectionScreen({
@@ -555,6 +556,25 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
+                  if (inspection.propertyId case final propertyId?) ...[
+                    OutlinedButton(
+                      onPressed: _busy
+                          ? null
+                          : () async {
+                              await Navigator.of(context).push<void>(
+                                MaterialPageRoute(
+                                  builder: (_) => PropertySettingsScreen(
+                                    propertyId: propertyId,
+                                    api: _api,
+                                  ),
+                                ),
+                              );
+                              if (mounted) await _refresh();
+                            },
+                      child: const Text('Property settings'),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   if (inspection.tenancyRecordId case final tenancyId?) ...[
                     Card(
                       child: ListTile(

@@ -5,6 +5,8 @@ class InspectionSummary {
   const InspectionSummary({
     required this.id,
     this.tenancyId,
+    this.agency,
+    this.leadAgent,
     required this.kind,
     required this.status,
     required this.property,
@@ -14,6 +16,8 @@ class InspectionSummary {
 
   final String id;
   final String? tenancyId;
+  final Map<String, dynamic>? agency;
+  final Map<String, dynamic>? leadAgent;
   final String kind;
   final String status;
   final String property;
@@ -24,6 +28,8 @@ class InspectionSummary {
       InspectionSummary(
         id: json['id'] as String,
         tenancyId: json['tenancyId'] as String?,
+        agency: json['agency'] as Map<String, dynamic>?,
+        leadAgent: json['leadAgent'] as Map<String, dynamic>?,
         kind: json['kind'] as String,
         status: json['status'] as String,
         property: json['property'] as String,
@@ -38,6 +44,8 @@ class InspectionDetail {
   const InspectionDetail({
     required this.id,
     this.tenancyRecordId,
+    this.propertyId,
+    this.propertyState = 'ACTIVE',
     this.access,
     required this.kind,
     required this.status,
@@ -64,6 +72,8 @@ class InspectionDetail {
 
   final String id;
   final String? tenancyRecordId;
+  final String? propertyId;
+  final String propertyState;
   final TenancyAccess? access;
   final String kind;
   final String status;
@@ -97,6 +107,8 @@ class InspectionDetail {
       InspectionDetail(
         id: json['id'] as String,
         tenancyRecordId: json['tenancyRecordId'] as String?,
+        propertyId: json['propertyId'] as String?,
+        propertyState: json['propertyState'] as String? ?? 'ACTIVE',
         access: json['access'] == null
             ? null
             : TenancyAccess.fromJson(json['access'] as Map<String, dynamic>),

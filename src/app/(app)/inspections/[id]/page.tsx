@@ -25,6 +25,8 @@ import { DepositStatementAnswer } from '@/components/deposit-statement-answer'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { tenancyAccess } from '@/lib/tenancy-access'
 import { TenancyAccessPanel } from '@/components/tenancy-access-panel'
+import { TenancyAssignmentPanel } from '@/components/tenancy-assignment-panel'
+import { agencyList } from '@/lib/agency'
 
 export const dynamic = 'force-dynamic'
 
@@ -71,6 +73,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
   const { tenancy, status, kind } = inspection
   const access = await tenancyAccess(tenancy.id, agent.id)
+  const { agencies } = await agencyList(agent.id)
   const published = inspection.assessments[0]
   const snapshot = published && assessmentSnapshotSchema.parse(published.snapshot)
   const deposit = snapshot && depositStatement(snapshot)
@@ -199,7 +202,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/inspections" className="text-sm text-gray-500 hover:underline">
+        <Link href="/inspections" className="text-link inline-flex min-h-11 items-center text-sm">
           ← All inspections
         </Link>
         <div className="mt-3 flex items-start justify-between gap-6">
@@ -215,7 +218,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
                 Rooms copied from, and compared against,{' '}
                 <Link
                   href={`/inspections/${inspection.baseline.id}`}
-                  className="text-brand-600 hover:underline"
+                  className="text-link"
                 >
                   the check-in
                 </Link>
@@ -225,7 +228,10 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
               </p>
             )}
           </div>
-          <StatusBadge status={status} />
+          <div className="flex shrink-0 flex-col items-end gap-3">
+            <StatusBadge status={status} />
+            <Link href={`/properties/${tenancy.propertyId}/settings`} className="action-secondary">Property settings</Link>
+          </div>
         </div>
         {inspection.summary && (
           <p className="mt-4 max-w-3xl rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
@@ -235,6 +241,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       </div>
 
       <TenancyAccessPanel access={access} viewerId={agent.id} />
+      <TenancyAssignmentPanel key={`${tenancy.id}-${access.agency?.id ?? 'personal'}-${access.leadAgent?.id}`} access={access} agencies={agencies} />
 
       {nextStep && (
         <div className="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
@@ -242,7 +249,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           <p className="mt-0.5 text-sm text-gray-600">{nextStep.body}</p>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
             {nextStep.links.map((link) => (
-              <a key={link.href} href={link.href} className="text-sm font-medium text-brand-700 hover:underline">
+              <a key={link.href} href={link.href} className="action-secondary">
                 {link.label} →
               </a>
             ))}

@@ -118,6 +118,10 @@ test('a tenant records move-in conditions with evidence and only a landlord-agre
   expect(assessed.findings[0].baselineCondition).toBe('DAMAGED')
   await page.goto(`/handover/${inspectionId}`)
   await page.getByRole('button', { name: 'Sign out', exact: true }).click()
+  // Sign-out waits for Supabase before replacing the document. Starting signIn's
+  // /login navigation before that replacement finishes aborts one of the two loads.
+  await expect(page).toHaveURL(/\/login\?/)
+  await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible()
   await signIn(page, agentEmail)
   await page.goto(`/inspections/${checkoutId}`)
   await expect(page.getByText('DAMAGED at check-in · DAMAGED at check-out', { exact: true })).toBeVisible()

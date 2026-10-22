@@ -21,6 +21,7 @@ import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import type { StateLine } from '@/lib/addenda-state'
 import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
 import { assertNoSignedCheckOut, lockMoveInDefectTenancy, MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
+import { lockAgencyTenancy } from '@/lib/agency'
 
 // Addenda: dated updates to a countersigned check-in, written and published by the agent
 // and acknowledged by both parties. They never touch the signed rooms, items, captures
@@ -40,8 +41,11 @@ async function assertSignedCheckIn(inspectionId: string, agentId: string) {
 
 /// A published addendum is what both parties acknowledge, so nothing may change it. The
 /// row lock orders every draft edit against publishing.
-async function editDraft<T>(addendumId: string, edit: (tx: Prisma.TransactionClient) => Promise<T>) {
+async function editDraft<T>(addendumId: string, actorId: string, edit: (tx: Prisma.TransactionClient) => Promise<T>) {
   return db.$transaction(async (tx) => {
+    const location = await tx.reportAddendum.findUnique({ where: { id: addendumId }, select: { inspectionId: true } })
+    if (!location) throw new Error('Addendum not found')
+    await lockInspection(tx, location.inspectionId, actorId)
     const rows = await tx.$queryRaw<{ publishedAt: Date | null }[]>`
       SELECT "publishedAt" FROM "ReportAddendum" WHERE "id" = ${addendumId} FOR UPDATE
     `
@@ -51,15 +55,19 @@ async function editDraft<T>(addendumId: string, edit: (tx: Prisma.TransactionCli
   })
 }
 
-async function lockInspection(tx: Prisma.TransactionClient, inspectionId: string) {
+async function lockInspection(tx: Prisma.TransactionClient, inspectionId: string, actorId: string) {
+  const inspection = await tx.inspection.findUnique({ where: { id: inspectionId }, select: { tenancyId: true } })
+  if (!inspection) throw new Error('Inspection not found')
+  await lockAgencyTenancy(inspection.tenancyId, tx)
   await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "id" = ${inspectionId} FOR UPDATE`
+  await authorizeInspection(inspectionId, actorId, { client: tx })
 }
 
 /// The open draft for this check-in, made if there is none. One at a time, so two
 /// browser tabs cannot each start an update.
 async function openDraft(inspectionId: string, agentId: string, title = '') {
   return db.$transaction(async (tx) => {
-    await lockInspection(tx, inspectionId)
+    await lockInspection(tx, inspectionId, agentId)
     const draft = await tx.reportAddendum.findFirst({
       where: { inspectionId, publishedAt: null },
       select: { id: true },
@@ -90,7 +98,7 @@ export async function updateAddendum(addendumId: string, raw: unknown) {
   const agent = await requireAgent()
   const addendum = await authorizeAddendum(addendumId, agent.id)
   const input = detailsInput.parse(raw)
-  await editDraft(addendumId, (tx) => tx.reportAddendum.update({
+  await editDraft(addendumId, agent.id, (tx) => tx.reportAddendum.update({
     where: { id: addendumId },
     data: { title: input.title, reason: input.reason || null, effectiveDate: new Date(input.effectiveDate) },
   }))
@@ -146,7 +154,7 @@ async function entryData(inspectionId: string, raw: unknown, tx: Prisma.Transact
 export async function addAddendumEntry(addendumId: string, raw: unknown) {
   const agent = await requireAgent()
   const addendum = await authorizeAddendum(addendumId, agent.id)
-  const entry = await editDraft(addendumId, async (tx) =>
+  const entry = await editDraft(addendumId, agent.id, async (tx) =>
     tx.reportAddendumEntry.create({ data: { addendumId, ...(await entryData(addendum.inspectionId, raw, tx)) } }))
   revalidate(addendum.inspectionId)
   return entry.id
@@ -163,7 +171,7 @@ async function authorizeEntry(entryId: string, addendumId: string, agentId: stri
 export async function updateAddendumEntry(entryId: string, addendumId: string, raw: unknown) {
   const agent = await requireAgent()
   const addendum = await authorizeEntry(entryId, addendumId, agent.id)
-  await editDraft(addendumId, async (tx) =>
+  await editDraft(addendumId, agent.id, async (tx) =>
     tx.reportAddendumEntry.update({ where: { id: entryId }, data: await entryData(addendum.inspectionId, raw, tx) }))
   revalidate(addendum.inspectionId)
 }
@@ -171,7 +179,7 @@ export async function updateAddendumEntry(entryId: string, addendumId: string, r
 export async function deleteAddendumEntry(entryId: string, addendumId: string) {
   const agent = await requireAgent()
   const addendum = await authorizeEntry(entryId, addendumId, agent.id)
-  await editDraft(addendumId, async (tx) => {
+  await editDraft(addendumId, agent.id, async (tx) => {
     const entry = await tx.reportAddendumEntry.findUniqueOrThrow({ where: { id: entryId }, select: { uploadPaths: true } })
     const photos = await tx.reportAddendumPhoto.findMany({ where: { entryId }, select: { storagePath: true } })
     await purgeUploads(tx, [...entry.uploadPaths, ...photos.map((photo) => photo.storagePath)])
@@ -185,7 +193,7 @@ export async function deleteAddendumEntry(entryId: string, addendumId: string) {
 export async function discardAddendum(addendumId: string) {
   const agent = await requireAgent()
   const addendum = await authorizeAddendum(addendumId, agent.id)
-  await editDraft(addendumId, async (tx) => {
+  await editDraft(addendumId, agent.id, async (tx) => {
     // A signed URL can outlive this draft without ever producing a photo row.
     // Sweep its whole upload folder after those URLs expire; repair evidence
     // lives under maintenance/ and is never part of this prefix.
@@ -226,7 +234,7 @@ export async function requestAddendumPhotoUpload(entryId: string, addendumId: st
   await authorizeEntry(entryId, addendumId, agent.id)
   const input = uploadInput.parse(raw)
   const storagePath = photoPath(addendumId, input.clientId, input.mimeType)
-  return editDraft(addendumId, async (tx) => {
+  return editDraft(addendumId, agent.id, async (tx) => {
     const entry = await tx.reportAddendumEntry.findFirst({
       where: { id: entryId, addendumId }, select: { uploadPaths: true },
     })
@@ -257,7 +265,7 @@ export async function registerAddendumPhoto(entryId: string, addendumId: string,
     throw new Error('Photo path is invalid')
   }
   if (!await captureExists(input.storagePath)) throw new Error('Photo has not reached storage')
-  const photo = await editDraft(addendumId, async (tx) => {
+  const photo = await editDraft(addendumId, agent.id, async (tx) => {
     if (await tx.storagePurge.findUnique({ where: { path: input.storagePath }, select: { id: true } })) {
       throw new Error('Photo not found')
     }
@@ -287,7 +295,7 @@ export async function deleteAddendumPhoto(photoId: string, addendumId: string) {
   })
   if (!photo || photo.entry.addendumId !== addendumId) throw new Error('Photo not found')
   const addendum = await authorizeAddendum(addendumId, agent.id)
-  await editDraft(addendumId, async (tx) => {
+  await editDraft(addendumId, agent.id, async (tx) => {
     await purgeUploads(tx, [photo.storagePath])
     await tx.reportAddendumPhoto.delete({ where: { id: photoId } })
   })
@@ -318,7 +326,7 @@ export async function addendumFromMaintenanceCase(caseId: string) {
   if (!checkIn) throw new Error('Only a countersigned check-in can be updated')
 
   const addendumId = await openDraft(checkIn.id, agent.id, maintenanceCase.title)
-  await editDraft(addendumId, async (tx) => {
+  await editDraft(addendumId, agent.id, async (tx) => {
     const already = await tx.reportAddendumEntry.findFirst({
       where: { addendumId, maintenanceCaseId: caseId },
       select: { id: true },
@@ -372,7 +380,7 @@ export async function publishAddendum(addendumId: string) {
 
   const published = await db.$transaction(async (tx) => {
     // The inspection lock orders numbering; the addendum lock orders it against edits.
-    await lockInspection(tx, authorized.inspectionId)
+    await lockInspection(tx, authorized.inspectionId, agent.id)
     const [row] = await tx.$queryRaw<{ publishedAt: Date | null }[]>`
       SELECT "publishedAt" FROM "ReportAddendum" WHERE "id" = ${addendumId} FOR UPDATE
     `

@@ -42,6 +42,15 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
         <SignOut email={null} />
       </div>
 
+      <div className="mt-6 space-y-3">
+        <Link href="/team" className="nav-row">
+          <span>Team members and invitations</span><span aria-hidden="true">›</span>
+        </Link>
+        <Link href="/properties" className="nav-row">
+          <span>Properties and archived work</span><span aria-hidden="true">›</span>
+        </Link>
+      </div>
+
       <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="text-sm font-semibold">
@@ -124,7 +133,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
       </section>
 
       <section className="mt-6 text-sm">
-        <Link href="/delete-account" className="text-gray-500 hover:underline">
+        <Link href="/delete-account" className="action-danger">
           Delete your account
         </Link>
       </section>

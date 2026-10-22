@@ -12,6 +12,29 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Team and property management candidate: 22 October 2026
+
+Implemented locally, **not published**. Persistent teams include verified invitations,
+roles, assignment, handover, removal with reassignment and activity. My work and Team
+work use server authorization filters. Personal tenancies stay personal until explicitly
+moved. Account and inspection screens lead to property settings, with Archive and a
+Danger zone: eligible drafts enter a recoverable 30-day trash; protected history is
+archived. Buttons have visible boundaries and navigation rows retain chevrons.
+
+Flutter 3.47.2 analysis and all **345 mobile tests** passed, including 19 new team,
+property and access-recovery regressions. Backend typecheck, lint, 107 unit and 229
+integration tests, all 19 browser tests and the production build passed. Logs and
+phone viewport previews are in `build/team-property-management-20261022/`; details
+are in `plans/work-status.md`. There are no new plugins, bundled assets, icon glyphs, native
+configuration or version changes. Normal Shorebird compatibility checks are still
+required before any publication. Physical-device testing is **NOT RUN**.
+
+The candidate requires the new agency/property lifecycle and frozen report-agent
+database migrations and its matching backend before native publication. A handover
+must preserve frozen report identities, and backend recovery must preserve both
+explicit grants and agency membership revocation. Current stable remains Android25
+patch **5** / `739033` and iOS24 patch **6** / `739038`, recorded below.
+
 ## Photo upload handoff: 22 October 2026 Singapore time
 
 Source `f633d7f04f4d5938f7b9e47d0094381dc69881e1` is live on the production domain,

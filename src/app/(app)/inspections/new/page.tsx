@@ -14,7 +14,7 @@ export default async function NewInspectionPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <Link href="/inspections" className="text-sm text-gray-500 hover:underline">
+      <Link href="/inspections" className="text-link inline-flex min-h-11 items-center text-sm">
         ← All inspections
       </Link>
       <h1 className="mt-3 text-2xl font-semibold tracking-tight">New check-in</h1>

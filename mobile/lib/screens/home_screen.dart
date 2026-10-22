@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _create() async {
     final id = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => const NewInspectionScreen()),
+      MaterialPageRoute(builder: (_) => NewInspectionScreen(api: _api)),
     );
     if (!mounted || id == null) return;
     await Navigator.of(
@@ -178,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: switch (_tabs[_tab]) {
                 'inspections' => InspectionsScreen(api: widget.api, trackView: false),
                 'account' => SettingsScreen(
+                  api: _api,
                   trackView: false,
                   onStartCheckIn: _partyOnly ? _create : null,
                 ),

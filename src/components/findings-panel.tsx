@@ -265,7 +265,7 @@ export function FindingsPanel({
                     onClick={() => startTransition(() =>
                       void updateFinding(finding.id, inspectionId, { verdict: finding.verdict }),
                     )}
-                    className="text-xs font-medium text-brand-600 underline disabled:opacity-50"
+                    className="action-secondary px-3 text-xs"
                   >
                     Mark reviewed
                   </button>
@@ -327,7 +327,7 @@ export function FindingsPanel({
                   type="button"
                   disabled={pending}
                   onClick={() => startTransition(() => void deleteFinding(finding.id, inspectionId))}
-                  className="ml-auto text-xs text-gray-500 hover:text-red-600 disabled:opacity-50"
+                  className="action-danger ml-auto px-3 text-xs"
                 >
                   Remove
                 </button>

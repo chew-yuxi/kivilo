@@ -5,6 +5,48 @@ Updated 22 October 2026 Singapore time. The photo upload handoff fix, source
 Native patch receipts are recorded below. Physical-device delivery and all rehearsal
 checks remain **NOT RUN**; a published patch is not evidence of delivery.
 
+## Team and property management candidate — 22 October
+
+Implemented and verified on local branch `feat/team-property-management`;
+**not deployed or published**. The existing production and stable patch receipts
+below remain the live versions.
+
+- Persistent operational teams have verified invitations, owner/manager/agent roles,
+  assigned work, activity, handover and departure with reassignment. Existing personal
+  work stays private until explicitly moved into a team. Billing `Team` is unchanged.
+- Team membership and tenancy assignments use the same data-layer scope on web and
+  mobile. Removing access suppresses scoped notifications and preserves saved evidence,
+  authorship and unrelated personal work. Report agent identity is frozen at Send so
+  a later handover cannot change signed content or its PDF cache hash.
+- Property settings expose Archive and a Danger zone. Draft-only properties move to
+  Recently deleted for 30 days; signed/shared reports, repairs and other protected
+  history require archiving. Only a personal lead or agency manager responsible for
+  every tenancy can manage the whole property. Expiry uses durable storage tombstones;
+  the phone's queued media is never removed by these actions.
+- Web and mobile actions have visible button boundaries, focus states and touch
+  targets; navigation rows use clear affordances. Team and property controls are
+  reachable from Account and the relevant working screens.
+- Additive migrations: `20261022100000_agency_management_property_lifecycle`, then
+  `20261022103000_frozen_report_agent`. Applied locally only. A local-only schema drift
+  repair restored missing earlier collaboration objects without resetting data or
+  rerunning the full-collaborator backfill. Verify actual production schema before any
+  future migration rollout; migration history alone is insufficient.
+
+Final verification passed: production build, typecheck, lint, **107 unit**, **229
+integration**, **19 browser** and **345 mobile** tests, plus clean Flutter 3.47.2
+analysis. Mobile includes 19 new management and access-recovery regressions.
+Backend coverage includes
+stale uploads, signing, report-link changes, offboarding and property lifecycle races.
+The local database exactly matches the migration schema. The browser harness now
+uses local Mailpit for both auth and transactional test email. Its final full run
+passed after an explicit sign-out navigation wait fixed a test account-switch race;
+earlier sleep-interrupted and failed runs do not replace that final result. Phone
+viewport screenshots of Team and Property settings were visually inspected.
+Logs and previews: `build/team-property-management-20261022/`. Physical-device
+delivery and interaction checks remain **NOT RUN**. No store binary, native assets,
+plugins, metadata, minimum-build floor or production configuration changed. Shorebird
+build compatibility and publication are **NOT RUN** for this candidate.
+
 ## Current execution queue
 
 | Work | Status | Completion evidence / next step |

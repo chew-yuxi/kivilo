@@ -49,7 +49,7 @@ export function SigningEmail({
               }
             })
           }}
-          className="shrink-0 font-medium text-brand-600 hover:underline disabled:opacity-40"
+          className="action-secondary shrink-0 px-3 text-xs"
         >
           {signingEmail ? 'Resend link' : 'Email signing link'}
         </button>

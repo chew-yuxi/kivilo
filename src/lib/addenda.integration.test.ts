@@ -38,6 +38,7 @@ import {
   updateAddendumEntry,
 } from '@/lib/addendum-actions'
 import { startCheckOut } from '@/lib/actions'
+import { updatePropertyLifecycle } from '@/lib/property-actions'
 import * as workspaceRoute from '@/app/api/v1/inspections/[id]/addenda/route'
 import * as addendumRoute from '@/app/api/v1/addenda/[id]/route'
 import * as entriesRoute from '@/app/api/v1/addenda/[id]/entries/route'
@@ -159,6 +160,22 @@ afterAll(async () => {
 })
 
 describe('report addenda', () => {
+  it('can archive a property while publishing an appliance replacement without losing its report or asset', async () => {
+    const { agent, inspection, dishwasher, property } = await deal()
+    as(agent)
+    const id = await startAddendum(inspection.id)
+    await updateAddendum(id, { title: 'Replacement during archive', reason: null, effectiveDate: '2026-03-02' })
+    await addAddendumEntry(id, replacement(`item:${dishwasher.id}`))
+    const [published, archived] = await Promise.all([
+      publishAddendum(id),
+      updatePropertyLifecycle(property.id, { action: 'archive' }),
+    ])
+    expect(published).toMatchObject({ number: 1 })
+    expect(archived.state).toBe('ARCHIVED')
+    expect(await db.propertyAsset.findFirst({ where: { propertyId: property.id, identifier: 'Miele G7100 SN 4471' } })).toBeTruthy()
+    expect(await db.inspection.findUnique({ where: { id: inspection.id } })).toMatchObject({ status: 'COMPLETED' })
+  })
+
   it('publishes a numbered, hashed snapshot that nothing can change, and leaves the signed report as it was', async () => {
     const { agent, landlord, tenant, inspection, dishwasher, asset, property } = await deal()
     const signedItems = await db.inspectionItem.findMany({ where: { room: { inspectionId: inspection.id } }, orderBy: { id: 'asc' } })

@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
 import '../models/addenda.dart';
+import '../models/agency.dart';
+import '../models/property_settings.dart';
 import '../models/handover.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
@@ -182,6 +184,24 @@ class Api {
         .toList();
   }
 
+  Future<List<InspectionSummary>> inspectionWork({
+    String? agencyId,
+    String? assigneeId,
+  }) async {
+    final response = await _get<List<dynamic>>(
+      '/api/v1/inspections',
+      queryParameters: {
+        if (agencyId != null) 'agencyId': agencyId else 'mine': 'true',
+        'assigneeId': ?assigneeId,
+      },
+    );
+    return response.data!
+        .map(
+          (value) => InspectionSummary.fromJson(value as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
   Future<List<RenewalReminder>> renewals() async {
     final data = await _read('/api/v1/renewals', 'renewals');
     return (data as List<dynamic>)
@@ -278,6 +298,70 @@ class Api {
     return TenancyDetail.fromJson(data as Map<String, dynamic>);
   }
 
+  Future<AgencyIndex> agencies() async => AgencyIndex.fromJson(
+    (await _get<Map<String, dynamic>>('/api/v1/agencies')).data!,
+  );
+
+  Future<AgencyDetail> agency(String id) async => AgencyDetail.fromJson(
+    (await _get<Map<String, dynamic>>('/api/v1/agencies/$id')).data!,
+  );
+
+  Future<AgencyDetail> createAgency(String name) => _call(
+    () async => AgencyDetail.fromJson(
+      (await _dio.post<Map<String, dynamic>>(
+        '/api/v1/agencies',
+        data: {'name': name.trim()},
+      )).data!,
+    ),
+  );
+
+  Future<void> renameAgency(String id, String name) => _call(() async {
+    await _dio.patch<Object>(
+      '/api/v1/agencies/$id',
+      data: {'name': name.trim()},
+    );
+  });
+
+  Future<void> inviteAgencyMember(String id, String email, String role) =>
+      _call(() async {
+        await _dio.post<Object>(
+          '/api/v1/agencies/$id/members',
+          data: {'email': email.trim().toLowerCase(), 'role': role},
+        );
+      });
+
+  Future<bool> changeAgencyMember(
+    String id,
+    String memberId,
+    Map<String, dynamic> data,
+  ) => _call(() async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/api/v1/agencies/$id/members/$memberId',
+      data: data,
+    );
+    return response.data?['accessRemoved'] == true;
+  });
+
+  Future<void> answerAgencyInvitation(
+    String id,
+    String invitationId, {
+    required bool accept,
+  }) => _call(() async {
+    await _dio.post<Object>(
+      '/api/v1/agencies/$id/invitations/$invitationId',
+      data: {'action': accept ? 'accept' : 'decline'},
+    );
+  });
+
+  Future<bool> assignTenancy(String id, Map<String, dynamic> data) =>
+      _call(() async {
+        final response = await _dio.patch<Map<String, dynamic>>(
+          '/api/v1/tenancies/$id/assignment',
+          data: data,
+        );
+        return response.data?['accessRemoved'] == true;
+      });
+
   /// Access is read fresh; a cached copy cannot confirm who may collaborate now.
   Future<TenancyAccess> tenancyAccess(String tenancyId) async {
     final response = await _get<Map<String, dynamic>>(
@@ -347,6 +431,34 @@ class Api {
     );
     return MaintenanceCaseDetail.fromJson(data as Map<String, dynamic>);
   }
+
+  Future<List<PropertyEntry>> properties({String state = 'active'}) async {
+    final data = (await _get<Map<String, dynamic>>(
+      '/api/v1/properties',
+      queryParameters: {'state': state},
+    )).data!;
+    return (data['properties'] as List<dynamic>)
+        .map((value) => PropertyEntry.fromJson(value as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<PropertySettings> propertySettings(String id) async =>
+      PropertySettings.fromJson(
+        (await _get<Map<String, dynamic>>('/api/v1/properties/$id')).data!,
+      );
+
+  Future<PropertySettings> changePropertyState(
+    String id,
+    String action, {
+    String? confirmation,
+  }) => _call(
+    () async => PropertySettings.fromJson(
+      (await _dio.patch<Map<String, dynamic>>(
+        '/api/v1/properties/$id',
+        data: {'action': action, 'confirmation': ?confirmation},
+      )).data!,
+    ),
+  );
 
   Future<PropertyTimeline> propertyTimeline(String propertyId) async {
     final data = await _read(

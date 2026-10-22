@@ -140,6 +140,38 @@ exports.Prisma.TeamScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AgencyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AgencyMembershipScalarFieldEnum = {
+  id: 'id',
+  agencyId: 'agencyId',
+  stakeholderId: 'stakeholderId',
+  role: 'role',
+  status: 'status',
+  invitedById: 'invitedById',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  removedAt: 'removedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AgencyActivityScalarFieldEnum = {
+  id: 'id',
+  agencyId: 'agencyId',
+  actorId: 'actorId',
+  actorName: 'actorName',
+  subjectId: 'subjectId',
+  subjectName: 'subjectName',
+  action: 'action',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SubscriptionScalarFieldEnum = {
   id: 'id',
   teamId: 'teamId',
@@ -173,7 +205,11 @@ exports.Prisma.PropertyScalarFieldEnum = {
   postalCode: 'postalCode',
   type: 'type',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt',
+  trashedAt: 'trashedAt',
+  trashExpiresAt: 'trashExpiresAt',
+  trashedById: 'trashedById'
 };
 
 exports.Prisma.TenancyScalarFieldEnum = {
@@ -182,6 +218,7 @@ exports.Prisma.TenancyScalarFieldEnum = {
   landlordId: 'landlordId',
   tenantId: 'tenantId',
   agentId: 'agentId',
+  agencyId: 'agencyId',
   startDate: 'startDate',
   endDate: 'endDate',
   monthlyRent: 'monthlyRent',
@@ -211,6 +248,8 @@ exports.Prisma.InspectionScalarFieldEnum = {
   status: 'status',
   fullyFurnished: 'fullyFurnished',
   conductedById: 'conductedById',
+  reportAgentId: 'reportAgentId',
+  reportAgentFrozen: 'reportAgentFrozen',
   conductedAt: 'conductedAt',
   baselineId: 'baselineId',
   summary: 'summary',
@@ -411,6 +450,7 @@ exports.Prisma.NotificationScalarFieldEnum = {
   id: 'id',
   recipientId: 'recipientId',
   tenancyId: 'tenancyId',
+  agencyMembershipId: 'agencyMembershipId',
   kind: 'kind',
   title: 'title',
   body: 'body',
@@ -688,6 +728,18 @@ exports.StakeholderKind = exports.$Enums.StakeholderKind = {
   ENTITY: 'ENTITY'
 };
 
+exports.AgencyRole = exports.$Enums.AgencyRole = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+  AGENT: 'AGENT'
+};
+
+exports.AgencyMembershipStatus = exports.$Enums.AgencyMembershipStatus = {
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  REMOVED: 'REMOVED'
+};
+
 exports.Plan = exports.$Enums.Plan = {
   PRO: 'PRO'
 };
@@ -846,6 +898,7 @@ exports.DevicePlatform = exports.$Enums.DevicePlatform = {
 };
 
 exports.NotificationKind = exports.$Enums.NotificationKind = {
+  AGENCY_INVITATION: 'AGENCY_INVITATION',
   PROPERTY_SHARED: 'PROPERTY_SHARED',
   MAINTENANCE_REPORTED: 'MAINTENANCE_REPORTED',
   MAINTENANCE_STATUS: 'MAINTENANCE_STATUS',
@@ -916,6 +969,9 @@ exports.StatementAnswer = exports.$Enums.StatementAnswer = {
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Team: 'Team',
+  Agency: 'Agency',
+  AgencyMembership: 'AgencyMembership',
+  AgencyActivity: 'AgencyActivity',
   Subscription: 'Subscription',
   AgentBranding: 'AgentBranding',
   Property: 'Property',

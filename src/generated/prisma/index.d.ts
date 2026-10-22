@@ -25,6 +25,21 @@ export type Stakeholder = $Result.DefaultSelection<Prisma.$StakeholderPayload>
  */
 export type Team = $Result.DefaultSelection<Prisma.$TeamPayload>
 /**
+ * Model Agency
+ * Operational membership is separate from the existing billing-only Team.
+ */
+export type Agency = $Result.DefaultSelection<Prisma.$AgencyPayload>
+/**
+ * Model AgencyMembership
+ * 
+ */
+export type AgencyMembership = $Result.DefaultSelection<Prisma.$AgencyMembershipPayload>
+/**
+ * Model AgencyActivity
+ * Append-only history; names are retained when an account is removed.
+ */
+export type AgencyActivity = $Result.DefaultSelection<Prisma.$AgencyActivityPayload>
+/**
  * Model Subscription
  * A workspace's paid or comped plan. A workspace is a team, or an agent on no team, so
  * exactly one of teamId and stakeholderId is set (a CHECK constraint holds it). Free is
@@ -276,6 +291,24 @@ export namespace $Enums {
 export type StakeholderKind = (typeof StakeholderKind)[keyof typeof StakeholderKind]
 
 
+export const AgencyRole: {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+  AGENT: 'AGENT'
+};
+
+export type AgencyRole = (typeof AgencyRole)[keyof typeof AgencyRole]
+
+
+export const AgencyMembershipStatus: {
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  REMOVED: 'REMOVED'
+};
+
+export type AgencyMembershipStatus = (typeof AgencyMembershipStatus)[keyof typeof AgencyMembershipStatus]
+
+
 export const Plan: {
   PRO: 'PRO'
 };
@@ -492,6 +525,7 @@ export type ServiceProviderCategory = (typeof ServiceProviderCategory)[keyof typ
 
 
 export const NotificationKind: {
+  AGENCY_INVITATION: 'AGENCY_INVITATION',
   PROPERTY_SHARED: 'PROPERTY_SHARED',
   MAINTENANCE_REPORTED: 'MAINTENANCE_REPORTED',
   MAINTENANCE_STATUS: 'MAINTENANCE_STATUS',
@@ -601,6 +635,14 @@ export type StatementAnswer = (typeof StatementAnswer)[keyof typeof StatementAns
 export type StakeholderKind = $Enums.StakeholderKind
 
 export const StakeholderKind: typeof $Enums.StakeholderKind
+
+export type AgencyRole = $Enums.AgencyRole
+
+export const AgencyRole: typeof $Enums.AgencyRole
+
+export type AgencyMembershipStatus = $Enums.AgencyMembershipStatus
+
+export const AgencyMembershipStatus: typeof $Enums.AgencyMembershipStatus
 
 export type Plan = $Enums.Plan
 
@@ -870,6 +912,36 @@ export class PrismaClient<
     * ```
     */
   get team(): Prisma.TeamDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agency`: Exposes CRUD operations for the **Agency** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Agencies
+    * const agencies = await prisma.agency.findMany()
+    * ```
+    */
+  get agency(): Prisma.AgencyDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agencyMembership`: Exposes CRUD operations for the **AgencyMembership** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgencyMemberships
+    * const agencyMemberships = await prisma.agencyMembership.findMany()
+    * ```
+    */
+  get agencyMembership(): Prisma.AgencyMembershipDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.agencyActivity`: Exposes CRUD operations for the **AgencyActivity** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgencyActivities
+    * const agencyActivities = await prisma.agencyActivity.findMany()
+    * ```
+    */
+  get agencyActivity(): Prisma.AgencyActivityDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.subscription`: Exposes CRUD operations for the **Subscription** model.
@@ -1709,6 +1781,9 @@ export namespace Prisma {
   export const ModelName: {
     Stakeholder: 'Stakeholder',
     Team: 'Team',
+    Agency: 'Agency',
+    AgencyMembership: 'AgencyMembership',
+    AgencyActivity: 'AgencyActivity',
     Subscription: 'Subscription',
     AgentBranding: 'AgentBranding',
     Property: 'Property',
@@ -1763,7 +1838,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "subscription" | "agentBranding" | "property" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "team" | "agency" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1912,6 +1987,228 @@ export namespace Prisma {
           count: {
             args: Prisma.TeamCountArgs<ExtArgs>
             result: $Utils.Optional<TeamCountAggregateOutputType> | number
+          }
+        }
+      }
+      Agency: {
+        payload: Prisma.$AgencyPayload<ExtArgs>
+        fields: Prisma.AgencyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgencyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgencyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>
+          }
+          findFirst: {
+            args: Prisma.AgencyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgencyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>
+          }
+          findMany: {
+            args: Prisma.AgencyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>[]
+          }
+          create: {
+            args: Prisma.AgencyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>
+          }
+          createMany: {
+            args: Prisma.AgencyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgencyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>[]
+          }
+          delete: {
+            args: Prisma.AgencyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>
+          }
+          update: {
+            args: Prisma.AgencyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgencyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgencyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgencyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgencyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyPayload>
+          }
+          aggregate: {
+            args: Prisma.AgencyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgency>
+          }
+          groupBy: {
+            args: Prisma.AgencyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgencyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgencyCountArgs<ExtArgs>
+            result: $Utils.Optional<AgencyCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgencyMembership: {
+        payload: Prisma.$AgencyMembershipPayload<ExtArgs>
+        fields: Prisma.AgencyMembershipFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgencyMembershipFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgencyMembershipFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>
+          }
+          findFirst: {
+            args: Prisma.AgencyMembershipFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgencyMembershipFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>
+          }
+          findMany: {
+            args: Prisma.AgencyMembershipFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>[]
+          }
+          create: {
+            args: Prisma.AgencyMembershipCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>
+          }
+          createMany: {
+            args: Prisma.AgencyMembershipCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgencyMembershipCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>[]
+          }
+          delete: {
+            args: Prisma.AgencyMembershipDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>
+          }
+          update: {
+            args: Prisma.AgencyMembershipUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgencyMembershipDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgencyMembershipUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgencyMembershipUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgencyMembershipUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyMembershipPayload>
+          }
+          aggregate: {
+            args: Prisma.AgencyMembershipAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgencyMembership>
+          }
+          groupBy: {
+            args: Prisma.AgencyMembershipGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgencyMembershipGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgencyMembershipCountArgs<ExtArgs>
+            result: $Utils.Optional<AgencyMembershipCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgencyActivity: {
+        payload: Prisma.$AgencyActivityPayload<ExtArgs>
+        fields: Prisma.AgencyActivityFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgencyActivityFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgencyActivityFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>
+          }
+          findFirst: {
+            args: Prisma.AgencyActivityFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgencyActivityFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>
+          }
+          findMany: {
+            args: Prisma.AgencyActivityFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>[]
+          }
+          create: {
+            args: Prisma.AgencyActivityCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>
+          }
+          createMany: {
+            args: Prisma.AgencyActivityCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgencyActivityCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>[]
+          }
+          delete: {
+            args: Prisma.AgencyActivityDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>
+          }
+          update: {
+            args: Prisma.AgencyActivityUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgencyActivityDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgencyActivityUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgencyActivityUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgencyActivityUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyActivityPayload>
+          }
+          aggregate: {
+            args: Prisma.AgencyActivityAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgencyActivity>
+          }
+          groupBy: {
+            args: Prisma.AgencyActivityGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgencyActivityGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgencyActivityCountArgs<ExtArgs>
+            result: $Utils.Optional<AgencyActivityCountAggregateOutputType> | number
           }
         }
       }
@@ -4926,6 +5223,9 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     stakeholder?: StakeholderOmit
     team?: TeamOmit
+    agency?: AgencyOmit
+    agencyMembership?: AgencyMembershipOmit
+    agencyActivity?: AgencyActivityOmit
     subscription?: SubscriptionOmit
     agentBranding?: AgentBrandingOmit
     property?: PropertyOmit
@@ -5045,12 +5345,14 @@ export namespace Prisma {
    */
 
   export type StakeholderCountOutputType = {
+    agencyMemberships: number
     tenanciesAsLandlord: number
     tenanciesAsTenant: number
     tenanciesAsAgent: number
     tenancyCollaborations: number
     tenancyAccessGranted: number
     inspectionsRun: number
+    reportInspections: number
     inspectionAccessGrants: number
     signatures: number
     deletionRequests: number
@@ -5075,12 +5377,14 @@ export namespace Prisma {
   }
 
   export type StakeholderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agencyMemberships?: boolean | StakeholderCountOutputTypeCountAgencyMembershipsArgs
     tenanciesAsLandlord?: boolean | StakeholderCountOutputTypeCountTenanciesAsLandlordArgs
     tenanciesAsTenant?: boolean | StakeholderCountOutputTypeCountTenanciesAsTenantArgs
     tenanciesAsAgent?: boolean | StakeholderCountOutputTypeCountTenanciesAsAgentArgs
     tenancyCollaborations?: boolean | StakeholderCountOutputTypeCountTenancyCollaborationsArgs
     tenancyAccessGranted?: boolean | StakeholderCountOutputTypeCountTenancyAccessGrantedArgs
     inspectionsRun?: boolean | StakeholderCountOutputTypeCountInspectionsRunArgs
+    reportInspections?: boolean | StakeholderCountOutputTypeCountReportInspectionsArgs
     inspectionAccessGrants?: boolean | StakeholderCountOutputTypeCountInspectionAccessGrantsArgs
     signatures?: boolean | StakeholderCountOutputTypeCountSignaturesArgs
     deletionRequests?: boolean | StakeholderCountOutputTypeCountDeletionRequestsArgs
@@ -5113,6 +5417,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the StakeholderCountOutputType
      */
     select?: StakeholderCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountAgencyMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyMembershipWhereInput
   }
 
   /**
@@ -5154,6 +5465,13 @@ export namespace Prisma {
    * StakeholderCountOutputType without action
    */
   export type StakeholderCountOutputTypeCountInspectionsRunArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InspectionWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountReportInspectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InspectionWhereInput
   }
 
@@ -5333,6 +5651,86 @@ export namespace Prisma {
    */
   export type TeamCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StakeholderWhereInput
+  }
+
+
+  /**
+   * Count Type AgencyCountOutputType
+   */
+
+  export type AgencyCountOutputType = {
+    members: number
+    tenancies: number
+    activity: number
+  }
+
+  export type AgencyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    members?: boolean | AgencyCountOutputTypeCountMembersArgs
+    tenancies?: boolean | AgencyCountOutputTypeCountTenanciesArgs
+    activity?: boolean | AgencyCountOutputTypeCountActivityArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AgencyCountOutputType without action
+   */
+  export type AgencyCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyCountOutputType
+     */
+    select?: AgencyCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AgencyCountOutputType without action
+   */
+  export type AgencyCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyMembershipWhereInput
+  }
+
+  /**
+   * AgencyCountOutputType without action
+   */
+  export type AgencyCountOutputTypeCountTenanciesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenancyWhereInput
+  }
+
+  /**
+   * AgencyCountOutputType without action
+   */
+  export type AgencyCountOutputTypeCountActivityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyActivityWhereInput
+  }
+
+
+  /**
+   * Count Type AgencyMembershipCountOutputType
+   */
+
+  export type AgencyMembershipCountOutputType = {
+    notifications: number
+  }
+
+  export type AgencyMembershipCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    notifications?: boolean | AgencyMembershipCountOutputTypeCountNotificationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AgencyMembershipCountOutputType without action
+   */
+  export type AgencyMembershipCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembershipCountOutputType
+     */
+    select?: AgencyMembershipCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AgencyMembershipCountOutputType without action
+   */
+  export type AgencyMembershipCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
   }
 
 
@@ -6337,12 +6735,14 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
+    agencyMemberships?: boolean | Stakeholder$agencyMembershipsArgs<ExtArgs>
     tenanciesAsLandlord?: boolean | Stakeholder$tenanciesAsLandlordArgs<ExtArgs>
     tenanciesAsTenant?: boolean | Stakeholder$tenanciesAsTenantArgs<ExtArgs>
     tenanciesAsAgent?: boolean | Stakeholder$tenanciesAsAgentArgs<ExtArgs>
     tenancyCollaborations?: boolean | Stakeholder$tenancyCollaborationsArgs<ExtArgs>
     tenancyAccessGranted?: boolean | Stakeholder$tenancyAccessGrantedArgs<ExtArgs>
     inspectionsRun?: boolean | Stakeholder$inspectionsRunArgs<ExtArgs>
+    reportInspections?: boolean | Stakeholder$reportInspectionsArgs<ExtArgs>
     inspectionAccessGrants?: boolean | Stakeholder$inspectionAccessGrantsArgs<ExtArgs>
     signatures?: boolean | Stakeholder$signaturesArgs<ExtArgs>
     deletionRequests?: boolean | Stakeholder$deletionRequestsArgs<ExtArgs>
@@ -6413,12 +6813,14 @@ export namespace Prisma {
   export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "authUserId" | "teamId" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
   export type StakeholderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
+    agencyMemberships?: boolean | Stakeholder$agencyMembershipsArgs<ExtArgs>
     tenanciesAsLandlord?: boolean | Stakeholder$tenanciesAsLandlordArgs<ExtArgs>
     tenanciesAsTenant?: boolean | Stakeholder$tenanciesAsTenantArgs<ExtArgs>
     tenanciesAsAgent?: boolean | Stakeholder$tenanciesAsAgentArgs<ExtArgs>
     tenancyCollaborations?: boolean | Stakeholder$tenancyCollaborationsArgs<ExtArgs>
     tenancyAccessGranted?: boolean | Stakeholder$tenancyAccessGrantedArgs<ExtArgs>
     inspectionsRun?: boolean | Stakeholder$inspectionsRunArgs<ExtArgs>
+    reportInspections?: boolean | Stakeholder$reportInspectionsArgs<ExtArgs>
     inspectionAccessGrants?: boolean | Stakeholder$inspectionAccessGrantsArgs<ExtArgs>
     signatures?: boolean | Stakeholder$signaturesArgs<ExtArgs>
     deletionRequests?: boolean | Stakeholder$deletionRequestsArgs<ExtArgs>
@@ -6455,12 +6857,14 @@ export namespace Prisma {
     name: "Stakeholder"
     objects: {
       team: Prisma.$TeamPayload<ExtArgs> | null
+      agencyMemberships: Prisma.$AgencyMembershipPayload<ExtArgs>[]
       tenanciesAsLandlord: Prisma.$TenancyPayload<ExtArgs>[]
       tenanciesAsTenant: Prisma.$TenancyPayload<ExtArgs>[]
       tenanciesAsAgent: Prisma.$TenancyPayload<ExtArgs>[]
       tenancyCollaborations: Prisma.$TenancyCollaboratorPayload<ExtArgs>[]
       tenancyAccessGranted: Prisma.$TenancyCollaboratorPayload<ExtArgs>[]
       inspectionsRun: Prisma.$InspectionPayload<ExtArgs>[]
+      reportInspections: Prisma.$InspectionPayload<ExtArgs>[]
       inspectionAccessGrants: Prisma.$InspectionAccessGrantPayload<ExtArgs>[]
       signatures: Prisma.$SignaturePayload<ExtArgs>[]
       deletionRequests: Prisma.$AccountDeletionRequestPayload<ExtArgs>[]
@@ -6906,12 +7310,14 @@ export namespace Prisma {
   export interface Prisma__StakeholderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     team<T extends Stakeholder$teamArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$teamArgs<ExtArgs>>): Prisma__TeamClient<$Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    agencyMemberships<T extends Stakeholder$agencyMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$agencyMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenanciesAsLandlord<T extends Stakeholder$tenanciesAsLandlordArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$tenanciesAsLandlordArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenanciesAsTenant<T extends Stakeholder$tenanciesAsTenantArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$tenanciesAsTenantArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenanciesAsAgent<T extends Stakeholder$tenanciesAsAgentArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$tenanciesAsAgentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenancyCollaborations<T extends Stakeholder$tenancyCollaborationsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$tenancyCollaborationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyCollaboratorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenancyAccessGranted<T extends Stakeholder$tenancyAccessGrantedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$tenancyAccessGrantedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyCollaboratorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inspectionsRun<T extends Stakeholder$inspectionsRunArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$inspectionsRunArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reportInspections<T extends Stakeholder$reportInspectionsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$reportInspectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inspectionAccessGrants<T extends Stakeholder$inspectionAccessGrantsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$inspectionAccessGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionAccessGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatures<T extends Stakeholder$signaturesArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$signaturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SignaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deletionRequests<T extends Stakeholder$deletionRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$deletionRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountDeletionRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7394,6 +7800,30 @@ export namespace Prisma {
   }
 
   /**
+   * Stakeholder.agencyMemberships
+   */
+  export type Stakeholder$agencyMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    where?: AgencyMembershipWhereInput
+    orderBy?: AgencyMembershipOrderByWithRelationInput | AgencyMembershipOrderByWithRelationInput[]
+    cursor?: AgencyMembershipWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgencyMembershipScalarFieldEnum | AgencyMembershipScalarFieldEnum[]
+  }
+
+  /**
    * Stakeholder.tenanciesAsLandlord
    */
   export type Stakeholder$tenanciesAsLandlordArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7517,6 +7947,30 @@ export namespace Prisma {
    * Stakeholder.inspectionsRun
    */
   export type Stakeholder$inspectionsRunArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inspection
+     */
+    select?: InspectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inspection
+     */
+    omit?: InspectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InspectionInclude<ExtArgs> | null
+    where?: InspectionWhereInput
+    orderBy?: InspectionOrderByWithRelationInput | InspectionOrderByWithRelationInput[]
+    cursor?: InspectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InspectionScalarFieldEnum | InspectionScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.reportInspections
+   */
+  export type Stakeholder$reportInspectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Inspection
      */
@@ -9180,6 +9634,3405 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: TeamInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Agency
+   */
+
+  export type AggregateAgency = {
+    _count: AgencyCountAggregateOutputType | null
+    _min: AgencyMinAggregateOutputType | null
+    _max: AgencyMaxAggregateOutputType | null
+  }
+
+  export type AgencyMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgencyMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgencyCountAggregateOutputType = {
+    id: number
+    name: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgencyMinAggregateInputType = {
+    id?: true
+    name?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgencyMaxAggregateInputType = {
+    id?: true
+    name?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgencyCountAggregateInputType = {
+    id?: true
+    name?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgencyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Agency to aggregate.
+     */
+    where?: AgencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Agencies to fetch.
+     */
+    orderBy?: AgencyOrderByWithRelationInput | AgencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Agencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Agencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Agencies
+    **/
+    _count?: true | AgencyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgencyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgencyMaxAggregateInputType
+  }
+
+  export type GetAgencyAggregateType<T extends AgencyAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgency]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgency[P]>
+      : GetScalarType<T[P], AggregateAgency[P]>
+  }
+
+
+
+
+  export type AgencyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyWhereInput
+    orderBy?: AgencyOrderByWithAggregationInput | AgencyOrderByWithAggregationInput[]
+    by: AgencyScalarFieldEnum[] | AgencyScalarFieldEnum
+    having?: AgencyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgencyCountAggregateInputType | true
+    _min?: AgencyMinAggregateInputType
+    _max?: AgencyMaxAggregateInputType
+  }
+
+  export type AgencyGroupByOutputType = {
+    id: string
+    name: string
+    createdAt: Date
+    updatedAt: Date
+    _count: AgencyCountAggregateOutputType | null
+    _min: AgencyMinAggregateOutputType | null
+    _max: AgencyMaxAggregateOutputType | null
+  }
+
+  type GetAgencyGroupByPayload<T extends AgencyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgencyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgencyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgencyGroupByOutputType[P]>
+            : GetScalarType<T[P], AgencyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgencySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    members?: boolean | Agency$membersArgs<ExtArgs>
+    tenancies?: boolean | Agency$tenanciesArgs<ExtArgs>
+    activity?: boolean | Agency$activityArgs<ExtArgs>
+    _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agency"]>
+
+  export type AgencySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["agency"]>
+
+  export type AgencySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["agency"]>
+
+  export type AgencySelectScalar = {
+    id?: boolean
+    name?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgencyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["agency"]>
+  export type AgencyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    members?: boolean | Agency$membersArgs<ExtArgs>
+    tenancies?: boolean | Agency$tenanciesArgs<ExtArgs>
+    activity?: boolean | Agency$activityArgs<ExtArgs>
+    _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AgencyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AgencyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $AgencyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Agency"
+    objects: {
+      members: Prisma.$AgencyMembershipPayload<ExtArgs>[]
+      tenancies: Prisma.$TenancyPayload<ExtArgs>[]
+      activity: Prisma.$AgencyActivityPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["agency"]>
+    composites: {}
+  }
+
+  type AgencyGetPayload<S extends boolean | null | undefined | AgencyDefaultArgs> = $Result.GetResult<Prisma.$AgencyPayload, S>
+
+  type AgencyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgencyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgencyCountAggregateInputType | true
+    }
+
+  export interface AgencyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Agency'], meta: { name: 'Agency' } }
+    /**
+     * Find zero or one Agency that matches the filter.
+     * @param {AgencyFindUniqueArgs} args - Arguments to find a Agency
+     * @example
+     * // Get one Agency
+     * const agency = await prisma.agency.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgencyFindUniqueArgs>(args: SelectSubset<T, AgencyFindUniqueArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Agency that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgencyFindUniqueOrThrowArgs} args - Arguments to find a Agency
+     * @example
+     * // Get one Agency
+     * const agency = await prisma.agency.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgencyFindUniqueOrThrowArgs>(args: SelectSubset<T, AgencyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Agency that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyFindFirstArgs} args - Arguments to find a Agency
+     * @example
+     * // Get one Agency
+     * const agency = await prisma.agency.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgencyFindFirstArgs>(args?: SelectSubset<T, AgencyFindFirstArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Agency that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyFindFirstOrThrowArgs} args - Arguments to find a Agency
+     * @example
+     * // Get one Agency
+     * const agency = await prisma.agency.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgencyFindFirstOrThrowArgs>(args?: SelectSubset<T, AgencyFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Agencies that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Agencies
+     * const agencies = await prisma.agency.findMany()
+     * 
+     * // Get first 10 Agencies
+     * const agencies = await prisma.agency.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agencyWithIdOnly = await prisma.agency.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgencyFindManyArgs>(args?: SelectSubset<T, AgencyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Agency.
+     * @param {AgencyCreateArgs} args - Arguments to create a Agency.
+     * @example
+     * // Create one Agency
+     * const Agency = await prisma.agency.create({
+     *   data: {
+     *     // ... data to create a Agency
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgencyCreateArgs>(args: SelectSubset<T, AgencyCreateArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Agencies.
+     * @param {AgencyCreateManyArgs} args - Arguments to create many Agencies.
+     * @example
+     * // Create many Agencies
+     * const agency = await prisma.agency.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgencyCreateManyArgs>(args?: SelectSubset<T, AgencyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Agencies and returns the data saved in the database.
+     * @param {AgencyCreateManyAndReturnArgs} args - Arguments to create many Agencies.
+     * @example
+     * // Create many Agencies
+     * const agency = await prisma.agency.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Agencies and only return the `id`
+     * const agencyWithIdOnly = await prisma.agency.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgencyCreateManyAndReturnArgs>(args?: SelectSubset<T, AgencyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Agency.
+     * @param {AgencyDeleteArgs} args - Arguments to delete one Agency.
+     * @example
+     * // Delete one Agency
+     * const Agency = await prisma.agency.delete({
+     *   where: {
+     *     // ... filter to delete one Agency
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgencyDeleteArgs>(args: SelectSubset<T, AgencyDeleteArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Agency.
+     * @param {AgencyUpdateArgs} args - Arguments to update one Agency.
+     * @example
+     * // Update one Agency
+     * const agency = await prisma.agency.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgencyUpdateArgs>(args: SelectSubset<T, AgencyUpdateArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Agencies.
+     * @param {AgencyDeleteManyArgs} args - Arguments to filter Agencies to delete.
+     * @example
+     * // Delete a few Agencies
+     * const { count } = await prisma.agency.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgencyDeleteManyArgs>(args?: SelectSubset<T, AgencyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Agencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Agencies
+     * const agency = await prisma.agency.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgencyUpdateManyArgs>(args: SelectSubset<T, AgencyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Agencies and returns the data updated in the database.
+     * @param {AgencyUpdateManyAndReturnArgs} args - Arguments to update many Agencies.
+     * @example
+     * // Update many Agencies
+     * const agency = await prisma.agency.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Agencies and only return the `id`
+     * const agencyWithIdOnly = await prisma.agency.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgencyUpdateManyAndReturnArgs>(args: SelectSubset<T, AgencyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Agency.
+     * @param {AgencyUpsertArgs} args - Arguments to update or create a Agency.
+     * @example
+     * // Update or create a Agency
+     * const agency = await prisma.agency.upsert({
+     *   create: {
+     *     // ... data to create a Agency
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Agency we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgencyUpsertArgs>(args: SelectSubset<T, AgencyUpsertArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Agencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyCountArgs} args - Arguments to filter Agencies to count.
+     * @example
+     * // Count the number of Agencies
+     * const count = await prisma.agency.count({
+     *   where: {
+     *     // ... the filter for the Agencies we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgencyCountArgs>(
+      args?: Subset<T, AgencyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgencyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Agency.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgencyAggregateArgs>(args: Subset<T, AgencyAggregateArgs>): Prisma.PrismaPromise<GetAgencyAggregateType<T>>
+
+    /**
+     * Group by Agency.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgencyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgencyGroupByArgs['orderBy'] }
+        : { orderBy?: AgencyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgencyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgencyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Agency model
+   */
+  readonly fields: AgencyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Agency.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgencyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    members<T extends Agency$membersArgs<ExtArgs> = {}>(args?: Subset<T, Agency$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tenancies<T extends Agency$tenanciesArgs<ExtArgs> = {}>(args?: Subset<T, Agency$tenanciesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activity<T extends Agency$activityArgs<ExtArgs> = {}>(args?: Subset<T, Agency$activityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Agency model
+   */
+  interface AgencyFieldRefs {
+    readonly id: FieldRef<"Agency", 'String'>
+    readonly name: FieldRef<"Agency", 'String'>
+    readonly createdAt: FieldRef<"Agency", 'DateTime'>
+    readonly updatedAt: FieldRef<"Agency", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Agency findUnique
+   */
+  export type AgencyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * Filter, which Agency to fetch.
+     */
+    where: AgencyWhereUniqueInput
+  }
+
+  /**
+   * Agency findUniqueOrThrow
+   */
+  export type AgencyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * Filter, which Agency to fetch.
+     */
+    where: AgencyWhereUniqueInput
+  }
+
+  /**
+   * Agency findFirst
+   */
+  export type AgencyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * Filter, which Agency to fetch.
+     */
+    where?: AgencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Agencies to fetch.
+     */
+    orderBy?: AgencyOrderByWithRelationInput | AgencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Agencies.
+     */
+    cursor?: AgencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Agencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Agencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Agencies.
+     */
+    distinct?: AgencyScalarFieldEnum | AgencyScalarFieldEnum[]
+  }
+
+  /**
+   * Agency findFirstOrThrow
+   */
+  export type AgencyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * Filter, which Agency to fetch.
+     */
+    where?: AgencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Agencies to fetch.
+     */
+    orderBy?: AgencyOrderByWithRelationInput | AgencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Agencies.
+     */
+    cursor?: AgencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Agencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Agencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Agencies.
+     */
+    distinct?: AgencyScalarFieldEnum | AgencyScalarFieldEnum[]
+  }
+
+  /**
+   * Agency findMany
+   */
+  export type AgencyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * Filter, which Agencies to fetch.
+     */
+    where?: AgencyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Agencies to fetch.
+     */
+    orderBy?: AgencyOrderByWithRelationInput | AgencyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Agencies.
+     */
+    cursor?: AgencyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Agencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Agencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Agencies.
+     */
+    distinct?: AgencyScalarFieldEnum | AgencyScalarFieldEnum[]
+  }
+
+  /**
+   * Agency create
+   */
+  export type AgencyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Agency.
+     */
+    data: XOR<AgencyCreateInput, AgencyUncheckedCreateInput>
+  }
+
+  /**
+   * Agency createMany
+   */
+  export type AgencyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Agencies.
+     */
+    data: AgencyCreateManyInput | AgencyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Agency createManyAndReturn
+   */
+  export type AgencyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * The data used to create many Agencies.
+     */
+    data: AgencyCreateManyInput | AgencyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Agency update
+   */
+  export type AgencyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Agency.
+     */
+    data: XOR<AgencyUpdateInput, AgencyUncheckedUpdateInput>
+    /**
+     * Choose, which Agency to update.
+     */
+    where: AgencyWhereUniqueInput
+  }
+
+  /**
+   * Agency updateMany
+   */
+  export type AgencyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Agencies.
+     */
+    data: XOR<AgencyUpdateManyMutationInput, AgencyUncheckedUpdateManyInput>
+    /**
+     * Filter which Agencies to update
+     */
+    where?: AgencyWhereInput
+    /**
+     * Limit how many Agencies to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Agency updateManyAndReturn
+   */
+  export type AgencyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * The data used to update Agencies.
+     */
+    data: XOR<AgencyUpdateManyMutationInput, AgencyUncheckedUpdateManyInput>
+    /**
+     * Filter which Agencies to update
+     */
+    where?: AgencyWhereInput
+    /**
+     * Limit how many Agencies to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Agency upsert
+   */
+  export type AgencyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Agency to update in case it exists.
+     */
+    where: AgencyWhereUniqueInput
+    /**
+     * In case the Agency found by the `where` argument doesn't exist, create a new Agency with this data.
+     */
+    create: XOR<AgencyCreateInput, AgencyUncheckedCreateInput>
+    /**
+     * In case the Agency was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgencyUpdateInput, AgencyUncheckedUpdateInput>
+  }
+
+  /**
+   * Agency delete
+   */
+  export type AgencyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    /**
+     * Filter which Agency to delete.
+     */
+    where: AgencyWhereUniqueInput
+  }
+
+  /**
+   * Agency deleteMany
+   */
+  export type AgencyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Agencies to delete
+     */
+    where?: AgencyWhereInput
+    /**
+     * Limit how many Agencies to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Agency.members
+   */
+  export type Agency$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    where?: AgencyMembershipWhereInput
+    orderBy?: AgencyMembershipOrderByWithRelationInput | AgencyMembershipOrderByWithRelationInput[]
+    cursor?: AgencyMembershipWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgencyMembershipScalarFieldEnum | AgencyMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * Agency.tenancies
+   */
+  export type Agency$tenanciesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenancy
+     */
+    select?: TenancySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenancy
+     */
+    omit?: TenancyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenancyInclude<ExtArgs> | null
+    where?: TenancyWhereInput
+    orderBy?: TenancyOrderByWithRelationInput | TenancyOrderByWithRelationInput[]
+    cursor?: TenancyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TenancyScalarFieldEnum | TenancyScalarFieldEnum[]
+  }
+
+  /**
+   * Agency.activity
+   */
+  export type Agency$activityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    where?: AgencyActivityWhereInput
+    orderBy?: AgencyActivityOrderByWithRelationInput | AgencyActivityOrderByWithRelationInput[]
+    cursor?: AgencyActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AgencyActivityScalarFieldEnum | AgencyActivityScalarFieldEnum[]
+  }
+
+  /**
+   * Agency without action
+   */
+  export type AgencyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgencyMembership
+   */
+
+  export type AggregateAgencyMembership = {
+    _count: AgencyMembershipCountAggregateOutputType | null
+    _min: AgencyMembershipMinAggregateOutputType | null
+    _max: AgencyMembershipMaxAggregateOutputType | null
+  }
+
+  export type AgencyMembershipMinAggregateOutputType = {
+    id: string | null
+    agencyId: string | null
+    stakeholderId: string | null
+    role: $Enums.AgencyRole | null
+    status: $Enums.AgencyMembershipStatus | null
+    invitedById: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    removedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgencyMembershipMaxAggregateOutputType = {
+    id: string | null
+    agencyId: string | null
+    stakeholderId: string | null
+    role: $Enums.AgencyRole | null
+    status: $Enums.AgencyMembershipStatus | null
+    invitedById: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    removedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AgencyMembershipCountAggregateOutputType = {
+    id: number
+    agencyId: number
+    stakeholderId: number
+    role: number
+    status: number
+    invitedById: number
+    expiresAt: number
+    acceptedAt: number
+    removedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgencyMembershipMinAggregateInputType = {
+    id?: true
+    agencyId?: true
+    stakeholderId?: true
+    role?: true
+    status?: true
+    invitedById?: true
+    expiresAt?: true
+    acceptedAt?: true
+    removedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgencyMembershipMaxAggregateInputType = {
+    id?: true
+    agencyId?: true
+    stakeholderId?: true
+    role?: true
+    status?: true
+    invitedById?: true
+    expiresAt?: true
+    acceptedAt?: true
+    removedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AgencyMembershipCountAggregateInputType = {
+    id?: true
+    agencyId?: true
+    stakeholderId?: true
+    role?: true
+    status?: true
+    invitedById?: true
+    expiresAt?: true
+    acceptedAt?: true
+    removedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgencyMembershipAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgencyMembership to aggregate.
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyMemberships to fetch.
+     */
+    orderBy?: AgencyMembershipOrderByWithRelationInput | AgencyMembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgencyMembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyMemberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyMemberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgencyMemberships
+    **/
+    _count?: true | AgencyMembershipCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgencyMembershipMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgencyMembershipMaxAggregateInputType
+  }
+
+  export type GetAgencyMembershipAggregateType<T extends AgencyMembershipAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgencyMembership]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgencyMembership[P]>
+      : GetScalarType<T[P], AggregateAgencyMembership[P]>
+  }
+
+
+
+
+  export type AgencyMembershipGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyMembershipWhereInput
+    orderBy?: AgencyMembershipOrderByWithAggregationInput | AgencyMembershipOrderByWithAggregationInput[]
+    by: AgencyMembershipScalarFieldEnum[] | AgencyMembershipScalarFieldEnum
+    having?: AgencyMembershipScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgencyMembershipCountAggregateInputType | true
+    _min?: AgencyMembershipMinAggregateInputType
+    _max?: AgencyMembershipMaxAggregateInputType
+  }
+
+  export type AgencyMembershipGroupByOutputType = {
+    id: string
+    agencyId: string
+    stakeholderId: string
+    role: $Enums.AgencyRole
+    status: $Enums.AgencyMembershipStatus
+    invitedById: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    removedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AgencyMembershipCountAggregateOutputType | null
+    _min: AgencyMembershipMinAggregateOutputType | null
+    _max: AgencyMembershipMaxAggregateOutputType | null
+  }
+
+  type GetAgencyMembershipGroupByPayload<T extends AgencyMembershipGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgencyMembershipGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgencyMembershipGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgencyMembershipGroupByOutputType[P]>
+            : GetScalarType<T[P], AgencyMembershipGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgencyMembershipSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agencyId?: boolean
+    stakeholderId?: boolean
+    role?: boolean
+    status?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    removedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+    notifications?: boolean | AgencyMembership$notificationsArgs<ExtArgs>
+    _count?: boolean | AgencyMembershipCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyMembership"]>
+
+  export type AgencyMembershipSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agencyId?: boolean
+    stakeholderId?: boolean
+    role?: boolean
+    status?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    removedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyMembership"]>
+
+  export type AgencyMembershipSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agencyId?: boolean
+    stakeholderId?: boolean
+    role?: boolean
+    status?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    removedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyMembership"]>
+
+  export type AgencyMembershipSelectScalar = {
+    id?: boolean
+    agencyId?: boolean
+    stakeholderId?: boolean
+    role?: boolean
+    status?: boolean
+    invitedById?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    removedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgencyMembershipOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "agencyId" | "stakeholderId" | "role" | "status" | "invitedById" | "expiresAt" | "acceptedAt" | "removedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["agencyMembership"]>
+  export type AgencyMembershipInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+    notifications?: boolean | AgencyMembership$notificationsArgs<ExtArgs>
+    _count?: boolean | AgencyMembershipCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AgencyMembershipIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AgencyMembershipIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $AgencyMembershipPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgencyMembership"
+    objects: {
+      agency: Prisma.$AgencyPayload<ExtArgs>
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      agencyId: string
+      stakeholderId: string
+      role: $Enums.AgencyRole
+      status: $Enums.AgencyMembershipStatus
+      invitedById: string | null
+      expiresAt: Date | null
+      acceptedAt: Date | null
+      removedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["agencyMembership"]>
+    composites: {}
+  }
+
+  type AgencyMembershipGetPayload<S extends boolean | null | undefined | AgencyMembershipDefaultArgs> = $Result.GetResult<Prisma.$AgencyMembershipPayload, S>
+
+  type AgencyMembershipCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgencyMembershipFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgencyMembershipCountAggregateInputType | true
+    }
+
+  export interface AgencyMembershipDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgencyMembership'], meta: { name: 'AgencyMembership' } }
+    /**
+     * Find zero or one AgencyMembership that matches the filter.
+     * @param {AgencyMembershipFindUniqueArgs} args - Arguments to find a AgencyMembership
+     * @example
+     * // Get one AgencyMembership
+     * const agencyMembership = await prisma.agencyMembership.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgencyMembershipFindUniqueArgs>(args: SelectSubset<T, AgencyMembershipFindUniqueArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgencyMembership that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgencyMembershipFindUniqueOrThrowArgs} args - Arguments to find a AgencyMembership
+     * @example
+     * // Get one AgencyMembership
+     * const agencyMembership = await prisma.agencyMembership.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgencyMembershipFindUniqueOrThrowArgs>(args: SelectSubset<T, AgencyMembershipFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgencyMembership that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipFindFirstArgs} args - Arguments to find a AgencyMembership
+     * @example
+     * // Get one AgencyMembership
+     * const agencyMembership = await prisma.agencyMembership.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgencyMembershipFindFirstArgs>(args?: SelectSubset<T, AgencyMembershipFindFirstArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgencyMembership that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipFindFirstOrThrowArgs} args - Arguments to find a AgencyMembership
+     * @example
+     * // Get one AgencyMembership
+     * const agencyMembership = await prisma.agencyMembership.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgencyMembershipFindFirstOrThrowArgs>(args?: SelectSubset<T, AgencyMembershipFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgencyMemberships that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgencyMemberships
+     * const agencyMemberships = await prisma.agencyMembership.findMany()
+     * 
+     * // Get first 10 AgencyMemberships
+     * const agencyMemberships = await prisma.agencyMembership.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agencyMembershipWithIdOnly = await prisma.agencyMembership.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgencyMembershipFindManyArgs>(args?: SelectSubset<T, AgencyMembershipFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgencyMembership.
+     * @param {AgencyMembershipCreateArgs} args - Arguments to create a AgencyMembership.
+     * @example
+     * // Create one AgencyMembership
+     * const AgencyMembership = await prisma.agencyMembership.create({
+     *   data: {
+     *     // ... data to create a AgencyMembership
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgencyMembershipCreateArgs>(args: SelectSubset<T, AgencyMembershipCreateArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgencyMemberships.
+     * @param {AgencyMembershipCreateManyArgs} args - Arguments to create many AgencyMemberships.
+     * @example
+     * // Create many AgencyMemberships
+     * const agencyMembership = await prisma.agencyMembership.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgencyMembershipCreateManyArgs>(args?: SelectSubset<T, AgencyMembershipCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AgencyMemberships and returns the data saved in the database.
+     * @param {AgencyMembershipCreateManyAndReturnArgs} args - Arguments to create many AgencyMemberships.
+     * @example
+     * // Create many AgencyMemberships
+     * const agencyMembership = await prisma.agencyMembership.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AgencyMemberships and only return the `id`
+     * const agencyMembershipWithIdOnly = await prisma.agencyMembership.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgencyMembershipCreateManyAndReturnArgs>(args?: SelectSubset<T, AgencyMembershipCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AgencyMembership.
+     * @param {AgencyMembershipDeleteArgs} args - Arguments to delete one AgencyMembership.
+     * @example
+     * // Delete one AgencyMembership
+     * const AgencyMembership = await prisma.agencyMembership.delete({
+     *   where: {
+     *     // ... filter to delete one AgencyMembership
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgencyMembershipDeleteArgs>(args: SelectSubset<T, AgencyMembershipDeleteArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgencyMembership.
+     * @param {AgencyMembershipUpdateArgs} args - Arguments to update one AgencyMembership.
+     * @example
+     * // Update one AgencyMembership
+     * const agencyMembership = await prisma.agencyMembership.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgencyMembershipUpdateArgs>(args: SelectSubset<T, AgencyMembershipUpdateArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgencyMemberships.
+     * @param {AgencyMembershipDeleteManyArgs} args - Arguments to filter AgencyMemberships to delete.
+     * @example
+     * // Delete a few AgencyMemberships
+     * const { count } = await prisma.agencyMembership.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgencyMembershipDeleteManyArgs>(args?: SelectSubset<T, AgencyMembershipDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgencyMemberships.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgencyMemberships
+     * const agencyMembership = await prisma.agencyMembership.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgencyMembershipUpdateManyArgs>(args: SelectSubset<T, AgencyMembershipUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgencyMemberships and returns the data updated in the database.
+     * @param {AgencyMembershipUpdateManyAndReturnArgs} args - Arguments to update many AgencyMemberships.
+     * @example
+     * // Update many AgencyMemberships
+     * const agencyMembership = await prisma.agencyMembership.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AgencyMemberships and only return the `id`
+     * const agencyMembershipWithIdOnly = await prisma.agencyMembership.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgencyMembershipUpdateManyAndReturnArgs>(args: SelectSubset<T, AgencyMembershipUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AgencyMembership.
+     * @param {AgencyMembershipUpsertArgs} args - Arguments to update or create a AgencyMembership.
+     * @example
+     * // Update or create a AgencyMembership
+     * const agencyMembership = await prisma.agencyMembership.upsert({
+     *   create: {
+     *     // ... data to create a AgencyMembership
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgencyMembership we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgencyMembershipUpsertArgs>(args: SelectSubset<T, AgencyMembershipUpsertArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgencyMemberships.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipCountArgs} args - Arguments to filter AgencyMemberships to count.
+     * @example
+     * // Count the number of AgencyMemberships
+     * const count = await prisma.agencyMembership.count({
+     *   where: {
+     *     // ... the filter for the AgencyMemberships we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgencyMembershipCountArgs>(
+      args?: Subset<T, AgencyMembershipCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgencyMembershipCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgencyMembership.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgencyMembershipAggregateArgs>(args: Subset<T, AgencyMembershipAggregateArgs>): Prisma.PrismaPromise<GetAgencyMembershipAggregateType<T>>
+
+    /**
+     * Group by AgencyMembership.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyMembershipGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgencyMembershipGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgencyMembershipGroupByArgs['orderBy'] }
+        : { orderBy?: AgencyMembershipGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgencyMembershipGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgencyMembershipGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgencyMembership model
+   */
+  readonly fields: AgencyMembershipFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgencyMembership.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgencyMembershipClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    agency<T extends AgencyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgencyDefaultArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    notifications<T extends AgencyMembership$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, AgencyMembership$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgencyMembership model
+   */
+  interface AgencyMembershipFieldRefs {
+    readonly id: FieldRef<"AgencyMembership", 'String'>
+    readonly agencyId: FieldRef<"AgencyMembership", 'String'>
+    readonly stakeholderId: FieldRef<"AgencyMembership", 'String'>
+    readonly role: FieldRef<"AgencyMembership", 'AgencyRole'>
+    readonly status: FieldRef<"AgencyMembership", 'AgencyMembershipStatus'>
+    readonly invitedById: FieldRef<"AgencyMembership", 'String'>
+    readonly expiresAt: FieldRef<"AgencyMembership", 'DateTime'>
+    readonly acceptedAt: FieldRef<"AgencyMembership", 'DateTime'>
+    readonly removedAt: FieldRef<"AgencyMembership", 'DateTime'>
+    readonly createdAt: FieldRef<"AgencyMembership", 'DateTime'>
+    readonly updatedAt: FieldRef<"AgencyMembership", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgencyMembership findUnique
+   */
+  export type AgencyMembershipFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyMembership to fetch.
+     */
+    where: AgencyMembershipWhereUniqueInput
+  }
+
+  /**
+   * AgencyMembership findUniqueOrThrow
+   */
+  export type AgencyMembershipFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyMembership to fetch.
+     */
+    where: AgencyMembershipWhereUniqueInput
+  }
+
+  /**
+   * AgencyMembership findFirst
+   */
+  export type AgencyMembershipFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyMembership to fetch.
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyMemberships to fetch.
+     */
+    orderBy?: AgencyMembershipOrderByWithRelationInput | AgencyMembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgencyMemberships.
+     */
+    cursor?: AgencyMembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyMemberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyMemberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyMemberships.
+     */
+    distinct?: AgencyMembershipScalarFieldEnum | AgencyMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyMembership findFirstOrThrow
+   */
+  export type AgencyMembershipFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyMembership to fetch.
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyMemberships to fetch.
+     */
+    orderBy?: AgencyMembershipOrderByWithRelationInput | AgencyMembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgencyMemberships.
+     */
+    cursor?: AgencyMembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyMemberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyMemberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyMemberships.
+     */
+    distinct?: AgencyMembershipScalarFieldEnum | AgencyMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyMembership findMany
+   */
+  export type AgencyMembershipFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyMemberships to fetch.
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyMemberships to fetch.
+     */
+    orderBy?: AgencyMembershipOrderByWithRelationInput | AgencyMembershipOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgencyMemberships.
+     */
+    cursor?: AgencyMembershipWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyMemberships from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyMemberships.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyMemberships.
+     */
+    distinct?: AgencyMembershipScalarFieldEnum | AgencyMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyMembership create
+   */
+  export type AgencyMembershipCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgencyMembership.
+     */
+    data: XOR<AgencyMembershipCreateInput, AgencyMembershipUncheckedCreateInput>
+  }
+
+  /**
+   * AgencyMembership createMany
+   */
+  export type AgencyMembershipCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgencyMemberships.
+     */
+    data: AgencyMembershipCreateManyInput | AgencyMembershipCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgencyMembership createManyAndReturn
+   */
+  export type AgencyMembershipCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * The data used to create many AgencyMemberships.
+     */
+    data: AgencyMembershipCreateManyInput | AgencyMembershipCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgencyMembership update
+   */
+  export type AgencyMembershipUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgencyMembership.
+     */
+    data: XOR<AgencyMembershipUpdateInput, AgencyMembershipUncheckedUpdateInput>
+    /**
+     * Choose, which AgencyMembership to update.
+     */
+    where: AgencyMembershipWhereUniqueInput
+  }
+
+  /**
+   * AgencyMembership updateMany
+   */
+  export type AgencyMembershipUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgencyMemberships.
+     */
+    data: XOR<AgencyMembershipUpdateManyMutationInput, AgencyMembershipUncheckedUpdateManyInput>
+    /**
+     * Filter which AgencyMemberships to update
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * Limit how many AgencyMemberships to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgencyMembership updateManyAndReturn
+   */
+  export type AgencyMembershipUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * The data used to update AgencyMemberships.
+     */
+    data: XOR<AgencyMembershipUpdateManyMutationInput, AgencyMembershipUncheckedUpdateManyInput>
+    /**
+     * Filter which AgencyMemberships to update
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * Limit how many AgencyMemberships to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgencyMembership upsert
+   */
+  export type AgencyMembershipUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgencyMembership to update in case it exists.
+     */
+    where: AgencyMembershipWhereUniqueInput
+    /**
+     * In case the AgencyMembership found by the `where` argument doesn't exist, create a new AgencyMembership with this data.
+     */
+    create: XOR<AgencyMembershipCreateInput, AgencyMembershipUncheckedCreateInput>
+    /**
+     * In case the AgencyMembership was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgencyMembershipUpdateInput, AgencyMembershipUncheckedUpdateInput>
+  }
+
+  /**
+   * AgencyMembership delete
+   */
+  export type AgencyMembershipDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    /**
+     * Filter which AgencyMembership to delete.
+     */
+    where: AgencyMembershipWhereUniqueInput
+  }
+
+  /**
+   * AgencyMembership deleteMany
+   */
+  export type AgencyMembershipDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgencyMemberships to delete
+     */
+    where?: AgencyMembershipWhereInput
+    /**
+     * Limit how many AgencyMemberships to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgencyMembership.notifications
+   */
+  export type AgencyMembership$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyMembership without action
+   */
+  export type AgencyMembershipDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgencyActivity
+   */
+
+  export type AggregateAgencyActivity = {
+    _count: AgencyActivityCountAggregateOutputType | null
+    _min: AgencyActivityMinAggregateOutputType | null
+    _max: AgencyActivityMaxAggregateOutputType | null
+  }
+
+  export type AgencyActivityMinAggregateOutputType = {
+    id: string | null
+    agencyId: string | null
+    actorId: string | null
+    actorName: string | null
+    subjectId: string | null
+    subjectName: string | null
+    action: string | null
+    createdAt: Date | null
+  }
+
+  export type AgencyActivityMaxAggregateOutputType = {
+    id: string | null
+    agencyId: string | null
+    actorId: string | null
+    actorName: string | null
+    subjectId: string | null
+    subjectName: string | null
+    action: string | null
+    createdAt: Date | null
+  }
+
+  export type AgencyActivityCountAggregateOutputType = {
+    id: number
+    agencyId: number
+    actorId: number
+    actorName: number
+    subjectId: number
+    subjectName: number
+    action: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AgencyActivityMinAggregateInputType = {
+    id?: true
+    agencyId?: true
+    actorId?: true
+    actorName?: true
+    subjectId?: true
+    subjectName?: true
+    action?: true
+    createdAt?: true
+  }
+
+  export type AgencyActivityMaxAggregateInputType = {
+    id?: true
+    agencyId?: true
+    actorId?: true
+    actorName?: true
+    subjectId?: true
+    subjectName?: true
+    action?: true
+    createdAt?: true
+  }
+
+  export type AgencyActivityCountAggregateInputType = {
+    id?: true
+    agencyId?: true
+    actorId?: true
+    actorName?: true
+    subjectId?: true
+    subjectName?: true
+    action?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AgencyActivityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgencyActivity to aggregate.
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyActivities to fetch.
+     */
+    orderBy?: AgencyActivityOrderByWithRelationInput | AgencyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgencyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgencyActivities
+    **/
+    _count?: true | AgencyActivityCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgencyActivityMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgencyActivityMaxAggregateInputType
+  }
+
+  export type GetAgencyActivityAggregateType<T extends AgencyActivityAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgencyActivity]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgencyActivity[P]>
+      : GetScalarType<T[P], AggregateAgencyActivity[P]>
+  }
+
+
+
+
+  export type AgencyActivityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyActivityWhereInput
+    orderBy?: AgencyActivityOrderByWithAggregationInput | AgencyActivityOrderByWithAggregationInput[]
+    by: AgencyActivityScalarFieldEnum[] | AgencyActivityScalarFieldEnum
+    having?: AgencyActivityScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgencyActivityCountAggregateInputType | true
+    _min?: AgencyActivityMinAggregateInputType
+    _max?: AgencyActivityMaxAggregateInputType
+  }
+
+  export type AgencyActivityGroupByOutputType = {
+    id: string
+    agencyId: string
+    actorId: string
+    actorName: string
+    subjectId: string | null
+    subjectName: string | null
+    action: string
+    createdAt: Date
+    _count: AgencyActivityCountAggregateOutputType | null
+    _min: AgencyActivityMinAggregateOutputType | null
+    _max: AgencyActivityMaxAggregateOutputType | null
+  }
+
+  type GetAgencyActivityGroupByPayload<T extends AgencyActivityGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgencyActivityGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgencyActivityGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgencyActivityGroupByOutputType[P]>
+            : GetScalarType<T[P], AgencyActivityGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgencyActivitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agencyId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    subjectId?: boolean
+    subjectName?: boolean
+    action?: boolean
+    createdAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyActivity"]>
+
+  export type AgencyActivitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agencyId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    subjectId?: boolean
+    subjectName?: boolean
+    action?: boolean
+    createdAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyActivity"]>
+
+  export type AgencyActivitySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agencyId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    subjectId?: boolean
+    subjectName?: boolean
+    action?: boolean
+    createdAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyActivity"]>
+
+  export type AgencyActivitySelectScalar = {
+    id?: boolean
+    agencyId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    subjectId?: boolean
+    subjectName?: boolean
+    action?: boolean
+    createdAt?: boolean
+  }
+
+  export type AgencyActivityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "agencyId" | "actorId" | "actorName" | "subjectId" | "subjectName" | "action" | "createdAt", ExtArgs["result"]["agencyActivity"]>
+  export type AgencyActivityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }
+  export type AgencyActivityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }
+  export type AgencyActivityIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }
+
+  export type $AgencyActivityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgencyActivity"
+    objects: {
+      agency: Prisma.$AgencyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      agencyId: string
+      actorId: string
+      actorName: string
+      subjectId: string | null
+      subjectName: string | null
+      action: string
+      createdAt: Date
+    }, ExtArgs["result"]["agencyActivity"]>
+    composites: {}
+  }
+
+  type AgencyActivityGetPayload<S extends boolean | null | undefined | AgencyActivityDefaultArgs> = $Result.GetResult<Prisma.$AgencyActivityPayload, S>
+
+  type AgencyActivityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgencyActivityFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgencyActivityCountAggregateInputType | true
+    }
+
+  export interface AgencyActivityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgencyActivity'], meta: { name: 'AgencyActivity' } }
+    /**
+     * Find zero or one AgencyActivity that matches the filter.
+     * @param {AgencyActivityFindUniqueArgs} args - Arguments to find a AgencyActivity
+     * @example
+     * // Get one AgencyActivity
+     * const agencyActivity = await prisma.agencyActivity.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgencyActivityFindUniqueArgs>(args: SelectSubset<T, AgencyActivityFindUniqueArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgencyActivity that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgencyActivityFindUniqueOrThrowArgs} args - Arguments to find a AgencyActivity
+     * @example
+     * // Get one AgencyActivity
+     * const agencyActivity = await prisma.agencyActivity.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgencyActivityFindUniqueOrThrowArgs>(args: SelectSubset<T, AgencyActivityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgencyActivity that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityFindFirstArgs} args - Arguments to find a AgencyActivity
+     * @example
+     * // Get one AgencyActivity
+     * const agencyActivity = await prisma.agencyActivity.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgencyActivityFindFirstArgs>(args?: SelectSubset<T, AgencyActivityFindFirstArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgencyActivity that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityFindFirstOrThrowArgs} args - Arguments to find a AgencyActivity
+     * @example
+     * // Get one AgencyActivity
+     * const agencyActivity = await prisma.agencyActivity.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgencyActivityFindFirstOrThrowArgs>(args?: SelectSubset<T, AgencyActivityFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgencyActivities that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgencyActivities
+     * const agencyActivities = await prisma.agencyActivity.findMany()
+     * 
+     * // Get first 10 AgencyActivities
+     * const agencyActivities = await prisma.agencyActivity.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const agencyActivityWithIdOnly = await prisma.agencyActivity.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AgencyActivityFindManyArgs>(args?: SelectSubset<T, AgencyActivityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgencyActivity.
+     * @param {AgencyActivityCreateArgs} args - Arguments to create a AgencyActivity.
+     * @example
+     * // Create one AgencyActivity
+     * const AgencyActivity = await prisma.agencyActivity.create({
+     *   data: {
+     *     // ... data to create a AgencyActivity
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgencyActivityCreateArgs>(args: SelectSubset<T, AgencyActivityCreateArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgencyActivities.
+     * @param {AgencyActivityCreateManyArgs} args - Arguments to create many AgencyActivities.
+     * @example
+     * // Create many AgencyActivities
+     * const agencyActivity = await prisma.agencyActivity.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgencyActivityCreateManyArgs>(args?: SelectSubset<T, AgencyActivityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AgencyActivities and returns the data saved in the database.
+     * @param {AgencyActivityCreateManyAndReturnArgs} args - Arguments to create many AgencyActivities.
+     * @example
+     * // Create many AgencyActivities
+     * const agencyActivity = await prisma.agencyActivity.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AgencyActivities and only return the `id`
+     * const agencyActivityWithIdOnly = await prisma.agencyActivity.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgencyActivityCreateManyAndReturnArgs>(args?: SelectSubset<T, AgencyActivityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AgencyActivity.
+     * @param {AgencyActivityDeleteArgs} args - Arguments to delete one AgencyActivity.
+     * @example
+     * // Delete one AgencyActivity
+     * const AgencyActivity = await prisma.agencyActivity.delete({
+     *   where: {
+     *     // ... filter to delete one AgencyActivity
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgencyActivityDeleteArgs>(args: SelectSubset<T, AgencyActivityDeleteArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgencyActivity.
+     * @param {AgencyActivityUpdateArgs} args - Arguments to update one AgencyActivity.
+     * @example
+     * // Update one AgencyActivity
+     * const agencyActivity = await prisma.agencyActivity.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgencyActivityUpdateArgs>(args: SelectSubset<T, AgencyActivityUpdateArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgencyActivities.
+     * @param {AgencyActivityDeleteManyArgs} args - Arguments to filter AgencyActivities to delete.
+     * @example
+     * // Delete a few AgencyActivities
+     * const { count } = await prisma.agencyActivity.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgencyActivityDeleteManyArgs>(args?: SelectSubset<T, AgencyActivityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgencyActivities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgencyActivities
+     * const agencyActivity = await prisma.agencyActivity.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgencyActivityUpdateManyArgs>(args: SelectSubset<T, AgencyActivityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgencyActivities and returns the data updated in the database.
+     * @param {AgencyActivityUpdateManyAndReturnArgs} args - Arguments to update many AgencyActivities.
+     * @example
+     * // Update many AgencyActivities
+     * const agencyActivity = await prisma.agencyActivity.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AgencyActivities and only return the `id`
+     * const agencyActivityWithIdOnly = await prisma.agencyActivity.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgencyActivityUpdateManyAndReturnArgs>(args: SelectSubset<T, AgencyActivityUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AgencyActivity.
+     * @param {AgencyActivityUpsertArgs} args - Arguments to update or create a AgencyActivity.
+     * @example
+     * // Update or create a AgencyActivity
+     * const agencyActivity = await prisma.agencyActivity.upsert({
+     *   create: {
+     *     // ... data to create a AgencyActivity
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgencyActivity we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgencyActivityUpsertArgs>(args: SelectSubset<T, AgencyActivityUpsertArgs<ExtArgs>>): Prisma__AgencyActivityClient<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgencyActivities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityCountArgs} args - Arguments to filter AgencyActivities to count.
+     * @example
+     * // Count the number of AgencyActivities
+     * const count = await prisma.agencyActivity.count({
+     *   where: {
+     *     // ... the filter for the AgencyActivities we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgencyActivityCountArgs>(
+      args?: Subset<T, AgencyActivityCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgencyActivityCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgencyActivity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgencyActivityAggregateArgs>(args: Subset<T, AgencyActivityAggregateArgs>): Prisma.PrismaPromise<GetAgencyActivityAggregateType<T>>
+
+    /**
+     * Group by AgencyActivity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyActivityGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgencyActivityGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgencyActivityGroupByArgs['orderBy'] }
+        : { orderBy?: AgencyActivityGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgencyActivityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgencyActivityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgencyActivity model
+   */
+  readonly fields: AgencyActivityFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgencyActivity.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgencyActivityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    agency<T extends AgencyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgencyDefaultArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgencyActivity model
+   */
+  interface AgencyActivityFieldRefs {
+    readonly id: FieldRef<"AgencyActivity", 'String'>
+    readonly agencyId: FieldRef<"AgencyActivity", 'String'>
+    readonly actorId: FieldRef<"AgencyActivity", 'String'>
+    readonly actorName: FieldRef<"AgencyActivity", 'String'>
+    readonly subjectId: FieldRef<"AgencyActivity", 'String'>
+    readonly subjectName: FieldRef<"AgencyActivity", 'String'>
+    readonly action: FieldRef<"AgencyActivity", 'String'>
+    readonly createdAt: FieldRef<"AgencyActivity", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgencyActivity findUnique
+   */
+  export type AgencyActivityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyActivity to fetch.
+     */
+    where: AgencyActivityWhereUniqueInput
+  }
+
+  /**
+   * AgencyActivity findUniqueOrThrow
+   */
+  export type AgencyActivityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyActivity to fetch.
+     */
+    where: AgencyActivityWhereUniqueInput
+  }
+
+  /**
+   * AgencyActivity findFirst
+   */
+  export type AgencyActivityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyActivity to fetch.
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyActivities to fetch.
+     */
+    orderBy?: AgencyActivityOrderByWithRelationInput | AgencyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgencyActivities.
+     */
+    cursor?: AgencyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyActivities.
+     */
+    distinct?: AgencyActivityScalarFieldEnum | AgencyActivityScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyActivity findFirstOrThrow
+   */
+  export type AgencyActivityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyActivity to fetch.
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyActivities to fetch.
+     */
+    orderBy?: AgencyActivityOrderByWithRelationInput | AgencyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgencyActivities.
+     */
+    cursor?: AgencyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyActivities.
+     */
+    distinct?: AgencyActivityScalarFieldEnum | AgencyActivityScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyActivity findMany
+   */
+  export type AgencyActivityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyActivities to fetch.
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyActivities to fetch.
+     */
+    orderBy?: AgencyActivityOrderByWithRelationInput | AgencyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgencyActivities.
+     */
+    cursor?: AgencyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyActivities.
+     */
+    distinct?: AgencyActivityScalarFieldEnum | AgencyActivityScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyActivity create
+   */
+  export type AgencyActivityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgencyActivity.
+     */
+    data: XOR<AgencyActivityCreateInput, AgencyActivityUncheckedCreateInput>
+  }
+
+  /**
+   * AgencyActivity createMany
+   */
+  export type AgencyActivityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgencyActivities.
+     */
+    data: AgencyActivityCreateManyInput | AgencyActivityCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgencyActivity createManyAndReturn
+   */
+  export type AgencyActivityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * The data used to create many AgencyActivities.
+     */
+    data: AgencyActivityCreateManyInput | AgencyActivityCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgencyActivity update
+   */
+  export type AgencyActivityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgencyActivity.
+     */
+    data: XOR<AgencyActivityUpdateInput, AgencyActivityUncheckedUpdateInput>
+    /**
+     * Choose, which AgencyActivity to update.
+     */
+    where: AgencyActivityWhereUniqueInput
+  }
+
+  /**
+   * AgencyActivity updateMany
+   */
+  export type AgencyActivityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgencyActivities.
+     */
+    data: XOR<AgencyActivityUpdateManyMutationInput, AgencyActivityUncheckedUpdateManyInput>
+    /**
+     * Filter which AgencyActivities to update
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * Limit how many AgencyActivities to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgencyActivity updateManyAndReturn
+   */
+  export type AgencyActivityUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * The data used to update AgencyActivities.
+     */
+    data: XOR<AgencyActivityUpdateManyMutationInput, AgencyActivityUncheckedUpdateManyInput>
+    /**
+     * Filter which AgencyActivities to update
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * Limit how many AgencyActivities to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgencyActivity upsert
+   */
+  export type AgencyActivityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgencyActivity to update in case it exists.
+     */
+    where: AgencyActivityWhereUniqueInput
+    /**
+     * In case the AgencyActivity found by the `where` argument doesn't exist, create a new AgencyActivity with this data.
+     */
+    create: XOR<AgencyActivityCreateInput, AgencyActivityUncheckedCreateInput>
+    /**
+     * In case the AgencyActivity was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgencyActivityUpdateInput, AgencyActivityUncheckedUpdateInput>
+  }
+
+  /**
+   * AgencyActivity delete
+   */
+  export type AgencyActivityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
+    /**
+     * Filter which AgencyActivity to delete.
+     */
+    where: AgencyActivityWhereUniqueInput
+  }
+
+  /**
+   * AgencyActivity deleteMany
+   */
+  export type AgencyActivityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgencyActivities to delete
+     */
+    where?: AgencyActivityWhereInput
+    /**
+     * Limit how many AgencyActivities to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgencyActivity without action
+   */
+  export type AgencyActivityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyActivity
+     */
+    select?: AgencyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyActivity
+     */
+    omit?: AgencyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyActivityInclude<ExtArgs> | null
   }
 
 
@@ -11575,6 +15428,10 @@ export namespace Prisma {
     type: $Enums.PropertyType | null
     createdAt: Date | null
     updatedAt: Date | null
+    archivedAt: Date | null
+    trashedAt: Date | null
+    trashExpiresAt: Date | null
+    trashedById: string | null
   }
 
   export type PropertyMaxAggregateOutputType = {
@@ -11585,6 +15442,10 @@ export namespace Prisma {
     type: $Enums.PropertyType | null
     createdAt: Date | null
     updatedAt: Date | null
+    archivedAt: Date | null
+    trashedAt: Date | null
+    trashExpiresAt: Date | null
+    trashedById: string | null
   }
 
   export type PropertyCountAggregateOutputType = {
@@ -11595,6 +15456,10 @@ export namespace Prisma {
     type: number
     createdAt: number
     updatedAt: number
+    archivedAt: number
+    trashedAt: number
+    trashExpiresAt: number
+    trashedById: number
     _all: number
   }
 
@@ -11607,6 +15472,10 @@ export namespace Prisma {
     type?: true
     createdAt?: true
     updatedAt?: true
+    archivedAt?: true
+    trashedAt?: true
+    trashExpiresAt?: true
+    trashedById?: true
   }
 
   export type PropertyMaxAggregateInputType = {
@@ -11617,6 +15486,10 @@ export namespace Prisma {
     type?: true
     createdAt?: true
     updatedAt?: true
+    archivedAt?: true
+    trashedAt?: true
+    trashExpiresAt?: true
+    trashedById?: true
   }
 
   export type PropertyCountAggregateInputType = {
@@ -11627,6 +15500,10 @@ export namespace Prisma {
     type?: true
     createdAt?: true
     updatedAt?: true
+    archivedAt?: true
+    trashedAt?: true
+    trashExpiresAt?: true
+    trashedById?: true
     _all?: true
   }
 
@@ -11710,6 +15587,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt: Date
     updatedAt: Date
+    archivedAt: Date | null
+    trashedAt: Date | null
+    trashExpiresAt: Date | null
+    trashedById: string | null
     _count: PropertyCountAggregateOutputType | null
     _min: PropertyMinAggregateOutputType | null
     _max: PropertyMaxAggregateOutputType | null
@@ -11737,6 +15618,10 @@ export namespace Prisma {
     type?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    archivedAt?: boolean
+    trashedAt?: boolean
+    trashExpiresAt?: boolean
+    trashedById?: boolean
     tenancies?: boolean | Property$tenanciesArgs<ExtArgs>
     assets?: boolean | Property$assetsArgs<ExtArgs>
     _count?: boolean | PropertyCountOutputTypeDefaultArgs<ExtArgs>
@@ -11750,6 +15635,10 @@ export namespace Prisma {
     type?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    archivedAt?: boolean
+    trashedAt?: boolean
+    trashExpiresAt?: boolean
+    trashedById?: boolean
   }, ExtArgs["result"]["property"]>
 
   export type PropertySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11760,6 +15649,10 @@ export namespace Prisma {
     type?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    archivedAt?: boolean
+    trashedAt?: boolean
+    trashExpiresAt?: boolean
+    trashedById?: boolean
   }, ExtArgs["result"]["property"]>
 
   export type PropertySelectScalar = {
@@ -11770,9 +15663,13 @@ export namespace Prisma {
     type?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    archivedAt?: boolean
+    trashedAt?: boolean
+    trashExpiresAt?: boolean
+    trashedById?: boolean
   }
 
-  export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "line1" | "unit" | "postalCode" | "type" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
+  export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "line1" | "unit" | "postalCode" | "type" | "createdAt" | "updatedAt" | "archivedAt" | "trashedAt" | "trashExpiresAt" | "trashedById", ExtArgs["result"]["property"]>
   export type PropertyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancies?: boolean | Property$tenanciesArgs<ExtArgs>
     assets?: boolean | Property$assetsArgs<ExtArgs>
@@ -11795,6 +15692,10 @@ export namespace Prisma {
       type: $Enums.PropertyType
       createdAt: Date
       updatedAt: Date
+      archivedAt: Date | null
+      trashedAt: Date | null
+      trashExpiresAt: Date | null
+      trashedById: string | null
     }, ExtArgs["result"]["property"]>
     composites: {}
   }
@@ -12227,6 +16128,10 @@ export namespace Prisma {
     readonly type: FieldRef<"Property", 'PropertyType'>
     readonly createdAt: FieldRef<"Property", 'DateTime'>
     readonly updatedAt: FieldRef<"Property", 'DateTime'>
+    readonly archivedAt: FieldRef<"Property", 'DateTime'>
+    readonly trashedAt: FieldRef<"Property", 'DateTime'>
+    readonly trashExpiresAt: FieldRef<"Property", 'DateTime'>
+    readonly trashedById: FieldRef<"Property", 'String'>
   }
     
 
@@ -12718,6 +16623,7 @@ export namespace Prisma {
     landlordId: string | null
     tenantId: string | null
     agentId: string | null
+    agencyId: string | null
     startDate: Date | null
     endDate: Date | null
     monthlyRent: Decimal | null
@@ -12738,6 +16644,7 @@ export namespace Prisma {
     landlordId: string | null
     tenantId: string | null
     agentId: string | null
+    agencyId: string | null
     startDate: Date | null
     endDate: Date | null
     monthlyRent: Decimal | null
@@ -12758,6 +16665,7 @@ export namespace Prisma {
     landlordId: number
     tenantId: number
     agentId: number
+    agencyId: number
     startDate: number
     endDate: number
     monthlyRent: number
@@ -12794,6 +16702,7 @@ export namespace Prisma {
     landlordId?: true
     tenantId?: true
     agentId?: true
+    agencyId?: true
     startDate?: true
     endDate?: true
     monthlyRent?: true
@@ -12814,6 +16723,7 @@ export namespace Prisma {
     landlordId?: true
     tenantId?: true
     agentId?: true
+    agencyId?: true
     startDate?: true
     endDate?: true
     monthlyRent?: true
@@ -12834,6 +16744,7 @@ export namespace Prisma {
     landlordId?: true
     tenantId?: true
     agentId?: true
+    agencyId?: true
     startDate?: true
     endDate?: true
     monthlyRent?: true
@@ -12941,6 +16852,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId: string | null
+    agencyId: string | null
     startDate: Date
     endDate: Date
     monthlyRent: Decimal
@@ -12980,6 +16892,7 @@ export namespace Prisma {
     landlordId?: boolean
     tenantId?: boolean
     agentId?: boolean
+    agencyId?: boolean
     startDate?: boolean
     endDate?: boolean
     monthlyRent?: boolean
@@ -12996,6 +16909,7 @@ export namespace Prisma {
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    agency?: boolean | Tenancy$agencyArgs<ExtArgs>
     inspections?: boolean | Tenancy$inspectionsArgs<ExtArgs>
     collaborators?: boolean | Tenancy$collaboratorsArgs<ExtArgs>
     notifications?: boolean | Tenancy$notificationsArgs<ExtArgs>
@@ -13011,6 +16925,7 @@ export namespace Prisma {
     landlordId?: boolean
     tenantId?: boolean
     agentId?: boolean
+    agencyId?: boolean
     startDate?: boolean
     endDate?: boolean
     monthlyRent?: boolean
@@ -13027,6 +16942,7 @@ export namespace Prisma {
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    agency?: boolean | Tenancy$agencyArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }, ExtArgs["result"]["tenancy"]>
 
@@ -13036,6 +16952,7 @@ export namespace Prisma {
     landlordId?: boolean
     tenantId?: boolean
     agentId?: boolean
+    agencyId?: boolean
     startDate?: boolean
     endDate?: boolean
     monthlyRent?: boolean
@@ -13052,6 +16969,7 @@ export namespace Prisma {
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    agency?: boolean | Tenancy$agencyArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }, ExtArgs["result"]["tenancy"]>
 
@@ -13061,6 +16979,7 @@ export namespace Prisma {
     landlordId?: boolean
     tenantId?: boolean
     agentId?: boolean
+    agencyId?: boolean
     startDate?: boolean
     endDate?: boolean
     monthlyRent?: boolean
@@ -13075,12 +16994,13 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
+  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "agencyId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
   export type TenancyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    agency?: boolean | Tenancy$agencyArgs<ExtArgs>
     inspections?: boolean | Tenancy$inspectionsArgs<ExtArgs>
     collaborators?: boolean | Tenancy$collaboratorsArgs<ExtArgs>
     notifications?: boolean | Tenancy$notificationsArgs<ExtArgs>
@@ -13094,6 +17014,7 @@ export namespace Prisma {
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    agency?: boolean | Tenancy$agencyArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }
   export type TenancyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13101,6 +17022,7 @@ export namespace Prisma {
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenant?: boolean | StakeholderDefaultArgs<ExtArgs>
     agent?: boolean | Tenancy$agentArgs<ExtArgs>
+    agency?: boolean | Tenancy$agencyArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
   }
 
@@ -13111,6 +17033,7 @@ export namespace Prisma {
       landlord: Prisma.$StakeholderPayload<ExtArgs>
       tenant: Prisma.$StakeholderPayload<ExtArgs>
       agent: Prisma.$StakeholderPayload<ExtArgs> | null
+      agency: Prisma.$AgencyPayload<ExtArgs> | null
       inspections: Prisma.$InspectionPayload<ExtArgs>[]
       collaborators: Prisma.$TenancyCollaboratorPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
@@ -13124,6 +17047,7 @@ export namespace Prisma {
       landlordId: string
       tenantId: string
       agentId: string | null
+      agencyId: string | null
       startDate: Date
       endDate: Date
       monthlyRent: Prisma.Decimal
@@ -13552,6 +17476,7 @@ export namespace Prisma {
     landlord<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     tenant<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     agent<T extends Tenancy$agentArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$agentArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    agency<T extends Tenancy$agencyArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$agencyArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     inspections<T extends Tenancy$inspectionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$inspectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     collaborators<T extends Tenancy$collaboratorsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$collaboratorsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyCollaboratorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Tenancy$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13592,6 +17517,7 @@ export namespace Prisma {
     readonly landlordId: FieldRef<"Tenancy", 'String'>
     readonly tenantId: FieldRef<"Tenancy", 'String'>
     readonly agentId: FieldRef<"Tenancy", 'String'>
+    readonly agencyId: FieldRef<"Tenancy", 'String'>
     readonly startDate: FieldRef<"Tenancy", 'DateTime'>
     readonly endDate: FieldRef<"Tenancy", 'DateTime'>
     readonly monthlyRent: FieldRef<"Tenancy", 'Decimal'>
@@ -14021,6 +17947,25 @@ export namespace Prisma {
      */
     include?: StakeholderInclude<ExtArgs> | null
     where?: StakeholderWhereInput
+  }
+
+  /**
+   * Tenancy.agency
+   */
+  export type Tenancy$agencyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    where?: AgencyWhereInput
   }
 
   /**
@@ -15294,6 +19239,8 @@ export namespace Prisma {
     status: $Enums.InspectionStatus | null
     fullyFurnished: boolean | null
     conductedById: string | null
+    reportAgentId: string | null
+    reportAgentFrozen: boolean | null
     conductedAt: Date | null
     baselineId: string | null
     summary: string | null
@@ -15313,6 +19260,8 @@ export namespace Prisma {
     status: $Enums.InspectionStatus | null
     fullyFurnished: boolean | null
     conductedById: string | null
+    reportAgentId: string | null
+    reportAgentFrozen: boolean | null
     conductedAt: Date | null
     baselineId: string | null
     summary: string | null
@@ -15332,6 +19281,8 @@ export namespace Prisma {
     status: number
     fullyFurnished: number
     conductedById: number
+    reportAgentId: number
+    reportAgentFrozen: number
     conductedAt: number
     baselineId: number
     summary: number
@@ -15353,6 +19304,8 @@ export namespace Prisma {
     status?: true
     fullyFurnished?: true
     conductedById?: true
+    reportAgentId?: true
+    reportAgentFrozen?: true
     conductedAt?: true
     baselineId?: true
     summary?: true
@@ -15372,6 +19325,8 @@ export namespace Prisma {
     status?: true
     fullyFurnished?: true
     conductedById?: true
+    reportAgentId?: true
+    reportAgentFrozen?: true
     conductedAt?: true
     baselineId?: true
     summary?: true
@@ -15391,6 +19346,8 @@ export namespace Prisma {
     status?: true
     fullyFurnished?: true
     conductedById?: true
+    reportAgentId?: true
+    reportAgentFrozen?: true
     conductedAt?: true
     baselineId?: true
     summary?: true
@@ -15483,6 +19440,8 @@ export namespace Prisma {
     status: $Enums.InspectionStatus
     fullyFurnished: boolean
     conductedById: string | null
+    reportAgentId: string | null
+    reportAgentFrozen: boolean
     conductedAt: Date | null
     baselineId: string | null
     summary: string | null
@@ -15519,6 +19478,8 @@ export namespace Prisma {
     status?: boolean
     fullyFurnished?: boolean
     conductedById?: boolean
+    reportAgentId?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
     summary?: boolean
@@ -15531,6 +19492,7 @@ export namespace Prisma {
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
+    reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
     checkOut?: boolean | Inspection$checkOutArgs<ExtArgs>
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
@@ -15553,6 +19515,8 @@ export namespace Prisma {
     status?: boolean
     fullyFurnished?: boolean
     conductedById?: boolean
+    reportAgentId?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
     summary?: boolean
@@ -15565,6 +19529,7 @@ export namespace Prisma {
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
+    reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -15575,6 +19540,8 @@ export namespace Prisma {
     status?: boolean
     fullyFurnished?: boolean
     conductedById?: boolean
+    reportAgentId?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
     summary?: boolean
@@ -15587,6 +19554,7 @@ export namespace Prisma {
     updatedAt?: boolean
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
+    reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -15597,6 +19565,8 @@ export namespace Prisma {
     status?: boolean
     fullyFurnished?: boolean
     conductedById?: boolean
+    reportAgentId?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
     summary?: boolean
@@ -15609,10 +19579,11 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "conductedById" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "conductedById" | "reportAgentId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
+    reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
     checkOut?: boolean | Inspection$checkOutArgs<ExtArgs>
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
@@ -15630,11 +19601,13 @@ export namespace Prisma {
   export type InspectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
+    reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }
   export type InspectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
+    reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }
 
@@ -15643,6 +19616,7 @@ export namespace Prisma {
     objects: {
       tenancy: Prisma.$TenancyPayload<ExtArgs>
       conductedBy: Prisma.$StakeholderPayload<ExtArgs> | null
+      reportAgent: Prisma.$StakeholderPayload<ExtArgs> | null
       baseline: Prisma.$InspectionPayload<ExtArgs> | null
       checkOut: Prisma.$InspectionPayload<ExtArgs> | null
       rooms: Prisma.$RoomPayload<ExtArgs>[]
@@ -15667,6 +19641,11 @@ export namespace Prisma {
        */
       fullyFurnished: boolean
       conductedById: string | null
+      /**
+       * Responsible agent frozen at Send. Handover changes Tenancy.agentId only.
+       */
+      reportAgentId: string | null
+      reportAgentFrozen: boolean
       conductedAt: Date | null
       /**
        * A check-out points at the check-in it is measured against.
@@ -16084,6 +20063,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenancy<T extends TenancyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenancyDefaultArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     conductedBy<T extends Inspection$conductedByArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$conductedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reportAgent<T extends Inspection$reportAgentArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportAgentArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     baseline<T extends Inspection$baselineArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$baselineArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     checkOut<T extends Inspection$checkOutArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$checkOutArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     rooms<T extends Inspection$roomsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -16131,6 +20111,8 @@ export namespace Prisma {
     readonly status: FieldRef<"Inspection", 'InspectionStatus'>
     readonly fullyFurnished: FieldRef<"Inspection", 'Boolean'>
     readonly conductedById: FieldRef<"Inspection", 'String'>
+    readonly reportAgentId: FieldRef<"Inspection", 'String'>
+    readonly reportAgentFrozen: FieldRef<"Inspection", 'Boolean'>
     readonly conductedAt: FieldRef<"Inspection", 'DateTime'>
     readonly baselineId: FieldRef<"Inspection", 'String'>
     readonly summary: FieldRef<"Inspection", 'String'>
@@ -16545,6 +20527,25 @@ export namespace Prisma {
    * Inspection.conductedBy
    */
   export type Inspection$conductedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
+  }
+
+  /**
+   * Inspection.reportAgent
+   */
+  export type Inspection$reportAgentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Stakeholder
      */
@@ -33811,6 +37812,7 @@ export namespace Prisma {
     id: string | null
     recipientId: string | null
     tenancyId: string | null
+    agencyMembershipId: string | null
     kind: $Enums.NotificationKind | null
     title: string | null
     body: string | null
@@ -33829,6 +37831,7 @@ export namespace Prisma {
     id: string | null
     recipientId: string | null
     tenancyId: string | null
+    agencyMembershipId: string | null
     kind: $Enums.NotificationKind | null
     title: string | null
     body: string | null
@@ -33847,6 +37850,7 @@ export namespace Prisma {
     id: number
     recipientId: number
     tenancyId: number
+    agencyMembershipId: number
     kind: number
     title: number
     body: number
@@ -33875,6 +37879,7 @@ export namespace Prisma {
     id?: true
     recipientId?: true
     tenancyId?: true
+    agencyMembershipId?: true
     kind?: true
     title?: true
     body?: true
@@ -33893,6 +37898,7 @@ export namespace Prisma {
     id?: true
     recipientId?: true
     tenancyId?: true
+    agencyMembershipId?: true
     kind?: true
     title?: true
     body?: true
@@ -33911,6 +37917,7 @@ export namespace Prisma {
     id?: true
     recipientId?: true
     tenancyId?: true
+    agencyMembershipId?: true
     kind?: true
     title?: true
     body?: true
@@ -34016,6 +38023,7 @@ export namespace Prisma {
     id: string
     recipientId: string
     tenancyId: string | null
+    agencyMembershipId: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -34053,6 +38061,7 @@ export namespace Prisma {
     id?: boolean
     recipientId?: boolean
     tenancyId?: boolean
+    agencyMembershipId?: boolean
     kind?: boolean
     title?: boolean
     body?: boolean
@@ -34067,6 +38076,7 @@ export namespace Prisma {
     createdAt?: boolean
     recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenancy?: boolean | Notification$tenancyArgs<ExtArgs>
+    agencyMembership?: boolean | Notification$agencyMembershipArgs<ExtArgs>
     pushDeliveries?: boolean | Notification$pushDeliveriesArgs<ExtArgs>
     _count?: boolean | NotificationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["notification"]>
@@ -34075,6 +38085,7 @@ export namespace Prisma {
     id?: boolean
     recipientId?: boolean
     tenancyId?: boolean
+    agencyMembershipId?: boolean
     kind?: boolean
     title?: boolean
     body?: boolean
@@ -34089,12 +38100,14 @@ export namespace Prisma {
     createdAt?: boolean
     recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenancy?: boolean | Notification$tenancyArgs<ExtArgs>
+    agencyMembership?: boolean | Notification$agencyMembershipArgs<ExtArgs>
   }, ExtArgs["result"]["notification"]>
 
   export type NotificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     recipientId?: boolean
     tenancyId?: boolean
+    agencyMembershipId?: boolean
     kind?: boolean
     title?: boolean
     body?: boolean
@@ -34109,12 +38122,14 @@ export namespace Prisma {
     createdAt?: boolean
     recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenancy?: boolean | Notification$tenancyArgs<ExtArgs>
+    agencyMembership?: boolean | Notification$agencyMembershipArgs<ExtArgs>
   }, ExtArgs["result"]["notification"]>
 
   export type NotificationSelectScalar = {
     id?: boolean
     recipientId?: boolean
     tenancyId?: boolean
+    agencyMembershipId?: boolean
     kind?: boolean
     title?: boolean
     body?: boolean
@@ -34129,20 +38144,23 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "recipientId" | "tenancyId" | "kind" | "title" | "body" | "href" | "dedupeKey" | "readAt" | "emailTo" | "emailAttempts" | "emailSentAt" | "emailError" | "pushExpandedAt" | "createdAt", ExtArgs["result"]["notification"]>
+  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "recipientId" | "tenancyId" | "agencyMembershipId" | "kind" | "title" | "body" | "href" | "dedupeKey" | "readAt" | "emailTo" | "emailAttempts" | "emailSentAt" | "emailError" | "pushExpandedAt" | "createdAt", ExtArgs["result"]["notification"]>
   export type NotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenancy?: boolean | Notification$tenancyArgs<ExtArgs>
+    agencyMembership?: boolean | Notification$agencyMembershipArgs<ExtArgs>
     pushDeliveries?: boolean | Notification$pushDeliveriesArgs<ExtArgs>
     _count?: boolean | NotificationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type NotificationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenancy?: boolean | Notification$tenancyArgs<ExtArgs>
+    agencyMembership?: boolean | Notification$agencyMembershipArgs<ExtArgs>
   }
   export type NotificationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recipient?: boolean | StakeholderDefaultArgs<ExtArgs>
     tenancy?: boolean | Notification$tenancyArgs<ExtArgs>
+    agencyMembership?: boolean | Notification$agencyMembershipArgs<ExtArgs>
   }
 
   export type $NotificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -34150,12 +38168,14 @@ export namespace Prisma {
     objects: {
       recipient: Prisma.$StakeholderPayload<ExtArgs>
       tenancy: Prisma.$TenancyPayload<ExtArgs> | null
+      agencyMembership: Prisma.$AgencyMembershipPayload<ExtArgs> | null
       pushDeliveries: Prisma.$NotificationPushDeliveryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       recipientId: string
       tenancyId: string | null
+      agencyMembershipId: string | null
       kind: $Enums.NotificationKind
       title: string
       body: string
@@ -34564,6 +38584,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     recipient<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     tenancy<T extends Notification$tenancyArgs<ExtArgs> = {}>(args?: Subset<T, Notification$tenancyArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    agencyMembership<T extends Notification$agencyMembershipArgs<ExtArgs> = {}>(args?: Subset<T, Notification$agencyMembershipArgs<ExtArgs>>): Prisma__AgencyMembershipClient<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     pushDeliveries<T extends Notification$pushDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Notification$pushDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPushDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -34597,6 +38618,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Notification", 'String'>
     readonly recipientId: FieldRef<"Notification", 'String'>
     readonly tenancyId: FieldRef<"Notification", 'String'>
+    readonly agencyMembershipId: FieldRef<"Notification", 'String'>
     readonly kind: FieldRef<"Notification", 'NotificationKind'>
     readonly title: FieldRef<"Notification", 'String'>
     readonly body: FieldRef<"Notification", 'String'>
@@ -35026,6 +39048,25 @@ export namespace Prisma {
      */
     include?: TenancyInclude<ExtArgs> | null
     where?: TenancyWhereInput
+  }
+
+  /**
+   * Notification.agencyMembership
+   */
+  export type Notification$agencyMembershipArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyMembership
+     */
+    select?: AgencyMembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyMembership
+     */
+    omit?: AgencyMembershipOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyMembershipInclude<ExtArgs> | null
+    where?: AgencyMembershipWhereInput
   }
 
   /**
@@ -56203,6 +60244,47 @@ export namespace Prisma {
   export type TeamScalarFieldEnum = (typeof TeamScalarFieldEnum)[keyof typeof TeamScalarFieldEnum]
 
 
+  export const AgencyScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgencyScalarFieldEnum = (typeof AgencyScalarFieldEnum)[keyof typeof AgencyScalarFieldEnum]
+
+
+  export const AgencyMembershipScalarFieldEnum: {
+    id: 'id',
+    agencyId: 'agencyId',
+    stakeholderId: 'stakeholderId',
+    role: 'role',
+    status: 'status',
+    invitedById: 'invitedById',
+    expiresAt: 'expiresAt',
+    acceptedAt: 'acceptedAt',
+    removedAt: 'removedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgencyMembershipScalarFieldEnum = (typeof AgencyMembershipScalarFieldEnum)[keyof typeof AgencyMembershipScalarFieldEnum]
+
+
+  export const AgencyActivityScalarFieldEnum: {
+    id: 'id',
+    agencyId: 'agencyId',
+    actorId: 'actorId',
+    actorName: 'actorName',
+    subjectId: 'subjectId',
+    subjectName: 'subjectName',
+    action: 'action',
+    createdAt: 'createdAt'
+  };
+
+  export type AgencyActivityScalarFieldEnum = (typeof AgencyActivityScalarFieldEnum)[keyof typeof AgencyActivityScalarFieldEnum]
+
+
   export const SubscriptionScalarFieldEnum: {
     id: 'id',
     teamId: 'teamId',
@@ -56242,7 +60324,11 @@ export namespace Prisma {
     postalCode: 'postalCode',
     type: 'type',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    archivedAt: 'archivedAt',
+    trashedAt: 'trashedAt',
+    trashExpiresAt: 'trashExpiresAt',
+    trashedById: 'trashedById'
   };
 
   export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
@@ -56254,6 +60340,7 @@ export namespace Prisma {
     landlordId: 'landlordId',
     tenantId: 'tenantId',
     agentId: 'agentId',
+    agencyId: 'agencyId',
     startDate: 'startDate',
     endDate: 'endDate',
     monthlyRent: 'monthlyRent',
@@ -56289,6 +60376,8 @@ export namespace Prisma {
     status: 'status',
     fullyFurnished: 'fullyFurnished',
     conductedById: 'conductedById',
+    reportAgentId: 'reportAgentId',
+    reportAgentFrozen: 'reportAgentFrozen',
     conductedAt: 'conductedAt',
     baselineId: 'baselineId',
     summary: 'summary',
@@ -56534,6 +60623,7 @@ export namespace Prisma {
     id: 'id',
     recipientId: 'recipientId',
     tenancyId: 'tenancyId',
+    agencyMembershipId: 'agencyMembershipId',
     kind: 'kind',
     title: 'title',
     body: 'body',
@@ -56926,6 +61016,34 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgencyRole'
+   */
+  export type EnumAgencyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgencyRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgencyRole[]'
+   */
+  export type ListEnumAgencyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgencyRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgencyMembershipStatus'
+   */
+  export type EnumAgencyMembershipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgencyMembershipStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AgencyMembershipStatus[]'
+   */
+  export type ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgencyMembershipStatus[]'>
     
 
 
@@ -57458,12 +61576,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
+    agencyMemberships?: AgencyMembershipListRelationFilter
     tenanciesAsLandlord?: TenancyListRelationFilter
     tenanciesAsTenant?: TenancyListRelationFilter
     tenanciesAsAgent?: TenancyListRelationFilter
     tenancyCollaborations?: TenancyCollaboratorListRelationFilter
     tenancyAccessGranted?: TenancyCollaboratorListRelationFilter
     inspectionsRun?: InspectionListRelationFilter
+    reportInspections?: InspectionListRelationFilter
     inspectionAccessGrants?: InspectionAccessGrantListRelationFilter
     signatures?: SignatureListRelationFilter
     deletionRequests?: AccountDeletionRequestListRelationFilter
@@ -57501,12 +61621,14 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     team?: TeamOrderByWithRelationInput
+    agencyMemberships?: AgencyMembershipOrderByRelationAggregateInput
     tenanciesAsLandlord?: TenancyOrderByRelationAggregateInput
     tenanciesAsTenant?: TenancyOrderByRelationAggregateInput
     tenanciesAsAgent?: TenancyOrderByRelationAggregateInput
     tenancyCollaborations?: TenancyCollaboratorOrderByRelationAggregateInput
     tenancyAccessGranted?: TenancyCollaboratorOrderByRelationAggregateInput
     inspectionsRun?: InspectionOrderByRelationAggregateInput
+    reportInspections?: InspectionOrderByRelationAggregateInput
     inspectionAccessGrants?: InspectionAccessGrantOrderByRelationAggregateInput
     signatures?: SignatureOrderByRelationAggregateInput
     deletionRequests?: AccountDeletionRequestOrderByRelationAggregateInput
@@ -57547,12 +61669,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
+    agencyMemberships?: AgencyMembershipListRelationFilter
     tenanciesAsLandlord?: TenancyListRelationFilter
     tenanciesAsTenant?: TenancyListRelationFilter
     tenanciesAsAgent?: TenancyListRelationFilter
     tenancyCollaborations?: TenancyCollaboratorListRelationFilter
     tenancyAccessGranted?: TenancyCollaboratorListRelationFilter
     inspectionsRun?: InspectionListRelationFilter
+    reportInspections?: InspectionListRelationFilter
     inspectionAccessGrants?: InspectionAccessGrantListRelationFilter
     signatures?: SignatureListRelationFilter
     deletionRequests?: AccountDeletionRequestListRelationFilter
@@ -57661,6 +61785,224 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Team"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Team"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Team"> | Date | string
+  }
+
+  export type AgencyWhereInput = {
+    AND?: AgencyWhereInput | AgencyWhereInput[]
+    OR?: AgencyWhereInput[]
+    NOT?: AgencyWhereInput | AgencyWhereInput[]
+    id?: StringFilter<"Agency"> | string
+    name?: StringFilter<"Agency"> | string
+    createdAt?: DateTimeFilter<"Agency"> | Date | string
+    updatedAt?: DateTimeFilter<"Agency"> | Date | string
+    members?: AgencyMembershipListRelationFilter
+    tenancies?: TenancyListRelationFilter
+    activity?: AgencyActivityListRelationFilter
+  }
+
+  export type AgencyOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    members?: AgencyMembershipOrderByRelationAggregateInput
+    tenancies?: TenancyOrderByRelationAggregateInput
+    activity?: AgencyActivityOrderByRelationAggregateInput
+  }
+
+  export type AgencyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AgencyWhereInput | AgencyWhereInput[]
+    OR?: AgencyWhereInput[]
+    NOT?: AgencyWhereInput | AgencyWhereInput[]
+    name?: StringFilter<"Agency"> | string
+    createdAt?: DateTimeFilter<"Agency"> | Date | string
+    updatedAt?: DateTimeFilter<"Agency"> | Date | string
+    members?: AgencyMembershipListRelationFilter
+    tenancies?: TenancyListRelationFilter
+    activity?: AgencyActivityListRelationFilter
+  }, "id">
+
+  export type AgencyOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AgencyCountOrderByAggregateInput
+    _max?: AgencyMaxOrderByAggregateInput
+    _min?: AgencyMinOrderByAggregateInput
+  }
+
+  export type AgencyScalarWhereWithAggregatesInput = {
+    AND?: AgencyScalarWhereWithAggregatesInput | AgencyScalarWhereWithAggregatesInput[]
+    OR?: AgencyScalarWhereWithAggregatesInput[]
+    NOT?: AgencyScalarWhereWithAggregatesInput | AgencyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Agency"> | string
+    name?: StringWithAggregatesFilter<"Agency"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Agency"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Agency"> | Date | string
+  }
+
+  export type AgencyMembershipWhereInput = {
+    AND?: AgencyMembershipWhereInput | AgencyMembershipWhereInput[]
+    OR?: AgencyMembershipWhereInput[]
+    NOT?: AgencyMembershipWhereInput | AgencyMembershipWhereInput[]
+    id?: StringFilter<"AgencyMembership"> | string
+    agencyId?: StringFilter<"AgencyMembership"> | string
+    stakeholderId?: StringFilter<"AgencyMembership"> | string
+    role?: EnumAgencyRoleFilter<"AgencyMembership"> | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFilter<"AgencyMembership"> | $Enums.AgencyMembershipStatus
+    invitedById?: StringNullableFilter<"AgencyMembership"> | string | null
+    expiresAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    acceptedAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    removedAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    createdAt?: DateTimeFilter<"AgencyMembership"> | Date | string
+    updatedAt?: DateTimeFilter<"AgencyMembership"> | Date | string
+    agency?: XOR<AgencyScalarRelationFilter, AgencyWhereInput>
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    notifications?: NotificationListRelationFilter
+  }
+
+  export type AgencyMembershipOrderByWithRelationInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    stakeholderId?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    invitedById?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    removedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    agency?: AgencyOrderByWithRelationInput
+    stakeholder?: StakeholderOrderByWithRelationInput
+    notifications?: NotificationOrderByRelationAggregateInput
+  }
+
+  export type AgencyMembershipWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    agencyId_stakeholderId?: AgencyMembershipAgencyIdStakeholderIdCompoundUniqueInput
+    AND?: AgencyMembershipWhereInput | AgencyMembershipWhereInput[]
+    OR?: AgencyMembershipWhereInput[]
+    NOT?: AgencyMembershipWhereInput | AgencyMembershipWhereInput[]
+    agencyId?: StringFilter<"AgencyMembership"> | string
+    stakeholderId?: StringFilter<"AgencyMembership"> | string
+    role?: EnumAgencyRoleFilter<"AgencyMembership"> | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFilter<"AgencyMembership"> | $Enums.AgencyMembershipStatus
+    invitedById?: StringNullableFilter<"AgencyMembership"> | string | null
+    expiresAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    acceptedAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    removedAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    createdAt?: DateTimeFilter<"AgencyMembership"> | Date | string
+    updatedAt?: DateTimeFilter<"AgencyMembership"> | Date | string
+    agency?: XOR<AgencyScalarRelationFilter, AgencyWhereInput>
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    notifications?: NotificationListRelationFilter
+  }, "id" | "agencyId_stakeholderId">
+
+  export type AgencyMembershipOrderByWithAggregationInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    stakeholderId?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    invitedById?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    removedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AgencyMembershipCountOrderByAggregateInput
+    _max?: AgencyMembershipMaxOrderByAggregateInput
+    _min?: AgencyMembershipMinOrderByAggregateInput
+  }
+
+  export type AgencyMembershipScalarWhereWithAggregatesInput = {
+    AND?: AgencyMembershipScalarWhereWithAggregatesInput | AgencyMembershipScalarWhereWithAggregatesInput[]
+    OR?: AgencyMembershipScalarWhereWithAggregatesInput[]
+    NOT?: AgencyMembershipScalarWhereWithAggregatesInput | AgencyMembershipScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgencyMembership"> | string
+    agencyId?: StringWithAggregatesFilter<"AgencyMembership"> | string
+    stakeholderId?: StringWithAggregatesFilter<"AgencyMembership"> | string
+    role?: EnumAgencyRoleWithAggregatesFilter<"AgencyMembership"> | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusWithAggregatesFilter<"AgencyMembership"> | $Enums.AgencyMembershipStatus
+    invitedById?: StringNullableWithAggregatesFilter<"AgencyMembership"> | string | null
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"AgencyMembership"> | Date | string | null
+    acceptedAt?: DateTimeNullableWithAggregatesFilter<"AgencyMembership"> | Date | string | null
+    removedAt?: DateTimeNullableWithAggregatesFilter<"AgencyMembership"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AgencyMembership"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AgencyMembership"> | Date | string
+  }
+
+  export type AgencyActivityWhereInput = {
+    AND?: AgencyActivityWhereInput | AgencyActivityWhereInput[]
+    OR?: AgencyActivityWhereInput[]
+    NOT?: AgencyActivityWhereInput | AgencyActivityWhereInput[]
+    id?: StringFilter<"AgencyActivity"> | string
+    agencyId?: StringFilter<"AgencyActivity"> | string
+    actorId?: StringFilter<"AgencyActivity"> | string
+    actorName?: StringFilter<"AgencyActivity"> | string
+    subjectId?: StringNullableFilter<"AgencyActivity"> | string | null
+    subjectName?: StringNullableFilter<"AgencyActivity"> | string | null
+    action?: StringFilter<"AgencyActivity"> | string
+    createdAt?: DateTimeFilter<"AgencyActivity"> | Date | string
+    agency?: XOR<AgencyScalarRelationFilter, AgencyWhereInput>
+  }
+
+  export type AgencyActivityOrderByWithRelationInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    subjectId?: SortOrderInput | SortOrder
+    subjectName?: SortOrderInput | SortOrder
+    action?: SortOrder
+    createdAt?: SortOrder
+    agency?: AgencyOrderByWithRelationInput
+  }
+
+  export type AgencyActivityWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AgencyActivityWhereInput | AgencyActivityWhereInput[]
+    OR?: AgencyActivityWhereInput[]
+    NOT?: AgencyActivityWhereInput | AgencyActivityWhereInput[]
+    agencyId?: StringFilter<"AgencyActivity"> | string
+    actorId?: StringFilter<"AgencyActivity"> | string
+    actorName?: StringFilter<"AgencyActivity"> | string
+    subjectId?: StringNullableFilter<"AgencyActivity"> | string | null
+    subjectName?: StringNullableFilter<"AgencyActivity"> | string | null
+    action?: StringFilter<"AgencyActivity"> | string
+    createdAt?: DateTimeFilter<"AgencyActivity"> | Date | string
+    agency?: XOR<AgencyScalarRelationFilter, AgencyWhereInput>
+  }, "id">
+
+  export type AgencyActivityOrderByWithAggregationInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    subjectId?: SortOrderInput | SortOrder
+    subjectName?: SortOrderInput | SortOrder
+    action?: SortOrder
+    createdAt?: SortOrder
+    _count?: AgencyActivityCountOrderByAggregateInput
+    _max?: AgencyActivityMaxOrderByAggregateInput
+    _min?: AgencyActivityMinOrderByAggregateInput
+  }
+
+  export type AgencyActivityScalarWhereWithAggregatesInput = {
+    AND?: AgencyActivityScalarWhereWithAggregatesInput | AgencyActivityScalarWhereWithAggregatesInput[]
+    OR?: AgencyActivityScalarWhereWithAggregatesInput[]
+    NOT?: AgencyActivityScalarWhereWithAggregatesInput | AgencyActivityScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgencyActivity"> | string
+    agencyId?: StringWithAggregatesFilter<"AgencyActivity"> | string
+    actorId?: StringWithAggregatesFilter<"AgencyActivity"> | string
+    actorName?: StringWithAggregatesFilter<"AgencyActivity"> | string
+    subjectId?: StringNullableWithAggregatesFilter<"AgencyActivity"> | string | null
+    subjectName?: StringNullableWithAggregatesFilter<"AgencyActivity"> | string | null
+    action?: StringWithAggregatesFilter<"AgencyActivity"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AgencyActivity"> | Date | string
   }
 
   export type SubscriptionWhereInput = {
@@ -57842,6 +62184,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
     createdAt?: DateTimeFilter<"Property"> | Date | string
     updatedAt?: DateTimeFilter<"Property"> | Date | string
+    archivedAt?: DateTimeNullableFilter<"Property"> | Date | string | null
+    trashedAt?: DateTimeNullableFilter<"Property"> | Date | string | null
+    trashExpiresAt?: DateTimeNullableFilter<"Property"> | Date | string | null
+    trashedById?: StringNullableFilter<"Property"> | string | null
     tenancies?: TenancyListRelationFilter
     assets?: PropertyAssetListRelationFilter
   }
@@ -57854,6 +62200,10 @@ export namespace Prisma {
     type?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    archivedAt?: SortOrderInput | SortOrder
+    trashedAt?: SortOrderInput | SortOrder
+    trashExpiresAt?: SortOrderInput | SortOrder
+    trashedById?: SortOrderInput | SortOrder
     tenancies?: TenancyOrderByRelationAggregateInput
     assets?: PropertyAssetOrderByRelationAggregateInput
   }
@@ -57869,6 +62219,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
     createdAt?: DateTimeFilter<"Property"> | Date | string
     updatedAt?: DateTimeFilter<"Property"> | Date | string
+    archivedAt?: DateTimeNullableFilter<"Property"> | Date | string | null
+    trashedAt?: DateTimeNullableFilter<"Property"> | Date | string | null
+    trashExpiresAt?: DateTimeNullableFilter<"Property"> | Date | string | null
+    trashedById?: StringNullableFilter<"Property"> | string | null
     tenancies?: TenancyListRelationFilter
     assets?: PropertyAssetListRelationFilter
   }, "id">
@@ -57881,6 +62235,10 @@ export namespace Prisma {
     type?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    archivedAt?: SortOrderInput | SortOrder
+    trashedAt?: SortOrderInput | SortOrder
+    trashExpiresAt?: SortOrderInput | SortOrder
+    trashedById?: SortOrderInput | SortOrder
     _count?: PropertyCountOrderByAggregateInput
     _max?: PropertyMaxOrderByAggregateInput
     _min?: PropertyMinOrderByAggregateInput
@@ -57897,6 +62255,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeWithAggregatesFilter<"Property"> | $Enums.PropertyType
     createdAt?: DateTimeWithAggregatesFilter<"Property"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Property"> | Date | string
+    archivedAt?: DateTimeNullableWithAggregatesFilter<"Property"> | Date | string | null
+    trashedAt?: DateTimeNullableWithAggregatesFilter<"Property"> | Date | string | null
+    trashExpiresAt?: DateTimeNullableWithAggregatesFilter<"Property"> | Date | string | null
+    trashedById?: StringNullableWithAggregatesFilter<"Property"> | string | null
   }
 
   export type TenancyWhereInput = {
@@ -57908,6 +62270,7 @@ export namespace Prisma {
     landlordId?: StringFilter<"Tenancy"> | string
     tenantId?: StringFilter<"Tenancy"> | string
     agentId?: StringNullableFilter<"Tenancy"> | string | null
+    agencyId?: StringNullableFilter<"Tenancy"> | string | null
     startDate?: DateTimeFilter<"Tenancy"> | Date | string
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
@@ -57924,6 +62287,7 @@ export namespace Prisma {
     landlord?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     tenant?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     agent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    agency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
     inspections?: InspectionListRelationFilter
     collaborators?: TenancyCollaboratorListRelationFilter
     notifications?: NotificationListRelationFilter
@@ -57938,6 +62302,7 @@ export namespace Prisma {
     landlordId?: SortOrder
     tenantId?: SortOrder
     agentId?: SortOrderInput | SortOrder
+    agencyId?: SortOrderInput | SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     monthlyRent?: SortOrder
@@ -57954,6 +62319,7 @@ export namespace Prisma {
     landlord?: StakeholderOrderByWithRelationInput
     tenant?: StakeholderOrderByWithRelationInput
     agent?: StakeholderOrderByWithRelationInput
+    agency?: AgencyOrderByWithRelationInput
     inspections?: InspectionOrderByRelationAggregateInput
     collaborators?: TenancyCollaboratorOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
@@ -57972,6 +62338,7 @@ export namespace Prisma {
     landlordId?: StringFilter<"Tenancy"> | string
     tenantId?: StringFilter<"Tenancy"> | string
     agentId?: StringNullableFilter<"Tenancy"> | string | null
+    agencyId?: StringNullableFilter<"Tenancy"> | string | null
     startDate?: DateTimeFilter<"Tenancy"> | Date | string
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
@@ -57987,6 +62354,7 @@ export namespace Prisma {
     landlord?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     tenant?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     agent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    agency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
     inspections?: InspectionListRelationFilter
     collaborators?: TenancyCollaboratorListRelationFilter
     notifications?: NotificationListRelationFilter
@@ -58001,6 +62369,7 @@ export namespace Prisma {
     landlordId?: SortOrder
     tenantId?: SortOrder
     agentId?: SortOrderInput | SortOrder
+    agencyId?: SortOrderInput | SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     monthlyRent?: SortOrder
@@ -58029,6 +62398,7 @@ export namespace Prisma {
     landlordId?: StringWithAggregatesFilter<"Tenancy"> | string
     tenantId?: StringWithAggregatesFilter<"Tenancy"> | string
     agentId?: StringNullableWithAggregatesFilter<"Tenancy"> | string | null
+    agencyId?: StringNullableWithAggregatesFilter<"Tenancy"> | string | null
     startDate?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
     endDate?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
@@ -58115,6 +62485,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
+    reportAgentId?: StringNullableFilter<"Inspection"> | string | null
+    reportAgentFrozen?: BoolFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableFilter<"Inspection"> | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
@@ -58127,6 +62499,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
     conductedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    reportAgent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     baseline?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     checkOut?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     rooms?: RoomListRelationFilter
@@ -58148,6 +62521,8 @@ export namespace Prisma {
     status?: SortOrder
     fullyFurnished?: SortOrder
     conductedById?: SortOrderInput | SortOrder
+    reportAgentId?: SortOrderInput | SortOrder
+    reportAgentFrozen?: SortOrder
     conductedAt?: SortOrderInput | SortOrder
     baselineId?: SortOrderInput | SortOrder
     summary?: SortOrderInput | SortOrder
@@ -58160,6 +62535,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     tenancy?: TenancyOrderByWithRelationInput
     conductedBy?: StakeholderOrderByWithRelationInput
+    reportAgent?: StakeholderOrderByWithRelationInput
     baseline?: InspectionOrderByWithRelationInput
     checkOut?: InspectionOrderByWithRelationInput
     rooms?: RoomOrderByRelationAggregateInput
@@ -58186,6 +62562,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
+    reportAgentId?: StringNullableFilter<"Inspection"> | string | null
+    reportAgentFrozen?: BoolFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
     processingError?: StringNullableFilter<"Inspection"> | string | null
@@ -58196,6 +62574,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
     conductedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    reportAgent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     baseline?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     checkOut?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     rooms?: RoomListRelationFilter
@@ -58217,6 +62596,8 @@ export namespace Prisma {
     status?: SortOrder
     fullyFurnished?: SortOrder
     conductedById?: SortOrderInput | SortOrder
+    reportAgentId?: SortOrderInput | SortOrder
+    reportAgentFrozen?: SortOrder
     conductedAt?: SortOrderInput | SortOrder
     baselineId?: SortOrderInput | SortOrder
     summary?: SortOrderInput | SortOrder
@@ -58242,6 +62623,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusWithAggregatesFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolWithAggregatesFilter<"Inspection"> | boolean
     conductedById?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
+    reportAgentId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
+    reportAgentFrozen?: BoolWithAggregatesFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableWithAggregatesFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     summary?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
@@ -59508,6 +63891,7 @@ export namespace Prisma {
     id?: StringFilter<"Notification"> | string
     recipientId?: StringFilter<"Notification"> | string
     tenancyId?: StringNullableFilter<"Notification"> | string | null
+    agencyMembershipId?: StringNullableFilter<"Notification"> | string | null
     kind?: EnumNotificationKindFilter<"Notification"> | $Enums.NotificationKind
     title?: StringFilter<"Notification"> | string
     body?: StringFilter<"Notification"> | string
@@ -59522,6 +63906,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Notification"> | Date | string
     recipient?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     tenancy?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    agencyMembership?: XOR<AgencyMembershipNullableScalarRelationFilter, AgencyMembershipWhereInput> | null
     pushDeliveries?: NotificationPushDeliveryListRelationFilter
   }
 
@@ -59529,6 +63914,7 @@ export namespace Prisma {
     id?: SortOrder
     recipientId?: SortOrder
     tenancyId?: SortOrderInput | SortOrder
+    agencyMembershipId?: SortOrderInput | SortOrder
     kind?: SortOrder
     title?: SortOrder
     body?: SortOrder
@@ -59543,6 +63929,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     recipient?: StakeholderOrderByWithRelationInput
     tenancy?: TenancyOrderByWithRelationInput
+    agencyMembership?: AgencyMembershipOrderByWithRelationInput
     pushDeliveries?: NotificationPushDeliveryOrderByRelationAggregateInput
   }
 
@@ -59554,6 +63941,7 @@ export namespace Prisma {
     NOT?: NotificationWhereInput | NotificationWhereInput[]
     recipientId?: StringFilter<"Notification"> | string
     tenancyId?: StringNullableFilter<"Notification"> | string | null
+    agencyMembershipId?: StringNullableFilter<"Notification"> | string | null
     kind?: EnumNotificationKindFilter<"Notification"> | $Enums.NotificationKind
     title?: StringFilter<"Notification"> | string
     body?: StringFilter<"Notification"> | string
@@ -59567,6 +63955,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Notification"> | Date | string
     recipient?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
     tenancy?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    agencyMembership?: XOR<AgencyMembershipNullableScalarRelationFilter, AgencyMembershipWhereInput> | null
     pushDeliveries?: NotificationPushDeliveryListRelationFilter
   }, "id" | "dedupeKey">
 
@@ -59574,6 +63963,7 @@ export namespace Prisma {
     id?: SortOrder
     recipientId?: SortOrder
     tenancyId?: SortOrderInput | SortOrder
+    agencyMembershipId?: SortOrderInput | SortOrder
     kind?: SortOrder
     title?: SortOrder
     body?: SortOrder
@@ -59600,6 +63990,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Notification"> | string
     recipientId?: StringWithAggregatesFilter<"Notification"> | string
     tenancyId?: StringNullableWithAggregatesFilter<"Notification"> | string | null
+    agencyMembershipId?: StringNullableWithAggregatesFilter<"Notification"> | string | null
     kind?: EnumNotificationKindWithAggregatesFilter<"Notification"> | $Enums.NotificationKind
     title?: StringWithAggregatesFilter<"Notification"> | string
     body?: StringWithAggregatesFilter<"Notification"> | string
@@ -61134,12 +65525,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -61176,12 +65569,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -61218,12 +65613,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -61260,12 +65657,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -61384,6 +65783,243 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyCreateInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyUncheckedCreateInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+  }
+
+  export type AgencyCreateManyInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgencyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyMembershipCreateInput = {
+    id?: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agency: AgencyCreateNestedOneWithoutMembersInput
+    stakeholder: StakeholderCreateNestedOneWithoutAgencyMembershipsInput
+    notifications?: NotificationCreateNestedManyWithoutAgencyMembershipInput
+  }
+
+  export type AgencyMembershipUncheckedCreateInput = {
+    id?: string
+    agencyId: string
+    stakeholderId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    notifications?: NotificationUncheckedCreateNestedManyWithoutAgencyMembershipInput
+  }
+
+  export type AgencyMembershipUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agency?: AgencyUpdateOneRequiredWithoutMembersNestedInput
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAgencyMembershipsNestedInput
+    notifications?: NotificationUpdateManyWithoutAgencyMembershipNestedInput
+  }
+
+  export type AgencyMembershipUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifications?: NotificationUncheckedUpdateManyWithoutAgencyMembershipNestedInput
+  }
+
+  export type AgencyMembershipCreateManyInput = {
+    id?: string
+    agencyId: string
+    stakeholderId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgencyMembershipUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyMembershipUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyActivityCreateInput = {
+    id?: string
+    actorId: string
+    actorName: string
+    subjectId?: string | null
+    subjectName?: string | null
+    action: string
+    createdAt?: Date | string
+    agency: AgencyCreateNestedOneWithoutActivityInput
+  }
+
+  export type AgencyActivityUncheckedCreateInput = {
+    id?: string
+    agencyId: string
+    actorId: string
+    actorName: string
+    subjectId?: string | null
+    subjectName?: string | null
+    action: string
+    createdAt?: Date | string
+  }
+
+  export type AgencyActivityUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agency?: AgencyUpdateOneRequiredWithoutActivityNestedInput
+  }
+
+  export type AgencyActivityUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyActivityCreateManyInput = {
+    id?: string
+    agencyId: string
+    actorId: string
+    actorName: string
+    subjectId?: string | null
+    subjectName?: string | null
+    action: string
+    createdAt?: Date | string
+  }
+
+  export type AgencyActivityUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyActivityUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubscriptionCreateInput = {
@@ -61572,6 +66208,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
   }
@@ -61584,6 +66224,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
   }
@@ -61596,6 +66240,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
   }
@@ -61608,6 +66256,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
   }
@@ -61620,6 +66272,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
   }
 
   export type PropertyUpdateManyMutationInput = {
@@ -61630,6 +66286,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PropertyUncheckedUpdateManyInput = {
@@ -61640,6 +66300,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenancyCreateInput = {
@@ -61659,6 +66323,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -61673,6 +66338,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -61709,6 +66375,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -61723,6 +66390,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -61748,6 +66416,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -61783,6 +66452,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -61855,6 +66525,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -61866,6 +66537,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -61887,6 +66559,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -61915,6 +66589,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61926,6 +66601,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -61947,6 +66623,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61977,6 +66655,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -61994,6 +66674,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -62012,6 +66693,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63385,6 +68068,7 @@ export namespace Prisma {
     createdAt?: Date | string
     recipient: StakeholderCreateNestedOneWithoutNotificationsInput
     tenancy?: TenancyCreateNestedOneWithoutNotificationsInput
+    agencyMembership?: AgencyMembershipCreateNestedOneWithoutNotificationsInput
     pushDeliveries?: NotificationPushDeliveryCreateNestedManyWithoutNotificationInput
   }
 
@@ -63392,6 +68076,7 @@ export namespace Prisma {
     id?: string
     recipientId: string
     tenancyId?: string | null
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -63423,6 +68108,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recipient?: StakeholderUpdateOneRequiredWithoutNotificationsNestedInput
     tenancy?: TenancyUpdateOneWithoutNotificationsNestedInput
+    agencyMembership?: AgencyMembershipUpdateOneWithoutNotificationsNestedInput
     pushDeliveries?: NotificationPushDeliveryUpdateManyWithoutNotificationNestedInput
   }
 
@@ -63430,6 +68116,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     recipientId?: StringFieldUpdateOperationsInput | string
     tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
@@ -63449,6 +68136,7 @@ export namespace Prisma {
     id?: string
     recipientId: string
     tenancyId?: string | null
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -63483,6 +68171,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     recipientId?: StringFieldUpdateOperationsInput | string
     tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
@@ -65151,6 +69840,12 @@ export namespace Prisma {
     isNot?: TeamWhereInput | null
   }
 
+  export type AgencyMembershipListRelationFilter = {
+    every?: AgencyMembershipWhereInput
+    some?: AgencyMembershipWhereInput
+    none?: AgencyMembershipWhereInput
+  }
+
   export type TenancyListRelationFilter = {
     every?: TenancyWhereInput
     some?: TenancyWhereInput
@@ -65290,6 +69985,10 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type AgencyMembershipOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type TenancyOrderByRelationAggregateInput = {
@@ -65506,6 +70205,186 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type AgencyActivityListRelationFilter = {
+    every?: AgencyActivityWhereInput
+    some?: AgencyActivityWhereInput
+    none?: AgencyActivityWhereInput
+  }
+
+  export type AgencyActivityOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AgencyCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAgencyRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyRole | EnumAgencyRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyRoleFilter<$PrismaModel> | $Enums.AgencyRole
+  }
+
+  export type EnumAgencyMembershipStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyMembershipStatus | EnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel> | $Enums.AgencyMembershipStatus
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type AgencyScalarRelationFilter = {
+    is?: AgencyWhereInput
+    isNot?: AgencyWhereInput
+  }
+
+  export type StakeholderScalarRelationFilter = {
+    is?: StakeholderWhereInput
+    isNot?: StakeholderWhereInput
+  }
+
+  export type AgencyMembershipAgencyIdStakeholderIdCompoundUniqueInput = {
+    agencyId: string
+    stakeholderId: string
+  }
+
+  export type AgencyMembershipCountOrderByAggregateInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    stakeholderId?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    removedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyMembershipMaxOrderByAggregateInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    stakeholderId?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    removedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyMembershipMinOrderByAggregateInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    stakeholderId?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    invitedById?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    removedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAgencyRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyRole | EnumAgencyRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyRoleWithAggregatesFilter<$PrismaModel> | $Enums.AgencyRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgencyRoleFilter<$PrismaModel>
+    _max?: NestedEnumAgencyRoleFilter<$PrismaModel>
+  }
+
+  export type EnumAgencyMembershipStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyMembershipStatus | EnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyMembershipStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgencyMembershipStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type AgencyActivityCountOrderByAggregateInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    subjectId?: SortOrder
+    subjectName?: SortOrder
+    action?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgencyActivityMaxOrderByAggregateInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    subjectId?: SortOrder
+    subjectName?: SortOrder
+    action?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AgencyActivityMinOrderByAggregateInput = {
+    id?: SortOrder
+    agencyId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    subjectId?: SortOrder
+    subjectName?: SortOrder
+    action?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type EnumPlanFilter<$PrismaModel = never> = {
     equals?: $Enums.Plan | EnumPlanFieldRefInput<$PrismaModel>
     in?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
@@ -65522,17 +70401,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -65627,31 +70495,12 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type StakeholderScalarRelationFilter = {
-    is?: StakeholderWhereInput
-    isNot?: StakeholderWhereInput
   }
 
   export type AgentBrandingCountOrderByAggregateInput = {
@@ -65709,6 +70558,10 @@ export namespace Prisma {
     type?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    archivedAt?: SortOrder
+    trashedAt?: SortOrder
+    trashExpiresAt?: SortOrder
+    trashedById?: SortOrder
   }
 
   export type PropertyMaxOrderByAggregateInput = {
@@ -65719,6 +70572,10 @@ export namespace Prisma {
     type?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    archivedAt?: SortOrder
+    trashedAt?: SortOrder
+    trashExpiresAt?: SortOrder
+    trashedById?: SortOrder
   }
 
   export type PropertyMinOrderByAggregateInput = {
@@ -65729,6 +70586,10 @@ export namespace Prisma {
     type?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    archivedAt?: SortOrder
+    trashedAt?: SortOrder
+    trashExpiresAt?: SortOrder
+    trashedById?: SortOrder
   }
 
   export type EnumPropertyTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -65775,6 +70636,11 @@ export namespace Prisma {
     isNot?: PropertyWhereInput
   }
 
+  export type AgencyNullableScalarRelationFilter = {
+    is?: AgencyWhereInput | null
+    isNot?: AgencyWhereInput | null
+  }
+
   export type TenancyNullableScalarRelationFilter = {
     is?: TenancyWhereInput | null
     isNot?: TenancyWhereInput | null
@@ -65786,6 +70652,7 @@ export namespace Prisma {
     landlordId?: SortOrder
     tenantId?: SortOrder
     agentId?: SortOrder
+    agencyId?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     monthlyRent?: SortOrder
@@ -65813,6 +70680,7 @@ export namespace Prisma {
     landlordId?: SortOrder
     tenantId?: SortOrder
     agentId?: SortOrder
+    agencyId?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     monthlyRent?: SortOrder
@@ -65833,6 +70701,7 @@ export namespace Prisma {
     landlordId?: SortOrder
     tenantId?: SortOrder
     agentId?: SortOrder
+    agencyId?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     monthlyRent?: SortOrder
@@ -65996,6 +70865,8 @@ export namespace Prisma {
     status?: SortOrder
     fullyFurnished?: SortOrder
     conductedById?: SortOrder
+    reportAgentId?: SortOrder
+    reportAgentFrozen?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
     summary?: SortOrder
@@ -66015,6 +70886,8 @@ export namespace Prisma {
     status?: SortOrder
     fullyFurnished?: SortOrder
     conductedById?: SortOrder
+    reportAgentId?: SortOrder
+    reportAgentFrozen?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
     summary?: SortOrder
@@ -66034,6 +70907,8 @@ export namespace Prisma {
     status?: SortOrder
     fullyFurnished?: SortOrder
     conductedById?: SortOrder
+    reportAgentId?: SortOrder
+    reportAgentFrozen?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
     summary?: SortOrder
@@ -67208,10 +72083,16 @@ export namespace Prisma {
     not?: NestedEnumNotificationKindFilter<$PrismaModel> | $Enums.NotificationKind
   }
 
+  export type AgencyMembershipNullableScalarRelationFilter = {
+    is?: AgencyMembershipWhereInput | null
+    isNot?: AgencyMembershipWhereInput | null
+  }
+
   export type NotificationCountOrderByAggregateInput = {
     id?: SortOrder
     recipientId?: SortOrder
     tenancyId?: SortOrder
+    agencyMembershipId?: SortOrder
     kind?: SortOrder
     title?: SortOrder
     body?: SortOrder
@@ -67234,6 +72115,7 @@ export namespace Prisma {
     id?: SortOrder
     recipientId?: SortOrder
     tenancyId?: SortOrder
+    agencyMembershipId?: SortOrder
     kind?: SortOrder
     title?: SortOrder
     body?: SortOrder
@@ -67252,6 +72134,7 @@ export namespace Prisma {
     id?: SortOrder
     recipientId?: SortOrder
     tenancyId?: SortOrder
+    agencyMembershipId?: SortOrder
     kind?: SortOrder
     title?: SortOrder
     body?: SortOrder
@@ -68392,6 +73275,13 @@ export namespace Prisma {
     connect?: TeamWhereUniqueInput
   }
 
+  export type AgencyMembershipCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AgencyMembershipCreateManyStakeholderInputEnvelope
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+  }
+
   export type TenancyCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -68431,6 +73321,13 @@ export namespace Prisma {
     create?: XOR<InspectionCreateWithoutConductedByInput, InspectionUncheckedCreateWithoutConductedByInput> | InspectionCreateWithoutConductedByInput[] | InspectionUncheckedCreateWithoutConductedByInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutConductedByInput | InspectionCreateOrConnectWithoutConductedByInput[]
     createMany?: InspectionCreateManyConductedByInputEnvelope
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+  }
+
+  export type InspectionCreateNestedManyWithoutReportAgentInput = {
+    create?: XOR<InspectionCreateWithoutReportAgentInput, InspectionUncheckedCreateWithoutReportAgentInput> | InspectionCreateWithoutReportAgentInput[] | InspectionUncheckedCreateWithoutReportAgentInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgentInput | InspectionCreateOrConnectWithoutReportAgentInput[]
+    createMany?: InspectionCreateManyReportAgentInputEnvelope
     connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
   }
 
@@ -68593,6 +73490,13 @@ export namespace Prisma {
     connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
   }
 
+  export type AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AgencyMembershipCreateManyStakeholderInputEnvelope
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+  }
+
   export type TenancyUncheckedCreateNestedManyWithoutLandlordInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -68632,6 +73536,13 @@ export namespace Prisma {
     create?: XOR<InspectionCreateWithoutConductedByInput, InspectionUncheckedCreateWithoutConductedByInput> | InspectionCreateWithoutConductedByInput[] | InspectionUncheckedCreateWithoutConductedByInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutConductedByInput | InspectionCreateOrConnectWithoutConductedByInput[]
     createMany?: InspectionCreateManyConductedByInputEnvelope
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+  }
+
+  export type InspectionUncheckedCreateNestedManyWithoutReportAgentInput = {
+    create?: XOR<InspectionCreateWithoutReportAgentInput, InspectionUncheckedCreateWithoutReportAgentInput> | InspectionCreateWithoutReportAgentInput[] | InspectionUncheckedCreateWithoutReportAgentInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgentInput | InspectionCreateOrConnectWithoutReportAgentInput[]
+    createMany?: InspectionCreateManyReportAgentInputEnvelope
     connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
   }
 
@@ -68820,6 +73731,20 @@ export namespace Prisma {
     update?: XOR<XOR<TeamUpdateToOneWithWhereWithoutMembersInput, TeamUpdateWithoutMembersInput>, TeamUncheckedUpdateWithoutMembersInput>
   }
 
+  export type AgencyMembershipUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AgencyMembershipUpsertWithWhereUniqueWithoutStakeholderInput | AgencyMembershipUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AgencyMembershipCreateManyStakeholderInputEnvelope
+    set?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    disconnect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    delete?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    update?: AgencyMembershipUpdateWithWhereUniqueWithoutStakeholderInput | AgencyMembershipUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AgencyMembershipUpdateManyWithWhereWithoutStakeholderInput | AgencyMembershipUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AgencyMembershipScalarWhereInput | AgencyMembershipScalarWhereInput[]
+  }
+
   export type TenancyUpdateManyWithoutLandlordNestedInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -68901,6 +73826,20 @@ export namespace Prisma {
     connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
     update?: InspectionUpdateWithWhereUniqueWithoutConductedByInput | InspectionUpdateWithWhereUniqueWithoutConductedByInput[]
     updateMany?: InspectionUpdateManyWithWhereWithoutConductedByInput | InspectionUpdateManyWithWhereWithoutConductedByInput[]
+    deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
+  }
+
+  export type InspectionUpdateManyWithoutReportAgentNestedInput = {
+    create?: XOR<InspectionCreateWithoutReportAgentInput, InspectionUncheckedCreateWithoutReportAgentInput> | InspectionCreateWithoutReportAgentInput[] | InspectionUncheckedCreateWithoutReportAgentInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgentInput | InspectionCreateOrConnectWithoutReportAgentInput[]
+    upsert?: InspectionUpsertWithWhereUniqueWithoutReportAgentInput | InspectionUpsertWithWhereUniqueWithoutReportAgentInput[]
+    createMany?: InspectionCreateManyReportAgentInputEnvelope
+    set?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    disconnect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    delete?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    update?: InspectionUpdateWithWhereUniqueWithoutReportAgentInput | InspectionUpdateWithWhereUniqueWithoutReportAgentInput[]
+    updateMany?: InspectionUpdateManyWithWhereWithoutReportAgentInput | InspectionUpdateManyWithWhereWithoutReportAgentInput[]
     deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
   }
 
@@ -69218,6 +74157,20 @@ export namespace Prisma {
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
   }
 
+  export type AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AgencyMembershipUpsertWithWhereUniqueWithoutStakeholderInput | AgencyMembershipUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AgencyMembershipCreateManyStakeholderInputEnvelope
+    set?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    disconnect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    delete?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    update?: AgencyMembershipUpdateWithWhereUniqueWithoutStakeholderInput | AgencyMembershipUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AgencyMembershipUpdateManyWithWhereWithoutStakeholderInput | AgencyMembershipUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AgencyMembershipScalarWhereInput | AgencyMembershipScalarWhereInput[]
+  }
+
   export type TenancyUncheckedUpdateManyWithoutLandlordNestedInput = {
     create?: XOR<TenancyCreateWithoutLandlordInput, TenancyUncheckedCreateWithoutLandlordInput> | TenancyCreateWithoutLandlordInput[] | TenancyUncheckedCreateWithoutLandlordInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutLandlordInput | TenancyCreateOrConnectWithoutLandlordInput[]
@@ -69299,6 +74252,20 @@ export namespace Prisma {
     connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
     update?: InspectionUpdateWithWhereUniqueWithoutConductedByInput | InspectionUpdateWithWhereUniqueWithoutConductedByInput[]
     updateMany?: InspectionUpdateManyWithWhereWithoutConductedByInput | InspectionUpdateManyWithWhereWithoutConductedByInput[]
+    deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
+  }
+
+  export type InspectionUncheckedUpdateManyWithoutReportAgentNestedInput = {
+    create?: XOR<InspectionCreateWithoutReportAgentInput, InspectionUncheckedCreateWithoutReportAgentInput> | InspectionCreateWithoutReportAgentInput[] | InspectionUncheckedCreateWithoutReportAgentInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgentInput | InspectionCreateOrConnectWithoutReportAgentInput[]
+    upsert?: InspectionUpsertWithWhereUniqueWithoutReportAgentInput | InspectionUpsertWithWhereUniqueWithoutReportAgentInput[]
+    createMany?: InspectionCreateManyReportAgentInputEnvelope
+    set?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    disconnect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    delete?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    update?: InspectionUpdateWithWhereUniqueWithoutReportAgentInput | InspectionUpdateWithWhereUniqueWithoutReportAgentInput[]
+    updateMany?: InspectionUpdateManyWithWhereWithoutReportAgentInput | InspectionUpdateManyWithWhereWithoutReportAgentInput[]
     deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
   }
 
@@ -69690,6 +74657,228 @@ export namespace Prisma {
     update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutTeamInput, SubscriptionUpdateWithoutTeamInput>, SubscriptionUncheckedUpdateWithoutTeamInput>
   }
 
+  export type AgencyMembershipCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
+    createMany?: AgencyMembershipCreateManyAgencyInputEnvelope
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+  }
+
+  export type TenancyCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<TenancyCreateWithoutAgencyInput, TenancyUncheckedCreateWithoutAgencyInput> | TenancyCreateWithoutAgencyInput[] | TenancyUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: TenancyCreateOrConnectWithoutAgencyInput | TenancyCreateOrConnectWithoutAgencyInput[]
+    createMany?: TenancyCreateManyAgencyInputEnvelope
+    connect?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+  }
+
+  export type AgencyActivityCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<AgencyActivityCreateWithoutAgencyInput, AgencyActivityUncheckedCreateWithoutAgencyInput> | AgencyActivityCreateWithoutAgencyInput[] | AgencyActivityUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyActivityCreateOrConnectWithoutAgencyInput | AgencyActivityCreateOrConnectWithoutAgencyInput[]
+    createMany?: AgencyActivityCreateManyAgencyInputEnvelope
+    connect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+  }
+
+  export type AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
+    createMany?: AgencyMembershipCreateManyAgencyInputEnvelope
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+  }
+
+  export type TenancyUncheckedCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<TenancyCreateWithoutAgencyInput, TenancyUncheckedCreateWithoutAgencyInput> | TenancyCreateWithoutAgencyInput[] | TenancyUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: TenancyCreateOrConnectWithoutAgencyInput | TenancyCreateOrConnectWithoutAgencyInput[]
+    createMany?: TenancyCreateManyAgencyInputEnvelope
+    connect?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+  }
+
+  export type AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<AgencyActivityCreateWithoutAgencyInput, AgencyActivityUncheckedCreateWithoutAgencyInput> | AgencyActivityCreateWithoutAgencyInput[] | AgencyActivityUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyActivityCreateOrConnectWithoutAgencyInput | AgencyActivityCreateOrConnectWithoutAgencyInput[]
+    createMany?: AgencyActivityCreateManyAgencyInputEnvelope
+    connect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+  }
+
+  export type AgencyMembershipUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
+    upsert?: AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput | AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: AgencyMembershipCreateManyAgencyInputEnvelope
+    set?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    disconnect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    delete?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    update?: AgencyMembershipUpdateWithWhereUniqueWithoutAgencyInput | AgencyMembershipUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: AgencyMembershipUpdateManyWithWhereWithoutAgencyInput | AgencyMembershipUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: AgencyMembershipScalarWhereInput | AgencyMembershipScalarWhereInput[]
+  }
+
+  export type TenancyUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<TenancyCreateWithoutAgencyInput, TenancyUncheckedCreateWithoutAgencyInput> | TenancyCreateWithoutAgencyInput[] | TenancyUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: TenancyCreateOrConnectWithoutAgencyInput | TenancyCreateOrConnectWithoutAgencyInput[]
+    upsert?: TenancyUpsertWithWhereUniqueWithoutAgencyInput | TenancyUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: TenancyCreateManyAgencyInputEnvelope
+    set?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    disconnect?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    delete?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    connect?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    update?: TenancyUpdateWithWhereUniqueWithoutAgencyInput | TenancyUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: TenancyUpdateManyWithWhereWithoutAgencyInput | TenancyUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: TenancyScalarWhereInput | TenancyScalarWhereInput[]
+  }
+
+  export type AgencyActivityUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<AgencyActivityCreateWithoutAgencyInput, AgencyActivityUncheckedCreateWithoutAgencyInput> | AgencyActivityCreateWithoutAgencyInput[] | AgencyActivityUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyActivityCreateOrConnectWithoutAgencyInput | AgencyActivityCreateOrConnectWithoutAgencyInput[]
+    upsert?: AgencyActivityUpsertWithWhereUniqueWithoutAgencyInput | AgencyActivityUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: AgencyActivityCreateManyAgencyInputEnvelope
+    set?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    disconnect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    delete?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    connect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    update?: AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput | AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: AgencyActivityUpdateManyWithWhereWithoutAgencyInput | AgencyActivityUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: AgencyActivityScalarWhereInput | AgencyActivityScalarWhereInput[]
+  }
+
+  export type AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
+    upsert?: AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput | AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: AgencyMembershipCreateManyAgencyInputEnvelope
+    set?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    disconnect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    delete?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    connect?: AgencyMembershipWhereUniqueInput | AgencyMembershipWhereUniqueInput[]
+    update?: AgencyMembershipUpdateWithWhereUniqueWithoutAgencyInput | AgencyMembershipUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: AgencyMembershipUpdateManyWithWhereWithoutAgencyInput | AgencyMembershipUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: AgencyMembershipScalarWhereInput | AgencyMembershipScalarWhereInput[]
+  }
+
+  export type TenancyUncheckedUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<TenancyCreateWithoutAgencyInput, TenancyUncheckedCreateWithoutAgencyInput> | TenancyCreateWithoutAgencyInput[] | TenancyUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: TenancyCreateOrConnectWithoutAgencyInput | TenancyCreateOrConnectWithoutAgencyInput[]
+    upsert?: TenancyUpsertWithWhereUniqueWithoutAgencyInput | TenancyUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: TenancyCreateManyAgencyInputEnvelope
+    set?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    disconnect?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    delete?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    connect?: TenancyWhereUniqueInput | TenancyWhereUniqueInput[]
+    update?: TenancyUpdateWithWhereUniqueWithoutAgencyInput | TenancyUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: TenancyUpdateManyWithWhereWithoutAgencyInput | TenancyUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: TenancyScalarWhereInput | TenancyScalarWhereInput[]
+  }
+
+  export type AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<AgencyActivityCreateWithoutAgencyInput, AgencyActivityUncheckedCreateWithoutAgencyInput> | AgencyActivityCreateWithoutAgencyInput[] | AgencyActivityUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: AgencyActivityCreateOrConnectWithoutAgencyInput | AgencyActivityCreateOrConnectWithoutAgencyInput[]
+    upsert?: AgencyActivityUpsertWithWhereUniqueWithoutAgencyInput | AgencyActivityUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: AgencyActivityCreateManyAgencyInputEnvelope
+    set?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    disconnect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    delete?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    connect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+    update?: AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput | AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: AgencyActivityUpdateManyWithWhereWithoutAgencyInput | AgencyActivityUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: AgencyActivityScalarWhereInput | AgencyActivityScalarWhereInput[]
+  }
+
+  export type AgencyCreateNestedOneWithoutMembersInput = {
+    create?: XOR<AgencyCreateWithoutMembersInput, AgencyUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutMembersInput
+    connect?: AgencyWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutAgencyMembershipsInput = {
+    create?: XOR<StakeholderCreateWithoutAgencyMembershipsInput, StakeholderUncheckedCreateWithoutAgencyMembershipsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAgencyMembershipsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type NotificationCreateNestedManyWithoutAgencyMembershipInput = {
+    create?: XOR<NotificationCreateWithoutAgencyMembershipInput, NotificationUncheckedCreateWithoutAgencyMembershipInput> | NotificationCreateWithoutAgencyMembershipInput[] | NotificationUncheckedCreateWithoutAgencyMembershipInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutAgencyMembershipInput | NotificationCreateOrConnectWithoutAgencyMembershipInput[]
+    createMany?: NotificationCreateManyAgencyMembershipInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutAgencyMembershipInput = {
+    create?: XOR<NotificationCreateWithoutAgencyMembershipInput, NotificationUncheckedCreateWithoutAgencyMembershipInput> | NotificationCreateWithoutAgencyMembershipInput[] | NotificationUncheckedCreateWithoutAgencyMembershipInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutAgencyMembershipInput | NotificationCreateOrConnectWithoutAgencyMembershipInput[]
+    createMany?: NotificationCreateManyAgencyMembershipInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type EnumAgencyRoleFieldUpdateOperationsInput = {
+    set?: $Enums.AgencyRole
+  }
+
+  export type EnumAgencyMembershipStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AgencyMembershipStatus
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type AgencyUpdateOneRequiredWithoutMembersNestedInput = {
+    create?: XOR<AgencyCreateWithoutMembersInput, AgencyUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutMembersInput
+    upsert?: AgencyUpsertWithoutMembersInput
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutMembersInput, AgencyUpdateWithoutMembersInput>, AgencyUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutAgencyMembershipsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAgencyMembershipsInput, StakeholderUncheckedCreateWithoutAgencyMembershipsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAgencyMembershipsInput
+    upsert?: StakeholderUpsertWithoutAgencyMembershipsInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAgencyMembershipsInput, StakeholderUpdateWithoutAgencyMembershipsInput>, StakeholderUncheckedUpdateWithoutAgencyMembershipsInput>
+  }
+
+  export type NotificationUpdateManyWithoutAgencyMembershipNestedInput = {
+    create?: XOR<NotificationCreateWithoutAgencyMembershipInput, NotificationUncheckedCreateWithoutAgencyMembershipInput> | NotificationCreateWithoutAgencyMembershipInput[] | NotificationUncheckedCreateWithoutAgencyMembershipInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutAgencyMembershipInput | NotificationCreateOrConnectWithoutAgencyMembershipInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput | NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput[]
+    createMany?: NotificationCreateManyAgencyMembershipInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutAgencyMembershipInput | NotificationUpdateWithWhereUniqueWithoutAgencyMembershipInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutAgencyMembershipInput | NotificationUpdateManyWithWhereWithoutAgencyMembershipInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutAgencyMembershipNestedInput = {
+    create?: XOR<NotificationCreateWithoutAgencyMembershipInput, NotificationUncheckedCreateWithoutAgencyMembershipInput> | NotificationCreateWithoutAgencyMembershipInput[] | NotificationUncheckedCreateWithoutAgencyMembershipInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutAgencyMembershipInput | NotificationCreateOrConnectWithoutAgencyMembershipInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput | NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput[]
+    createMany?: NotificationCreateManyAgencyMembershipInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutAgencyMembershipInput | NotificationUpdateWithWhereUniqueWithoutAgencyMembershipInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutAgencyMembershipInput | NotificationUpdateManyWithWhereWithoutAgencyMembershipInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type AgencyCreateNestedOneWithoutActivityInput = {
+    create?: XOR<AgencyCreateWithoutActivityInput, AgencyUncheckedCreateWithoutActivityInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutActivityInput
+    connect?: AgencyWhereUniqueInput
+  }
+
+  export type AgencyUpdateOneRequiredWithoutActivityNestedInput = {
+    create?: XOR<AgencyCreateWithoutActivityInput, AgencyUncheckedCreateWithoutActivityInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutActivityInput
+    upsert?: AgencyUpsertWithoutActivityInput
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutActivityInput, AgencyUpdateWithoutActivityInput>, AgencyUncheckedUpdateWithoutActivityInput>
+  }
+
   export type TeamCreateNestedOneWithoutSubscriptionInput = {
     create?: XOR<TeamCreateWithoutSubscriptionInput, TeamUncheckedCreateWithoutSubscriptionInput>
     connectOrCreate?: TeamCreateOrConnectWithoutSubscriptionInput
@@ -69718,10 +74907,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -69884,6 +75069,12 @@ export namespace Prisma {
     connect?: StakeholderWhereUniqueInput
   }
 
+  export type AgencyCreateNestedOneWithoutTenanciesInput = {
+    create?: XOR<AgencyCreateWithoutTenanciesInput, AgencyUncheckedCreateWithoutTenanciesInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutTenanciesInput
+    connect?: AgencyWhereUniqueInput
+  }
+
   export type InspectionCreateNestedManyWithoutTenancyInput = {
     create?: XOR<InspectionCreateWithoutTenancyInput, InspectionUncheckedCreateWithoutTenancyInput> | InspectionCreateWithoutTenancyInput[] | InspectionUncheckedCreateWithoutTenancyInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutTenancyInput | InspectionCreateOrConnectWithoutTenancyInput[]
@@ -70010,6 +75201,16 @@ export namespace Prisma {
     delete?: StakeholderWhereInput | boolean
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutTenanciesAsAgentInput, StakeholderUpdateWithoutTenanciesAsAgentInput>, StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput>
+  }
+
+  export type AgencyUpdateOneWithoutTenanciesNestedInput = {
+    create?: XOR<AgencyCreateWithoutTenanciesInput, AgencyUncheckedCreateWithoutTenanciesInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutTenanciesInput
+    upsert?: AgencyUpsertWithoutTenanciesInput
+    disconnect?: AgencyWhereInput | boolean
+    delete?: AgencyWhereInput | boolean
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutTenanciesInput, AgencyUpdateWithoutTenanciesInput>, AgencyUncheckedUpdateWithoutTenanciesInput>
   }
 
   export type InspectionUpdateManyWithoutTenancyNestedInput = {
@@ -70210,6 +75411,12 @@ export namespace Prisma {
     connect?: StakeholderWhereUniqueInput
   }
 
+  export type StakeholderCreateNestedOneWithoutReportInspectionsInput = {
+    create?: XOR<StakeholderCreateWithoutReportInspectionsInput, StakeholderUncheckedCreateWithoutReportInspectionsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutReportInspectionsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
   export type InspectionCreateNestedOneWithoutCheckOutInput = {
     create?: XOR<InspectionCreateWithoutCheckOutInput, InspectionUncheckedCreateWithoutCheckOutInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutCheckOutInput
@@ -70392,6 +75599,16 @@ export namespace Prisma {
     delete?: StakeholderWhereInput | boolean
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutInspectionsRunInput, StakeholderUpdateWithoutInspectionsRunInput>, StakeholderUncheckedUpdateWithoutInspectionsRunInput>
+  }
+
+  export type StakeholderUpdateOneWithoutReportInspectionsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutReportInspectionsInput, StakeholderUncheckedCreateWithoutReportInspectionsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutReportInspectionsInput
+    upsert?: StakeholderUpsertWithoutReportInspectionsInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutReportInspectionsInput, StakeholderUpdateWithoutReportInspectionsInput>, StakeholderUncheckedUpdateWithoutReportInspectionsInput>
   }
 
   export type InspectionUpdateOneWithoutCheckOutNestedInput = {
@@ -72065,6 +77282,12 @@ export namespace Prisma {
     connect?: TenancyWhereUniqueInput
   }
 
+  export type AgencyMembershipCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<AgencyMembershipCreateWithoutNotificationsInput, AgencyMembershipUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutNotificationsInput
+    connect?: AgencyMembershipWhereUniqueInput
+  }
+
   export type NotificationPushDeliveryCreateNestedManyWithoutNotificationInput = {
     create?: XOR<NotificationPushDeliveryCreateWithoutNotificationInput, NotificationPushDeliveryUncheckedCreateWithoutNotificationInput> | NotificationPushDeliveryCreateWithoutNotificationInput[] | NotificationPushDeliveryUncheckedCreateWithoutNotificationInput[]
     connectOrCreate?: NotificationPushDeliveryCreateOrConnectWithoutNotificationInput | NotificationPushDeliveryCreateOrConnectWithoutNotificationInput[]
@@ -72099,6 +77322,16 @@ export namespace Prisma {
     delete?: TenancyWhereInput | boolean
     connect?: TenancyWhereUniqueInput
     update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutNotificationsInput, TenancyUpdateWithoutNotificationsInput>, TenancyUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type AgencyMembershipUpdateOneWithoutNotificationsNestedInput = {
+    create?: XOR<AgencyMembershipCreateWithoutNotificationsInput, AgencyMembershipUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: AgencyMembershipCreateOrConnectWithoutNotificationsInput
+    upsert?: AgencyMembershipUpsertWithoutNotificationsInput
+    disconnect?: AgencyMembershipWhereInput | boolean
+    delete?: AgencyMembershipWhereInput | boolean
+    connect?: AgencyMembershipWhereUniqueInput
+    update?: XOR<XOR<AgencyMembershipUpdateToOneWithWhereWithoutNotificationsInput, AgencyMembershipUpdateWithoutNotificationsInput>, AgencyMembershipUncheckedUpdateWithoutNotificationsInput>
   }
 
   export type NotificationPushDeliveryUpdateManyWithoutNotificationNestedInput = {
@@ -73146,11 +78379,18 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumPlanFilter<$PrismaModel = never> = {
-    equals?: $Enums.Plan | EnumPlanFieldRefInput<$PrismaModel>
-    in?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
-    not?: NestedEnumPlanFilter<$PrismaModel> | $Enums.Plan
+  export type NestedEnumAgencyRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyRole | EnumAgencyRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyRoleFilter<$PrismaModel> | $Enums.AgencyRole
+  }
+
+  export type NestedEnumAgencyMembershipStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyMembershipStatus | EnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel> | $Enums.AgencyMembershipStatus
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -73162,6 +78402,47 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedEnumAgencyRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyRole | EnumAgencyRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyRoleWithAggregatesFilter<$PrismaModel> | $Enums.AgencyRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgencyRoleFilter<$PrismaModel>
+    _max?: NestedEnumAgencyRoleFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAgencyMembershipStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AgencyMembershipStatus | EnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAgencyMembershipStatusWithAggregatesFilter<$PrismaModel> | $Enums.AgencyMembershipStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel>
+    _max?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPlanFilter<$PrismaModel = never> = {
+    equals?: $Enums.Plan | EnumPlanFieldRefInput<$PrismaModel>
+    in?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
+    not?: NestedEnumPlanFilter<$PrismaModel> | $Enums.Plan
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -73204,20 +78485,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -73970,6 +79237,44 @@ export namespace Prisma {
     create: XOR<TeamCreateWithoutMembersInput, TeamUncheckedCreateWithoutMembersInput>
   }
 
+  export type AgencyMembershipCreateWithoutStakeholderInput = {
+    id?: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agency: AgencyCreateNestedOneWithoutMembersInput
+    notifications?: NotificationCreateNestedManyWithoutAgencyMembershipInput
+  }
+
+  export type AgencyMembershipUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    agencyId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    notifications?: NotificationUncheckedCreateNestedManyWithoutAgencyMembershipInput
+  }
+
+  export type AgencyMembershipCreateOrConnectWithoutStakeholderInput = {
+    where: AgencyMembershipWhereUniqueInput
+    create: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AgencyMembershipCreateManyStakeholderInputEnvelope = {
+    data: AgencyMembershipCreateManyStakeholderInput | AgencyMembershipCreateManyStakeholderInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyCreateWithoutLandlordInput = {
     id?: string
     startDate: Date | string
@@ -73986,6 +79291,7 @@ export namespace Prisma {
     property: PropertyCreateNestedOneWithoutTenanciesInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -73999,6 +79305,7 @@ export namespace Prisma {
     propertyId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -74044,6 +79351,7 @@ export namespace Prisma {
     property: PropertyCreateNestedOneWithoutTenanciesInput
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -74057,6 +79365,7 @@ export namespace Prisma {
     propertyId: string
     landlordId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -74102,6 +79411,7 @@ export namespace Prisma {
     property: PropertyCreateNestedOneWithoutTenanciesInput
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -74115,6 +79425,7 @@ export namespace Prisma {
     propertyId: string
     landlordId: string
     tenantId: string
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -74197,6 +79508,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -74207,6 +79519,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -74227,6 +79540,8 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -74257,6 +79572,78 @@ export namespace Prisma {
 
   export type InspectionCreateManyConductedByInputEnvelope = {
     data: InspectionCreateManyConductedByInput | InspectionCreateManyConductedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InspectionCreateWithoutReportAgentInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    accessGrants?: InspectionAccessGrantCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutReportAgentInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    reportAgentFrozen?: boolean
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    accessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutReportAgentInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutReportAgentInput, InspectionUncheckedCreateWithoutReportAgentInput>
+  }
+
+  export type InspectionCreateManyReportAgentInputEnvelope = {
+    data: InspectionCreateManyReportAgentInput | InspectionCreateManyReportAgentInput[]
     skipDuplicates?: boolean
   }
 
@@ -74597,12 +79984,14 @@ export namespace Prisma {
     pushExpandedAt?: Date | string | null
     createdAt?: Date | string
     tenancy?: TenancyCreateNestedOneWithoutNotificationsInput
+    agencyMembership?: AgencyMembershipCreateNestedOneWithoutNotificationsInput
     pushDeliveries?: NotificationPushDeliveryCreateNestedManyWithoutNotificationInput
   }
 
   export type NotificationUncheckedCreateWithoutRecipientInput = {
     id?: string
     tenancyId?: string | null
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -75149,6 +80538,39 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutTeamNestedInput
   }
 
+  export type AgencyMembershipUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: AgencyMembershipWhereUniqueInput
+    update: XOR<AgencyMembershipUpdateWithoutStakeholderInput, AgencyMembershipUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AgencyMembershipUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: AgencyMembershipWhereUniqueInput
+    data: XOR<AgencyMembershipUpdateWithoutStakeholderInput, AgencyMembershipUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AgencyMembershipUpdateManyWithWhereWithoutStakeholderInput = {
+    where: AgencyMembershipScalarWhereInput
+    data: XOR<AgencyMembershipUpdateManyMutationInput, AgencyMembershipUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type AgencyMembershipScalarWhereInput = {
+    AND?: AgencyMembershipScalarWhereInput | AgencyMembershipScalarWhereInput[]
+    OR?: AgencyMembershipScalarWhereInput[]
+    NOT?: AgencyMembershipScalarWhereInput | AgencyMembershipScalarWhereInput[]
+    id?: StringFilter<"AgencyMembership"> | string
+    agencyId?: StringFilter<"AgencyMembership"> | string
+    stakeholderId?: StringFilter<"AgencyMembership"> | string
+    role?: EnumAgencyRoleFilter<"AgencyMembership"> | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFilter<"AgencyMembership"> | $Enums.AgencyMembershipStatus
+    invitedById?: StringNullableFilter<"AgencyMembership"> | string | null
+    expiresAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    acceptedAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    removedAt?: DateTimeNullableFilter<"AgencyMembership"> | Date | string | null
+    createdAt?: DateTimeFilter<"AgencyMembership"> | Date | string
+    updatedAt?: DateTimeFilter<"AgencyMembership"> | Date | string
+  }
+
   export type TenancyUpsertWithWhereUniqueWithoutLandlordInput = {
     where: TenancyWhereUniqueInput
     update: XOR<TenancyUpdateWithoutLandlordInput, TenancyUncheckedUpdateWithoutLandlordInput>
@@ -75174,6 +80596,7 @@ export namespace Prisma {
     landlordId?: StringFilter<"Tenancy"> | string
     tenantId?: StringFilter<"Tenancy"> | string
     agentId?: StringNullableFilter<"Tenancy"> | string | null
+    agencyId?: StringNullableFilter<"Tenancy"> | string | null
     startDate?: DateTimeFilter<"Tenancy"> | Date | string
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
@@ -75289,6 +80712,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
+    reportAgentId?: StringNullableFilter<"Inspection"> | string | null
+    reportAgentFrozen?: BoolFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableFilter<"Inspection"> | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
@@ -75299,6 +80724,22 @@ export namespace Prisma {
     aiConsentById?: StringNullableFilter<"Inspection"> | string | null
     createdAt?: DateTimeFilter<"Inspection"> | Date | string
     updatedAt?: DateTimeFilter<"Inspection"> | Date | string
+  }
+
+  export type InspectionUpsertWithWhereUniqueWithoutReportAgentInput = {
+    where: InspectionWhereUniqueInput
+    update: XOR<InspectionUpdateWithoutReportAgentInput, InspectionUncheckedUpdateWithoutReportAgentInput>
+    create: XOR<InspectionCreateWithoutReportAgentInput, InspectionUncheckedCreateWithoutReportAgentInput>
+  }
+
+  export type InspectionUpdateWithWhereUniqueWithoutReportAgentInput = {
+    where: InspectionWhereUniqueInput
+    data: XOR<InspectionUpdateWithoutReportAgentInput, InspectionUncheckedUpdateWithoutReportAgentInput>
+  }
+
+  export type InspectionUpdateManyWithWhereWithoutReportAgentInput = {
+    where: InspectionScalarWhereInput
+    data: XOR<InspectionUpdateManyMutationInput, InspectionUncheckedUpdateManyWithoutReportAgentInput>
   }
 
   export type InspectionAccessGrantUpsertWithWhereUniqueWithoutStakeholderInput = {
@@ -75592,6 +81033,7 @@ export namespace Prisma {
     id?: StringFilter<"Notification"> | string
     recipientId?: StringFilter<"Notification"> | string
     tenancyId?: StringNullableFilter<"Notification"> | string | null
+    agencyMembershipId?: StringNullableFilter<"Notification"> | string | null
     kind?: EnumNotificationKindFilter<"Notification"> | $Enums.NotificationKind
     title?: StringFilter<"Notification"> | string
     body?: StringFilter<"Notification"> | string
@@ -76013,12 +81455,14 @@ export namespace Prisma {
     authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -76054,12 +81498,14 @@ export namespace Prisma {
     authUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -76203,6 +81649,552 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AgencyMembershipCreateWithoutAgencyInput = {
+    id?: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stakeholder: StakeholderCreateNestedOneWithoutAgencyMembershipsInput
+    notifications?: NotificationCreateNestedManyWithoutAgencyMembershipInput
+  }
+
+  export type AgencyMembershipUncheckedCreateWithoutAgencyInput = {
+    id?: string
+    stakeholderId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    notifications?: NotificationUncheckedCreateNestedManyWithoutAgencyMembershipInput
+  }
+
+  export type AgencyMembershipCreateOrConnectWithoutAgencyInput = {
+    where: AgencyMembershipWhereUniqueInput
+    create: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type AgencyMembershipCreateManyAgencyInputEnvelope = {
+    data: AgencyMembershipCreateManyAgencyInput | AgencyMembershipCreateManyAgencyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenancyCreateWithoutAgencyInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutTenanciesInput
+    landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
+    tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
+    agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    inspections?: InspectionCreateNestedManyWithoutTenancyInput
+    collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
+    notifications?: NotificationCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyUncheckedCreateWithoutAgencyInput = {
+    id?: string
+    propertyId: string
+    landlordId: string
+    tenantId: string
+    agentId?: string | null
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
+    collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyCreateOrConnectWithoutAgencyInput = {
+    where: TenancyWhereUniqueInput
+    create: XOR<TenancyCreateWithoutAgencyInput, TenancyUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type TenancyCreateManyAgencyInputEnvelope = {
+    data: TenancyCreateManyAgencyInput | TenancyCreateManyAgencyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgencyActivityCreateWithoutAgencyInput = {
+    id?: string
+    actorId: string
+    actorName: string
+    subjectId?: string | null
+    subjectName?: string | null
+    action: string
+    createdAt?: Date | string
+  }
+
+  export type AgencyActivityUncheckedCreateWithoutAgencyInput = {
+    id?: string
+    actorId: string
+    actorName: string
+    subjectId?: string | null
+    subjectName?: string | null
+    action: string
+    createdAt?: Date | string
+  }
+
+  export type AgencyActivityCreateOrConnectWithoutAgencyInput = {
+    where: AgencyActivityWhereUniqueInput
+    create: XOR<AgencyActivityCreateWithoutAgencyInput, AgencyActivityUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type AgencyActivityCreateManyAgencyInputEnvelope = {
+    data: AgencyActivityCreateManyAgencyInput | AgencyActivityCreateManyAgencyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput = {
+    where: AgencyMembershipWhereUniqueInput
+    update: XOR<AgencyMembershipUpdateWithoutAgencyInput, AgencyMembershipUncheckedUpdateWithoutAgencyInput>
+    create: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type AgencyMembershipUpdateWithWhereUniqueWithoutAgencyInput = {
+    where: AgencyMembershipWhereUniqueInput
+    data: XOR<AgencyMembershipUpdateWithoutAgencyInput, AgencyMembershipUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type AgencyMembershipUpdateManyWithWhereWithoutAgencyInput = {
+    where: AgencyMembershipScalarWhereInput
+    data: XOR<AgencyMembershipUpdateManyMutationInput, AgencyMembershipUncheckedUpdateManyWithoutAgencyInput>
+  }
+
+  export type TenancyUpsertWithWhereUniqueWithoutAgencyInput = {
+    where: TenancyWhereUniqueInput
+    update: XOR<TenancyUpdateWithoutAgencyInput, TenancyUncheckedUpdateWithoutAgencyInput>
+    create: XOR<TenancyCreateWithoutAgencyInput, TenancyUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type TenancyUpdateWithWhereUniqueWithoutAgencyInput = {
+    where: TenancyWhereUniqueInput
+    data: XOR<TenancyUpdateWithoutAgencyInput, TenancyUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type TenancyUpdateManyWithWhereWithoutAgencyInput = {
+    where: TenancyScalarWhereInput
+    data: XOR<TenancyUpdateManyMutationInput, TenancyUncheckedUpdateManyWithoutAgencyInput>
+  }
+
+  export type AgencyActivityUpsertWithWhereUniqueWithoutAgencyInput = {
+    where: AgencyActivityWhereUniqueInput
+    update: XOR<AgencyActivityUpdateWithoutAgencyInput, AgencyActivityUncheckedUpdateWithoutAgencyInput>
+    create: XOR<AgencyActivityCreateWithoutAgencyInput, AgencyActivityUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput = {
+    where: AgencyActivityWhereUniqueInput
+    data: XOR<AgencyActivityUpdateWithoutAgencyInput, AgencyActivityUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type AgencyActivityUpdateManyWithWhereWithoutAgencyInput = {
+    where: AgencyActivityScalarWhereInput
+    data: XOR<AgencyActivityUpdateManyMutationInput, AgencyActivityUncheckedUpdateManyWithoutAgencyInput>
+  }
+
+  export type AgencyActivityScalarWhereInput = {
+    AND?: AgencyActivityScalarWhereInput | AgencyActivityScalarWhereInput[]
+    OR?: AgencyActivityScalarWhereInput[]
+    NOT?: AgencyActivityScalarWhereInput | AgencyActivityScalarWhereInput[]
+    id?: StringFilter<"AgencyActivity"> | string
+    agencyId?: StringFilter<"AgencyActivity"> | string
+    actorId?: StringFilter<"AgencyActivity"> | string
+    actorName?: StringFilter<"AgencyActivity"> | string
+    subjectId?: StringNullableFilter<"AgencyActivity"> | string | null
+    subjectName?: StringNullableFilter<"AgencyActivity"> | string | null
+    action?: StringFilter<"AgencyActivity"> | string
+    createdAt?: DateTimeFilter<"AgencyActivity"> | Date | string
+  }
+
+  export type AgencyCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutMembersInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutMembersInput, AgencyUncheckedCreateWithoutMembersInput>
+  }
+
+  export type StakeholderCreateWithoutAgencyMembershipsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAgencyMembershipsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAgencyMembershipsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAgencyMembershipsInput, StakeholderUncheckedCreateWithoutAgencyMembershipsInput>
+  }
+
+  export type NotificationCreateWithoutAgencyMembershipInput = {
+    id?: string
+    kind: $Enums.NotificationKind
+    title: string
+    body: string
+    href?: string | null
+    dedupeKey?: string | null
+    readAt?: Date | string | null
+    emailTo?: string | null
+    emailAttempts?: number
+    emailSentAt?: Date | string | null
+    emailError?: string | null
+    pushExpandedAt?: Date | string | null
+    createdAt?: Date | string
+    recipient: StakeholderCreateNestedOneWithoutNotificationsInput
+    tenancy?: TenancyCreateNestedOneWithoutNotificationsInput
+    pushDeliveries?: NotificationPushDeliveryCreateNestedManyWithoutNotificationInput
+  }
+
+  export type NotificationUncheckedCreateWithoutAgencyMembershipInput = {
+    id?: string
+    recipientId: string
+    tenancyId?: string | null
+    kind: $Enums.NotificationKind
+    title: string
+    body: string
+    href?: string | null
+    dedupeKey?: string | null
+    readAt?: Date | string | null
+    emailTo?: string | null
+    emailAttempts?: number
+    emailSentAt?: Date | string | null
+    emailError?: string | null
+    pushExpandedAt?: Date | string | null
+    createdAt?: Date | string
+    pushDeliveries?: NotificationPushDeliveryUncheckedCreateNestedManyWithoutNotificationInput
+  }
+
+  export type NotificationCreateOrConnectWithoutAgencyMembershipInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutAgencyMembershipInput, NotificationUncheckedCreateWithoutAgencyMembershipInput>
+  }
+
+  export type NotificationCreateManyAgencyMembershipInputEnvelope = {
+    data: NotificationCreateManyAgencyMembershipInput | NotificationCreateManyAgencyMembershipInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AgencyUpsertWithoutMembersInput = {
+    update: XOR<AgencyUpdateWithoutMembersInput, AgencyUncheckedUpdateWithoutMembersInput>
+    create: XOR<AgencyCreateWithoutMembersInput, AgencyUncheckedCreateWithoutMembersInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutMembersInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutMembersInput, AgencyUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type AgencyUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+  }
+
+  export type StakeholderUpsertWithoutAgencyMembershipsInput = {
+    update: XOR<StakeholderUpdateWithoutAgencyMembershipsInput, StakeholderUncheckedUpdateWithoutAgencyMembershipsInput>
+    create: XOR<StakeholderCreateWithoutAgencyMembershipsInput, StakeholderUncheckedCreateWithoutAgencyMembershipsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAgencyMembershipsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAgencyMembershipsInput, StakeholderUncheckedUpdateWithoutAgencyMembershipsInput>
+  }
+
+  export type StakeholderUpdateWithoutAgencyMembershipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAgencyMembershipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutAgencyMembershipInput, NotificationUncheckedUpdateWithoutAgencyMembershipInput>
+    create: XOR<NotificationCreateWithoutAgencyMembershipInput, NotificationUncheckedCreateWithoutAgencyMembershipInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutAgencyMembershipInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutAgencyMembershipInput, NotificationUncheckedUpdateWithoutAgencyMembershipInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutAgencyMembershipInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutAgencyMembershipInput>
+  }
+
+  export type AgencyCreateWithoutActivityInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutActivityInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutActivityInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutActivityInput, AgencyUncheckedCreateWithoutActivityInput>
+  }
+
+  export type AgencyUpsertWithoutActivityInput = {
+    update: XOR<AgencyUpdateWithoutActivityInput, AgencyUncheckedUpdateWithoutActivityInput>
+    create: XOR<AgencyCreateWithoutActivityInput, AgencyUncheckedCreateWithoutActivityInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutActivityInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutActivityInput, AgencyUncheckedUpdateWithoutActivityInput>
+  }
+
+  export type AgencyUpdateWithoutActivityInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutActivityInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+  }
+
   export type TeamCreateWithoutSubscriptionInput = {
     id?: string
     name: string
@@ -76235,12 +82227,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -76276,12 +82270,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -76322,12 +82318,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -76363,12 +82361,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -76447,12 +82447,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -76488,12 +82490,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -76540,12 +82544,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -76581,12 +82587,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -76622,12 +82630,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -76663,12 +82673,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -76720,12 +82732,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -76761,12 +82775,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -76807,6 +82823,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -76820,6 +82837,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -76942,6 +82960,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
   }
 
@@ -76953,6 +82975,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
   }
 
@@ -76972,11 +82998,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -77013,11 +83041,13 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -77059,11 +83089,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -77100,11 +83132,13 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -77146,11 +83180,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -77187,11 +83223,13 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -77222,11 +83260,35 @@ export namespace Prisma {
     create: XOR<StakeholderCreateWithoutTenanciesAsAgentInput, StakeholderUncheckedCreateWithoutTenanciesAsAgentInput>
   }
 
+  export type AgencyCreateWithoutTenanciesInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutTenanciesInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutTenanciesInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutTenanciesInput, AgencyUncheckedCreateWithoutTenanciesInput>
+  }
+
   export type InspectionCreateWithoutTenancyInput = {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -77237,6 +83299,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -77257,6 +83320,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -77329,12 +83394,14 @@ export namespace Prisma {
     pushExpandedAt?: Date | string | null
     createdAt?: Date | string
     recipient: StakeholderCreateNestedOneWithoutNotificationsInput
+    agencyMembership?: AgencyMembershipCreateNestedOneWithoutNotificationsInput
     pushDeliveries?: NotificationPushDeliveryCreateNestedManyWithoutNotificationInput
   }
 
   export type NotificationUncheckedCreateWithoutTenancyInput = {
     id?: string
     recipientId: string
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -77439,6 +83506,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -77452,6 +83520,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -77492,6 +83561,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -77505,6 +83575,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -77547,6 +83618,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
   }
 
@@ -77558,6 +83633,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
@@ -77583,11 +83662,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -77624,11 +83705,13 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -77676,11 +83759,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -77717,11 +83802,13 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -77769,11 +83856,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -77810,11 +83899,13 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -77838,6 +83929,35 @@ export namespace Prisma {
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type AgencyUpsertWithoutTenanciesInput = {
+    update: XOR<AgencyUpdateWithoutTenanciesInput, AgencyUncheckedUpdateWithoutTenanciesInput>
+    create: XOR<AgencyCreateWithoutTenanciesInput, AgencyUncheckedCreateWithoutTenanciesInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutTenanciesInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutTenanciesInput, AgencyUncheckedUpdateWithoutTenanciesInput>
+  }
+
+  export type AgencyUpdateWithoutTenanciesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutTenanciesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type InspectionUpsertWithWhereUniqueWithoutTenancyInput = {
@@ -77932,6 +84052,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -77945,6 +84066,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -77991,6 +84113,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -78004,6 +84127,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -78039,6 +84163,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
@@ -78052,6 +84177,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -78086,11 +84212,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -78127,11 +84255,13 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -78173,11 +84303,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -78214,11 +84346,13 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -78277,6 +84411,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
@@ -78290,6 +84425,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -78330,11 +84466,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -78371,11 +84509,13 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -78423,11 +84563,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -78464,11 +84606,13 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -78511,6 +84655,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
@@ -78524,6 +84669,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -78558,11 +84704,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -78599,11 +84747,13 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -78634,11 +84784,103 @@ export namespace Prisma {
     create: XOR<StakeholderCreateWithoutInspectionsRunInput, StakeholderUncheckedCreateWithoutInspectionsRunInput>
   }
 
+  export type StakeholderCreateWithoutReportInspectionsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutReportInspectionsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutReportInspectionsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutReportInspectionsInput, StakeholderUncheckedCreateWithoutReportInspectionsInput>
+  }
+
   export type InspectionCreateWithoutCheckOutInput = {
     id?: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -78650,6 +84892,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
@@ -78670,6 +84913,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -78702,6 +84947,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -78713,6 +84959,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
@@ -78733,6 +84980,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -79160,6 +85409,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
@@ -79173,6 +85423,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -79213,11 +85464,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -79254,11 +85507,110 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUpsertWithoutReportInspectionsInput = {
+    update: XOR<StakeholderUpdateWithoutReportInspectionsInput, StakeholderUncheckedUpdateWithoutReportInspectionsInput>
+    create: XOR<StakeholderCreateWithoutReportInspectionsInput, StakeholderUncheckedCreateWithoutReportInspectionsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutReportInspectionsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutReportInspectionsInput, StakeholderUncheckedUpdateWithoutReportInspectionsInput>
+  }
+
+  export type StakeholderUpdateWithoutReportInspectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutReportInspectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -79300,6 +85652,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79311,6 +85664,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
@@ -79331,6 +85685,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79369,6 +85725,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79380,6 +85737,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
@@ -79400,6 +85758,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79647,6 +86007,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -79658,6 +86019,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -79678,6 +86040,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -79716,12 +86080,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
     maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
@@ -79757,12 +86123,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
@@ -79808,6 +86176,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79819,6 +86188,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -79839,6 +86209,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79883,12 +86255,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
@@ -79924,12 +86298,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
@@ -80173,6 +86549,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -80184,6 +86561,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
@@ -80204,6 +86582,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -80349,6 +86729,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80360,6 +86741,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
@@ -80380,6 +86762,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -81059,6 +87443,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
   }
 
@@ -81070,6 +87458,10 @@ export namespace Prisma {
     type: $Enums.PropertyType
     createdAt?: Date | string
     updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
   }
 
@@ -81259,6 +87651,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
   }
 
@@ -81270,6 +87666,10 @@ export namespace Prisma {
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
@@ -81359,6 +87759,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
@@ -81372,6 +87773,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -81439,12 +87841,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -81480,12 +87884,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -81754,6 +88160,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -81765,6 +88172,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -81785,6 +88193,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -81889,6 +88299,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -81902,6 +88313,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -81981,12 +88393,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -82022,12 +88436,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -82179,6 +88595,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82190,6 +88607,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -82210,6 +88628,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -82355,12 +88775,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -82396,12 +88818,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -82516,12 +88940,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -82557,12 +88983,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -82978,12 +89406,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -83019,12 +89449,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83176,12 +89608,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -83217,12 +89651,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -83289,12 +89725,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -83330,12 +89768,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83424,12 +89864,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -83465,12 +89907,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -83563,12 +90007,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -83604,12 +90050,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83650,12 +90098,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -83691,12 +90141,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83811,12 +90263,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -83852,12 +90306,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -83904,12 +90360,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -83945,12 +90403,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -84038,12 +90498,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -84079,12 +90541,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -84168,12 +90632,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -84209,12 +90675,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -84281,12 +90749,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -84322,12 +90792,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -84374,6 +90846,7 @@ export namespace Prisma {
     landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
     tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
     agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
@@ -84387,6 +90860,7 @@ export namespace Prisma {
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -84408,6 +90882,39 @@ export namespace Prisma {
   export type TenancyCreateOrConnectWithoutNotificationsInput = {
     where: TenancyWhereUniqueInput
     create: XOR<TenancyCreateWithoutNotificationsInput, TenancyUncheckedCreateWithoutNotificationsInput>
+  }
+
+  export type AgencyMembershipCreateWithoutNotificationsInput = {
+    id?: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agency: AgencyCreateNestedOneWithoutMembersInput
+    stakeholder: StakeholderCreateNestedOneWithoutAgencyMembershipsInput
+  }
+
+  export type AgencyMembershipUncheckedCreateWithoutNotificationsInput = {
+    id?: string
+    agencyId: string
+    stakeholderId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgencyMembershipCreateOrConnectWithoutNotificationsInput = {
+    where: AgencyMembershipWhereUniqueInput
+    create: XOR<AgencyMembershipCreateWithoutNotificationsInput, AgencyMembershipUncheckedCreateWithoutNotificationsInput>
   }
 
   export type NotificationPushDeliveryCreateWithoutNotificationInput = {
@@ -84464,12 +90971,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -84505,12 +91014,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -84563,6 +91074,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
@@ -84576,6 +91088,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -84592,6 +91105,45 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type AgencyMembershipUpsertWithoutNotificationsInput = {
+    update: XOR<AgencyMembershipUpdateWithoutNotificationsInput, AgencyMembershipUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<AgencyMembershipCreateWithoutNotificationsInput, AgencyMembershipUncheckedCreateWithoutNotificationsInput>
+    where?: AgencyMembershipWhereInput
+  }
+
+  export type AgencyMembershipUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: AgencyMembershipWhereInput
+    data: XOR<AgencyMembershipUpdateWithoutNotificationsInput, AgencyMembershipUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type AgencyMembershipUpdateWithoutNotificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agency?: AgencyUpdateOneRequiredWithoutMembersNestedInput
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAgencyMembershipsNestedInput
+  }
+
+  export type AgencyMembershipUncheckedUpdateWithoutNotificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutNotificationInput = {
@@ -84626,12 +91178,14 @@ export namespace Prisma {
     createdAt?: Date | string
     recipient: StakeholderCreateNestedOneWithoutNotificationsInput
     tenancy?: TenancyCreateNestedOneWithoutNotificationsInput
+    agencyMembership?: AgencyMembershipCreateNestedOneWithoutNotificationsInput
   }
 
   export type NotificationUncheckedCreateWithoutPushDeliveriesInput = {
     id?: string
     recipientId: string
     tenancyId?: string | null
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -84705,12 +91259,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recipient?: StakeholderUpdateOneRequiredWithoutNotificationsNestedInput
     tenancy?: TenancyUpdateOneWithoutNotificationsNestedInput
+    agencyMembership?: AgencyMembershipUpdateOneWithoutNotificationsNestedInput
   }
 
   export type NotificationUncheckedUpdateWithoutPushDeliveriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     recipientId?: StringFieldUpdateOperationsInput | string
     tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
@@ -84763,6 +91319,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -84774,6 +91331,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -84794,6 +91352,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -85064,6 +91624,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85075,6 +91636,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -85095,6 +91657,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85346,6 +91910,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -85357,6 +91922,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -85377,6 +91943,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -85415,12 +91983,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -85456,12 +92026,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -85588,6 +92160,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85599,6 +92172,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -85619,6 +92193,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85663,12 +92239,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -85704,12 +92282,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -85950,6 +92530,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -85961,6 +92542,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -85981,6 +92563,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -86019,12 +92603,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
     maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
@@ -86060,12 +92646,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
@@ -86111,6 +92699,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86122,6 +92711,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -86142,6 +92732,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86186,12 +92778,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
@@ -86227,12 +92821,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
@@ -86262,6 +92858,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -86273,6 +92870,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -86293,6 +92891,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -86331,12 +92931,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -86372,12 +92974,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -86423,6 +93027,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86434,6 +93039,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -86454,6 +93060,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86498,12 +93106,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -86539,12 +93149,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -86574,6 +93186,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -86585,6 +93198,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -86605,6 +93219,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -86680,6 +93296,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86691,6 +93308,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -86711,6 +93329,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -86754,6 +93374,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -86765,6 +93386,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -86785,6 +93407,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -86823,12 +93447,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -86864,12 +93490,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -86910,12 +93538,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -86951,12 +93581,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -87128,12 +93760,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -87169,12 +93803,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -87220,6 +93856,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87231,6 +93868,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -87251,6 +93889,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -87295,12 +93935,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -87336,12 +93978,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -87388,12 +94032,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -87429,12 +94075,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -87576,12 +94224,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -87617,12 +94267,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -88154,12 +94806,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -88195,12 +94849,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -88307,12 +94963,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -88348,12 +95006,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -88389,12 +95049,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
@@ -88430,12 +95092,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
@@ -88511,12 +95175,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
@@ -88552,12 +95218,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
@@ -88688,12 +95356,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -88729,12 +95399,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -88786,12 +95458,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -88827,12 +95501,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -88868,12 +95544,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -88909,12 +95587,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -88966,12 +95646,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -89007,12 +95689,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -89042,6 +95726,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
     processingError?: string | null
@@ -89053,6 +95738,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -89073,6 +95759,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -89116,6 +95804,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -89127,6 +95816,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -89147,6 +95837,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -89205,12 +95897,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
@@ -89246,12 +95940,14 @@ export namespace Prisma {
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
     tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
     tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
     inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
     signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
     deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
@@ -89334,12 +96030,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -89375,12 +96073,14 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -89405,11 +96105,25 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
+  export type AgencyMembershipCreateManyStakeholderInput = {
+    id?: string
+    agencyId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type TenancyCreateManyLandlordInput = {
     id?: string
     propertyId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -89429,6 +96143,7 @@ export namespace Prisma {
     propertyId: string
     landlordId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -89448,6 +96163,7 @@ export namespace Prisma {
     propertyId: string
     landlordId: string
     tenantId: string
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -89482,6 +96198,28 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InspectionCreateManyReportAgentInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -89605,6 +96343,7 @@ export namespace Prisma {
   export type NotificationCreateManyRecipientInput = {
     id?: string
     tenancyId?: string | null
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -89774,6 +96513,47 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type AgencyMembershipUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agency?: AgencyUpdateOneRequiredWithoutMembersNestedInput
+    notifications?: NotificationUpdateManyWithoutAgencyMembershipNestedInput
+  }
+
+  export type AgencyMembershipUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifications?: NotificationUncheckedUpdateManyWithoutAgencyMembershipNestedInput
+  }
+
+  export type AgencyMembershipUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TenancyUpdateWithoutLandlordInput = {
     id?: StringFieldUpdateOperationsInput | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89790,6 +96570,7 @@ export namespace Prisma {
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -89803,6 +96584,7 @@ export namespace Prisma {
     propertyId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -89827,6 +96609,7 @@ export namespace Prisma {
     propertyId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -89857,6 +96640,7 @@ export namespace Prisma {
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -89870,6 +96654,7 @@ export namespace Prisma {
     propertyId?: StringFieldUpdateOperationsInput | string
     landlordId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -89894,6 +96679,7 @@ export namespace Prisma {
     propertyId?: StringFieldUpdateOperationsInput | string
     landlordId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -89924,6 +96710,7 @@ export namespace Prisma {
     property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -89937,6 +96724,7 @@ export namespace Prisma {
     propertyId?: StringFieldUpdateOperationsInput | string
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -89961,6 +96749,7 @@ export namespace Prisma {
     propertyId?: StringFieldUpdateOperationsInput | string
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -90022,6 +96811,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90032,6 +96822,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -90052,6 +96843,8 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90081,6 +96874,90 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InspectionUpdateWithoutReportAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    accessGrants?: InspectionAccessGrantUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutReportAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    accessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateManyWithoutReportAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90448,12 +97325,14 @@ export namespace Prisma {
     pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneWithoutNotificationsNestedInput
+    agencyMembership?: AgencyMembershipUpdateOneWithoutNotificationsNestedInput
     pushDeliveries?: NotificationPushDeliveryUpdateManyWithoutNotificationNestedInput
   }
 
   export type NotificationUncheckedUpdateWithoutRecipientInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
@@ -90472,6 +97351,7 @@ export namespace Prisma {
   export type NotificationUncheckedUpdateManyWithoutRecipientInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
@@ -90989,12 +97869,14 @@ export namespace Prisma {
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
@@ -91030,12 +97912,14 @@ export namespace Prisma {
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
     tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
     tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
     tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
     tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
     inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
     inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
     signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
     deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -91073,11 +97957,270 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AgencyMembershipCreateManyAgencyInput = {
+    id?: string
+    stakeholderId: string
+    role?: $Enums.AgencyRole
+    status?: $Enums.AgencyMembershipStatus
+    invitedById?: string | null
+    expiresAt?: Date | string | null
+    acceptedAt?: Date | string | null
+    removedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenancyCreateManyAgencyInput = {
+    id?: string
+    propertyId: string
+    landlordId: string
+    tenantId: string
+    agentId?: string | null
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AgencyActivityCreateManyAgencyInput = {
+    id?: string
+    actorId: string
+    actorName: string
+    subjectId?: string | null
+    subjectName?: string | null
+    action: string
+    createdAt?: Date | string
+  }
+
+  export type AgencyMembershipUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAgencyMembershipsNestedInput
+    notifications?: NotificationUpdateManyWithoutAgencyMembershipNestedInput
+  }
+
+  export type AgencyMembershipUncheckedUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifications?: NotificationUncheckedUpdateManyWithoutAgencyMembershipNestedInput
+  }
+
+  export type AgencyMembershipUncheckedUpdateManyWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
+    status?: EnumAgencyMembershipStatusFieldUpdateOperationsInput | $Enums.AgencyMembershipStatus
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenancyUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
+    landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
+    tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
+    agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    inspections?: InspectionUpdateManyWithoutTenancyNestedInput
+    collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
+    notifications?: NotificationUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type TenancyUncheckedUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    landlordId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
+    collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type TenancyUncheckedUpdateManyWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    landlordId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyActivityUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyActivityUncheckedUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyActivityUncheckedUpdateManyWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: StringFieldUpdateOperationsInput | string
+    actorName?: StringFieldUpdateOperationsInput | string
+    subjectId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: NullableStringFieldUpdateOperationsInput | string | null
+    action?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationCreateManyAgencyMembershipInput = {
+    id?: string
+    recipientId: string
+    tenancyId?: string | null
+    kind: $Enums.NotificationKind
+    title: string
+    body: string
+    href?: string | null
+    dedupeKey?: string | null
+    readAt?: Date | string | null
+    emailTo?: string | null
+    emailAttempts?: number
+    emailSentAt?: Date | string | null
+    emailError?: string | null
+    pushExpandedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type NotificationUpdateWithoutAgencyMembershipInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    href?: NullableStringFieldUpdateOperationsInput | string | null
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailError?: NullableStringFieldUpdateOperationsInput | string | null
+    pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recipient?: StakeholderUpdateOneRequiredWithoutNotificationsNestedInput
+    tenancy?: TenancyUpdateOneWithoutNotificationsNestedInput
+    pushDeliveries?: NotificationPushDeliveryUpdateManyWithoutNotificationNestedInput
+  }
+
+  export type NotificationUncheckedUpdateWithoutAgencyMembershipInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipientId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    href?: NullableStringFieldUpdateOperationsInput | string | null
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailError?: NullableStringFieldUpdateOperationsInput | string | null
+    pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pushDeliveries?: NotificationPushDeliveryUncheckedUpdateManyWithoutNotificationNestedInput
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutAgencyMembershipInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipientId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    href?: NullableStringFieldUpdateOperationsInput | string | null
+    dedupeKey?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailTo?: NullableStringFieldUpdateOperationsInput | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailError?: NullableStringFieldUpdateOperationsInput | string | null
+    pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TenancyCreateManyPropertyInput = {
     id?: string
     landlordId: string
     tenantId: string
     agentId?: string | null
+    agencyId?: string | null
     startDate: Date | string
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
@@ -91119,6 +98262,7 @@ export namespace Prisma {
     landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
     tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
     agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
@@ -91132,6 +98276,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -91156,6 +98301,7 @@ export namespace Prisma {
     landlordId?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -91215,6 +98361,8 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
     summary?: string | null
@@ -91237,6 +98385,7 @@ export namespace Prisma {
   export type NotificationCreateManyTenancyInput = {
     id?: string
     recipientId: string
+    agencyMembershipId?: string | null
     kind: $Enums.NotificationKind
     title: string
     body: string
@@ -91275,6 +98424,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
     processingError?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91285,6 +98435,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -91305,6 +98456,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91334,6 +98487,8 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91382,12 +98537,14 @@ export namespace Prisma {
     pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recipient?: StakeholderUpdateOneRequiredWithoutNotificationsNestedInput
+    agencyMembership?: AgencyMembershipUpdateOneWithoutNotificationsNestedInput
     pushDeliveries?: NotificationPushDeliveryUpdateManyWithoutNotificationNestedInput
   }
 
   export type NotificationUncheckedUpdateWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
     recipientId?: StringFieldUpdateOperationsInput | string
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
@@ -91406,6 +98563,7 @@ export namespace Prisma {
   export type NotificationUncheckedUpdateManyWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
     recipientId?: StringFieldUpdateOperationsInput | string
+    agencyMembershipId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumNotificationKindFieldUpdateOperationsInput | $Enums.NotificationKind
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string

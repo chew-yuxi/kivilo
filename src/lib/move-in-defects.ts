@@ -6,6 +6,7 @@ import { addendumHash, addendumSnapshotSchema, currentState, type AddendumSnapsh
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
 import type { Prisma } from '@/generated/prisma'
+import { lockAgencyTenancy } from '@/lib/agency'
 
 export class MoveInDefectStaleTargetError extends Error {
   constructor() {
@@ -37,15 +38,15 @@ export const disputeMoveInDefectInput = z.object({
   reason: z.string().trim().min(1).max(2000),
 })
 
-/// The same lock order as signing/publishing: check-in, then its tenancy, then the
+/// The same lock order as signing and property lifecycle: tenancy, then check-in, then the
 /// notice. Settings and new notices cannot race a tenant signature or each other.
 export async function lockMoveInDefectTenancy(
   tx: Prisma.TransactionClient,
   inspectionId: string,
   tenancyId: string,
 ) {
+  await lockAgencyTenancy(tenancyId, tx)
   await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "id" = ${inspectionId} FOR UPDATE`
-  await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
 }
 
 export async function assertNoSignedCheckOut(tx: Prisma.TransactionClient, tenancyId: string) {

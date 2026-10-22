@@ -7,6 +7,7 @@ import { MAX_ATTEMPTS } from '@/lib/report-email'
 import { handoverUrl } from '@/lib/handover'
 import { moveInDefectWindow } from '@/lib/move-in-defect-window'
 import { inspectionScope } from '@/lib/auth'
+import { reportAgent } from '@/lib/report-agent'
 
 /// Resend refuses a message over 40 MB, counted after base64, which grows a file by a
 /// third: an attachment of 30 MB already reaches 40 MB before the body and headers. 25 MB
@@ -40,6 +41,7 @@ export async function deliverReportEmails(limit = 20) {
         include: {
           tenancy: { include: { property: true, agent: { include: { branding: true } } } },
           conductedBy: { include: { branding: true } },
+          reportAgent: { include: { branding: true } },
           signatures: { orderBy: { signedAt: 'asc' }, include: { stakeholder: true } },
         },
       },
@@ -83,7 +85,7 @@ export async function deliverReportEmails(limit = 20) {
           withdrawn += 1
           continue
         }
-        const agent = tenancy.agent ?? inspection.conductedBy
+        const agent = reportAgent(inspection) ?? inspection.conductedBy
         const link = new URL(`/sign/${inspection.id}`, appUrl())
         link.searchParams.set('email', to)
         await sendSignatureRequest(to, {

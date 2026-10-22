@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/auth', async (importActual) => {
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireAgent: vi.fn(), currentStakeholder: vi.fn() }
+  return { ...actual, requireAgent: vi.fn(), currentStakeholder: vi.fn(), authorizeInspection: vi.fn(actual.authorizeInspection) }
 })
 
 import { db } from '@/lib/db'
@@ -15,7 +15,7 @@ import {
 } from '@/lib/auth'
 import { authorizeMaintenanceCase } from '@/lib/maintenance'
 import { tenancyAccess } from '@/lib/tenancy-access'
-import { startCheckOut } from '@/lib/actions'
+import { revokeReportLink, shareReport, startCheckOut } from '@/lib/actions'
 import { addTenancyCollaborator, removeTenancyCollaborator } from '@/lib/tenancy-access-actions'
 import { GET, POST } from '@/app/api/v1/tenancies/[id]/access/route'
 import { DELETE } from '@/app/api/v1/tenancies/[id]/access/[stakeholderId]/route'
@@ -70,6 +70,25 @@ afterAll(async () => {
 })
 
 describe('selected tenancy collaboration', () => {
+  it.each(['share', 'revoke'] as const)('refuses %s after access is removed between the initial read and report lock', async (action) => {
+    const { lead, tenancy, inspection } = await deal()
+    const collaborator = await person('Departing')
+    as(lead)
+    await addTenancyCollaborator(tenancy.id, collaborator.email!)
+    const originalToken = action === 'revoke' ? randomUUID() : null
+    await db.inspection.update({ where: { id: inspection.id }, data: { status: 'COMPLETED', shareToken: originalToken } })
+    as(collaborator)
+    const authorize = vi.mocked(authorizeInspection)
+    const original = authorize.getMockImplementation()!
+    const previouslyAuthorized = await original(inspection.id, collaborator.id)
+    authorize.mockImplementationOnce(async () => {
+      await db.tenancyCollaborator.delete({ where: { tenancyId_stakeholderId: { tenancyId: tenancy.id, stakeholderId: collaborator.id } } })
+      return previouslyAuthorized
+    })
+    await expect((action === 'share' ? shareReport : revokeReportLink)(inspection.id)).rejects.toThrow('Inspection not found')
+    expect((await db.inspection.findUniqueOrThrow({ where: { id: inspection.id } })).shareToken).toBe(originalToken)
+  })
+
   it('grants one tenancy, reuses its existing person, and keeps other deals private', async () => {
     const shared = await deal()
     const privateDeal = await deal(shared.lead)
