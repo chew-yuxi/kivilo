@@ -1,14 +1,17 @@
 # Kivilo work tracker
 
-Updated 22 October 2026 Singapore time. The photo upload handoff fix, source
-`f633d7f04f4d5938f7b9e47d0094381dc69881e1`, is pushed and live on production.
-Native patch receipts are recorded below. Physical-device delivery and all rehearsal
-checks remain **NOT RUN**; a published patch is not evidence of delivery.
+Updated 22 October 2026 Singapore time. Teams, property management and team-first
+workspaces, source `8570e7fefb44c46cf03bf6beca2aff85b9dcf943`, are pushed and live on
+production (Vercel `dpl_ETzguj25AxuvyCBZS8oPdDiM9bPx`, `sin1`) after both production
+migrations, and on stable as Android25 patch **6** / `741645` and iOS24 patch **7** /
+`741655` (`mobile/RELEASE.md`, `build/release-20261022-team/stable-release.json`).
+Physical-device delivery and all rehearsal checks remain **NOT RUN**; a published
+patch is not evidence of delivery.
 
 ## Team-first workspaces — 22 October follow-up
 
-Built on the team-management candidate below, on `feat/team-property-management`;
-**not deployed or published**. The confirmed access rule remains assigned agents
+Built on the team-management candidate below; **live** as recorded above. The
+confirmed access rule remains assigned agents
 only, with owners and managers overseeing all team properties.
 
 - Home and Inspections offer team workspaces, Personal, and All my work. The first
@@ -35,9 +38,8 @@ submission or stable patch was changed; device delivery remains **NOT RUN**.
 
 ## Team and property management candidate — 22 October
 
-Implemented and verified on local branch `feat/team-property-management`;
-**not deployed or published**. The existing production and stable patch receipts
-below remain the live versions.
+Implemented and verified on `feat/team-property-management`; **live** with the
+follow-up above, superseding the photo handoff patches below as stable.
 
 - Persistent operational teams have verified invitations, owner/manager/agent roles,
   assigned work, activity, handover and departure with reassignment. Existing personal

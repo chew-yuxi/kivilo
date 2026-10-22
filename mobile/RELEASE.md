@@ -12,9 +12,39 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
-## Team and property management candidate: 22 October 2026
+## Teams, property management and team workspaces: 22 October 2026 Singapore time
 
-Implemented locally, **not published**. Persistent teams include verified invitations,
+Source `8570e7fefb44c46cf03bf6beca2aff85b9dcf943` (team management `a327c95` plus
+team-first workspaces) is live on the production domain, Vercel
+`dpl_ETzguj25AxuvyCBZS8oPdDiM9bPx`, Ready in `sin1`. Before the push,
+`20261022100000_agency_management_property_lifecycle` and then
+`20261022103000_frozen_report_agent` were applied to production. Read-back: no pending
+or failed migrations, all 16 sent or signed reports frozen to their agent, no draft
+frozen. A schema diff showed only these two migrations plus two older, unrelated
+differences (the `ReportAddendum_disputedById_fkey` delete rule and a truncated
+`FindingPhotoDraft` index name), left untouched.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **6** / `741645` | **stable**, active and latest |
+| iOS `1.0.0+24` | **7** / `741655` | **stable**, active and latest |
+
+Built from separate detached worktrees of the exact source with Shorebird Flutter
+`3.47.2`, Android with `--build-number=25`, published to staging, then set to stable
+with Yuxi's "do all" at **23:55 Singapore time on 22 October** (Shorebird's `patches promote` is now
+`patches set-track --release --patch --track stable`). Native and asset checks passed
+without overrides; both bundles carry the release's ten assets and MaterialIcons
+SHA-256 `faa4e86d…cf70d2`. iOS strict code-sign verification passed; Shorebird shared
+**61.9%** of Dart code and gave its usual possible-slower-execution warning.
+Physical-device delivery and interaction are **NOT RUN**. Receipt:
+`build/release-20261022-team/stable-release.json`.
+
+Rollback baselines are Android25 patch **5** (ID `739033`) and iOS24 patch **6**
+(ID `739038`). They predate agency membership but the migrations are additive, so the
+old app works against the new backend. Never roll the backend back to rules that lose
+agency revocation or frozen report agents. The store freeze is unchanged.
+
+Persistent teams include verified invitations,
 roles, assignment, handover, removal with reassignment and activity. My work and Team
 work use server authorization filters. Personal tenancies stay personal until explicitly
 moved. Account and inspection screens lead to property settings, with Archive and a
@@ -26,14 +56,9 @@ property and access-recovery regressions. Backend typecheck, lint, 107 unit and 
 integration tests, all 19 browser tests and the production build passed. Logs and
 phone viewport previews are in `build/team-property-management-20261022/`; details
 are in `plans/work-status.md`. There are no new plugins, bundled assets, icon glyphs, native
-configuration or version changes. Normal Shorebird compatibility checks are still
-required before any publication. Physical-device testing is **NOT RUN**.
-
-The candidate requires the new agency/property lifecycle and frozen report-agent
-database migrations and its matching backend before native publication. A handover
-must preserve frozen report identities, and backend recovery must preserve both
-explicit grants and agency membership revocation. Current stable remains Android25
-patch **5** / `739033` and iOS24 patch **6** / `739038`, recorded below.
+configuration or version changes. The team-first workspace follow-up added no
+migration and passed 237 integration, 20 browser and 354 mobile tests
+(`build/team-workspace-20261022/`).
 
 ## Photo upload handoff: 22 October 2026 Singapore time
 
