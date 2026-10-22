@@ -1,7 +1,7 @@
 # Kivilo work tracker
 
-Updated 22 October 2026 Singapore time. The combined source
-`298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49` is pushed and live on production.
+Updated 22 October 2026 Singapore time. The photo upload handoff fix, source
+`f633d7f04f4d5938f7b9e47d0094381dc69881e1`, is pushed and live on production.
 Native patch receipts are recorded below. Physical-device delivery and all rehearsal
 checks remain **NOT RUN**; a published patch is not evidence of delivery.
 
@@ -9,14 +9,15 @@ checks remain **NOT RUN**; a published patch is not evidence of delivery.
 
 | Work | Status | Completion evidence / next step |
 | --- | --- | --- |
+| Room-photo flicker during upload handoff | **Published stable** | Stable card identity and decoded preview span the local-to-server handoff; refreshes coalesce, pending/saved rows deduplicate in order, marks remain aligned. Queue cleanup unchanged. Clean analysis and 326 mobile tests, including 15 new regressions. |
 | Inventory-first room capture and immediate markup | **Published stable** | Included in `298f3b3`. Photos carry their item and completed marks through the durable queue. |
 | Guided Home, navigation and onboarding artwork | **Published stable** | Hosted artwork remains live. Camera/library and expanding lesson controls use the installed icon font; all ten bundled assets match the release bytes. |
 | Remove duplicate drawer handles | **Published stable** | Main `d32bc42` is included; add/edit inventory drawers retain one outer handle. |
 | Photos and markup inside Add finding | **Backend live; native stable** | Resumable personal drafts, retry-safe uploads and immutable app/web/PDF evidence. Revoked collaborators' unfinished drafts remain preserved and excluded without blocking publication; restored access makes them block again. |
 | Private tenancies and selected collaboration | **Backend live; native stable** | Lead-only access management; removal preserves work, renewal sharing is opt-in, billing teams grant no access. Existing narrow inspection grants remain narrow. |
-| Combined regression checks | **Passed** | Typecheck/lint/build; 105 unit, 198 integration, 15 e2e, 311 mobile and 8 PDF tests; five PDF pages visually checked. Evidence under `build/release-20261021/`. |
-| Coordinated backend release | **Live and smoke verified** | Both migrations applied before push; final source `298f3b3` Ready on production. Private evidence and unchanged refusal behavior verified with the existing synthetic account, no email. |
-| Android `1.0.0+25` / iOS `1.0.0+24` patches | **Stable; active and latest verified** | Android patch **4**, ID `738237`; iOS patch **5**, ID `738246`. Separate pinned builds, Flutter `3.47.2`, Android `--build-number=25`; native/asset checks pass without overrides. |
+| Combined regression checks | **Passed** | Consolidated release: typecheck/lint/build; 105 unit, 198 integration, 15 e2e, 311 mobile and 8 PDF tests; five PDF pages visually checked. Follow-up Dart-only fix: clean analysis and 326 mobile tests. Evidence under the two release artifact directories below. |
+| Coordinated backend release | **Live and smoke verified** | Both migrations applied before the consolidated push and authenticated smoke passed. Follow-up `f633d7f` changes only two Dart implementation files and two Dart tests; no backend, database or native configuration change. |
+| Android `1.0.0+25` / iOS `1.0.0+24` patches | **Stable; active and latest verified** | Current source `f633d7f`; Android patch **5**, ID `739033`; iOS patch **6**, ID `739038`. Previous stable fallback: Android **4**, ID `738237` / iOS **5**, ID `738246`. |
 | Physical delivery and full-flow rehearsal | **NOT RUN — needs devices** | [rehearsal-checklist.md](rehearsal-checklist.md); record exact patch/device, offline capture, interrupted markup, account isolation, sharing and push. Automated tests do not complete this. |
 | Optional payment proof / supporting documents | **Queued; flow discussion only** | Latest proposal: agent requests an optional private document; tenant uploads; show submitter/time; no payment ledger, no signing block, excluded from public condition reports. No implementation existed. Scope question asked during consolidation; default is to finish existing implementations first. |
 | Exposed production database credential | **Needs coordinated rotation** | Prior demo session recorded accidental exposure in a tool log. Rotate with all dependent connection settings updated and verified together; do not copy the credential into this tracker or rotate one consumer alone. |
@@ -27,24 +28,30 @@ checks remain **NOT RUN**; a published patch is not evidence of delivery.
 
 Verified on 22 October 2026 Singapore time:
 
-- Production custom domain: Vercel `dpl_2DNJ3CiT5Nzrt5dEv3Z7WboGRLLS`, Ready in
-  `sin1`, exact source `298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49`.
+- Production custom domain: Vercel `dpl_J6uMEDrb141uZTrcaNKiLeuq9hNR`, Ready in
+  `sin1`, exact source `f633d7f04f4d5938f7b9e47d0094381dc69881e1`. The photo-handoff
+  fix changes only mobile Dart and its tests; the deployed backend is unchanged.
 - `20261021090000_finding_photos`, then `20261021130000_tenancy_collaborators`,
   applied before backend push. No pending/failed migrations, no missing access grants,
   and all ten existing notification scopes correct. Existing data needed zero team or
   historical-conductor grants across 24 tenancies and 30 inspections.
-- Android `1.0.0+25`: patch **4**, ID `738237`, **stable**, active and latest.
-- iOS `1.0.0+24`: patch **5**, ID `738246`, **stable**, active and latest.
-  Both exact release targets and stable receipts were read back at **01:21:53
-  Singapore time on 22 October** after promotion from staging.
-- Final builds pass native/asset compatibility without overrides. All ten bundled
+- Photo-handoff Android `1.0.0+25`: patch **5**, ID `739033`, **stable**, active and latest.
+- Photo-handoff iOS `1.0.0+24`: patch **6**, ID `739038`, **stable**, active and latest.
+  Both exact targets were read back at **08:18:15 Singapore time on 22 October**.
+- Photo-handoff native/asset checks passed without overrides; bundled assets match
+  the original releases. iOS strict code-sign verification passed. Its **74.2%** shared
+  Dart code produced the familiar possible slower-execution warning; physical-device
+  performance remains **NOT RUN**.
+- Earlier consolidated patches Android **4**, ID `738237`, and iOS **5**, ID `738246`, were read back
+  stable at **01:21:53 Singapore time on 22 October**; these are the fallback pair.
+- Consolidated builds passed native/asset compatibility without overrides. All ten bundled
   assets match the original releases; a real camera/library and accessible lesson
   control fix preserves the original icon font. No plugins, native configuration,
   version, store submission or minimum-build floor changed.
-- iOS strict code-sign verification passed. Shorebird reported **73.7%** shared Dart
+- Consolidated iOS strict code-sign verification passed. Shorebird reported **73.7%** shared Dart
   code and the same possible slower-execution warning seen on earlier patches; no
   compatibility check was overridden. Physical-device performance is **NOT RUN**.
-- Authenticated production smoke passed on the exact final source: scoped identity,
+- Authenticated production smoke passed on consolidated source `298f3b3`: scoped identity,
   inspection/access/draft reads, signed private photos and identical forbidden/missing
   404s. No application/outbox rows or emails were created. The post-backend health
   check found no new ErrorEvents or failed report emails; older exhausted notification
@@ -52,15 +59,17 @@ Verified on 22 October 2026 Singapore time:
 - Stable publication after automated checks was authorized on 21 October, with
   physical-device delivery and interaction explicitly **NOT RUN**.
 
-Rollback baselines are Android25 patch **3** (ID `734030`) and iOS24 patch **4**
-(ID `734035`). Roll back only a newly published patch if needed, keeping queued media.
+Rollback baselines for the photo-handoff fix are Android25 patch **4** (ID `738237`)
+and iOS24 patch **5** (ID `738246`). Roll back only the new patch if needed, keeping queued media.
 Keep the additive migrations. Backend recovery must preserve explicit-grant access:
 reverting to the old team-based authorization could restore revoked access.
 
 Evidence: `build/release-20261021/verification.json`, `production-db-after.json`,
 `vercel-final-source.json`, `production-smoke-final-source.json`, `stable-release.json`,
 PDF QA and each platform's `final/` patch logs, asset comparisons and stable receipt.
-Apple remains `WAITING_FOR_REVIEW`; the store freeze remains in force.
+Photo-handoff evidence is under `build/release-20261022-photo-handoff/`, including
+326-test/analysis logs, `vercel-source.json` and `stable-release.json`. Apple's 08:13 Singapore
+read still shows `WAITING_FOR_REVIEW` with build24 `VALID`; the store freeze remains in force.
 
 ## Completed or superseded sessions
 

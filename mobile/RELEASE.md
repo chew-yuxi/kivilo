@@ -12,17 +12,56 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
-## Consolidated release: 22 October 2026 Singapore time
+## Photo upload handoff: 22 October 2026 Singapore time
 
-Source `298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49` is live on the production domain,
-Vercel `dpl_2DNJ3CiT5Nzrt5dEv3Z7WboGRLLS`, Ready in `sin1`. This combines main's
+Source `f633d7f04f4d5938f7b9e47d0094381dc69881e1` is live on the production domain,
+Vercel `dpl_J6uMEDrb141uZTrcaNKiLeuq9hNR`, Ready in `sin1`. Only two Dart
+implementation files and two Dart test files changed from the documented consolidated
+release; the backend, database, native configuration and dependencies are unchanged.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **5** / `739033` | **stable**, active and latest |
+| iOS `1.0.0+24` | **6** / `739038` | **stable**, active and latest |
+
+Both were promoted from staging and read back on these exact release targets at
+**08:18:15 Singapore time on 22 October**; see
+`build/release-20261022-photo-handoff/stable-release.json`.
+
+An uploaded room photo could disappear when its local card left the queue before the
+refreshed server list arrived, then flash again while its new network image decoded.
+The card now keeps its client identity and decoded preview through that handoff.
+Upload-completion refreshes are coalesced, pending and saved rows remain one ordered
+entry, and the image and annotation overlay stay aligned. Durable upload confirmation
+and queue/file cleanup rules are unchanged.
+
+Clean Flutter analysis and all **326 mobile tests** passed, including **15 new**
+handoff/image regressions. The previous backend verification remains applicable.
+Both platforms passed native/asset checks without overrides; bundled assets match
+the original release bytes. iOS strict code-sign verification also passed. Shorebird
+reported **74.2%** shared Dart code for iOS and the same possible slower-execution
+warning seen on previous patches. Physical-device delivery, flicker and performance
+checks are **NOT RUN**. Evidence is under `build/release-20261022-photo-handoff/`.
+iOS VM-code SHA-256:
+`355337c0cfc845678f916b6704d6d93ab1e10b6537b1e55bd4cae3da5f1d6029`.
+
+Rollback baselines for this patch are Android25 patch **4** (ID `738237`) and iOS24
+patch **5** (ID `738246`); preserve queued media. The earlier additive database and
+explicit-grant authorization recovery rules still apply. Apple was read again at
+08:13 Singapore time: `1.0.0` remains `WAITING_FOR_REVIEW`, selected build24 is `VALID`.
+The store freeze remains in force; no store submission or native configuration changed.
+
+## Consolidated release: earlier on 22 October 2026 Singapore time
+
+Source `298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49` was deployed to the production
+domain, Vercel `dpl_2DNJ3CiT5Nzrt5dEv3Z7WboGRLLS`, Ready in `sin1`. This combined main's
 single-handle inventory drawers, inventory-first capture, illustrated Home and guidance,
 finding photos and markup, and explicit tenancy collaboration.
 
 | Platform / installed release | Patch / ID | Track read-back |
 | --- | --- | --- |
-| Android `1.0.0+25` | **4** / `738237` | **stable**, active and latest |
-| iOS `1.0.0+24` | **5** / `738246` | **stable**, active and latest |
+| Android `1.0.0+25` | **4** / `738237` | **stable**, active and latest at the read-back below |
+| iOS `1.0.0+24` | **5** / `738246` | **stable**, active and latest at the read-back below |
 
 Both were promoted from staging with the authorized go after automated checks.
 Fresh read-back at **01:21:53 Singapore time on 22 October** confirms these exact

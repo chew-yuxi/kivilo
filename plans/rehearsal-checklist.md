@@ -1,20 +1,20 @@
 # Native app rehearsal on physical devices
 
 The outstanding full-flow rehearsal in `DEPLOYING.md`, updated on 22 October 2026
-Singapore time for the consolidated design, inventory-first capture, finding photos
-and tenancy sharing. **All checks below are NOT RUN until someone records a
-physical-device result.** Automated tests, generated previews and
+Singapore time for the consolidated design, inventory-first capture, finding photos,
+tenancy sharing and room-photo upload handoff. **All checks below are NOT RUN until
+someone records a physical-device result.** Automated tests, generated previews and
 a successful patch upload do not complete this checklist.
 
 Target the existing releases: **iOS `1.0.0+24` and Android `1.0.0+25`**, with the exact
 consolidated patch recorded below. Follow `mobile/RELEASE.md` for patch delivery.
 The iOS store freeze still applies; this rehearsal needs no new store build.
-The consolidated source is `298f3b3e5f0763f85aa9d4c80e9ca9e5b57e2f49`.
-Target Android patch **4** (ID `738237`) and iOS patch **5** (ID `738246`), both
-**stable**, active and latest in the 22 October 01:21:53 Singapore read-back. These
+The photo-handoff source is `f633d7f04f4d5938f7b9e47d0094381dc69881e1`.
+Target Android patch **5** (ID `739033`) and iOS patch **6** (ID `739038`), both
+**stable**, active and latest in the 22 October 08:18:15 Singapore read-back. These
 are release targets, not proof that either phone has installed or exercised them.
-The iOS linker reported 73.7% shared Dart code and a possible slower-execution
-warning; record actual performance during rehearsal. Physical performance is **NOT RUN**.
+iOS shared 74.2% of Dart code and carries the possible slower-execution warning;
+record actual performance during rehearsal. Physical performance is **NOT RUN**.
 
 ## Owner prerequisites and results
 
@@ -100,6 +100,12 @@ photos are detectable.
 - [ ] **B6 — Finding photos.** On a controlled completed check-out, choose an item,
   take/select photos and mark them. Save the finding and reopen it: wording, notes,
   marks and each photo appear once on the intended finding. Do not publish yet.
+- [ ] **B7 — Photo upload handoff.** Keep the room/item photo list visible while a
+  marked photo uploads, first on Wi-Fi and then a slow connection. Its card and
+  picture must remain visible through upload completion and server refresh, without
+  a blank/loading flash, duplicate, reorder or drifting marks. Repeat with a batch
+  completing together and with another refresh in progress; saved photos remain
+  visible and retain their order.
 
 ## C. Offline, restart and photo-loss checks
 
