@@ -764,11 +764,11 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   scrolling row, not a wrapped block. Check a layout change by rendering the screen, not
   by reading the code. Use the shared pieces rather than building one-off versions:
   `kiviloScreenPadding`, `kiviloSectionGap`/`kiviloHeadingGap` around
-  `KiviloSectionHeading`, `KiviloEyebrow`, `KiviloNotice(tone:)` for banners,
+  `KiviloSectionHeading`, `KiviloEyebrow`,  `KiviloNotice(tone:)` for banners,
   `KiviloMessage` for a screen that failed to load (always with Try again) or is empty,
   four kinds of button only (Yuxi chose them on 23 October; `kivilo_theme.dart`):
   primary `FilledButton` (pink); secondary `OutlinedButton`/`TextButton`, both a soft pink
-  fill with no border (`kiviloSecondaryOnPink` gives white on a pink surface); tertiary
+  fill with no border; tertiary
   `kiviloTertiary`, bare pink text, rarely and only under another button; danger
   `kiviloDangerOutlined` (red outline) on a page and `kiviloDangerFilled` to confirm.
   No other button styles. A TextButton for Cancel, and palette colours only (`KiviloColors`, never `Colors.red`

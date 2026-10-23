@@ -899,7 +899,6 @@ class _RoomScreenState extends State<RoomScreen> {
                     if (widget.editable && room.status != 'REVIEWED') ...[
                       const SizedBox(height: 10),
                       Card(
-                        color: KiviloColors.pinkSoft,
                         child: Padding(
                           padding: const EdgeInsets.all(18),
                           child: Column(
@@ -930,7 +929,6 @@ class _RoomScreenState extends State<RoomScreen> {
                                   onPressed: _busy
                                       ? null
                                       : () => _nothingToRecord(room),
-                                  style: kiviloSecondaryOnPink,
                                   child: const Text('Nothing to record'),
                                 ),
                               ],

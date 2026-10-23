@@ -38,11 +38,6 @@ const _buttonShape = RoundedRectangleBorder(
 );
 const _buttonText = TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
 
-/// A secondary button on a pink card or banner, where the soft pink fill would vanish.
-final kiviloSecondaryOnPink = OutlinedButton.styleFrom(
-  backgroundColor: Colors.white,
-);
-
 final kiviloTertiary = TextButton.styleFrom(
   backgroundColor: Colors.transparent,
   foregroundColor: KiviloColors.pinkDark,

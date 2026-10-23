@@ -485,7 +485,6 @@ class _HomeScreenState extends State<HomeScreen> {
           : 'YOUR NEXT STEP',
     );
     return Card(
-      color: KiviloColors.pinkSoft,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
