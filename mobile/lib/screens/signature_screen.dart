@@ -180,6 +180,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
             onPressed: _busy ? null : () => _sign(saved),
             child: Text(_busy ? 'Saving…' : 'Use this signature'),
           ),
+          const SizedBox(height: kiviloButtonGap),
           TextButton(
             onPressed: _busy
                 ? null

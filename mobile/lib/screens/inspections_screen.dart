@@ -209,13 +209,14 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                 title: 'Could not load inspections',
                 body: plainError(snapshot.error!),
                 action: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     OutlinedButton(
                       onPressed: _refresh,
                       child: const Text('Try again'),
                     ),
                     if (!_workspace.all) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: kiviloButtonGap),
                       OutlinedButton(
                         onPressed: () => _selectWorkspace('all'),
                         child: const Text('Show all properties'),
@@ -245,18 +246,18 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                 final cardWidth = (available - (columns - 1) * 16) / columns;
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 112),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
                   children: [
                     Text(
                       'Inspections',
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       'Your check-in and check-out reports, all in one place.',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     WorkspacePicker(
                       workspace: _workspace,
                       onChanged: _selectWorkspace,
@@ -328,7 +329,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     if (inspections.isEmpty)
                       _messageCard()
                     else ...[
@@ -349,10 +350,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Wrap(
+                      const SizedBox(height: 12),
+                      // One scrolling row, so the filters never take a second line.
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
                         spacing: 8,
-                        runSpacing: 8,
                         children: [
                           for (final filter in _InspectionFilter.values)
                             ChoiceChip(
@@ -378,13 +381,14 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
                         '${visible.length} ${visible.length == 1 ? 'report' : 'reports'}'
                         '${query.isNotEmpty || _filter != _InspectionFilter.all ? ' found' : ''}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       if (visible.isEmpty)
                         Card(
                           child: Padding(
@@ -410,12 +414,15 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 12),
-                                TextButton(
-                                  onPressed: () => setState(() {
-                                    _search.clear();
-                                    _filter = _InspectionFilter.all;
-                                  }),
-                                  child: const Text('Show all inspections'),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: TextButton(
+                                    onPressed: () => setState(() {
+                                      _search.clear();
+                                      _filter = _InspectionFilter.all;
+                                    }),
+                                    child: const Text('Show all inspections'),
+                                  ),
                                 ),
                               ],
                             ),
@@ -548,10 +555,13 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
           ),
           if (!_api.offlineCopy) ...[
             const SizedBox(height: 18),
-            FilledButton.icon(
-              onPressed: _create,
-              icon: const Icon(Icons.add),
-              label: const Text('Start check-in'),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _create,
+                icon: const Icon(Icons.add),
+                label: const Text('Start check-in'),
+              ),
             ),
           ],
         ],
@@ -577,7 +587,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             const SizedBox(height: 6),
             Text(body, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            action,
+            SizedBox(width: double.infinity, child: action),
           ],
         ),
       ),

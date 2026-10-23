@@ -943,6 +943,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
     );
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (capture.awaitingMarkup)
           Padding(
@@ -1121,7 +1122,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           Text(item.notes!),
                         ],
                         if (widget.onEditItem != null)
-                          TextButton.icon(
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextButton.icon(
                             onPressed: _busy
                                 ? null
                                 : () async {
@@ -1146,6 +1149,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                                   },
                             icon: const Icon(Icons.edit_outlined),
                             label: const Text('Edit details'),
+                          ),
                           ),
                       ],
                     ),
@@ -1232,7 +1236,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                       : 'Take a photo',
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: kiviloButtonGap),
               OutlinedButton.icon(
                 onPressed:
                     _busy ||

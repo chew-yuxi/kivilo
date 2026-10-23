@@ -490,8 +490,9 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
           'Add evidence for this finding. Originals are kept; marks are stored beside each photo.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        Wrap(
-          spacing: 8,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: kiviloButtonGap,
           children: [
             OutlinedButton(
               onPressed: enabled ? () => _pickPhoto(ImageSource.camera) : null,
@@ -896,8 +897,8 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                         compact: !_showItemDetails,
                         enabled: !_saving && !_photoAction,
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
+                      SizedBox(
+                        width: double.infinity,
                         child: TextButton(
                           onPressed: _saving
                               ? null
@@ -997,7 +998,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 child: const Text('Discard draft'),
               ),
             if (widget.finding != null && widget.onRemove != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: kiviloButtonGap),
               TextButton(
                 onPressed: _saving || _photoAction
                     ? null

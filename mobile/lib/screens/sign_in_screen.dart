@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_layout.dart';
 
 /// The emailed six digit code, not a magic link. A link opens the phone's default
 /// browser, which for an installed app means the agent ends up signed in somewhere that
@@ -225,6 +226,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       onPressed: _busy ? null : _sendCode,
                       child: const Text('Send a new code'),
                     ),
+                    const SizedBox(height: kiviloButtonGap),
                     TextButton(
                       onPressed: _busy
                           ? null

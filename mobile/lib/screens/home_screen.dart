@@ -340,11 +340,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: _refresh,
                       child: const Text('Try again'),
                     ),
-                    if (!_partyOnly && !_workspace.all)
+                    if (!_partyOnly && !_workspace.all) ...[
+                      const SizedBox(height: kiviloButtonGap),
                       TextButton(
                         onPressed: () => _selectWorkspace('all'),
                         child: const Text('Show all properties'),
                       ),
+                    ],
                   ],
                 );
               }
@@ -387,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         label: const Text('View inspections'),
                       ),
                       if (current != null) ...[
-                        const SizedBox(height: 8),
+                        const SizedBox(height: kiviloButtonGap),
                         TextButton.icon(
                           onPressed: _create,
                           icon: const Icon(Icons.add, size: 18),
@@ -398,20 +400,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                   return ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                     children: [
                       Text(
                         '$greeting, $firstName',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Text(
                         _partyOnly
                             ? 'Your reports, repairs and history, in one place.'
                             : 'A clear next step for every handover.',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
                       if (!_partyOnly) ...[
                         WorkspacePicker(
                           workspace: _workspace,
@@ -511,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Card(
       color: KiviloColors.pinkSoft,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -528,7 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               KiviloIllustration(scene: scene, height: 124),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               current == null
                   ? 'Great handovers start\nwith a clear record.'
@@ -539,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   : 'One room at a time.',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             if (current != null) ...[
               Text(
                 current.property,
@@ -562,7 +564,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   : 'Open a room, choose an inventory item, then add photos and check its condition before reviewing the room.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: current == null
                   ? _create
@@ -636,9 +638,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: kiviloButtonGap,
                 children: [
                   TextButton(
                     onPressed: () => _openTenancy(tenancy, currentInspection: current),

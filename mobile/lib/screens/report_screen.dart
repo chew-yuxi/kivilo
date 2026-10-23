@@ -328,7 +328,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   _answering ? 'Recording…' : 'I agree to the deductions',
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: kiviloButtonGap),
               OutlinedButton(
                 onPressed: _answering
                     ? null
@@ -967,7 +967,7 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
             ],
             if (addendum.disputeAs == 'LANDLORD') ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: kiviloButtonGap),
               OutlinedButton(
                 onPressed: _acknowledging == null
                     ? () => _dispute(addendum)

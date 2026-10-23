@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/renewal.dart';
 import '../services/api.dart';
+import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'inspection_screen.dart';
 import 'renewal_screen.dart';
@@ -65,7 +66,7 @@ class _RenewalRemindersState extends State<RenewalReminders> {
     builder: (context, snapshot) {
       if (snapshot.hasError) {
         return Padding(
-          padding: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.only(top: 12),
           child: Text(
             'Renewal reminders could not be loaded. Pull down to try again.',
             style: Theme.of(context).textTheme.bodySmall,
@@ -79,7 +80,7 @@ class _RenewalRemindersState extends State<RenewalReminders> {
             (value) => !_hidden.contains(value.id),
           ))
             Card(
-              margin: const EdgeInsets.only(top: 16),
+              margin: const EdgeInsets.only(top: 12),
               color: KiviloColors.amberSoft,
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -110,8 +111,9 @@ class _RenewalRemindersState extends State<RenewalReminders> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: kiviloButtonGap,
                       children: [
                         FilledButton(
                           onPressed: _busy == null

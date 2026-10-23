@@ -706,6 +706,11 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   only the lines you wrote, or check `git diff --stat` and redo the edit on a clean copy.
   Never `dart format lib test`: it rewrote 14 untouched files and split one-line `if`
   returns into new `curly_braces_in_flow_control_structures` lints. Name the new files.
+- App layout (Yuxi, 23 October): a button alone on its line spans the width, and stacked
+  buttons are `kiviloButtonGap` (12) apart (`mobile/lib/ui/kivilo_layout.dart`). Larger
+  gaps are for section breaks only. Keep screen tops tight: filters belong in one
+  scrolling row, not a wrapped block. Check a layout change by rendering the screen, not
+  by reading the code.
 - The app never uses Material's `DropdownButton`, `DropdownMenu`, `PopupMenuButton` or
   `showMenu`. Their menu is placed once, in its own overlay, from where the field was;
   in a drawer, tapping the field closes the keyboard, the drawer slides down, and the

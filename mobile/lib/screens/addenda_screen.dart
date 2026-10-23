@@ -370,7 +370,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
         icon: const Icon(Icons.calendar_today_outlined),
         label: Text('Date of the change: ${shortDate(_date)}'),
       ),
-      const SizedBox(height: 8),
+      const SizedBox(height: kiviloButtonGap),
       TextButton(
         onPressed: _busy ? null : () => _run(() => _saveDetails(draft)),
         child: const Text('Save details'),
@@ -391,7 +391,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
         icon: const Icon(Icons.publish_outlined),
         label: Text(_busy ? 'Working…' : 'Publish update'),
       ),
-      const SizedBox(height: 8),
+      const SizedBox(height: kiviloButtonGap),
       TextButton(
         onPressed: _busy ? null : () => _discard(draft),
         style: TextButton.styleFrom(foregroundColor: KiviloColors.red),

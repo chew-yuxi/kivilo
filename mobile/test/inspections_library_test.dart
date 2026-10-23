@@ -126,6 +126,8 @@ void main() {
   ) async {
     await _open(tester, _LibraryApi());
 
+    await tester.ensureVisible(find.text('In progress · 2'));
+
     await tester.tap(find.text('In progress · 2'));
     await tester.pumpAndSettle();
     expect(find.text('12 Bayview Road'), findsOneWidget);
@@ -133,12 +135,16 @@ void main() {
     expect(find.text('24 Bayview Road'), findsNothing);
     expect(find.text('3 Emerald Hill'), findsNothing);
 
+    await tester.ensureVisible(find.text('Awaiting signature · 1'));
+
     await tester.tap(find.text('Awaiting signature · 1'));
     await tester.pumpAndSettle();
     expect(find.text('24 Bayview Road'), findsOneWidget);
     expect(find.text('12 Bayview Road'), findsNothing);
     expect(find.text('8 Orchard Lane'), findsNothing);
     expect(find.text('3 Emerald Hill'), findsNothing);
+
+    await tester.ensureVisible(find.text('Completed · 1'));
 
     await tester.tap(find.text('Completed · 1'));
     await tester.pumpAndSettle();
@@ -154,6 +160,7 @@ void main() {
   ) async {
     await _open(tester, _LibraryApi());
     await tester.enterText(find.byType(TextField), 'bayview');
+    await tester.ensureVisible(find.text('Completed · 1'));
     await tester.tap(find.text('Completed · 1'));
     await tester.pumpAndSettle();
 

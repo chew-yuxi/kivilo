@@ -574,7 +574,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             },
                       child: const Text('Property settings'),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: kiviloButtonGap),
                     OutlinedButton.icon(
                       onPressed: _busy
                           ? null
@@ -1050,7 +1050,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 icon: const Icon(Icons.fact_check_outlined),
                                 label: const Text('Signed report and updates'),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: kiviloButtonGap),
                               OutlinedButton.icon(
                                 onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute<void>(

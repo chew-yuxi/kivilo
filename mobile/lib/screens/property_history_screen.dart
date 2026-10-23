@@ -243,7 +243,9 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                     style: text.bodySmall,
                   ),
                   const SizedBox(height: 8),
-                  OutlinedButton.icon(
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
                     onPressed: _restoring == null
                         ? () => _restore(event)
                         : null,
@@ -251,6 +253,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                     label: Text(
                       _restoring == bin.id ? 'Restoring…' : 'Restore',
                     ),
+                  ),
                   ),
                 ],
               ),

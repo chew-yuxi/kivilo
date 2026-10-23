@@ -203,7 +203,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
           icon: const Icon(Icons.photo_camera_outlined),
           label: Text(_busy ? 'Saving…' : 'Take photo'),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: kiviloButtonGap),
         OutlinedButton.icon(
           onPressed: _busy || _root == null
               ? null

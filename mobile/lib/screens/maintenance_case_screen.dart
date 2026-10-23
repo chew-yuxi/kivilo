@@ -454,6 +454,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   icon: const Icon(Icons.add_a_photo_outlined),
                   label: const Text('Add before photos'),
                 ),
+                const SizedBox(height: kiviloButtonGap),
                 FilledButton(
                   onPressed: _busy || photos == 0
                       ? null
@@ -502,6 +503,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                         ),
                   child: const Text('I agree this was present at move-in'),
                 ),
+                const SizedBox(height: kiviloButtonGap),
                 OutlinedButton(
                   onPressed: _busy
                       ? null
@@ -705,7 +707,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
             if (!_busy &&
                 item.canLogVisit &&
                 ['ACKNOWLEDGED', 'SCHEDULED'].contains(item.status)) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: kiviloButtonGap),
               FilledButton.icon(
                 icon: const Icon(Icons.build_outlined),
                 onPressed: () => _recordRepair(item.id),
@@ -739,8 +741,8 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   ),
                 ],
               ),
-              Align(
-                alignment: Alignment.centerLeft,
+              SizedBox(
+                width: double.infinity,
                 child: TextButton.icon(
                   icon: const Icon(Icons.add_a_photo_outlined, size: 18),
                   label: const Text('Add an after photo'),
@@ -762,8 +764,8 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               ),
             ],
             if (!_busy && item.canManage && open)
-              Align(
-                alignment: Alignment.centerLeft,
+              SizedBox(
+                width: double.infinity,
                 child: TextButton(
                   onPressed: () => _close(item.id),
                   child: const Text('Close without action'),

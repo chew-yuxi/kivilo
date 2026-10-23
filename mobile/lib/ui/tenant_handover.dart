@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../models/handover.dart';
 import '../services/api.dart';
 import 'kivilo_format.dart';
+import 'kivilo_layout.dart';
 
 /// Shown after the tenant signs, and available again from the report.
 Future<void> showTenantHandover(
@@ -65,11 +66,15 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
                   Text(
                     'Could not load the handover. ${plainError(snapshot.error!)}',
                   ),
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _future = widget.api.handover(widget.inspectionId);
-                    }),
-                    child: const Text('Retry'),
+                  const SizedBox(height: kiviloButtonGap),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => setState(() {
+                        _future = widget.api.handover(widget.inspectionId);
+                      }),
+                      child: const Text('Retry'),
+                    ),
                   ),
                 ],
               );

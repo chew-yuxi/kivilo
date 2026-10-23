@@ -352,8 +352,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                   const Text('Can work on this tenancy'),
                                   if (access.canManageAccess ||
                                       access.scope == 'TENANCY')
-                                    Align(
-                                      alignment: Alignment.centerLeft,
+                                    SizedBox(
+                                      width: double.infinity,
                                       child: TextButton(
                                         onPressed: disabled
                                             ? null
@@ -406,8 +406,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                     ),
                                     if (access.canManageAccess ||
                                         access.scope == 'TENANCY')
-                                      Align(
-                                        alignment: Alignment.centerLeft,
+                                      SizedBox(
+                                        width: double.infinity,
                                         child: TextButton(
                                           onPressed: disabled
                                               ? null

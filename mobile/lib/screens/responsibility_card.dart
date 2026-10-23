@@ -168,8 +168,8 @@ class ResponsibilityCard extends StatelessWidget {
                 ),
               ],
               if (responsibility.canWithdraw)
-                Align(
-                  alignment: Alignment.centerLeft,
+                SizedBox(
+                  width: double.infinity,
                   child: TextButton(
                     onPressed: busy
                         ? null

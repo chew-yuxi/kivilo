@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 // Use the window width, so Split View and Stage Manager can use the phone layout.
 const kiviloTabletBreakpoint = 720.0;
 
+/// The one gap between stacked buttons. A button alone on its line spans the width.
+const kiviloButtonGap = 12.0;
+
 /// Keeps reading and editing comfortable without constraining the app's chrome.
 class KiviloContent extends StatelessWidget {
   const KiviloContent({

@@ -143,7 +143,7 @@ class _TeamScreenState extends State<TeamScreen> {
                                 : () => _answer(invitation, true),
                             child: const Text('Join team'),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: kiviloButtonGap),
                           OutlinedButton(
                             onPressed: _busy
                                 ? null
@@ -333,7 +333,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       icon: const Icon(Icons.add),
                       label: const Text('Invite member'),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: kiviloButtonGap),
                     OutlinedButton(
                       onPressed: _busy
                           ? null
@@ -616,7 +616,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                   : null,
               child: const Text('Resend invitation'),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: kiviloButtonGap),
             OutlinedButton(
               onPressed: canChange
                   ? () => Navigator.pop(context, <String, dynamic>{

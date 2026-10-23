@@ -141,8 +141,8 @@ class CheckInReferenceView extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 6),
-        Align(
-          alignment: Alignment.centerRight,
+        SizedBox(
+          width: double.infinity,
           child: TextButton(
             onPressed: () => Navigator.of(context).push<void>(
               MaterialPageRoute(
