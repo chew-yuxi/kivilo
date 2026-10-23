@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/screens/settings_screen.dart';
+import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/services/secure_session_store.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +22,16 @@ class _MemoryStorage extends GotrueAsyncStorage {
 
   @override
   Future<void> removeItem({required String key}) async => _items.remove(key);
+}
+
+/// Nothing saved on this phone. The real cache reads files, which never finish under
+/// the test's fake clock.
+class _EmptyCache extends ReadCache {
+  @override
+  Future<Object?> readForOwner(String owner, String key) async => null;
+  @override
+  Future<bool> writeForOwner(String owner, String key, Object? value) async =>
+      true;
 }
 
 void main() {
@@ -68,7 +80,7 @@ void main() {
     tester,
   ) async {
     expect(Supabase.instance.client.auth.currentUser?.id, 'user-a');
-    await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+    await tester.pumpWidget(MaterialApp(home: SettingsScreen(api: Api(cache: _EmptyCache()))));
     // The account screen's own requests have nowhere to go and give up.
     await tester.pump(const Duration(seconds: 9));
     await tester.scrollUntilVisible(find.text('Sign out'), 300);

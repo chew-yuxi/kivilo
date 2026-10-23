@@ -31,9 +31,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late final _api = widget.api ?? Api();
-  late Future<Map<String, dynamic>> _request = _api.deletionRequest();
-  late Future<AgentBranding?> _branding = _api.branding();
-  late final Future<WorkspacePlan> _plan = _api.plan();
+  // Each section loads from what this phone saved, then refreshes on its own; the
+  // page itself never waits for any of them.
+  late Loading<Map<String, dynamic>> _request = _api.load(_api.deletionRequest);
+  late Loading<AgentBranding?> _branding = _api.load(_api.branding);
+  late final Loading<WorkspacePlan> _plan = _api.load(_api.plan);
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
@@ -90,7 +92,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     try {
       await _api.requestDeletion();
-      if (mounted) setState(() => _request = _api.deletionRequest());
+      if (mounted) {
+        setState(
+          () => _request = _api.load(_api.deletionRequest, savedFirst: false),
+        );
+      }
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
     } finally {
@@ -145,12 +151,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           BrandingDrawer(api: _api, current: current, agentName: profile.name),
     );
     if (saved != null && mounted) {
-      setState(() => _branding = Future.value(saved));
+      setState(
+        () => _branding = _api.load(() async => saved, savedFirst: false),
+      );
     }
   }
 
-  Widget _brandingCard() => FutureBuilder<AgentBranding?>(
-    future: _branding,
+  Widget _brandingCard() => StreamBuilder<AgentBranding?>(
+    stream: _branding.stream,
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Card(
@@ -205,8 +213,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
   );
 
-  Widget _planCard() => FutureBuilder<WorkspacePlan>(
-    future: _plan,
+  Widget _planCard() => StreamBuilder<WorkspacePlan>(
+    stream: _plan.stream,
     builder: (context, snapshot) {
       final plan = snapshot.data;
       final noun = plan?.limit == 1 ? 'property' : 'properties';
@@ -257,12 +265,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
     body: SafeArea(
       bottom: false,
-      child: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
-      future: _request,
+      child: KiviloContent(maxWidth: 720, child: StreamBuilder<Map<String, dynamic>>(
+      stream: _request.stream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData && !snapshot.hasError) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        // The page shows at once; only the deletion section waits for its status.
+        final checkingDeletion = !snapshot.hasData && !snapshot.hasError;
         final deletion = snapshot.data?['request'] as Map<String, dynamic>?;
         return ListView(
           padding: kiviloScreenPadding,
@@ -419,6 +426,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         ),
                       ),
+                    ] else if (checkingDeletion) ...[
+                      const SizedBox(height: 16),
+                      const LinearProgressIndicator(),
                     ] else ...[
                       const SizedBox(height: 16),
                       FilledButton(

@@ -1218,12 +1218,9 @@ class Api {
     );
   });
 
-  Future<Map<String, dynamic>> deletionRequest() async {
-    final response = await _get<Map<String, dynamic>>(
-      '/api/v1/account/deletion-request',
-    );
-    return response.data!;
-  }
+  Future<Map<String, dynamic>> deletionRequest() async =>
+      await _read('/api/v1/account/deletion-request', 'deletion-request')
+          as Map<String, dynamic>;
 
   Future<void> requestDeletion() => _call(() async {
     await _dio.post('/api/v1/account/deletion-request');
