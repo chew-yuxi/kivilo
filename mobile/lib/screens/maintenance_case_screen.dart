@@ -737,7 +737,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                       child: const Text('Fixed'),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kiviloButtonGap),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => _notFixed(item.id, unverified.id),
@@ -746,6 +746,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: kiviloButtonGap),
               SizedBox(
                 width: double.infinity,
                 child: TextButton.icon(
@@ -768,7 +769,8 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 label: const Text('Add to the report as an update'),
               ),
             ],
-            if (!_busy && item.canManage && open)
+            if (!_busy && item.canManage && open) ...[
+              const SizedBox(height: kiviloButtonGap),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
@@ -776,6 +778,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   child: const Text('Close without action'),
                 ),
               ),
+            ],
           ],
         ),
       ),
