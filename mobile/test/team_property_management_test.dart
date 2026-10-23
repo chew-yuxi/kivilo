@@ -488,7 +488,7 @@ void main() {
   testWidgets(
     'team work fetches server-scoped data and applies assignee filters',
     (tester) async {
-      final api = _ManagementApi();
+      final api = _ManagementApi()..preferredWorkspace = 'team';
       await _open(tester, InspectionsScreen(api: api));
       expect(api.queries, [('team', null)]);
       await tester.tap(find.byType(KiviloSelectField<String?>));
@@ -594,15 +594,16 @@ void main() {
   );
 
   testWidgets(
-    'revoked Team work can return to My work without retrying the revoked team',
+    'revoked Team work can return to All properties without retrying the revoked team',
     (tester) async {
       final api = _ManagementApi()
+        ..preferredWorkspace = 'team'
         ..workFailure = const ApiFailure('Team access was removed.', 404);
       await _open(tester, InspectionsScreen(api: api));
       expect(find.text('Team access was removed.'), findsOneWidget);
-      await tester.tap(find.text('Show all my work'));
+      await tester.tap(find.text('Show all properties'));
       await tester.pumpAndSettle();
-      expect(find.text('All my work'), findsOneWidget);
+      expect(find.text('All properties'), findsOneWidget);
       expect(find.text('Team access was removed.'), findsNothing);
       expect(api.queries, [('team', null)]);
       expect(tester.takeException(), isNull);

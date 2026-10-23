@@ -183,7 +183,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     screen: ProductScreenName.inspections,
     active: widget.trackView,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Inspections')),
+    appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
     floatingActionButton: FloatingActionButton.extended(
       onPressed: _creating ? null : _create,
       backgroundColor: KiviloColors.pink,
@@ -191,7 +191,9 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       icon: const Icon(Icons.add),
       label: const Text('New check-in'),
     ),
-    body: KiviloContent(
+    body: SafeArea(
+      bottom: false,
+      child: KiviloContent(
       maxWidth: 1200,
       child: RefreshIndicator(
         onRefresh: _refresh,
@@ -216,7 +218,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                       const SizedBox(height: 8),
                       OutlinedButton(
                         onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all my work'),
+                        child: const Text('Show all properties'),
                       ),
                     ],
                   ],
@@ -439,7 +441,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
           },
         ),
       ),
-    ),
+    )),
   ),
   );
 

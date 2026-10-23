@@ -270,8 +270,13 @@ test('team-first workspace keeps personal work separate and new team properties 
   await page.getByRole('button', { name: 'Send invitation', exact: true }).click()
   await expect(page.getByText('Invitation pending', { exact: false })).toBeVisible()
 
-  // Selecting the team is the entry point. Existing personal work is not moved.
+  // A new team never hides existing work: the list still opens on everything.
   await page.goto('/inspections')
+  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue('all')
+  await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toHaveCount(1)
+  // Selecting the team is the entry point. Existing personal work is not moved.
+  await page.getByRole('combobox', { name: 'Workspace', exact: true }).selectOption(agencyId)
+  await expect(page).toHaveURL(`/inspections?workspace=${agencyId}`)
   await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
   expect((await page.getByRole('combobox', { name: 'Workspace', exact: true }).boundingBox())!.width).toBeGreaterThanOrEqual(200)
   await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toHaveCount(0)

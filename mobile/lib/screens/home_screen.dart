@@ -343,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (!_partyOnly && !_workspace.all)
                       TextButton(
                         onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all my work'),
+                        child: const Text('Show all properties'),
                       ),
                   ],
                 );
@@ -375,29 +375,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       _workCard(current),
                       const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            '${inProgress.length} in progress · ${awaiting.length} awaiting signatures',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          TextButton.icon(
-                            onPressed: () => _selectTab(1),
-                            icon: const Icon(Icons.chevron_right, size: 18),
-                            iconAlignment: IconAlignment.end,
-                            label: const Text('View inspections'),
-                          ),
-                          if (current != null)
-                            TextButton.icon(
-                              onPressed: _create,
-                              icon: const Icon(Icons.add, size: 18),
-                              label: const Text('New check-in'),
-                            ),
-                        ],
+                      Text(
+                        '${inProgress.length} in progress · ${awaiting.length} awaiting signatures',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: () => _selectTab(1),
+                        icon: const Icon(Icons.chevron_right, size: 18),
+                        iconAlignment: IconAlignment.end,
+                        label: const Text('View inspections'),
+                      ),
+                      if (current != null) ...[
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: _create,
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('New check-in'),
+                        ),
+                      ],
                     ],
                   );
                   return ListView(
@@ -419,7 +415,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (!_partyOnly) ...[
                         WorkspacePicker(
                           workspace: _workspace,
-                          compact: true,
                           onChanged: _selectWorkspace,
                           onTeams: _teams,
                         ),

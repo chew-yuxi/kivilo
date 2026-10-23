@@ -34,9 +34,9 @@ export function WorkspaceSelector({
           startTransition(() => router.push(`/inspections?workspace=${encodeURIComponent(next)}`))
         }}
       >
-        {teams.map((team) => <option key={team.id} value={team.id}>{team.name}</option>)}
+        <option value="all">All properties</option>
         <option value="personal">Personal</option>
-        <option value="all">All my work</option>
+        {teams.map((team) => <option key={team.id} value={team.id}>{team.name}</option>)}
       </select>
     </label>
   )

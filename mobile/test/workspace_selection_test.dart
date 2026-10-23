@@ -61,6 +61,8 @@ class _WorkspaceApi extends Api {
   @override
   Future<List<InspectionSummary>> inspections() async => [];
   @override
+  Future<List<TenancySummary>> tenancies() async => [];
+  @override
   Future<List<InspectionSummary>> inspectionWork({
     String? agencyId,
     String? assigneeId,
@@ -112,16 +114,17 @@ Future<void> _open(WidgetTester tester, Widget home) async {
 
 void main() {
   test(
-    'auto default follows teams; an explicit Personal choice stays personal',
+    'default stays All properties after joining a team; an explicit Personal choice stays personal',
     () async {
       final api = _WorkspaceApi()..teams = [];
       final workspace = Workspace(api);
       await workspace.refresh();
-      expect(workspace.personal, isTrue);
+      expect(workspace.all, isTrue);
       expect(api.preference, isNull);
       api.teams = [_team];
       await workspace.refresh();
-      expect(workspace.agency?.id, 'team');
+      expect(workspace.all, isTrue);
+      expect(workspace.agency, isNull);
       await workspace.select('personal');
       final reopened = Workspace(api);
       await reopened.refresh();
@@ -138,7 +141,7 @@ void main() {
       expect(workspace.agency?.id, 'team');
       api.teams = [];
       await workspace.refresh();
-      expect(workspace.personal, isTrue);
+      expect(workspace.all, isTrue);
       expect(workspace.agency, isNull);
       expect(api.preference, isNull);
       await expectLater(workspace.select('team'), throwsA(isA<ApiFailure>()));
@@ -146,13 +149,11 @@ void main() {
   );
 
   test(
-    'offline upgrade can explicitly use All my work without a cached directory',
+    'offline upgrade opens All properties without a cached directory',
     () async {
       final api = _WorkspaceApi()
         ..directoryFailure = const ApiFailure('Offline', null);
       final workspace = Workspace(api);
-      await expectLater(workspace.refresh(), throwsA(isA<ApiFailure>()));
-      await workspace.select('all');
       await workspace.refresh();
       expect(workspace.all, isTrue);
       api.directoryFailure = const ApiFailure('Unauthorized', 401);
@@ -222,12 +223,12 @@ void main() {
   );
 
   testWidgets(
-    'Home defaults to team, shares Personal selection with Inspections and inherits it on creation',
+    'Home defaults to All properties, shares Personal selection with Inspections and inherits it on creation',
     (tester) async {
       final api = _WorkspaceApi();
       await _open(tester, HomeScreen(api: api));
-      expect(find.text('Jac and Nimin'), findsOneWidget);
-      expect(api.scopes.last, ('team', false));
+      expect(find.text('All properties'), findsOneWidget);
+      expect(api.scopes, isEmpty);
       await tester.tap(find.text('Start check-in').first);
       await tester.pumpAndSettle();
       expect(find.text('Workspace: Jac and Nimin'), findsOneWidget);
@@ -273,7 +274,7 @@ void main() {
   );
 
   testWidgets(
-    'offline upgrade reopens the legacy library after explicit All my work recovery',
+    'offline upgrade reopens the legacy library in All properties',
     (tester) async {
       final cache = _MemoryCache();
       cache.values.addAll({
@@ -313,9 +314,6 @@ void main() {
           api: Api(dio: dio, cache: cache, attachAuth: false),
         ),
       );
-      expect(find.text('Could not load your workspace'), findsOneWidget);
-      await tester.tap(find.text('Show all my work'));
-      await tester.pumpAndSettle();
       expect(find.text('Previously loaded home'), findsOneWidget);
       expect(
         find.text('Offline. Showing previously loaded work.'),

@@ -23,7 +23,7 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
   const selectedTeam = directory.agencies.find((team) => team.id === workspace)
   const filters = workspace === 'personal' ? { personal: true } : workspace === 'all' ? { mine: true } : { agencyId: workspace }
   const renewals = await dueRenewals(agent.id, new Date(), filters)
-  const newWorkspace = workspace === 'all' ? preferredWorkspace(undefined, directory.agencies) : workspace
+  const newWorkspace = workspace === 'all' ? preferredWorkspace(undefined, directory.agencies, false) : workspace
   const newHref = `/inspections/new?workspace=${encodeURIComponent(newWorkspace)}`
 
   const inspections = await db.inspection.findMany({

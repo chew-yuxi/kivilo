@@ -9,7 +9,7 @@ class Workspace {
   AgencyIndex index = const AgencyIndex(agencies: [], invitations: []);
   String? _choice;
 
-  String get value => _choice ?? index.agencies.firstOrNull?.id ?? 'personal';
+  String get value => _choice ?? 'all';
   bool get personal => value == 'personal';
   bool get all => value == 'all';
   AgencySummary? get agency =>
@@ -21,7 +21,7 @@ class Workspace {
     try {
       next = await api.agencies();
     } on ApiFailure catch (error) {
-      // An explicit All my work choice can reopen the existing offline library
+      // An explicit All properties choice can reopen the existing offline library
       // on first launch after upgrading, before a team index was ever cached.
       if (all && error.statusCode == null) return;
       rethrow;

@@ -299,12 +299,16 @@ class KiviloSelectOption<T> {
     required this.label,
     this.description,
     this.icon,
+    this.action = false,
   });
 
   final T value;
   final String label;
   final String? description;
   final IconData? icon;
+
+  /// Goes somewhere rather than being a value to hold, so it has no radio.
+  final bool action;
 }
 
 class KiviloSelectField<T> extends StatelessWidget {
@@ -501,29 +505,34 @@ class _KiviloSelectSheet<T> extends StatelessWidget {
                   subtitle: option.description == null
                       ? null
                       : Text(option.description!),
-                  trailing: AnimatedContainer(
-                    duration: const Duration(milliseconds: 160),
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? KiviloColors.pink
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected
-                            ? KiviloColors.pink
-                            : KiviloColors.subtle,
-                      ),
-                    ),
-                    child: isSelected
-                        ? const Icon(
-                            Icons.check_rounded,
-                            size: 16,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
+                  trailing: option.action
+                      ? const Icon(
+                          Icons.chevron_right,
+                          color: KiviloColors.subtle,
+                        )
+                      : AnimatedContainer(
+                          duration: const Duration(milliseconds: 160),
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? KiviloColors.pink
+                                : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected
+                                  ? KiviloColors.pink
+                                  : KiviloColors.subtle,
+                            ),
+                          ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                )
+                              : null,
+                        ),
                   onTap: () =>
                       Navigator.pop(context, _KiviloSelection<T>(option.value)),
                 ),

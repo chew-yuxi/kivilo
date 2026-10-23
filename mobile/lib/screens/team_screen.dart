@@ -42,11 +42,7 @@ class _TeamScreenState extends State<TeamScreen> {
         invitation.id,
         accept: accept,
       );
-      if (accept) await _api.saveWorkspacePreference(invitation.agencyId);
       await _refresh();
-      if (accept && mounted && widget.selectWorkspace) {
-        Navigator.pop(context, invitation.agencyId);
-      }
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
     } finally {
@@ -67,10 +63,8 @@ class _TeamScreenState extends State<TeamScreen> {
     });
     try {
       final agency = await _api.createAgency(name);
-      await _api.saveWorkspacePreference(agency.id);
       if (!mounted) return;
       await _open(agency.id);
-      if (mounted && widget.selectWorkspace) Navigator.pop(context, agency.id);
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
     } finally {

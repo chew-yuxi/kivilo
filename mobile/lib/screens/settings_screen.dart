@@ -398,7 +398,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Request deletion in the app or through our website. We aim to complete eligible deletion within 30 days.',
+                      'We aim to complete eligible deletion within 30 days of your request.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     if (deletion != null) ...[
@@ -434,15 +434,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 4),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton.icon(
-                        onPressed: () => _openPage('/delete-account'),
-                        icon: const Icon(Icons.open_in_new, size: 18),
-                        label: const Text('Use the website instead'),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -457,10 +448,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Text(_error!, style: const TextStyle(color: KiviloColors.red)),
             ],
             const SizedBox(height: 28),
-            OutlinedButton.icon(
-              onPressed: _busy ? null : _signOut,
-              icon: const Icon(Icons.logout),
-              label: const Text('Sign out'),
+            _linkCard(
+              icon: Icons.logout,
+              title: 'Sign out',
+              subtitle: 'Your saved signature is removed from this phone',
+              onTap: _busy ? null : _signOut,
             ),
             const SizedBox(height: 20),
             FutureBuilder<String>(
@@ -482,7 +474,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
   }) => Card(
     child: InkWell(
       borderRadius: BorderRadius.circular(16),

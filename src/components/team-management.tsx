@@ -1,12 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { agencyDetail, agencyList } from '@/lib/agency'
 import { manageAgencyFromWeb } from '@/lib/agency-web-actions'
 import { StatusBadge } from '@/components/status-badge'
-import { rememberWorkspace } from '@/lib/web-workspace'
 
 type Directory = Awaited<ReturnType<typeof agencyList>>
 type Workspace = Awaited<ReturnType<typeof agencyDetail>>
@@ -189,7 +188,6 @@ export function TeamDirectory({ data }: { data: Directory }) {
 
 export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: string }) {
   const mutation = useTeamMutation()
-  useEffect(() => rememberWorkspace(viewerId, data.id), [viewerId, data.id])
   const [name, setName] = useState(data.name)
   const [email, setEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'MANAGER' | 'AGENT'>('AGENT')

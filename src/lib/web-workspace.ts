@@ -12,7 +12,8 @@ export function preferredWorkspace(
   if (saved && (saved === 'personal' || (allowAll && saved === 'all') || teams.some((team) => team.id === saved))) {
     return saved
   }
-  return teams[0]?.id ?? 'personal'
+  // Lists default to everything; a new check-in needs a real destination.
+  return allowAll ? 'all' : teams[0]?.id ?? 'personal'
 }
 
 export function rememberWorkspace(agentId: string, workspace: string) {
