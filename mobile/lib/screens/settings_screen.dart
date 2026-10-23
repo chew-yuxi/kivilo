@@ -253,8 +253,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     screen: ProductScreenName.account,
     active: widget.trackView,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Account')),
-    body: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
+    // A tab under the big "Your account" title; pushed on its own it keeps a back button.
+    appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
+    body: SafeArea(
+      bottom: false,
+      child: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
       future: _request,
       builder: (context, snapshot) {
         if (!snapshot.hasData && !snapshot.hasError) {
@@ -458,6 +461,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       },
     )),
+    ),
   ),
   );
 
