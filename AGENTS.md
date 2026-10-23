@@ -727,8 +727,12 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   `kiviloScreenPadding`, `kiviloSectionGap`/`kiviloHeadingGap` around
   `KiviloSectionHeading`, `KiviloEyebrow`, `KiviloNotice(tone:)` for banners,
   `KiviloMessage` for a screen that failed to load (always with Try again) or is empty,
-  `kiviloDangerOutlined` for delete on a page and `kiviloDangerFilled` to confirm it,
-  a TextButton for Cancel, and palette colours only (`KiviloColors`, never `Colors.red`
+  four kinds of button only (Yuxi chose them on 23 October; `kivilo_theme.dart`):
+  primary `FilledButton` (pink); secondary `OutlinedButton`/`TextButton`, both a soft pink
+  fill with no border (`kiviloSecondaryOnPink` gives white on a pink surface); tertiary
+  `kiviloTertiary`, bare pink text, rarely and only under another button; danger
+  `kiviloDangerOutlined` (red outline) on a page and `kiviloDangerFilled` to confirm.
+  No other button styles. A TextButton for Cancel, and palette colours only (`KiviloColors`, never `Colors.red`
   or a raw `Color`). Page titles are headlineMedium. "Delete" is for your own content,
   "Remove" for access.
 - The app never uses Material's `DropdownButton`, `DropdownMenu`, `PopupMenuButton` or

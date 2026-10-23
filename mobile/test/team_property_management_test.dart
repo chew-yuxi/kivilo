@@ -759,26 +759,34 @@ void main() {
     },
   );
 
-  testWidgets('secondary actions have visible borders and a 48 point target', (
-    tester,
-  ) async {
-    await _open(
-      tester,
-      Scaffold(
-        body: TextButton(onPressed: () {}, child: const Text('Add photo')),
-      ),
-    );
-    final button = tester.widget<TextButton>(find.byType(TextButton));
-    final style = Theme.of(
-      tester.element(find.byType(TextButton)),
-    ).textButtonTheme.style!;
-    expect(style.side!.resolve({})!.width, greaterThan(0));
-    expect(style.minimumSize!.resolve({})!.height, greaterThanOrEqualTo(48));
-    expect(
-      tester.getSize(find.byWidget(button)).height,
-      greaterThanOrEqualTo(48),
-    );
-  });
+  testWidgets(
+    'secondary buttons, text or outlined, share one filled look and a 50 point target',
+    (tester) async {
+      await _open(
+        tester,
+        Scaffold(
+          body: Column(
+            children: [
+              TextButton(onPressed: () {}, child: const Text('Add photo')),
+              OutlinedButton(onPressed: () {}, child: const Text('Cancel')),
+            ],
+          ),
+        ),
+      );
+      final theme = Theme.of(tester.element(find.byType(TextButton)));
+      for (final style in [
+        theme.textButtonTheme.style!,
+        theme.outlinedButtonTheme.style!,
+      ]) {
+        // A fill, not bare text, so it reads as a button.
+        expect(style.backgroundColor!.resolve({}), KiviloColors.pinkSoft);
+        expect(style.foregroundColor!.resolve({}), KiviloColors.pinkDark);
+        expect(style.minimumSize!.resolve({})!.height, 50);
+      }
+      expect(tester.getSize(find.byType(TextButton)).height, 50);
+      expect(tester.getSize(find.byType(OutlinedButton)).height, 50);
+    },
+  );
 
   test('team invitations open the native membership screen', () async {
     expect(

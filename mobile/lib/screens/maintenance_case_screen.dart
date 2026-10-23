@@ -775,6 +775,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () => _close(item.id),
+                  style: kiviloTertiary,
                   child: const Text('Close without action'),
                 ),
               ),

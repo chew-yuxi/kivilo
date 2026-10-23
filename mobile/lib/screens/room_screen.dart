@@ -925,11 +925,12 @@ class _RoomScreenState extends State<RoomScreen> {
                                 label: const Text('I reviewed this room'),
                               ),
                               if (room.items.isEmpty) ...[
-                                const SizedBox(height: 8),
+                                const SizedBox(height: kiviloButtonGap),
                                 OutlinedButton(
                                   onPressed: _busy
                                       ? null
                                       : () => _nothingToRecord(room),
+                                  style: kiviloSecondaryOnPink,
                                   child: const Text('Nothing to record'),
                                 ),
                               ],

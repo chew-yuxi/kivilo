@@ -27,8 +27,28 @@ class KiviloColors {
   static const disabled = Color(0xFFF3F4F6);
 }
 
-/// Deleting from a page is a red outlined button; confirming it in a drawer is red filled.
+/// The app has four kinds of button and no others:
+/// - primary: `FilledButton`, pink, the one main action on a screen;
+/// - secondary: `OutlinedButton` or `TextButton`, soft pink fill (the theme below);
+/// - tertiary: `kiviloTertiary`, pink text with no fill, only for low-stakes actions
+///   under a primary or secondary one, since bare text reads as less clickable;
+/// - danger: `kiviloDangerOutlined` on a page, `kiviloDangerFilled` to confirm.
+const _buttonShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(12)),
+);
+const _buttonText = TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
+
+/// A secondary button on a pink card or banner, where the soft pink fill would vanish.
+final kiviloSecondaryOnPink = OutlinedButton.styleFrom(
+  backgroundColor: Colors.white,
+);
+
+final kiviloTertiary = TextButton.styleFrom(
+  backgroundColor: Colors.transparent,
+  foregroundColor: KiviloColors.pinkDark,
+);
 final kiviloDangerOutlined = OutlinedButton.styleFrom(
+  backgroundColor: Colors.white,
   foregroundColor: KiviloColors.red,
   side: const BorderSide(color: KiviloColors.red),
 );
@@ -153,27 +173,32 @@ ThemeData buildKiviloTheme() {
         backgroundColor: KiviloColors.pink,
         foregroundColor: Colors.white,
         minimumSize: const Size(0, 50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: _buttonShape,
+        textStyle: _buttonText,
       ),
     ),
+    // Secondary. Outlined and text buttons look the same: a soft pink fill reads as a
+    // button without competing with the pink primary.
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
+        backgroundColor: KiviloColors.pinkSoft,
         foregroundColor: KiviloColors.pinkDark,
-        side: const BorderSide(color: Color(0xFF9CA3AF)),
+        side: BorderSide.none,
         minimumSize: const Size(0, 50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: _buttonShape,
+        textStyle: _buttonText,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
+        backgroundColor: KiviloColors.pinkSoft,
         foregroundColor: KiviloColors.pinkDark,
-        minimumSize: const Size(0, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        side: const BorderSide(color: Color(0xFFD1D5DB)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        minimumSize: const Size(0, 50),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: _buttonShape,
+        textStyle: _buttonText,
       ),
     ),
     dividerTheme: const DividerThemeData(color: KiviloColors.border),
