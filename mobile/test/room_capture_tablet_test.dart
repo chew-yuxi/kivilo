@@ -39,6 +39,7 @@ class _RoomApi extends Api {
 
   @override
   Future<RoomDetail> room(String inspectionId, String roomId) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
     reads++;
     return RoomDetail(
       id: 'kitchen',

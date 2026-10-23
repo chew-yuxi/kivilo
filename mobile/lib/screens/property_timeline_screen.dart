@@ -26,16 +26,16 @@ class PropertyTimelineScreen extends StatefulWidget {
 
 class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
   late final _api = widget.api ?? Api();
-  late Future<PropertyTimeline> _future = _api.propertyTimeline(
+  late Loading<PropertyTimeline> _loading = _api.load(() => _api.propertyTimeline(
     widget.propertyId,
-  );
+  ));
 
   Future<void> _refresh() async {
-    final next = _api.propertyTimeline(widget.propertyId);
+    final next = _api.load(() => _api.propertyTimeline(widget.propertyId), savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _open(TimelineEvent event) async {
@@ -57,18 +57,18 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
     appBar: AppBar(
       centerTitle: false,
       toolbarHeight: 72,
-      title: FutureBuilder<PropertyTimeline>(
-        future: _future,
+      title: StreamBuilder<PropertyTimeline>(
+        stream: _loading.stream,
         builder: (context, snapshot) => PageContextTitle(
           title: 'Property timeline',
           contextLabel: snapshot.data?.property ?? 'Property history',
         ),
       ),
     ),
-    body: KiviloContent(maxWidth: 840, child: FutureBuilder<PropertyTimeline>(
-      future: _future,
+    body: KiviloContent(maxWidth: 840, child: StreamBuilder<PropertyTimeline>(
+      stream: _loading.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (!snapshot.hasData && !snapshot.hasError) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {

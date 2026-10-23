@@ -89,6 +89,7 @@ class _WorkspaceApi extends Api {
 
   @override
   Future<List<InspectionSummary>> inspections() async {
+    if (readingSavedCopy) throw StateError('nothing saved');
     inspectionReads++;
     if (partyOnly) return [];
     return [

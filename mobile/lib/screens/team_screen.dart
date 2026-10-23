@@ -18,16 +18,16 @@ class TeamScreen extends StatefulWidget {
 
 class _TeamScreenState extends State<TeamScreen> {
   late final _api = widget.api ?? Api();
-  late Future<AgencyIndex> _future = _api.agencies();
+  late Loading<AgencyIndex> _loading = _api.load(_api.agencies);
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.agencies();
+    final next = _api.load(_api.agencies, savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _answer(AgencyInvitation invitation, bool accept) async {
@@ -87,8 +87,8 @@ class _TeamScreenState extends State<TeamScreen> {
     body: KiviloContent(
       child: RefreshIndicator(
         onRefresh: _refresh,
-        child: FutureBuilder<AgencyIndex>(
-          future: _future,
+        child: StreamBuilder<AgencyIndex>(
+          stream: _loading.stream,
           builder: (context, snapshot) {
             if (!snapshot.hasData && !snapshot.hasError) {
               return const Center(child: CircularProgressIndicator());
@@ -208,17 +208,17 @@ class TeamDetailScreen extends StatefulWidget {
 
 class _TeamDetailScreenState extends State<TeamDetailScreen> {
   late final _api = widget.api ?? Api();
-  late Future<AgencyDetail> _future = _api.agency(widget.id);
+  late Loading<AgencyDetail> _loading = _api.load(() => _api.agency(widget.id));
   bool _busy = false;
   bool _leaving = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.agency(widget.id);
+    final next = _api.load(() => _api.agency(widget.id), savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _change(Future<void> Function() operation) async {
@@ -291,8 +291,8 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
       body: KiviloContent(
         child: RefreshIndicator(
           onRefresh: _refresh,
-          child: FutureBuilder<AgencyDetail>(
-            future: _future,
+          child: StreamBuilder<AgencyDetail>(
+            stream: _loading.stream,
             builder: (context, snapshot) {
               final agency = snapshot.data;
               if (agency == null && !snapshot.hasError) {

@@ -69,7 +69,7 @@ class _RoomScreenState extends State<RoomScreen> {
     return fresh;
   }
 
-  late Future<RoomDetail> _future = _load();
+  late Loading<RoomDetail> _loading = _api.load(_load);
   bool _busy = false;
   bool _addingItem = false;
   bool _newestFirst = true;
@@ -123,11 +123,11 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 
   Future<void> _refresh() async {
-    final next = _load();
+    final next = _api.load(_load, savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _run(Future<void> Function() action) async {
@@ -675,8 +675,8 @@ class _RoomScreenState extends State<RoomScreen> {
       appBar: AppBar(
         centerTitle: false,
         toolbarHeight: 72,
-        title: FutureBuilder<RoomDetail>(
-          future: _future,
+        title: StreamBuilder<RoomDetail>(
+          stream: _loading.stream,
           builder: (context, snapshot) => PageContextTitle(
             title: snapshot.data?.name ?? 'Room',
             contextLabel: [
@@ -696,8 +696,8 @@ class _RoomScreenState extends State<RoomScreen> {
             final wide = constraints.maxWidth >= 840;
             return RefreshIndicator(
               onRefresh: _refresh,
-              child: FutureBuilder<RoomDetail>(
-                future: _future,
+              child: StreamBuilder<RoomDetail>(
+                stream: _loading.stream,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData && !snapshot.hasError) {
                     return const Center(child: CircularProgressIndicator());

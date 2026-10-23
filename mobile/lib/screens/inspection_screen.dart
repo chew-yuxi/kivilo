@@ -45,16 +45,16 @@ class InspectionScreen extends StatefulWidget {
 
 class _InspectionScreenState extends State<InspectionScreen> {
   late final _api = widget.api ?? Api();
-  late Future<InspectionDetail> _future = _api.inspection(widget.id);
+  late Loading<InspectionDetail> _loading = _api.load(() => _api.inspection(widget.id));
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.inspection(widget.id);
+    final next = _api.load(() => _api.inspection(widget.id), savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _run(Future<void> Function() action) async {
@@ -202,7 +202,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
     );
     if (signed == true && mounted) {
       await _refresh();
-      final inspection = await _future;
+      final inspection = await _loading.fresh;
       if (mounted && role == 'Tenant' && inspection.kind == 'CHECK_IN') {
         await showTenantHandover(context, inspectionId: widget.id, api: _api);
       }
@@ -415,8 +415,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
       appBar: AppBar(
         centerTitle: false,
         toolbarHeight: 72,
-        title: FutureBuilder<InspectionDetail>(
-          future: _future,
+        title: StreamBuilder<InspectionDetail>(
+          stream: _loading.stream,
           builder: (context, snapshot) => PageContextTitle(
             title: snapshot.data == null
                 ? 'Inspection'
@@ -431,8 +431,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
         maxWidth: 1120,
         child: RefreshIndicator(
           onRefresh: _refresh,
-          child: FutureBuilder<InspectionDetail>(
-            future: _future,
+          child: StreamBuilder<InspectionDetail>(
+            stream: _loading.stream,
             builder: (context, snapshot) {
               if (!snapshot.hasData && !snapshot.hasError) {
                 return const Center(child: CircularProgressIndicator());

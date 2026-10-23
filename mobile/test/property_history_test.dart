@@ -17,6 +17,7 @@ class _HistoryApi extends Api {
     String propertyId, {
     bool deletions = false,
   }) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
     queries.add(deletions);
     final events = [
       if (kitchenBack)

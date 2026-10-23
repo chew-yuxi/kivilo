@@ -774,6 +774,14 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   No other button styles. A TextButton for Cancel, and palette colours only (`KiviloColors`, never `Colors.red`
   or a raw `Color`). Page titles are headlineMedium. "Delete" is for your own content,
   "Remove" for access.
+- App screens load through `Api.load` (`mobile/lib/services/api.dart`), never a bare
+  FutureBuilder on a network call: it shows the copy saved on this phone first, then the
+  server's answer, and the screen keeps its content while refreshing (StreamBuilder over
+  `Loading.stream`, a spinner only when there is no data at all). The saved-copy pass
+  refuses every request and write, and a 401/403/404 deletes the saved copy. When a
+  refresh asks for a different list (workspace, filter, archived/deleted), bump a scope
+  key on the StreamBuilder so the old list never shows. Test doubles that override a read
+  should throw when `readingSavedCopy` is true, as an empty cache would.
 - The app never uses Material's `DropdownButton`, `DropdownMenu`, `PopupMenuButton` or
   `showMenu`. Their menu is placed once, in its own overlay, from where the field was;
   in a drawer, tapping the field closes the keyboard, the drawer slides down, and the

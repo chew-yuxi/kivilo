@@ -20,18 +20,18 @@ class PropertySettingsScreen extends StatefulWidget {
 
 class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
   late final _api = widget.api ?? Api();
-  late Future<PropertySettings> _future = _api.propertySettings(
+  late Loading<PropertySettings> _loading = _api.load(() => _api.propertySettings(
     widget.propertyId,
-  );
+  ));
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.propertySettings(widget.propertyId);
+    final next = _api.load(() => _api.propertySettings(widget.propertyId), savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   String _count(Object? value, String one, String many) =>
@@ -63,7 +63,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
       );
       if (mounted) {
         setState(() {
-          _future = Future.value(updated);
+          _loading = _api.load(() async => updated, savedFirst: false);
         });
       }
     } catch (error) {
@@ -81,8 +81,8 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
       body: KiviloContent(
         child: RefreshIndicator(
           onRefresh: _refresh,
-          child: FutureBuilder<PropertySettings>(
-            future: _future,
+          child: StreamBuilder<PropertySettings>(
+            stream: _loading.stream,
             builder: (context, snapshot) {
               final property = snapshot.data;
               if (property == null && !snapshot.hasError) {

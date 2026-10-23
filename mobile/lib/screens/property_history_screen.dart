@@ -23,18 +23,21 @@ class PropertyHistoryScreen extends StatefulWidget {
 class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
   late final _api = widget.api ?? Api();
   bool _deletions = false;
-  late Future<PropertyHistory> _future = _load();
+
+  /// Bumped when the filter changes, so all changes never show under Deletions.
+  int _scope = 0;
+  late Loading<PropertyHistory> _loading = _api.load(_load);
   String? _restoring;
 
   Future<PropertyHistory> _load() =>
       _api.propertyHistory(widget.propertyId, deletions: _deletions);
 
   Future<void> _refresh() async {
-    final next = _load();
+    final next = _api.load(_load, savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _restore(HistoryEvent event) async {
@@ -62,8 +65,8 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
     appBar: AppBar(
       centerTitle: false,
       toolbarHeight: 72,
-      title: FutureBuilder<PropertyHistory>(
-        future: _future,
+      title: StreamBuilder<PropertyHistory>(
+        stream: _loading.stream,
         builder: (context, snapshot) => PageContextTitle(
           title: 'History',
           contextLabel: snapshot.data?.address ?? 'Property',
@@ -74,8 +77,9 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
       maxWidth: 840,
       child: RefreshIndicator(
         onRefresh: _refresh,
-        child: FutureBuilder<PropertyHistory>(
-          future: _future,
+        child: StreamBuilder<PropertyHistory>(
+          key: ValueKey(_scope),
+          stream: _loading.stream,
           builder: (context, snapshot) {
             final text = Theme.of(context).textTheme;
             return ListView(
@@ -95,8 +99,11 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                     KiviloSegmentOption(value: true, label: 'Deletions'),
                   ],
                   onChanged: (value) {
-                    _deletions = value!;
-                    _refresh();
+                    setState(() {
+                      _deletions = value!;
+                      _scope++;
+                      _loading = _api.load(_load);
+                    });
                   },
                 ),
                 if (_api.offlineCopy) ...[
@@ -123,7 +130,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
     AsyncSnapshot<PropertyHistory> snapshot,
   ) {
     final text = Theme.of(context).textTheme;
-    if (snapshot.connectionState == ConnectionState.waiting) {
+    if (!snapshot.hasData && !snapshot.hasError) {
       return const [
         SizedBox(height: 48),
         Center(child: CircularProgressIndicator()),

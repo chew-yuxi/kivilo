@@ -36,7 +36,7 @@ class TenancyScreen extends StatefulWidget {
 
 class _TenancyScreenState extends State<TenancyScreen> {
   late final _api = widget.api ?? Api();
-  late Future<_TenancyData> _future = _load();
+  late Loading<_TenancyData> _loading = _api.load(_load);
 
   Future<_TenancyData> _load() async => (
     await _api.maintenanceCases(widget.tenancy.id),
@@ -45,11 +45,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
   );
 
   Future<void> _refresh() async {
-    final next = _load();
+    final next = _api.load(_load, savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _report(
@@ -291,10 +291,10 @@ class _TenancyScreenState extends State<TenancyScreen> {
     ),
     body: KiviloContent(
       maxWidth: 840,
-      child: FutureBuilder<_TenancyData>(
-        future: _future,
+      child: StreamBuilder<_TenancyData>(
+        stream: _loading.stream,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData && !snapshot.hasError) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {

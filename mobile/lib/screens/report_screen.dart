@@ -29,14 +29,14 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen> {
   late final _api = widget.api ?? Api();
-  late Future<SignedReport> _future = _api.report(widget.id);
+  late Loading<SignedReport> _loading = _api.load(() => _api.report(widget.id));
 
   Future<void> _refresh() async {
-    final next = _api.report(widget.id);
+    final next = _api.load(() => _api.report(widget.id), savedFirst: false);
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   String? _acknowledging;
@@ -408,8 +408,8 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.report,
-    child: FutureBuilder<SignedReport>(
-      future: _future,
+    child: StreamBuilder<SignedReport>(
+      stream: _loading.stream,
       builder: (context, snapshot) {
         final report = snapshot.data;
         return Scaffold(

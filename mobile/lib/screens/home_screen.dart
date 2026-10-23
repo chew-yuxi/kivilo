@@ -32,8 +32,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final _api = widget.api ?? Api();
   late final _workspace = Workspace(_api);
-  late Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
-  _future = _load();
+  late Loading<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
+  _loading = _api.load(_load);
+
+  /// Bumped when the workspace changes, so one workspace's work never shows while
+  /// another's loads.
+  int _scope = 0;
   int _tab = 0;
 
   /// Someone who is only a landlord or tenant: no inspections of their own and no deal
@@ -89,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _selectWorkspace(String value) async {
     try {
       await _workspace.select(value);
-      if (mounted) await _refresh();
+      if (mounted) await _refresh(newScope: true);
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -109,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await _workspace.refresh();
       if (selected != null) await _workspace.select(selected);
-      if (mounted) await _refresh();
+      if (mounted) await _refresh(newScope: selected != null);
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -119,13 +123,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _refresh() async {
-    final next = _load();
+  /// The same workspace keeps showing while it refreshes; another starts blank and
+  /// shows its own saved copy, if there is one.
+  Future<void> _refresh({bool newScope = false}) async {
+    final next = _api.load(_load, savedFirst: newScope);
     setState(() {
-      _future = next;
+      _loading = next;
+      if (newScope) _scope++;
     });
     try {
-      await next;
+      await next.fresh;
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -304,14 +311,12 @@ class _HomeScreenState extends State<HomeScreen> {
     child: RefreshIndicator(
       onRefresh: _refresh,
       child:
-          FutureBuilder<
+          StreamBuilder<
             (UserProfile, List<TenancySummary>, List<InspectionSummary>)
           >(
-            future: _future,
+            key: ValueKey(_scope),
+            stream: _loading.stream,
             builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
               if (snapshot.hasError) {
                 return KiviloMessage(
                   icon: Icons.cloud_off_outlined,
@@ -331,6 +336,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
 
+              // A spinner only when there is nothing to show yet.
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
               final (profile, tenancies, inspections) = snapshot.data!;
               final inProgress = inspections.where(
                 (item) => !['COMPLETED', 'AWAITING_SIGNATURE'].contains(item.status),
