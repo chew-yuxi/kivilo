@@ -12,34 +12,60 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
-## Tenancy agreement and supporting documents candidate: 23 October 2026
+## Tenancy agreements and supporting documents: 23 October 2026 Singapore time
 
-Local implementation only; no backend deployment or Shorebird patch has been
-published for this feature. Deploy `20261023090000_supporting_documents`, then
-`20261023120000_tenancy_agreement`, and the backend before releasing the app changes.
-Both migrations are applied to local development and the isolated document-test
-database only.
+Source `74904b82268025c9051ebbb987fc0f5bffe59984` is live on production, Vercel
+`dpl_4b5jjqtjD4pkPLq8DYX9bxhLrWos`, Ready in `sin1`. Both additive migrations,
+`20261023090000_supporting_documents` and `20261023120000_tenancy_agreement`, were
+applied first. All 36 production migration checksums match, with no failed or pending
+migration and existing record counts unchanged. Authenticated production smoke passed.
 
-Documents lead with the tenancy agreement, uploadable directly by the tenant,
-landlord or a full tenancy agent. Optional requested documents sit below it.
-Photos use the durable account-scoped queue; PDF selection opens the authenticated
-web page. Files show their submitter and time, are available only
-to the tenancy's parties and authorized agents, and never enter the condition report
-or block signing. Android picker recovery keeps a receipt with its original account
-and request, including when another capture screen is opened after interruption.
-An agreement photo taken offline does not need a pre-existing server upload slot.
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **14** / `743531` | **stable**, active and latest |
+| iOS `1.0.0+24` | **15** / `743545` | **stable**, active and latest |
 
-The app can review candidate maintenance clauses extracted from PDF text, with no AI.
-An agent or landlord confirms the source page, quote, contribution rule and exceptions.
-Only confirmed first-amount terms prefill the repair contribution; other arrangements
-keep a written explanation. Scans/photos use manual entry. Confirmed clauses stay
-visible in tenancy and repair screens; a newer agreement flags old terms for review.
+Promoted on Yuxi's "Ship the backend and app patches" and read back at **17:52 Singapore
+time**. Built from separate clean worktrees pinned to the source above. This includes
+the shipped Properties, history/bin and button-system work through `95df445`.
+The concurrent session's optional `888fe5a` and unfinished cache-loading work are excluded.
 
-No plugin, native configuration, bundled asset or new icon was added. All **371
-mobile tests** passed, followed by **14 affected tests** after folding previous
-agreements and optional files; Flutter analysis is clean. Shorebird compatibility builds and physical
-device rehearsal are **NOT RUN**. Keep the store freeze and stable-promotion approval
-rule above; build future patches from a pinned clean worktree.
+Documents lead with the tenancy agreement, uploadable by the tenant, landlord or a full
+tenancy agent. Optional requested documents sit below it. Every authorized property term
+has a Documents entry, including earlier terms; historical inspection-only grants do not.
+Tenant names and term dates distinguish renewals. Request links reveal the requested
+upload and preserve that target through the app's PDF browser handoff and web sign-in.
+
+Photos use the durable account-scoped queue, including offline agreement capture and
+Android picker recovery. PDF selection opens authenticated web upload. Documents stay
+private and outside condition reports, fingerprints and PDFs, and never block signing.
+The app and web review deterministic PDF text suggestions, with no AI; an agent or
+landlord confirms the page, quote, contribution rule and exceptions. Confirmed first-amount
+terms prefill repair proposals, each still requiring its own cost agreement. Scans/photos
+support manual entry, and replacement agreements flag earlier terms for review.
+Existing document mutations record tenancy-scoped history in the same transaction;
+this release adds no document archive/delete action.
+
+Verification: typecheck, zero-warning lint, production build, **129 unit**, **276
+integration**, **24 browser** scenarios and **379 mobile tests**, with clean Flutter
+analysis. Browser passes include two targeted reruns for missing local sandbox billing
+configuration and sign-in navigation timing; no source fixes were needed. Phone layouts
+were rendered and inspected. PDF extraction passed using only deployment-traced files
+on Node 24, including malformed-file fallback. Production smoke verified private storage,
+tenant context, document permissions, owner pinning, identical missing/forbidden responses
+and installed-client compatibility, with no app-data or email changes.
+
+No plugin, native configuration, asset or new icon change. All ten bundled assets and
+MaterialIcons match the original releases byte for byte; native compatibility and iOS
+strict deep code-sign verification passed without overrides. iOS shared **56.9%** of Dart
+code with Shorebird's possible-slower-execution warning. Physical-device delivery and
+performance rehearsal remain **NOT RUN**. Apple still showed `WAITING_FOR_REVIEW` on
+23 October; no store upload, submission or metadata change was made.
+
+Rollback: Android patch **13** / `743430`, iOS patch **14** / `743437`; retain the additive
+backend schema. Receipts, logs and verified bundles:
+`build/release-20261023-documents/`, especially `stable-release.json` and
+`verification/checks.json`.
 
 ## Button system, Account bar and repair spacing: 23 October 2026 Singapore time
 

@@ -1,69 +1,53 @@
 # Kivilo work tracker
 
-Updated 23 October 2026 Singapore time. Tenancy agreements and supporting documents are implemented and
-verified locally; their backend and app release are still pending. Teams, property management and team-first
-workspaces, source `8570e7fefb44c46cf03bf6beca2aff85b9dcf943`, are pushed and live on
-production (Vercel `dpl_ETzguj25AxuvyCBZS8oPdDiM9bPx`, `sin1`) after both production
-migrations, and on stable as Android25 patch **6** / `741645` and iOS24 patch **7** /
-`741655` (`mobile/RELEASE.md`, `build/release-20261022-team/stable-release.json`).
-On 23 October the Kivilo picker fix (`b7cb3ff`) followed as Android25 patch **7** /
-`741797` and iOS24 patch **8** / `741807` (`build/release-20261023-pickers/`). Yuxi's
-phone showed the Team screen from the earlier patch. The workspace-default follow-up
-`cadea8f` is also live, recorded in `mobile/RELEASE.md`: Android25 patch **8** / `742648`
-and iOS24 patch **9** / `742654`, Vercel `dpl_HS3amzmwGhTZhNHvumUbi4tDZ4BQ`.
-The latest patches and remaining rehearsal checks are **NOT RUN** on a device.
+Updated 23 October 2026 Singapore time. Tenancy agreements and supporting documents are
+**live** from `74904b8`: backend `dpl_4b5jjqtjD4pkPLq8DYX9bxhLrWos` in `sin1`, Android25
+patch **14** / `743531` and iOS24 patch **15** / `743545`, both stable and read back at
+17:52 Singapore time. Both production migrations preceded the backend; authenticated
+smoke passed. The release preserves Properties, history/bin and the button system through
+`95df445`. Details and rollback are in `mobile/RELEASE.md`; receipt:
+`build/release-20261023-documents/stable-release.json`. Physical-device delivery remains
+**NOT RUN**. The concurrent Properties session resumes its cache-loading work after this release.
 
 ## Tenancy agreements and supporting documents — 23 October
 
-User approved inclusion during session consolidation. **Implemented locally; not
-deployed or patched.** Existing released photo flows and sharing were preserved.
-The concurrent workspace follow-up was committed separately as `cadea8f` while this
-work was in progress.
+**Backend live and native patches stable**, on Yuxi's explicit shipping approval.
+Existing photo flows, sharing and the other session's shipped Properties UX are retained.
 
-- Documents lead with a direct tenancy-agreement upload for the tenant, landlord or
-  full tenancy agents. Previous agreements and optional requested documents sit below
-  it. Other requests remain agent-to-tenant. Files show the submitter and time and stay
-  private to this tenancy's participants. Historical inspection grants, billing teams
-  and unassigned agency members cannot read them.
-- User explicitly chose **text extraction, with a person confirming terms; no AI**.
-  The PDF reader finds possible maintenance clauses and retains source pages. Agent
-  or landlord confirmation records the quote, contribution rule, exceptions and author.
-  Only a confirmed first-amount rule sets the existing repair proposal default;
-  thresholds and other arrangements require a written explanation. Each repair still
-  needs its own cost agreement. Scans/photos support manual entry. A newer agreement
-  flags existing terms for review without rewriting them or earlier repair agreements.
-- Web uploads first save to an account-scoped IndexedDB queue, survive reloads,
-  and retry after reconnection. Native photos use the durable capture queue and
-  preserve the original account/request through Android picker interruption.
-  The app opens authenticated web upload for PDFs, without adding a native plugin,
-  and reviews clauses natively. Offline agreement photos create their unique server
-  slot during retry, after the photo has been saved locally.
-- Requests never block Send or signing; files stay outside condition reports,
-  public report links, report fingerprints and PDFs. Request/submission notifications
-  carry authenticated navigation links and recheck access before delivery.
-- Submitted paperwork protects property history from deletion. Pending uploads
-  retain delayed cleanup manifests when a draft property expires. Account deletion
-  retains shared paperwork and removes only sole-party unsigned documents, including
-  requests that were still committing when cleanup began. Confirmed clause excerpts
-  follow the same retention rule, including a former collaborator's authorship.
-- Additive migrations `20261023090000_supporting_documents` and
-  `20261023120000_tenancy_agreement` are applied to local development and isolated test
-  DB `kivilo_documents_20261023`. Production is untouched.
-  Deploy both migrations/backend before releasing the app. Shorebird builds, stable
-  promotion and physical-device rehearsal remain **NOT RUN**.
+- Agreement-first direct uploads are available to the tenant, landlord and full tenancy
+  agents. Previous agreements and requested supporting documents remain secondary.
+  Files stay private to that tenancy's authorized participants; historical inspection
+  grants, billing teams and unassigned agency members confer no access.
+- Every authorized property term offers Documents independently of running-term repair
+  access. Tenant names and dates distinguish renewals. A specific upload request opens
+  and focuses that request, including after web sign-in or the native PDF handoff.
+- PDF text extraction is deterministic, **with no AI**. Agent or landlord confirmation
+  records the source page, quote, contribution rule, exceptions and author. Only a confirmed
+  first-amount rule sets the repair proposal default; other arrangements need a written
+  explanation. Every repair still needs its own cost agreement. Scans/photos support manual
+  entry, and a newer agreement flags previous terms without rewriting agreed repairs.
+- Web IndexedDB and native capture queues preserve account/request ownership, retry offline
+  uploads and recover Android picker interruption. PDF upload opens authenticated web UI;
+  the app reviews clauses natively, with no new plugin. Agreement photos can start offline.
+- Documents never block signing or enter public reports, hashes or PDFs. Notifications
+  recheck access. Existing request, submission and confirmation mutations record scoped
+  PropertyEvents in the same transaction; no archive/delete lifecycle was added.
+- Retention protects submitted documents, keeps delayed cleanup for pending uploads and
+  preserves shared files and clause authorship during account deletion.
+- Both additive migrations are applied to production; all **36** migration checksums and
+  actual schema constraints passed, with no pending/failed migration or existing record loss.
+  Backend deployed before the patches; production read-only smoke passed and revoked its
+  temporary synthetic session, with application records and emails unchanged.
 
-Verification passed: typecheck, lint, **129 unit**, **263 integration**, **22 browser**
-scenarios (20 in the full serial run plus the two affected reruns), **371 mobile**
-tests, then **14 affected mobile tests** after the final disclosure layout changes,
-and clean Flutter analysis. Two browser failures were traced to a stale local
-dev route index and a textarea test locator; fresh dev discovery and the corrected
-locator passed. Phone-width agreement and receipt pages were visually inspected.
-The production build passed, and PDF extraction also passed using only the 187 PDF
-runtime files listed by Next's deployment trace. Production is configured for Node24,
-which supports the existing PDF.js version now moved to runtime dependencies.
-Final build log: `build/supporting-documents-20261023/agreement-build-final.log`.
-Other evidence is under the same directory (`agreement-*.log`, Flutter logs).
-Previews: `build/tenancy-agreement-documents.png`, `build/supporting-documents-tenant.png`.
+Verification passed: typecheck, lint, clean production build, **129 unit**, **276 integration**,
+**24 browser** scenarios (22 full-run passes and two targeted reruns), **379 mobile tests**
+and clean Flutter analysis. Targeted browser reruns supplied the existing local Stripe
+sandbox key and retried a sign-in navigation timing failure; no source fixes were needed.
+Phone layouts were rendered and inspected. Exact deployment-traced PDF dependencies passed
+text/page/suggested-cap and malformed-file tests on production's Node 24 runtime.
+Both patches have byte-identical bundled assets and MaterialIcons; iOS strict deep code-sign
+verification passed. Physical-device delivery/performance rehearsal remains **NOT RUN**.
+Evidence: `build/release-20261023-documents/`; shipped source `74904b8`.
 
 ## Team-first workspaces — 22 October follow-up
 
@@ -144,13 +128,14 @@ build compatibility and publication are **NOT RUN** for this candidate.
 | Remove duplicate drawer handles | **Published stable** | Main `d32bc42` is included; add/edit inventory drawers retain one outer handle. |
 | Photos and markup inside Add finding | **Backend live; native stable** | Resumable personal drafts, retry-safe uploads and immutable app/web/PDF evidence. Revoked collaborators' unfinished drafts remain preserved and excluded without blocking publication; restored access makes them block again. |
 | Private tenancies and selected collaboration | **Backend live; native stable** | Lead-only access management; removal preserves work, renewal sharing is opt-in, billing teams grant no access. Existing narrow inspection grants remain narrow. |
-| Combined regression checks | **Passed** | Consolidated release: typecheck/lint/build; 105 unit, 198 integration, 15 e2e, 311 mobile and 8 PDF tests; five PDF pages visually checked. Follow-up Dart-only fix: clean analysis and 326 mobile tests. Evidence under the two release artifact directories below. |
-| Coordinated backend release | **Live and smoke verified** | Both migrations applied before the consolidated push and authenticated smoke passed. Follow-up `f633d7f` changes only two Dart implementation files and two Dart tests; no backend, database or native configuration change. |
-| Android `1.0.0+25` / iOS `1.0.0+24` patches | **Stable** | Latest recorded release is workspace follow-up `cadea8f`: Android patch **8**, ID `742648`; iOS patch **9**, ID `742654`. See `mobile/RELEASE.md`. Agreement/supporting documents are not released. |
+| Combined regression checks | **Passed** | Documents integration: typecheck/lint/build; 129 unit, 276 integration, 24 browser and 379 mobile tests; exact-trace PDF runtime on Node 24 and rendered phone layouts checked. |
+| Coordinated backend release | **Live and smoke verified** | Documents source `74904b8`, deployment `dpl_4b5jjqtjD4pkPLq8DYX9bxhLrWos` in `sin1`; both additive migrations applied first. Private document access/storage and installed-client compatibility smoke passed. |
+| Android `1.0.0+25` / iOS `1.0.0+24` patches | **Stable** | Documents release `74904b8`: Android patch **14**, ID `743531`; iOS patch **15**, ID `743545`. Read back active/latest at 17:52 Singapore time; see `mobile/RELEASE.md`. |
+| Cache-first loading and plain next-step cards | **Owned by concurrent Properties session** | Its `888fe5a` and unfinished cache-loading changes were deliberately excluded; that session rebases onto the Documents release before its next push/patch. |
 | Physical delivery and full-flow rehearsal | **NOT RUN — needs devices** | [rehearsal-checklist.md](rehearsal-checklist.md); record exact patch/device, offline capture, interrupted markup, account isolation, sharing and push. Automated tests do not complete this. |
-| Tenancy agreement, maintenance clause and supporting documents | **Implemented and verified locally; release pending** | Agreement-first direct upload, deterministic PDF text extraction, person-confirmed clause/page/rule/notes and repair proposal context. Other documents stay secondary. Durable private uploads, Android recovery and retention verified; no signing block or public-report/PDF inclusion. Deploy both migrations/backend before app patch; stable needs Yuxi's go. |
+| Tenancy agreement, maintenance clause and supporting documents | **Backend live; native stable** | Agreement-first private upload, deterministic PDF extraction, person-confirmed terms and repair context. Per-term Documents access and request-specific navigation included. No signing block or public-report inclusion. |
 | Exposed production database credential | **Needs coordinated rotation** | Prior demo session recorded accidental exposure in a tool log. Rotate with all dependent connection settings updated and verified together; do not copy the credential into this tracker or rotate one consumer alone. |
-| Apple approval | **Waiting for Apple** | App Store Connect read on 22 October Singapore time: `WAITING_FOR_REVIEW` for 1.0.0. Store-build/submission/metadata freeze remains in force. |
+| Apple approval | **Waiting for Apple** | App Store Connect read on 23 October Singapore time: `WAITING_FOR_REVIEW` for 1.0.0. Store-build/submission/metadata freeze remains in force. |
 | Historical iOS reviewer push failures | **Needs project access/device evidence** | Four old failures on two reviewer installations; successful iOS pushes existed in the same batch. Cached Firebase account lacks Kivilo access. No universal APNs outage established; do not rotate a working key on this evidence. |
 
 ## Release facts and recovery
