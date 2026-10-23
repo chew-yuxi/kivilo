@@ -12,6 +12,16 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Button system, Account bar and repair spacing: 23 October 2026 Singapore time
+
+Source `99bd861`, Dart only. Android `1.0.0+25` patch **13** / `743430` and iOS `1.0.0+24`
+patch **14** / `743437`, both **stable**, read back at 17:06 Singapore time, shipped under
+Yuxi's standing go for production. Four button kinds only: pink primary, soft pink
+secondary (outlined and text buttons alike), bare tertiary text, and danger as a red
+outline (solid red to confirm). The Account tab lost its duplicate bar; the repair card's
+stacked actions are spaced. 361 mobile tests; font and assets match the release; iOS
+strict code-sign passed, 66.4% shared. Rollback: Android **12**, iOS **13**.
+
 ## Properties tab: 23 October 2026 Singapore time
 
 Source `dc497bb`. Backend first: `GET /api/v1/property-work` and
