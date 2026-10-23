@@ -24,6 +24,25 @@ export const en = {
     arranges: (party: string) => `${party} arranges the repair.`,
   },
 
+  /// The property timeline, as the app shows it to the person asking.
+  timeline: {
+    tenancyBegan: 'Tenancy began',
+    tenancyEnded: 'Tenancy ended',
+    checkInSigned: 'Check-in signed',
+    checkOutSigned: 'Check-out signed',
+    signedByBoth: 'Signed by both parties',
+    assessmentPublished: 'Check-out assessment published',
+    assessmentVersionPublished: (version: number) => `Check-out assessment version ${version} published`,
+    reportUpdated: (title: string) => `Check-in report updated: ${title}`,
+    updateAcknowledged: (number: number) => `Update ${number}, acknowledged by both parties`,
+    reported: (title: string) => `Reported: ${title}`,
+    repaired: (title: string) => `Repaired: ${title}`,
+    confirmedFixed: (title: string) => `Confirmed fixed: ${title}`,
+    notFixed: (title: string) => `Not fixed: ${title}`,
+    costAgreed: (title: string) => `Cost agreed: ${title}`,
+    closedWithoutRepair: (title: string) => `Closed without repair: ${title}`,
+  },
+
   notification: {
     maintenanceReported: (address: string) => `${address}: a maintenance issue was reported.`,
     maintenanceStatus: (status: string) => `Maintenance status changed to ${status}.`,

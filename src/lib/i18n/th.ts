@@ -22,6 +22,24 @@ export const th: Messages = {
     arranges: (party) => `${party}เป็นผู้จัดการซ่อม`,
   },
 
+  timeline: {
+    tenancyBegan: 'เริ่มสัญญาเช่า',
+    tenancyEnded: 'สิ้นสุดสัญญาเช่า',
+    checkInSigned: 'ลงนามเช็กอินแล้ว',
+    checkOutSigned: 'ลงนามเช็กเอาต์แล้ว',
+    signedByBoth: 'ทั้งสองฝ่ายลงนามแล้ว',
+    assessmentPublished: 'เผยแพร่การประเมินเช็กเอาต์แล้ว',
+    assessmentVersionPublished: (version) => `เผยแพร่การประเมินเช็กเอาต์ เวอร์ชัน ${version} แล้ว`,
+    reportUpdated: (title) => `อัปเดตรายงานเช็กอิน: ${title}`,
+    updateAcknowledged: (number) => `บันทึกเพิ่มเติมที่ ${number} ทั้งสองฝ่ายรับทราบแล้ว`,
+    reported: (title) => `แจ้งแล้ว: ${title}`,
+    repaired: (title) => `ซ่อมแล้ว: ${title}`,
+    confirmedFixed: (title) => `ยืนยันว่าซ่อมแล้ว: ${title}`,
+    notFixed: (title) => `ยังไม่หาย: ${title}`,
+    costAgreed: (title) => `ตกลงค่าใช้จ่ายแล้ว: ${title}`,
+    closedWithoutRepair: (title) => `ปิดโดยไม่ได้ซ่อม: ${title}`,
+  },
+
   notification: {
     maintenanceReported: (address) => `${address}: มีการแจ้งปัญหาการซ่อมบำรุง`,
     maintenanceStatus: (status) => `สถานะงานซ่อมเปลี่ยนเป็น “${status}”`,

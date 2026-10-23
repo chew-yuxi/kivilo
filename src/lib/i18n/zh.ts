@@ -22,6 +22,24 @@ export const zh: Messages = {
     arranges: (party) => `由${party}安排维修。`,
   },
 
+  timeline: {
+    tenancyBegan: '租约开始',
+    tenancyEnded: '租约结束',
+    checkInSigned: '入住检查已签署',
+    checkOutSigned: '退租检查已签署',
+    signedByBoth: '双方已签署',
+    assessmentPublished: '退租评估已发布',
+    assessmentVersionPublished: (version) => `退租评估第 ${version} 版已发布`,
+    reportUpdated: (title) => `入住检查报告已更新：${title}`,
+    updateAcknowledged: (number) => `更新记录 ${number}，双方已确认`,
+    reported: (title) => `已报告：${title}`,
+    repaired: (title) => `已维修：${title}`,
+    confirmedFixed: (title) => `已确认修好：${title}`,
+    notFixed: (title) => `未修好：${title}`,
+    costAgreed: (title) => `费用已约定：${title}`,
+    closedWithoutRepair: (title) => `未维修即关闭：${title}`,
+  },
+
   notification: {
     maintenanceReported: (address) => `${address}：有人报告了维修问题。`,
     maintenanceStatus: (status) => `维修状态已改为“${status}”。`,
