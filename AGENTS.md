@@ -649,7 +649,7 @@ and JPEG, and the agent can set the name printed beside them.
 ## Plans and billing
 
 A plan belongs to a workspace: the agent's team, or the agent alone (`plans/billing.md`).
-Free holds 1 active property; Pro is per seat with 10 each, pooled. A property counts once
+Free holds 5 active properties; Pro is per seat with 10 each, pooled. A property counts once
 against its lead's billing workspace, including private properties, and sharing does not
 charge the collaborator's workspace. **`src/lib/plan.ts`
 is the only place a limit is decided**, and `createInspection`, the only place a property

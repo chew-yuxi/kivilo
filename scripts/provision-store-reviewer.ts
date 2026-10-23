@@ -87,8 +87,8 @@ async function main() {
         tenant.name !== 'Demo Tenant (App Review)') {
       throw new Error('A reviewer fixture ID already belongs to different data')
     }
-    // The fixture already holds two active properties, past Free's one, and a reviewer
-    // who taps "Start a check-in" must not meet a plan limit the app cannot explain.
+    // Keep the store-review fixture comped so its seeded data and any extra walkthrough
+    // the reviewer creates can never consume the account's working allowance.
     await tx.subscription.upsert({
       where: { stakeholderId: agentId },
       create: { stakeholderId: agentId, plan: 'PRO', seats: 1, status: 'comped', managedById: agentId },

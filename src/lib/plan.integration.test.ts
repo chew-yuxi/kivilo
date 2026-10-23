@@ -15,7 +15,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 import { db } from '@/lib/db'
 import { currentStakeholder, requireAgent, authorizeInspection } from '@/lib/auth'
 import { createInspection } from '@/lib/actions'
-import { PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
+import { FREE_ACTIVE_PROPERTIES, PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
 import { GET as planRoute } from '@/app/api/v1/me/plan/route'
 import { POST as createRoute } from '@/app/api/v1/inspections/route'
 import type { Stakeholder } from '@/generated/prisma'
@@ -68,12 +68,16 @@ describe('plan limits', () => {
     await db.$disconnect()
   })
 
-  it('lets a Free agent hold one active property and refuses a second', async () => {
+  it('lets a Free agent hold five active properties and refuses a sixth', async () => {
     const solo = await agent('Solo')
-    await deal(solo)
+    for (let index = 0; index < FREE_ACTIVE_PROPERTIES; index += 1) await deal(solo)
 
     await expect(attempt(solo)).rejects.toThrow('Plan limit reached')
-    expect(await workspacePlan(solo)).toMatchObject({ plan: 'FREE', active: 1, limit: 1 })
+    expect(await workspacePlan(solo)).toMatchObject({
+      plan: 'FREE',
+      active: FREE_ACTIVE_PROPERTIES,
+      limit: FREE_ACTIVE_PROPERTIES,
+    })
   })
 
   it('stops counting a property once its tenancy ends or its check-out is signed', async () => {
@@ -85,11 +89,12 @@ describe('plan limits', () => {
     await db.inspection.create({
       data: { tenancyId: second.tenancy.id, kind: 'CHECK_OUT', status: 'AWAITING_SIGNATURE', baselineId: second.id, conductedById: ended.id },
     })
+    for (let index = 1; index < FREE_ACTIVE_PROPERTIES; index += 1) await deal(ended)
     await expect(attempt(ended)).rejects.toThrow('Plan limit reached')
 
     await db.inspection.updateMany({ where: { baselineId: second.id }, data: { status: 'COMPLETED' } })
     await deal(ended)
-    expect((await workspacePlan(ended)).active).toBe(1)
+    expect((await workspacePlan(ended)).active).toBe(FREE_ACTIVE_PROPERTIES)
   })
 
   it('shares one allowance across a team, a teammate deal included', async () => {
@@ -98,6 +103,7 @@ describe('plan limits', () => {
     const lead = await agent('Lead', team.id)
     const teammate = await agent('Teammate', team.id)
     const leadDeal = await deal(lead)
+    for (let index = 1; index < FREE_ACTIVE_PROPERTIES; index += 1) await deal(lead)
     await expect(authorizeInspection(leadDeal.id, teammate.id)).rejects.toThrow('Inspection not found')
 
     await expect(attempt(teammate)).rejects.toThrow('Plan limit reached')
@@ -107,13 +113,13 @@ describe('plan limits', () => {
     })
     expect(await workspacePlan(teammate)).toMatchObject({
       plan: 'PRO',
-      active: 1,
+      active: FREE_ACTIVE_PROPERTIES,
       limit: 2 * PRO_ACTIVE_PROPERTIES_PER_SEAT,
       isManager: false,
     })
     await deal(teammate)
-    expect((await workspacePlan(lead)).active).toBe(2)
-    expect((await workspacePlan(teammate)).active).toBe(2)
+    expect((await workspacePlan(lead)).active).toBe(FREE_ACTIVE_PROPERTIES + 1)
+    expect((await workspacePlan(teammate)).active).toBe(FREE_ACTIVE_PROPERTIES + 1)
   })
 
   it('counts a shared property once for its owner and never for a collaborator workspace', async () => {
@@ -151,7 +157,11 @@ describe('plan limits', () => {
     expect((await workspacePlan(payer)).plan).toBe('PRO')
 
     await db.subscription.update({ where: { id: subscription.id }, data: { status: 'canceled' } })
-    expect(await workspacePlan(payer)).toMatchObject({ plan: 'FREE', limit: 1, isManager: true })
+    expect(await workspacePlan(payer)).toMatchObject({
+      plan: 'FREE',
+      limit: FREE_ACTIVE_PROPERTIES,
+      isManager: true,
+    })
   })
 
   it('refuses through the API as plan_limit, and reports the plan without a price', async () => {
@@ -164,13 +174,21 @@ describe('plan limits', () => {
     })
     const context = { params: Promise.resolve({}) }
 
-    expect((await createRoute(request(), context)).status).toBe(200)
+    for (let index = 0; index < FREE_ACTIVE_PROPERTIES; index += 1) {
+      expect((await createRoute(request(), context)).status).toBe(200)
+    }
     const refused = await createRoute(request(), context)
     expect(refused.status).toBe(403)
     expect(await refused.json()).toEqual({ error: 'plan_limit' })
 
     const plan = await planRoute(new Request('http://kivilo.test/api/v1/me/plan'), context)
-    expect(await plan.json()).toEqual({ plan: 'FREE', activeProperties: 1, limit: 1, seats: 1, team: null })
+    expect(await plan.json()).toEqual({
+      plan: 'FREE',
+      activeProperties: FREE_ACTIVE_PROPERTIES,
+      limit: FREE_ACTIVE_PROPERTIES,
+      seats: 1,
+      team: null,
+    })
     const parties = await db.tenancy.findMany({ where: { agentId: app.id } })
     created.push(...parties.flatMap((tenancy) => [tenancy.landlordId, tenancy.tenantId]))
     vi.mocked(requireAgent).mockReset()

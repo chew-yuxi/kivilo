@@ -65,7 +65,7 @@ import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { syncSubscription } from '@/lib/billing'
 import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
-import { workspacePlan } from '@/lib/plan'
+import { FREE_ACTIVE_PROPERTIES, workspacePlan } from '@/lib/plan'
 import { POST as webhook } from '@/app/api/stripe/webhook/route'
 import { setTeam } from '../../scripts/set-team'
 import { fulfillAccountDeletion } from '../../scripts/fulfill-account-deletion'
@@ -138,7 +138,7 @@ describe('syncSubscription', () => {
     live.status = 'canceled'
     await syncSubscription(`sub_solo_${tag}`)
     await syncSubscription(`sub_solo_${tag}`)
-    expect(await workspacePlan(solo)).toMatchObject({ plan: 'FREE', limit: 1 })
+    expect(await workspacePlan(solo)).toMatchObject({ plan: 'FREE', limit: FREE_ACTIVE_PROPERTIES })
   })
 
   it('refuses a second live subscription for a workspace already paying, and records nothing', async () => {

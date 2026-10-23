@@ -9,7 +9,7 @@ import type { Prisma, Stakeholder } from '@/generated/prisma'
 /// punished for their history: a property stops counting once its tenancy has ended or
 /// its check-out is complete. Nothing is ever locked when a workspace is over its limit,
 /// which happens on a downgrade; it only cannot add another property.
-export const FREE_ACTIVE_PROPERTIES = 1
+export const FREE_ACTIVE_PROPERTIES = 5
 export const PRO_ACTIVE_PROPERTIES_PER_SEAT = 10
 
 /// Stripe keeps a subscription `past_due` while it retries the card, and the agent keeps

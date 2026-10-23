@@ -8,7 +8,7 @@ they are on none. One `Subscription` row per workspace (exactly one of `teamId` 
 
 | Plan | Price | Allowance |
 |---|---|---|
-| Free | S$0 | 1 active property per workspace |
+| Free | S$0 | 5 active properties per workspace |
 | Pro | S$39 per agent seat a month | 10 active properties per seat, pooled across the team |
 
 An **active property** is one whose tenancy has not ended and whose check-out is not
