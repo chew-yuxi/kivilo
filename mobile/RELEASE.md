@@ -12,6 +12,30 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Workspace defaults and tidier controls: 23 October 2026 Singapore time
+
+Source `cadea8f`, live on production (Vercel `dpl_HS3amzmwGhTZhNHvumUbi4tDZ4BQ`,
+Ready in `sin1`, deployed from a clean worktree) and on stable:
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **8** / `742648` | **stable**, active and latest |
+| iOS `1.0.0+24` | **9** / `742654` | **stable**, active and latest |
+
+Lists default to All properties (was "All my work") on web and app. Creating, joining
+or viewing a team no longer switches anyone's workspace: Yuxi's properties vanished
+from view after creating a team because both clients saved the new team as the choice.
+The app's workspace picker carries "Add a team" in place of the Teams button and team
+description; Home's actions span the width; the Inspections tab has no duplicate title
+bar (a pushed route keeps a back button); Account drops the website deletion link and
+Sign out uses the page's card style. 356 mobile, 107 web unit and the five
+team-management browser tests passed. Built and verified from clean worktrees
+because the shared checkout held another session's uncommitted work. Assets and icon
+font match the release; iOS strict code-sign passed, 65.9% shared Dart code with the
+usual warning. Set to stable on Yuxi's "ship it" at **10:31 Singapore time**.
+Rollback: Android **7** (`741797`), iOS **8** (`741807`). Receipt:
+`build/release-20261023-workspace/stable-release.json`. Not yet seen on a device.
+
 ## Kivilo pickers in place of Material dropdowns: 23 October 2026 Singapore time
 
 Source `b7cb3ff`, Dart only; no backend, migration, plugin or asset change.
