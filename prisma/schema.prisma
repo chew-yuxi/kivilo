@@ -32,6 +32,10 @@ model Stakeholder {
   authUserId String?        @unique
   /// Billing workspace membership. Property access is granted separately per tenancy.
   teamId    String?
+  /// The language this person reads Kivilo in: `en`, `zh` or `th`, as the app or web
+  /// last reported it. Null when never chosen, read as English. Notifications and
+  /// emails to them are written in it.
+  locale    String?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 

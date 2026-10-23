@@ -275,6 +275,15 @@ class Api {
         return AgentBranding.fromResponse(response.data!);
       });
 
+  /// The language the app is showing. The server writes this person's notifications
+  /// and emails in it.
+  Future<void> saveLanguage(String locale) => _call(() async {
+    await _dio.put<Map<String, dynamic>>(
+      '/api/v1/me/language',
+      data: {'locale': locale},
+    );
+  });
+
   /// The raw image is the body. The server decides what it is from its bytes.
   Future<AgentBranding?> uploadBrandingLogo(Uint8List bytes) => _call(() async {
     final response = await _dio.post<Map<String, dynamic>>(

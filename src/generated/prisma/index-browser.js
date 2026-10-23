@@ -129,6 +129,7 @@ exports.Prisma.StakeholderScalarFieldEnum = {
   phone: 'phone',
   authUserId: 'authUserId',
   teamId: 'teamId',
+  locale: 'locale',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

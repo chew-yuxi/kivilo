@@ -54,9 +54,9 @@ describe('signatureRequestEmail', () => {
     id: 'row',
     recipientName: 'Tan <Wei> Ming',
     role: 'landlord' as const,
-    reportKind: 'Check-in' as const,
+    reportKind: 'CHECK_IN' as const,
     address: '#28-05, 2 Marina Boulevard, Singapore 018987',
-    from: 'Alaric Yeo of Harbourline Realty',
+    from: { agent: 'Alaric Yeo', agency: 'Harbourline Realty' },
     link: 'https://kivilo.test/sign/cabc?email=tan%40example.com',
   }
 
@@ -83,11 +83,11 @@ describe('signedCopyEmail', () => {
   const copy = {
     id: 'row',
     recipientName: 'Priya Raman',
-    reportKind: 'Check-out' as const,
+    reportKind: 'CHECK_OUT' as const,
     address: '2 Marina Boulevard, Singapore 018987',
     signatures: [
-      { name: 'Priya Raman', role: 'Tenant', signedAt: new Date('2026-10-16T02:00:00Z') },
-      { name: 'Tan Wei Ming', role: 'Landlord', signedAt: new Date('2026-10-16T03:30:00Z') },
+      { name: 'Priya Raman', role: 'TENANT' as const, signedAt: new Date('2026-10-16T02:00:00Z') },
+      { name: 'Tan Wei Ming', role: 'LANDLORD' as const, signedAt: new Date('2026-10-16T03:30:00Z') },
     ],
   }
 

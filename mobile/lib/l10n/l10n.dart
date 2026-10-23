@@ -49,6 +49,21 @@ class AppLanguage {
     choice.value = code;
   }
 
+  static String? _reported;
+
+  /// Tells the server the language in use, once per account and language, so the
+  /// notifications and emails written for this person are in it too. A failure is
+  /// tried again on the next resume.
+  static Future<void> report(
+    Future<void> Function(String locale) save,
+    String userId,
+  ) async {
+    final reported = '$userId:${locale.languageCode}';
+    if (_reported == reported) return;
+    await save(locale.languageCode);
+    _reported = reported;
+  }
+
   /// The chosen language, or the first of the phone's languages the app speaks.
   static Locale resolve(List<Locale> phone) {
     final code =

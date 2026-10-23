@@ -3,6 +3,7 @@ import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalR
 import { queueRenewalReminders } from '@/lib/renewals'
 import { deliverPushOutbox } from '@/lib/push'
 import { activeNotificationRecipients, notificationCanBeDelivered } from '@/lib/notification-recipients'
+import { inRecipientLanguage, messages, type Messages } from '@/lib/i18n'
 
 /// Creates reminders and delivers the durable email and push outboxes. In-app
 /// notifications are already committed with the domain change; transports retry alone.
@@ -30,15 +31,14 @@ export async function deliverNotificationOutbox(limit = 25) {
     }
     const active = recipients.filter((id) => activeRecipients.has(id))
     if (active.length) await db.notification.createMany({
-      data: active.map((recipientId) => ({
+      data: await inRecipientLanguage(db, active.map((recipientId) => ({
         recipientId,
         tenancyId: item.tenancyId,
         kind: 'MAINTENANCE_STATUS' as const,
-        title: 'Maintenance report needs acknowledgement',
-        body: item.title,
+        words: (m: Messages) => ({ title: m.notification.overdueTitle, body: item.title }),
         href: `/maintenance/${item.id}`,
         dedupeKey: `maintenance-overdue:${item.id}:${recipientId}`,
-      })),
+      }))),
       skipDuplicates: true,
     })
   }
@@ -52,7 +52,7 @@ export async function deliverNotificationOutbox(limit = 25) {
         deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } },
       },
     },
-    include: { recipient: { select: { email: true } } },
+    include: { recipient: { select: { email: true, locale: true } } },
     orderBy: { createdAt: 'asc' },
     take: limit,
   })
@@ -61,16 +61,19 @@ export async function deliverNotificationOutbox(limit = 25) {
   for (const notification of pending) {
     try {
       if (!await notificationCanBeDelivered(db, notification)) continue
+      // The title and body were written in the recipient's language when the row was
+      // made; the lines around them follow it.
+      const m = messages(notification.recipient.locale)
       if (notification.kind === 'AGENCY_INVITATION') {
-        await sendAgencyInvitationNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+        await sendAgencyInvitationNotification(notification.recipient.email!, { ...notification, href: notification.href! }, m)
       } else if (notification.kind === 'PROPERTY_SHARED') {
-        await sendPropertySharedNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+        await sendPropertySharedNotification(notification.recipient.email!, { ...notification, href: notification.href! }, m)
       } else if (notification.kind === 'REPORT_UPDATED') {
-        await sendReportUpdateNotification(notification.recipient.email!, { ...notification, href: notification.href! })
+        await sendReportUpdateNotification(notification.recipient.email!, { ...notification, href: notification.href! }, m)
       } else if (notification.kind === 'RENEWAL_DUE') {
-        await sendRenewalReminder(notification.recipient.email!, notification)
+        await sendRenewalReminder(notification.recipient.email!, notification, m)
       } else {
-        await sendMaintenanceNotification(notification.recipient.email!, notification)
+        await sendMaintenanceNotification(notification.recipient.email!, notification, m)
       }
       await db.notification.update({
         where: { id: notification.id },

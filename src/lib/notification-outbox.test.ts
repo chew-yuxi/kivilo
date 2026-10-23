@@ -21,6 +21,7 @@ vi.mock('@/lib/email', () => ({
 }))
 
 import { deliverNotificationOutbox } from '@/lib/notification-outbox'
+import { en } from '@/lib/i18n/en'
 
 describe('notification delivery permission', () => {
   beforeEach(() => {
@@ -62,7 +63,7 @@ describe('notification delivery permission', () => {
     expect(result.email.sent).toBe(1)
     expect(sharedEmail).toHaveBeenCalledWith('colleague@example.test', expect.objectContaining({
       id: notice.id, title: notice.title, body: notice.body, href: notice.href,
-    }))
+    }), en)
     expect(maintenanceEmail).not.toHaveBeenCalled()
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ emailSentAt: expect.any(Date), emailTo: 'colleague@example.test' }),
@@ -75,7 +76,7 @@ describe('notification delivery permission', () => {
       kind: 'AGENCY_INVITATION', title: 'Join Team', body: 'Invite', href: '/team', recipient: { email: 'invitee@example.test' },
     }])
     expect((await deliverNotificationOutbox()).email.sent).toBe(1)
-    expect(agencyEmail).toHaveBeenCalledWith('invitee@example.test', expect.objectContaining({ id: 'invite-notice', href: '/team' }))
+    expect(agencyEmail).toHaveBeenCalledWith('invitee@example.test', expect.objectContaining({ id: 'invite-notice', href: '/team' }), en)
     expect(maintenanceEmail).not.toHaveBeenCalled()
     findFirst.mockResolvedValue(null)
     agencyEmail.mockClear()

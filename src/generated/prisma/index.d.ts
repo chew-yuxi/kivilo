@@ -6549,6 +6549,7 @@ export namespace Prisma {
     phone: string | null
     authUserId: string | null
     teamId: string | null
+    locale: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6562,6 +6563,7 @@ export namespace Prisma {
     phone: string | null
     authUserId: string | null
     teamId: string | null
+    locale: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6575,6 +6577,7 @@ export namespace Prisma {
     phone: number
     authUserId: number
     teamId: number
+    locale: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6590,6 +6593,7 @@ export namespace Prisma {
     phone?: true
     authUserId?: true
     teamId?: true
+    locale?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6603,6 +6607,7 @@ export namespace Prisma {
     phone?: true
     authUserId?: true
     teamId?: true
+    locale?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6616,6 +6621,7 @@ export namespace Prisma {
     phone?: true
     authUserId?: true
     teamId?: true
+    locale?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6702,6 +6708,7 @@ export namespace Prisma {
     phone: string | null
     authUserId: string | null
     teamId: string | null
+    locale: string | null
     createdAt: Date
     updatedAt: Date
     _count: StakeholderCountAggregateOutputType | null
@@ -6732,6 +6739,7 @@ export namespace Prisma {
     phone?: boolean
     authUserId?: boolean
     teamId?: boolean
+    locale?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
@@ -6778,6 +6786,7 @@ export namespace Prisma {
     phone?: boolean
     authUserId?: boolean
     teamId?: boolean
+    locale?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
@@ -6792,6 +6801,7 @@ export namespace Prisma {
     phone?: boolean
     authUserId?: boolean
     teamId?: boolean
+    locale?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
@@ -6806,11 +6816,12 @@ export namespace Prisma {
     phone?: boolean
     authUserId?: boolean
     teamId?: boolean
+    locale?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "authUserId" | "teamId" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
+  export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "authUserId" | "teamId" | "locale" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
   export type StakeholderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
     agencyMemberships?: boolean | Stakeholder$agencyMembershipsArgs<ExtArgs>
@@ -6913,6 +6924,12 @@ export namespace Prisma {
        * Billing workspace membership. Property access is granted separately per tenancy.
        */
       teamId: string | null
+      /**
+       * The language this person reads Kivilo in: `en`, `zh` or `th`, as the app or web
+       * last reported it. Null when never chosen, read as English. Notifications and
+       * emails to them are written in it.
+       */
+      locale: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["stakeholder"]>
@@ -7378,6 +7395,7 @@ export namespace Prisma {
     readonly phone: FieldRef<"Stakeholder", 'String'>
     readonly authUserId: FieldRef<"Stakeholder", 'String'>
     readonly teamId: FieldRef<"Stakeholder", 'String'>
+    readonly locale: FieldRef<"Stakeholder", 'String'>
     readonly createdAt: FieldRef<"Stakeholder", 'DateTime'>
     readonly updatedAt: FieldRef<"Stakeholder", 'DateTime'>
   }
@@ -60227,6 +60245,7 @@ export namespace Prisma {
     phone: 'phone',
     authUserId: 'authUserId',
     teamId: 'teamId',
+    locale: 'locale',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -61573,6 +61592,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Stakeholder"> | string | null
     authUserId?: StringNullableFilter<"Stakeholder"> | string | null
     teamId?: StringNullableFilter<"Stakeholder"> | string | null
+    locale?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
@@ -61618,6 +61638,7 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     authUserId?: SortOrderInput | SortOrder
     teamId?: SortOrderInput | SortOrder
+    locale?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     team?: TeamOrderByWithRelationInput
@@ -61666,6 +61687,7 @@ export namespace Prisma {
     idNumber?: StringNullableFilter<"Stakeholder"> | string | null
     phone?: StringNullableFilter<"Stakeholder"> | string | null
     teamId?: StringNullableFilter<"Stakeholder"> | string | null
+    locale?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
@@ -61711,6 +61733,7 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     authUserId?: SortOrderInput | SortOrder
     teamId?: SortOrderInput | SortOrder
+    locale?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: StakeholderCountOrderByAggregateInput
@@ -61730,6 +61753,7 @@ export namespace Prisma {
     phone?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     authUserId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     teamId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
+    locale?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
   }
@@ -65522,6 +65546,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -65567,6 +65592,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -65610,6 +65636,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -65655,6 +65682,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -65699,6 +65727,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -65711,6 +65740,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -65724,6 +65754,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -70084,6 +70115,7 @@ export namespace Prisma {
     phone?: SortOrder
     authUserId?: SortOrder
     teamId?: SortOrder
+    locale?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -70097,6 +70129,7 @@ export namespace Prisma {
     phone?: SortOrder
     authUserId?: SortOrder
     teamId?: SortOrder
+    locale?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -70110,6 +70143,7 @@ export namespace Prisma {
     phone?: SortOrder
     authUserId?: SortOrder
     teamId?: SortOrder
+    locale?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -81453,6 +81487,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
@@ -81496,6 +81531,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -81604,6 +81640,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Stakeholder"> | string | null
     authUserId?: StringNullableFilter<"Stakeholder"> | string | null
     teamId?: StringNullableFilter<"Stakeholder"> | string | null
+    locale?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
   }
@@ -81870,6 +81907,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -81914,6 +81952,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
@@ -82049,6 +82088,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -82093,6 +82133,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
@@ -82224,6 +82265,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -82268,6 +82310,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -82315,6 +82358,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -82359,6 +82403,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -82444,6 +82489,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -82488,6 +82534,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -82541,6 +82588,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -82585,6 +82633,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -82627,6 +82676,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -82671,6 +82721,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -82729,6 +82780,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -82773,6 +82825,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -82995,6 +83048,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -83039,6 +83093,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83086,6 +83141,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -83130,6 +83186,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83177,6 +83234,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -83221,6 +83279,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -83659,6 +83718,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -83703,6 +83763,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -83756,6 +83817,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -83800,6 +83862,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -83853,6 +83916,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -83897,6 +83961,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -84209,6 +84274,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -84253,6 +84319,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -84300,6 +84367,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -84344,6 +84412,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -84463,6 +84532,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -84507,6 +84577,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -84560,6 +84631,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -84604,6 +84676,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -84701,6 +84774,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -84745,6 +84819,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -84792,6 +84867,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -84836,6 +84912,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -85461,6 +85538,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -85505,6 +85583,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -85558,6 +85637,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -85602,6 +85682,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -86077,6 +86158,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -86121,6 +86203,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -86252,6 +86335,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -86296,6 +86380,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -87838,6 +87923,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -87882,6 +87968,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -88390,6 +88477,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -88434,6 +88522,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -88772,6 +88861,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -88816,6 +88906,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -88937,6 +89028,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -88981,6 +89073,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -89403,6 +89496,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -89447,6 +89541,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -89605,6 +89700,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -89649,6 +89745,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -89722,6 +89819,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -89766,6 +89864,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -89861,6 +89960,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -89905,6 +90005,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -90004,6 +90105,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -90048,6 +90150,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -90095,6 +90198,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -90139,6 +90243,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -90260,6 +90365,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -90304,6 +90410,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -90357,6 +90464,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -90401,6 +90509,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -90495,6 +90604,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -90539,6 +90649,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -90629,6 +90740,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -90673,6 +90785,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -90746,6 +90859,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -90790,6 +90904,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -90968,6 +91083,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -91012,6 +91128,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -91980,6 +92097,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -92024,6 +92142,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -92236,6 +92355,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -92280,6 +92400,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -92600,6 +92721,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -92644,6 +92766,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -92775,6 +92898,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -92819,6 +92943,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -92928,6 +93053,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -92972,6 +93098,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -93103,6 +93230,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -93147,6 +93275,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -93444,6 +93573,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -93488,6 +93618,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -93535,6 +93666,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -93579,6 +93711,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -93757,6 +93890,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -93801,6 +93935,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -93932,6 +94067,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -93976,6 +94112,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -94029,6 +94166,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -94073,6 +94211,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -94221,6 +94360,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -94265,6 +94405,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -94803,6 +94944,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -94847,6 +94989,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -94960,6 +95103,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -95004,6 +95148,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -95046,6 +95191,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -95090,6 +95236,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -95172,6 +95319,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -95216,6 +95364,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -95353,6 +95502,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -95397,6 +95547,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -95455,6 +95606,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -95499,6 +95651,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -95541,6 +95694,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -95585,6 +95739,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -95643,6 +95798,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -95687,6 +95843,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -95894,6 +96051,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -95938,6 +96096,7 @@ export namespace Prisma {
     phone?: string | null
     authUserId?: string | null
     teamId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -96027,6 +96186,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -96071,6 +96231,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -97855,6 +98016,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    locale?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -97867,6 +98029,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
@@ -97910,6 +98073,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -97953,6 +98117,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -1,0 +1,122 @@
+import type { Messages } from './en'
+
+/// Simplified Chinese as written in Singapore and Malaysia, matching the app's
+/// `app_zh.arb`. Needs a native speaker's review before it reaches people.
+export const zh: Messages = {
+  intl: 'zh-SG',
+
+  party: { LANDLORD: '房东', TENANT: '租客' },
+
+  maintenanceStatus: {
+    REPORTED: '已报告',
+    ACKNOWLEDGED: '已受理',
+    SCHEDULED: '已安排',
+    AWAITING_CONFIRMATION: '等待确认',
+    RESOLVED: '已解决',
+    CLOSED_NO_ACTION: '不处理并关闭',
+  },
+
+  proposal: {
+    sharedPays: (cap) => `首 S$${cap} 由租客支付，其余由房东支付。`,
+    pays: (party) => `由${party}支付。`,
+    arranges: (party) => `由${party}安排维修。`,
+  },
+
+  notification: {
+    maintenanceReported: (address) => `${address}：有人报告了维修问题。`,
+    maintenanceStatus: (status) => `维修状态已改为“${status}”。`,
+    visitCompleted: '维修成功了吗？请确认。',
+    visitScheduled: '已安排上门维修。',
+    repeatRepairTitle: '重复维修记录',
+    repeatRepairBody: (count) => `这项设备在过去 365 天内已完成 ${count} 次上门维修。`,
+    verifiedFixed: (party) => `${party}已确认维修完成。`,
+    verifiedNotFixed: (party) => `${party}报告问题仍未修好。`,
+    costProposed: (party, terms) => `${party}提议：${terms}`,
+    costAccepted: (party, terms) => `${party}已接受：${terms}`,
+    costRejected: (party, terms) => `${party}已拒绝：${terms}`,
+    costWithdrawn: (party) => `${party}已撤回费用提议。`,
+    overdueTitle: '维修报告等待受理',
+    renewalTitle: '需要续租',
+    renewalBody: (address, endDate) => `${address}：租约于 ${endDate} 结束。请与房东和租客安排续租。`,
+    moveInReported: '租客报告入住时已存在此状况。请确认或对这份注明日期的通知提出异议。',
+    moveInDisputed: (reason) => `房东对入住状况通知提出异议：${reason}`,
+    moveInAccepted: '房东已确认您的入住状况通知，现已计入约定的入住检查基准。',
+    propertySharedTitle: (agent) => `${agent} 与您共享了一个房产`,
+    propertySharedBody: (agent, address) => `${agent} 已将您添加为 ${address} 的协作者。`,
+    propertyAssignedTitle: (actor) => `${actor} 为您分配了一个房产`,
+    propertyAssignedBody: (actor, address) => `${actor} 已将 ${address} 分配给您。`,
+    agencyInvitationTitle: (agency) => `加入 Kivilo 上的 ${agency}`,
+    agencyInvitationBody: (actor, agency) => `${actor} 邀请您加入 ${agency}。请在 7 天内查看并接受邀请。`,
+    reportUpdatedTitle: (address) => `${address} 的报告已更新`,
+    reportUpdatedBody: (number, title) => `更新记录 ${number}：${title}。请查看并确认。`,
+    depositTitle: (address) => `${address} 的押金结算单`,
+    depositBody: (deductions, deposit) => `退租评估提议从 ${deposit} 押金中扣除 ${deductions}。请同意或提出异议。`,
+  },
+
+  email: {
+    signIn: {
+      subject: (code) => `${code} 是您的 Kivilo 登录验证码`,
+      line: (code) => `您的 Kivilo 登录验证码是 ${code}。`,
+      heading: '您的 Kivilo 登录验证码',
+      enter: '请在应用中输入此验证码以完成登录。',
+      enterText: '请在应用中输入它以完成登录。验证码一小时内有效，且只能使用一次。',
+      expires: '验证码一小时内有效，且只能使用一次。如果您没有要求登录，可以忽略这封电邮。',
+      ignore: '如果您没有要求登录，可以忽略这封电邮。',
+    },
+    accountDeleted: {
+      subject: '您的 Kivilo 账户已删除',
+      body: '您的 Kivilo 账户已被删除。',
+      retained: '为其他相关方或依法保留的数据，仍受我们公布的保留政策约束。',
+    },
+    maintenanceFooter: '打开 Kivilo 查看维修记录并回复。',
+    renewalFooter: '在 Kivilo 中打开“检查”，开始续租、标记为不续租，或关闭提醒。',
+    propertyShared: {
+      open: (link) => `打开房产：${link}`,
+      signIn: '请使用收到这封电邮的地址登录 Kivilo。',
+      together: '您可以一起处理这个租约，包括照片、物品清单和维修。',
+    },
+    agencyInvitation: {
+      review: (link) => `查看邀请：${link}`,
+      signIn: '请使用收到这封电邮的地址登录。加入团队不会共享您的个人房产。',
+    },
+    reportUpdate: {
+      subject: (title) => `${title}：请查看并确认`,
+      review: (link) => `请在这里查看并确认：${link}`,
+      app: '您也可以在 Kivilo 应用中打开报告并在那里确认。',
+    },
+    hello: (name) => `${name} 您好：`,
+    reportName: (kind, address) => `${address} 的${kind === 'CHECK_OUT' ? '退租' : '入住'}检查报告`,
+    roleName: { landlord: '房东', tenant: '租客' },
+    yourAgent: '您的中介',
+    agentOf: (agent, agency) => `${agency} 的 ${agent}`,
+    signatureRequest: {
+      subject: (report) => `请查看并签署${report}`,
+      heading: '请查看并签署',
+      intro: (from, report, role) => `${from} 已将${report}发送给您，请以${role}身份签署。`,
+      reviewHere: '请在这里查看并签署：',
+      button: '查看并签署',
+      signIn: '您需要用发送到这个地址的验证码登录，确保只有您本人可以签署。如果您已经在使用 Kivilo，这就是同一个账户。',
+      app: '想用应用？打开 Kivilo 应用并用这个地址登录，报告就在那里等待您签署。',
+      after: '双方签署后，我们会把已签署的报告以 PDF 电邮给您。',
+    },
+    handover: {
+      subject: (address) => `您在 ${address} 的交接资料`,
+      period: (days, deadline) =>
+        `您租约的 ${days} 天入住缺陷申报期于 ${deadline}（新加坡时间当天结束时）截止。如果入住时已经有问题，请在截止前报告。`,
+      noPeriod: '这个租约没有启用入住缺陷申报期。您仍可在 Kivilo 应用中报告维修。',
+      countersigned: '双方都已签署。已签署的报告会另外以 PDF 发送给您。',
+      tenantSigned: '您已签署入住检查报告。房东也签署后，我们会把已签署的报告以 PDF 电邮给您。',
+      details: '您的报告和交接资料：',
+      signIn: '请用发送到这个地址的验证码登录。如果您使用 Kivilo 应用，请用同一个地址登录，查看您的租约并报告问题。',
+      notice: '在房东确认之前，入住缺陷报告是您注明日期的陈述。已签署的入住检查报告保持不变。',
+    },
+    signedCopy: {
+      subject: (report) => `已签署：${report}`,
+      attached: (report) => `双方已签署${report}。已签署的报告以 PDF 附上，请与租约文件一起保存。`,
+      linked: (report) => `双方已签署${report}。报告太大无法附上，请在这里下载 PDF，并与租约文件一起保存：`,
+      linkSignIn: '您需要用发送到这个地址的验证码登录，确保只有您本人可以打开。',
+      signature: (role, name, when) => `${role}：${name}，签署于 ${when}`,
+      fingerprint: 'PDF 在每个签名旁印有该签署人所签报告的内容指纹，可用来比对任意两份副本。',
+    },
+  },
+}

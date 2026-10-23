@@ -1,5 +1,7 @@
 import { Webhook } from 'standardwebhooks'
+import { db } from '@/lib/db'
 import { sendSignInCode } from '@/lib/email'
+import { messages } from '@/lib/i18n'
 
 /// Supabase's Send Email Hook. Instead of mailing the sign-in code itself, Supabase
 /// POSTs it here and we deliver it through Resend.
@@ -55,7 +57,12 @@ export async function POST(request: Request) {
     return refuse(400, `No email template for auth action "${action}"`)
   }
 
-  await sendSignInCode(payload.user.email, token)
+  // In the language the person last used Kivilo in, when there is one on file.
+  const person = await db.stakeholder.findUnique({
+    where: { email: payload.user.email.toLowerCase() },
+    select: { locale: true },
+  })
+  await sendSignInCode(payload.user.email, token, messages(person?.locale))
 
   return Response.json({})
 }

@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { en } from '@/lib/i18n/en'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 import { db } from '@/lib/db'
 import { agentTenancies, authorizeTenancy, tenancyScope, notificationScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
@@ -155,19 +157,18 @@ function repairRoles(
   return { arrangedBy, canLogVisit: arranges, canVerify: !arranges }
 }
 
-const partyName = { LANDLORD: 'Landlord', TENANT: 'Tenant' } as const
-
 /// The one sentence both sides read, in the app and in the notification. Third person,
-/// because the same words go to the proposer and the person answering.
+/// because the same words go to the proposer and the person answering. English unless
+/// a reader's catalog is given; the copy stored with an event stays English.
 export function describeProposal(proposal: {
   arrangedBy: Side
   payer: z.infer<typeof payer>
   tenantCap: { toString(): string } | null
-}) {
+}, m: Messages = en) {
   const pays = proposal.payer === 'SHARED'
-    ? `Tenant pays the first S$${proposal.tenantCap}, landlord pays the rest.`
-    : `${partyName[proposal.payer]} pays.`
-  return `${pays} ${partyName[proposal.arrangedBy]} arranges the repair.`
+    ? m.proposal.sharedPays(`${proposal.tenantCap}`)
+    : m.proposal.pays(m.party[proposal.payer])
+  return `${pays} ${m.proposal.arranges(m.party[proposal.arrangedBy])}`
 }
 
 /// Where the cost question on a case stands, for check-out review. A case closed
@@ -246,7 +247,7 @@ export async function authorizeMaintenanceCase(caseId: string, stakeholderId: st
 function notificationRows(
   tenancy: { id: string; landlordId: string; tenantId: string; agentId: string | null; endDate: Date; collaborators: { stakeholderId: string }[] },
   excludeId: string,
-  input: { kind: 'MAINTENANCE_REPORTED' | 'MAINTENANCE_STATUS' | 'MAINTENANCE_VISIT' | 'MAINTENANCE_VERIFICATION' | 'MAINTENANCE_RESPONSIBILITY' | 'REPEAT_REPAIR'; title: string; body: string; href: string; dedupeKey?: string },
+  input: { kind: 'MAINTENANCE_REPORTED' | 'MAINTENANCE_STATUS' | 'MAINTENANCE_VISIT' | 'MAINTENANCE_VERIFICATION' | 'MAINTENANCE_RESPONSIBILITY' | 'REPEAT_REPAIR'; words: (m: Messages) => { title: string; body: string }; href: string; dedupeKey?: string },
 ) {
   const ids = [tenancy.landlordId, tenancy.tenantId]
   if (tenancy.endDate >= new Date()) {
@@ -262,7 +263,7 @@ function notificationRows(
 }
 
 async function createNotificationRows(
-  client: Pick<Prisma.TransactionClient, 'accountDeletionRequest' | 'notification'>,
+  client: Pick<Prisma.TransactionClient, 'accountDeletionRequest' | 'notification' | 'stakeholder'>,
   rows: ReturnType<typeof notificationRows>,
 ) {
   const recipients = new Set(await activeNotificationRecipients(
@@ -270,7 +271,10 @@ async function createNotificationRows(
     rows.map((row) => row.recipientId),
   ))
   const active = rows.filter((row) => recipients.has(row.recipientId))
-  if (active.length) await client.notification.createMany({ data: active, skipDuplicates: true })
+  if (active.length) await client.notification.createMany({
+    data: await inRecipientLanguage(client, active),
+    skipDuplicates: true,
+  })
 }
 
 export async function listTenancies(stakeholderId: string, filters: { agencyId?: string; personal?: boolean } = {}) {
@@ -521,8 +525,8 @@ export async function createMaintenanceCase(tenancyId: string, stakeholderId: st
       data: { caseId: item.id, actorId: stakeholderId, kind: 'REPORTED', body: input.description },
     })
     const rows = notificationRows(tenancy, stakeholderId, {
-      kind: 'MAINTENANCE_REPORTED', title: input.title,
-      body: `${tenancy.property.line1}: a maintenance issue was reported.`,
+      kind: 'MAINTENANCE_REPORTED',
+      words: (m) => ({ title: input.title, body: m.notification.maintenanceReported(tenancy.property.line1) }),
       href: `/maintenance/${item.id}`,
     })
     await createNotificationRows(tx, rows)
@@ -556,8 +560,11 @@ export async function updateMaintenanceCase(caseId: string, stakeholderId: strin
       },
     })
     const rows = notificationRows(maintenanceCase.tenancy, stakeholderId, {
-      kind: 'MAINTENANCE_STATUS', title: maintenanceCase.title,
-      body: `Maintenance status changed to ${input.status.toLowerCase().replaceAll('_', ' ')}.`,
+      kind: 'MAINTENANCE_STATUS',
+      words: (m) => ({
+        title: maintenanceCase.title,
+        body: m.notification.maintenanceStatus(m.maintenanceStatus[input.status] ?? input.status),
+      }),
       href: `/maintenance/${caseId}`,
     })
     await createNotificationRows(tx, rows)
@@ -606,8 +613,10 @@ export async function addMaintenanceVisit(caseId: string, stakeholderId: string,
     })
     const rows = notificationRows(maintenanceCase.tenancy, stakeholderId, {
       kind: input.completedAt ? 'MAINTENANCE_VERIFICATION' : 'MAINTENANCE_VISIT',
-      title: maintenanceCase.title,
-      body: input.completedAt ? 'Was the repair successful? Please confirm.' : 'A repair visit was scheduled.',
+      words: (m) => ({
+        title: maintenanceCase.title,
+        body: input.completedAt ? m.notification.visitCompleted : m.notification.visitScheduled,
+      }),
       href: `/maintenance/${caseId}`,
     })
     await createNotificationRows(tx, rows)
@@ -638,8 +647,10 @@ async function createRepeatRepairAlerts(assetId: string, tenancyId: string, case
     recipientId,
     tenancyId,
     kind: 'REPEAT_REPAIR' as const,
-    title: 'Repeated repair history',
-    body: `This asset has had ${count} completed repair visits in the last 365 days.`,
+    words: (m: Messages) => ({
+      title: m.notification.repeatRepairTitle,
+      body: m.notification.repeatRepairBody(count),
+    }),
     href: `/maintenance/${caseId}`,
     dedupeKey: `repeat-repair:${assetId}:${recipientId}`,
   })))
@@ -681,10 +692,13 @@ export async function verifyMaintenanceVisit(caseId: string, visitId: string, st
       },
     })
     const rows = notificationRows(maintenanceCase.tenancy, stakeholderId, {
-      kind: 'MAINTENANCE_VERIFICATION', title: maintenanceCase.title,
-      body: input.outcome === 'FIXED'
-        ? `The ${sideOf(role).toLowerCase()} confirmed the repair is fixed.`
-        : `The ${sideOf(role).toLowerCase()} reported that the issue is not fixed.`,
+      kind: 'MAINTENANCE_VERIFICATION',
+      words: (m) => ({
+        title: maintenanceCase.title,
+        body: input.outcome === 'FIXED'
+          ? m.notification.verifiedFixed(m.party[sideOf(role)])
+          : m.notification.verifiedNotFixed(m.party[sideOf(role)]),
+      }),
       href: `/maintenance/${caseId}`,
     })
     await createNotificationRows(tx, rows)
@@ -732,8 +746,11 @@ export async function proposeResponsibility(caseId: string, stakeholderId: strin
       },
     })
     await createNotificationRows(tx, notificationRows(tenancy, stakeholderId, {
-      kind: 'MAINTENANCE_RESPONSIBILITY', title: maintenanceCase.title,
-      body: `${partyName[sideOf(role)]} proposes: ${summary}`,
+      kind: 'MAINTENANCE_RESPONSIBILITY',
+      words: (m) => ({
+        title: maintenanceCase.title,
+        body: m.notification.costProposed(m.party[sideOf(role)], describeProposal(input, m)),
+      }),
       href: `/maintenance/${caseId}`,
     }))
     return { id: proposal.id }
@@ -802,12 +819,16 @@ export async function answerResponsibility(
         },
       })
     }
-    const verb = { ACCEPT: 'accepted', REJECT: 'rejected', WITHDRAW: 'withdrew' }[input.decision]
     await createNotificationRows(tx, notificationRows(tenancy, stakeholderId, {
-      kind: 'MAINTENANCE_RESPONSIBILITY', title: maintenanceCase.title,
-      body: input.decision === 'WITHDRAW'
-        ? `${partyName[sideOf(role)]} withdrew the cost proposal.`
-        : `${partyName[sideOf(role)]} ${verb}: ${describeProposal(proposal)}`,
+      kind: 'MAINTENANCE_RESPONSIBILITY',
+      words: (m) => ({
+        title: maintenanceCase.title,
+        body: input.decision === 'WITHDRAW'
+          ? m.notification.costWithdrawn(m.party[sideOf(role)])
+          : input.decision === 'ACCEPT'
+            ? m.notification.costAccepted(m.party[sideOf(role)], describeProposal(proposal, m))
+            : m.notification.costRejected(m.party[sideOf(role)], describeProposal(proposal, m)),
+      }),
       href: `/maintenance/${caseId}`,
     }))
   })

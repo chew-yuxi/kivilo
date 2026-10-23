@@ -109,6 +109,7 @@ class _KiviloAppState extends State<KiviloApp> with WidgetsBindingObserver {
 
     (context as Element).visitChildren(rebuild);
     setState(() {});
+    if (Config.isComplete) _reportLanguage();
   }
 
   @override
@@ -142,8 +143,19 @@ Future<void> _resumeCaptures() async {
   }
 }
 
+void _reportLanguage() {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return;
+  unawaited(
+    AppLanguage.report(Api().saveLanguage, user.id).catchError(
+      (Object error) => debugPrint('language report error: $error'),
+    ),
+  );
+}
+
 void _resumeUserServices() {
   unawaited(_resumeCaptures());
+  _reportLanguage();
   // Reports wait for a session as well as for signal, so a sign-in is a moment to send.
   final reporter = ErrorReporter.current;
   if (reporter != null) unawaited(reporter.flush());

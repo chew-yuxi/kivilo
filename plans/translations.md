@@ -80,3 +80,30 @@ Still English, and what each needs:
 
 1 to 3 are one piece of work (phase 2): a language on the account, then server-side
 messages for notifications and email, then the web pages.
+
+## Phase 2 plan (2026-10-23): the account's language, then server text, then the web
+
+Yuxi said go. Built on `claude/translations`, after the app phase.
+
+1. **A language on the account.** `Stakeholder.locale` (`en`, `zh`, `th`, null meaning
+   never chosen and read as English), additive migration. The app reports the language
+   it is showing with `PUT /api/v1/me/language` on sign-in and whenever it changes,
+   so "phone language" is reported as what it resolved to. The web stores it the same
+   way from its own language picker. Older app builds never call it and stay English.
+2. **Server text in the recipient's language.** One typed catalog per language in
+   `src/lib/i18n/` (`en.ts` defines the shape; `zh.ts` and `th.ts` must match it, so
+   a missing message fails `tsc`). Notification rows are written per recipient in that
+   recipient's language at creation, which is what the inbox, push and the
+   notification emails all read. Report emails (signature request, handover, signed
+   copy) and the sign-in code email render at send time in the recipient's language;
+   the sign-in email looks the address up, since the person may not have signed in
+   yet. Dates format with `Intl` in that language, Singapore time.
+3. **The pages a landlord or tenant opens from an email**: `/login`, `/sign/[id]`,
+   `/updates/[id]`, `/handover/[id]`. Language: the signed-in account's, else the
+   browser's `Accept-Language`, else English. No locale in the URL, so every link
+   already sent keeps working. The report document drawn inside `/sign` stays English
+   with the PDF.
+4. **The agent web app** under `(app)`, with a language picker in Account.
+
+Each step is its own commit and keeps `pnpm typecheck`, `lint`, `test`,
+`test:integration` and the mobile suite green.

@@ -4,6 +4,7 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { propertyLabel } from '@/lib/format'
 import type { Prisma } from '@/generated/prisma'
 import type { InspectionWorkFilters } from '@/lib/inspection-work'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 
 /// Calendar months, clamped at month end: 31 May reminds on 28/29 February.
 /// Tenancy dates are stored at UTC midnight; no server timezone enters the calculation.
@@ -72,15 +73,17 @@ export async function queueRenewalReminders(now = new Date()) {
   const reminders = due.filter((tenancy) => active.has(tenancy.agentId!))
   if (!reminders.length) return 0
   const result = await db.notification.createMany({
-    data: reminders.map((tenancy) => ({
+    data: await inRecipientLanguage(db, reminders.map((tenancy) => ({
       recipientId: tenancy.agentId!,
       tenancyId: tenancy.id,
       kind: 'RENEWAL_DUE' as const,
-      title: 'Renewal due',
-      body: `${propertyLabel(tenancy.property)}: tenancy ends ${tenancy.endDate.toISOString().slice(0, 10)}. Arrange the renewal with the landlord and tenant.`,
+      words: (m: Messages) => ({
+        title: m.notification.renewalTitle,
+        body: m.notification.renewalBody(propertyLabel(tenancy.property), tenancy.endDate.toISOString().slice(0, 10)),
+      }),
       href: '/inspections',
       dedupeKey: `renewal:${tenancy.id}:${tenancy.endDate.toISOString()}`,
-    })),
+    }))),
     skipDuplicates: true,
   })
   return result.count

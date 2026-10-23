@@ -9,6 +9,7 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { propertyLabel } from '@/lib/format'
 import { lockAgencyTenancy } from '@/lib/agency'
 import { AgencyActionError } from '@/lib/agency-errors'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 
 /// Inviting a verified mailbox grants one tenancy. A new address is an unclaimed
 /// stakeholder, claimed by the existing OTP sign-in flow when its owner signs in.
@@ -50,14 +51,17 @@ export async function addTenancyCollaborator(tenancyId: string, rawEmail: string
         where: { id: tenancyId },
         include: { property: true, inspections: { orderBy: { createdAt: 'desc' }, take: 1, select: { id: true } } },
       })
-      await tx.notification.create({ data: {
+      const [notification] = await inRecipientLanguage(tx, [{
         recipientId: collaborator.id,
         tenancyId,
-        kind: 'PROPERTY_SHARED',
-        title: `${agent.name} shared a property with you`,
-        body: `${agent.name} added you as a collaborator for ${propertyLabel(shared.property)}.`,
+        kind: 'PROPERTY_SHARED' as const,
+        words: (m: Messages) => ({
+          title: m.notification.propertySharedTitle(agent.name),
+          body: m.notification.propertySharedBody(agent.name, propertyLabel(shared.property)),
+        }),
         href: shared.inspections[0] ? `/inspections/${shared.inspections[0].id}` : '/inspections',
-      } })
+      }])
+      await tx.notification.create({ data: notification })
     }
   })
   revalidatePath('/inspections')

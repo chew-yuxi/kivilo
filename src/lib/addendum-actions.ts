@@ -22,6 +22,7 @@ import type { StateLine } from '@/lib/addenda-state'
 import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
 import { assertNoSignedCheckOut, lockMoveInDefectTenancy, MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 import { lockAgencyTenancy } from '@/lib/agency'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 
 // Addenda: dated updates to a countersigned check-in, written and published by the agent
 // and acknowledged by both parties. They never touch the signed rooms, items, captures
@@ -498,15 +499,17 @@ export async function publishAddendum(addendumId: string) {
     const address = propertyLabel(tenancy.property)
     const recipients = await activeNotificationRecipients(tx, [tenancy.landlordId, tenancy.tenantId])
     await tx.notification.createMany({
-      data: recipients.map((recipientId) => ({
+      data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
         recipientId,
         tenancyId: tenancy.id,
         kind: 'REPORT_UPDATED' as const,
-        title: `The report for ${address} was updated`,
-        body: `Update ${number}: ${snapshot.title}. Please review it and acknowledge it.`,
+        words: (m: Messages) => ({
+          title: m.notification.reportUpdatedTitle(address),
+          body: m.notification.reportUpdatedBody(number, snapshot.title),
+        }),
         href: `/updates/${addendumId}`,
         dedupeKey: `addendum:${addendumId}:${recipientId}`,
-      })),
+      }))),
       skipDuplicates: true,
     })
     return { number, contentHash }
@@ -593,11 +596,11 @@ async function recordAcknowledgement(addendumId: string, stakeholderId: string, 
       if (isMoveInDefect) {
         const recipients = await activeNotificationRecipients(tx, [tenantId])
         await tx.notification.createMany({
-          data: recipients.map((recipientId) => ({
-            recipientId, tenancyId: location.inspection.tenancyId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
-            body: 'The landlord acknowledged your move-in notice. It now counts in the agreed check-in baseline.',
+          data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
+            recipientId, tenancyId: location.inspection.tenancyId, kind: 'REPORT_UPDATED' as const,
+            words: (m: Messages) => ({ title: addendum.title, body: m.notification.moveInAccepted }),
             href: `/updates/${addendumId}`, dedupeKey: `move-in-defect-acknowledged:${addendumId}:${recipientId}`,
-          })),
+          }))),
           skipDuplicates: true,
         })
       }
