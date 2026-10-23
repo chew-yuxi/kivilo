@@ -428,14 +428,12 @@ class _ReportScreenState extends State<ReportScreen> {
           body: KiviloContent(
             maxWidth: 960,
             child: snapshot.hasError
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        '${snapshot.error}',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                ? KiviloMessage(
+                    icon: Icons.cloud_off_outlined,
+                    title: 'Could not open this report',
+                    body: plainError(snapshot.error!),
+                    actionLabel: 'Try again',
+                    onAction: _refresh,
                   )
                 : report == null
                 ? const Center(child: CircularProgressIndicator())
@@ -466,9 +464,9 @@ class _ReportScreenState extends State<ReportScreen> {
     final text = Theme.of(context).textTheme;
     final agreedAt = report.agreedAt;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+      padding: kiviloScreenPadding,
       children: [
-        Text(report.property, style: text.headlineSmall),
+        Text(report.property, style: text.headlineMedium),
         const SizedBox(height: 10),
         Align(
           alignment: Alignment.centerLeft,
@@ -533,21 +531,21 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ),
         for (final room in report.rooms) ...[
-          const SizedBox(height: 28),
+          const SizedBox(height: kiviloSectionGap),
           KiviloSectionHeading(
             title: room.name,
             subtitle: _count(room.items.length, 'item'),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: kiviloHeadingGap),
           _items(room),
           if (room.photos.isNotEmpty) ...[
             const SizedBox(height: 10),
             _photos(room),
           ],
         ],
-        const SizedBox(height: 28),
+        const SizedBox(height: kiviloSectionGap),
         const KiviloSectionHeading(title: 'Agreed and signed'),
-        const SizedBox(height: 10),
+        const SizedBox(height: kiviloHeadingGap),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -569,7 +567,7 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ),
         if (report.addenda.isNotEmpty) ...[
-          const SizedBox(height: 28),
+          const SizedBox(height: kiviloSectionGap),
           const KiviloSectionHeading(
             title: 'Updates since signing',
             subtitle:
@@ -699,7 +697,7 @@ class _ReportScreenState extends State<ReportScreen> {
           GestureDetector(
             onTap: () => _view(photo),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               child: _MarkedPhoto(photo: photo),
             ),
           ),
@@ -1000,7 +998,7 @@ class _ReportScreenState extends State<ReportScreen> {
               '${shortDate(assessment.publishedAt)}. Separate from the signed '
               'inventory above.',
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: kiviloHeadingGap),
         if (assessment.summary != null) ...[
           Text(assessment.summary!, style: text.bodyMedium),
           const SizedBox(height: 10),

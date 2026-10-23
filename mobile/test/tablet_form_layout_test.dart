@@ -25,10 +25,10 @@ void main() {
 
       final field = tester.getRect(find.byType(TextFormField).first);
       final button = tester.getRect(find.byType(FilledButton));
-      expect(field.width, lessThanOrEqualTo(680));
+      expect(field.width, lessThanOrEqualTo(688));
       expect(field.left, greaterThanOrEqualTo(0));
       expect(field.right, lessThanOrEqualTo(size.width));
-      expect(button.width, lessThanOrEqualTo(680));
+      expect(button.width, lessThanOrEqualTo(688));
       expect(button.center.dx, closeTo(size.width / 2, 1));
       expect(button.bottom, lessThanOrEqualTo(size.height));
       expect(field.bottom, lessThan(button.top));

@@ -221,10 +221,10 @@ void main() {
       // A photo goes through the queue to the draft, and can be taken off again.
       await _tap(tester, find.text('Take photo'));
       expect(photos.taken, ['draft-1:entry-1:camera']);
-      expect(find.byTooltip('Remove photo'), findsOneWidget);
-      await _tap(tester, find.byTooltip('Remove photo'));
+      expect(find.byTooltip('Delete photo'), findsOneWidget);
+      await _tap(tester, find.byTooltip('Delete photo'));
       expect(api.calls, contains('delete-photo:photo-1'));
-      expect(find.byTooltip('Remove photo'), findsNothing);
+      expect(find.byTooltip('Delete photo'), findsNothing);
 
       // Publishing saves the details first, after a confirmation.
       await _tap(tester, find.text('Publish update'));

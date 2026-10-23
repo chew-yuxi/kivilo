@@ -95,7 +95,7 @@ class _TeamScreenState extends State<TeamScreen> {
             }
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(20),
+              padding: kiviloScreenPadding,
               children: [
                 Text(
                   'Work together',
@@ -111,6 +111,7 @@ class _TeamScreenState extends State<TeamScreen> {
                     _error ?? plainError(snapshot.error!),
                     style: const TextStyle(color: KiviloColors.red),
                   ),
+                  const SizedBox(height: kiviloButtonGap),
                   OutlinedButton(
                     onPressed: _busy ? null : _refresh,
                     child: const Text('Try again'),
@@ -299,7 +300,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
               }
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20),
+                padding: kiviloScreenPadding,
                 children: [
                   if (agency != null) ...[
                     Text(
@@ -317,6 +318,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       _error ?? plainError(snapshot.error!),
                       style: const TextStyle(color: KiviloColors.red),
                     ),
+                    const SizedBox(height: kiviloButtonGap),
                     OutlinedButton(
                       onPressed: _busy ? null : _refresh,
                       child: const Text('Try again'),
@@ -353,11 +355,11 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                             },
                       child: const Text('Rename team'),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'Members and invitations',
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     for (final member in agency.members) ...[
                       Card(
                         child: ListTile(
@@ -393,9 +395,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       ),
                       const SizedBox(height: 10),
                     ],
-                    const SizedBox(height: 20),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(title: 'Assigned work'),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: kiviloHeadingGap),
                     if (agency.tenancies.isEmpty)
                       const Text(
                         'No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.',
@@ -427,9 +429,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       const SizedBox(height: 8),
                     ],
                     if (agency.activity.isNotEmpty) ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: kiviloSectionGap),
                       const KiviloSectionHeading(title: 'Recent activity'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: kiviloHeadingGap),
                       for (final event in agency.activity)
                         ListTile(
                           contentPadding: EdgeInsets.zero,
@@ -500,7 +502,7 @@ class _TeamNameDrawerState extends State<_TeamNameDrawer> {
       decoration: const InputDecoration(labelText: 'Team name'),
     ),
     actions: [
-      OutlinedButton(
+      TextButton(
         onPressed: () => Navigator.pop(context),
         child: const Text('Cancel'),
       ),
@@ -562,7 +564,7 @@ class _InviteDrawerState extends State<_InviteDrawer> {
       ],
     ),
     actions: [
-      OutlinedButton(
+      TextButton(
         onPressed: () => Navigator.pop(context),
         child: const Text('Cancel'),
       ),
@@ -682,16 +684,14 @@ class _MemberDrawerState extends State<_MemberDrawer> {
               onPressed: canChange
                   ? () => setState(() => _removing = true)
                   : null,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: KiviloColors.red,
-              ),
+              style: kiviloDangerOutlined,
               child: const Text('Remove member'),
             ),
           ],
         ],
       ),
       actions: [
-        OutlinedButton(
+        TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
@@ -703,7 +703,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                     'action': 'remove',
                     'reassignToId': ?_replacement,
                   }),
-            style: FilledButton.styleFrom(backgroundColor: KiviloColors.red),
+            style: kiviloDangerFilled,
             child: const Text('Remove member'),
           ),
         if (member.active && !_removing)

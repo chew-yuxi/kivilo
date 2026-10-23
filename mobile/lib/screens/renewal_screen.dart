@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_components.dart';
 
 class RenewalScreen extends StatefulWidget {
   const RenewalScreen({super.key, required this.tenancyId, this.api});
@@ -24,7 +25,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
   bool _busy = false;
   bool _keepCollaborators = false;
   String? _error;
-  late final _future = _load();
+  late Future<Map<String, dynamic>> _future = _load();
 
   Future<Map<String, dynamic>> _load() async {
     final data = await _api.renewal(widget.tenancyId);
@@ -113,7 +114,15 @@ class _RenewalScreenState extends State<RenewalScreen> {
           future: _future,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Center(child: Text(plainError(snapshot.error!)));
+              return KiviloMessage(
+                icon: Icons.cloud_off_outlined,
+                title: 'Could not open this renewal',
+                body: plainError(snapshot.error!),
+                actionLabel: 'Try again',
+                onAction: () => setState(() {
+                  _future = _load();
+                }),
+              );
             }
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
@@ -124,11 +133,11 @@ class _RenewalScreenState extends State<RenewalScreen> {
             return Form(
               key: _form,
               child: ListView(
-                padding: const EdgeInsets.all(20),
+                padding: kiviloScreenPadding,
                 children: [
                   Text(
                     snapshot.data!['property'] as String,
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(

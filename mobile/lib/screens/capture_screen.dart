@@ -1292,7 +1292,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 title: widget.itemId == null ? 'Media' : 'Item media',
                 subtitle: 'Saved on your phone first, then added to the report',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kiviloHeadingGap),
               if (wide)
                 SizedBox(
                   height: (constraints.maxHeight - 100).clamp(360, 600),
@@ -1314,7 +1314,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ],
             ];
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding: kiviloScreenPadding,
               children: [
                 if (wide)
                   Row(

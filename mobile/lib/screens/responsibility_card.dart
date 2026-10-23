@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/maintenance.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_layout.dart';
 
 final _money = RegExp(r'^\d+(?:\.\d{1,2})?$');
 
@@ -107,7 +108,7 @@ class ResponsibilityCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             KiviloSectionHeading(title: 'Who pays', subtitle: subtitle),
-            const SizedBox(height: 14),
+            const SizedBox(height: kiviloHeadingGap),
             if (agreement != null) ...[
               _ProposalPanel(
                 tone: _Tone.agreed,
@@ -234,16 +235,16 @@ class _Panel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (background, border) = switch (tone) {
-      _Tone.agreed => (KiviloColors.greenSoft, const Color(0xFFA7F3D0)),
-      _Tone.pending => (KiviloColors.amberSoft, const Color(0xFFFDE68A)),
-      _Tone.rejected => (KiviloColors.redSoft, const Color(0xFFFECACA)),
+      _Tone.agreed => (KiviloColors.greenSoft, KiviloColors.greenBorder),
+      _Tone.pending => (KiviloColors.amberSoft, KiviloColors.amberBorder),
+      _Tone.rejected => (KiviloColors.redSoft, KiviloColors.redBorder),
       _Tone.empty => (KiviloColors.canvas, KiviloColors.border),
     };
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: border),
       ),
       child: child,
@@ -364,8 +365,8 @@ class _SummaryPanel extends StatelessWidget {
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
       color: KiviloColors.pinkSoft,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: const Color(0xFFFBCFE8)),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: KiviloColors.pinkBorder),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,

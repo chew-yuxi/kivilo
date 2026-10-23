@@ -189,12 +189,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   ],
                   if (_error != null) ...[
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: KiviloColors.redSoft,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    KiviloNotice(
+                      tone: KiviloTone.error,
                       child: Text(
                         _error!,
                         style: const TextStyle(color: KiviloColors.red),

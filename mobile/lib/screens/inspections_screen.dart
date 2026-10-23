@@ -204,26 +204,21 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return _message(
+              return KiviloMessage(
                 icon: Icons.cloud_off_outlined,
                 title: 'Could not load inspections',
                 body: plainError(snapshot.error!),
-                action: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    OutlinedButton(
-                      onPressed: _refresh,
-                      child: const Text('Try again'),
-                    ),
-                    if (!_workspace.all) ...[
-                      const SizedBox(height: kiviloButtonGap),
-                      OutlinedButton(
-                        onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all properties'),
+                actionLabel: 'Try again',
+                onAction: _refresh,
+                extra: _workspace.all
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.only(top: kiviloButtonGap),
+                        child: OutlinedButton(
+                          onPressed: () => _selectWorkspace('all'),
+                          child: const Text('Show all properties'),
+                        ),
                       ),
-                    ],
-                  ],
-                ),
               );
             }
 
@@ -250,7 +245,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                   children: [
                     Text(
                       'Inspections',
-                      style: Theme.of(context).textTheme.headlineLarge,
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -305,11 +300,9 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                     ),
                     if (_api.offlineCopy) ...[
                       const SizedBox(height: 18),
-                      Card(
-                        color: KiviloColors.amberSoft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Row(
+                      KiviloNotice(
+                        tone: KiviloTone.warning,
+                        child: Row(
                             children: [
                               const Icon(
                                 Icons.cloud_off_outlined,
@@ -326,7 +319,6 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                               ),
                             ],
                           ),
-                        ),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -457,7 +449,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       borderRadius: BorderRadius.circular(16),
       onTap: () => _openInspection(inspection.id),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -567,30 +559,5 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
         ],
       ),
     ),
-  );
-
-  Widget _message({
-    required IconData icon,
-    required String title,
-    required String body,
-    required Widget action,
-  }) => ListView(
-    physics: const AlwaysScrollableScrollPhysics(),
-    children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(32, 80, 32, 32),
-        child: Column(
-          children: [
-            Icon(icon, size: 36, color: KiviloColors.subtle),
-            const SizedBox(height: 14),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 6),
-            Text(body, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            SizedBox(width: double.infinity, child: action),
-          ],
-        ),
-      ),
-    ],
   );
 }

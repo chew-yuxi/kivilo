@@ -69,11 +69,11 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
                   const SizedBox(height: kiviloButtonGap),
                   SizedBox(
                     width: double.infinity,
-                    child: TextButton(
+                    child: OutlinedButton(
                       onPressed: () => setState(() {
                         _future = widget.api.handover(widget.inspectionId);
                       }),
-                      child: const Text('Retry'),
+                      child: const Text('Try again'),
                     ),
                   ),
                 ],

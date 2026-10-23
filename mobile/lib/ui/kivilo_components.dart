@@ -299,6 +299,93 @@ class KiviloMark extends StatelessWidget {
   );
 }
 
+/// The small pink capitals above a title, e.g. "YOUR NEXT STEP".
+class KiviloEyebrow extends StatelessWidget {
+  const KiviloEyebrow(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text.toUpperCase(),
+    style: const TextStyle(
+      color: KiviloColors.pinkDark,
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.1,
+    ),
+  );
+}
+
+enum KiviloTone { info, warning, error, success }
+
+/// One banner for every notice: offline, waiting, a refusal, an agreement.
+class KiviloNotice extends StatelessWidget {
+  const KiviloNotice({super.key, required this.tone, required this.child});
+  final KiviloTone tone;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final (fill, border) = switch (tone) {
+      KiviloTone.info => (KiviloColors.pinkSoft, KiviloColors.pinkBorder),
+      KiviloTone.warning => (KiviloColors.amberSoft, KiviloColors.amberBorder),
+      KiviloTone.error => (KiviloColors.redSoft, KiviloColors.redBorder),
+      KiviloTone.success => (KiviloColors.greenSoft, KiviloColors.greenBorder),
+    };
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: border),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// A whole screen that could not load, or has nothing in it yet. Scrollable, so it
+/// works inside a RefreshIndicator, and always offers the way forward.
+class KiviloMessage extends StatelessWidget {
+  const KiviloMessage({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.body,
+    this.actionLabel,
+    this.onAction,
+    this.extra,
+  });
+  final IconData icon;
+  final String title;
+  final String body;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final Widget? extra;
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    padding: const EdgeInsets.fromLTRB(32, 80, 32, 32),
+    children: [
+      Icon(icon, size: 36, color: KiviloColors.subtle),
+      const SizedBox(height: 14),
+      Text(
+        title,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      const SizedBox(height: 6),
+      Text(body, textAlign: TextAlign.center),
+      if (actionLabel != null) ...[
+        const SizedBox(height: 16),
+        OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+      ],
+      ?extra,
+    ],
+  );
+}
+
 class KiviloSectionHeading extends StatelessWidget {
   const KiviloSectionHeading({
     super.key,
@@ -383,9 +470,9 @@ class KiviloSelectField<T> extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Ink(
             decoration: BoxDecoration(
-              color: enabled ? Colors.white : const Color(0xFFF3F4F6),
+              color: enabled ? Colors.white : KiviloColors.disabled,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFD1D5DB)),
+              border: Border.all(color: KiviloColors.field),
             ),
             padding: const EdgeInsets.fromLTRB(16, 10, 10, 10),
             child: Row(

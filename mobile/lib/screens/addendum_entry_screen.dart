@@ -109,7 +109,7 @@ class _AddendumEntryScreenState extends State<AddendumEntryScreen> {
         title: Text(widget.entry == null ? 'Add a change' : 'Edit change'),
       ),
       body: KiviloContent(maxWidth: 720, child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+        padding: kiviloScreenPadding,
         children: [
           KiviloSelectField<String>(
             label: 'Change',

@@ -11,6 +11,7 @@ import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/saved_signature.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_theme.dart';
 
 class SignatureScreen extends StatefulWidget {
   /// The agent's phone, handed to the landlord or tenant at handover.
@@ -154,9 +155,9 @@ class _SignatureScreenState extends State<SignatureScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text('${widget.role} signature')),
     body: KiviloContent(maxWidth: 720, child: ListView(
-      padding: const EdgeInsets.all(16),
+      padding: kiviloScreenPadding,
       children: [
-        Text(widget.name, style: Theme.of(context).textTheme.titleLarge),
+        Text(widget.name, style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 8),
         Text(
           widget.stakeholderId == null
@@ -175,7 +176,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
           _SignatureFrame(child: Image.memory(saved, fit: BoxFit.contain)),
           const SizedBox(height: 16),
           if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
           FilledButton(
             onPressed: _busy ? null : () => _sign(saved),
             child: Text(_busy ? 'Saving…' : 'Use this signature'),
@@ -247,7 +248,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
               contentPadding: EdgeInsets.zero,
             ),
           if (_error != null)
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
           FilledButton(
             onPressed: _busy ? null : _sign,
             child: Text(_busy ? 'Saving…' : 'Confirm signature'),
@@ -282,7 +283,7 @@ class _SignatureFrame extends StatelessWidget {
             height: 180,
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: Colors.grey),
+              border: Border.all(color: KiviloColors.field),
             ),
             child: child,
           ),
@@ -299,7 +300,7 @@ class _SignaturePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF111827)
+      ..color = KiviloColors.ink
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round

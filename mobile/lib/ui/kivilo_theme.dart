@@ -19,7 +19,23 @@ class KiviloColors {
   static const amberSoft = Color(0xFFFFFBEB);
   static const red = Color(0xFFB91C1C);
   static const redSoft = Color(0xFFFEF2F2);
+  static const greenBorder = Color(0xFFA7F3D0);
+  static const amberBorder = Color(0xFFFDE68A);
+  static const redBorder = Color(0xFFFECACA);
+  static const pinkBorder = Color(0xFFFBCFE8);
+  static const field = Color(0xFFD1D5DB);
+  static const disabled = Color(0xFFF3F4F6);
 }
+
+/// Deleting from a page is a red outlined button; confirming it in a drawer is red filled.
+final kiviloDangerOutlined = OutlinedButton.styleFrom(
+  foregroundColor: KiviloColors.red,
+  side: const BorderSide(color: KiviloColors.red),
+);
+final kiviloDangerFilled = FilledButton.styleFrom(
+  backgroundColor: KiviloColors.red,
+  foregroundColor: Colors.white,
+);
 
 ThemeData buildKiviloTheme() {
   final colors = ColorScheme.fromSeed(

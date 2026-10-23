@@ -437,15 +437,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return ListView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        'Could not open this inspection. ${plainError(snapshot.error!)}',
-                      ),
-                    ),
-                  ],
+                return KiviloMessage(
+                  icon: Icons.cloud_off_outlined,
+                  title: 'Could not open this inspection',
+                  body: plainError(snapshot.error!),
+                  actionLabel: 'Try again',
+                  onAction: _refresh,
                 );
               }
               final inspection = snapshot.data!;
@@ -474,14 +471,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   ? 0
                   : 1;
               return ListView(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+                padding: kiviloScreenPadding,
                 children: [
                   if (_api.offlineCopy) ...[
-                    Card(
-                      color: KiviloColors.amberSoft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Row(
+                    KiviloNotice(
+                      tone: KiviloTone.warning,
+                      child: Row(
                           children: [
                             const Icon(
                               Icons.cloud_off_outlined,
@@ -496,7 +491,6 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             ),
                           ],
                         ),
-                      ),
                     ),
                     const SizedBox(height: 18),
                   ],
@@ -522,16 +516,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              isCheckIn
-                                  ? 'CHECK-IN REPORT'
-                                  : 'CHECK-OUT REPORT',
-                              style: const TextStyle(
-                                color: KiviloColors.pinkDark,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.1,
-                              ),
+                            KiviloEyebrow(
+                              isCheckIn ? 'Check-in report' : 'Check-out report',
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -630,7 +616,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   Card(
                     color: KiviloColors.canvas,
                     child: Padding(
-                      padding: const EdgeInsets.all(18),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -861,18 +847,15 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   ],
                   if (_error != null) ...[
                     const SizedBox(height: 16),
-                    Card(
-                      color: KiviloColors.redSoft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Text(
+                    KiviloNotice(
+                      tone: KiviloTone.error,
+                      child: Text(
                           _error!,
                           style: const TextStyle(color: KiviloColors.red),
                         ),
-                      ),
                     ),
                   ],
-                  const SizedBox(height: 28),
+                  const SizedBox(height: kiviloSectionGap),
                   KiviloSectionHeading(
                     title: 'Rooms',
                     subtitle: inspection.rooms.isEmpty
@@ -886,7 +869,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           )
                         : null,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: kiviloHeadingGap),
                   if (inspection.rooms.isEmpty)
                     Card(
                       child: Padding(
@@ -937,13 +920,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   if (inspection.rooms.isNotEmpty) const SizedBox(height: 10),
                   if (inspection.status == 'AWAITING_SIGNATURE' ||
                       inspection.status == 'COMPLETED') ...[
-                    const SizedBox(height: 28),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'Signatures',
                       subtitle:
                           'The agreed inventory is now fixed for signing.',
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     _signatureTile(
                       inspection,
                       inspection.landlordId,
@@ -958,13 +941,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     ),
                   ],
                   if (inspection.status == 'COMPLETED') ...[
-                    const SizedBox(height: 28),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'Share report',
                       subtitle:
                           'A private link, or a PDF headed with your agency.',
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -1110,13 +1093,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           inspection.status == 'COMPLETED'))
                     _findings(inspection),
                   if (inspection.maintenanceHistory.isNotEmpty) ...[
-                    const SizedBox(height: 28),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'Maintenance history',
                       subtitle:
                           'Context for review. A person decides whether it affects a finding.',
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     if (inspection.kind == 'CHECK_OUT')
                       ?_unsettledCosts(inspection.maintenanceHistory),
                     for (final record in inspection.maintenanceHistory) ...[
@@ -1190,8 +1173,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: KiviloColors.amberSoft,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: KiviloColors.amberBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1272,7 +1255,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   itemCount: room.previews.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) => ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
                       width: 92,
                       child: MarkedNetworkPhoto(
@@ -1380,12 +1363,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
   Widget _findings(InspectionDetail inspection) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      const SizedBox(height: 28),
+      const SizedBox(height: kiviloSectionGap),
       const KiviloSectionHeading(
         title: 'Check-out assessment',
         subtitle: 'A separate, dated record of changes and responsibility.',
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: kiviloHeadingGap),
       Card(
         color: KiviloColors.canvas,
         child: Padding(
@@ -1430,7 +1413,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           ),
         ),
       ],
-      const SizedBox(height: 20),
+      const SizedBox(height: kiviloSectionGap),
       KiviloSectionHeading(
         title: 'Findings',
         subtitle: inspection.findings.isEmpty
@@ -1444,7 +1427,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               )
             : null,
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: kiviloHeadingGap),
       for (final finding in inspection.findings) ...[
         Card(
           child: InkWell(

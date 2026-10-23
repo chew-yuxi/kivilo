@@ -258,7 +258,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
     final text = Theme.of(context).textTheme;
     final draft = workspace.draft;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+      padding: kiviloScreenPadding,
       children: [
         Text(
           'Record a change after signing, such as a replaced appliance, as a dated '
@@ -267,13 +267,13 @@ class _AddendaScreenState extends State<AddendaScreen> {
           style: text.bodyMedium,
         ),
         if (workspace.published.isNotEmpty) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: kiviloSectionGap),
           const KiviloSectionHeading(
             title: 'Published',
             subtitle:
                 'Open the report to show it, or to take an acknowledgement in person.',
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: kiviloHeadingGap),
           for (final published in workspace.published)
             Card(
               child: ListTile(
@@ -308,13 +308,13 @@ class _AddendaScreenState extends State<AddendaScreen> {
         else
           ..._draft(workspace, draft),
         if (workspace.resolvedCases.isNotEmpty) ...[
-          const SizedBox(height: 28),
+          const SizedBox(height: kiviloSectionGap),
           const KiviloSectionHeading(
             title: 'Resolved repairs',
             subtitle:
                 'Each can start a change, with its before and after photos.',
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: kiviloHeadingGap),
           for (final repair in workspace.resolvedCases)
             Card(
               child: Padding(
@@ -352,7 +352,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
         title: 'Draft update',
         subtitle: 'Nobody else sees it until you publish it.',
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: kiviloHeadingGap),
       TextField(
         controller: _title,
         decoration: const InputDecoration(labelText: 'Title'),
@@ -392,9 +392,9 @@ class _AddendaScreenState extends State<AddendaScreen> {
         label: Text(_busy ? 'Working…' : 'Publish update'),
       ),
       const SizedBox(height: kiviloButtonGap),
-      TextButton(
+      OutlinedButton(
         onPressed: _busy ? null : () => _discard(draft),
-        style: TextButton.styleFrom(foregroundColor: KiviloColors.red),
+        style: kiviloDangerOutlined,
         child: const Text('Discard draft'),
       ),
       Text(
@@ -478,7 +478,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                           top: 0,
                           child: IconButton.filledTonal(
                             visualDensity: VisualDensity.compact,
-                            tooltip: 'Remove photo',
+                            tooltip: 'Delete photo',
                             onPressed: _busy
                                 ? null
                                 : () => _run(

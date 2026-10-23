@@ -80,7 +80,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
             final text = Theme.of(context).textTheme;
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              padding: kiviloScreenPadding,
               children: [
                 Text(
                   'Every change and deletion, with who made it. Deleted rooms, '
@@ -140,7 +140,6 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
       return [
         const SizedBox(height: 24),
         Card(
-          color: KiviloColors.canvas,
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(

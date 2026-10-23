@@ -10,6 +10,7 @@ import 'property_settings_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_components.dart';
 
 /// Everything settled at one address, newest first. The server decides which tenancies
 /// this viewer may see; the screen only lays them out.
@@ -70,7 +71,15 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
+        if (snapshot.hasError) {
+          return KiviloMessage(
+            icon: Icons.cloud_off_outlined,
+            title: 'Could not load the timeline',
+            body: plainError(snapshot.error!),
+            actionLabel: 'Try again',
+            onAction: _refresh,
+          );
+        }
         final timeline = snapshot.data!;
         final text = Theme.of(context).textTheme;
         final months = <String, List<TimelineEvent>>{};
@@ -80,17 +89,9 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: kiviloScreenPadding,
             children: [
-              const Text(
-                'PROPERTY TIMELINE',
-                style: TextStyle(
-                  color: KiviloColors.pinkDark,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.1,
-                ),
-              ),
+              const KiviloEyebrow('PROPERTY TIMELINE'),
               const SizedBox(height: 4),
               Text(timeline.property, style: text.headlineMedium),
               const SizedBox(height: 6),
@@ -115,7 +116,6 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
               if (timeline.events.isEmpty) ...[
                 const SizedBox(height: 24),
                 Card(
-                  color: KiviloColors.canvas,
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(

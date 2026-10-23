@@ -78,6 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
+            style: kiviloDangerFilled,
             child: const Text('Request deletion'),
           ),
         ],
@@ -262,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
         final deletion = snapshot.data?['request'] as Map<String, dynamic>?;
         return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 36),
+          padding: kiviloScreenPadding,
           children: [
             Text(
               'Your account',
@@ -311,9 +312,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             if (widget.onStartCheckIn != null) ...[
-              const SizedBox(height: 28),
+              const SizedBox(height: kiviloSectionGap),
               const KiviloSectionHeading(title: 'For agents'),
-              const SizedBox(height: 12),
+              const SizedBox(height: kiviloHeadingGap),
               _linkCard(
                 icon: Icons.add_home_work_outlined,
                 title: 'Start a check-in',
@@ -321,9 +322,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: widget.onStartCheckIn!,
               ),
             ],
-            const SizedBox(height: 28),
+            const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Workspace'),
-            const SizedBox(height: 12),
+            const SizedBox(height: kiviloHeadingGap),
             _linkCard(
               icon: Icons.person_outline,
               title: 'Team',
@@ -341,23 +342,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 MaterialPageRoute(builder: (_) => PropertiesScreen(api: _api)),
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(
               title: 'Report branding',
               subtitle: 'Your agency on PDF and shared reports.',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kiviloHeadingGap),
             _brandingCard(),
-            const SizedBox(height: 28),
+            const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(
               title: 'Plan',
               subtitle: 'How many properties you can work at once.',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kiviloHeadingGap),
             _planCard(),
-            const SizedBox(height: 28),
+            const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Privacy & support'),
-            const SizedBox(height: 12),
+            const SizedBox(height: kiviloHeadingGap),
             _linkCard(
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy policy',
@@ -371,15 +372,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: 'Get help with an inspection or your account',
               onTap: () => _openPage('/support'),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(
               title: 'Your data',
               subtitle: 'Manage your account and deletion request.',
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kiviloHeadingGap),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -407,7 +408,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: KiviloColors.canvas,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

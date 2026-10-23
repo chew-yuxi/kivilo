@@ -309,15 +309,16 @@ class _RoomScreenState extends State<RoomScreen> {
             'Delete this ${capture.kind == 'PHOTO' ? 'photo' : 'video'}?',
           ),
           content: const Text(
-            'This removes it from the room and from any inventory item it is attached to.',
+            'This removes it from the room and any item it is attached to. You can restore it from the property’s History for 30 days.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
               child: const Text('Cancel'),
             ),
-            TextButton(
+            FilledButton(
               onPressed: () => Navigator.pop(context, true),
+              style: kiviloDangerFilled,
               child: const Text('Delete'),
             ),
           ],
@@ -406,14 +407,17 @@ class _RoomScreenState extends State<RoomScreen> {
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text('Delete ${item.name}?'),
-        content: const Text('This removes the line from the inventory.'),
+        content: const Text(
+          'This removes the line from the inventory. You can restore it from the property’s History for 30 days.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context, true),
+            style: kiviloDangerFilled,
             child: const Text('Delete'),
           ),
         ],
@@ -639,15 +643,16 @@ class _RoomScreenState extends State<RoomScreen> {
         builder: (context) => KiviloDrawer(
           title: const Text('Delete this room?'),
           content: const Text(
-            'Its photos, videos and inventory will be removed.',
+            'Its photos, videos and inventory will be removed. You can restore the room from the property’s History for 30 days.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
               child: const Text('Cancel'),
             ),
-            TextButton(
+            FilledButton(
               onPressed: () => Navigator.pop(context, true),
+              style: kiviloDangerFilled,
               child: const Text('Delete'),
             ),
           ],
@@ -698,15 +703,12 @@ class _RoomScreenState extends State<RoomScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return ListView(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(
-                            'Could not open this room. ${plainError(snapshot.error!)}',
-                          ),
-                        ),
-                      ],
+                    return KiviloMessage(
+                      icon: Icons.cloud_off_outlined,
+                      title: 'Could not open this room',
+                      body: plainError(snapshot.error!),
+                      actionLabel: 'Try again',
+                      onAction: _refresh,
                     );
                   }
                   final room = snapshot.data!;
@@ -751,7 +753,7 @@ class _RoomScreenState extends State<RoomScreen> {
                             )
                           : null,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     if (room.items.isEmpty)
                       Card(
                         child: Padding(
@@ -810,7 +812,7 @@ class _RoomScreenState extends State<RoomScreen> {
                             )
                           : null,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     if (widget.editable) ...[
                       OutlinedButton.icon(
                         onPressed: _busy ? null : _capture,
@@ -938,14 +940,12 @@ class _RoomScreenState extends State<RoomScreen> {
                     ],
                   ];
                   return ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+                    padding: kiviloScreenPadding,
                     children: [
                       if (_api.offlineCopy) ...[
-                        Card(
-                          color: KiviloColors.amberSoft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: Row(
+                        KiviloNotice(
+                          tone: KiviloTone.warning,
+                          child: Row(
                               children: [
                                 const Icon(
                                   Icons.cloud_off_outlined,
@@ -962,7 +962,6 @@ class _RoomScreenState extends State<RoomScreen> {
                                 ),
                               ],
                             ),
-                          ),
                         ),
                         const SizedBox(height: 18),
                       ],
@@ -986,15 +985,7 @@ class _RoomScreenState extends State<RoomScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'ROOM RECORD',
-                                  style: TextStyle(
-                                    color: KiviloColors.pinkDark,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 1.1,
-                                  ),
-                                ),
+                                const KiviloEyebrow('ROOM RECORD'),
                                 const SizedBox(height: 4),
                                 Text(
                                   room.name,
@@ -1069,15 +1060,12 @@ class _RoomScreenState extends State<RoomScreen> {
                       ),
                       if (_error != null) ...[
                         const SizedBox(height: 12),
-                        Card(
-                          color: KiviloColors.redSoft,
-                          child: Padding(
-                            padding: const EdgeInsets.all(14),
-                            child: Text(
+                        KiviloNotice(
+                          tone: KiviloTone.error,
+                          child: Text(
                               _error!,
                               style: const TextStyle(color: KiviloColors.red),
                             ),
-                          ),
                         ),
                       ],
                       const SizedBox(height: 30),
@@ -1686,7 +1674,7 @@ class _ItemEditorState extends State<ItemEditor> {
                             child: Row(
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(8),
                                   child: SizedBox(
                                     width: 54,
                                     height: 54,

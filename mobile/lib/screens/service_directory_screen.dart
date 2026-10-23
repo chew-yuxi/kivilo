@@ -40,7 +40,7 @@ class ServiceDirectoryScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Urgent services')),
     body: KiviloContent(maxWidth: 840, child: ListView(
-      padding: const EdgeInsets.all(16),
+      padding: kiviloScreenPadding,
       children: [
         Card(
           color: Theme.of(context).colorScheme.errorContainer,
@@ -64,12 +64,12 @@ class ServiceDirectoryScreen extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: kiviloSectionGap),
         const KiviloSectionHeading(
           title: 'Kivilo partners',
           subtitle: 'Plumbers and locksmiths we work with',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: kiviloHeadingGap),
         for (var index = 0; index < _partners.length; index++) ...[
           if (index > 0) const SizedBox(height: 10),
           Card(

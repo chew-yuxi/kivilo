@@ -599,7 +599,7 @@ void main() {
           }
         },
       );
-      await _tapButton(tester, 'Remove finding');
+      await _tapButton(tester, 'Delete finding');
       expect(removed, 1);
       expect(find.text('Assessment home'), findsNothing);
       expect(find.text('Check the chipped handle.'), findsOneWidget);
@@ -607,7 +607,7 @@ void main() {
         find.textContaining('Could not remove this finding'),
         findsOneWidget,
       );
-      await _tapButton(tester, 'Remove finding');
+      await _tapButton(tester, 'Delete finding');
       expect(removed, 2);
       expect(find.text('Assessment home'), findsOneWidget);
     },

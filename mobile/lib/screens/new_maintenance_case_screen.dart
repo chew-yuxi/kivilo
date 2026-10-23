@@ -150,7 +150,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Report a problem')),
     body: KiviloContent(maxWidth: 720, child: ListView(
-      padding: const EdgeInsets.all(16),
+      padding: kiviloScreenPadding,
       children: [
         KiviloSelectField<String?>(
           label: 'Property item (optional)',

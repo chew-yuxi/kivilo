@@ -5,6 +5,7 @@ import '../models/agency.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_theme.dart';
 
 class TenancyAccessScreen extends StatefulWidget {
   const TenancyAccessScreen({
@@ -118,6 +119,7 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
+            style: kiviloDangerFilled,
             child: const Text('Remove access'),
           ),
         ],
@@ -223,12 +225,12 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+                    padding: kiviloScreenPadding,
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       Text(
                         widget.property,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -244,15 +246,15 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                         const SizedBox(height: 16),
                         Text(
                           _error!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
+                          style: const TextStyle(color: KiviloColors.red),
                         ),
-                        if (access == null)
-                          TextButton(
+                        if (access == null) ...[
+                          const SizedBox(height: kiviloButtonGap),
+                          OutlinedButton(
                             onPressed: disabled ? null : _load,
                             child: const Text('Try again'),
                           ),
+                        ],
                       ],
                       if (access != null) ...[
                         const SizedBox(height: 24),
@@ -568,7 +570,7 @@ class _AssignmentDrawerState extends State<_AssignmentDrawer> {
       ],
     ),
     actions: [
-      OutlinedButton(
+      TextButton(
         onPressed: () => Navigator.pop(context),
         child: const Text('Cancel'),
       ),
@@ -627,7 +629,7 @@ class _MoveToTeamDrawerState extends State<_MoveToTeamDrawer> {
       ],
     ),
     actions: [
-      OutlinedButton(
+      TextButton(
         onPressed: () => Navigator.pop(context),
         child: const Text('Cancel'),
       ),

@@ -296,23 +296,21 @@ class _TenancyScreenState extends State<TenancyScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text(plainError(snapshot.error!)));
+            return KiviloMessage(
+              icon: Icons.cloud_off_outlined,
+              title: 'Could not open this property',
+              body: plainError(snapshot.error!),
+              actionLabel: 'Try again',
+              onAction: _refresh,
+            );
           }
           final (cases, assets, terms) = snapshot.data!;
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: kiviloScreenPadding,
               children: [
-                const Text(
-                  'YOUR PROPERTY',
-                  style: TextStyle(
-                    color: KiviloColors.pinkDark,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
-                  ),
-                ),
+                const KiviloEyebrow('YOUR PROPERTY'),
                 const SizedBox(height: 6),
                 Text(
                   widget.tenancy.property,
@@ -323,12 +321,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   'Reports, repairs and the history of this home.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: kiviloSectionGap),
                 const KiviloSectionHeading(
                   title: 'Property record',
                   subtitle: 'The agreed condition and what has happened since',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: kiviloHeadingGap),
                 if (terms.role == 'AGENT') ...[
                   Card(
                     child: ListTile(
@@ -459,12 +457,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     child: const Text('Property settings'),
                   ),
                 ],
-                const SizedBox(height: 24),
+                const SizedBox(height: kiviloSectionGap),
                 const KiviloSectionHeading(
                   title: 'Property care',
                   subtitle: 'Report a problem and follow each repair through',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: kiviloHeadingGap),
                 Card(
                   color: KiviloColors.canvas,
                   child: ListTile(
@@ -506,14 +504,14 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                   const SizedBox(height: 10),
                 ],
-                const SizedBox(height: 24),
+                const SizedBox(height: kiviloSectionGap),
                 KiviloSectionHeading(
                   title: 'Maintenance',
                   subtitle: cases.isEmpty
                       ? 'Requests for this property will appear here'
                       : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: kiviloHeadingGap),
                 if (cases.isEmpty) _emptyMaintenance(),
                 for (var index = 0; index < cases.length; index++) ...[
                   if (index > 0) const SizedBox(height: 10),
@@ -544,16 +542,16 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                 ],
                 if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
-                  const SizedBox(height: 24),
+                  const SizedBox(height: kiviloSectionGap),
                   const KiviloSectionHeading(
                     title: 'Repair costs',
                     subtitle: 'Terms that shape who pays for a repair',
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: kiviloHeadingGap),
                   _repairTerms(terms),
                 ],
                 if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
-                  const SizedBox(height: 24),
+                  const SizedBox(height: kiviloSectionGap),
                   KiviloSectionHeading(
                     title: 'Property assets',
                     subtitle: 'Appliances and fixtures linked to maintenance',
@@ -565,7 +563,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                             label: const Text('Add asset'),
                           ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: kiviloHeadingGap),
                   if (assets.isEmpty) _emptyAssets(),
                   for (var index = 0; index < assets.length; index++) ...[
                     if (index > 0) const Divider(height: 1),
@@ -653,7 +651,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
 
   Widget _emptyAssets() => Card(
     child: Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           const Icon(

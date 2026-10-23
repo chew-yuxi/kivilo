@@ -112,7 +112,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             ],
           ),
           actions: [
-            OutlinedButton(
+            TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
@@ -219,7 +219,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     body: KiviloContent(maxWidth: 720, child: Form(
       key: _form,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+        padding: kiviloScreenPadding,
         children: [
           Text(
             'Start with the essentials',
@@ -241,12 +241,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 ? 'Private to you until you share it.'
                 : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: kiviloSectionGap),
           const KiviloSectionHeading(
             title: 'Property',
             subtitle: 'Where the handover takes place',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kiviloHeadingGap),
           _textField('line1', 'Address', required: true),
           const SizedBox(height: 12),
           _textField('unit', 'Unit'),
@@ -323,12 +323,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 32),
           const Divider(),
-          const SizedBox(height: 24),
+          const SizedBox(height: kiviloSectionGap),
           const KiviloSectionHeading(
             title: 'People',
             subtitle: 'The landlord and tenant on the report',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kiviloHeadingGap),
           _textField('landlordName', 'Landlord name', required: true),
           const SizedBox(height: 12),
           _textField(
@@ -346,12 +346,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 32),
           const Divider(),
-          const SizedBox(height: 24),
+          const SizedBox(height: kiviloSectionGap),
           const KiviloSectionHeading(
             title: 'Tenancy',
             subtitle: 'Dates and agreed amounts',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kiviloHeadingGap),
           Row(
             children: [
               Expanded(
@@ -385,12 +385,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 20),
           if (_error != null)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: KiviloColors.redSoft,
-                borderRadius: BorderRadius.circular(12),
-              ),
+            KiviloNotice(
+              tone: KiviloTone.error,
               child: Text(
                 _error!,
                 style: const TextStyle(color: KiviloColors.red),
@@ -405,7 +401,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: FilledButton(
             onPressed: _busy ? null : _create,
             child: Text(_busy ? 'Creating…' : 'Create check-in'),

@@ -424,11 +424,9 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     final photos = item.evidence
         .where((photo) => photo.purpose == 'BEFORE' && photo.isImage)
         .length;
-    return Card(
-      color: KiviloColors.amberSoft,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return KiviloNotice(
+      tone: KiviloTone.warning,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
@@ -514,7 +512,6 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
             ],
           ],
         ),
-      ),
     );
   }
 
@@ -527,13 +524,21 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
+        if (snapshot.hasError) {
+          return KiviloMessage(
+            icon: Icons.cloud_off_outlined,
+            title: 'Could not open this repair',
+            body: plainError(snapshot.error!),
+            actionLabel: 'Try again',
+            onAction: _refresh,
+          );
+        }
         final item = snapshot.data!;
         final text = Theme.of(context).textTheme;
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: kiviloScreenPadding,
             children: [
               _CaseHeader(item: item),
               if (_error != null) ...[
@@ -598,7 +603,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: kiviloSectionGap),
               KiviloSectionHeading(
                 title: 'Photos',
                 subtitle: 'Before and after the repair',
@@ -610,7 +615,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   label: const Text('Add'),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kiviloHeadingGap),
               if (item.evidence.isEmpty)
                 const _Notice(
                   icon: Icons.photo_camera_outlined,
@@ -624,7 +629,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 _EvidenceCard(evidence: evidence),
                 const SizedBox(height: 10),
               ],
-              const SizedBox(height: 18),
+              const SizedBox(height: kiviloSectionGap),
               KiviloSectionHeading(
                 title: 'History',
                 subtitle: 'Everything on this request',
@@ -634,7 +639,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   label: const Text('Comment'),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kiviloHeadingGap),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
@@ -823,15 +828,7 @@ class _CaseHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${item.category.replaceAll('_', ' ')}$urgency',
-                    style: const TextStyle(
-                      color: KiviloColors.pinkDark,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
+                  KiviloEyebrow('${item.category.replaceAll('_', ' ')}$urgency'),
                   const SizedBox(height: 4),
                   Text(
                     item.title,
@@ -879,7 +876,7 @@ class _Notice extends StatelessWidget {
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
       color: background,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,

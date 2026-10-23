@@ -710,7 +710,14 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   buttons are `kiviloButtonGap` (12) apart (`mobile/lib/ui/kivilo_layout.dart`). Larger
   gaps are for section breaks only. Keep screen tops tight: filters belong in one
   scrolling row, not a wrapped block. Check a layout change by rendering the screen, not
-  by reading the code.
+  by reading the code. Use the shared pieces rather than building one-off versions:
+  `kiviloScreenPadding`, `kiviloSectionGap`/`kiviloHeadingGap` around
+  `KiviloSectionHeading`, `KiviloEyebrow`, `KiviloNotice(tone:)` for banners,
+  `KiviloMessage` for a screen that failed to load (always with Try again) or is empty,
+  `kiviloDangerOutlined` for delete on a page and `kiviloDangerFilled` to confirm it,
+  a TextButton for Cancel, and palette colours only (`KiviloColors`, never `Colors.red`
+  or a raw `Color`). Page titles are headlineMedium. "Delete" is for your own content,
+  "Remove" for access.
 - The app never uses Material's `DropdownButton`, `DropdownMenu`, `PopupMenuButton` or
   `showMenu`. Their menu is placed once, in its own overlay, from where the field was;
   in a drawer, tapping the field closes the keyboard, the drawer slides down, and the

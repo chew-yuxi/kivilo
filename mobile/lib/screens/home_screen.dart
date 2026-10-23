@@ -313,41 +313,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(24),
-                  children: [
-                    const SizedBox(height: 80),
-                    const Icon(
-                      Icons.cloud_off_outlined,
-                      size: 40,
-                      color: KiviloColors.muted,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Could not load your workspace',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      plainError(snapshot.error!),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    OutlinedButton(
-                      onPressed: _refresh,
-                      child: const Text('Try again'),
-                    ),
-                    if (!_partyOnly && !_workspace.all) ...[
-                      const SizedBox(height: kiviloButtonGap),
-                      TextButton(
-                        onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all properties'),
-                      ),
-                    ],
-                  ],
+                return KiviloMessage(
+                  icon: Icons.cloud_off_outlined,
+                  title: 'Could not load your workspace',
+                  body: plainError(snapshot.error!),
+                  actionLabel: 'Try again',
+                  onAction: _refresh,
+                  extra: _partyOnly || _workspace.all
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.only(top: kiviloButtonGap),
+                          child: OutlinedButton(
+                            onPressed: () => _selectWorkspace('all'),
+                            child: const Text('Show all properties'),
+                          ),
+                        ),
                 );
               }
 
@@ -400,7 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                   return ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                    padding: kiviloScreenPadding,
                     children: [
                       Text(
                         '$greeting, $firstName',
@@ -448,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: 'Your properties',
                           subtitle: 'Repairs, records and the people who live there.',
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: kiviloHeadingGap),
                       ],
                       if (tenancies.isEmpty && !_partyOnly)
                         _emptyProperties()
@@ -497,18 +477,12 @@ class _HomeScreenState extends State<HomeScreen> {
         : current == null || firstRoom
         ? KiviloScene.handover
         : KiviloScene.capture;
-    final eyebrow = Text(
+    final eyebrow = KiviloEyebrow(
       current == null
           ? 'YOUR NEXT HANDOVER'
           : awaiting
           ? 'WAITING FOR SIGNATURES'
           : 'YOUR NEXT STEP',
-      style: const TextStyle(
-        color: KiviloColors.pinkDark,
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 1.1,
-      ),
     );
     return Card(
       color: KiviloColors.pinkSoft,

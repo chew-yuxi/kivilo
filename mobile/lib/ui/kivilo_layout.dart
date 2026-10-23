@@ -6,6 +6,13 @@ const kiviloTabletBreakpoint = 720.0;
 /// The one gap between stacked buttons. A button alone on its line spans the width.
 const kiviloButtonGap = 12.0;
 
+/// Every scrolling screen's padding. A screen with a floating button adds room below it.
+const kiviloScreenPadding = EdgeInsets.fromLTRB(16, 16, 16, 32);
+
+/// Above a section heading, and between it and its content.
+const kiviloSectionGap = 28.0;
+const kiviloHeadingGap = 12.0;
+
 /// Keeps reading and editing comfortable without constraining the app's chrome.
 class KiviloContent extends StatelessWidget {
   const KiviloContent({

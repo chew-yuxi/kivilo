@@ -467,8 +467,9 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Keep draft'),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context, true),
+            style: kiviloDangerFilled,
             child: const Text('Discard draft'),
           ),
         ],
@@ -591,7 +592,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                                 () => _photos!.remove(photo.id),
                               )
                             : null,
-                        child: const Text('Remove photo'),
+                        child: const Text('Delete photo'),
                       ),
                     ],
                   ),
@@ -687,7 +688,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: TextField(
             controller: _search,
             textInputAction: TextInputAction.search,
@@ -711,7 +712,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -790,7 +791,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   sliver: SliverList.builder(
                     itemCount: rows.length,
                     itemBuilder: (context, index) {
@@ -866,7 +867,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     children: [
       Expanded(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          padding: kiviloScreenPadding,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: [
             if (_selected != null) ...[
@@ -993,20 +994,22 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
               ),
             ),
             if (_photos != null)
-              TextButton(
+              OutlinedButton(
                 onPressed: _saving || _photoAction ? null : _discardDraft,
+                style: kiviloDangerOutlined,
                 child: const Text('Discard draft'),
               ),
             if (widget.finding != null && widget.onRemove != null) ...[
               const SizedBox(height: kiviloButtonGap),
-              TextButton(
+              OutlinedButton(
                 onPressed: _saving || _photoAction
                     ? null
                     : () => _persist(() async {
                         if (_photos != null) await _photos!.discard();
                         await widget.onRemove!();
                       }),
-                child: const Text('Remove finding'),
+                style: kiviloDangerOutlined,
+                child: const Text('Delete finding'),
               ),
             ],
           ],
@@ -1016,7 +1019,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: KiviloColors.border)),
         ),
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         child: SafeArea(
           top: false,
           child: Column(

@@ -4,6 +4,7 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/notification_route.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_components.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -39,9 +40,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
+        if (snapshot.hasError) {
+          return KiviloMessage(
+            icon: Icons.cloud_off_outlined,
+            title: 'Could not load notifications',
+            body: plainError(snapshot.error!),
+            actionLabel: 'Try again',
+            onAction: () => setState(() {
+              _future = _api.notifications();
+            }),
+          );
+        }
         final items = snapshot.data!;
-        if (items.isEmpty) return const Center(child: Text('No notifications yet.'));
+        if (items.isEmpty) {
+          return const KiviloMessage(
+            icon: Icons.notifications_none_outlined,
+            title: 'No notifications yet',
+            body: 'Updates about your properties, repairs and reports will appear here.',
+          );
+        }
         return ListView.separated(
           itemCount: items.length,
           separatorBuilder: (_, _) => const Divider(height: 1),

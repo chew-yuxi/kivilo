@@ -34,6 +34,9 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
     await next;
   }
 
+  String _count(Object? value, String one, String many) =>
+      '$value ${value == 1 ? one : many}';
+
   void _locked(PropertySettings property, String action) => showLockedAction(
     context,
     action: action,
@@ -87,7 +90,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
               }
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20),
+                padding: kiviloScreenPadding,
                 children: [
                   if (property != null) ...[
                     Text(
@@ -102,7 +105,11 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                     }),
                     const SizedBox(height: 12),
                     Text(
-                      '${property.counts['tenancies']} tenancies · ${property.counts['inspections']} inspections · ${property.counts['photos']} photos',
+                      [
+                        _count(property.counts['tenancies'], 'tenancy', 'tenancies'),
+                        _count(property.counts['inspections'], 'inspection', 'inspections'),
+                        _count(property.counts['photos'], 'photo', 'photos'),
+                      ].join(' · '),
                     ),
                   ],
                   if (_error != null || snapshot.hasError) ...[
@@ -111,6 +118,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                       _error ?? plainError(snapshot.error!),
                       style: const TextStyle(color: KiviloColors.red),
                     ),
+                    const SizedBox(height: kiviloButtonGap),
                     OutlinedButton(
                       onPressed: _busy ? null : _refresh,
                       child: const Text('Try again'),
@@ -118,9 +126,9 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                   ],
                   if (property != null) ...[
                     if (property.state != 'TRASHED') ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: kiviloSectionGap),
                       const KiviloSectionHeading(title: 'Tenancy access'),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: kiviloHeadingGap),
                       for (final tenancy in property.tenancies) ...[
                         Card(
                           child: ListTile(
@@ -180,13 +188,13 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                         ],
                       ],
                     ],
-                    const SizedBox(height: 28),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'History',
                       subtitle:
                           'Every change and deletion, with who made it. Deleted items can be restored for 30 days.',
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloHeadingGap),
                     OutlinedButton.icon(
                       onPressed: () => Navigator.of(context).push<void>(
                         MaterialPageRoute(
@@ -281,12 +289,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                                     : property.canDelete
                                     ? () => _change(property, 'trash')
                                     : null,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: KiviloColors.red,
-                                  side: const BorderSide(
-                                    color: KiviloColors.red,
-                                  ),
-                                ),
+                                style: kiviloDangerOutlined,
                                 child: const Text('Delete property'),
                               ),
                             ],
@@ -366,7 +369,7 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
         ],
       ),
       actions: [
-        OutlinedButton(
+        TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
@@ -377,7 +380,7 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
               ? null
               : () => Navigator.pop(context, _confirmation.text),
           style: deleting
-              ? FilledButton.styleFrom(backgroundColor: KiviloColors.red)
+              ? kiviloDangerFilled
               : null,
           child: Text(label),
         ),

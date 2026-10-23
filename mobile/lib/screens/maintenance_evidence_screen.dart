@@ -160,34 +160,30 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       ),
     ),
     body: KiviloContent(maxWidth: 720, child: ListView(
-      padding: const EdgeInsets.all(20),
+      padding: kiviloScreenPadding,
       children: [
         Container(
           padding: const EdgeInsets.fromLTRB(24, 30, 24, 28),
           decoration: BoxDecoration(
             color: KiviloColors.canvas,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: KiviloColors.border),
           ),
-          child: const Column(
+          child: Column(
             children: [
-              Icon(
+              const Icon(
                 Icons.add_a_photo_outlined,
                 size: 44,
                 color: KiviloColors.pink,
               ),
-              SizedBox(height: 14),
+              const SizedBox(height: 14),
               Text(
                 'Add photos with your phone’s camera',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: KiviloColors.ink,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Use the full native camera experience, or choose a photo you already took.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: KiviloColors.muted),
