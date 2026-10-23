@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import '../models/agency.dart';
 import 'api.dart';
 
@@ -41,8 +42,8 @@ class Workspace {
     if (value != 'personal' &&
         value != 'all' &&
         !index.agencies.any((team) => team.id == value)) {
-      throw const ApiFailure(
-        'Team access changed. Refresh and try again.',
+      throw ApiFailure(
+        t.teamAccessChanged,
         404,
       );
     }

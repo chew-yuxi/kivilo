@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -46,8 +47,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       PackageInfo.fromPlatform(),
       ShorebirdUpdater().readCurrentPatch(),
     ).wait;
-    final version = 'Version ${info.version} (${info.buildNumber})';
-    return patch == null ? version : '$version · Patch ${patch.number}';
+    final version = t.settingsVersion(info.version, info.buildNumber);
+    return patch == null ? version : t.settingsVersionPatch(version, patch.number);
   }
 
   Future<void> _openPage(String path) async {
@@ -65,20 +66,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Request account deletion?'),
-        content: const Text(
-          'We will confirm your request and complete eligible deletion within '
-          '30 days. Inspection and report records may need to be retained under '
-          'the applicable tenancy record retention policy.',
+        title: Text(t.settingsDeletionDrawerTitle),
+        content: Text(
+          t.settingsDeletionDrawerBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Request deletion'),
+            child: Text(t.settingsRequestDeletion),
           ),
         ],
       ),
@@ -130,7 +129,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         debugPrint('Remote sign-out could not be confirmed: $error');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not sign out. ${plainError(error)}');
+      if (mounted) setState(() => _error = t.settingsSignOutFailed(plainError(error)));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -163,9 +162,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final branding = snapshot.data;
       final details = [
         if (branding?.agencyLicence != null)
-          'Licence ${branding!.agencyLicence}',
+          t.settingsLicence(branding!.agencyLicence!),
         if (branding?.ceaRegistration != null)
-          'CEA ${branding!.ceaRegistration}',
+          t.settingsCea(branding!.ceaRegistration!),
       ].join(' · ');
       return Card(
         child: ListTile(
@@ -188,14 +187,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: KiviloColors.pinkDark,
                   ),
           ),
-          title: Text(branding?.agencyName ?? 'Add your agency'),
+          title: Text(branding?.agencyName ?? t.settingsAddAgency),
           subtitle: Text(
             snapshot.hasError
-                ? 'Could not load: ${snapshot.error}'
+                ? t.couldNotLoad('${snapshot.error}')
                 : branding == null
-                ? 'Your name and logo at the top of PDF reports'
+                ? t.settingsBrandingEmpty
                 : details.isEmpty
-                ? 'Shown on your PDF and shared reports'
+                ? t.settingsBrandingSet
                 : details,
           ),
           trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
@@ -209,7 +208,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     future: _plan,
     builder: (context, snapshot) {
       final plan = snapshot.data;
-      final noun = plan?.limit == 1 ? 'property' : 'properties';
       return Card(
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(
@@ -230,18 +228,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           title: Text(
             plan == null
-                ? 'Plan'
+                ? t.settingsPlan
                 : [
-                    plan.pro ? 'Pro' : 'Free',
+                    plan.pro ? 'Pro' : t.planFree,
                     if (plan.team != null) plan.team!,
                   ].join(' · '),
           ),
           subtitle: Text(
             snapshot.hasError
-                ? 'Could not load: ${plainError(snapshot.error!)}'
+                ? t.couldNotLoad(plainError(snapshot.error!))
                 : plan == null
-                ? 'Loading'
-                : '${plan.activeProperties} of ${plan.limit} active $noun in use',
+                ? t.loading
+                : t.settingsPlanUsage(plan.activeProperties, plan.limit),
           ),
         ),
       );
@@ -253,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     screen: ProductScreenName.account,
     active: widget.trackView,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Account')),
+    appBar: AppBar(title: Text(t.settingsAccount)),
     body: KiviloContent(maxWidth: 720, child: FutureBuilder<Map<String, dynamic>>(
       future: _request,
       builder: (context, snapshot) {
@@ -265,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 36),
           children: [
             Text(
-              'Your account',
+              t.settingsYourAccount,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
@@ -292,7 +290,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Signed in to Kivilo',
+                            t.settingsSignedIn,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 3),
@@ -312,22 +310,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             if (widget.onStartCheckIn != null) ...[
               const SizedBox(height: 28),
-              const KiviloSectionHeading(title: 'For agents'),
+              KiviloSectionHeading(title: t.settingsForAgents),
               const SizedBox(height: 12),
               _linkCard(
                 icon: Icons.add_home_work_outlined,
-                title: 'Start a check-in',
-                subtitle: 'Write a room-by-room report of a property',
+                title: t.settingsStartCheckIn,
+                subtitle: t.settingsStartCheckInDetail,
                 onTap: widget.onStartCheckIn!,
               ),
             ],
             const SizedBox(height: 28),
-            const KiviloSectionHeading(title: 'Workspace'),
+            KiviloSectionHeading(title: t.settingsWorkspace),
             const SizedBox(height: 12),
             _linkCard(
               icon: Icons.person_outline,
-              title: 'Team',
-              subtitle: 'Members, invitations and assigned work',
+              title: t.settingsTeam,
+              subtitle: t.settingsTeamDetail,
               onTap: () => Navigator.of(context).push<void>(
                 MaterialPageRoute(builder: (_) => TeamScreen(api: _api)),
               ),
@@ -335,46 +333,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 10),
             _linkCard(
               icon: Icons.home_outlined,
-              title: 'Properties',
-              subtitle: 'Property settings, archived properties and trash',
+              title: t.settingsProperties,
+              subtitle: t.settingsPropertiesDetail,
               onTap: () => Navigator.of(context).push<void>(
                 MaterialPageRoute(builder: (_) => PropertiesScreen(api: _api)),
               ),
             ),
             const SizedBox(height: 28),
-            const KiviloSectionHeading(
-              title: 'Report branding',
-              subtitle: 'Your agency on PDF and shared reports.',
+            KiviloSectionHeading(
+              title: t.settingsBranding,
+              subtitle: t.settingsBrandingDetail,
             ),
             const SizedBox(height: 12),
             _brandingCard(),
             const SizedBox(height: 28),
-            const KiviloSectionHeading(
-              title: 'Plan',
-              subtitle: 'How many properties you can work at once.',
+            KiviloSectionHeading(
+              title: t.settingsPlan,
+              subtitle: t.settingsPlanDetail,
             ),
             const SizedBox(height: 12),
             _planCard(),
             const SizedBox(height: 28),
-            const KiviloSectionHeading(title: 'Privacy & support'),
+            KiviloSectionHeading(title: t.settingsLanguage),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<String?>(
+              valueListenable: AppLanguage.choice,
+              builder: (context, choice, _) => KiviloSelectField<String?>(
+                label: t.settingsLanguage,
+                value: choice,
+                options: [
+                  KiviloSelectOption(value: null, label: t.settingsPhoneLanguage),
+                  // Each language in its own words, so it can be found by someone
+                  // who cannot read the current one.
+                  const KiviloSelectOption(value: 'en', label: 'English'),
+                  const KiviloSelectOption(value: 'zh', label: '中文（简体）'),
+                  const KiviloSelectOption(value: 'th', label: 'ไทย'),
+                ],
+                onChanged: AppLanguage.select,
+              ),
+            ),
+            const SizedBox(height: 28),
+            KiviloSectionHeading(title: t.settingsPrivacySupport),
             const SizedBox(height: 12),
             _linkCard(
               icon: Icons.privacy_tip_outlined,
-              title: 'Privacy policy',
-              subtitle: 'How Kivilo handles your data',
+              title: t.settingsPrivacyPolicy,
+              subtitle: t.settingsPrivacyPolicyDetail,
               onTap: () => _openPage('/privacy'),
             ),
             const SizedBox(height: 10),
             _linkCard(
               icon: Icons.help_outline,
-              title: 'Help & support',
-              subtitle: 'Get help with an inspection or your account',
+              title: t.settingsHelp,
+              subtitle: t.settingsHelpDetail,
               onTap: () => _openPage('/support'),
             ),
             const SizedBox(height: 28),
-            const KiviloSectionHeading(
-              title: 'Your data',
-              subtitle: 'Manage your account and deletion request.',
+            KiviloSectionHeading(
+              title: t.settingsYourData,
+              subtitle: t.settingsYourDataDetail,
             ),
             const SizedBox(height: 12),
             Card(
@@ -391,14 +408,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          'Account deletion',
+                          t.settingsAccountDeletion,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'We aim to complete eligible deletion within 30 days of your request.',
+                      t.settingsDeletionAim,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     if (deletion != null) ...[
@@ -413,13 +430,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Request ${_statusLabel(deletion['status'])}',
+                              _statusLabel(deletion['status']),
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              'Requested ${_shortDate(deletion['requestedAt'])} · Due ${_shortDate(deletion['dueAt'])}'
-                              '${deletion['completedAt'] == null ? '' : ' · Completed ${_shortDate(deletion['completedAt'])}'}',
+                              deletion['completedAt'] == null
+                                  ? t.settingsDeletionDates(
+                                      _shortDate(deletion['requestedAt']),
+                                      _shortDate(deletion['dueAt']),
+                                    )
+                                  : t.settingsDeletionDatesCompleted(
+                                      _shortDate(deletion['requestedAt']),
+                                      _shortDate(deletion['dueAt']),
+                                      _shortDate(deletion['completedAt']),
+                                    ),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -430,7 +455,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       FilledButton(
                         onPressed: _busy ? null : _requestDeletion,
                         child: Text(
-                          _busy ? 'Sending…' : 'Request account deletion',
+                          _busy ? t.sending : t.settingsRequestAccountDeletion,
                         ),
                       ),
                     ],
@@ -441,7 +466,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (snapshot.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
-                child: Text('Could not load your deletion request. ${plainError(snapshot.error!)}'),
+                child: Text(t.settingsDeletionLoadFailed(plainError(snapshot.error!))),
               ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -450,8 +475,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 28),
             _linkCard(
               icon: Icons.logout,
-              title: 'Sign out',
-              subtitle: 'Your saved signature is removed from this phone',
+              title: t.signOut,
+              subtitle: t.settingsSignOutDetail,
               onTap: _busy ? null : _signOut,
             ),
             const SizedBox(height: 20),
@@ -504,14 +529,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _shortDate(Object? value) {
     final date = DateTime.tryParse(value?.toString() ?? '');
-    if (date == null) return 'unknown';
+    if (date == null) return t.unknown;
     final local = date.toLocal();
     return '${local.day}/${local.month}/${local.year}';
   }
 
   String _statusLabel(Object? value) => switch (value) {
-    'COMPLETED' => 'completed',
-    'PROCESSING' => 'in progress',
-    _ => 'received',
+    'COMPLETED' => t.settingsDeletionCompleted,
+    'PROCESSING' => t.settingsDeletionInProgress,
+    _ => t.settingsDeletionReceived,
   };
 }

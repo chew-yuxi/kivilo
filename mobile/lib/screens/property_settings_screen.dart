@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/property_settings.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
@@ -66,7 +67,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
   Widget build(BuildContext context) => PopScope<void>(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Property settings')),
+      appBar: AppBar(title: Text(t.propertySettings)),
       body: KiviloContent(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -88,13 +89,13 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(switch (property.state) {
-                      'ARCHIVED' => 'Archived',
-                      'TRASHED' => 'In trash',
-                      _ => 'Active property',
+                      'ARCHIVED' => t.propertyArchived,
+                      'TRASHED' => t.propertyInTrash,
+                      _ => t.propertyActive,
                     }),
                     const SizedBox(height: 12),
                     Text(
-                      '${property.counts['tenancies']} tenancies · ${property.counts['inspections']} inspections · ${property.counts['photos']} photos',
+                      t.propertyCounts(property.counts['tenancies'] as int, property.counts['inspections'] as int, property.counts['photos'] as int),
                     ),
                   ],
                   if (_error != null || snapshot.hasError) ...[
@@ -105,23 +106,23 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                     ),
                     OutlinedButton(
                       onPressed: _busy ? null : _refresh,
-                      child: const Text('Try again'),
+                      child: Text(t.tryAgain),
                     ),
                   ],
                   if (property != null) ...[
                     if (property.state != 'TRASHED') ...[
                       const SizedBox(height: 24),
-                      const KiviloSectionHeading(title: 'Tenancy access'),
+                      KiviloSectionHeading(title: t.propertyTenancyAccess),
                       const SizedBox(height: 10),
                       for (final tenancy in property.tenancies) ...[
                         Card(
                           child: ListTile(
                             title: Text(
                               tenancy['agencyName'] as String? ??
-                                  'Personal tenancy',
+                                  t.propertyPersonalTenancy,
                             ),
                             subtitle: Text(
-                              'Responsible agent: ${tenancy['leadAgentName']}',
+                              t.propertyResponsibleAgent('${tenancy['leadAgentName']}'),
                             ),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: _busy
@@ -165,7 +166,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                                     if (mounted) await _refresh();
                                   },
                             child: Text(
-                              'Open ${inspection['kind'] == 'CHECK_OUT' ? 'check-out' : 'check-in'} report',
+                              inspection['kind'] == 'CHECK_OUT' ? t.propertyOpenCheckOutReport : t.propertyOpenCheckInReport,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -184,31 +185,31 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'Danger zone',
+                              t.propertyDangerZone,
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(color: KiviloColors.red),
                             ),
                             const SizedBox(height: 12),
                             if (!property.canManage)
-                              const Text(
-                                'Only the property’s lead agents or agency managers can archive or delete it. You need management access to every tenancy at this address.',
+                              Text(
+                                t.propertyManageOnly,
                               ),
                             if (property.state == 'TRASHED') ...[
                               Text(
-                                'This property is hidden from active work. ${property.trashExpiresAt == null ? 'Restore it before its recovery period ends.' : 'Restore before ${shortDate(property.trashExpiresAt!)}. After that, eligible records and media are permanently removed.'}',
+                                property.trashExpiresAt == null ? t.propertyTrashedNoDate : t.propertyTrashedUntil(shortDate(property.trashExpiresAt!)),
                               ),
                               const SizedBox(height: 16),
                               FilledButton(
                                 onPressed: property.canManage && !_busy
                                     ? () => _change(property, 'restore')
                                     : null,
-                                child: const Text('Restore property'),
+                                child: Text(t.propertyRestore),
                               ),
                             ] else ...[
                               Text(
                                 property.state == 'ARCHIVED'
-                                    ? 'This property is outside the active portfolio. Its records and reports are preserved.'
-                                    : 'Archive removes this address from active work and preserves its reports and history. You can restore it later.',
+                                    ? t.propertyArchivedBody
+                                    : t.propertyArchiveBody,
                               ),
                               const SizedBox(height: 12),
                               OutlinedButton(
@@ -222,13 +223,13 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                                     : null,
                                 child: Text(
                                   property.state == 'ARCHIVED'
-                                      ? 'Restore to active properties'
-                                      : 'Archive property',
+                                      ? t.propertyRestoreActive
+                                      : t.propertyArchive,
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              const Text(
-                                'Delete a mistaken or draft-only property. It moves to trash for 30 days before eligible records and media are permanently removed.',
+                              Text(
+                                t.propertyDeleteBody,
                               ),
                               if (property.deleteBlockedReason != null) ...[
                                 const SizedBox(height: 8),
@@ -253,7 +254,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                                     color: KiviloColors.red,
                                   ),
                                 ),
-                                child: const Text('Delete property'),
+                                child: Text(t.propertyDelete),
                               ),
                             ],
                           ],
@@ -296,12 +297,12 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
     final deleting = widget.action == 'trash';
     final archiving = widget.action == 'archive';
     final label = deleting
-        ? 'Move to trash'
+        ? t.propertyMoveToTrash
         : archiving
-        ? 'Archive property'
-        : 'Restore property';
+        ? t.propertyArchive
+        : t.propertyRestore;
     return KiviloDrawer(
-      title: Text('$label?'),
+      title: Text(t.questionTitle(label)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -313,20 +314,20 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
           const SizedBox(height: 12),
           Text(
             deleting
-                ? 'This affects ${widget.property.counts['tenancies']} tenancies, ${widget.property.counts['inspections']} inspections and ${widget.property.counts['photos']} photos. You have 30 days to restore them from Properties → Trash.'
+                ? t.propertyTrashBody(widget.property.counts['tenancies'] as int, widget.property.counts['inspections'] as int, widget.property.counts['photos'] as int)
                 : archiving
-                ? 'This removes the property from active work for everyone with access. Reports and evidence remain available in Archived properties.'
-                : 'This restores the property and its saved work to their previous state.',
+                ? t.propertyArchiveConfirmBody
+                : t.propertyRestoreConfirmBody,
           ),
           if (deleting) ...[
             const SizedBox(height: 16),
-            Text('Type “${widget.property.confirmationLabel}” to confirm.'),
+            Text(t.propertyTypeToConfirm(widget.property.confirmationLabel)),
             const SizedBox(height: 12),
             TextField(
               controller: _confirmation,
               autocorrect: false,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(labelText: 'Property address'),
+              decoration: InputDecoration(labelText: t.propertyAddress),
             ),
           ],
         ],
@@ -334,7 +335,7 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
       actions: [
         OutlinedButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed:
@@ -381,7 +382,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Properties')),
+    appBar: AppBar(title: Text(t.settingsProperties)),
     body: KiviloContent(
       child: Column(
         children: [
@@ -389,10 +390,10 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
             padding: const EdgeInsets.all(16),
             child: KiviloSegmentedControl<String>(
               value: _state,
-              options: const [
-                KiviloSegmentOption(value: 'active', label: 'Active'),
-                KiviloSegmentOption(value: 'archived', label: 'Archived'),
-                KiviloSegmentOption(value: 'trash', label: 'Trash'),
+              options: [
+                KiviloSegmentOption(value: 'active', label: t.propertiesActive),
+                KiviloSegmentOption(value: 'archived', label: t.propertyArchived),
+                KiviloSegmentOption(value: 'trash', label: t.propertiesTrash),
               ],
               onChanged: (value) {
                 setState(() => _state = value!);
@@ -420,7 +421,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                         ),
                         OutlinedButton(
                           onPressed: _refresh,
-                          child: const Text('Try again'),
+                          child: Text(t.tryAgain),
                         ),
                       ],
                       if (snapshot.hasData && snapshot.data!.isEmpty)
@@ -428,10 +429,10 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                           padding: const EdgeInsets.all(24),
                           child: Text(
                             _state == 'active'
-                                ? 'No active properties.'
+                                ? t.propertiesNoActive
                                 : _state == 'archived'
-                                ? 'No archived properties.'
-                                : 'Trash is empty.',
+                                ? t.propertiesNoArchived
+                                : t.propertiesTrashEmpty,
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -442,7 +443,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                             contentPadding: const EdgeInsets.all(16),
                             title: Text(property.label),
                             subtitle: Text(
-                              '${property.tenancyCount} tenancies · ${property.inspectionCount} inspections${property.trashExpiresAt == null ? '' : '\nRestore before ${shortDate(property.trashExpiresAt!)}'}',
+                              [t.propertyListCounts(property.tenancyCount, property.inspectionCount), if (property.trashExpiresAt != null) t.propertyRestoreBefore(shortDate(property.trashExpiresAt!))].join('\n'),
                             ),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () async {

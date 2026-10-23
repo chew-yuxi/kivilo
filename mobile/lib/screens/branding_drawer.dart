@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
@@ -107,13 +108,12 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
         ? Image.network(existingLogo, fit: BoxFit.contain)
         : null;
     return KiviloDrawer(
-      title: const Text('Report branding'),
+      title: Text(t.settingsBranding),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Heads every PDF and shared report you prepare. Landlords and tenants '
-            'see it; the signed contents of a report never change.',
+            t.brandingIntro,
             style: text.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -140,9 +140,9 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Logo', style: text.titleMedium),
+                    Text(t.logo, style: text.titleMedium),
                     Text(
-                      'PNG or JPEG, shown at the top left',
+                      t.logoDetail,
                       style: text.bodySmall,
                     ),
                   ],
@@ -150,11 +150,11 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
               ),
               TextButton(
                 onPressed: _saving ? null : _pickLogo,
-                child: Text(preview == null ? 'Choose' : 'Replace'),
+                child: Text(preview == null ? t.choose : t.replace),
               ),
               if (preview != null)
                 IconButton(
-                  tooltip: 'Remove logo',
+                  tooltip: t.removeLogo,
                   onPressed: _saving
                       ? null
                       : () => setState(() {
@@ -169,21 +169,21 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           TextField(
             controller: _agentName,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Your name'),
+            decoration: InputDecoration(labelText: t.yourName),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Agency name'),
+            decoration: InputDecoration(labelText: t.agencyName),
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _licence,
             textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Agency licence (optional)',
+            decoration: InputDecoration(
+              labelText: t.agencyLicenceOptional,
               hintText: 'e.g. L3010000A',
             ),
           ),
@@ -191,8 +191,8 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           TextField(
             controller: _cea,
             textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Your CEA registration (optional)',
+            decoration: InputDecoration(
+              labelText: t.ceaOptional,
               hintText: 'e.g. R061234B',
             ),
           ),
@@ -200,7 +200,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           TextField(
             controller: _phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: 'Phone (optional)'),
+            decoration: InputDecoration(labelText: t.phoneOptional),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
@@ -211,11 +211,11 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed: _saving || _name.text.trim().isEmpty ? null : _save,
-          child: Text(_saving ? 'Saving…' : 'Save'),
+          child: Text(_saving ? t.saving : t.save),
         ),
       ],
     );

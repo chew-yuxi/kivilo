@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -166,30 +167,30 @@ class _RoomScreenState extends State<RoomScreen> {
   ) => showKiviloDrawer<String>(
     context: context,
     builder: (context) => KiviloDrawer(
-      title: Text(capture.kind == 'PHOTO' ? 'Photo actions' : 'Video actions'),
+      title: Text(capture.kind == 'PHOTO' ? t.photoActions : t.videoActions),
       content: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.open_in_full),
-            title: const Text('Preview'),
-            subtitle: const Text('Open the original file'),
+            title: Text(t.preview),
+            subtitle: Text(t.previewDetail),
             onTap: () => Navigator.pop(context, 'preview'),
           ),
           if (widget.editable) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
-              title: const Text('Edit note'),
-              subtitle: const Text('Describe what this shows'),
+              title: Text(t.editNote),
+              subtitle: Text(t.noteHint),
               onTap: () => Navigator.pop(context, 'note'),
             ),
             if (capture.kind == 'PHOTO')
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.gesture_outlined),
-                title: const Text('Mark photo'),
-                subtitle: const Text('Circle, point to, or draw over a detail'),
+                title: Text(t.markPhoto),
+                subtitle: Text(t.markPhotoDetail),
                 onTap: () => Navigator.pop(context, 'mark'),
               ),
             const Divider(),
@@ -199,8 +200,8 @@ class _RoomScreenState extends State<RoomScreen> {
                 Icons.delete_outline,
                 color: KiviloColors.red,
               ),
-              title: const Text(
-                'Delete media',
+              title: Text(
+                t.deleteMedia,
                 style: TextStyle(color: KiviloColors.red),
               ),
               onTap: () => Navigator.pop(context, 'delete'),
@@ -211,7 +212,7 @@ class _RoomScreenState extends State<RoomScreen> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: Text(t.close),
         ),
       ],
     ),
@@ -261,7 +262,7 @@ class _RoomScreenState extends State<RoomScreen> {
           context,
           MaterialPageRoute(
             builder: (_) => Scaffold(
-              appBar: AppBar(title: const Text('Photo')),
+              appBar: AppBar(title: Text(t.photo)),
               backgroundColor: Colors.black,
               body: Center(
                 child: InteractiveViewer(
@@ -306,19 +307,19 @@ class _RoomScreenState extends State<RoomScreen> {
         context: context,
         builder: (context) => KiviloDrawer(
           title: Text(
-            'Delete this ${capture.kind == 'PHOTO' ? 'photo' : 'video'}?',
+            capture.kind == 'PHOTO' ? t.deletePhotoTitle : t.deleteVideoTitle,
           ),
-          content: const Text(
-            'This removes it from the room and from any inventory item it is attached to.',
+          content: Text(
+            t.deleteMediaBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: Text(t.delete),
             ),
           ],
         ),
@@ -405,16 +406,16 @@ class _RoomScreenState extends State<RoomScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: Text('Delete ${item.name}?'),
-        content: const Text('This removes the line from the inventory.'),
+        title: Text(t.deleteNamed(item.name)),
+        content: Text(t.deleteItemBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(t.delete),
           ),
         ],
       ),
@@ -435,19 +436,18 @@ class _RoomScreenState extends State<RoomScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: Text('Nothing to record in ${room.name}?'),
-        content: const Text(
-          'This marks the room reviewed with no items. The report will say '
-          'nothing was recorded in this room.',
+        title: Text(t.nothingToRecordTitle(room.name)),
+        content: Text(
+          t.nothingToRecordBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirm'),
+            child: Text(t.confirm),
           ),
         ],
       ),
@@ -477,7 +477,7 @@ class _RoomScreenState extends State<RoomScreen> {
     final ownerId =
         widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id;
     if (ownerId == null) {
-      throw const ApiFailure('Sign in again to continue.', 401);
+      throw ApiFailure(t.signInAgain, 401);
     }
     final queue = widget.queue ?? CaptureQueue();
     late final ({int captures, int edits}) pending;
@@ -534,16 +534,14 @@ class _RoomScreenState extends State<RoomScreen> {
     await showKiviloDrawer<void>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Still uploading'),
-        content: const Text(
-          'Some photos, videos or changes in this room have not uploaded yet. '
-          'Open the item or Room media & walkthrough to finish any photo marks '
-          'and retry uploads before continuing.',
+        title: Text(t.stillUploading),
+        content: Text(
+          t.roomStillUploadingBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(t.ok),
           ),
         ],
       ),
@@ -556,21 +554,21 @@ class _RoomScreenState extends State<RoomScreen> {
     final name = await showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Rename room'),
+        title: Text(t.roomRename),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLength: 80,
-          decoration: const InputDecoration(labelText: 'Room name'),
+          decoration: InputDecoration(labelText: t.roomName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
+            child: Text(t.save),
           ),
         ],
       ),
@@ -587,13 +585,13 @@ class _RoomScreenState extends State<RoomScreen> {
     final action = await showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Room actions'),
+        title: Text(t.roomActions),
         content: Column(
           children: [
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Rename room'),
-              subtitle: const Text('Change the room name'),
+              title: Text(t.roomRename),
+              subtitle: Text(t.roomRenameDetail),
               onTap: () => Navigator.pop(context, 'rename'),
             ),
             const Divider(),
@@ -602,11 +600,11 @@ class _RoomScreenState extends State<RoomScreen> {
                 Icons.delete_outline,
                 color: KiviloColors.red,
               ),
-              title: const Text(
-                'Delete room',
+              title: Text(
+                t.roomDelete,
                 style: TextStyle(color: KiviloColors.red),
               ),
-              subtitle: const Text('Remove its photos, videos and inventory'),
+              subtitle: Text(t.roomDeleteDetail),
               onTap: () => Navigator.pop(context, 'delete'),
             ),
           ],
@@ -614,7 +612,7 @@ class _RoomScreenState extends State<RoomScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(t.close),
           ),
         ],
       ),
@@ -637,18 +635,18 @@ class _RoomScreenState extends State<RoomScreen> {
       final confirmed = await showKiviloDrawer<bool>(
         context: context,
         builder: (context) => KiviloDrawer(
-          title: const Text('Delete this room?'),
-          content: const Text(
-            'Its photos, videos and inventory will be removed.',
+          title: Text(t.roomDeleteTitle),
+          content: Text(
+            t.roomDeleteBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: Text(t.delete),
             ),
           ],
         ),
@@ -673,13 +671,13 @@ class _RoomScreenState extends State<RoomScreen> {
         title: FutureBuilder<RoomDetail>(
           future: _future,
           builder: (context, snapshot) => PageContextTitle(
-            title: snapshot.data?.name ?? 'Room',
+            title: snapshot.data?.name ?? t.room,
             contextLabel: [
               if (widget.inspectionKind != null)
-                widget.inspectionKind == 'CHECK_OUT' ? 'Check-out' : 'Check-in',
+                widget.inspectionKind == 'CHECK_OUT' ? t.checkOut : t.checkIn,
               if (widget.property != null) widget.property!,
               if (widget.inspectionKind == null && widget.property == null)
-                'Room inventory',
+                t.roomInventory,
             ].join(' · '),
           ),
         ),
@@ -703,7 +701,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         Padding(
                           padding: const EdgeInsets.all(24),
                           child: Text(
-                            'Could not open this room. ${plainError(snapshot.error!)}',
+                            t.roomOpenFailed(plainError(snapshot.error!)),
                           ),
                         ),
                       ],
@@ -718,14 +716,14 @@ class _RoomScreenState extends State<RoomScreen> {
                   final inventory = <Widget>[
                     if (checkIn != null) ...[
                       KiviloSectionHeading(
-                        title: 'At check-in',
+                        title: t.atCheckIn,
                         subtitle: checkIn.conductedAt == null
-                            ? 'This room as it was signed'
-                            : 'This room as it was signed on ${shortDate(checkIn.conductedAt!)}',
+                            ? t.atCheckInSigned
+                            : t.atCheckInSignedOn(shortDate(checkIn.conductedAt!)),
                         action: TextButton(
                           onPressed: () =>
                               setState(() => _showCheckIn = !_showCheckIn),
-                          child: Text(_showCheckIn ? 'Hide' : 'Show'),
+                          child: Text(_showCheckIn ? t.hide : t.show),
                         ),
                       ),
                       if (_showCheckIn) ...[
@@ -740,14 +738,14 @@ class _RoomScreenState extends State<RoomScreen> {
                       const SizedBox(height: 20),
                     ],
                     KiviloSectionHeading(
-                      title: 'Inventory',
+                      title: t.inventory,
                       subtitle:
-                          '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
+                          t.itemsInRoom(room.items.length),
                       action: widget.editable
                           ? TextButton.icon(
                               onPressed: _busy || _addingItem ? null : _addItem,
                               icon: const Icon(Icons.add),
-                              label: const Text('Add'),
+                              label: Text(t.add),
                             )
                           : null,
                     ),
@@ -768,12 +766,12 @@ class _RoomScreenState extends State<RoomScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'No inventory items yet',
+                                t.inventoryEmpty,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Add an item, then open it to take photos and mark details.',
+                                t.inventoryEmptyDetail,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
@@ -794,18 +792,18 @@ class _RoomScreenState extends State<RoomScreen> {
                   ];
                   final media = <Widget>[
                     KiviloSectionHeading(
-                      title: 'Media',
+                      title: t.media,
                       subtitle: room.captures.isEmpty
-                          ? 'Photos and videos of this room'
+                          ? t.mediaEmptyDetail
                           : room.captures.length == 1
-                          ? '1 photo or video'
-                          : '${room.captures.length} photos and videos',
+                          ? t.mediaOne
+                          : t.mediaMany(room.captures.length),
                       action: room.captures.length > 1
                           ? TextButton(
                               onPressed: () =>
                                   setState(() => _newestFirst = !_newestFirst),
                               child: Text(
-                                _newestFirst ? 'Newest first' : 'Oldest first',
+                                _newestFirst ? t.newestFirst : t.oldestFirst,
                               ),
                             )
                           : null,
@@ -815,7 +813,7 @@ class _RoomScreenState extends State<RoomScreen> {
                       OutlinedButton.icon(
                         onPressed: _busy ? null : _capture,
                         icon: const Icon(Icons.videocam_outlined),
-                        label: const Text('Room media & walkthrough'),
+                        label: Text(t.roomMediaWalkthrough),
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -835,12 +833,12 @@ class _RoomScreenState extends State<RoomScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'No photos or videos yet',
+                                t.mediaEmpty,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Photos and videos appear here once they upload.',
+                                t.mediaEmptyUploading,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
@@ -904,14 +902,14 @@ class _RoomScreenState extends State<RoomScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
-                                'Finish this room',
+                                t.finishRoom,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 5),
                               Text(
                                 room.items.isEmpty
-                                    ? 'Add an item, or confirm there is nothing to record in this room.'
-                                    : 'Check every item against the photos and video. Your review makes this room ready for the report.',
+                                    ? t.finishRoomEmpty
+                                    : t.finishRoomBody,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               const SizedBox(height: 14),
@@ -920,7 +918,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                     ? null
                                     : _reviewRoom,
                                 icon: const Icon(Icons.check_rounded),
-                                label: const Text('I reviewed this room'),
+                                label: Text(t.reviewedRoom),
                               ),
                               if (room.items.isEmpty) ...[
                                 const SizedBox(height: 8),
@@ -928,7 +926,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                   onPressed: _busy
                                       ? null
                                       : () => _nothingToRecord(room),
-                                  child: const Text('Nothing to record'),
+                                  child: Text(t.nothingToRecord),
                                 ),
                               ],
                             ],
@@ -954,7 +952,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    'Offline copy. Keep capturing; review edits need a connection.',
+                                    t.roomOffline,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodyMedium,
@@ -986,8 +984,8 @@ class _RoomScreenState extends State<RoomScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'ROOM RECORD',
+                                Text(
+                                  t.roomRecordEyebrow,
                                   style: TextStyle(
                                     color: KiviloColors.pinkDark,
                                     fontSize: 11,
@@ -1011,7 +1009,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                   ? null
                                   : () => unawaited(_openRoomActions(room)),
                               icon: const Icon(Icons.more_horiz),
-                              tooltip: 'Room actions',
+                              tooltip: t.roomActions,
                             ),
                         ],
                       ),
@@ -1022,7 +1020,7 @@ class _RoomScreenState extends State<RoomScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} · $photos photos · $videos videos',
+                              t.roomCounts(room.items.length, photos, videos),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ),
@@ -1049,16 +1047,16 @@ class _RoomScreenState extends State<RoomScreen> {
                               Expanded(
                                 child: Text(
                                   !widget.editable
-                                      ? 'This inventory is fixed for signing. Media remains available below.'
+                                      ? t.roomFixedBody
                                       : switch (room.status) {
                                           'PENDING' =>
-                                            'Start with the inventory. Open an item to add photos and mark details.',
+                                            t.roomPendingBody,
                                           'REVIEW' =>
-                                            'Open each inventory item to check its details and add photos, then mark this room reviewed.',
+                                            t.roomReviewBody,
                                           'REVIEWED' =>
-                                            'This room has been reviewed. Open an item to update its details or add photos.',
+                                            t.roomReviewedBody,
                                           _ =>
-                                            'Add each item to the inventory, then open it to take photos and mark details.',
+                                            t.roomCapturingBody,
                                         },
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
@@ -1121,7 +1119,7 @@ class _RoomScreenState extends State<RoomScreen> {
   );
 
   Widget _evidenceCard(EvidenceCapture capture, int number) => Semantics(
-    label: capture.kind == 'PHOTO' ? 'Photo' : 'Video',
+    label: capture.kind == 'PHOTO' ? t.photo : t.video,
     child: SizedBox(
       width: 120,
       child: Card(
@@ -1161,7 +1159,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     const SizedBox(width: 5),
                     Flexible(
                       child: Text(
-                        '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
+                        capture.kind == 'PHOTO' ? t.photoNumber(number) : t.videoNumber(number),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
@@ -1186,7 +1184,7 @@ class _RoomScreenState extends State<RoomScreen> {
   /// "serial: ABC123", or "no serial" when the check-in left it empty.
   static String _quoted(String field, String? value) {
     final trimmed = value?.trim() ?? '';
-    return trimmed.isEmpty ? 'no $field' : '$field: $trimmed';
+    return trimmed.isEmpty ? t.fieldNone(field) : t.fieldValue(field, trimmed);
   }
 
   /// [baseline] is the check-in line a check-out row was copied from, so what it was
@@ -1205,17 +1203,18 @@ class _RoomScreenState extends State<RoomScreen> {
     final atCheckIn = baseline == null
         ? null
         : [
-            baseline.update ? 'At check-in, updated:' : 'At check-in:',
+            baseline.update ? t.atCheckInUpdatedPrefix : t.atCheckInPrefix,
             [
-              baseline.condition,
-              if (_differs(baseline.name, item.name)) 'name: ${baseline.name}',
+              itemConditionLabels[baseline.condition] ?? baseline.condition,
+              if (_differs(baseline.name, item.name))
+                t.fieldValue(t.fieldName, baseline.name),
               if (baseline.quantity != item.quantity) '×${baseline.quantity}',
               if (_differs(baseline.identifier, item.identifier))
-                _quoted('serial', baseline.identifier),
+                _quoted(t.fieldSerial, baseline.identifier),
               if (_differs(baseline.meterReading, item.meterReading))
-                _quoted('reading', baseline.meterReading),
+                _quoted(t.fieldReading, baseline.meterReading),
               if (_differs(baseline.notes, item.notes))
-                _quoted('notes', baseline.notes),
+                _quoted(t.fieldNotes, baseline.notes),
             ].join(' · '),
           ].join(' ');
     return Card(
@@ -1238,13 +1237,13 @@ class _RoomScreenState extends State<RoomScreen> {
                   ),
                   if (widget.editable) ...[
                     IconButton(
-                      tooltip: 'Open item',
+                      tooltip: t.openItem,
                       visualDensity: VisualDensity.compact,
                       icon: const Icon(Icons.chevron_right, size: 22),
                       onPressed: _busy ? null : () => _openItem(item),
                     ),
                     IconButton(
-                      tooltip: 'Delete item',
+                      tooltip: t.deleteItem,
                       visualDensity: VisualDensity.compact,
                       icon: const Icon(Icons.delete_outline, size: 20),
                       onPressed: _busy ? null : () => _deleteItem(item),
@@ -1257,22 +1256,22 @@ class _RoomScreenState extends State<RoomScreen> {
                 spacing: 7,
                 runSpacing: 7,
                 children: [
-                  _itemTag(item.category.replaceAll('_', ' ')),
-                  _itemTag(item.condition.replaceAll('_', ' ')),
-                  _itemTag('Qty ${item.quantity}'),
+                  _itemTag(itemCategoryLabels[item.category] ?? item.category),
+                  _itemTag(itemConditionLabels[item.condition] ?? item.condition),
+                  _itemTag(t.quantityShort(item.quantity)),
                 ],
               ),
               if (item.identifier != null) ...[
                 const SizedBox(height: 10),
                 Text(
-                  'Identifier  ${item.identifier}',
+                  t.identifierLine(item.identifier!),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
               if (item.meterReading != null) ...[
                 const SizedBox(height: 5),
                 Text(
-                  'Reading  ${item.meterReading}',
+                  t.readingLine(item.meterReading!),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -1290,7 +1289,7 @@ class _RoomScreenState extends State<RoomScreen> {
               if (attached.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
-                  'Attached media',
+                  t.attachedMedia,
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 const SizedBox(height: 7),
@@ -1319,13 +1318,14 @@ class _RoomScreenState extends State<RoomScreen> {
     EvidenceCapture capture,
     int number,
   ) {
-    final kind = capture.kind == 'PHOTO' ? 'Photo' : 'Video';
     final label = capture.kind == 'PHOTO' && capture.annotations != null
-        ? 'Marked photo $number'
-        : '$kind $number';
+        ? t.markedPhotoNumber(number)
+        : capture.kind == 'PHOTO'
+        ? t.photoNumber(number)
+        : t.videoNumber(number);
     return Semantics(
       button: true,
-      label: 'Open $label attached to ${item.name}',
+      label: t.openAttachedTo(label, item.name),
       child: SizedBox(
         width: 94,
         height: 104,
@@ -1425,9 +1425,9 @@ class _EvidenceNoteDrawerState extends State<_EvidenceNoteDrawer> {
           onPressed: () =>
               Navigator.pop(context, const _EvidenceNoteResult.back()),
           icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back to media actions',
+          tooltip: t.backToMediaActions,
         ),
-        const Text('Note'),
+        Text(t.note),
       ],
     ),
     content: TextField(
@@ -1435,20 +1435,20 @@ class _EvidenceNoteDrawerState extends State<_EvidenceNoteDrawer> {
       autofocus: true,
       minLines: 3,
       maxLines: 6,
-      decoration: const InputDecoration(
-        labelText: 'Note',
-        hintText: 'Describe what this shows',
+      decoration: InputDecoration(
+        labelText: t.note,
+        hintText: t.noteHint,
       ),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: () =>
             Navigator.pop(context, _EvidenceNoteResult.save(_controller.text)),
-        child: const Text('Save note'),
+        child: Text(t.saveNote),
       ),
     ],
   );
@@ -1508,7 +1508,7 @@ class _ItemEditorState extends State<ItemEditor> {
     final count = int.tryParse(_quantity.text.trim());
     if (_name.text.trim().isEmpty || count == null || count < 1) {
       setState(
-        () => _error = 'Enter an item name and quantity of at least one.',
+        () => _error = t.itemNameRequired,
       );
       return;
     }
@@ -1563,42 +1563,42 @@ class _ItemEditorState extends State<ItemEditor> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Edit inventory item',
+                t.editItem,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 4),
               Text(
-                'Describe this item. Take photos from its inventory page.',
+                t.editItemDetail,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: _name,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: t.assetName),
               ),
               const SizedBox(height: 12),
               KiviloSelectField<String>(
-                label: 'Category',
+                label: t.assetCategory,
                 value: _category,
-                options: const [
-                  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-                  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-                  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-                  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-                  KiviloSelectOption(value: 'METER', label: 'Meter'),
+                options: [
+                  KiviloSelectOption(value: 'FIXTURE', label: t.assetFixture),
+                  KiviloSelectOption(value: 'APPLIANCE', label: t.assetAppliance),
+                  KiviloSelectOption(value: 'FURNITURE', label: t.assetFurniture),
+                  KiviloSelectOption(value: 'SURFACE', label: t.assetSurface),
+                  KiviloSelectOption(value: 'METER', label: t.categoryMeter),
                 ],
                 onChanged: (value) => setState(() => _category = value),
               ),
               const SizedBox(height: 12),
               KiviloSelectField<String>(
-                label: 'Condition',
+                label: t.condition,
                 value: _condition,
-                options: const [
-                  KiviloSelectOption(value: 'NEW', label: 'New'),
-                  KiviloSelectOption(value: 'GOOD', label: 'Good'),
-                  KiviloSelectOption(value: 'FAIR', label: 'Fair'),
-                  KiviloSelectOption(value: 'POOR', label: 'Poor'),
-                  KiviloSelectOption(value: 'DAMAGED', label: 'Damaged'),
+                options: [
+                  KiviloSelectOption(value: 'NEW', label: t.conditionNew),
+                  KiviloSelectOption(value: 'GOOD', label: t.conditionGood),
+                  KiviloSelectOption(value: 'FAIR', label: t.conditionFair),
+                  KiviloSelectOption(value: 'POOR', label: t.conditionPoor),
+                  KiviloSelectOption(value: 'DAMAGED', label: t.conditionDamaged),
                 ],
                 onChanged: (value) => setState(() => _condition = value),
               ),
@@ -1606,26 +1606,26 @@ class _ItemEditorState extends State<ItemEditor> {
               TextField(
                 controller: _quantity,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Quantity'),
+                decoration: InputDecoration(labelText: t.quantity),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _identifier,
-                decoration: const InputDecoration(
-                  labelText: 'Make, model or serial',
+                decoration: InputDecoration(
+                  labelText: t.makeModelSerial,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _meterReading,
-                decoration: const InputDecoration(labelText: 'Meter reading'),
+                decoration: InputDecoration(labelText: t.meterReading),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _notes,
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Notes'),
+                decoration: InputDecoration(labelText: t.notes),
               ),
               if (widget.captures.isNotEmpty) ...[
                 const SizedBox(height: 12),
@@ -1637,24 +1637,24 @@ class _ItemEditorState extends State<ItemEditor> {
                     icon: const Icon(Icons.link_outlined),
                     label: Text(
                       _showExistingMedia
-                          ? 'Hide existing room media'
-                          : 'Link existing room media',
+                          ? t.hideRoomMedia
+                          : t.linkRoomMedia,
                     ),
                   )
                 else
-                  const Text(
-                    'Finish uploading this room’s photos before linking existing media.',
+                  Text(
+                    t.finishUploadingBeforeLink,
                   ),
               ],
               if (_showExistingMedia) ...[
                 const SizedBox(height: 4),
                 Text(
-                  'Choose the room photos and videos that support this inventory line. Their notes and photo marks stay attached.',
+                  t.linkRoomMediaDetail,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 10),
                 if (widget.captures.isEmpty)
-                  const Text('No media in this room yet.')
+                  Text(t.noRoomMedia)
                 else
                   ...widget.captures.indexed.map((entry) {
                     final (index, capture) = entry;
@@ -1662,7 +1662,7 @@ class _ItemEditorState extends State<ItemEditor> {
                     final detail = [
                       if (capture.note?.trim().isNotEmpty ?? false)
                         capture.note!.trim(),
-                      if (capture.annotations != null) 'Has photo marks',
+                      if (capture.annotations != null) t.hasPhotoMarks,
                     ].join(' · ');
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -1711,7 +1711,7 @@ class _ItemEditorState extends State<ItemEditor> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} ${index + 1}',
+                                        capture.kind == 'PHOTO' ? t.photoNumber(index + 1) : t.videoNumber(index + 1),
                                         style: Theme.of(
                                           context,
                                         ).textTheme.labelLarge,
@@ -1753,7 +1753,7 @@ class _ItemEditorState extends State<ItemEditor> {
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: _saving ? null : _save,
-                child: Text(_saving ? 'Saving…' : 'Save changes'),
+                child: Text(_saving ? t.saving : t.saveChanges),
               ),
             ],
           ),

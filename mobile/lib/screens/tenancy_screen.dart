@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
@@ -82,38 +83,38 @@ class _TenancyScreenState extends State<TenancyScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => KiviloDrawer(
-          title: const Text('Add property asset'),
+          title: Text(t.assetAddTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: name,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(labelText: t.assetName),
                 ),
                 KiviloSelectField<String>(
-                  label: 'Category',
+                  label: t.assetCategory,
                   value: category,
-                  options: const [
-                    KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-                    KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-                    KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-                    KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-                    KiviloSelectOption(value: 'SYSTEM', label: 'System'),
-                    KiviloSelectOption(value: 'OTHER', label: 'Other'),
+                  options: [
+                    KiviloSelectOption(value: 'APPLIANCE', label: t.assetAppliance),
+                    KiviloSelectOption(value: 'FIXTURE', label: t.assetFixture),
+                    KiviloSelectOption(value: 'FURNITURE', label: t.assetFurniture),
+                    KiviloSelectOption(value: 'SURFACE', label: t.assetSurface),
+                    KiviloSelectOption(value: 'SYSTEM', label: t.assetSystem),
+                    KiviloSelectOption(value: 'OTHER', label: t.basisOther),
                   ],
                   onChanged: (value) => setDialogState(() => category = value),
                 ),
                 TextField(
                   controller: room,
-                  decoration: const InputDecoration(
-                    labelText: 'Room (optional)',
+                  decoration: InputDecoration(
+                    labelText: t.assetRoomOptional,
                   ),
                 ),
                 TextField(
                   controller: identifier,
-                  decoration: const InputDecoration(
-                    labelText: 'Make, model or serial (optional)',
+                  decoration: InputDecoration(
+                    labelText: t.assetIdentifierOptional,
                   ),
                 ),
               ],
@@ -122,11 +123,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Add'),
+              child: Text(t.add),
             ),
           ],
         ),
@@ -159,14 +160,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
           final valid =
               amount.isEmpty || RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(amount);
           return KiviloDrawer(
-            title: const Text('Minor repair cap'),
+            title: Text(t.minorRepairCap),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'The amount the tenant pays towards each minor repair under '
-                  'the tenancy agreement. It prefills a split when someone '
-                  'proposes who pays; the tenant still accepts every proposal.',
+                  t.minorRepairCapBody,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -177,10 +176,10 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Tenant pays up to',
-                    prefixText: 'S\$ ',
-                    helperText: 'Leave empty if the agreement has no cap',
-                    errorText: valid ? null : 'Enter an amount like 150',
+                    labelText: t.minorRepairCapLabel,
+                    prefixText: t.currencyPrefix,
+                    helperText: t.minorRepairCapHelper,
+                    errorText: valid ? null : t.minorRepairCapInvalid,
                   ),
                   onChanged: (_) => setDrawerState(() {}),
                 ),
@@ -189,11 +188,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(t.cancel),
               ),
               FilledButton(
                 onPressed: valid ? () => Navigator.pop(context, true) : null,
-                child: const Text('Save'),
+                child: Text(t.save),
               ),
             ],
           );
@@ -225,12 +224,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
           final value = int.tryParse(days.trim());
           final valid = value != null && value >= 0 && value <= 365;
           return KiviloDrawer(
-            title: const Text('Move-in defect period'),
+            title: Text(t.defectPeriod),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Use the period in the tenancy agreement. The tenancy start date is day 1, in Singapore time. This is fixed when the tenant first signs the check-in.',
+                Text(
+                  t.defectPeriodBody,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -238,11 +237,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   autofocus: true,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Number of days',
-                    helperText: '0 disables the move-in defect period',
+                    labelText: t.defectPeriodDays,
+                    helperText: t.defectPeriodHelper,
                     errorText: valid
                         ? null
-                        : 'Enter a whole number from 0 to 365',
+                        : t.defectPeriodInvalid,
                   ),
                   onChanged: (value) => setDrawerState(() => days = value),
                 ),
@@ -251,11 +250,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(t.cancel),
               ),
               FilledButton(
                 onPressed: valid ? () => Navigator.pop(context, value) : null,
-                child: const Text('Save'),
+                child: Text(t.save),
               ),
             ],
           );
@@ -283,7 +282,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
       centerTitle: false,
       toolbarHeight: 72,
       title: PageContextTitle(
-        title: 'Property',
+        title: t.newProperty,
         contextLabel: widget.tenancy.property,
       ),
     ),
@@ -304,8 +303,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const Text(
-                  'YOUR PROPERTY',
+                Text(
+                  t.tenancyEyebrow,
                   style: TextStyle(
                     color: KiviloColors.pinkDark,
                     fontSize: 11,
@@ -320,13 +319,13 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Reports, repairs and the history of this home.',
+                  t.tenancySubtitle,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24),
-                const KiviloSectionHeading(
-                  title: 'Property record',
-                  subtitle: 'The agreed condition and what has happened since',
+                KiviloSectionHeading(
+                  title: t.tenancyRecord,
+                  subtitle: t.tenancyRecordDetail,
                 ),
                 const SizedBox(height: 12),
                 if (terms.role == 'AGENT') ...[
@@ -335,8 +334,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       leading: const Icon(Icons.person_outline),
                       title: Text(
                         terms.access?.canManageAccess == true
-                            ? 'Manage access'
-                            : 'Property access',
+                            ? t.tenancyManageAccess
+                            : t.tenancyPropertyAccess,
                       ),
                       subtitle: terms.access == null
                           ? null
@@ -373,9 +372,9 @@ class _TenancyScreenState extends State<TenancyScreen> {
                         color: KiviloColors.pinkDark,
                       ),
                       title: Text(
-                        'Open ${widget.currentInspection!.kindLabel.toLowerCase()}',
+                        widget.currentInspection!.kind == 'CHECK_IN' ? t.homeOpenCheckIn : t.homeOpenCheckOut,
                       ),
-                      subtitle: const Text('Rooms, inventory and signatures'),
+                      subtitle: Text(t.tenancyOpenInspectionDetail),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
                         await Navigator.of(context).push<void>(
@@ -401,10 +400,10 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       ),
                       title: Text(
                         widget.tenancy.latestReportKind == 'CHECK_OUT'
-                            ? 'Latest check-out report'
-                            : 'Latest check-in report',
+                            ? t.tenancyLatestCheckOut
+                            : t.tenancyLatestCheckIn,
                       ),
-                      subtitle: const Text('View the condition report'),
+                      subtitle: Text(t.tenancyViewReport),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
                         await Navigator.of(context).push<void>(
@@ -426,9 +425,9 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       Icons.history,
                       color: KiviloColors.pinkDark,
                     ),
-                    title: const Text('Property timeline'),
-                    subtitle: const Text(
-                      'Signed reports, repairs and agreed costs at this address',
+                    title: Text(t.tenancyTimeline),
+                    subtitle: Text(
+                      t.tenancyTimelineDetail,
                     ),
                     trailing: const Icon(
                       Icons.chevron_right,
@@ -456,21 +455,21 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       ));
                       if (mounted) await _refresh();
                     },
-                    child: const Text('Property settings'),
+                    child: Text(t.propertySettings),
                   ),
                 ],
                 const SizedBox(height: 24),
-                const KiviloSectionHeading(
-                  title: 'Property care',
-                  subtitle: 'Report a problem and follow each repair through',
+                KiviloSectionHeading(
+                  title: t.tenancyCare,
+                  subtitle: t.tenancyCareDetail,
                 ),
                 const SizedBox(height: 12),
                 Card(
                   color: KiviloColors.canvas,
                   child: ListTile(
                     leading: const Icon(Icons.emergency_outlined),
-                    title: const Text('Immediate danger?'),
-                    subtitle: const Text('Police 999 · Fire or ambulance 995'),
+                    title: Text(t.tenancyDanger),
+                    subtitle: Text(t.tenancyDangerNumbers),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -483,23 +482,23 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 FilledButton.icon(
                   onPressed: () => _report(assets, terms),
                   icon: const Icon(Icons.add),
-                  label: const Text('Report a problem'),
+                  label: Text(t.reportProblem),
                 ),
                 const SizedBox(height: 10),
                 if (terms.moveInDefects case final window?) ...[
                   Card(
                     child: ListTile(
-                      title: const Text('Move-in defect period'),
+                      title: Text(t.defectPeriod),
                       subtitle: Text(
                         window.deadline == null
-                            ? 'Disabled. Repairs can still be reported.'
-                            : '${window.windowDays} days · Report by ${calendarDate(window.deadline!)} (Singapore time)',
+                            ? t.defectPeriodDisabled
+                            : t.defectPeriodSummary(window.windowDays, calendarDate(window.deadline!)),
                       ),
                       trailing: window.canEditWindow
                           ? TextButton(
                               onPressed: () =>
                                   _editDefectWindow(window.windowDays),
-                              child: const Text('Edit'),
+                              child: Text(t.edit),
                             )
                           : null,
                     ),
@@ -508,10 +507,10 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 ],
                 const SizedBox(height: 24),
                 KiviloSectionHeading(
-                  title: 'Maintenance',
+                  title: t.maintenance,
                   subtitle: cases.isEmpty
-                      ? 'Requests for this property will appear here'
-                      : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
+                      ? t.tenancyMaintenanceEmpty
+                      : t.requestCount(cases.length),
                 ),
                 const SizedBox(height: 12),
                 if (cases.isEmpty) _emptyMaintenance(),
@@ -521,9 +520,13 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     child: ListTile(
                       title: Text(cases[index].title),
                       subtitle: Text(
-                        '${cases[index].status.replaceAll('_', ' ').toLowerCase()}'
-                        '${cases[index].asset == null ? '' : ' · ${cases[index].asset}'}'
-                        '${cases[index].repairAttempts == 0 ? '' : ' · ${cases[index].repairAttempts} repair attempts'}',
+                        [
+                          maintenanceStatusLabels[cases[index].status] ??
+                              cases[index].status,
+                          ?cases[index].asset,
+                          if (cases[index].repairAttempts > 0)
+                            t.repairAttempts(cases[index].repairAttempts),
+                        ].join(' · '),
                       ),
                       leading: Icon(
                         cases[index].priority == 'SAFETY_EMERGENCY'
@@ -545,9 +548,9 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 ],
                 if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
                   const SizedBox(height: 24),
-                  const KiviloSectionHeading(
-                    title: 'Repair costs',
-                    subtitle: 'Terms that shape who pays for a repair',
+                  KiviloSectionHeading(
+                    title: t.repairCosts,
+                    subtitle: t.repairCostsDetail,
                   ),
                   const SizedBox(height: 12),
                   _repairTerms(terms),
@@ -555,14 +558,14 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
                   const SizedBox(height: 24),
                   KiviloSectionHeading(
-                    title: 'Property assets',
-                    subtitle: 'Appliances and fixtures linked to maintenance',
+                    title: t.assets,
+                    subtitle: t.assetsDetail,
                     action: widget.tenancy.role == 'TENANT'
                         ? null
                         : TextButton.icon(
                             onPressed: _addAsset,
                             icon: const Icon(Icons.add, size: 18),
-                            label: const Text('Add asset'),
+                            label: Text(t.assetAdd),
                           ),
                   ),
                   const SizedBox(height: 12),
@@ -576,11 +579,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
                         [
                           if (assets[index].roomLabel != null)
                             assets[index].roomLabel!,
-                          '${assets[index].repairVisitsLast365Days} repairs in 365 days',
+                          t.assetRepairs(assets[index].repairVisitsLast365Days),
                         ].join(' · '),
                       ),
                       trailing: assets[index].repairVisitsLast365Days >= 4
-                          ? const Chip(label: Text('Repeat fault'))
+                          ? Chip(label: Text(t.assetRepeatFault))
                           : null,
                     ),
                   ],
@@ -598,16 +601,16 @@ class _TenancyScreenState extends State<TenancyScreen> {
       children: [
         ListTile(
           contentPadding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
-          title: const Text('Minor repair cap'),
+          title: Text(t.minorRepairCap),
           subtitle: Text(
             terms.minorRepairCap == null
-                ? 'Not set'
-                : 'Tenant pays up to S\$${terms.minorRepairCap} per repair',
+                ? t.notSet
+                : t.minorRepairCapSummary('${terms.minorRepairCap}'),
           ),
           trailing: terms.canEditMinorRepairCap
               ? TextButton(
                   onPressed: () => _editCap(terms.minorRepairCap),
-                  child: Text(terms.minorRepairCap == null ? 'Set' : 'Edit'),
+                  child: Text(terms.minorRepairCap == null ? t.set : t.edit),
                 )
               : null,
         ),
@@ -615,11 +618,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
           const Divider(height: 1),
           SwitchListTile(
             contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
-            title: const Text('Agent can agree costs'),
+            title: Text(t.agentMayAgreeCosts),
             subtitle: Text(
               terms.canEditAgentAuthority
-                  ? 'Lets the agent accept or reject cost proposals for you'
-                  : 'Only the landlord can change this',
+                  ? t.agentMayAgreeCostsOn
+                  : t.agentMayAgreeCostsLandlordOnly,
             ),
             value: terms.agentMayAgreeCosts,
             onChanged: terms.canEditAgentAuthority ? _setAgentAuthority : null,
@@ -637,12 +640,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
           const Icon(Icons.task_alt, color: KiviloColors.green, size: 32),
           const SizedBox(height: 12),
           Text(
-            'No open requests',
+            t.tenancyNoRequests,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            'This tenancy has no reported maintenance problems.',
+            t.tenancyNoRequestsDetail,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -664,7 +667,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'No assets have been added to this property yet.',
+              t.assetsEmpty,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),

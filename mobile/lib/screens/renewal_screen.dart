@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_layout.dart';
@@ -67,7 +68,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
     if (_busy) return;
     if (!_form.currentState!.validate()) return;
     if (!_end!.isAfter(_start!)) {
-      setState(() => _error = 'The tenancy must end after it starts.');
+      setState(() => _error = t.newEndAfterStart);
       return;
     }
     setState(() {
@@ -99,14 +100,14 @@ class _RenewalScreenState extends State<RenewalScreen> {
         validator: (value) =>
             RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(value?.trim() ?? '')
             ? null
-            : 'Enter a valid SGD amount',
+            : t.amountInvalid,
       );
 
   @override
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.renewal,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Renew tenancy')),
+      appBar: AppBar(title: Text(t.renewTenancy)),
       body: KiviloContent(
         maxWidth: 720,
         child: FutureBuilder<Map<String, dynamic>>(
@@ -132,25 +133,25 @@ class _RenewalScreenState extends State<RenewalScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Same landlord and tenant · ${snapshot.data!['tenant']}',
+                    t.sameParties('${snapshot.data!['tenant']}'),
                   ),
                   const SizedBox(height: 24),
                   OutlinedButton(
                     onPressed: _busy ? null : () => _date(true),
-                    child: Text('Starts ${_iso(_start!)}'),
+                    child: Text(t.startsOn(_iso(_start!))),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: _busy ? null : () => _date(false),
-                    child: Text('Ends ${_iso(_end!)}'),
+                    child: Text(t.endsOn(_iso(_end!))),
                   ),
                   const SizedBox(height: 16),
-                  _amount(_rent, 'Monthly rent (SGD)'),
+                  _amount(_rent, t.newMonthlyRent),
                   const SizedBox(height: 16),
-                  _amount(_deposit, 'Deposit (SGD)'),
+                  _amount(_deposit, t.newDeposit),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property.',
+                  Text(
+                    t.renewalConfirm,
                   ),
                   if (collaborators.isNotEmpty) ...[
                     const SizedBox(height: 16),
@@ -163,10 +164,10 @@ class _RenewalScreenState extends State<RenewalScreen> {
                                 setState(() => _keepCollaborators = value!),
                       controlAffinity: ListTileControlAffinity.leading,
                       title: Text(
-                        'Keep sharing this renewal with ${collaborators.map((person) => person['name'] as String).join(', ')}',
+                        t.keepSharingRenewal(collaborators.map((person) => person['name'] as String).join(t.listSeparator)),
                       ),
-                      subtitle: const Text(
-                        'Leave unchecked to keep the new tenancy private.',
+                      subtitle: Text(
+                        t.renewalPrivate,
                       ),
                     ),
                   ],
@@ -183,7 +184,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
                   FilledButton(
                     onPressed: _busy ? null : _create,
                     child: Text(
-                      _busy ? 'Creating…' : 'Create renewal check-in',
+                      _busy ? t.creating : t.createRenewal,
                     ),
                   ),
                 ],

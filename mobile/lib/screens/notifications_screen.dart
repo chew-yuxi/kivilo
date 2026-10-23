@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/notification_route.dart';
@@ -32,7 +33,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Notifications')),
+    appBar: AppBar(title: Text(t.notifications)),
     body: KiviloContent(maxWidth: 840, child: FutureBuilder<List<NotificationModel>>(
       future: _future,
       builder: (context, snapshot) {
@@ -41,7 +42,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         }
         if (snapshot.hasError) return Center(child: Text(plainError(snapshot.error!)));
         final items = snapshot.data!;
-        if (items.isEmpty) return const Center(child: Text('No notifications yet.'));
+        if (items.isEmpty) return Center(child: Text(t.noNotifications));
         return ListView.separated(
           itemCount: items.length,
           separatorBuilder: (_, _) => const Divider(height: 1),

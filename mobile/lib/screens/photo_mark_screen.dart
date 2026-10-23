@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api_failure.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
@@ -25,7 +26,7 @@ class PhotoMarkScreen extends StatefulWidget {
     required this.image,
     this.annotations,
     this.onChanged,
-    this.saveLabel = 'Save',
+    this.saveLabel,
   });
 
   final ImageProvider image;
@@ -33,7 +34,7 @@ class PhotoMarkScreen extends StatefulWidget {
 
   /// New captures persist each completed mark locally before upload is released.
   final Future<void> Function(Map<String, dynamic>?)? onChanged;
-  final String saveLabel;
+  final String? saveLabel;
 
   @override
   State<PhotoMarkScreen> createState() => _PhotoMarkScreenState();
@@ -405,7 +406,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
         absorbing: _saving,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Mark photo'),
+            title: Text(t.markPhoto),
             actions: [
               FutureBuilder<ui.Image>(
                 future: _imageFuture,
@@ -413,7 +414,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                   final photo = snapshot.data;
                   return TextButton(
                     onPressed: photo == null || _saving ? null : _saveAndClose,
-                    child: Text(_saving ? 'Saving…' : widget.saveLabel),
+                    child: Text(_saving ? t.saving : widget.saveLabel ?? t.save),
                   );
                 },
               ),
@@ -425,7 +426,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
               if (snapshot.hasError) {
                 return Center(
                   child: Text(
-                    'Could not open this photo. ${plainError(snapshot.error!)}',
+                    t.photoOpenFailed(plainError(snapshot.error!)),
                   ),
                 );
               }
@@ -439,7 +440,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                     Padding(
                       padding: const EdgeInsets.all(12),
                       child: Text(
-                        'Could not save marks. $_saveError',
+                        t.marksSaveFailed('$_saveError'),
                         style: const TextStyle(color: KiviloColors.red),
                       ),
                     ),
@@ -447,12 +448,12 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
                     child: Text(
                       _redrawIndex != null
-                          ? 'Redraw mark ${_redrawIndex! + 1}.'
+                          ? t.redrawMark(_redrawIndex! + 1)
                           : _shape == 'ring'
-                          ? 'Draw around an issue with your finger. Kivilo will smooth it into a clean circle.'
+                          ? t.markCircleHelp
                           : _shape == 'arrow'
-                          ? 'Draw from open space toward the issue. Tap any existing mark to edit it.'
-                          : 'Draw directly over the detail. Your freehand stroke stays exactly where you draw it.',
+                          ? t.markArrowHelp
+                          : t.markFreehandHelp,
                     ),
                   ),
                   Expanded(
@@ -505,21 +506,21 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                       child: Column(
                         children: [
                           KiviloSegmentedControl<String>(
-                            options: const [
+                            options: [
                               KiviloSegmentOption(
                                 value: 'ring',
                                 icon: Icons.circle_outlined,
-                                label: 'Circle',
+                                label: t.markCircle,
                               ),
                               KiviloSegmentOption(
                                 value: 'arrow',
                                 icon: Icons.arrow_outward,
-                                label: 'Arrow',
+                                label: t.markArrow,
                               ),
                               KiviloSegmentOption(
                                 value: 'freehand',
                                 icon: Icons.gesture,
-                                label: 'Freehand',
+                                label: t.markFreehand,
                               ),
                             ],
                             value: _shape,
@@ -536,7 +537,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                                       ? null
                                       : _undo,
                                   icon: const Icon(Icons.undo),
-                                  label: const Text('Undo'),
+                                  label: Text(t.undo),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -546,7 +547,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                                       ? null
                                       : _redo,
                                   icon: const Icon(Icons.redo),
-                                  label: const Text('Redo'),
+                                  label: Text(t.redo),
                                 ),
                               ),
                             ],
@@ -590,7 +591,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                                     ),
                                     label: Text(
                                       note == null || note.isEmpty
-                                          ? 'Mark ${index + 1}'
+                                          ? t.markNumber(index + 1)
                                           : '${index + 1}. $note',
                                     ),
                                     onSelected: (_) =>
@@ -602,7 +603,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                           ],
                           const SizedBox(height: 8),
                           Text(
-                            '${_marks.length} of 12 marks',
+                            t.marksOfMax(_marks.length),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -654,16 +655,16 @@ class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
     return KiviloDrawer(
       title: Text(
         widget.newMark
-            ? 'Add a note to mark ${widget.index + 1}'
-            : 'Edit mark ${widget.index + 1}',
+            ? t.addNoteToMark(widget.index + 1)
+            : t.editMark(widget.index + 1),
       ),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             widget.newMark
-                ? 'Say what this mark identifies.'
-                : 'Update its note, redraw its position, or remove it.',
+                ? t.markNoteNew
+                : t.markNoteEdit,
           ),
           const SizedBox(height: 18),
           TextField(
@@ -672,16 +673,16 @@ class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
             minLines: 3,
             maxLines: 6,
             maxLength: 500,
-            decoration: const InputDecoration(
-              labelText: 'Note',
-              hintText: 'For example: hairline crack above socket',
+            decoration: InputDecoration(
+              labelText: t.note,
+              hintText: t.markNoteHint,
               alignLabelWithHint: true,
             ),
           ),
           const SizedBox(height: 12),
           FilledButton(
             onPressed: () => _close(_MarkEditAction.done),
-            child: const Text('Save mark'),
+            child: Text(t.saveMark),
           ),
           const SizedBox(height: 6),
           Row(
@@ -690,7 +691,7 @@ class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
                 child: OutlinedButton.icon(
                   onPressed: () => _close(_MarkEditAction.redraw),
                   icon: const Icon(Icons.gesture),
-                  label: const Text('Redraw'),
+                  label: Text(t.redraw),
                 ),
               ),
               const SizedBox(width: 10),
@@ -698,7 +699,7 @@ class _MarkEditorDrawerState extends State<_MarkEditorDrawer> {
                 child: TextButton.icon(
                   onPressed: () => _close(_MarkEditAction.delete),
                   icon: const Icon(Icons.delete_outline),
-                  label: const Text('Delete'),
+                  label: Text(t.delete),
                 ),
               ),
             ],

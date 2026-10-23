@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../models/agency.dart';
 import '../services/workspace.dart';
@@ -16,13 +17,17 @@ import 'renewal_reminders.dart';
 import 'team_screen.dart';
 
 enum _InspectionFilter {
-  all('All'),
-  inProgress('In progress'),
-  awaitingSignature('Awaiting signature'),
-  completed('Completed');
+  all,
+  inProgress,
+  awaitingSignature,
+  completed;
 
-  const _InspectionFilter(this.label);
-  final String label;
+  String get label => switch (this) {
+    all => t.filterAll,
+    inProgress => t.filterInProgress,
+    awaitingSignature => t.filterAwaitingSignature,
+    completed => t.statusCompleted,
+  };
 
   bool includes(String status) => switch (this) {
     all => true,
@@ -189,7 +194,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       backgroundColor: KiviloColors.pink,
       foregroundColor: Colors.white,
       icon: const Icon(Icons.add),
-      label: const Text('New check-in'),
+      label: Text(t.newCheckIn),
     ),
     body: SafeArea(
       bottom: false,
@@ -206,19 +211,19 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             if (snapshot.hasError) {
               return _message(
                 icon: Icons.cloud_off_outlined,
-                title: 'Could not load inspections',
+                title: t.inspectionsLoadFailed,
                 body: plainError(snapshot.error!),
                 action: Column(
                   children: [
                     OutlinedButton(
                       onPressed: _refresh,
-                      child: const Text('Try again'),
+                      child: Text(t.tryAgain),
                     ),
                     if (!_workspace.all) ...[
                       const SizedBox(height: 8),
                       OutlinedButton(
                         onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all properties'),
+                        child: Text(t.homeShowAllProperties),
                       ),
                     ],
                   ],
@@ -248,12 +253,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 112),
                   children: [
                     Text(
-                      'Inspections',
+                      t.homeInspections,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Your check-in and check-out reports, all in one place.',
+                      t.inspectionsSubtitle,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 20),
@@ -265,12 +270,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                     if (_teamDetail?.canManage == true) ...[
                       const SizedBox(height: 12),
                       KiviloSelectField<String?>(
-                        label: 'Responsible agent',
+                        label: t.inspectionsResponsibleAgent,
                         value: _assigneeId,
                         options: [
-                          const KiviloSelectOption<String?>(
+                          KiviloSelectOption<String?>(
                             value: null,
-                            label: 'All agents',
+                            label: t.inspectionsAllAgents,
                           ),
                           for (final member in _teamDetail!.members.where(
                             (member) => member.active,
@@ -286,7 +291,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         },
                       ),
                       const SizedBox(height: 8),
-                      const Text('Shows team work your account can access.'),
+                      Text(t.inspectionsTeamNote),
                     ],
                     if (_workError != null) ...[
                       const SizedBox(height: 12),
@@ -317,7 +322,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Offline. Showing what was last loaded; you can keep taking photos.',
+                                  t.inspectionsOffline,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodyMedium,
@@ -338,12 +343,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         textInputAction: TextInputAction.search,
                         onSubmitted: (_) => FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
-                          labelText: 'Search inspections',
-                          hintText: 'Property, tenant or check-in / check-out',
+                          labelText: t.inspectionsSearch,
+                          hintText: t.inspectionsSearchHint,
                           suffixIcon: _search.text.isEmpty
                               ? null
                               : IconButton(
-                                  tooltip: 'Clear search',
+                                  tooltip: t.inspectionsClearSearch,
                                   onPressed: () => setState(_search.clear),
                                   icon: const Icon(Icons.close),
                                 ),
@@ -380,8 +385,9 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        '${visible.length} ${visible.length == 1 ? 'report' : 'reports'}'
-                        '${query.isNotEmpty || _filter != _InspectionFilter.all ? ' found' : ''}',
+                        query.isNotEmpty || _filter != _InspectionFilter.all
+                            ? t.inspectionsFound(visible.length)
+                            : t.inspectionsCount(visible.length),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 12),
@@ -398,15 +404,15 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  'No matching inspections',
+                                  t.inspectionsNoMatch,
                                   textAlign: TextAlign.center,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium,
                                 ),
                                 const SizedBox(height: 6),
-                                const Text(
-                                  'Try another property or tenant, or change your filters.',
+                                Text(
+                                  t.inspectionsNoMatchDetail,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 12),
@@ -415,7 +421,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                     _search.clear();
                                     _filter = _InspectionFilter.all;
                                   }),
-                                  child: const Text('Show all inspections'),
+                                  child: Text(t.inspectionsShowAll),
                                 ),
                               ],
                             ),
@@ -493,7 +499,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                   if (inspection.leadAgent != null) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Responsible: ${inspection.leadAgent!['name']}',
+                      t.inspectionsResponsible('${inspection.leadAgent!['name']}'),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -505,7 +511,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                     children: [
                       KiviloStatusPill(status: inspection.status),
                       Text(
-                        '${inspection.rooms} ${inspection.rooms == 1 ? 'room' : 'rooms'}',
+                        t.roomCount(inspection.rooms),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -535,14 +541,14 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'No inspections yet',
+            t.inspectionsEmpty,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
             _api.offlineCopy
-                ? 'Connect to create a new check-in.'
-                : 'Start a check-in for your next handover. Your inventory, photos and signed report will live here.',
+                ? t.inspectionsEmptyOffline
+                : t.inspectionsEmptyDetail,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -551,7 +557,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             FilledButton.icon(
               onPressed: _create,
               icon: const Icon(Icons.add),
-              label: const Text('Start check-in'),
+              label: Text(t.homeStartCheckIn),
             ),
           ],
         ],

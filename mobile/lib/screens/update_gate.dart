@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api_failure.dart';
 import '../services/patch_update.dart';
 import '../ui/kivilo_components.dart';
@@ -121,14 +122,14 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
                   const Center(child: KiviloMark(size: 68)),
                   const SizedBox(height: 48),
                   Text(
-                    widget.restartOnly ? 'Update ready' : 'Update Kivilo',
+                    widget.restartOnly ? t.updateReady : t.updateKivilo,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     widget.restartOnly
-                        ? 'The update is downloaded. Kivilo will close, then notify you when it is ready to reopen.'
-                        : 'A Kivilo update is available. Download it now; Kivilo will close, then notify you when it is ready to reopen.',
+                        ? t.updateRestartBody
+                        : t.updateDownloadBody,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   if (_error != null) ...[
@@ -154,7 +155,7 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(
-                            widget.restartOnly ? 'Close and update' : 'Update',
+                            widget.restartOnly ? t.updateCloseAndUpdate : t.update,
                           ),
                   ),
                 ],
@@ -190,7 +191,7 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
       if (mounted) {
         setState(
           () => _error =
-              'Could not open the store. Search for Kivilo in it instead.',
+              t.updateStoreFailed,
         );
       }
     }
@@ -198,9 +199,9 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
 
   @override
   Widget build(BuildContext context) {
-    final store = defaultTargetPlatform == TargetPlatform.iOS
-        ? 'the App Store'
-        : 'Google Play';
+    final openStore = defaultTargetPlatform == TargetPlatform.iOS
+        ? t.updateOpenAppStore
+        : t.updateOpenGooglePlay;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -215,13 +216,12 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
                   const Center(child: KiviloMark(size: 68)),
                   const SizedBox(height: 48),
                   Text(
-                    'Update Kivilo',
+                    t.updateKivilo,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'This version is no longer supported. Photos and videos already on '
-                    'this phone are kept and finish uploading after the update.',
+                    t.updateRequiredBody,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   if (_error != null) ...[
@@ -241,7 +241,7 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _openStore,
-                    child: Text('Open $store'),
+                    child: Text(openStore),
                   ),
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
@@ -190,13 +191,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ? AppBar(
                 centerTitle: false,
                 titleSpacing: 16,
-                title: const Row(
+                title: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [KiviloMark(size: 28), SizedBox(width: 10), Text('Home')],
+                  children: [KiviloMark(size: 28), SizedBox(width: 10), Text(t.homeTitle)],
                 ),
                 actions: [
                   IconButton(
-                    tooltip: 'Notifications',
+                    tooltip: t.notifications,
                     icon: const Icon(Icons.notifications_none_outlined),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -205,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Urgent services',
+                    tooltip: t.homeUrgentServices,
                     icon: const Icon(Icons.home_repair_service_outlined),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -231,20 +232,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       destinations: [
                         for (final tab in _tabs)
                           switch (tab) {
-                            'inspections' => const NavigationRailDestination(
+                            'inspections' => NavigationRailDestination(
                               icon: Icon(Icons.fact_check_outlined),
                               selectedIcon: Icon(Icons.fact_check),
-                              label: Text('Inspections'),
+                              label: Text(t.homeInspections),
                             ),
-                            'account' => const NavigationRailDestination(
+                            'account' => NavigationRailDestination(
                               icon: Icon(Icons.person_outline),
                               selectedIcon: Icon(Icons.person),
-                              label: Text('Account'),
+                              label: Text(t.settingsAccount),
                             ),
-                            _ => const NavigationRailDestination(
+                            _ => NavigationRailDestination(
                               icon: Icon(Icons.home_outlined),
                               selectedIcon: Icon(Icons.home),
-                              label: Text('Home'),
+                              label: Text(t.homeTitle),
                             ),
                           },
                       ],
@@ -276,20 +277,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 items: [
                   for (final tab in _tabs)
                     switch (tab) {
-                      'inspections' => const BottomNavigationBarItem(
+                      'inspections' => BottomNavigationBarItem(
                         icon: Icon(Icons.fact_check_outlined),
                         activeIcon: Icon(Icons.fact_check),
-                        label: 'Inspections',
+                        label: t.homeInspections,
                       ),
-                      'account' => const BottomNavigationBarItem(
+                      'account' => BottomNavigationBarItem(
                         icon: Icon(Icons.person_outline),
                         activeIcon: Icon(Icons.person),
-                        label: 'Account',
+                        label: t.settingsAccount,
                       ),
-                      _ => const BottomNavigationBarItem(
+                      _ => BottomNavigationBarItem(
                         icon: Icon(Icons.home_outlined),
                         activeIcon: Icon(Icons.home),
-                        label: 'Home',
+                        label: t.homeTitle,
                       ),
                     },
                 ],
@@ -325,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Could not load your workspace',
+                      t.homeWorkspaceFailed,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
@@ -338,12 +339,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 16),
                     OutlinedButton(
                       onPressed: _refresh,
-                      child: const Text('Try again'),
+                      child: Text(t.tryAgain),
                     ),
                     if (!_partyOnly && !_workspace.all)
                       TextButton(
                         onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all properties'),
+                        child: Text(t.homeShowAllProperties),
                       ),
                   ],
                 );
@@ -360,10 +361,10 @@ class _HomeScreenState extends State<HomeScreen> {
               final firstName = profile.name.trim().split(RegExp(r'\s+')).first;
               final hour = DateTime.now().hour;
               final greeting = hour < 12
-                  ? 'Good morning'
+                  ? t.homeGoodMorning
                   : hour < 18
-                  ? 'Good afternoon'
-                  : 'Good evening';
+                  ? t.homeGoodAfternoon
+                  : t.homeGoodEvening;
 
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -376,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       _workCard(current),
                       const SizedBox(height: 16),
                       Text(
-                        '${inProgress.length} in progress · ${awaiting.length} awaiting signatures',
+                        t.homeCounts(inProgress.length, awaiting.length),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 8),
@@ -384,14 +385,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () => _selectTab(1),
                         icon: const Icon(Icons.chevron_right, size: 18),
                         iconAlignment: IconAlignment.end,
-                        label: const Text('View inspections'),
+                        label: Text(t.homeViewInspections),
                       ),
                       if (current != null) ...[
                         const SizedBox(height: 8),
                         TextButton.icon(
                           onPressed: _create,
                           icon: const Icon(Icons.add, size: 18),
-                          label: const Text('New check-in'),
+                          label: Text(t.newCheckIn),
                         ),
                       ],
                     ],
@@ -401,14 +402,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
                     children: [
                       Text(
-                        '$greeting, $firstName',
+                        t.homeGreeting(greeting, firstName),
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         _partyOnly
-                            ? 'Your reports, repairs and history, in one place.'
-                            : 'A clear next step for every handover.',
+                            ? t.homePartySubtitle
+                            : t.homeAgentSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 24),
@@ -419,8 +420,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTeams: _teams,
                         ),
                         if (_api.offlineCopy) ...[
-                          const Text(
-                            'Offline. Showing previously loaded work.',
+                          Text(
+                            t.homeOffline,
                           ),
                           const SizedBox(height: 12),
                         ],
@@ -443,8 +444,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                       if (tenancies.isNotEmpty) ...[
                         KiviloSectionHeading(
-                          title: 'Your properties',
-                          subtitle: 'Repairs, records and the people who live there.',
+                          title: t.homeYourProperties,
+                          subtitle: t.homeYourPropertiesDetail,
                         ),
                         const SizedBox(height: 12),
                       ],
@@ -497,10 +498,10 @@ class _HomeScreenState extends State<HomeScreen> {
         : KiviloScene.capture;
     final eyebrow = Text(
       current == null
-          ? 'YOUR NEXT HANDOVER'
+          ? t.homeEyebrowNextHandover
           : awaiting
-          ? 'WAITING FOR SIGNATURES'
-          : 'YOUR NEXT STEP',
+          ? t.homeEyebrowWaiting
+          : t.homeEyebrowNextStep,
       style: const TextStyle(
         color: KiviloColors.pinkDark,
         fontSize: 11,
@@ -531,12 +532,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 12),
             Text(
               current == null
-                  ? 'Great handovers start\nwith a clear record.'
+                  ? t.homeHeadlineEmpty
                   : awaiting
-                  ? 'Bring everyone onto\nthe same page.'
+                  ? t.homeHeadlineAwaiting
                   : firstRoom
-                  ? 'Start with the first room.'
-                  : 'One room at a time.',
+                  ? t.homeHeadlineFirstRoom
+                  : t.homeHeadlineContinue,
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 14),
@@ -554,12 +555,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             Text(
               current == null
-                  ? 'Add the property and tenancy. We’ll guide you from the first photo to the signed report.'
+                  ? t.homeBodyEmpty
                   : awaiting
-                  ? 'The inventory is frozen. Check who still needs to sign, or send their signing email again.'
+                  ? t.homeBodyAwaiting
                   : firstRoom
-                  ? 'Add a room, take photos, then write down what you find.'
-                  : 'Open a room, choose an inventory item, then add photos and check its condition before reviewing the room.',
+                  ? t.homeBodyFirstRoom
+                  : t.homeBodyContinue,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
@@ -571,12 +572,12 @@ class _HomeScreenState extends State<HomeScreen> {
               iconAlignment: IconAlignment.end,
               label: Text(
                 current == null
-                    ? 'Start check-in'
+                    ? t.homeStartCheckIn
                     : awaiting
-                    ? 'Check signatures'
+                    ? t.homeCheckSignatures
                     : firstRoom
-                    ? 'Add your first room'
-                    : 'Continue inspection',
+                    ? t.homeAddFirstRoom
+                    : t.homeContinueInspection,
               ),
             ),
           ],
@@ -642,17 +643,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   TextButton(
                     onPressed: () => _openTenancy(tenancy, currentInspection: current),
-                    child: const Text('Open property'),
+                    child: Text(t.homeOpenProperty),
                   ),
                   if (target != null)
                     TextButton(
                       onPressed: () => _openInspection(target.id),
-                      child: Text('Open ${target.kindLabel.toLowerCase()}'),
+                      child: Text(target.kind == 'CHECK_IN' ? t.homeOpenCheckIn : t.homeOpenCheckOut),
                     )
                   else if (tenancy.latestReportId != null)
                     TextButton(
                       onPressed: () => _openReport(tenancy.latestReportId!),
-                      child: const Text('View report'),
+                      child: Text(t.viewReport),
                     ),
                 ],
               ),
@@ -685,14 +686,14 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 3),
               Text(
                 tenancy.role == 'LANDLORD'
-                    ? 'You are the landlord'
-                    : 'You are the tenant',
+                    ? t.homeYouAreLandlord
+                    : t.homeYouAreTenant,
                 style: text.bodySmall,
               ),
               if (reportId == null) ...[
                 const SizedBox(height: 12),
                 Text(
-                  'Your check-in report appears here once your agent sends it.',
+                  t.homeReportPending,
                   style: text.bodySmall,
                 ),
               ],
@@ -704,17 +705,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () => _openReport(reportId),
                   child: Text(
                     tenancy.awaitingMySignature
-                        ? 'Review and sign'
+                        ? t.homeReviewAndSign
                         : tenancy.latestReportKind == 'CHECK_OUT'
-                        ? 'Check-out report'
-                        : 'Check-in report',
+                        ? t.checkOutReport
+                        : t.checkInReport,
                   ),
                 ),
                 const SizedBox(height: 8),
               ],
               OutlinedButton(
                 onPressed: () => _openTenancy(tenancy),
-                child: const Text('Repairs'),
+                child: Text(t.repairs),
               ),
             ],
           ),
@@ -751,12 +752,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'No properties yet',
+            t.homeNoProperties,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            'Create a check-in to add your first property.',
+            t.homeNoPropertiesDetail,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -767,8 +768,8 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 String _roleLabel(String role) => switch (role) {
-  'LANDLORD' => 'Landlord',
-  'TENANT' => 'Tenant',
-  'AGENT' => 'Agent',
+  'LANDLORD' => t.landlord,
+  'TENANT' => t.tenant,
+  'AGENT' => t.agent,
   _ => role,
 };

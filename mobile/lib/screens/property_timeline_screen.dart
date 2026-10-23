@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_format.dart';
@@ -59,8 +60,8 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
       title: FutureBuilder<PropertyTimeline>(
         future: _future,
         builder: (context, snapshot) => PageContextTitle(
-          title: 'Property timeline',
-          contextLabel: snapshot.data?.property ?? 'Property history',
+          title: t.tenancyTimeline,
+          contextLabel: snapshot.data?.property ?? t.propertyHistory,
         ),
       ),
     ),
@@ -82,8 +83,8 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [
-              const Text(
-                'PROPERTY TIMELINE',
+              Text(
+                t.timelineEyebrow,
                 style: TextStyle(
                   color: KiviloColors.pinkDark,
                   fontSize: 11,
@@ -95,7 +96,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
               Text(timeline.property, style: text.headlineMedium),
               const SizedBox(height: 6),
               Text(
-                'Signed reports, repairs and agreed costs, newest first.',
+                t.timelineDetail,
                 style: text.bodyMedium,
               ),
               if (widget.showPropertySettings) ...[
@@ -109,7 +110,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
                     ));
                     if (mounted) await _refresh();
                   },
-                  child: const Text('Property settings'),
+                  child: Text(t.propertySettings),
                 ),
               ],
               if (timeline.events.isEmpty) ...[
@@ -119,8 +120,7 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      'Nothing has been settled here yet. Signed reports and '
-                      'repairs will appear as they happen.',
+                      t.timelineEmpty,
                       textAlign: TextAlign.center,
                       style: text.bodyMedium,
                     ),

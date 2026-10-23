@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import '../ui/kivilo_format.dart';
 import 'maintenance.dart' show MoveInDefectDispute;
 
@@ -472,9 +473,9 @@ class AddendumEntry {
   final List<AddendumPhoto> photos;
 
   String get heading => switch (change) {
-    'ADDED' => 'Added: ${name ?? 'item'}',
-    'REMOVED' => 'Removed: ${targetName ?? 'item'}',
-    _ => 'Replaced: ${targetName ?? 'item'} with ${name ?? 'item'}',
+    'ADDED' => t.addendumAdded(name ?? t.addendumItem),
+    'REMOVED' => t.addendumRemoved(targetName ?? t.addendumItem),
+    _ => t.addendumReplaced(targetName ?? t.addendumItem, name ?? t.addendumItem),
   };
 
   factory AddendumEntry.fromJson(Map<String, dynamic> json) {
@@ -547,9 +548,10 @@ class AddendumAcknowledgement {
   final bool inPerson;
 
   String get status => acknowledgedAt == null
-      ? '$role $name: pending acknowledgement'
-      : '$role $name: acknowledged ${inPerson ? 'in person ' : ''}'
-            '${shortDate(acknowledgedAt!)}';
+      ? t.acknowledgementPending(t.partyRole(role), name)
+      : inPerson
+      ? t.acknowledgedInPerson(t.partyRole(role), name, shortDate(acknowledgedAt!))
+      : t.acknowledged(t.partyRole(role), name, shortDate(acknowledgedAt!));
 
   factory AddendumAcknowledgement.fromJson(Map<String, dynamic> json) =>
       AddendumAcknowledgement(

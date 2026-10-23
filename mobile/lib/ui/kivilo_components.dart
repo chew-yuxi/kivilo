@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'kivilo_theme.dart';
 
 class KiviloSegmentOption<T> {
@@ -401,7 +402,7 @@ class KiviloSelectField<T> extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) => _KiviloSelectSheet<T>(
-        title: sheetTitle ?? 'Choose $label',
+        title: sheetTitle ?? t.chooseLabel(label),
         value: value,
         options: options,
       ),
@@ -458,7 +459,7 @@ class _KiviloSelectSheet<T> extends StatelessWidget {
                 ),
               ),
               IconButton(
-                tooltip: 'Close',
+                tooltip: t.close,
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.close_rounded),
               ),
@@ -545,13 +546,13 @@ class _KiviloSelectSheet<T> extends StatelessWidget {
   );
 }
 
-const maintenanceStatusLabels = {
-  'REPORTED': 'Reported',
-  'ACKNOWLEDGED': 'Acknowledged',
-  'SCHEDULED': 'Scheduled',
-  'AWAITING_CONFIRMATION': 'Awaiting confirmation',
-  'RESOLVED': 'Resolved',
-  'CLOSED_NO_ACTION': 'Closed',
+Map<String, String> get maintenanceStatusLabels => {
+  'REPORTED': t.statusReported,
+  'ACKNOWLEDGED': t.statusAcknowledged,
+  'SCHEDULED': t.statusScheduled,
+  'AWAITING_CONFIRMATION': t.statusAwaitingConfirmation,
+  'RESOLVED': t.statusResolved,
+  'CLOSED_NO_ACTION': t.statusClosed,
 };
 
 class KiviloStatusPill extends StatelessWidget {
@@ -561,38 +562,38 @@ class KiviloStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, foreground, background) = switch (status) {
-      'COMPLETED' => ('Completed', KiviloColors.green, KiviloColors.greenSoft),
-      'REVIEWED' => ('Reviewed', KiviloColors.green, KiviloColors.greenSoft),
+      'COMPLETED' => (t.statusCompleted, KiviloColors.green, KiviloColors.greenSoft),
+      'REVIEWED' => (t.roomReviewed, KiviloColors.green, KiviloColors.greenSoft),
       'AWAITING_SIGNATURE' => (
-        'Awaiting signatures',
+        t.statusAwaitingSignatures,
         KiviloColors.amber,
         KiviloColors.amberSoft,
       ),
-      'REVIEW' => ('Needs review', KiviloColors.amber, KiviloColors.amberSoft),
+      'REVIEW' => (t.roomNeedsReview, KiviloColors.amber, KiviloColors.amberSoft),
       // PROCESSING and FAILED are left over from AI drafting; nothing sets them now.
       'CAPTURING' ||
       'PROCESSING' ||
-      'FAILED' => ('Capturing', KiviloColors.pinkDark, KiviloColors.pinkSoft),
-      'PENDING' => ('Not started', KiviloColors.muted, KiviloColors.canvas),
-      'REPORTED' => ('Reported', KiviloColors.amber, KiviloColors.amberSoft),
+      'FAILED' => (t.roomCapturing, KiviloColors.pinkDark, KiviloColors.pinkSoft),
+      'PENDING' => (t.roomNotStarted, KiviloColors.muted, KiviloColors.canvas),
+      'REPORTED' => (t.statusReported, KiviloColors.amber, KiviloColors.amberSoft),
       'ACKNOWLEDGED' => (
-        'Acknowledged',
+        t.statusAcknowledged,
         KiviloColors.pinkDark,
         KiviloColors.pinkSoft,
       ),
       'SCHEDULED' => (
-        'Scheduled',
+        t.statusScheduled,
         KiviloColors.pinkDark,
         KiviloColors.pinkSoft,
       ),
       'AWAITING_CONFIRMATION' => (
-        'Awaiting confirmation',
+        t.statusAwaitingConfirmation,
         KiviloColors.amber,
         KiviloColors.amberSoft,
       ),
-      'RESOLVED' => ('Resolved', KiviloColors.green, KiviloColors.greenSoft),
-      'CLOSED_NO_ACTION' => ('Closed', KiviloColors.muted, KiviloColors.canvas),
-      _ => ('Draft', KiviloColors.muted, KiviloColors.canvas),
+      'RESOLVED' => (t.statusResolved, KiviloColors.green, KiviloColors.greenSoft),
+      'CLOSED_NO_ACTION' => (t.statusClosed, KiviloColors.muted, KiviloColors.canvas),
+      _ => (t.statusDraft, KiviloColors.muted, KiviloColors.canvas),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

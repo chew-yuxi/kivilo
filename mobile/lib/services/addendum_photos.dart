@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import 'api.dart';
 import 'capture_backend.dart';
 import 'capture_queue.dart';
@@ -65,8 +66,8 @@ class AddendumPhotos {
     final file = File(photo.path);
     final mimeType = await photoMimeType(file);
     if (mimeType == null) {
-      throw const ApiFailure(
-        'This photo is in a format Kivilo cannot store. Take it again, or choose a JPEG or PNG.',
+      throw ApiFailure(
+        t.photoFormatUnsupported,
         null,
       );
     }

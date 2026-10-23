@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../screens/notifications_screen.dart';
 import 'api.dart';
 import 'notification_route.dart';
@@ -136,9 +137,9 @@ class PushNotifications {
     final notification = message.notification;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(notification?.title ?? 'New Kivilo notification'),
+        content: Text(notification?.title ?? t.pushNewNotification),
         action: SnackBarAction(
-          label: 'Open',
+          label: t.open,
           onPressed: () => _openMessage(message),
         ),
       ),

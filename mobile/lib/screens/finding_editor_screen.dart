@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/finding_photos.dart';
@@ -133,7 +134,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       if (_photos!.claimed) {
         setState(
           () => _error =
-              'This finding was already saved. Save to apply any further changes to it.',
+              t.findingAlreadySaved,
         );
       }
     } catch (error) {
@@ -170,7 +171,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       if (mounted) {
         setState(
           () => _error =
-              'Could not save the finding draft on this phone. ${plainError(error)}',
+              t.findingDraftSaveFailed(plainError(error)),
         );
       }
     }
@@ -259,11 +260,11 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     if (_saving || _photoAction || _loadingPhotos) return;
     final cost = _cost.text.trim();
     final error = widget.finding == null && _selected == null
-        ? 'Choose an item first.'
+        ? t.chooseItemFirst
         : _rationale.text.trim().isEmpty
-        ? 'Describe what changed and why.'
+        ? t.describeChange
         : cost.isNotEmpty && !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(cost)
-        ? 'Enter a cost with up to 2 decimal places.'
+        ? t.costInvalid
         : null;
     if (error != null) {
       setState(() => _error = error);
@@ -283,7 +284,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     await _persist(() async {
       if (_photos != null) {
         if (!_photos!.ready) {
-          throw const ApiFailure('Wait until the photo draft is ready.', null);
+          throw ApiFailure(t.photoDraftNotReady, null);
         }
         await _photos!.persistForm(_draft);
         await _photos!.ensureReady();
@@ -292,15 +293,15 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
           if (previous != null &&
               (previous['selectedId'] != _draft['selectedId'] ||
                   previous['atCheckIn'] != _draft['atCheckIn'])) {
-            throw const ApiFailure(
-              'This finding was already saved for its original item. Choose that item to save your latest text, or discard this draft and add another finding.',
+            throw ApiFailure(
+              t.findingSavedOriginalItem,
               null,
             );
           }
           final savedId = _photos!.claimedFindingId;
           if (savedId == null || widget.onRecover == null) {
-            throw const ApiFailure(
-              'This finding was already saved. Your latest draft is kept. Reopen the saved finding to make further changes.',
+            throw ApiFailure(
+              t.findingSavedDraftKept,
               null,
             );
           }
@@ -354,8 +355,8 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     } else if (photo.url != null) {
       image = NetworkImage(photo.url!);
     } else {
-      throw const ApiFailure(
-        'Connect and retry to open this photo. Its upload is kept on this phone.',
+      throw ApiFailure(
+        t.photoOpenRetry,
         null,
       );
     }
@@ -366,7 +367,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
         builder: (_) => PhotoMarkScreen(
           image: image,
           annotations: photo.annotations,
-          saveLabel: photo.awaitingMarkup ? 'Save photo' : 'Save',
+          saveLabel: photo.awaitingMarkup ? t.savePhoto : t.save,
           onChanged: (annotations) =>
               _photos!.setAnnotations(photo.id, annotations),
         ),
@@ -382,14 +383,14 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     }
     if (!mounted) return;
     if (image == null && photo.url == null) {
-      throw const ApiFailure('Connect and retry to view this photo.', null);
+      throw ApiFailure(t.photoViewRetry, null);
     }
     final provider = image;
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (_) => Scaffold(
-          appBar: AppBar(title: const Text('Finding photo')),
+          appBar: AppBar(title: Text(t.findingPhoto)),
           body: SafeArea(
             child: Column(
               children: [
@@ -429,21 +430,21 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Photo caption'),
+        title: Text(t.photoCaption),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLines: 3,
-          decoration: const InputDecoration(labelText: 'Caption'),
+          decoration: InputDecoration(labelText: t.caption),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save caption'),
+            child: Text(t.saveCaption),
           ),
         ],
       ),
@@ -458,18 +459,18 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Discard this finding draft?'),
-        content: const Text(
-          'The draft text and newly added photos will be removed. Saved finding photos stay with their finding.',
+        title: Text(t.discardDraftTitle),
+        content: Text(
+          t.discardDraftBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep draft'),
+            child: Text(t.keepDraft),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Discard draft'),
+            child: Text(t.discardDraft),
           ),
         ],
       ),
@@ -484,10 +485,10 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Finding photos', style: Theme.of(context).textTheme.titleSmall),
+        Text(t.findingPhotos, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 4),
         Text(
-          'Add evidence for this finding. Originals are kept; marks are stored beside each photo.',
+          t.findingPhotosDetail,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         Wrap(
@@ -495,18 +496,18 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
           children: [
             OutlinedButton(
               onPressed: enabled ? () => _pickPhoto(ImageSource.camera) : null,
-              child: const Text('Take photo'),
+              child: Text(t.takePhotoShort),
             ),
             OutlinedButton(
               onPressed: enabled ? () => _pickPhoto(ImageSource.gallery) : null,
-              child: const Text('Add from gallery'),
+              child: Text(t.addFromGallery),
             ),
             if (photos.any((photo) => photo.pending) || _photos!.error != null)
               TextButton(
                 onPressed: enabled
                     ? () => _photoOperation(_photos!.retry)
                     : null,
-                child: const Text('Retry uploads'),
+                child: Text(t.retryUploads),
               ),
           ],
         ),
@@ -519,7 +520,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Semantics(
-                    label: 'Open finding photo: ${photo.note ?? 'Photo'}',
+                    label: t.openFindingPhoto(photo.note ?? t.photo),
                     button: true,
                     child: InkWell(
                       onTap: enabled && !photo.removing
@@ -539,7 +540,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                                 image: FileImage(File(photo.localPath!)),
                                 annotations: photo.annotations,
                               )
-                            : const Center(child: Text('Photo upload pending')),
+                            : Center(child: Text(t.photoUploadPending)),
                       ),
                     ),
                   ),
@@ -551,16 +552,16 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                   const SizedBox(height: 6),
                   Text(
                     photo.removing
-                        ? 'Removing photo…'
+                        ? t.removingPhoto
                         : photo.awaitingMarkup
-                        ? 'Saved on this phone · Finish marking'
+                        ? t.savedFinishMarking
                         : photo.error != null
-                        ? 'Saved on this phone · Upload failed. Retry when connected.'
+                        ? t.savedUploadFailed
                         : photo.pending
                         ? photo.progress != null
-                              ? 'Uploading ${(photo.progress! * 100).round()}%…'
-                              : 'Saving photo…'
-                        : 'Uploaded',
+                              ? t.uploadingPercent((photo.progress! * 100).round())
+                              : t.savingPhoto
+                        : t.uploaded,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   if (photo.pending && !photo.awaitingMarkup && !photo.removing)
@@ -574,15 +575,15 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                             : null,
                         child: Text(
                           photo.awaitingMarkup
-                              ? 'Resume marking'
-                              : 'Mark photo',
+                              ? t.resumeMarking
+                              : t.markPhoto,
                         ),
                       ),
                       TextButton(
                         onPressed: enabled && !photo.removing
                             ? () => _photoOperation(() => _caption(photo))
                             : null,
-                        child: const Text('Caption'),
+                        child: Text(t.caption),
                       ),
                       TextButton(
                         onPressed: enabled && !photo.removing
@@ -590,7 +591,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                                 () => _photos!.remove(photo.id),
                               )
                             : null,
-                        child: const Text('Remove photo'),
+                        child: Text(t.removePhoto),
                       ),
                     ],
                   ),
@@ -613,17 +614,17 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
         leading: BackButton(onPressed: _back),
         title: Text(
           _choosing
-              ? 'Choose an item'
+              ? t.chooseAnItem
               : widget.finding == null
-              ? 'Add finding'
-              : 'Review finding',
+              ? t.addFinding
+              : t.reviewFinding,
         ),
         actions: [
           TextButton(
             onPressed: _saving || _photoAction
                 ? null
                 : () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
         ],
       ),
@@ -641,7 +642,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     final items = _sourceItems;
     final rooms = <String, String>{};
     for (final item in items) {
-      if (item.roomId != null) rooms[item.roomId!] = item.roomName ?? 'Room';
+      if (item.roomId != null) rooms[item.roomId!] = item.roomName ?? t.room;
     }
     final roomLabels = <String, String>{};
     for (final entry in rooms.entries) {
@@ -680,7 +681,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     }
     final rows = <({String? heading, ComparableItem? item})>[];
     for (final entry in groups.entries) {
-      rows.add((heading: roomLabels[entry.key] ?? 'Items', item: null));
+      rows.add((heading: roomLabels[entry.key] ?? t.items, item: null));
       rows.addAll(entry.value.map((item) => (heading: null, item: item)));
     }
     return Column(
@@ -693,12 +694,12 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => FocusScope.of(context).unfocus(),
             decoration: InputDecoration(
-              labelText: 'Search items, rooms or serial numbers',
+              labelText: t.searchItems,
               suffixIcon: _search.text.isEmpty
                   ? null
                   : TextButton(
                       onPressed: () => setState(() => _search.clear()),
-                      child: const Text('Clear'),
+                      child: Text(t.clear),
                     ),
             ),
           ),
@@ -716,14 +717,14 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                     children: [
                       KiviloSegmentedControl<bool>(
                         value: _fromCheckIn,
-                        options: const [
+                        options: [
                           KiviloSegmentOption(
                             value: false,
-                            label: 'At check-out',
+                            label: t.atCheckOut,
                           ),
                           KiviloSegmentOption(
                             value: true,
-                            label: 'At check-in',
+                            label: t.atCheckIn,
                           ),
                         ],
                         onChanged: (value) => setState(() {
@@ -735,8 +736,8 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                       const SizedBox(height: 8),
                       Text(
                         _fromCheckIn
-                            ? 'For an item no longer here at check-out.'
-                            : 'Choose an item using its photos and recorded condition.',
+                            ? t.chooseItemMissing
+                            : t.chooseItemDetail,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       if (rooms.length > 1) ...[
@@ -746,7 +747,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                           child: Row(
                             children: [
                               ChoiceChip(
-                                label: const Text('All rooms'),
+                                label: Text(t.allRooms),
                                 selected: _roomId == null,
                                 onSelected: (_) =>
                                     setState(() => _roomId = null),
@@ -766,7 +767,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                       ],
                       const SizedBox(height: 8),
                       Text(
-                        '${filtered.length} ${filtered.length == 1 ? 'item' : 'items'}',
+                        t.itemCount(filtered.length),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -781,8 +782,8 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                       padding: const EdgeInsets.all(24),
                       child: Text(
                         items.isEmpty
-                            ? 'No items recorded in this inventory.'
-                            : 'No matching items. Try another room, name or serial number.',
+                            ? t.noItemsRecorded
+                            : t.noMatchingItems,
                       ),
                     ),
                   ),
@@ -873,14 +874,14 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Selected item',
+                      t.selectedItem,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
                   if (widget.finding == null)
                     TextButton(
                       onPressed: _saving || _photoAction ? null : _showChooser,
-                      child: const Text('Change item'),
+                      child: Text(t.changeItem),
                     ),
                 ],
               ),
@@ -906,8 +907,8 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                                 ),
                           child: Text(
                             _showItemDetails
-                                ? 'Hide item details'
-                                : 'Show item details',
+                                ? t.hideItemDetails
+                                : t.showItemDetails,
                           ),
                         ),
                       ),
@@ -928,44 +929,38 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             ],
             const SizedBox(height: 24),
             _choices(
-              'Change',
+              t.change,
               _changeType,
-              const {
-                'DAMAGE': 'Damage',
-                'WEAR': 'Wear',
-                'MISSING': 'Missing',
-                'IMPROVED': 'Improved',
-                'UNCHANGED': 'Unchanged',
-              },
+              findingChangeLabels,
               (value) => setState(() {
                 _changeType = value;
                 _changeChosen = true;
               }),
             ),
             const SizedBox(height: 20),
-            _choices('Verdict', _verdict, const {
-              'UNDECIDED': 'Undecided',
-              'TENANT_LIABLE': 'Tenant liable',
-              'FAIR_WEAR': 'Fair wear',
-              'DISPUTED': 'Disputed',
-            }, (value) => setState(() => _verdict = value)),
+            _choices(
+              t.verdict,
+              _verdict,
+              findingVerdictLabels,
+              (value) => setState(() => _verdict = value),
+            ),
             const SizedBox(height: 20),
             TextField(
               controller: _rationale,
               enabled: !_saving && !_photoAction,
               minLines: 3,
               maxLines: 6,
-              decoration: const InputDecoration(labelText: 'Rationale'),
+              decoration: InputDecoration(labelText: t.rationale),
             ),
             if (widget.finding != null) ...[
               const SizedBox(height: 16),
               KiviloSelectField<String?>(
-                label: 'Maintenance media',
+                label: t.maintenanceMedia,
                 value: _maintenanceCaseId,
                 options: [
-                  const KiviloSelectOption<String?>(
+                  KiviloSelectOption<String?>(
                     value: null,
-                    label: 'No linked maintenance record',
+                    label: t.noLinkedMaintenance,
                   ),
                   for (final item in widget.maintenanceHistory)
                     KiviloSelectOption<String?>(
@@ -987,14 +982,14 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
-                labelText: 'Estimated cost (SGD)',
+              decoration: InputDecoration(
+                labelText: t.estimatedCost,
               ),
             ),
             if (_photos != null)
               TextButton(
                 onPressed: _saving || _photoAction ? null : _discardDraft,
-                child: const Text('Discard draft'),
+                child: Text(t.discardDraft),
               ),
             if (widget.finding != null && widget.onRemove != null) ...[
               const SizedBox(height: 8),
@@ -1005,7 +1000,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                         if (_photos != null) await _photos!.discard();
                         await widget.onRemove!();
                       }),
-                child: const Text('Remove finding'),
+                child: Text(t.removeFinding),
               ),
             ],
           ],
@@ -1037,10 +1032,10 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                     : _save,
                 child: Text(
                   _saving
-                      ? 'Saving…'
+                      ? t.saving
                       : widget.finding == null
-                      ? 'Add finding'
-                      : 'Save reviewed finding',
+                      ? t.addFinding
+                      : t.saveReviewedFinding,
                 ),
               ),
             ],
@@ -1063,7 +1058,9 @@ class _ItemInformation extends StatelessWidget {
   final bool compact;
   final bool enabled;
 
-  String _condition(String value) => value.toLowerCase().replaceAll('_', ' ');
+  String _condition(String value) =>
+      itemConditionLabels[value]?.toLowerCase() ??
+      value.toLowerCase().replaceAll('_', ' ');
 
   Future<void> _view(
     BuildContext context,
@@ -1100,7 +1097,7 @@ class _ItemInformation extends StatelessWidget {
   ) => Semantics(
     button: true,
     enabled: enabled,
-    label: 'Open $source photo${photo.note == null ? '' : ': ${photo.note}'}',
+    label: photo.note == null ? t.openSourcePhoto(source) : t.openSourcePhotoNote(source, photo.note!),
     child: InkWell(
       onTap: enabled ? () => _view(context, photo, source) : null,
       child: Column(
@@ -1116,7 +1113,7 @@ class _ItemInformation extends StatelessWidget {
                 child: MarkedNetworkPhoto(
                   url: photo.url,
                   annotations: photo.annotations,
-                  semanticLabel: photo.note ?? '$source photo',
+                  semanticLabel: photo.note ?? t.sourcePhoto(source),
                   fit: BoxFit.contain,
                 ),
               ),
@@ -1146,8 +1143,8 @@ class _ItemInformation extends StatelessWidget {
     final currentPhotos = item.photos;
     final first = currentPhotos.firstOrNull ?? before?.photos.firstOrNull;
     final firstSource = currentPhotos.isNotEmpty
-        ? (atCheckIn ? 'At check-in' : 'At check-out')
-        : 'At check-in';
+        ? (atCheckIn ? t.atCheckIn : t.atCheckOut)
+        : t.atCheckIn;
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1168,13 +1165,13 @@ class _ItemInformation extends StatelessWidget {
                     Text(item.roomName!, style: text.bodySmall),
                   if (item.identifier?.trim().isNotEmpty == true)
                     Text(
-                      'Serial / ID: ${item.identifier}',
+                      t.serialId(item.identifier!),
                       style: text.bodyMedium,
                     ),
                   if (item.quantity != null && item.quantity! > 1)
-                    Text('Quantity: ${item.quantity}', style: text.bodySmall),
+                    Text(t.quantityValue(item.quantity!), style: text.bodySmall),
                   if (item.meterReading?.trim().isNotEmpty == true)
-                    Text('Meter: ${item.meterReading}', style: text.bodyMedium),
+                    Text(t.meterValue(item.meterReading!), style: text.bodyMedium),
                 ],
               ),
             ),
@@ -1188,12 +1185,12 @@ class _ItemInformation extends StatelessWidget {
             children: [
               if (before != null && !atCheckIn)
                 Text(
-                  'Check-in: ${_condition(before.condition)}',
+                  t.checkInValue(_condition(before.condition)),
                   style: text.bodySmall,
                 ),
               if (item.condition != null)
                 Text(
-                  '${atCheckIn ? 'Check-in' : 'Check-out'}: ${_condition(item.condition!)}',
+                  atCheckIn ? t.checkInValue(_condition(item.condition!)) : t.checkOutValue(_condition(item.condition!)),
                   style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
             ],
@@ -1203,7 +1200,7 @@ class _ItemInformation extends StatelessWidget {
             before!.notes != item.notes) ...[
           const SizedBox(height: 8),
           Text(
-            'Check-in: ${before.notes}',
+            t.checkInValue(before.notes!),
             maxLines: compact ? 2 : null,
             overflow: compact ? TextOverflow.ellipsis : null,
             style: text.bodySmall,
@@ -1212,7 +1209,7 @@ class _ItemInformation extends StatelessWidget {
         if (item.notes?.trim().isNotEmpty == true) ...[
           const SizedBox(height: 8),
           Text(
-            '${atCheckIn ? 'Check-in' : 'Check-out'}: ${item.notes}',
+            atCheckIn ? t.checkInValue(item.notes!) : t.checkOutValue(item.notes!),
             maxLines: compact ? 2 : null,
             overflow: compact ? TextOverflow.ellipsis : null,
             style: text.bodyMedium,
@@ -1220,13 +1217,13 @@ class _ItemInformation extends StatelessWidget {
         ],
         if (atCheckIn && item.representedAtCheckOut == true) ...[
           const SizedBox(height: 8),
-          Text('Also listed at check-out', style: text.bodySmall),
+          Text(t.alsoListedAtCheckOut, style: text.bodySmall),
         ],
         if (!compact) ...[
           const SizedBox(height: 12),
           if (currentPhotos.isEmpty && (before?.photos.isEmpty ?? true))
             Text(
-              'No linked photos recorded for this item.',
+              t.noLinkedPhotos,
               style: text.bodySmall,
             )
           else
@@ -1235,12 +1232,12 @@ class _ItemInformation extends StatelessWidget {
               runSpacing: 12,
               children: [
                 for (final photo in before?.photos ?? <ComparablePhoto>[])
-                  _photo(context, photo, 'At check-in', 120),
+                  _photo(context, photo, t.atCheckIn, 120),
                 for (final photo in currentPhotos)
                   _photo(
                     context,
                     photo,
-                    atCheckIn ? 'At check-in' : 'At check-out',
+                    atCheckIn ? t.atCheckIn : t.atCheckOut,
                     120,
                   ),
               ],
@@ -1268,7 +1265,7 @@ class _LocalFindingPhoto extends StatelessWidget {
         image: image,
         fit: BoxFit.contain,
         errorBuilder: (_, _, _) =>
-            const Center(child: Text('Photo is finishing uploading…')),
+            Center(child: Text(t.photoFinishingUpload)),
       );
     }
     return Center(

@@ -258,6 +258,26 @@ calls. `e2e/api.spec.ts` drives them with no browser and no cookie at all.
 Keep `src/proxy.ts` off `/api/**`, which it already is: a request with a bearer and no
 cookie would otherwise be redirected to `/login`.
 
+## Languages
+
+The Flutter app speaks English, Simplified Chinese (as written in Singapore and Malaysia)
+and Thai (`plans/translations.md`). Every string a person reads lives in
+`mobile/lib/l10n/app_en.arb`, with the same key in `app_zh.arb` and `app_th.arb`;
+`flutter gen-l10n` writes `app_localizations*.dart` beside them, and those are committed
+so a patch compiles what was reviewed. Code reads text through `t` from
+`lib/l10n/l10n.dart`, which needs no `BuildContext`, so `ApiFailure`, model labels and
+notifications are translated too. A status or category code is shown through its label
+map (`itemConditionLabels`, `findingVerdictLabels`, `maintenanceCategoryLabels`), never
+by reformatting the code. `test/l10n_test.dart` fails if a key or placeholder is missing
+from either translation. Server text the app shows is rebuilt from data where it
+can be (cost terms from a proposal's fields, `costAgreementTerms`); team refusals arrive
+as English sentences, and `api_failure.dart` maps each known one, so a new
+`AgencyActionError` message needs a key there too.
+
+The language is a phone setting in Account, or the phone's own language. The report
+itself is not translated: the PDF, the shared report and every inventory line stay as
+written, since they are what both parties sign. The web app and emails are English only.
+
 ## A signed report stops moving
 
 Sending for signature is the moment the report stops being a working document and becomes

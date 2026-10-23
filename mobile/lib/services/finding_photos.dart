@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../models/report.dart';
 import 'addendum_photos.dart' show photoMimeType;
 import 'api.dart';
@@ -125,7 +126,7 @@ class FindingPhotos extends ChangeNotifier {
 
   void assertOwner() {
     if (_currentOwner() != _owner) {
-      throw const ApiFailure('Account changed. Open this page again.', 401);
+      throw ApiFailure(t.accountChangedPage, 401);
     }
   }
 
@@ -143,8 +144,8 @@ class FindingPhotos extends ChangeNotifier {
     _root ??= await getApplicationSupportDirectory();
     _owner ??= Supabase.instance.client.auth.currentUser?.id;
     if (_owner == null) {
-      throw const ApiFailure(
-        'Sign in again before adding finding photos.',
+      throw ApiFailure(
+        t.signInBeforeFindingPhotos,
         null,
       );
     }
@@ -172,7 +173,7 @@ class FindingPhotos extends ChangeNotifier {
     ).reconcile(ownerId, roomId: draftId);
     if (_unresolved.isNotEmpty) {
       error =
-          'A photo is still being saved on this phone. Keep this draft and retry.';
+          t.photoStillSaving;
     }
     try {
       await _recoverPicker();
@@ -247,8 +248,8 @@ class FindingPhotos extends ChangeNotifier {
       claimed = data['state'] == 'CLAIMED';
       claimedFindingId = data['findingId'] as String?;
       if (data['state'] == 'DISCARDED') {
-        throw const ApiFailure(
-          'This photo draft was discarded. Discard the local draft to start again.',
+        throw ApiFailure(
+          t.photoDraftDiscarded,
           null,
         );
       }
@@ -344,8 +345,8 @@ class FindingPhotos extends ChangeNotifier {
   Future<List<String>> pick(ImageSource source) async {
     assertOwner();
     if (claimed) {
-      throw const ApiFailure(
-        'This finding was saved. Reopen it to add more photos.',
+      throw ApiFailure(
+        t.findingSavedReopen,
         null,
       );
     }
@@ -356,8 +357,8 @@ class FindingPhotos extends ChangeNotifier {
       await _writes;
       if (await _pickerFile.exists() ||
           await File('${root.path}/capture-picker.json').exists()) {
-        throw const ApiFailure(
-          'Finish recovering the previous camera selection before taking another photo.',
+        throw ApiFailure(
+          t.finishRecoveringCamera,
           null,
         );
       }
@@ -416,8 +417,8 @@ class FindingPhotos extends ChangeNotifier {
           file['mimeType'] as String? ??
           await photoMimeType(File(file['path'] as String));
       if (mime == null) {
-        throw const ApiFailure(
-          'Choose a JPEG, PNG or WebP photo. Your selection is kept; retry or discard this draft.',
+        throw ApiFailure(
+          t.chooseImageFormat,
           null,
         );
       }
@@ -595,8 +596,8 @@ class FindingPhotos extends ChangeNotifier {
       ).reconcile(ownerId, roomId: draftId);
       if (_disposed) return;
       if (_unresolved.isNotEmpty) {
-        throw const ApiFailure(
-          'A photo is still being saved on this phone. Keep this draft and retry.',
+        throw ApiFailure(
+          t.photoStillSaving,
           null,
         );
       }
@@ -623,14 +624,14 @@ class FindingPhotos extends ChangeNotifier {
         : null;
     if (_unresolved.isNotEmpty ||
         (picker?['ownerId'] == ownerId && picker?['draftId'] == draftId)) {
-      throw const ApiFailure(
-        'A photo selection still needs recovery. Retry or discard this draft before saving.',
+      throw ApiFailure(
+        t.photoSelectionRecovery,
         null,
       );
     }
     if (!ready || busy) {
-      throw const ApiFailure(
-        'Wait until your photos are saved on this phone.',
+      throw ApiFailure(
+        t.waitPhotosSaved,
         null,
       );
     }
@@ -646,8 +647,8 @@ class FindingPhotos extends ChangeNotifier {
                 (saved?.edits ?? 0) >
             0 ||
         _registered.any((photo) => photo['registeredAt'] == null)) {
-      throw const ApiFailure(
-        'Finish marking and uploading the finding photos before saving. Your draft is kept on this phone.',
+      throw ApiFailure(
+        t.finishFindingPhotos,
         null,
       );
     }
@@ -716,8 +717,8 @@ class FindingPhotos extends ChangeNotifier {
     await _uploader!.drain();
     final pending = await queue.pendingForInspection(namespace, ownerId);
     if (pending.captures + pending.edits > 0) {
-      throw const ApiFailure(
-        'Connect and retry discarding. Your photos and draft are still saved on this phone.',
+      throw ApiFailure(
+        t.connectRetryDiscard,
         null,
       );
     }

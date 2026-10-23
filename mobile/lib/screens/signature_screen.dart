@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/saved_signature.dart';
@@ -85,7 +86,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
               .skip(1)
               .any((point) => (point - stroke.first).distanceSquared > 25),
         )) {
-      setState(() => _error = 'Draw a signature first.');
+      setState(() => _error = t.drawSignatureFirst);
       return;
     }
     setState(() {
@@ -109,9 +110,8 @@ class _SignatureScreenState extends State<SignatureScreen> {
           await queue.close();
         }
         if (pending.captures > 0 || pending.edits > 0) {
-          throw const ApiFailure(
-            'Some photos, videos or changes have not uploaded yet. Go back to the '
-            'rooms and tap Retry uploads before either person signs.',
+          throw ApiFailure(
+            t.uploadBeforeSigning,
             null,
           );
         }
@@ -152,7 +152,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text('${widget.role} signature')),
+    appBar: AppBar(title: Text(t.roleSignature(t.partyRole(widget.role)))),
     body: KiviloContent(maxWidth: 720, child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -160,10 +160,8 @@ class _SignatureScreenState extends State<SignatureScreen> {
         const SizedBox(height: 8),
         Text(
           widget.stakeholderId == null
-              ? 'Your signature confirms that the report you just read '
-                    'records the property as it was handed over.'
-              : 'Review the agreed inventory with this person before they sign. '
-                    'Their signature confirms the report as shown.',
+              ? t.ownSignatureConfirms
+              : t.partySignatureConfirms,
         ),
         const SizedBox(height: 16),
         if (_reading)
@@ -178,7 +176,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
             Text(_error!, style: const TextStyle(color: Colors.red)),
           FilledButton(
             onPressed: _busy ? null : () => _sign(saved),
-            child: Text(_busy ? 'Saving…' : 'Use this signature'),
+            child: Text(_busy ? t.saving : t.useThisSignature),
           ),
           TextButton(
             onPressed: _busy
@@ -187,7 +185,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
                     _saved = null;
                     _error = null;
                   }),
-            child: const Text('Draw a new one'),
+            child: Text(t.drawNewOne),
           ),
         ] else ...[
           _SignatureFrame(
@@ -230,7 +228,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
                     _activePointer = null;
                     _strokes.clear();
                   }),
-            child: const Text('Clear signature'),
+            child: Text(t.clearSignature),
           ),
           if (widget.savedSignature != null)
             CheckboxListTile(
@@ -238,9 +236,9 @@ class _SignatureScreenState extends State<SignatureScreen> {
               onChanged: _busy
                   ? null
                   : (value) => setState(() => _saveForNextTime = value!),
-              title: const Text('Save for next time'),
-              subtitle: const Text(
-                'Kept only on this phone, and removed when you sign out.',
+              title: Text(t.saveForNextTime),
+              subtitle: Text(
+                t.saveForNextTimeDetail,
               ),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
@@ -249,7 +247,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
             Text(_error!, style: const TextStyle(color: Colors.red)),
           FilledButton(
             onPressed: _busy ? null : _sign,
-            child: Text(_busy ? 'Saving…' : 'Confirm signature'),
+            child: Text(_busy ? t.saving : t.confirmSignature),
           ),
         ],
       ],

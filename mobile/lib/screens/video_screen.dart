@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../l10n/l10n.dart';
 import '../ui/kivilo_theme.dart';
 
 /// Plays one piece of video evidence inside the app. A signed storage URL is a bearer
@@ -44,7 +45,7 @@ class _VideoScreenState extends State<VideoScreen> {
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.black,
     appBar: AppBar(
-      title: const Text('Video'),
+      title: Text(t.video),
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
     ),
@@ -52,11 +53,11 @@ class _VideoScreenState extends State<VideoScreen> {
       future: _ready,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Center(
+          return Center(
             child: Padding(
               padding: EdgeInsets.all(24),
               child: Text(
-                'This video could not be loaded. Check your connection and try again.',
+                t.videoLoadFailed,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
               ),
@@ -91,7 +92,7 @@ class _VideoScreenState extends State<VideoScreen> {
                       IconButton(
                         onPressed: _toggle,
                         color: Colors.white,
-                        tooltip: value.isPlaying ? 'Pause' : 'Play',
+                        tooltip: value.isPlaying ? t.pause : t.play,
                         icon: Icon(
                           value.isPlaying
                               ? Icons.pause_rounded

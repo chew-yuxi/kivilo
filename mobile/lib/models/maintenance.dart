@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'handover.dart';
 import 'tenancy_access.dart';
 
@@ -298,14 +299,26 @@ class MaintenanceEvidenceModel {
       );
 }
 
-const partyLabels = {'LANDLORD': 'Landlord', 'TENANT': 'Tenant'};
+Map<String, String> get partyLabels => {'LANDLORD': t.landlord, 'TENANT': t.tenant};
 
-const basisLabels = {
-  'MINOR_REPAIR_CLAUSE': 'Minor repair clause',
-  'TENANT_CAUSED': 'Caused by the tenant',
-  'FAIR_WEAR': 'Fair wear and tear',
-  'LANDLORD_OBLIGATION': "Landlord's obligation",
-  'OTHER': 'Other',
+/// A repair request's `category`, as a person reads it.
+Map<String, String> get maintenanceCategoryLabels => {
+  'APPLIANCE': t.assetAppliance,
+  'PLUMBING': t.categoryPlumbing,
+  'LOCKSMITH': t.categoryLocksmith,
+  'ELECTRICAL': t.categoryElectrical,
+  'AIR_CONDITIONING': t.categoryAirCon,
+  'STRUCTURAL': t.categoryStructural,
+  'PEST': t.categoryPest,
+  'OTHER': t.basisOther,
+};
+
+Map<String, String> get basisLabels => {
+  'MINOR_REPAIR_CLAUSE': t.basisMinorRepair,
+  'TENANT_CAUSED': t.basisTenantCaused,
+  'FAIR_WEAR': t.basisFairWear,
+  'LANDLORD_OBLIGATION': t.basisLandlordObligation,
+  'OTHER': t.basisOther,
 };
 
 /// Mirrors `describeProposal` in src/lib/maintenance.ts, so the preview a proposer
@@ -316,9 +329,14 @@ String describeProposal({
   String? tenantCap,
 }) {
   final pays = payer == 'SHARED'
-      ? 'Tenant pays the first S\$$tenantCap, landlord pays the rest.'
-      : '${partyLabels[payer]} pays.';
-  return '$pays ${partyLabels[arrangedBy]} arranges the repair.';
+      ? t.proposalSharedPays(tenantCap!)
+      : payer == 'LANDLORD'
+      ? t.proposalLandlordPays
+      : t.proposalTenantPays;
+  final arranges = arrangedBy == 'LANDLORD'
+      ? t.proposalLandlordArranges
+      : t.proposalTenantArranges;
+  return '$pays $arranges';
 }
 
 class ResponsibilityProposal {
@@ -348,12 +366,19 @@ class ResponsibilityProposal {
   final String basis;
   final String reason;
   final String? clauseRef;
+  /// The server's English sentence. [terms] says the same in the app's language.
   final String summary;
   final String status;
   final String? respondedBy;
   final String? respondedAt;
   final String? responseNote;
   final String createdAt;
+
+  String get terms => describeProposal(
+    arrangedBy: arrangedBy,
+    payer: payer,
+    tenantCap: tenantCap,
+  );
 
   factory ResponsibilityProposal.fromJson(Map<String, dynamic> json) =>
       ResponsibilityProposal(

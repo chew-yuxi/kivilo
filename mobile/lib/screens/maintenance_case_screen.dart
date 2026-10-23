@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../models/handover.dart';
 import '../services/api.dart';
@@ -51,22 +52,22 @@ class _MoveInDefectComposerState extends State<_MoveInDefectComposer> {
         _condition != null &&
         _selected.isNotEmpty;
     return KiviloDrawer(
-      title: const Text('Record move-in condition'),
+      title: Text(t.recordMoveIn),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Record what was already present when you moved in. This saves a dated notice with the problem description and selected photos. It counts towards the agreed condition once the landlord accepts it.',
+            Text(
+              t.recordMoveInBody,
             ),
             const SizedBox(height: 16),
             KiviloSelectField<String?>(
-              label: 'Item in the check-in',
+              label: t.itemInCheckIn,
               value: _target?.key,
               options: [
-                const KiviloSelectOption<String?>(
+                KiviloSelectOption<String?>(
                   value: null,
-                  label: 'Not listed in the check-in',
+                  label: t.notInCheckIn,
                 ),
                 for (final target in widget.item.moveInDefect!.targets)
                   KiviloSelectOption<String?>(
@@ -89,43 +90,43 @@ class _MoveInDefectComposerState extends State<_MoveInDefectComposer> {
               controller: _room,
               readOnly: _target != null,
               maxLength: 120,
-              decoration: const InputDecoration(labelText: 'Room'),
+              decoration: InputDecoration(labelText: t.room),
               onChanged: (_) => setState(() {}),
             ),
             if (_target == null) ...[
               TextField(
                 controller: _name,
                 maxLength: 120,
-                decoration: const InputDecoration(labelText: 'Item name'),
+                decoration: InputDecoration(labelText: t.itemName),
                 onChanged: (_) => setState(() {}),
               ),
               KiviloSelectField<String>(
-                label: 'Item category',
+                label: t.itemCategory,
                 value: _category,
-                options: const [
-                  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-                  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-                  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-                  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-                  KiviloSelectOption(value: 'METER', label: 'Meter'),
+                options: [
+                  KiviloSelectOption(value: 'FIXTURE', label: t.assetFixture),
+                  KiviloSelectOption(value: 'APPLIANCE', label: t.assetAppliance),
+                  KiviloSelectOption(value: 'FURNITURE', label: t.assetFurniture),
+                  KiviloSelectOption(value: 'SURFACE', label: t.assetSurface),
+                  KiviloSelectOption(value: 'METER', label: t.categoryMeter),
                 ],
                 onChanged: (value) => setState(() => _category = value),
               ),
               const SizedBox(height: 12),
             ],
             KiviloSelectField<String?>(
-              label: 'Condition when you moved in',
+              label: t.conditionAtMoveIn,
               value: _condition,
-              options: const [
+              options: [
                 KiviloSelectOption<String?>(
                   value: null,
-                  label: 'Choose condition',
+                  label: t.chooseCondition,
                 ),
-                KiviloSelectOption<String?>(value: 'NEW', label: 'New'),
-                KiviloSelectOption<String?>(value: 'GOOD', label: 'Good'),
-                KiviloSelectOption<String?>(value: 'FAIR', label: 'Fair'),
-                KiviloSelectOption<String?>(value: 'POOR', label: 'Poor'),
-                KiviloSelectOption<String?>(value: 'DAMAGED', label: 'Damaged'),
+                KiviloSelectOption<String?>(value: 'NEW', label: t.conditionNew),
+                KiviloSelectOption<String?>(value: 'GOOD', label: t.conditionGood),
+                KiviloSelectOption<String?>(value: 'FAIR', label: t.conditionFair),
+                KiviloSelectOption<String?>(value: 'POOR', label: t.conditionPoor),
+                KiviloSelectOption<String?>(value: 'DAMAGED', label: t.conditionDamaged),
               ],
               onChanged: (value) => setState(() => _condition = value),
             ),
@@ -133,14 +134,14 @@ class _MoveInDefectComposerState extends State<_MoveInDefectComposer> {
             Text(widget.item.description),
             const SizedBox(height: 16),
             Text(
-              'Photos to include',
+              t.photosToInclude,
               style: Theme.of(context).textTheme.titleSmall,
             ),
             for (var i = 0; i < _photos.length; i++)
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(_photos[i].note ?? 'Before photo ${i + 1}'),
-                subtitle: Text('Uploaded ${shortDate(_photos[i].createdAt)}'),
+                title: Text(_photos[i].note ?? t.beforePhoto(i + 1)),
+                subtitle: Text(t.uploadedOn(shortDate(_photos[i].createdAt))),
                 value: _selected.contains(_photos[i].id),
                 onChanged: (value) => setState(() {
                   if (value == true) {
@@ -156,7 +157,7 @@ class _MoveInDefectComposerState extends State<_MoveInDefectComposer> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed: valid
@@ -169,7 +170,7 @@ class _MoveInDefectComposerState extends State<_MoveInDefectComposer> {
                   'evidenceIds': _selected.toList(),
                 })
               : null,
-          child: const Text('Record condition'),
+          child: Text(t.recordCondition),
         ),
       ],
     );
@@ -246,11 +247,11 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, value.trim()),
-            child: const Text('Save'),
+            child: Text(t.save),
           ),
         ],
       ),
@@ -269,7 +270,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
           final valid =
               amount.isEmpty || RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(amount);
           return KiviloDrawer(
-            title: const Text('Record completed repair'),
+            title: Text(t.recordCompletedRepair),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -278,8 +279,8 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   autofocus: true,
                   minLines: 2,
                   maxLines: 5,
-                  decoration: const InputDecoration(
-                    labelText: 'What was repaired?',
+                  decoration: InputDecoration(
+                    labelText: t.whatWasRepaired,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -289,12 +290,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Cost (optional)',
-                    prefixText: 'S\$ ',
-                    helperText: 'Used to split the cost as agreed',
+                    labelText: t.costOptional,
+                    prefixText: t.currencyPrefix,
+                    helperText: t.costHelper,
                     errorText: valid
                         ? null
-                        : 'Enter an amount like 150 or 150.50',
+                        : t.costInvalidExample,
                   ),
                   onChanged: (_) => setDrawerState(() {}),
                 ),
@@ -303,11 +304,11 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(t.cancel),
               ),
               FilledButton(
                 onPressed: valid ? () => Navigator.pop(context, true) : null,
-                child: const Text('Save'),
+                child: Text(t.save),
               ),
             ],
           );
@@ -348,15 +349,15 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   }
 
   Future<void> _comment(String caseId) async {
-    final body = await _ask('Add a comment');
+    final body = await _ask(t.addComment);
     if (body == null || body.isEmpty) return;
     await _run(() => _api.addMaintenanceComment(caseId, body));
   }
 
   Future<void> _close(String caseId) async {
     final reason = await _ask(
-      'Close without action',
-      hint: 'A reason is required. Both sides see it.',
+      t.closeWithoutAction,
+      hint: t.closeReasonHint,
     );
     if (reason == null || reason.isEmpty) return;
     await _run(
@@ -369,7 +370,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   }
 
   Future<void> _notFixed(String caseId, String visitId) async {
-    final note = await _ask('What is still wrong?');
+    final note = await _ask(t.whatIsStillWrong);
     if (note == null) return;
     await _run(
       () =>
@@ -386,7 +387,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     await _run(() async {
       final ownerId = Supabase.instance.client.auth.currentUser?.id;
       if (ownerId == null) {
-        throw const ApiFailure('Sign in again before recording the condition.', 401);
+        throw ApiFailure(t.signInBeforeRecording, 401);
       }
       final queue = CaptureQueue();
       late final ({int captures, int edits}) pending;
@@ -399,8 +400,8 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         await queue.close();
       }
       if (pending.captures > 0 || pending.edits > 0) {
-        throw const ApiFailure(
-          'Some photos have not uploaded yet. Keep them on this phone and retry uploads before recording the move-in condition.',
+        throw ApiFailure(
+          t.photosNotUploadedMoveIn,
           null,
         );
       }
@@ -410,9 +411,9 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
 
   Future<void> _disputeMoveInDefect(String addendumId) async {
     final reason = await _ask(
-      'Dispute move-in condition',
+      t.disputeMoveIn,
       hint:
-          'Explain what you disagree with. Your reason stays on the dated notice.',
+          t.disputeMoveInHint,
     );
     if (reason == null || reason.isEmpty) return;
     await _run(() => _api.disputeAddendum(addendumId, reason));
@@ -432,18 +433,18 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'It was like this when I moved in',
+              t.presentAtMoveIn,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             if (claim.reportedAt != null)
               Text(
-                'Reported ${shortDate(claim.reportedAt!)}${claim.deadline == null ? '' : ' · Defect deadline ${calendarDate(claim.deadline!)}'}',
+                claim.deadline == null ? t.reportedOn(shortDate(claim.reportedAt!)) : t.reportedOnDeadline(shortDate(claim.reportedAt!), calendarDate(claim.deadline!)),
               ),
             if (!recorded) ...[
               const SizedBox(height: 8),
-              const Text(
-                'Add photos, then record the move-in condition as a dated notice beside the signed check-in. The landlord can accept or dispute it. The signed report stays unchanged.',
+              Text(
+                t.moveInDetail,
               ),
               const SizedBox(height: 8),
               if (claim.canSubmit) ...[
@@ -452,28 +453,28 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                       ? null
                       : () => _addEvidence(item.id, 'BEFORE'),
                   icon: const Icon(Icons.add_a_photo_outlined),
-                  label: const Text('Add before photos'),
+                  label: Text(t.addBeforePhotos),
                 ),
                 FilledButton(
                   onPressed: _busy || photos == 0
                       ? null
                       : () => _recordMoveInDefect(item),
-                  child: const Text('Record move-in condition'),
+                  child: Text(t.recordMoveIn),
                 ),
                 if (photos == 0)
-                  const Text(
-                    'Add at least one uploaded before photo to continue.',
+                  Text(
+                    t.addBeforePhotoFirst,
                   ),
               ],
             ] else ...[
               const SizedBox(height: 8),
               Text(switch (claim.status) {
                 'ACKNOWLEDGED' =>
-                  'Accepted by the landlord. Included in the agreed condition for check-out.',
+                  t.moveInAccepted,
                 'DISPUTED' =>
-                  'Disputed by the landlord. Kept as a dated notice and excluded from the agreed condition.',
+                  t.moveInDisputed,
                 _ =>
-                  'Waiting for the landlord to accept or dispute the condition.',
+                  t.moveInWaiting,
               }),
               if (claim.dispute case final dispute?) ...[
                 const SizedBox(height: 8),
@@ -491,7 +492,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                     ),
                   ),
                   icon: const Icon(Icons.description_outlined),
-                  label: const Text('View dated condition notice'),
+                  label: Text(t.viewConditionNotice),
                 ),
               if (claim.canRespond) ...[
                 FilledButton(
@@ -500,13 +501,13 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                       : () => _run(
                           () => _api.acknowledgeAddendum(claim.addendumId!),
                         ),
-                  child: const Text('I agree this was present at move-in'),
+                  child: Text(t.agreePresentAtMoveIn),
                 ),
                 OutlinedButton(
                   onPressed: _busy
                       ? null
                       : () => _disputeMoveInDefect(claim.addendumId!),
-                  child: const Text('Dispute move-in condition'),
+                  child: Text(t.disputeMoveIn),
                 ),
               ],
             ],
@@ -518,7 +519,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Maintenance')),
+    appBar: AppBar(title: Text(t.maintenance)),
     body: KiviloContent(maxWidth: 840, child: FutureBuilder<MaintenanceCaseDetail>(
       future: _future,
       builder: (context, snapshot) {
@@ -545,13 +546,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               ],
               if (item.priority == 'SAFETY_EMERGENCY') ...[
                 const SizedBox(height: 16),
-                const _Notice(
+                _Notice(
                   icon: Icons.emergency_outlined,
                   color: KiviloColors.red,
                   background: KiviloColors.redSoft,
                   text:
-                      'If anyone is in danger, call Police 999 or SCDF fire '
-                      'and ambulance 995 first.',
+                      t.dangerCallFirst,
                 ),
               ],
               const SizedBox(height: 20),
@@ -562,12 +562,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('What happened', style: text.titleMedium),
+                      Text(t.whatHappenedHeading, style: text.titleMedium),
                       const SizedBox(height: 8),
                       Text(item.description, style: text.bodyLarge),
                       const SizedBox(height: 10),
                       Text(
-                        'Reported by ${item.reportedBy} on ${shortDate(item.createdAt)}',
+                        t.reportedByOn(item.reportedBy, shortDate(item.createdAt)),
                         style: text.bodySmall,
                       ),
                     ],
@@ -598,25 +598,24 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               ),
               const SizedBox(height: 28),
               KiviloSectionHeading(
-                title: 'Photos',
-                subtitle: 'Before and after the repair',
+                title: t.photos,
+                subtitle: t.photosBeforeAfter,
                 action: TextButton.icon(
                   onPressed: _busy
                       ? null
                       : () => _addEvidence(item.id, 'BEFORE'),
                   icon: const Icon(Icons.add_a_photo_outlined, size: 18),
-                  label: const Text('Add'),
+                  label: Text(t.add),
                 ),
               ),
               const SizedBox(height: 12),
               if (item.evidence.isEmpty)
-                const _Notice(
+                _Notice(
                   icon: Icons.photo_camera_outlined,
                   color: KiviloColors.subtle,
                   background: KiviloColors.canvas,
                   text:
-                      'No photos yet. A photo of the problem now settles '
-                      'arguments later.',
+                      t.noPhotosYetRepair,
                 ),
               for (final evidence in item.evidence) ...[
                 _EvidenceCard(evidence: evidence),
@@ -624,12 +623,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               ],
               const SizedBox(height: 18),
               KiviloSectionHeading(
-                title: 'History',
-                subtitle: 'Everything on this request',
+                title: t.history,
+                subtitle: t.historyDetail,
                 action: TextButton.icon(
                   onPressed: _busy ? null : () => _comment(item.id),
                   icon: const Icon(Icons.add_comment_outlined, size: 18),
-                  label: const Text('Comment'),
+                  label: Text(t.comment),
                 ),
               ),
               const SizedBox(height: 12),
@@ -639,7 +638,10 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   child: Column(
                     children: [
                       for (final event in item.events.reversed)
-                        _HistoryRow(event: event),
+                        _HistoryRow(
+                          event: event,
+                          proposals: item.responsibility.history,
+                        ),
                     ],
                   ),
                 ),
@@ -661,21 +663,18 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         .where((visit) => visit.verificationOutcome == null)
         .lastOrNull;
     final open = !['RESOLVED', 'CLOSED_NO_ACTION'].contains(item.status);
-    final arranger = item.responsibility.arrangedBy == 'TENANT'
-        ? 'the tenant'
-        : 'the landlord';
     final subtitle = switch (item.status) {
-      'REPORTED' => 'Waiting for the landlord or agent to acknowledge',
+      'REPORTED' => t.waitingAcknowledge,
       'ACKNOWLEDGED' || 'SCHEDULED' =>
         item.canLogVisit
-            ? 'Record the repair once it is done'
-            : 'Waiting for $arranger to repair it',
+            ? t.recordRepairWhenDone
+            : item.responsibility.arrangedBy == 'TENANT' ? t.waitingTenantRepair : t.waitingLandlordRepair,
       'AWAITING_CONFIRMATION' =>
         item.canVerify
-            ? 'Check the repair and confirm'
-            : 'Waiting for the other side to confirm the repair',
-      'RESOLVED' => 'Confirmed fixed',
-      _ => 'Closed without a repair',
+            ? t.checkRepair
+            : t.waitingConfirm,
+      'RESOLVED' => t.confirmedFixed,
+      _ => t.closedWithoutRepair,
     };
     return Card(
       child: Padding(
@@ -683,7 +682,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            KiviloSectionHeading(title: 'Repair', subtitle: subtitle),
+            KiviloSectionHeading(title: t.repair, subtitle: subtitle),
             if (item.status == 'CLOSED_NO_ACTION' &&
                 item.resolutionReason != null) ...[
               const SizedBox(height: 12),
@@ -699,7 +698,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 onPressed: () => _run(
                   () => _api.updateMaintenanceCase(item.id, 'ACKNOWLEDGED'),
                 ),
-                child: const Text('Acknowledge report'),
+                child: Text(t.acknowledgeReport),
               ),
             ],
             if (!_busy &&
@@ -709,12 +708,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               FilledButton.icon(
                 icon: const Icon(Icons.build_outlined),
                 onPressed: () => _recordRepair(item.id),
-                label: const Text('Record completed repair'),
+                label: Text(t.recordCompletedRepair),
               ),
             ],
             if (!_busy && item.canVerify && unverified != null) ...[
               const SizedBox(height: 14),
-              Text('Did the repair work?', style: text.titleMedium),
+              Text(t.didRepairWork, style: text.titleMedium),
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -727,14 +726,14 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                           'FIXED',
                         ),
                       ),
-                      child: const Text('Fixed'),
+                      child: Text(t.fixed),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => _notFixed(item.id, unverified.id),
-                      child: const Text('Not fixed'),
+                      child: Text(t.notFixed),
                     ),
                   ),
                 ],
@@ -743,7 +742,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   icon: const Icon(Icons.add_a_photo_outlined, size: 18),
-                  label: const Text('Add an after photo'),
+                  label: Text(t.addAfterPhoto),
                   onPressed: () =>
                       _addEvidence(item.id, 'AFTER', visitId: unverified.id),
                 ),
@@ -758,7 +757,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               OutlinedButton.icon(
                 icon: const Icon(Icons.fact_check_outlined),
                 onPressed: () => _addToReport(item.id),
-                label: const Text('Add to the report as an update'),
+                label: Text(t.addToReportAsUpdate),
               ),
             ],
             if (!_busy && item.canManage && open)
@@ -766,7 +765,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                 alignment: Alignment.centerLeft,
                 child: TextButton(
                   onPressed: () => _close(item.id),
-                  child: const Text('Close without action'),
+                  child: Text(t.closeWithoutAction),
                 ),
               ),
           ],
@@ -794,8 +793,8 @@ class _CaseHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final urgency = switch (item.priority) {
-      'URGENT' => ' · URGENT',
-      'SAFETY_EMERGENCY' => ' · DANGER',
+      'URGENT' => ' · ${t.priorityUrgent.toUpperCase()}',
+      'SAFETY_EMERGENCY' => ' · ${t.priorityDanger.toUpperCase()}',
       _ => '',
     };
     return Column(
@@ -822,7 +821,7 @@ class _CaseHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${item.category.replaceAll('_', ' ')}$urgency',
+                    '${(maintenanceCategoryLabels[item.category] ?? item.category).toUpperCase()}$urgency',
                     style: const TextStyle(
                       color: KiviloColors.pinkDark,
                       fontSize: 11,
@@ -902,8 +901,8 @@ class _VisitRow extends StatelessWidget {
     // The header pill already says a repair awaits confirmation, so a row only
     // carries a pill once someone has answered.
     final outcome = switch (visit.verificationOutcome) {
-      'FIXED' => ('Fixed', KiviloColors.green, KiviloColors.greenSoft),
-      'NOT_FIXED' => ('Not fixed', KiviloColors.red, KiviloColors.redSoft),
+      'FIXED' => (t.fixed, KiviloColors.green, KiviloColors.greenSoft),
+      'NOT_FIXED' => (t.notFixed, KiviloColors.red, KiviloColors.redSoft),
       _ => null,
     };
     return Container(
@@ -920,8 +919,9 @@ class _VisitRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Repaired ${shortDate(visit.completedAt!)}'
-                  '${visit.cost == null ? '' : ' · S\$${visit.cost}'}',
+                  visit.cost == null
+                      ? t.repairedOn(shortDate(visit.completedAt!))
+                      : t.repairedOnCost(shortDate(visit.completedAt!), '${visit.cost}'),
                   style: text.titleMedium,
                 ),
               ),
@@ -967,9 +967,9 @@ class _EvidenceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = switch (evidence.purpose) {
-      'BEFORE' => 'Before repair',
-      'AFTER' => 'After repair',
-      _ => 'Receipt',
+      'BEFORE' => t.beforeRepair,
+      'AFTER' => t.afterRepair,
+      _ => t.receipt,
     };
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -1012,8 +1012,8 @@ class _EvidenceCard extends StatelessWidget {
                 child: Image.network(
                   evidence.url,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Center(
-                    child: Text('Could not load. Pull to refresh the link.'),
+                  errorBuilder: (_, _, _) => Center(
+                    child: Text(t.couldNotLoadPull),
                   ),
                 ),
               ),
@@ -1057,37 +1057,46 @@ class _EvidenceCard extends StatelessWidget {
 }
 
 class _HistoryRow extends StatelessWidget {
-  const _HistoryRow({required this.event});
+  const _HistoryRow({required this.event, required this.proposals});
   final Map<String, dynamic> event;
+
+  /// The case's proposals, so a cost event reads in the app's language rather than
+  /// as the English sentence the server stored with it.
+  final List<ResponsibilityProposal> proposals;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final metadata = event['metadata'] as Map<String, dynamic>?;
-    final summary = metadata?['summary'];
+    final summary =
+        proposals
+            .where((proposal) => proposal.id == metadata?['proposalId'])
+            .firstOrNull
+            ?.terms ??
+        metadata?['summary'];
     final (icon, title) = switch (event['kind'] as String) {
-      'REPORTED' => (Icons.flag_outlined, 'Reported'),
-      'COMMENT' => (Icons.chat_bubble_outline, 'Comment'),
+      'REPORTED' => (Icons.flag_outlined, t.statusReported),
+      'COMMENT' => (Icons.chat_bubble_outline, t.comment),
       'STATUS_CHANGED' => (
         Icons.sync_alt,
-        maintenanceStatusLabels[metadata?['to']] ?? 'Status changed',
+        maintenanceStatusLabels[metadata?['to']] ?? t.statusChanged,
       ),
       'VISIT_RECORDED' => (
         Icons.build_outlined,
-        metadata?['completed'] == true ? 'Repair recorded' : 'Repair scheduled',
+        metadata?['completed'] == true ? t.repairRecorded : t.repairScheduled,
       ),
-      'VERIFICATION' => (Icons.check_circle_outline, 'Confirmed fixed'),
-      'REOPENED' => (Icons.replay, 'Reported not fixed'),
+      'VERIFICATION' => (Icons.check_circle_outline, t.confirmedFixed),
+      'REOPENED' => (Icons.replay, t.reportedNotFixed),
       'RESPONSIBILITY_PROPOSED' => (
         Icons.handshake_outlined,
-        'Cost proposal: $summary',
+        t.costProposal('$summary'),
       ),
-      'RESPONSIBILITY_ACCEPTED' => (Icons.handshake, 'Cost agreed: $summary'),
+      'RESPONSIBILITY_ACCEPTED' => (Icons.handshake, t.costAgreed('$summary')),
       'RESPONSIBILITY_REJECTED' => (
         Icons.do_not_disturb_on_outlined,
-        'Cost proposal rejected',
+        t.costProposalRejected,
       ),
-      'RESPONSIBILITY_WITHDRAWN' => (Icons.undo, 'Cost proposal withdrawn'),
+      'RESPONSIBILITY_WITHDRAWN' => (Icons.undo, t.costProposalWithdrawn),
       final kind => (Icons.history, kind.replaceAll('_', ' ').toLowerCase()),
     };
     final actor = (event['actor'] as Map<String, dynamic>?)?['name'];

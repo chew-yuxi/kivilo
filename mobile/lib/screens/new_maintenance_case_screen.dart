@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../models/handover.dart';
 import '../services/api.dart';
@@ -137,8 +138,8 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
       if (mounted) {
         setState(
           () => _error = saved
-              ? '${plainError(error)} Your draft is saved on this phone.'
-              : '${plainError(error)} This phone could not save your draft. Keep this screen open and try again.',
+              ? t.errorDraftSaved(plainError(error))
+              : t.errorDraftNotSaved(plainError(error)),
         );
       }
     } finally {
@@ -148,18 +149,18 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Report a problem')),
+    appBar: AppBar(title: Text(t.reportProblem)),
     body: KiviloContent(maxWidth: 720, child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
         KiviloSelectField<String?>(
-          label: 'Property item (optional)',
+          label: t.propertyItemOptional,
           value: _assetId,
           enabled: !_saving,
           options: [
-            const KiviloSelectOption<String?>(
+            KiviloSelectOption<String?>(
               value: null,
-              label: 'No specific item',
+              label: t.noSpecificItem,
             ),
             ...widget.assets.map(
               (asset) => KiviloSelectOption<String?>(
@@ -175,21 +176,21 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
         ),
         const SizedBox(height: 12),
         KiviloSelectField<String>(
-          label: 'Category',
+          label: t.assetCategory,
           value: _category,
           enabled: !_saving,
-          options: const [
-            KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-            KiviloSelectOption(value: 'PLUMBING', label: 'Plumbing'),
-            KiviloSelectOption(value: 'LOCKSMITH', label: 'Locksmith'),
-            KiviloSelectOption(value: 'ELECTRICAL', label: 'Electrical'),
+          options: [
+            KiviloSelectOption(value: 'APPLIANCE', label: t.assetAppliance),
+            KiviloSelectOption(value: 'PLUMBING', label: t.categoryPlumbing),
+            KiviloSelectOption(value: 'LOCKSMITH', label: t.categoryLocksmith),
+            KiviloSelectOption(value: 'ELECTRICAL', label: t.categoryElectrical),
             KiviloSelectOption(
               value: 'AIR_CONDITIONING',
-              label: 'Air conditioning',
+              label: t.categoryAirCon,
             ),
-            KiviloSelectOption(value: 'STRUCTURAL', label: 'Structural'),
-            KiviloSelectOption(value: 'PEST', label: 'Pest'),
-            KiviloSelectOption(value: 'OTHER', label: 'Other'),
+            KiviloSelectOption(value: 'STRUCTURAL', label: t.categoryStructural),
+            KiviloSelectOption(value: 'PEST', label: t.categoryPest),
+            KiviloSelectOption(value: 'OTHER', label: t.basisOther),
           ],
           onChanged: (value) {
             setState(() => _category = value);
@@ -198,10 +199,10 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
         ),
         const SizedBox(height: 12),
         KiviloSegmentedControl<String>(
-          options: const [
-            KiviloSegmentOption(value: 'ROUTINE', label: 'Routine'),
-            KiviloSegmentOption(value: 'URGENT', label: 'Urgent'),
-            KiviloSegmentOption(value: 'SAFETY_EMERGENCY', label: 'Danger'),
+          options: [
+            KiviloSegmentOption(value: 'ROUTINE', label: t.priorityRoutine),
+            KiviloSegmentOption(value: 'URGENT', label: t.priorityUrgent),
+            KiviloSegmentOption(value: 'SAFETY_EMERGENCY', label: t.priorityDanger),
           ],
           value: _priority,
           onChanged: _saving
@@ -212,12 +213,12 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
                 },
         ),
         if (_priority == 'SAFETY_EMERGENCY')
-          const Card(
+          Card(
             child: ListTile(
               leading: Icon(Icons.emergency_outlined),
-              title: Text('If someone is in immediate danger'),
+              title: Text(t.immediateDanger),
               subtitle: Text(
-                'Call Police 999 or SCDF fire/ambulance 995 before reporting here.',
+                t.immediateDangerDetail,
               ),
             ),
           ),
@@ -225,10 +226,9 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
             const SizedBox(height: 12),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('It was like this when I moved in'),
-              subtitle: const Text(
-                'After reporting, add photos and record the move-in condition. '
-                'The landlord can accept or dispute it.',
+              title: Text(t.presentAtMoveIn),
+              subtitle: Text(
+                t.presentAtMoveInDetail,
               ),
               value: _wasPresentAtMoveIn,
               onChanged: _saving
@@ -243,17 +243,17 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
         TextField(
           controller: _title,
           readOnly: _saving,
-          decoration: const InputDecoration(labelText: 'Short title'),
+          decoration: InputDecoration(labelText: t.shortTitle),
           maxLength: 120,
           onChanged: (_) => unawaited(_saveDraft()),
         ),
         TextField(
           controller: _description,
           readOnly: _saving,
-          decoration: const InputDecoration(
-            labelText: 'What happened?',
+          decoration: InputDecoration(
+            labelText: t.whatHappened,
             hintText:
-                'Include when it started and what you have already tried.',
+                t.whatHappenedHelper,
           ),
           minLines: 4,
           maxLines: 8,
@@ -267,7 +267,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
         const SizedBox(height: 16),
         FilledButton(
           onPressed: _saving ? null : _save,
-          child: Text(_saving ? 'Saving…' : 'Submit report'),
+          child: Text(_saving ? t.saving : t.submitReport),
         ),
       ],
     )),

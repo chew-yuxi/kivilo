@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+
 class AgencySummary {
   const AgencySummary({
     required this.id,
@@ -118,7 +120,7 @@ class AgencyDetail {
 }
 
 String agencyRoleLabel(String role) => switch (role) {
-  'OWNER' => 'Owner',
-  'MANAGER' => 'Manager',
-  _ => 'Agent',
+  'OWNER' => t.roleOwner,
+  'MANAGER' => t.roleManager,
+  _ => t.agent,
 };

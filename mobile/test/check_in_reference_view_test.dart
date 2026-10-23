@@ -39,7 +39,7 @@ void main() {
 
     expect(find.text('Update · Before: cracked basin'), findsOneWidget);
     expect(find.text('Hob ×2'), findsOneWidget);
-    expect(find.text('GOOD · Light scratches'), findsOneWidget);
+    expect(find.text('Good · Light scratches'), findsOneWidget);
     expect(find.text('Open the full check-in'), findsOneWidget);
   });
 

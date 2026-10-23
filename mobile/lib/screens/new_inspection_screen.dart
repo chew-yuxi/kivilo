@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../models/agency.dart';
 import '../services/product_events.dart';
@@ -86,14 +87,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       final selection = await showKiviloDrawer<String>(
         context: context,
         builder: (context) => KiviloDrawer(
-          title: const Text('Who owns this work?'),
+          title: Text(t.newWhoOwns),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text('Personal'),
-                subtitle: const Text(
-                  'Private to you until you add collaborators',
+                title: Text(t.workspacePersonal),
+                subtitle: Text(
+                  t.newPersonalDetail,
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.pop(context, 'personal'),
@@ -101,20 +102,20 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               for (final agency in index.agencies)
                 ListTile(
                   title: Text(agency.name),
-                  subtitle: const Text(
-                    'Assigned agents and team owners and managers can access this work',
+                  subtitle: Text(
+                    t.newTeamDetail,
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.pop(context, agency.id),
                 ),
               if (index.agencies.isEmpty)
-                const Text('Create or join a team in Account → Team.'),
+                Text(t.newCreateTeamHint),
             ],
           ),
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
           ],
         ),
@@ -138,12 +139,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     if (!_form.currentState!.validate()) return;
     if (_fullyFurnished == null) {
       setState(
-        () => _error = 'Choose whether the property is fully furnished.',
+        () => _error = t.newFurnishingRequired,
       );
       return;
     }
     if (!_endDate.isAfter(_startDate)) {
-      setState(() => _error = 'The tenancy must end after it starts.');
+      setState(() => _error = t.newEndAfterStart);
       return;
     }
     setState(() {
@@ -190,22 +191,22 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   }) => TextFormField(
     controller: _fields[key],
     decoration: InputDecoration(
-      labelText: '$label (${required ? 'required' : 'optional'})',
+      labelText: required ? t.fieldRequired(label) : t.fieldOptional(label),
     ),
     keyboardType: keyboardType,
     onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
     validator: (value) {
       final text = value?.trim() ?? '';
-      if (required && text.isEmpty) return '$label is required';
+      if (required && text.isEmpty) return t.fieldIsRequired(label);
       if (text.isNotEmpty &&
           keyboardType == TextInputType.emailAddress &&
           !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(text)) {
-        return 'Enter a valid email address';
+        return t.fieldInvalidEmail;
       }
       if (text.isNotEmpty &&
           (key == 'monthlyRent' || key == 'deposit') &&
           !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(text)) {
-        return 'Enter a valid SGD amount with up to 2 decimals';
+        return t.fieldInvalidAmount;
       }
       return null;
     },
@@ -215,76 +216,76 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.newInspection,
     child: Scaffold(
-    appBar: AppBar(title: const Text('New check-in')),
+    appBar: AppBar(title: Text(t.newCheckIn)),
     body: KiviloContent(maxWidth: 720, child: Form(
       key: _form,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
         children: [
           Text(
-            'Start with the essentials',
+            t.newEssentials,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 6),
           Text(
-            'Set up the property and tenancy. You can add rooms after this.',
+            t.newEssentialsDetail,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: _busy ? null : _chooseWorkspace,
-            child: Text('Workspace: ${_agency?.name ?? 'Personal'}'),
+            child: Text(t.newWorkspace(_agency?.name ?? t.workspacePersonal)),
           ),
           const SizedBox(height: 8),
           Text(
             _agency == null
-                ? 'Private to you until you share it.'
-                : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',
+                ? t.newPrivate
+                : t.newTeamResponsible,
           ),
           const SizedBox(height: 32),
-          const KiviloSectionHeading(
-            title: 'Property',
-            subtitle: 'Where the handover takes place',
+          KiviloSectionHeading(
+            title: t.newProperty,
+            subtitle: t.newPropertyDetail,
           ),
           const SizedBox(height: 16),
-          _textField('line1', 'Address', required: true),
+          _textField('line1', t.newAddress, required: true),
           const SizedBox(height: 12),
-          _textField('unit', 'Unit'),
+          _textField('unit', t.newUnit),
           const SizedBox(height: 12),
           _textField(
             'postalCode',
-            'Postal code',
+            t.newPostalCode,
             required: true,
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
           KiviloSelectField<String>(
-            label: 'Property type (required)',
-            sheetTitle: 'Choose a property type',
+            label: t.newPropertyTypeRequired,
+            sheetTitle: t.newChoosePropertyType,
             value: _propertyType,
-            options: const [
+            options: [
               KiviloSelectOption(
                 value: 'PRIVATE_NON_LANDED',
-                label: 'Private, non-landed',
-                description: 'Condominium or private apartment',
+                label: t.propertyTypePrivate,
+                description: t.propertyTypePrivateDetail,
                 icon: Icons.apartment_rounded,
               ),
               KiviloSelectOption(
                 value: 'HDB',
-                label: 'HDB',
-                description: 'Public housing flat',
+                label: t.propertyTypeHdb,
+                description: t.propertyTypeHdbDetail,
                 icon: Icons.location_city_rounded,
               ),
               KiviloSelectOption(
                 value: 'LANDED',
-                label: 'Landed',
-                description: 'Terrace, semi-detached or detached home',
+                label: t.propertyTypeLanded,
+                description: t.propertyTypeLandedDetail,
                 icon: Icons.home_rounded,
               ),
               KiviloSelectOption(
                 value: 'COMMERCIAL',
-                label: 'Commercial',
-                description: 'Office, retail or other business premises',
+                label: t.propertyTypeCommercial,
+                description: t.propertyTypeCommercialDetail,
                 icon: Icons.store_rounded,
               ),
             ],
@@ -292,12 +293,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Furnishing (required)',
+            t.newFurnishing,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 4),
           Text(
-            'Fully furnished rooms start with standard inventory rows. Other rooms start empty.',
+            t.newFurnishingDetail,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           RadioGroup<bool>(
@@ -306,16 +307,16 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               _fullyFurnished = value;
               _error = null;
             }),
-            child: const Column(
+            child: Column(
               children: [
                 RadioListTile<bool>(
                   value: true,
-                  title: Text('Fully furnished'),
+                  title: Text(t.newFullyFurnished),
                   contentPadding: EdgeInsets.zero,
                 ),
                 RadioListTile<bool>(
                   value: false,
-                  title: Text('Not fully furnished'),
+                  title: Text(t.newNotFullyFurnished),
                   contentPadding: EdgeInsets.zero,
                 ),
               ],
@@ -324,39 +325,39 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 24),
-          const KiviloSectionHeading(
-            title: 'People',
-            subtitle: 'The landlord and tenant on the report',
+          KiviloSectionHeading(
+            title: t.newPeople,
+            subtitle: t.newPeopleDetail,
           ),
           const SizedBox(height: 16),
-          _textField('landlordName', 'Landlord name', required: true),
+          _textField('landlordName', t.newLandlordName, required: true),
           const SizedBox(height: 12),
           _textField(
             'landlordEmail',
-            'Landlord email',
+            t.newLandlordEmail,
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 12),
-          _textField('tenantName', 'Tenant name', required: true),
+          _textField('tenantName', t.newTenantName, required: true),
           const SizedBox(height: 12),
           _textField(
             'tenantEmail',
-            'Tenant email',
+            t.newTenantEmail,
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 24),
-          const KiviloSectionHeading(
-            title: 'Tenancy',
-            subtitle: 'Dates and agreed amounts',
+          KiviloSectionHeading(
+            title: t.newTenancy,
+            subtitle: t.newTenancyDetail,
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: _dateCard(
-                  'Starts (required)',
+                  t.newStarts,
                   _startDate,
                   () => _pickDate(true),
                 ),
@@ -364,7 +365,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _dateCard(
-                  'Ends (required)',
+                  t.newEnds,
                   _endDate,
                   () => _pickDate(false),
                 ),
@@ -374,13 +375,13 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           const SizedBox(height: 16),
           _textField(
             'monthlyRent',
-            'Monthly rent (SGD)',
+            t.newMonthlyRent,
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
           _textField(
             'deposit',
-            'Deposit (SGD)',
+            t.newDeposit,
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 20),
@@ -408,7 +409,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
           child: FilledButton(
             onPressed: _busy ? null : _create,
-            child: Text(_busy ? 'Creating…' : 'Create check-in'),
+            child: Text(_busy ? t.creating : t.newCreate),
           ),
         ),
       ),

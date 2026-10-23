@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
@@ -55,7 +56,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       await _recoverLostPhoto();
     } catch (error) {
       if (mounted) {
-        setState(() => _message = 'Could not prepare the photo. ${plainError(error)}');
+        setState(() => _message = t.photoPrepareFailed(plainError(error)));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -91,7 +92,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       if (photo != null) await _savePhoto(photo);
     } catch (error) {
       if (mounted) {
-        setState(() => _message = 'Could not add the photo. ${plainError(error)}');
+        setState(() => _message = t.photoAddFailed(plainError(error)));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -138,8 +139,8 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
     if (mounted) {
       setState(
         () => _message = moved
-            ? 'Photo saved and uploaded.'
-            : 'Photo saved on this phone. Kivilo will retry automatically.',
+            ? t.photoSavedUploaded
+            : t.photoSavedRetry,
       );
     }
   }
@@ -156,7 +157,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
     child: Scaffold(
     appBar: AppBar(
       title: Text(
-        widget.purpose == 'BEFORE' ? 'Before photos' : 'After photos',
+        widget.purpose == 'BEFORE' ? t.beforePhotos : t.afterPhotos,
       ),
     ),
     body: KiviloContent(maxWidth: 720, child: ListView(
@@ -169,7 +170,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: KiviloColors.border),
           ),
-          child: const Column(
+          child: Column(
             children: [
               Icon(
                 Icons.add_a_photo_outlined,
@@ -178,7 +179,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
               ),
               SizedBox(height: 14),
               Text(
-                'Add photos with your phone’s camera',
+                t.addPhotosCamera,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: KiviloColors.ink,
@@ -188,7 +189,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
               ),
               SizedBox(height: 8),
               Text(
-                'Use the full native camera experience, or choose a photo you already took.',
+                t.addPhotosCameraDetail,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: KiviloColors.muted),
               ),
@@ -201,7 +202,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
               ? null
               : () => unawaited(_addPhoto(ImageSource.camera)),
           icon: const Icon(Icons.photo_camera_outlined),
-          label: Text(_busy ? 'Saving…' : 'Take photo'),
+          label: Text(_busy ? t.saving : t.takePhotoShort),
         ),
         const SizedBox(height: 10),
         OutlinedButton.icon(
@@ -209,7 +210,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
               ? null
               : () => unawaited(_addPhoto(ImageSource.gallery)),
           icon: const Icon(Icons.add_photo_alternate_outlined),
-          label: const Text('Choose existing photo'),
+          label: Text(t.chooseExistingPhoto),
         ),
         if (_message != null) ...[
           const SizedBox(height: 18),

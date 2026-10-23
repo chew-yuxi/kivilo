@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 
@@ -43,7 +44,7 @@ class _SignInScreenState extends State<SignInScreen> {
       await action();
     } on AuthRetryableFetchException {
       setState(
-        () => _error = 'Could not connect. Check your connection and try again.',
+        () => _error = t.signInConnectFailed,
       );
     } on AuthException catch (error) {
       setState(() => _error = error.message);
@@ -79,15 +80,15 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final title = _passwordMode
-        ? 'Welcome back'
+        ? t.signInWelcomeBack
         : _sent
-        ? 'Check your email'
-        : 'Your property, on record';
+        ? t.signInCheckEmail
+        : t.signInTagline;
     final subtitle = _passwordMode
-        ? 'Sign in to continue your inspections.'
+        ? t.signInContinue
         : _sent
-        ? 'Enter the six-digit code sent to ${_email.text.trim()}.'
-        : 'Condition reports, repairs and their history, for agents, landlords and tenants.';
+        ? t.signInEnterCode(_email.text.trim())
+        : t.signInIntro;
 
     return Scaffold(
       body: SafeArea(
@@ -114,8 +115,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   const SizedBox(height: 32),
                   Text(
                     _sent && !_passwordMode
-                        ? 'VERIFICATION CODE'
-                        : 'EMAIL ADDRESS',
+                        ? t.signInCodeLabel
+                        : t.signInEmailLabel,
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -168,12 +169,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       obscureText: !_showPassword,
                       autofillHints: const [AutofillHints.password],
                       decoration: InputDecoration(
-                        hintText: 'Your password',
+                        hintText: t.signInPasswordHint,
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           tooltip: _showPassword
-                              ? 'Hide password'
-                              : 'Show password',
+                              ? t.signInHidePassword
+                              : t.signInShowPassword,
                           icon: Icon(
                             _showPassword
                                 ? Icons.visibility_off_outlined
@@ -211,25 +212,25 @@ class _SignInScreenState extends State<SignInScreen> {
                               : _sendCode),
                     child: Text(
                       _busy
-                          ? 'Working'
+                          ? t.working
                           : _passwordMode
-                          ? 'Sign in'
+                          ? t.signIn
                           : _sent
-                          ? 'Sign in'
-                          : 'Email me a code',
+                          ? t.signIn
+                          : t.signInEmailCode,
                     ),
                   ),
                   const SizedBox(height: 12),
                   if (_sent && !_passwordMode) ...[
                     TextButton(
                       onPressed: _busy ? null : _sendCode,
-                      child: const Text('Send a new code'),
+                      child: Text(t.signInResend),
                     ),
                     TextButton(
                       onPressed: _busy
                           ? null
                           : () => setState(() => _sent = false),
-                      child: const Text('Use a different email'),
+                      child: Text(t.signInDifferentEmail),
                     ),
                   ],
                   if (!_sent || _passwordMode)
@@ -243,15 +244,15 @@ class _SignInScreenState extends State<SignInScreen> {
                             }),
                       child: Text(
                         _passwordMode
-                            ? 'Use an emailed code instead'
-                            : 'Sign in with password',
+                            ? t.signInUseCode
+                            : t.signInWithPassword,
                       ),
                     ),
                   const SizedBox(height: 36),
                   const Divider(),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Every room. Every detail. Ready when you need it.',
+                  Text(
+                    t.signInFooter,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: KiviloColors.muted, fontSize: 12),
                   ),

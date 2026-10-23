@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 
 // Placeholder partners until real ones are signed. They carry no phone number on
 // purpose: a made-up number could ring a stranger.
-const _partners = [
+List<({String name, IconData icon, String services, String hours})> get _partners => [
   (
     name: 'Pipewell Plumbing',
     icon: Icons.plumbing,
-    services: 'Leaks, blocked drains, water heaters',
-    hours: 'Open 24 hours',
+    services: t.partnerPipewell,
+    hours: t.open24Hours,
   ),
   (
     name: 'Fernvale Pipeworks',
     icon: Icons.plumbing,
-    services: 'Burst pipes, toilets, taps and mixers',
-    hours: 'Daily 8am to 10pm',
+    services: t.partnerFernvale,
+    hours: t.daily8to10,
   ),
   (
     name: 'Halcyon Locksmiths',
     icon: Icons.key_outlined,
-    services: 'Lockouts, lock changes, digital locks',
-    hours: 'Open 24 hours',
+    services: t.partnerHalcyon,
+    hours: t.open24Hours,
   ),
   (
     name: 'Keyline Lock & Key',
     icon: Icons.key_outlined,
-    services: 'Gate locks, key cutting, safes',
-    hours: 'Mon to Sat 9am to 7pm',
+    services: t.partnerKeyline,
+    hours: t.monSat9to7,
   ),
 ];
 
@@ -38,7 +39,7 @@ class ServiceDirectoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Urgent services')),
+    appBar: AppBar(title: Text(t.homeUrgentServices)),
     body: KiviloContent(maxWidth: 840, child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -49,14 +50,14 @@ class ServiceDirectoryScreen extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.local_police_outlined),
-                title: const Text('Police emergency'),
+                title: Text(t.policeEmergency),
                 subtitle: const Text('999'),
                 trailing: const Icon(Icons.call_outlined),
                 onTap: () => launchUrl(Uri.parse('tel:999')),
               ),
               ListTile(
                 leading: const Icon(Icons.fire_truck_outlined),
-                title: const Text('Fire or ambulance'),
+                title: Text(t.fireAmbulance),
                 subtitle: const Text('995'),
                 trailing: const Icon(Icons.call_outlined),
                 onTap: () => launchUrl(Uri.parse('tel:995')),
@@ -65,9 +66,9 @@ class ServiceDirectoryScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        const KiviloSectionHeading(
-          title: 'Kivilo partners',
-          subtitle: 'Plumbers and locksmiths we work with',
+        KiviloSectionHeading(
+          title: t.kiviloPartners,
+          subtitle: t.kiviloPartnersDetail,
         ),
         const SizedBox(height: 12),
         for (var index = 0; index < _partners.length; index++) ...[
@@ -83,8 +84,8 @@ class ServiceDirectoryScreen extends StatelessWidget {
               isThreeLine: true,
               trailing: const Icon(Icons.chevron_right),
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Booking through Kivilo opens soon.'),
+                SnackBar(
+                  content: Text(t.bookingSoon),
                 ),
               ),
             ),

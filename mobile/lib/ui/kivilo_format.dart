@@ -1,32 +1,17 @@
-const _months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
+import 'package:intl/intl.dart';
+
+import '../l10n/l10n.dart';
 
 /// "12 Oct 2026", in the phone's time zone.
-String shortDate(String iso) {
-  final date = DateTime.parse(iso).toLocal();
-  return '${date.day} ${_months[date.month - 1].substring(0, 3)} ${date.year}';
-}
+String shortDate(String iso) =>
+    DateFormat(t.dateShortPattern, t.localeName).format(DateTime.parse(iso).toLocal());
 
 /// "October 2026", for grouping a feed by month.
-String monthYear(String iso) {
-  final date = DateTime.parse(iso).toLocal();
-  return '${_months[date.month - 1]} ${date.year}';
-}
+String monthYear(String iso) => DateFormat(
+  t.dateMonthYearPattern,
+  t.localeName,
+).format(DateTime.parse(iso).toLocal());
 
 /// An agreed calendar date: do not shift it into the phone's time zone.
-String calendarDate(String value) {
-  final date = DateTime.parse(value);
-  return '${date.day} ${_months[date.month - 1].substring(0, 3)} ${date.year}';
-}
+String calendarDate(String value) =>
+    DateFormat(t.dateShortPattern, t.localeName).format(DateTime.parse(value));

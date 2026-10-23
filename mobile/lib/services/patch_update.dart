@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 
+import '../l10n/l10n.dart';
 import 'api_failure.dart';
 
 enum PatchAvailability { none, downloadRequired, restartRequired }
@@ -54,13 +55,13 @@ class DevicePatchUpdate implements PatchUpdate {
     // after this process ends, and tapping it launches the newly staged patch.
     await _notifications.show(
       id: 41022,
-      title: 'Kivilo is updated',
-      body: 'Tap to reopen Kivilo.',
-      notificationDetails: const NotificationDetails(
+      title: t.updateDoneTitle,
+      body: t.updateDoneBody,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           'app_updates',
-          'App updates',
-          channelDescription: 'Completed Kivilo app updates',
+          t.updateChannelName,
+          channelDescription: t.updateChannelDescription,
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -104,8 +105,8 @@ class DevicePatchUpdate implements PatchUpdate {
           ?.requestPermissions(alert: true, sound: true);
     }
     if (granted == false) {
-      throw const ApiFailure(
-        'Notifications must be enabled so Kivilo can tell you when it is safe to reopen.',
+      throw ApiFailure(
+        t.updateNeedsNotifications,
         null,
       );
     }
