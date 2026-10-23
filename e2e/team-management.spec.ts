@@ -216,6 +216,7 @@ test('property settings exposes archive, exact-address deletion and recovery', a
   await page.getByRole('link', { name: 'Properties', exact: true }).click()
   await page.getByRole('link', { name: 'Archived', exact: true }).click()
   await page.getByRole('link', { name: /29 Draft Court/ }).click()
+  await page.getByRole('link', { name: 'Settings and danger zone', exact: true }).click()
   await page.getByRole('button', { name: 'Unarchive property', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Archive property', exact: true })).toBeVisible()
 

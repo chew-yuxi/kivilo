@@ -26,8 +26,8 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link className="text-link inline-flex min-h-11 items-center text-sm" href={`/properties/${id}/settings`}>
-        ← Property settings
+      <Link className="text-link inline-flex min-h-11 items-center text-sm" href={`/properties/${id}`}>
+        ← Property
       </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">History</h1>

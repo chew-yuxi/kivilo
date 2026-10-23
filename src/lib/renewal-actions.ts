@@ -22,6 +22,7 @@ export async function respondToRenewal(tenancyId: string, choice: 'NOT_RENEWING'
     })
   })
   revalidatePath('/inspections')
+  revalidatePath('/properties')
 }
 
 const renewalInput = z.object({
@@ -86,5 +87,6 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
     return renewal.id
   })
   revalidatePath('/inspections')
+  revalidatePath('/properties')
   return inspectionId
 }

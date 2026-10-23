@@ -122,6 +122,9 @@ describe('property work', () => {
     expect(await has('active')).not.toContain(trashed.id)
     expect(await has('archived')).toEqual([archived.id])
     expect(await has('trash')).toEqual([trashed.id])
-    expect((await propertyWork(agent.id, { state: 'trash' }, now))[0].state).toBe('TRASHED')
+    expect((await propertyWork(agent.id, { state: 'trash' }, now))[0]).toMatchObject({
+      state: 'TRASHED', trashExpiresAt: new Date(now.getTime() + 30 * DAY).toISOString(),
+    })
+    expect((await propertyWork(agent.id, { state: 'archived' }, now))[0].trashExpiresAt).toBeNull()
   })
 })

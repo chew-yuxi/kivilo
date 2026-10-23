@@ -9,11 +9,13 @@ export function WorkspaceSelector({
   teams,
   workspace,
   rememberInitial,
+  path = '/inspections',
 }: {
   agentId: string
   teams: WorkspaceTeam[]
   workspace: string
   rememberInitial: boolean
+  path?: string
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -31,7 +33,7 @@ export function WorkspaceSelector({
         onChange={(event) => {
           const next = event.target.value
           rememberWorkspace(agentId, next)
-          startTransition(() => router.push(`/inspections?workspace=${encodeURIComponent(next)}`))
+          startTransition(() => router.push(`${path}?workspace=${encodeURIComponent(next)}`))
         }}
       >
         <option value="all">All properties</option>

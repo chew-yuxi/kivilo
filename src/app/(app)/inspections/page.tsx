@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { cookies } from 'next/headers'
-import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { inspectionWorkScope } from '@/lib/inspection-work'
@@ -8,23 +6,15 @@ import { propertyLabel } from '@/lib/format'
 import { StatusBadge } from '@/components/status-badge'
 import { RenewalCards } from '@/components/renewal-cards'
 import { dueRenewals } from '@/lib/renewals'
-import { agencyList } from '@/lib/agency'
-import { preferredWorkspace, workspaceCookieName } from '@/lib/web-workspace'
-import { WorkspaceSelector } from '@/components/workspace-selector'
+import { chosenWorkspace, WorkspaceSection } from '@/components/workspace-section'
 
 export const dynamic = 'force-dynamic'
 
 export default async function InspectionsPage({ searchParams }: PageProps<'/inspections'>) {
   const agent = await requireAgent()
-  const [directory, query, cookieStore] = await Promise.all([agencyList(agent.id), searchParams, cookies()])
-  const requested = typeof query.workspace === 'string' ? query.workspace : undefined
-  if (requested && requested !== 'personal' && requested !== 'all' && !directory.agencies.some((team) => team.id === requested)) notFound()
-  const workspace = preferredWorkspace(requested ?? cookieStore.get(workspaceCookieName(agent.id))?.value, directory.agencies)
-  const selectedTeam = directory.agencies.find((team) => team.id === workspace)
-  const filters = workspace === 'personal' ? { personal: true } : workspace === 'all' ? { mine: true } : { agencyId: workspace }
+  const chosen = await chosenWorkspace(agent.id, (await searchParams).workspace)
+  const { directory, filters, newHref } = chosen
   const renewals = await dueRenewals(agent.id, new Date(), filters)
-  const newWorkspace = workspace === 'all' ? preferredWorkspace(undefined, directory.agencies, false) : workspace
-  const newHref = `/inspections/new?workspace=${encodeURIComponent(newWorkspace)}`
 
   const inspections = await db.inspection.findMany({
     where: inspectionWorkScope(agent.id, filters),
@@ -49,30 +39,7 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
 
   return (
     <div>
-      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label="Choose workspace">
-        <div className="flex flex-wrap items-end gap-3">
-          <WorkspaceSelector agentId={agent.id} teams={directory.agencies} workspace={workspace} rememberInitial={requested !== undefined} />
-          {selectedTeam && <Link href={`/team/${selectedTeam.id}`} className="action-secondary">Manage team</Link>}
-          <Link href="/team" className="action-secondary">Create or join a team</Link>
-        </div>
-        <p className="mt-3 text-sm text-gray-600">
-          {selectedTeam
-            ? selectedTeam.role === 'AGENT'
-              ? 'Your assigned team properties. New check-ins belong to this team and are assigned to you.'
-              : 'All team properties. Owners and managers oversee the team; agents see their assignments.'
-            : workspace === 'personal'
-              ? 'Personal properties stay outside your teams. Share individual tenancies only when you choose.'
-              : 'Your assigned properties, shared tenancies and access to previous reports across workspaces.'}
-        </p>
-        {directory.agencies.length === 0 && (
-          <p className="mt-2 text-sm text-gray-600">Create a team, invite colleagues, then add properties to its portfolio.</p>
-        )}
-        {directory.invitations.length > 0 && (
-          <Link href="/team" className="text-link mt-3 inline-flex min-h-11 items-center text-sm">
-            View {directory.invitations.length} team {directory.invitations.length === 1 ? 'invitation' : 'invitations'}
-          </Link>
-        )}
-      </section>
+      <WorkspaceSection agentId={agent.id} chosen={chosen} path="/inspections" />
       <div className="mb-8 flex items-start justify-between gap-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Inspections</h1>

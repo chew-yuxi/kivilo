@@ -305,6 +305,9 @@ the management scope. `GET /api/v1/properties/[id]/overview` lists every term wi
 reports and says which linked screens (repairs, timeline) this viewer can open, since
 those follow the running-tenancy rule. `GET /api/v1/inspections` is unchanged because
 released builds read it, and `/inspections` notification links open the Properties tab.
+The web reads the same two functions: `/properties` is the list (workspace, stage
+filters, search) and `/properties/[id]` the property page; the header's home link opens
+`/properties`, and `/inspections` stays as My work.
 
 ## A signed report stops moving
 

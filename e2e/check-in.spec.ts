@@ -144,6 +144,15 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page.getByText('Awaiting signatures')).toBeVisible()
   await expect(page.getByText('Quartz worktop')).toBeVisible()
 
+  // The property list shows the address at its stage, and its page opens the report.
+  await page.getByRole('link', { name: 'Properties', exact: true }).click()
+  await page.getByRole('link', { name: 'Awaiting signatures', exact: true }).click()
+  await page.getByRole('link', { name: /2 Marina Boulevard/ }).click()
+  await expect(page.getByRole('heading', { name: /2 Marina Boulevard/ })).toBeVisible()
+  await expect(page.getByText('Check-in awaiting signatures')).toBeVisible()
+  await page.getByRole('link', { name: /^Check-in/ }).click()
+  await expect(page).toHaveURL(inspectionUrl)
+
   // Landlord first, then tenant. A signed pad is replaced by its receipt, so the
   // first remaining canvas is always the next party.
   for (const party of ['Tan Wei Ming', 'Priya Raman']) {

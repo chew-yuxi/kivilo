@@ -54,9 +54,9 @@ export function PropertySettings({ property }: { property: Property }) {
     <div className="mx-auto max-w-3xl space-y-6">
       <Link
         className="text-link inline-flex min-h-11 items-center text-sm"
-        href={`/properties?state=${property.state === 'TRASHED' ? 'trash' : property.state === 'ARCHIVED' ? 'archived' : 'active'}`}
+        href={property.state === 'TRASHED' ? '/properties?filter=trash' : `/properties/${property.id}`}
       >
-        ← Properties
+        {property.state === 'TRASHED' ? '← Recently deleted' : '← Property'}
       </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Property settings</h1>

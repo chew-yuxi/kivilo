@@ -109,6 +109,7 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       id: current.property.id,
       address: propertyLabel(current.property),
       state: propertyState(current.property),
+      trashExpiresAt: current.property.trashExpiresAt?.toISOString() ?? null,
       tenancyId: current.id,
       tenant: current.tenant.name,
       agencyName: current.agency?.name ?? null,
