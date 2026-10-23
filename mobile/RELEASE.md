@@ -12,6 +12,26 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Screens open from the saved copy: 23 October 2026 Singapore time
+
+App-only. Source `3b89e0a`, built from clean worktrees pinned to it, includes Documents
+(`a26d9f1`) and everything above it.
+
+| Platform / installed release | Patch | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **16** | **stable** |
+| iOS `1.0.0+24` | **17** | **stable** |
+
+Promoted on Yuxi's standing go. Both have 10 assets and the unchanged MaterialIcons
+font (`faa4e86d`); the iOS app passes `codesign --verify --deep --strict`. Receipts are in
+`build/release-20261023-account/`. Staging patches Android 15 and iOS 16 (`f7773ff`,
+without the Account page) were never promoted and are superseded.
+
+Every list and detail screen, and now Account, shows what this phone saved last time and
+replaces it with the server's answer (`Api.load`), so moving between pages no longer
+returns to a spinner. Pull to refresh keeps the list on screen. A refusal from the
+server forgets the saved copy only for the same signed-in account.
+
 ## Tenancy agreements and supporting documents: 23 October 2026 Singapore time
 
 Source `74904b82268025c9051ebbb987fc0f5bffe59984` is live on production, Vercel
