@@ -8,7 +8,8 @@ import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/home_screen.dart';
-import 'package:kivilo/screens/inspections_screen.dart';
+import 'package:kivilo/models/property_work.dart';
+import 'package:kivilo/screens/properties_screen.dart';
 import 'package:kivilo/screens/new_inspection_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
@@ -62,6 +63,16 @@ class _WorkspaceApi extends Api {
   Future<List<InspectionSummary>> inspections() async => [];
   @override
   Future<List<TenancySummary>> tenancies() async => [];
+  @override
+  Future<List<PropertyWorkItem>> propertyWork({
+    String? agencyId,
+    String? assigneeId,
+    bool personal = false,
+    String state = 'active',
+  }) async {
+    scopes.add((agencyId, personal));
+    return [];
+  }
   @override
   Future<List<InspectionSummary>> inspectionWork({
     String? agencyId,
@@ -223,7 +234,7 @@ void main() {
   );
 
   testWidgets(
-    'Home defaults to All properties, shares Personal selection with Inspections and inherits it on creation',
+    'Home defaults to All properties, shares Personal selection with Properties and inherits it on creation',
     (tester) async {
       final api = _WorkspaceApi();
       await _open(tester, HomeScreen(api: api));
@@ -239,7 +250,7 @@ void main() {
       await tester.tap(find.text('Personal').last);
       await tester.pumpAndSettle();
       expect(api.scopes.last, (null, true));
-      await tester.tap(find.text('Inspections').last);
+      await tester.tap(find.text('Properties').last);
       await tester.pumpAndSettle();
       expect(find.text('Personal'), findsOneWidget);
       expect(api.scopes.last, (null, true));
@@ -257,7 +268,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: buildKiviloTheme(),
-          home: InspectionsScreen(api: api),
+          home: PropertiesScreen(api: api),
         ),
       );
       await tester.pump();

@@ -14,7 +14,6 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
 import 'team_screen.dart';
-import 'property_settings_screen.dart';
 import '../ui/kivilo_layout.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -331,15 +330,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: 'Members, invitations and assigned work',
               onTap: () => Navigator.of(context).push<void>(
                 MaterialPageRoute(builder: (_) => TeamScreen(api: _api)),
-              ),
-            ),
-            const SizedBox(height: 10),
-            _linkCard(
-              icon: Icons.home_outlined,
-              title: 'Properties',
-              subtitle: 'Property settings, archived properties and trash',
-              onTap: () => Navigator.of(context).push<void>(
-                MaterialPageRoute(builder: (_) => PropertiesScreen(api: _api)),
               ),
             ),
             const SizedBox(height: kiviloSectionGap),

@@ -293,6 +293,19 @@ and member controls; tapping one they cannot take explains who can and names the
 tenancy-access responses). The client decides this from the `canManage*` flags, never from
 the server's deliberately uniform "not found". The server stays the authority.
 
+## The Properties tab
+
+The app's main tab lists properties, not reports (`mobile/lib/screens/properties_screen.dart`).
+`GET /api/v1/property-work` (`propertyWork` in `src/lib/property-work.ts`) returns one
+row per property, built from the same `inspectionWorkScope` as the work list, so it
+shows exactly what the old list showed, grouped. Its stage comes from the newest term the
+viewer can see (a renewal is a new tenancy on the same property), and `propertyStage`
+is the one place that rule lives. `state=archived|trash` returns those lists; trash uses
+the management scope. `GET /api/v1/properties/[id]/overview` lists every term with its
+reports and says which linked screens (repairs, timeline) this viewer can open, since
+those follow the running-tenancy rule. `GET /api/v1/inspections` is unchanged because
+released builds read it, and `/inspections` notification links open the Properties tab.
+
 ## A signed report stops moving
 
 Sending for signature is the moment the report stops being a working document and becomes

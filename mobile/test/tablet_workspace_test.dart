@@ -5,7 +5,8 @@ import 'package:kivilo/models/agency.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/home_screen.dart';
-import 'package:kivilo/screens/inspections_screen.dart';
+import 'package:kivilo/models/property_work.dart';
+import 'package:kivilo/screens/properties_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
@@ -14,7 +15,30 @@ class _WorkspaceApi extends Api {
 
   final bool partyOnly;
   int inspectionReads = 0;
+  int propertyReads = 0;
   int renewalReads = 0;
+
+  @override
+  Future<List<PropertyWorkItem>> propertyWork({
+    String? agencyId,
+    String? assigneeId,
+    bool personal = false,
+    String state = 'active',
+  }) async {
+    propertyReads++;
+    return [
+      for (var index = 1; index <= 20; index++)
+        PropertyWorkItem(
+          id: 'property-$index',
+          address: 'Property $index at a long Cairnhill Rise address',
+          state: 'ACTIVE',
+          tenant: 'Tenant with a long name',
+          stage: index <= 16 ? 'CHECK_IN_IN_PROGRESS' : 'RUNNING',
+          stageLabel: index <= 16 ? 'Check-in in progress' : 'Tenancy running',
+          reports: 1,
+        ),
+    ];
+  }
 
   @override
   Future<AgencyIndex> agencies() async =>
@@ -111,14 +135,14 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(BottomNavigationBar),
-          matching: find.text('Inspections'),
+          matching: find.text('Properties'),
         ),
       );
       await tester.pumpAndSettle();
-      final original = tester.state(find.byType(InspectionsScreen));
+      final original = tester.state(find.byType(PropertiesScreen));
       final scrollable = tester.state<ScrollableState>(
         find.descendant(
-          of: find.byType(InspectionsScreen),
+          of: find.byType(PropertiesScreen),
           matching: find.byWidgetPredicate(
             (widget) => widget is Scrollable &&
                 axisDirectionToAxis(widget.axisDirection) == Axis.vertical,
@@ -129,7 +153,8 @@ void main() {
       await tester.pumpAndSettle();
       final scrollOffset = scrollable.position.pixels;
       expect(scrollOffset, greaterThan(0));
-      expect(api.inspectionReads, 2);
+      expect(api.inspectionReads, 1);
+      expect(api.propertyReads, 1);
       expect(api.renewalReads, 1);
 
       tester.view.physicalSize = const Size(1024, 768);
@@ -138,9 +163,10 @@ void main() {
       final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
       expect(rail.destinations, hasLength(3));
       expect(rail.selectedIndex, 1);
-      expect(tester.state(find.byType(InspectionsScreen)), same(original));
+      expect(tester.state(find.byType(PropertiesScreen)), same(original));
       expect(scrollable.position.pixels, scrollOffset);
-      expect(api.inspectionReads, 2);
+      expect(api.inspectionReads, 1);
+      expect(api.propertyReads, 1);
       expect(api.renewalReads, 1);
       expect(tester.takeException(), isNull);
 
@@ -154,9 +180,10 @@ void main() {
             .currentIndex,
         1,
       );
-      expect(tester.state(find.byType(InspectionsScreen)), same(original));
+      expect(tester.state(find.byType(PropertiesScreen)), same(original));
       expect(scrollable.position.pixels, scrollOffset);
-      expect(api.inspectionReads, 2);
+      expect(api.inspectionReads, 1);
+      expect(api.propertyReads, 1);
       expect(api.renewalReads, 1);
       expect(tester.takeException(), isNull);
     },
@@ -183,7 +210,7 @@ void main() {
       await tester.pumpAndSettle();
       final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
       expect(rail.destinations, hasLength(2));
-      expect(find.text('Inspections'), findsNothing);
+      expect(find.text('Properties'), findsNothing);
       final first = tester.getRect(_cardWith('Property 1 at Cairnhill Rise'));
       final second = tester.getRect(_cardWith('Property 2 at Cairnhill Rise'));
       expect(first.top, second.top);
@@ -208,7 +235,7 @@ void main() {
   );
 
   testWidgets(
-    'inspections use natural-height tablet cards and fit split view',
+    'properties use natural-height tablet cards and fit split view',
     (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(1600, 1100);
@@ -222,15 +249,15 @@ void main() {
             ).copyWith(textScaler: TextScaler.linear(1.8)),
             child: child!,
           ),
-          home: InspectionsScreen(api: _WorkspaceApi()),
+          home: PropertiesScreen(api: _WorkspaceApi()),
         ),
       );
       await tester.pumpAndSettle();
       final first = tester.getRect(
-        _cardWith('Inspection 1 at a long Cairnhill Rise address'),
+        _cardWith('Property 1 at a long Cairnhill Rise address'),
       );
       final second = tester.getRect(
-        _cardWith('Inspection 2 at a long Cairnhill Rise address'),
+        _cardWith('Property 2 at a long Cairnhill Rise address'),
       );
       expect(first.top, second.top);
       expect(first.right, lessThan(second.left));
@@ -243,10 +270,10 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, -300));
       await tester.pumpAndSettle();
       final narrowFirst = tester.getRect(
-        _cardWith('Inspection 1 at a long Cairnhill Rise address'),
+        _cardWith('Property 1 at a long Cairnhill Rise address'),
       );
       final narrowSecond = tester.getRect(
-        _cardWith('Inspection 2 at a long Cairnhill Rise address'),
+        _cardWith('Property 2 at a long Cairnhill Rise address'),
       );
       expect(narrowFirst.left, narrowSecond.left);
       expect(narrowFirst.bottom, lessThan(narrowSecond.top));

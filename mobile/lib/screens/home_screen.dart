@@ -12,7 +12,7 @@ import '../ui/kivilo_theme.dart';
 import '../ui/handover_guide.dart';
 import '../ui/kivilo_illustration.dart';
 import 'inspection_screen.dart';
-import 'inspections_screen.dart';
+import 'properties_screen.dart';
 import 'new_inspection_screen.dart';
 import 'notifications_screen.dart';
 import 'report_screen.dart';
@@ -232,9 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         for (final tab in _tabs)
                           switch (tab) {
                             'inspections' => const NavigationRailDestination(
-                              icon: Icon(Icons.fact_check_outlined),
-                              selectedIcon: Icon(Icons.fact_check),
-                              label: Text('Inspections'),
+                              icon: Icon(Icons.apartment_rounded),
+                              selectedIcon: Icon(Icons.apartment_rounded),
+                              label: Text('Properties'),
                             ),
                             'account' => const NavigationRailDestination(
                               icon: Icon(Icons.person_outline),
@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: switch (_tabs[_tab]) {
-                'inspections' => InspectionsScreen(
+                'inspections' => PropertiesScreen(
                   api: _api,
                   trackView: false,
                   workspace: _workspace,
@@ -277,9 +277,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   for (final tab in _tabs)
                     switch (tab) {
                       'inspections' => const BottomNavigationBarItem(
-                        icon: Icon(Icons.fact_check_outlined),
-                        activeIcon: Icon(Icons.fact_check),
-                        label: 'Inspections',
+                        icon: Icon(Icons.apartment_rounded),
+                        activeIcon: Icon(Icons.apartment_rounded),
+                        label: 'Properties',
                       ),
                       'account' => const BottomNavigationBarItem(
                         icon: Icon(Icons.person_outline),
@@ -366,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () => _selectTab(1),
                         icon: const Icon(Icons.chevron_right, size: 18),
                         iconAlignment: IconAlignment.end,
-                        label: const Text('View inspections'),
+                        label: const Text('View properties'),
                       ),
                       if (current != null) ...[
                         const SizedBox(height: kiviloButtonGap),

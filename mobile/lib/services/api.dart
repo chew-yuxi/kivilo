@@ -6,6 +6,7 @@ import '../config.dart';
 import '../models/addenda.dart';
 import '../models/agency.dart';
 import '../models/property_history.dart';
+import '../models/property_work.dart';
 import '../models/property_settings.dart';
 import '../models/handover.dart';
 import '../models/inspection.dart';
@@ -204,6 +205,37 @@ class Api {
           (value) => InspectionSummary.fromJson(value as Map<String, dynamic>),
         )
         .toList();
+  }
+
+  /// One row per property for the Properties tab. [state] is `active`, `archived`
+  /// or `trash`.
+  Future<List<PropertyWorkItem>> propertyWork({
+    String? agencyId,
+    String? assigneeId,
+    bool personal = false,
+    String state = 'active',
+  }) async {
+    final route = Uri(
+      path: '/api/v1/property-work',
+      queryParameters: {
+        'agencyId': ?agencyId,
+        if (personal) 'personal': 'true',
+        'assigneeId': ?assigneeId,
+        if (state != 'active') 'state': state,
+      },
+    ).toString();
+    final data = await _read(route, route);
+    return (data as List<dynamic>)
+        .map((value) => PropertyWorkItem.fromJson(value as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<PropertyOverview> propertyOverview(String id) async {
+    final data = await _read(
+      '/api/v1/properties/$id/overview',
+      'property-overview:$id',
+    );
+    return PropertyOverview.fromJson(data as Map<String, dynamic>);
   }
 
   Future<List<RenewalReminder>> renewals() async {

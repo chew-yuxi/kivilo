@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/inspection.dart';
 import '../models/agency.dart';
 import '../services/workspace.dart';
 import '../ui/workspace_picker.dart';
@@ -10,36 +9,48 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_illustration.dart';
 import '../ui/kivilo_theme.dart';
+import '../models/property_work.dart';
 import 'inspection_screen.dart';
+import 'property_screen.dart';
 import 'new_inspection_screen.dart';
 import 'renewal_reminders.dart';
 import 'team_screen.dart';
 
-enum _InspectionFilter {
+/// Filters on a property's current stage. Archived and Recently deleted are separate
+/// lists the server returns on their own, so choosing one fetches it.
+enum _PropertyFilter {
   all('All'),
   inProgress('In progress'),
-  awaitingSignature('Awaiting signature'),
-  completed('Completed');
+  awaiting('Awaiting signatures'),
+  checkOutDue('Check-out due'),
+  running('Running'),
+  ended('Ended'),
+  archived('Archived', state: 'archived'),
+  trash('Recently deleted', state: 'trash');
 
-  const _InspectionFilter(this.label);
+  const _PropertyFilter(this.label, {this.state = 'active'});
   final String label;
+  final String state;
 
-  bool includes(String status) => switch (this) {
-    all => true,
+  bool includes(PropertyWorkItem property) => switch (this) {
+    all || archived || trash => true,
     inProgress => const {
-      'DRAFT',
-      'CAPTURING',
-      'PROCESSING',
-      'REVIEW',
-      'FAILED',
-    }.contains(status),
-    awaitingSignature => status == 'AWAITING_SIGNATURE',
-    completed => status == 'COMPLETED',
+      'CHECK_IN_IN_PROGRESS',
+      'CHECK_OUT_IN_PROGRESS',
+    }.contains(property.stage),
+    awaiting => const {
+      'CHECK_IN_AWAITING',
+      'CHECK_OUT_AWAITING',
+    }.contains(property.stage),
+    checkOutDue => property.stage == 'CHECK_OUT_DUE',
+    running => property.stage == 'RUNNING',
+    ended => property.stage == 'ENDED',
   };
 }
 
-class InspectionsScreen extends StatefulWidget {
-  const InspectionsScreen({
+/// One card per property, at the stage of its newest term, in the chosen workspace.
+class PropertiesScreen extends StatefulWidget {
+  const PropertiesScreen({
     super.key,
     this.api,
     this.trackView = true,
@@ -50,15 +61,15 @@ class InspectionsScreen extends StatefulWidget {
   final bool trackView;
 
   @override
-  State<InspectionsScreen> createState() => _InspectionsScreenState();
+  State<PropertiesScreen> createState() => _PropertiesScreenState();
 }
 
-class _InspectionsScreenState extends State<InspectionsScreen> {
+class _PropertiesScreenState extends State<PropertiesScreen> {
   late final _api = widget.api ?? Api();
   late final _workspace = widget.workspace ?? Workspace(_api);
-  late Future<List<InspectionSummary>> _future = _load();
+  late Future<List<PropertyWorkItem>> _future = _load();
   final _search = TextEditingController();
-  _InspectionFilter _filter = _InspectionFilter.all;
+  _PropertyFilter _filter = _PropertyFilter.all;
   int _renewalsVersion = 0;
   bool _creating = false;
   AgencySummary? get _agency => _workspace.agency;
@@ -72,7 +83,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     super.dispose();
   }
 
-  Future<List<InspectionSummary>> _load() async {
+  Future<List<PropertyWorkItem>> _load() async {
     final previous = _workspace.value;
     await _workspace.refresh();
     if (_workspace.value != previous) _assigneeId = null;
@@ -86,13 +97,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
         )) {
       _assigneeId = null;
     }
-    return _workspace.all
-        ? _api.inspections()
-        : _api.inspectionWork(
-            agencyId: agency?.id,
-            personal: _workspace.personal,
-            assigneeId: _assigneeId,
-          );
+    return _api.propertyWork(
+      agencyId: agency?.id,
+      personal: _workspace.personal,
+      assigneeId: _assigneeId,
+      state: _filter.state,
+    );
   }
 
   Future<void> _refresh() async {
@@ -171,11 +181,17 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
     }
   }
 
-  Future<void> _openInspection(String id) async {
+  Future<void> _openProperty(String id) async {
     await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)),
+      MaterialPageRoute(builder: (_) => PropertyScreen(propertyId: id, api: _api)),
     );
     if (mounted) await _refresh();
+  }
+
+  void _selectFilter(_PropertyFilter filter) {
+    final refetch = filter.state != _filter.state;
+    setState(() => _filter = filter);
+    if (refetch) _refresh();
   }
 
   @override
@@ -197,7 +213,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
       maxWidth: 1200,
       child: RefreshIndicator(
         onRefresh: _refresh,
-        child: FutureBuilder<List<InspectionSummary>>(
+        child: FutureBuilder<List<PropertyWorkItem>>(
           future: _future,
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
@@ -206,7 +222,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
             if (snapshot.hasError) {
               return KiviloMessage(
                 icon: Icons.cloud_off_outlined,
-                title: 'Could not load inspections',
+                title: 'Could not load properties',
                 body: plainError(snapshot.error!),
                 actionLabel: 'Try again',
                 onAction: _refresh,
@@ -222,17 +238,17 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
               );
             }
 
-            final inspections = snapshot.data!;
-              final query = _search.text.trim().toLowerCase().replaceAll(
-                RegExp(r'[\s_-]+'),
-                ' ',
-              );
-            final visible = inspections.where((inspection) {
+            final properties = snapshot.data!;
+            final query = _search.text.trim().toLowerCase().replaceAll(
+              RegExp(r'[\s_-]+'),
+              ' ',
+            );
+            final visible = properties.where((property) {
               final text =
-                  '${inspection.property} ${inspection.tenant} ${inspection.kindLabel}'
+                  '${property.address} ${property.tenant} ${property.stageLabel}'
                       .toLowerCase()
                       .replaceAll(RegExp(r'[\s_-]+'), ' ');
-              return _filter.includes(inspection.status) && text.contains(query);
+              return _filter.includes(property) && text.contains(query);
             }).toList();
             return LayoutBuilder(
               builder: (context, constraints) {
@@ -244,12 +260,12 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
                   children: [
                     Text(
-                      'Inspections',
+                      'Properties',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Your check-in and check-out reports, all in one place.',
+                      'Every property you work, and where each one is at.',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 16),
@@ -322,7 +338,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                       ),
                     ],
                     const SizedBox(height: 16),
-                    if (inspections.isEmpty)
+                    if (properties.isEmpty && _filter.state == 'active')
                       _messageCard()
                     else ...[
                       TextField(
@@ -331,8 +347,8 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         textInputAction: TextInputAction.search,
                         onSubmitted: (_) => FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
-                          labelText: 'Search inspections',
-                          hintText: 'Property, tenant or check-in / check-out',
+                          labelText: 'Search properties',
+                          hintText: 'Address, tenant or stage',
                           suffixIcon: _search.text.isEmpty
                               ? null
                               : IconButton(
@@ -349,13 +365,17 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                         child: Row(
                         spacing: 8,
                         children: [
-                          for (final filter in _InspectionFilter.values)
+                          for (final filter in _PropertyFilter.values)
                             ChoiceChip(
                               label: Text(
-                                '${filter.label} · ${inspections.where((inspection) => filter.includes(inspection.status)).length}',
+                                // Counts describe the list on screen; Archived and
+                                // Recently deleted are fetched when chosen.
+                                filter.state != 'active' || _filter.state != 'active'
+                                    ? filter.label
+                                    : '${filter.label} · ${properties.where(filter.includes).length}',
                               ),
                               selected: _filter == filter,
-                              onSelected: (_) => setState(() => _filter = filter),
+                              onSelected: (_) => _selectFilter(filter),
                               selectedColor: KiviloColors.ink,
                               backgroundColor: Colors.white,
                               checkmarkColor: Colors.white,
@@ -376,8 +396,8 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        '${visible.length} ${visible.length == 1 ? 'report' : 'reports'}'
-                        '${query.isNotEmpty || _filter != _InspectionFilter.all ? ' found' : ''}',
+                        '${visible.length} ${visible.length == 1 ? 'property' : 'properties'}'
+                        '${query.isNotEmpty || _filter != _PropertyFilter.all ? ' found' : ''}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 8),
@@ -394,7 +414,11 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  'No matching inspections',
+                                  _filter == _PropertyFilter.trash
+                                      ? 'Nothing in Recently deleted'
+                                      : _filter == _PropertyFilter.archived
+                                      ? 'No archived properties'
+                                      : 'No matching properties',
                                   textAlign: TextAlign.center,
                                     style: Theme.of(
                                       context,
@@ -402,18 +426,18 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(
-                                  'Try another property or tenant, or change your filters.',
+                                  'Try another address or tenant, or change your filters.',
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 12),
                                 SizedBox(
                                   width: double.infinity,
                                   child: TextButton(
-                                    onPressed: () => setState(() {
+                                    onPressed: () {
                                       _search.clear();
-                                      _filter = _InspectionFilter.all;
-                                    }),
-                                    child: const Text('Show all inspections'),
+                                      _selectFilter(_PropertyFilter.all);
+                                    },
+                                    child: const Text('Show all properties'),
                                   ),
                                 ),
                               ],
@@ -425,10 +449,10 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
                           spacing: 16,
                           runSpacing: 16,
                           children: [
-                            for (final inspection in visible)
+                            for (final property in visible)
                               SizedBox(
                                 width: cardWidth,
-                                child: _inspectionCard(inspection),
+                                child: _propertyCard(property),
                               ),
                           ],
                         ),
@@ -444,78 +468,48 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
   ),
   );
 
-  Widget _inspectionCard(InspectionSummary inspection) => Card(
+  Widget _propertyCard(PropertyWorkItem property) => Card(
     child: InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => _openInspection(inspection.id),
+      onTap: () => _openProperty(property.id),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: KiviloColors.canvas,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                inspection.kind == 'CHECK_IN'
-                    ? Icons.login_outlined
-                    : Icons.logout_outlined,
-                size: 21,
-                color: KiviloColors.body,
-              ),
-            ),
-            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    inspection.kindLabel,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    inspection.property,
+                    property.address,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    inspection.tenant,
+                    '${property.tenant} · ${property.agencyName ?? 'Personal'}',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  if (inspection.leadAgent != null) ...[
-                    const SizedBox(height: 6),
+                  if (property.leadAgentName != null) ...[
+                    const SizedBox(height: 4),
                     Text(
-                      'Responsible: ${inspection.leadAgent!['name']}',
+                      'Responsible: ${property.leadAgentName}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      KiviloStatusPill(status: inspection.status),
-                      Text(
-                        '${inspection.rooms} ${inspection.rooms == 1 ? 'room' : 'rooms'}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
+                  const SizedBox(height: 12),
+                  PropertyStagePill(
+                    stage: property.stage,
+                    label: property.state == 'TRASHED'
+                        ? 'Recently deleted'
+                        : property.state == 'ARCHIVED'
+                        ? 'Archived · ${property.stageLabel}'
+                        : property.stageLabel,
                   ),
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: Icon(Icons.chevron_right, color: KiviloColors.subtle),
-            ),
+            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
           ],
         ),
       ),
@@ -534,7 +528,7 @@ class _InspectionsScreenState extends State<InspectionsScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'No inspections yet',
+            'No properties yet',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 4),

@@ -8,7 +8,8 @@ import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/models/property_settings.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/models/tenancy_access.dart';
-import 'package:kivilo/screens/inspections_screen.dart';
+import 'package:kivilo/models/property_work.dart';
+import 'package:kivilo/screens/properties_screen.dart';
 import 'package:kivilo/screens/property_settings_screen.dart';
 import 'package:kivilo/screens/team_screen.dart';
 import 'package:kivilo/screens/tenancy_access_screen.dart';
@@ -217,6 +218,39 @@ class _ManagementApi extends Api {
 
   @override
   Future<List<InspectionSummary>> inspections() async => personalReports;
+
+  Completer<List<PropertyWorkItem>>? trashPending;
+
+  /// The Properties tab reads one row per property; this fake derives them from the
+  /// same inspection data and scoping the tests already describe.
+  @override
+  Future<List<PropertyWorkItem>> propertyWork({
+    String? agencyId,
+    String? assigneeId,
+    bool personal = false,
+    String state = 'active',
+  }) async {
+    if (state == 'trash' && trashPending != null) return trashPending!.future;
+    final rows = agencyId == null && !personal
+        ? await inspections()
+        : await inspectionWork(
+            agencyId: agencyId,
+            assigneeId: assigneeId,
+            personal: personal,
+          );
+    return [
+      for (final row in rows)
+        PropertyWorkItem(
+          id: row.id,
+          address: row.property,
+          state: 'ACTIVE',
+          tenant: row.tenant,
+          stage: 'CHECK_IN_IN_PROGRESS',
+          stageLabel: 'Check-in in progress',
+          reports: 1,
+        ),
+    ];
+  }
   @override
   Future<List<InspectionSummary>> inspectionWork({
     String? agencyId,
@@ -508,7 +542,7 @@ void main() {
     'team work fetches server-scoped data and applies assignee filters',
     (tester) async {
       final api = _ManagementApi()..preferredWorkspace = 'team';
-      await _open(tester, InspectionsScreen(api: api));
+      await _open(tester, PropertiesScreen(api: api));
       expect(api.queries, [('team', null)]);
       await tester.tap(find.byType(KiviloSelectField<String?>));
       await tester.pumpAndSettle();
@@ -618,7 +652,7 @@ void main() {
       final api = _ManagementApi()
         ..preferredWorkspace = 'team'
         ..workFailure = const ApiFailure('Team access was removed.', 404);
-      await _open(tester, InspectionsScreen(api: api));
+      await _open(tester, PropertiesScreen(api: api));
       expect(find.text('Team access was removed.'), findsOneWidget);
       await tester.tap(find.text('Show all properties'));
       await tester.pumpAndSettle();
@@ -645,7 +679,7 @@ void main() {
           ),
         ]
         ..workPending = Completer<List<InspectionSummary>>();
-      await _open(tester, InspectionsScreen(api: api));
+      await _open(tester, PropertiesScreen(api: api));
       expect(find.text('Personal home'), findsOneWidget);
       await tester.tap(find.byType(KiviloSelectField<String>));
       await tester.pumpAndSettle();
@@ -698,19 +732,30 @@ void main() {
   }
 
   testWidgets(
-    'switching to Trash hides active rows while its scoped list loads',
+    'switching to Recently deleted hides active rows while its list loads',
     (tester) async {
       final api = _ManagementApi()
-        ..propertiesPending = Completer<List<PropertyEntry>>();
+        ..personalReports = const [
+          InspectionSummary(
+            id: 'green',
+            kind: 'CHECK_IN',
+            status: 'DRAFT',
+            property: '12 Green Road',
+            tenant: 'Tenant',
+            rooms: 0,
+          ),
+        ]
+        ..trashPending = Completer<List<PropertyWorkItem>>();
       await _open(tester, PropertiesScreen(api: api));
       expect(find.text('12 Green Road'), findsOneWidget);
-      await tester.tap(find.text('Trash'));
+      await tester.ensureVisible(find.text('Recently deleted'));
+      await tester.tap(find.text('Recently deleted'));
       await tester.pump();
       expect(find.text('12 Green Road'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      api.propertiesPending!.complete(const []);
+      api.trashPending!.complete(const []);
       await tester.pumpAndSettle();
-      expect(find.text('Trash is empty.'), findsOneWidget);
+      expect(find.text('Nothing in Recently deleted'), findsOneWidget);
     },
   );
 
