@@ -12,6 +12,28 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Properties tab: 23 October 2026 Singapore time
+
+Source `dc497bb`. Backend first: `GET /api/v1/property-work` and
+`GET /api/v1/properties/[id]/overview`, live on production (`dpl_CewShWquderzvMiDMG5jYJ8F39Qz`,
+`sin1`), no migration. `GET /api/v1/inspections` is unchanged for released builds.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **12** / `743040` | **stable**, active and latest |
+| iOS `1.0.0+24` | **13** / `743044` | **stable**, active and latest |
+
+The Inspections tab became Properties: one card per property at the stage of its newest
+term, stage filters plus Archived and Recently deleted (Account → Properties removed),
+and a property page with every term's reports, repairs, timeline, history and settings.
+`/inspections` notification links open the tab. Set to stable at **14:04 Singapore
+time** on Yuxi's "ship it". 361 mobile tests, 249 integration, 107 unit, typecheck, lint
+and build passed. The icon set matches the shipped build (the filled `fact_check` icon
+moved from the old tab to completed reports, keeping the font byte-identical); iOS
+strict code-sign passed, 65.8% shared Dart code. Rollback: Android **11** (`742989`),
+iOS **12** (`742999`). Receipt: `build/release-20261023-properties/stable-release.json`.
+Not yet seen on a device. The web version is the next phase.
+
 ## Property history, full-width buttons and one visual system: 23 October 2026 Singapore time
 
 Sources `2091c08` (property history and the 30-day bin), `61667e6` (full-width buttons,
