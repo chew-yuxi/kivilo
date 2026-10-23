@@ -12,6 +12,27 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Property history, full-width buttons and one visual system: 23 October 2026 Singapore time
+
+Sources `2091c08` (property history and the 30-day bin), `61667e6` (full-width buttons,
+one button gap, tighter Inspections and Home) and `45868f7` (shared padding, section
+spacing, titles, notices, load-error and empty messages, delete styles, palette and
+wording). Backend live first: production migration `20261023120000_property_history`
+applied, then main deployed in `sin1`.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **11** / `742989` | **stable**, active and latest |
+| iOS `1.0.0+24` | **12** / `742999` | **stable**, active and latest |
+
+Set to stable at **13:40 Singapore time** on Yuxi's "ship the history together with
+the consistency pass". Staging patches Android 9/10 and iOS 10/11 were superseded and
+never promoted. Checks: 359 mobile tests and clean analysis; 107 unit, 245 integration
+and the browser suite with the new history and locked-action tests. Assets and icon
+font match the release; iOS strict code-sign passed, 66.0% shared Dart code with the
+usual warning. Rollback: Android **8** (`742648`), iOS **9** (`742654`). Receipt:
+`build/release-20261023-consistency/stable-release.json`. Not yet seen on a device.
+
 ## Workspace defaults and tidier controls: 23 October 2026 Singapore time
 
 Source `cadea8f`, live on production (Vercel `dpl_HS3amzmwGhTZhNHvumUbi4tDZ4BQ`,
