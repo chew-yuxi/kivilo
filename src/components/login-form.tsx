@@ -3,11 +3,13 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase/client'
+import { messages, type Locale } from '@/lib/i18n'
 
 /// A six digit code rather than a magic link. A link opens the phone's default browser,
 /// which for an installed PWA means the agent lands in Safari instead of the app they
 /// were just using, with no session in the app itself. A code keeps them where they are.
-export function LoginForm() {
+export function LoginForm({ locale = 'en' }: { locale?: Locale }) {
+  const words = messages(locale).web.login
   const params = useSearchParams()
   const next = params.get('next') || '/inspections'
 
@@ -44,7 +46,7 @@ export function LoginForm() {
     })
     if (error) {
       setBusy(false)
-      return setError('That code is not right, or it has expired. Check the email or request a new one.')
+      return setError(words.wrongCode)
     }
 
     // Deliberately stay busy, and leave with a full page load rather than the router.
@@ -68,7 +70,7 @@ export function LoginForm() {
   return (
     <form onSubmit={stage === 'email' ? sendCode : verify} className="mt-8 space-y-4">
       <label className="block text-xs font-medium text-gray-600">
-        Email
+        {words.email}
         <input
           type="email"
           required
@@ -81,15 +83,12 @@ export function LoginForm() {
       </label>
 
       {stage === 'code' && (
-        <p className="text-sm text-gray-500">
-          Sent to <span className="font-medium text-gray-700">{email}</span>. It can take a
-          minute; check spam if it does not arrive.
-        </p>
+        <p className="text-sm text-gray-500">{words.sentTo(email)}</p>
       )}
 
       {stage === 'code' && (
         <label className="block text-xs font-medium text-gray-600">
-          Six digit code
+          {words.code}
           <input
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -108,7 +107,7 @@ export function LoginForm() {
         disabled={busy}
         className="w-full rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
       >
-        {busy ? 'Working…' : stage === 'email' ? 'Email me a code' : 'Sign in'}
+        {busy ? words.working : stage === 'email' ? words.emailCode : words.signIn}
       </button>
 
       {stage === 'code' && (
@@ -121,7 +120,7 @@ export function LoginForm() {
           }}
           className="action-secondary w-full"
         >
-          Use a different email
+          {words.differentEmail}
         </button>
       )}
     </form>

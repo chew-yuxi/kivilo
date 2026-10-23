@@ -11,12 +11,16 @@ import { SignatureCanvas } from '@/components/signature-pad'
 import { SignOut } from '@/components/sign-out'
 import { DepositStatementAnswer } from '@/components/deposit-statement-answer'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
+import { formatDate, messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Review and sign',
-  robots: { index: false, follow: false, nocache: true },
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: messages(await requestLocale(await currentStakeholder())).web.sign.pageTitle,
+    robots: { index: false, follow: false, nocache: true },
+  }
 }
 
 /// Where the "please review and sign" email lands. The link is not a credential: it
@@ -32,21 +36,21 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
 
   const signer = await currentStakeholder()
   if (!signer) redirect(login)
+  const locale = await requestLocale(signer)
+  const m = messages(locale)
+  const words = m.web.sign
 
   const role = await signingRole(inspectionId, signer.id)
   // Someone else's report, one not yet sent, and one that never existed all read the
   // same, so the page cannot be used to find out which ids are real.
   if (!role) {
     return (
-      <div className="mx-auto max-w-md px-6 py-24 text-center">
+      <div lang={locale} className="mx-auto max-w-md px-6 py-24 text-center">
         <Brand />
-        <h1 className="mt-6 text-lg font-semibold">Nothing to sign here</h1>
-        <p className="mt-2 text-sm text-gray-600">
-          There is no report waiting for {signer.email ?? 'this account'}. If the email was
-          sent to a different address, sign out and sign in with that one.
-        </p>
+        <h1 className="mt-6 text-lg font-semibold">{words.nothingTitle}</h1>
+        <p className="mt-2 text-sm text-gray-600">{words.nothingBody(signer.email ?? words.thisAccount)}</p>
         <div className="mt-6 flex justify-center">
-          <SignOut email={null} then={login} />
+          <SignOut email={null} then={login} locale={locale} />
         </div>
       </div>
     )
@@ -60,8 +64,8 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
   const mine = inspection.signatures.find((signature) => signature.stakeholderId === signer.id)
   const other = role === 'LANDLORD' ? tenancy.tenant : tenancy.landlord
   const awaitingMe = inspection.status === 'AWAITING_SIGNATURE' && !mine
-  const kind = inspection.kind === 'CHECK_OUT' ? 'check-out' : 'check-in'
-  const roleLabel = role === 'LANDLORD' ? 'landlord' : 'tenant'
+  const kind = m.web.kind[inspection.kind]
+  const roleLabel = m.web.role[role]
   // The latest published assessment's deposit statement, while this party has not
   // answered it. Only a completed check-out has one.
   const published = inspection.status === 'COMPLETED' ? inspection.assessments[0] : undefined
@@ -74,48 +78,45 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
 
   return (
     <div className="mx-auto max-w-3xl">
+      <div lang={locale} className="contents">
       <header className="flex items-center justify-between gap-4 px-5 pt-5 sm:px-10 print:hidden">
         <Brand />
         <div className="flex items-center gap-3 text-xs text-gray-500">
-          <span className="truncate">Signed in as {signer.email ?? signer.name}</span>
-          <SignOut email={null} then={login} />
+          <span className="truncate">{m.web.signedInAs(signer.email ?? signer.name)}</span>
+          <SignOut email={null} then={login} locale={locale} />
         </div>
       </header>
 
       <div className="mx-5 mt-5 rounded-lg border px-4 py-3 text-sm sm:mx-10 print:hidden">
         {awaitingMe && (
           <p>
-            <span className="font-medium">Awaiting your signature.</span> This {kind} report
-            has been sent to you to sign as {roleLabel}. Read it through, then sign at the end.
+            <span className="font-medium">{words.awaitingLead}</span> {words.awaitingBody(kind, roleLabel)}
           </p>
         )}
         {inspection.status === 'AWAITING_SIGNATURE' && mine && (
           <p>
-            <span className="font-medium">You signed</span> on{' '}
-            {mine.signedAt.toLocaleString('en-SG')}. Waiting for {other.name} to sign; once
-            they have, we will email you the signed report as a PDF.
+            <span className="font-medium">{words.signedLead}</span>{' '}
+            {words.signedBody(formatDate(m, mine.signedAt, { dateStyle: 'medium', timeStyle: 'short' }), other.name)}
           </p>
         )}
         {statementToAnswer && (
           <p className="mb-2">
-            <span className="font-medium">A deposit statement awaits your answer.</span> Read the
-            check-out assessment below, then agree or dispute the deductions at the end.
+            <span className="font-medium">{words.statementLead}</span> {words.statementBody}
           </p>
         )}
         {inspection.status === 'COMPLETED' && (
           <p>
-            <span className="font-medium">Completed.</span> Both parties have signed this
-            report{signer.email ? ', and the signed PDF has been emailed to you' : ''}. You
-            can also download it here.
+            <span className="font-medium">{words.completedLead}</span> {words.completedBody(Boolean(signer.email))}
           </p>
         )}
       </div>
 
       {role === 'TENANT' && mine && inspection.kind === 'CHECK_IN' && (
         <p className="mx-5 mt-4 text-sm sm:mx-10 print:hidden">
-          <Link href={`/handover/${inspectionId}`} className="font-medium text-brand-700 underline">Your handover and move-in defect deadline</Link>
+          <Link href={`/handover/${inspectionId}`} className="font-medium text-brand-700 underline">{words.handoverLink}</Link>
         </p>
       )}
+      </div>
 
       <ReportDocument
         inspection={inspection}
@@ -123,20 +124,19 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
       />
 
       {statementToAnswer && (
-        <section className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Your answer to the deposit statement</h2>
-          <DepositStatementAnswer inspectionId={inspectionId} version={statementToAnswer.version} />
+        <section lang={locale} className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{words.answerHeading}</h2>
+          <DepositStatementAnswer inspectionId={inspectionId} version={statementToAnswer.version} locale={locale} />
         </section>
       )}
 
       {awaitingMe && (
-        <section className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Your signature</h2>
+        <section lang={locale} className="space-y-3 px-5 pb-12 sm:px-10 print:hidden">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{words.signatureHeading}</h2>
           <p className="text-sm text-gray-600">
-            By signing you agree that this report records the property as it was inspected.
-            Your signature records the report&apos;s content fingerprint,{' '}
-            <span className="font-mono">{shortFingerprint(await reportFingerprint(db, inspectionId))}</span>,
-            so any later copy can be checked against what you signed.
+            {words.agreementBefore}{' '}
+            <span className="font-mono">{shortFingerprint(await reportFingerprint(db, inspectionId))}</span>
+            {words.agreementAfter}
           </p>
           <SignatureCanvas
             label={
@@ -145,6 +145,7 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
               </>
             }
             onSign={signOwnReport.bind(null, inspectionId)}
+            locale={locale}
           />
         </section>
       )}

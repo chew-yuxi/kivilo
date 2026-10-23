@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 import { db } from '@/lib/db'
 import { supabaseServer } from '@/lib/supabase/server'
 import { Prisma, type Stakeholder } from '@/generated/prisma'
+import { acceptedLocale } from '@/lib/i18n'
 
 /// This module is the authorization boundary. The proxy does an optimistic redirect so
 /// signed-out visitors are not shown a loading shell, but it is not a security control:
@@ -32,7 +33,12 @@ export const currentStakeholder = cache(async (): Promise<Stakeholder | null> =>
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return null
-  return resolveAgent(user)
+  const person = await resolveAgent(user)
+  // Someone who has only used the web never chose a language; their browser's stands in
+  // until they do, so the emails that follow are in it too. The app reports its own.
+  if (person.locale) return person
+  const locale = acceptedLocale((await headers()).get('accept-language'))
+  return locale ? db.stakeholder.update({ where: { id: person.id }, data: { locale } }) : person
 })
 
 /// The same boundary reached by a different transport. A native client holds an access

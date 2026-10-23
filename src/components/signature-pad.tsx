@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from 'react'
 import { signInspection } from '@/lib/actions'
 import { useUploadQueue } from '@/components/upload-queue'
 import { listPending } from '@/lib/offline-queue'
+import { messages, type Locale } from '@/lib/i18n'
 
 /// A party signing on the agent's phone, at the handover.
 export function SignaturePad({
@@ -65,12 +66,15 @@ export function SignatureCanvas({
   blocked = false,
   note = null,
   onSign,
+  locale = 'en',
 }: {
   label: React.ReactNode
   blocked?: boolean
   note?: string | null
   onSign: (imageData: string) => Promise<void>
+  locale?: Locale
 }) {
+  const words = messages(locale).web.signature
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const drawing = useRef(false)
   const [hasInk, setHasInk] = useState(false)
@@ -138,7 +142,7 @@ export function SignatureCanvas({
       />
       <div className="mt-3 flex items-center justify-between">
         <button type="button" onClick={clear} className="action-secondary px-3 text-xs">
-          Clear
+          {words.clear}
         </button>
         <button
           type="button"
@@ -146,7 +150,7 @@ export function SignatureCanvas({
           onClick={sign}
           className="rounded-md bg-brand-500 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-40"
         >
-          Sign
+          {words.sign}
         </button>
       </div>
       {(error || note) && <p className="mt-2 text-xs text-amber-800">{error ?? note}</p>}
