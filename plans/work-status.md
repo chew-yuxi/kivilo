@@ -5,8 +5,10 @@ workspaces, source `8570e7fefb44c46cf03bf6beca2aff85b9dcf943`, are pushed and li
 production (Vercel `dpl_ETzguj25AxuvyCBZS8oPdDiM9bPx`, `sin1`) after both production
 migrations, and on stable as Android25 patch **6** / `741645` and iOS24 patch **7** /
 `741655` (`mobile/RELEASE.md`, `build/release-20261022-team/stable-release.json`).
-Physical-device delivery and all rehearsal checks remain **NOT RUN**; a published
-patch is not evidence of delivery.
+On 23 October the Kivilo picker fix (`b7cb3ff`) followed as Android25 patch **7** /
+`741797` and iOS24 patch **8** / `741807` (`build/release-20261023-pickers/`). Yuxi's
+phone showed the Team screen from the earlier patch; the picker fix and every other
+rehearsal check are **NOT RUN** on a device.
 
 ## Team-first workspaces — 22 October follow-up
 

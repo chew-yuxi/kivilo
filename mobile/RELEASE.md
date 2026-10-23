@@ -12,6 +12,28 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Kivilo pickers in place of Material dropdowns: 23 October 2026 Singapore time
+
+Source `b7cb3ff`, Dart only; no backend, migration, plugin or asset change.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **7** / `741797` | **stable**, active and latest |
+| iOS `1.0.0+24` | **8** / `741807` | **stable**, active and latest |
+
+Yuxi found the invite drawer's Role menu floating unstyled above the drawer: Material's
+dropdown places its menu once, from where the field was before the keyboard closed.
+All eight team-era dropdowns now use `KiviloSegmentedControl` (roles) or
+`KiviloSelectField` (lists), and `test/no_platform_menus_test.dart` fails on any
+Material dropdown or popup menu. Clean analysis and all **356 mobile tests** passed.
+Built from pinned worktrees, staging first, set to stable on Yuxi's "ship it" at
+**09:14 Singapore time**. Both bundles keep the release's ten assets and icon font;
+iOS strict code-sign passed, 66.0% shared Dart code with the usual warning.
+Rollback: Android patch **6** (`741645`), iOS patch **7** (`741655`). Receipt:
+`build/release-20261023-pickers/stable-release.json`. The patch reaching Yuxi's phone
+(patch 6 / 7) was confirmed by a screenshot of the new Team screen; this fix itself is not yet
+seen on a device.
+
 ## Teams, property management and team workspaces: 22 October 2026 Singapore time
 
 Source `8570e7fefb44c46cf03bf6beca2aff85b9dcf943` (team management `a327c95` plus
