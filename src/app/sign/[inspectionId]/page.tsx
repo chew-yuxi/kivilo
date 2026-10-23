@@ -117,6 +117,11 @@ export default async function SignPage({ params, searchParams }: PageProps<'/sig
         </p>
       )}
 
+      <p className="mx-5 mt-4 text-sm sm:mx-10 print:hidden">
+        <Link href={`/tenancies/${tenancy.id}/documents`} className="font-medium text-brand-700 underline">Documents</Link>
+        <span className="ml-2 text-gray-500">Tenancy agreement and other private files</span>
+      </p>
+
       <ReportDocument
         inspection={inspection}
         pdfHref={inspection.status === 'COMPLETED' ? `${here}/pdf` : null}

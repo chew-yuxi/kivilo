@@ -9,6 +9,7 @@ import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-
 import { tenancyAccess } from '@/lib/tenancy-access'
 import { lockAgencyTenancy } from '@/lib/agency'
 import { fieldChanges, recordEvent, tenancyPlace } from '@/lib/property-history'
+import { tenancyMaintenanceTerms } from '@/lib/supporting-documents'
 
 const category = z.enum([
   'APPLIANCE', 'PLUMBING', 'LOCKSMITH', 'ELECTRICAL',
@@ -346,6 +347,7 @@ export async function tenancyDetail(tenancyId: string, stakeholderId: string) {
     startDate: tenancy.startDate.toISOString(),
     endDate: tenancy.endDate.toISOString(),
     minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
+    maintenanceTerms: await tenancyMaintenanceTerms(tenancy),
     agentMayAgreeCosts: tenancy.agentMayAgreeCosts,
     moveInDefects,
     access: role === 'AGENT' ? await tenancyAccess(tenancyId, stakeholderId) : null,
@@ -448,6 +450,7 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     responsibility: {
       arrangedBy: repair.arrangedBy,
       minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
+      maintenanceTerms: await tenancyMaintenanceTerms(tenancy),
       agreement,
       pending,
       history: proposals,
@@ -824,7 +827,11 @@ export async function updateTenancyTerms(tenancyId: string, stakeholderId: strin
   if (input.defectWindowDays !== undefined && !canManage(role)) throw new Error('Tenancy not found')
   await db.$transaction(async (tx) => {
     await lockAgencyTenancy(tenancyId, tx)
-    if (!await tx.tenancy.findFirst({ where: { id: tenancyId, AND: [tenancyScope(stakeholderId)] }, select: { id: true } })) throw new Error('Tenancy not found')
+    const current = await tx.tenancy.findFirst({
+      where: { id: tenancyId, AND: [tenancyScope(stakeholderId)] },
+      select: { id: true, minorRepairCap: true, agentMayAgreeCosts: true, defectWindowDays: true },
+    })
+    if (!current) throw new Error('Tenancy not found')
     if (input.defectWindowDays !== undefined) {
       await tx.$queryRaw`SELECT "id" FROM "Inspection" WHERE "tenancyId" = ${tenancyId} AND "kind" = 'CHECK_IN' ORDER BY "id" FOR UPDATE`
       const tenancy = await tx.tenancy.findUniqueOrThrow({ where: { id: tenancyId }, select: { tenantId: true, defectWindowDays: true } })
@@ -836,11 +843,13 @@ export async function updateTenancyTerms(tenancyId: string, stakeholderId: strin
         throw new Error('The move-in defect window is fixed after the tenant signs')
       }
     }
-    const before = await tx.tenancy.findUniqueOrThrow({
-      where: { id: tenancyId }, select: { minorRepairCap: true, agentMayAgreeCosts: true, defectWindowDays: true },
-    })
-    await tx.tenancy.update({ where: { id: tenancyId }, data: input })
-    const changes = fieldChanges(before, input, {
+    await tx.tenancy.update({ where: { id: tenancyId }, data: {
+      ...input,
+      ...(input.minorRepairCap !== undefined && (input.minorRepairCap === null
+        ? current.minorRepairCap !== null
+        : !current.minorRepairCap?.equals(input.minorRepairCap)) ? { minorRepairClause: Prisma.DbNull } : {}),
+    } })
+    const changes = fieldChanges(current, input, {
       minorRepairCap: 'Minor repair cap', agentMayAgreeCosts: 'Agent may agree costs', defectWindowDays: 'Defect window (days)',
     })
     if (changes.length) {

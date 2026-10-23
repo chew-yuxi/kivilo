@@ -66,6 +66,8 @@ model Stakeholder {
   addendumAcknowledgements AddendumAcknowledgement[]
   findingPhotoDrafts FindingPhotoDraft[]
   assessmentResponses AssessmentResponse[]
+  supportingDocumentRequests SupportingDocumentRequest[]
+  supportingDocumentFiles SupportingDocumentFile[]
   /// The plan of an agent who is on no team. An agent on a team uses the team's.
   subscription         Subscription?  @relation("OwnSubscription")
   subscriptionsManaged Subscription[] @relation("ManagedSubscriptions")
@@ -286,6 +288,8 @@ model Tenancy {
   /// Tenant pays up to this per repair, landlord the rest. Only prefills a cost
   /// proposal; the tenant still accepts or rejects every one.
   minorRepairCap     Decimal? @db.Decimal(10, 2)
+  /// Human-confirmed clause and source agreement. The cap remains a proposal default.
+  minorRepairClause Json?
   /// Whether the agent may accept or reject a tenant's cost proposal for the landlord.
   /// Only the landlord can change it.
   agentMayAgreeCosts Boolean  @default(true)
@@ -310,6 +314,7 @@ model Tenancy {
   collaborators TenancyCollaborator[]
   notifications Notification[]
   maintenanceCases MaintenanceCase[]
+  supportingDocumentRequests SupportingDocumentRequest[]
   renewedFrom Tenancy? @relation("TenancyRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
   renewedAs Tenancy? @relation("TenancyRenewal")
 
@@ -846,6 +851,8 @@ model ServiceProvider {
 }
 
 enum NotificationKind {
+  SUPPORTING_DOCUMENT_REQUESTED
+  SUPPORTING_DOCUMENT_UPLOADED
   AGENCY_INVITATION
   PROPERTY_SHARED
   MAINTENANCE_REPORTED
@@ -857,6 +864,50 @@ enum NotificationKind {
   /// An addendum to a signed report was published and waits for this party.
   REPORT_UPDATED
   RENEWAL_DUE
+}
+
+/// Optional private tenancy paperwork, separate from the signed condition report.
+enum SupportingDocumentKind {
+  SUPPORTING
+  TENANCY_AGREEMENT
+}
+
+model SupportingDocumentRequest {
+  id String @id @default(cuid())
+  tenancyId String
+  clientId String
+  title String
+  kind SupportingDocumentKind @default(SUPPORTING)
+  requestedById String
+  requestedAt DateTime @default(now())
+
+  tenancy Tenancy @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  requestedBy Stakeholder @relation(fields: [requestedById], references: [id])
+  files SupportingDocumentFile[]
+
+  @@unique([tenancyId, clientId])
+  @@index([requestedById])
+}
+
+/// Created before issuing an upload URL. Pending rows preserve immutable upload
+/// ownership and the cleanup path; only verified storage bytes set submittedAt.
+model SupportingDocumentFile {
+  id String @id @default(cuid())
+  requestId String
+  clientId String @unique
+  storagePath String @unique
+  fileName String
+  mimeType String
+  byteSize Int
+  submittedById String
+  createdAt DateTime @default(now())
+  submittedAt DateTime?
+
+  request SupportingDocumentRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  submittedBy Stakeholder @relation(fields: [submittedById], references: [id])
+
+  @@index([requestId, submittedAt])
+  @@index([submittedById])
 }
 
 enum DevicePlatform {

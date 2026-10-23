@@ -187,6 +187,14 @@ export function tenancyScope(stakeholderId: string, now = new Date()): Prisma.Te
   }
 }
 
+/// Private supporting paperwork stays with the tenancy, including ended terms.
+/// An old inspection grant grants no access to these separately submitted files.
+export function supportingDocumentTenancies(stakeholderId: string): Prisma.TenancyWhereInput {
+  return { property: { trashedAt: null }, OR: [
+    { landlordId: stakeholderId }, { tenantId: stakeholderId }, actsAsAgent(stakeholderId),
+  ] }
+}
+
 export async function authorizeTenancy(tenancyId: string, stakeholderId: string) {
   const tenancy = await db.tenancy.findFirst({
     where: { AND: [{ id: tenancyId }, tenancyScope(stakeholderId)] },
@@ -226,10 +234,11 @@ export function notificationScope(stakeholderId: string): Prisma.NotificationWhe
       { kind: 'AGENCY_INVITATION', agencyMembership: { stakeholderId, status: 'INVITED', expiresAt: { gt: new Date() } } },
       { kind: 'PROPERTY_SHARED', tenancy: actsAsAgent(stakeholderId) },
       { kind: 'RENEWAL_DUE', tenancy: leadTenancies(stakeholderId) },
+      { kind: { in: ['SUPPORTING_DOCUMENT_REQUESTED', 'SUPPORTING_DOCUMENT_UPLOADED'] }, tenancy: supportingDocumentTenancies(stakeholderId) },
       { kind: 'REPORT_UPDATED', tenancy: { OR: [
         { landlordId: stakeholderId }, { tenantId: stakeholderId }, actsAsAgent(stakeholderId),
       ] } },
-      { kind: { notIn: ['PROPERTY_SHARED', 'RENEWAL_DUE', 'REPORT_UPDATED'] }, tenancy: tenancyScope(stakeholderId) },
+      { kind: { notIn: ['PROPERTY_SHARED', 'RENEWAL_DUE', 'REPORT_UPDATED', 'SUPPORTING_DOCUMENT_REQUESTED', 'SUPPORTING_DOCUMENT_UPLOADED'] }, tenancy: tenancyScope(stakeholderId) },
     ],
   }
 }

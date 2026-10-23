@@ -1,10 +1,13 @@
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/maintenance.dart';
 import '../services/api.dart';
+import '../services/capture_backend.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 
@@ -55,6 +58,13 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
   }
 
   Future<void> _pickLogo() async {
+    final root = await getApplicationSupportDirectory();
+    if (await File('${root.path}/$supportingDocumentPickerFilename').exists()) {
+      if (mounted) {
+        setState(() => _error = 'Reopen Supporting documents to recover the previous photo before choosing a logo.');
+      }
+      return;
+    }
     // Downscaled on the phone so a camera-roll image fits the 1 MB the server accepts.
     final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,

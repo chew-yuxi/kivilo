@@ -42,6 +42,10 @@ export async function proxy(request: NextRequest) {
     if (workspace && ['/inspections', '/inspections/new'].includes(destination.pathname)) {
       destination.searchParams.set('workspace', workspace)
     }
+    const documentRequest = request.nextUrl.searchParams.get('requestId')
+    if (documentRequest && /^\/tenancies\/[^/]+\/documents$/.test(destination.pathname)) {
+      destination.searchParams.set('requestId', documentRequest)
+    }
     login.searchParams.set('next', destination.pathname + destination.search)
     // A signing link names the address it was sent to; carry it so the form is filled.
     const email = request.nextUrl.searchParams.get('email')
@@ -57,5 +61,5 @@ export const config = {
   /// signing a report, opening their handover and acknowledging an update to it. Those need the same session
   /// refresh and the same redirect when signed out. Shared reports are deliberately
   /// outside it: the token in the URL is the credential there.
-  matcher: ['/inspections/:path*', '/renewals/:path*', '/team/:path*', '/properties/:path*', '/account', '/admin', '/sign/:path*', '/updates/:path*', '/handover/:path*'],
+  matcher: ['/inspections/:path*', '/renewals/:path*', '/team/:path*', '/properties/:path*', '/tenancies/:path*', '/account', '/admin', '/sign/:path*', '/updates/:path*', '/handover/:path*'],
 }

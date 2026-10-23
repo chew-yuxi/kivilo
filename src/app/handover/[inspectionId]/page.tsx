@@ -81,6 +81,10 @@ export default async function HandoverPage({ params, searchParams }: PageProps<'
             : 'You have signed. The landlord has not signed yet; your signed PDF will be emailed once both signatures are in.'}
           {' '}<Link href={`/sign/${inspectionId}`} className="text-brand-700 underline">Open the signing page</Link>
         </p>
+        <p className="text-sm print:hidden">
+          <Link href={`/tenancies/${inspection.tenancyId}/documents`} className="font-medium text-brand-700 underline">Documents</Link>
+          <span className="ml-2 text-gray-500">Tenancy agreement and other private files</span>
+        </p>
       </header>
       <ReportDocument inspection={inspection} pdfHref={inspection.status === 'COMPLETED' ? `/sign/${inspectionId}/pdf` : null} />
     </main>

@@ -5,6 +5,7 @@ import '../screens/report_screen.dart';
 import '../screens/properties_screen.dart';
 import '../screens/inspection_screen.dart';
 import '../screens/team_screen.dart';
+import '../screens/supporting_documents_screen.dart';
 import 'api.dart';
 
 /// The screen a notification's href opens, for the notifications list and a tapped push
@@ -16,6 +17,17 @@ Future<Widget?> notificationScreen(String? href, Api api) async {
   if (path == '/team') return TeamScreen(api: api);
   // Older notifications link to /inspections; the Properties tab replaced that list.
   if (path == '/inspections') return const PropertiesScreen();
+  final uri = Uri.tryParse(path);
+  final documents = uri != null && !uri.hasScheme && !uri.hasAuthority
+      ? RegExp(r'^/tenancies/([^/]+)/documents$').firstMatch(uri.path)
+      : null;
+  if (documents != null) {
+    return SupportingDocumentsScreen(
+      tenancyId: documents.group(1)!,
+      initialRequestId: uri!.queryParameters['requestId'],
+      api: api,
+    );
+  }
   final inspection = RegExp(r'^/inspections/([^/]+)$').firstMatch(path);
   if (inspection != null) {
     return InspectionScreen(id: inspection.group(1)!, api: api);

@@ -322,6 +322,45 @@ strand it there forever, which is exactly what the capture invariant forbids. So
 after it. Signing, findings and sharing are deliberately not guarded, since they are what
 happens *after* the freeze. Pinned by `src/lib/signature-freeze.integration.test.ts`.
 
+## Supporting documents
+
+Documents belong to the tenancy, outside the condition report, its fingerprint and
+PDF. The tenancy agreement is the primary document: the landlord, tenant or a full
+tenancy agent can upload it directly. A typed, unique agreement slot is created only
+on upload preparation, never on a read. Other documents are secondary; full tenancy
+agents request them and the tenant uploads. The landlord, tenant and currently
+authorized tenancy agents can read them, including after the tenancy ends. Historical inspection-only
+grants and billing teams give no access. `supportingDocumentTenancies` is the shared
+scope; writes and downloads lock agency, property and tenancy before rechecking.
+
+`SupportingDocumentFile` is an upload intent before it is a submitted file. Its
+client id, uploader, request, filename, type and size are immutable across retries.
+Registration verifies private storage metadata and file signatures before stamping
+`submittedAt`; downloads require sign-in and issue a ten-minute attachment URL.
+Requests and submissions queue notifications with authenticated links to
+`/tenancies/[id]/documents`, never file credentials. They never hold up signing.
+
+The web stores selected files in a separate account-scoped IndexedDB queue and
+retries while that page is open. Native receipt photos use the existing durable
+capture queue under `supporting-documents:<tenancyId>`, with the request as room id;
+PDF selection uses the authenticated web page while the native plugin freeze lasts.
+Submitted documents protect a property from deletion. Pending requests survive
+Recently deleted until expiry; then delayed prefix tombstones cover late uploads.
+Account deletion preserves shared paperwork and purges only sole-party unsigned
+documents under the existing operator retention choices.
+
+Maintenance clause extraction is deterministic PDF text reading, with no AI or
+external extraction service. `agreement-clause-parser.ts` returns candidate passages
+with source pages; scanned/image-only files and unreadable PDFs use manual entry.
+Only an agent or landlord can confirm a clause from the current uploaded agreement.
+`Tenancy.minorRepairClause` records the file, page, quoted text, rule, exceptions and
+confirmer. FIRST_AMOUNT sets the existing proposal default; OTHER records a described
+rule and clears that default. A threshold is never silently treated as a first-amount
+contribution. Each repair still needs its own cost agreement. A newer agreement flags
+old confirmed terms for review; it does not rewrite them or existing repairs. Editing
+the amount manually clears its source linkage. Sole-party document erasure also clears
+the saved clause; shared tenancy records retain it.
+
 ## Choosing a check-out finding
 
 The native Add finding flow is a full-page item chooser followed by its form

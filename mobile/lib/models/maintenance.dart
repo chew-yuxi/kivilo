@@ -1,5 +1,6 @@
 import 'handover.dart';
 import 'tenancy_access.dart';
+import 'supporting_documents.dart';
 
 class UserProfile {
   const UserProfile({
@@ -138,12 +139,14 @@ class TenancyDetail {
     required this.canEditMinorRepairCap,
     required this.canEditAgentAuthority,
     this.minorRepairCap,
+    this.maintenanceTerms,
     this.moveInDefects,
     this.access,
   });
   final String id;
   final String role;
   final String? minorRepairCap;
+  final AgreementTerms? maintenanceTerms;
   final bool agentMayAgreeCosts;
   final bool canEditMinorRepairCap;
   final bool canEditAgentAuthority;
@@ -159,6 +162,8 @@ class TenancyDetail {
           ? null
           : TenancyAccess.fromJson(json['access'] as Map<String, dynamic>),
       minorRepairCap: json['minorRepairCap'] as String?,
+      maintenanceTerms: json['maintenanceTerms'] == null ? null
+          : AgreementTerms.fromJson(json['maintenanceTerms'] as Map<String, dynamic>),
       agentMayAgreeCosts: json['agentMayAgreeCosts'] as bool,
       canEditMinorRepairCap: capabilities['editMinorRepairCap'] as bool,
       canEditAgentAuthority: capabilities['editAgentAuthority'] as bool,
@@ -402,12 +407,14 @@ class Responsibility {
     required this.canAnswer,
     required this.canWithdraw,
     this.minorRepairCap,
+    this.maintenanceTerms,
     this.agreement,
     this.pending,
     this.shares,
   });
   final String arrangedBy;
   final String? minorRepairCap;
+  final AgreementTerms? maintenanceTerms;
   final ResponsibilityProposal? agreement;
   final ResponsibilityProposal? pending;
   final List<ResponsibilityProposal> history;
@@ -430,6 +437,8 @@ class Responsibility {
     return Responsibility(
       arrangedBy: json['arrangedBy'] as String,
       minorRepairCap: json['minorRepairCap'] as String?,
+      maintenanceTerms: json['maintenanceTerms'] == null ? null
+          : AgreementTerms.fromJson(json['maintenanceTerms'] as Map<String, dynamic>),
       agreement: proposal(json['agreement']),
       pending: proposal(json['pending']),
       history: (json['history'] as List<dynamic>)

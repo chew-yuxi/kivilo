@@ -255,6 +255,7 @@ exports.Prisma.TenancyScalarFieldEnum = {
   monthlyRent: 'monthlyRent',
   deposit: 'deposit',
   minorRepairCap: 'minorRepairCap',
+  minorRepairClause: 'minorRepairClause',
   agentMayAgreeCosts: 'agentMayAgreeCosts',
   defectWindowDays: 'defectWindowDays',
   renewalDecision: 'renewalDecision',
@@ -464,6 +465,29 @@ exports.Prisma.ServiceProviderScalarFieldEnum = {
   active: 'active',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupportingDocumentRequestScalarFieldEnum = {
+  id: 'id',
+  tenancyId: 'tenancyId',
+  clientId: 'clientId',
+  title: 'title',
+  kind: 'kind',
+  requestedById: 'requestedById',
+  requestedAt: 'requestedAt'
+};
+
+exports.Prisma.SupportingDocumentFileScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  clientId: 'clientId',
+  storagePath: 'storagePath',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  byteSize: 'byteSize',
+  submittedById: 'submittedById',
+  createdAt: 'createdAt',
+  submittedAt: 'submittedAt'
 };
 
 exports.Prisma.DeviceInstallationScalarFieldEnum = {
@@ -923,12 +947,19 @@ exports.ServiceProviderCategory = exports.$Enums.ServiceProviderCategory = {
   LOCKSMITH: 'LOCKSMITH'
 };
 
+exports.SupportingDocumentKind = exports.$Enums.SupportingDocumentKind = {
+  SUPPORTING: 'SUPPORTING',
+  TENANCY_AGREEMENT: 'TENANCY_AGREEMENT'
+};
+
 exports.DevicePlatform = exports.$Enums.DevicePlatform = {
   ANDROID: 'ANDROID',
   IOS: 'IOS'
 };
 
 exports.NotificationKind = exports.$Enums.NotificationKind = {
+  SUPPORTING_DOCUMENT_REQUESTED: 'SUPPORTING_DOCUMENT_REQUESTED',
+  SUPPORTING_DOCUMENT_UPLOADED: 'SUPPORTING_DOCUMENT_UPLOADED',
   AGENCY_INVITATION: 'AGENCY_INVITATION',
   PROPERTY_SHARED: 'PROPERTY_SHARED',
   MAINTENANCE_REPORTED: 'MAINTENANCE_REPORTED',
@@ -1024,6 +1055,8 @@ exports.Prisma.ModelName = {
   MaintenanceVerification: 'MaintenanceVerification',
   ResponsibilityProposal: 'ResponsibilityProposal',
   ServiceProvider: 'ServiceProvider',
+  SupportingDocumentRequest: 'SupportingDocumentRequest',
+  SupportingDocumentFile: 'SupportingDocumentFile',
   DeviceInstallation: 'DeviceInstallation',
   Notification: 'Notification',
   NotificationPushDelivery: 'NotificationPushDelivery',

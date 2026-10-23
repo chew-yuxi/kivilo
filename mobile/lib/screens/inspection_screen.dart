@@ -25,6 +25,7 @@ import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
 import 'tenancy_access_screen.dart';
 import 'property_history_screen.dart';
+import 'supporting_documents_screen.dart';
 import 'property_settings_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
@@ -581,6 +582,22 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     const SizedBox(height: 12),
                   ],
                   if (inspection.tenancyRecordId case final tenancyId?) ...[
+                    if (inspection.access?.scope == 'TENANCY') ...[
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.description_outlined),
+                          title: const Text('Documents'),
+                          subtitle: const Text('Tenancy agreement and supporting files'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: _busy ? null : () => Navigator.of(context).push<void>(
+                            MaterialPageRoute(builder: (_) => SupportingDocumentsScreen(
+                              tenancyId: tenancyId, api: _api,
+                            )),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     Card(
                       child: ListTile(
                         leading: const Icon(Icons.person_outline),

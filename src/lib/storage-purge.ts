@@ -46,7 +46,10 @@ export async function purgeStorageEntry(purge: StoragePurge) {
   }
   if (purge.isPrefix) {
     const addendumId = /^addenda\/([A-Za-z0-9]+)$/.exec(purge.path)?.[1]
-    const inUse = () => addendumId
+    const documentRequestId = /^supporting-documents\/[^/]+\/([^/]+)$/.exec(purge.path)?.[1]
+    const inUse = () => documentRequestId
+      ? db.supportingDocumentRequest.findUnique({ where: { id: documentRequestId }, select: { id: true } })
+      : addendumId
       ? db.reportAddendum.findUnique({ where: { id: addendumId }, select: { id: true } })
       : db.room.findUnique({ where: { id: purge.path }, select: { id: true } })
     if (await inUse()) {
@@ -67,6 +70,8 @@ export async function purgeStorageEntry(purge: StoragePurge) {
       }) ?? await db.findingPhoto.findFirst({
         where: { storagePath: purge.path, OR: [{ deletedAt: null }, { publishedAt: { not: null } }] },
         select: { clientId: true },
+      }) ?? await db.supportingDocumentFile.findFirst({
+        where: { storagePath: purge.path }, select: { id: true },
       }) ?? await db.assessmentVersion.findFirst({
         where: { snapshot: { path: ['findings'], array_contains: [{ photos: [{ storagePath: purge.path }] }] } },
         select: { id: true },

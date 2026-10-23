@@ -244,6 +244,16 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       <TenancyAccessPanel access={access} viewerId={agent.id} />
       <TenancyAssignmentPanel key={`${tenancy.id}-${access.agency?.id ?? 'personal'}-${access.leadAgent?.id}`} access={access} agencies={agencies} />
 
+      {access.scope === 'TENANCY' && (
+        <Link href={`/tenancies/${tenancy.id}/documents`} className="nav-row">
+          <span>
+            <span className="block text-sm font-medium">Documents</span>
+            <span className="mt-1 block text-xs font-normal text-gray-500">Tenancy agreement and other private files</span>
+          </span>
+          <span aria-hidden="true">›</span>
+        </Link>
+      )}
+
       {nextStep && (
         <div className="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
           <p className="text-sm font-medium text-gray-900">{nextStep.title}</p>

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { findMany, findFirst, deleteMany, update, maintenanceEmail, reportEmail, renewalEmail, sharedEmail, agencyEmail } = vi.hoisted(() => ({
+const { findMany, findFirst, deleteMany, update, maintenanceEmail, reportEmail, renewalEmail, sharedEmail, agencyEmail, documentEmail } = vi.hoisted(() => ({
   findMany: vi.fn(), findFirst: vi.fn(), deleteMany: vi.fn(), update: vi.fn(),
-  maintenanceEmail: vi.fn(), reportEmail: vi.fn(), renewalEmail: vi.fn(), sharedEmail: vi.fn(), agencyEmail: vi.fn(),
+  maintenanceEmail: vi.fn(), reportEmail: vi.fn(), renewalEmail: vi.fn(), sharedEmail: vi.fn(), agencyEmail: vi.fn(), documentEmail: vi.fn(),
 }))
 
 vi.mock('@/lib/db', () => ({ db: {
@@ -18,6 +18,7 @@ vi.mock('@/lib/email', () => ({
   sendRenewalReminder: renewalEmail,
   sendPropertySharedNotification: sharedEmail,
   sendAgencyInvitationNotification: agencyEmail,
+  sendSupportingDocumentNotification: documentEmail,
 }))
 
 import { deliverNotificationOutbox } from '@/lib/notification-outbox'
@@ -81,5 +82,20 @@ describe('notification delivery permission', () => {
     agencyEmail.mockClear()
     expect((await deliverNotificationOutbox()).email.sent).toBe(0)
     expect(agencyEmail).not.toHaveBeenCalled()
+  })
+
+  it.each(['SUPPORTING_DOCUMENT_REQUESTED', 'SUPPORTING_DOCUMENT_UPLOADED'])('delivers %s through the private document email and withdraws it when access ends', async (kind) => {
+    const notice = {
+      id: 'document-notice', recipientId: 'recipient', tenancyId: 'tenancy-1', kind,
+      title: 'Supporting documents', body: 'Payment proof', href: '/tenancies/tenancy-1/documents', recipient: { email: 'recipient@example.test' },
+    }
+    findMany.mockResolvedValue([notice])
+    expect((await deliverNotificationOutbox()).email.sent).toBe(1)
+    expect(documentEmail).toHaveBeenCalledWith('recipient@example.test', expect.objectContaining({ id: notice.id, href: notice.href }))
+    expect(maintenanceEmail).not.toHaveBeenCalled()
+    findFirst.mockResolvedValue(null)
+    documentEmail.mockClear()
+    expect((await deliverNotificationOutbox()).email.sent).toBe(0)
+    expect(documentEmail).not.toHaveBeenCalled()
   })
 })

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { inspectionScope, managedTenancies } from '@/lib/auth'
+import { inspectionScope, managedTenancies, supportingDocumentTenancies } from '@/lib/auth'
 import { inspectionWorkScope, type InspectionWorkFilters } from '@/lib/inspection-work'
 import { listTenancies } from '@/lib/maintenance'
 import { propertyState } from '@/lib/property-management'
@@ -156,6 +156,11 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
   // term), so each term says whether it can be opened rather than failing when tapped.
   const openable = new Map((await listTenancies(actorId)).filter((row) => row.propertyId === propertyId)
     .map((row) => [row.id, row]))
+  // Documents also exist before signing and after a term ends. Do not reuse the
+  // running-tenancy permission used by repairs, or an exact inspection grant.
+  const documentTenancies = new Set((await db.tenancy.findMany({
+    where: { propertyId, AND: [supportingDocumentTenancies(actorId)] }, select: { id: true },
+  })).map((tenancy) => tenancy.id))
   const terms = new Map<string, (typeof inspections)[number]['tenancy']>()
   for (const inspection of inspections) terms.set(inspection.tenancy.id, inspection.tenancy)
   const ordered = [...terms.values()].sort((a, b) =>
@@ -180,6 +185,7 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
       landlord: term.landlord.name,
       agencyName: term.agency?.name ?? null,
       leadAgentName: term.agent?.name ?? null,
+      canOpenDocuments: documentTenancies.has(term.id),
       /// The same shape as GET /api/v1/tenancies, for the repairs and assets screen.
       tenancy: openable.get(term.id) ?? null,
       reports: inspections.filter((row) => row.tenancy.id === term.id).map((row) => ({

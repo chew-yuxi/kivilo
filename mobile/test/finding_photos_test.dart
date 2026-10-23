@@ -77,8 +77,10 @@ class _Backend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) async {
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
     _connected();
     return (
       storagePath: 'findings/$roomId/$clientId.png',
@@ -224,6 +226,19 @@ void main() {
     sessions.add(session);
     return session;
   }
+
+  test('finding camera leaves an interrupted document selection untouched', () async {
+    final journal = File('${root.path}/$supportingDocumentPickerFilename');
+    await journal.writeAsString(jsonEncode({
+      'ownerId': 'owner-1', 'tenancyId': 'tenancy-1', 'requestId': 'request-original',
+      'clientId': newCaptureId(),
+    }));
+    final session = open();
+    await session.initialize();
+    await expectLater(session.pick(ImageSource.camera), throwsA(isA<ApiFailure>()));
+    expect(await queue.forRoom(session.draftId, 'owner-1'), isEmpty);
+    expect(await journal.exists(), isTrue);
+  });
 
   test(
     'photo and marks recover across restart and a lost registration response',

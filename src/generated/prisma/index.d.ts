@@ -165,6 +165,17 @@ export type ResponsibilityProposal = $Result.DefaultSelection<Prisma.$Responsibi
  */
 export type ServiceProvider = $Result.DefaultSelection<Prisma.$ServiceProviderPayload>
 /**
+ * Model SupportingDocumentRequest
+ * 
+ */
+export type SupportingDocumentRequest = $Result.DefaultSelection<Prisma.$SupportingDocumentRequestPayload>
+/**
+ * Model SupportingDocumentFile
+ * Created before issuing an upload URL. Pending rows preserve immutable upload
+ * ownership and the cleanup path; only verified storage bytes set submittedAt.
+ */
+export type SupportingDocumentFile = $Result.DefaultSelection<Prisma.$SupportingDocumentFilePayload>
+/**
  * Model DeviceInstallation
  * 
  */
@@ -539,6 +550,8 @@ export type ServiceProviderCategory = (typeof ServiceProviderCategory)[keyof typ
 
 
 export const NotificationKind: {
+  SUPPORTING_DOCUMENT_REQUESTED: 'SUPPORTING_DOCUMENT_REQUESTED',
+  SUPPORTING_DOCUMENT_UPLOADED: 'SUPPORTING_DOCUMENT_UPLOADED',
   AGENCY_INVITATION: 'AGENCY_INVITATION',
   PROPERTY_SHARED: 'PROPERTY_SHARED',
   MAINTENANCE_REPORTED: 'MAINTENANCE_REPORTED',
@@ -552,6 +565,14 @@ export const NotificationKind: {
 };
 
 export type NotificationKind = (typeof NotificationKind)[keyof typeof NotificationKind]
+
+
+export const SupportingDocumentKind: {
+  SUPPORTING: 'SUPPORTING',
+  TENANCY_AGREEMENT: 'TENANCY_AGREEMENT'
+};
+
+export type SupportingDocumentKind = (typeof SupportingDocumentKind)[keyof typeof SupportingDocumentKind]
 
 
 export const DevicePlatform: {
@@ -745,6 +766,10 @@ export const ServiceProviderCategory: typeof $Enums.ServiceProviderCategory
 export type NotificationKind = $Enums.NotificationKind
 
 export const NotificationKind: typeof $Enums.NotificationKind
+
+export type SupportingDocumentKind = $Enums.SupportingDocumentKind
+
+export const SupportingDocumentKind: typeof $Enums.SupportingDocumentKind
 
 export type DevicePlatform = $Enums.DevicePlatform
 
@@ -1166,6 +1191,26 @@ export class PrismaClient<
     * ```
     */
   get serviceProvider(): Prisma.ServiceProviderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.supportingDocumentRequest`: Exposes CRUD operations for the **SupportingDocumentRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SupportingDocumentRequests
+    * const supportingDocumentRequests = await prisma.supportingDocumentRequest.findMany()
+    * ```
+    */
+  get supportingDocumentRequest(): Prisma.SupportingDocumentRequestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.supportingDocumentFile`: Exposes CRUD operations for the **SupportingDocumentFile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SupportingDocumentFiles
+    * const supportingDocumentFiles = await prisma.supportingDocumentFile.findMany()
+    * ```
+    */
+  get supportingDocumentFile(): Prisma.SupportingDocumentFileDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.deviceInstallation`: Exposes CRUD operations for the **DeviceInstallation** model.
@@ -1839,6 +1884,8 @@ export namespace Prisma {
     MaintenanceVerification: 'MaintenanceVerification',
     ResponsibilityProposal: 'ResponsibilityProposal',
     ServiceProvider: 'ServiceProvider',
+    SupportingDocumentRequest: 'SupportingDocumentRequest',
+    SupportingDocumentFile: 'SupportingDocumentFile',
     DeviceInstallation: 'DeviceInstallation',
     Notification: 'Notification',
     NotificationPushDelivery: 'NotificationPushDelivery',
@@ -1874,7 +1921,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "agency" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "team" | "agency" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3802,6 +3849,154 @@ export namespace Prisma {
           }
         }
       }
+      SupportingDocumentRequest: {
+        payload: Prisma.$SupportingDocumentRequestPayload<ExtArgs>
+        fields: Prisma.SupportingDocumentRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupportingDocumentRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupportingDocumentRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.SupportingDocumentRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupportingDocumentRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>
+          }
+          findMany: {
+            args: Prisma.SupportingDocumentRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>[]
+          }
+          create: {
+            args: Prisma.SupportingDocumentRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>
+          }
+          createMany: {
+            args: Prisma.SupportingDocumentRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SupportingDocumentRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.SupportingDocumentRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>
+          }
+          update: {
+            args: Prisma.SupportingDocumentRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.SupportingDocumentRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupportingDocumentRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SupportingDocumentRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.SupportingDocumentRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.SupportingDocumentRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupportingDocumentRequest>
+          }
+          groupBy: {
+            args: Prisma.SupportingDocumentRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupportingDocumentRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SupportingDocumentRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<SupportingDocumentRequestCountAggregateOutputType> | number
+          }
+        }
+      }
+      SupportingDocumentFile: {
+        payload: Prisma.$SupportingDocumentFilePayload<ExtArgs>
+        fields: Prisma.SupportingDocumentFileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupportingDocumentFileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupportingDocumentFileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>
+          }
+          findFirst: {
+            args: Prisma.SupportingDocumentFileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupportingDocumentFileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>
+          }
+          findMany: {
+            args: Prisma.SupportingDocumentFileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>[]
+          }
+          create: {
+            args: Prisma.SupportingDocumentFileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>
+          }
+          createMany: {
+            args: Prisma.SupportingDocumentFileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SupportingDocumentFileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>[]
+          }
+          delete: {
+            args: Prisma.SupportingDocumentFileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>
+          }
+          update: {
+            args: Prisma.SupportingDocumentFileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>
+          }
+          deleteMany: {
+            args: Prisma.SupportingDocumentFileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupportingDocumentFileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SupportingDocumentFileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>[]
+          }
+          upsert: {
+            args: Prisma.SupportingDocumentFileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportingDocumentFilePayload>
+          }
+          aggregate: {
+            args: Prisma.SupportingDocumentFileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupportingDocumentFile>
+          }
+          groupBy: {
+            args: Prisma.SupportingDocumentFileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupportingDocumentFileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SupportingDocumentFileCountArgs<ExtArgs>
+            result: $Utils.Optional<SupportingDocumentFileCountAggregateOutputType> | number
+          }
+        }
+      }
       DeviceInstallation: {
         payload: Prisma.$DeviceInstallationPayload<ExtArgs>
         fields: Prisma.DeviceInstallationFieldRefs
@@ -5431,6 +5626,8 @@ export namespace Prisma {
     maintenanceVerification?: MaintenanceVerificationOmit
     responsibilityProposal?: ResponsibilityProposalOmit
     serviceProvider?: ServiceProviderOmit
+    supportingDocumentRequest?: SupportingDocumentRequestOmit
+    supportingDocumentFile?: SupportingDocumentFileOmit
     deviceInstallation?: DeviceInstallationOmit
     notification?: NotificationOmit
     notificationPushDelivery?: NotificationPushDeliveryOmit
@@ -5559,6 +5756,8 @@ export namespace Prisma {
     addendumAcknowledgements: number
     findingPhotoDrafts: number
     assessmentResponses: number
+    supportingDocumentRequests: number
+    supportingDocumentFiles: number
     subscriptionsManaged: number
   }
 
@@ -5591,6 +5790,8 @@ export namespace Prisma {
     addendumAcknowledgements?: boolean | StakeholderCountOutputTypeCountAddendumAcknowledgementsArgs
     findingPhotoDrafts?: boolean | StakeholderCountOutputTypeCountFindingPhotoDraftsArgs
     assessmentResponses?: boolean | StakeholderCountOutputTypeCountAssessmentResponsesArgs
+    supportingDocumentRequests?: boolean | StakeholderCountOutputTypeCountSupportingDocumentRequestsArgs
+    supportingDocumentFiles?: boolean | StakeholderCountOutputTypeCountSupportingDocumentFilesArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
   }
 
@@ -5799,6 +6000,20 @@ export namespace Prisma {
    */
   export type StakeholderCountOutputTypeCountAssessmentResponsesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssessmentResponseWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountSupportingDocumentRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportingDocumentRequestWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountSupportingDocumentFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportingDocumentFileWhereInput
   }
 
   /**
@@ -6018,6 +6233,7 @@ export namespace Prisma {
     collaborators: number
     notifications: number
     maintenanceCases: number
+    supportingDocumentRequests: number
   }
 
   export type TenancyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6025,6 +6241,7 @@ export namespace Prisma {
     collaborators?: boolean | TenancyCountOutputTypeCountCollaboratorsArgs
     notifications?: boolean | TenancyCountOutputTypeCountNotificationsArgs
     maintenanceCases?: boolean | TenancyCountOutputTypeCountMaintenanceCasesArgs
+    supportingDocumentRequests?: boolean | TenancyCountOutputTypeCountSupportingDocumentRequestsArgs
   }
 
   // Custom InputTypes
@@ -6064,6 +6281,13 @@ export namespace Prisma {
    */
   export type TenancyCountOutputTypeCountMaintenanceCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MaintenanceCaseWhereInput
+  }
+
+  /**
+   * TenancyCountOutputType without action
+   */
+  export type TenancyCountOutputTypeCountSupportingDocumentRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportingDocumentRequestWhereInput
   }
 
 
@@ -6492,6 +6716,37 @@ export namespace Prisma {
    */
   export type ServiceProviderCountOutputTypeCountVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MaintenanceVisitWhereInput
+  }
+
+
+  /**
+   * Count Type SupportingDocumentRequestCountOutputType
+   */
+
+  export type SupportingDocumentRequestCountOutputType = {
+    files: number
+  }
+
+  export type SupportingDocumentRequestCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    files?: boolean | SupportingDocumentRequestCountOutputTypeCountFilesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SupportingDocumentRequestCountOutputType without action
+   */
+  export type SupportingDocumentRequestCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequestCountOutputType
+     */
+    select?: SupportingDocumentRequestCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SupportingDocumentRequestCountOutputType without action
+   */
+  export type SupportingDocumentRequestCountOutputTypeCountFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportingDocumentFileWhereInput
   }
 
 
@@ -6999,6 +7254,8 @@ export namespace Prisma {
     addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
     findingPhotoDrafts?: boolean | Stakeholder$findingPhotoDraftsArgs<ExtArgs>
     assessmentResponses?: boolean | Stakeholder$assessmentResponsesArgs<ExtArgs>
+    supportingDocumentRequests?: boolean | Stakeholder$supportingDocumentRequestsArgs<ExtArgs>
+    supportingDocumentFiles?: boolean | Stakeholder$supportingDocumentFilesArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -7077,6 +7334,8 @@ export namespace Prisma {
     addendumAcknowledgements?: boolean | Stakeholder$addendumAcknowledgementsArgs<ExtArgs>
     findingPhotoDrafts?: boolean | Stakeholder$findingPhotoDraftsArgs<ExtArgs>
     assessmentResponses?: boolean | Stakeholder$assessmentResponsesArgs<ExtArgs>
+    supportingDocumentRequests?: boolean | Stakeholder$supportingDocumentRequestsArgs<ExtArgs>
+    supportingDocumentFiles?: boolean | Stakeholder$supportingDocumentFilesArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
@@ -7121,6 +7380,8 @@ export namespace Prisma {
       addendumAcknowledgements: Prisma.$AddendumAcknowledgementPayload<ExtArgs>[]
       findingPhotoDrafts: Prisma.$FindingPhotoDraftPayload<ExtArgs>[]
       assessmentResponses: Prisma.$AssessmentResponsePayload<ExtArgs>[]
+      supportingDocumentRequests: Prisma.$SupportingDocumentRequestPayload<ExtArgs>[]
+      supportingDocumentFiles: Prisma.$SupportingDocumentFilePayload<ExtArgs>[]
       /**
        * The plan of an agent who is on no team. An agent on a team uses the team's.
        */
@@ -7574,6 +7835,8 @@ export namespace Prisma {
     addendumAcknowledgements<T extends Stakeholder$addendumAcknowledgementsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendumAcknowledgementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddendumAcknowledgementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     findingPhotoDrafts<T extends Stakeholder$findingPhotoDraftsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$findingPhotoDraftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FindingPhotoDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assessmentResponses<T extends Stakeholder$assessmentResponsesArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$assessmentResponsesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    supportingDocumentRequests<T extends Stakeholder$supportingDocumentRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$supportingDocumentRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    supportingDocumentFiles<T extends Stakeholder$supportingDocumentFilesArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$supportingDocumentFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -8723,6 +8986,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AssessmentResponseScalarFieldEnum | AssessmentResponseScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.supportingDocumentRequests
+   */
+  export type Stakeholder$supportingDocumentRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    where?: SupportingDocumentRequestWhereInput
+    orderBy?: SupportingDocumentRequestOrderByWithRelationInput | SupportingDocumentRequestOrderByWithRelationInput[]
+    cursor?: SupportingDocumentRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportingDocumentRequestScalarFieldEnum | SupportingDocumentRequestScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.supportingDocumentFiles
+   */
+  export type Stakeholder$supportingDocumentFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    where?: SupportingDocumentFileWhereInput
+    orderBy?: SupportingDocumentFileOrderByWithRelationInput | SupportingDocumentFileOrderByWithRelationInput[]
+    cursor?: SupportingDocumentFileWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportingDocumentFileScalarFieldEnum | SupportingDocumentFileScalarFieldEnum[]
   }
 
   /**
@@ -19338,6 +19649,7 @@ export namespace Prisma {
     monthlyRent: number
     deposit: number
     minorRepairCap: number
+    minorRepairClause: number
     agentMayAgreeCosts: number
     defectWindowDays: number
     renewalDecision: number
@@ -19417,6 +19729,7 @@ export namespace Prisma {
     monthlyRent?: true
     deposit?: true
     minorRepairCap?: true
+    minorRepairClause?: true
     agentMayAgreeCosts?: true
     defectWindowDays?: true
     renewalDecision?: true
@@ -19525,6 +19838,7 @@ export namespace Prisma {
     monthlyRent: Decimal
     deposit: Decimal
     minorRepairCap: Decimal | null
+    minorRepairClause: JsonValue | null
     agentMayAgreeCosts: boolean
     defectWindowDays: number
     renewalDecision: $Enums.RenewalDecision | null
@@ -19565,6 +19879,7 @@ export namespace Prisma {
     monthlyRent?: boolean
     deposit?: boolean
     minorRepairCap?: boolean
+    minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
     defectWindowDays?: boolean
     renewalDecision?: boolean
@@ -19581,6 +19896,7 @@ export namespace Prisma {
     collaborators?: boolean | Tenancy$collaboratorsArgs<ExtArgs>
     notifications?: boolean | Tenancy$notificationsArgs<ExtArgs>
     maintenanceCases?: boolean | Tenancy$maintenanceCasesArgs<ExtArgs>
+    supportingDocumentRequests?: boolean | Tenancy$supportingDocumentRequestsArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
     renewedAs?: boolean | Tenancy$renewedAsArgs<ExtArgs>
     _count?: boolean | TenancyCountOutputTypeDefaultArgs<ExtArgs>
@@ -19598,6 +19914,7 @@ export namespace Prisma {
     monthlyRent?: boolean
     deposit?: boolean
     minorRepairCap?: boolean
+    minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
     defectWindowDays?: boolean
     renewalDecision?: boolean
@@ -19625,6 +19942,7 @@ export namespace Prisma {
     monthlyRent?: boolean
     deposit?: boolean
     minorRepairCap?: boolean
+    minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
     defectWindowDays?: boolean
     renewalDecision?: boolean
@@ -19652,6 +19970,7 @@ export namespace Prisma {
     monthlyRent?: boolean
     deposit?: boolean
     minorRepairCap?: boolean
+    minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
     defectWindowDays?: boolean
     renewalDecision?: boolean
@@ -19661,7 +19980,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "agencyId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
+  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "agencyId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "minorRepairClause" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
   export type TenancyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -19672,6 +19991,7 @@ export namespace Prisma {
     collaborators?: boolean | Tenancy$collaboratorsArgs<ExtArgs>
     notifications?: boolean | Tenancy$notificationsArgs<ExtArgs>
     maintenanceCases?: boolean | Tenancy$maintenanceCasesArgs<ExtArgs>
+    supportingDocumentRequests?: boolean | Tenancy$supportingDocumentRequestsArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
     renewedAs?: boolean | Tenancy$renewedAsArgs<ExtArgs>
     _count?: boolean | TenancyCountOutputTypeDefaultArgs<ExtArgs>
@@ -19705,6 +20025,7 @@ export namespace Prisma {
       collaborators: Prisma.$TenancyCollaboratorPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       maintenanceCases: Prisma.$MaintenanceCasePayload<ExtArgs>[]
+      supportingDocumentRequests: Prisma.$SupportingDocumentRequestPayload<ExtArgs>[]
       renewedFrom: Prisma.$TenancyPayload<ExtArgs> | null
       renewedAs: Prisma.$TenancyPayload<ExtArgs> | null
     }
@@ -19724,6 +20045,10 @@ export namespace Prisma {
        * proposal; the tenant still accepts or rejects every one.
        */
       minorRepairCap: Prisma.Decimal | null
+      /**
+       * Human-confirmed clause and source agreement. The cap remains a proposal default.
+       */
+      minorRepairClause: Prisma.JsonValue | null
       /**
        * Whether the agent may accept or reject a tenant's cost proposal for the landlord.
        * Only the landlord can change it.
@@ -20148,6 +20473,7 @@ export namespace Prisma {
     collaborators<T extends Tenancy$collaboratorsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$collaboratorsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyCollaboratorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends Tenancy$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     maintenanceCases<T extends Tenancy$maintenanceCasesArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$maintenanceCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MaintenanceCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    supportingDocumentRequests<T extends Tenancy$supportingDocumentRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$supportingDocumentRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     renewedFrom<T extends Tenancy$renewedFromArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$renewedFromArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     renewedAs<T extends Tenancy$renewedAsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$renewedAsArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
@@ -20190,6 +20516,7 @@ export namespace Prisma {
     readonly monthlyRent: FieldRef<"Tenancy", 'Decimal'>
     readonly deposit: FieldRef<"Tenancy", 'Decimal'>
     readonly minorRepairCap: FieldRef<"Tenancy", 'Decimal'>
+    readonly minorRepairClause: FieldRef<"Tenancy", 'Json'>
     readonly agentMayAgreeCosts: FieldRef<"Tenancy", 'Boolean'>
     readonly defectWindowDays: FieldRef<"Tenancy", 'Int'>
     readonly renewalDecision: FieldRef<"Tenancy", 'RenewalDecision'>
@@ -20729,6 +21056,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MaintenanceCaseScalarFieldEnum | MaintenanceCaseScalarFieldEnum[]
+  }
+
+  /**
+   * Tenancy.supportingDocumentRequests
+   */
+  export type Tenancy$supportingDocumentRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    where?: SupportingDocumentRequestWhereInput
+    orderBy?: SupportingDocumentRequestOrderByWithRelationInput | SupportingDocumentRequestOrderByWithRelationInput[]
+    cursor?: SupportingDocumentRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportingDocumentRequestScalarFieldEnum | SupportingDocumentRequestScalarFieldEnum[]
   }
 
   /**
@@ -39320,6 +39671,2303 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ServiceProviderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SupportingDocumentRequest
+   */
+
+  export type AggregateSupportingDocumentRequest = {
+    _count: SupportingDocumentRequestCountAggregateOutputType | null
+    _min: SupportingDocumentRequestMinAggregateOutputType | null
+    _max: SupportingDocumentRequestMaxAggregateOutputType | null
+  }
+
+  export type SupportingDocumentRequestMinAggregateOutputType = {
+    id: string | null
+    tenancyId: string | null
+    clientId: string | null
+    title: string | null
+    kind: $Enums.SupportingDocumentKind | null
+    requestedById: string | null
+    requestedAt: Date | null
+  }
+
+  export type SupportingDocumentRequestMaxAggregateOutputType = {
+    id: string | null
+    tenancyId: string | null
+    clientId: string | null
+    title: string | null
+    kind: $Enums.SupportingDocumentKind | null
+    requestedById: string | null
+    requestedAt: Date | null
+  }
+
+  export type SupportingDocumentRequestCountAggregateOutputType = {
+    id: number
+    tenancyId: number
+    clientId: number
+    title: number
+    kind: number
+    requestedById: number
+    requestedAt: number
+    _all: number
+  }
+
+
+  export type SupportingDocumentRequestMinAggregateInputType = {
+    id?: true
+    tenancyId?: true
+    clientId?: true
+    title?: true
+    kind?: true
+    requestedById?: true
+    requestedAt?: true
+  }
+
+  export type SupportingDocumentRequestMaxAggregateInputType = {
+    id?: true
+    tenancyId?: true
+    clientId?: true
+    title?: true
+    kind?: true
+    requestedById?: true
+    requestedAt?: true
+  }
+
+  export type SupportingDocumentRequestCountAggregateInputType = {
+    id?: true
+    tenancyId?: true
+    clientId?: true
+    title?: true
+    kind?: true
+    requestedById?: true
+    requestedAt?: true
+    _all?: true
+  }
+
+  export type SupportingDocumentRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportingDocumentRequest to aggregate.
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentRequests to fetch.
+     */
+    orderBy?: SupportingDocumentRequestOrderByWithRelationInput | SupportingDocumentRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupportingDocumentRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SupportingDocumentRequests
+    **/
+    _count?: true | SupportingDocumentRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupportingDocumentRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupportingDocumentRequestMaxAggregateInputType
+  }
+
+  export type GetSupportingDocumentRequestAggregateType<T extends SupportingDocumentRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupportingDocumentRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupportingDocumentRequest[P]>
+      : GetScalarType<T[P], AggregateSupportingDocumentRequest[P]>
+  }
+
+
+
+
+  export type SupportingDocumentRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportingDocumentRequestWhereInput
+    orderBy?: SupportingDocumentRequestOrderByWithAggregationInput | SupportingDocumentRequestOrderByWithAggregationInput[]
+    by: SupportingDocumentRequestScalarFieldEnum[] | SupportingDocumentRequestScalarFieldEnum
+    having?: SupportingDocumentRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupportingDocumentRequestCountAggregateInputType | true
+    _min?: SupportingDocumentRequestMinAggregateInputType
+    _max?: SupportingDocumentRequestMaxAggregateInputType
+  }
+
+  export type SupportingDocumentRequestGroupByOutputType = {
+    id: string
+    tenancyId: string
+    clientId: string
+    title: string
+    kind: $Enums.SupportingDocumentKind
+    requestedById: string
+    requestedAt: Date
+    _count: SupportingDocumentRequestCountAggregateOutputType | null
+    _min: SupportingDocumentRequestMinAggregateOutputType | null
+    _max: SupportingDocumentRequestMaxAggregateOutputType | null
+  }
+
+  type GetSupportingDocumentRequestGroupByPayload<T extends SupportingDocumentRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupportingDocumentRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupportingDocumentRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupportingDocumentRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], SupportingDocumentRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupportingDocumentRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenancyId?: boolean
+    clientId?: boolean
+    title?: boolean
+    kind?: boolean
+    requestedById?: boolean
+    requestedAt?: boolean
+    tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
+    requestedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    files?: boolean | SupportingDocumentRequest$filesArgs<ExtArgs>
+    _count?: boolean | SupportingDocumentRequestCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportingDocumentRequest"]>
+
+  export type SupportingDocumentRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenancyId?: boolean
+    clientId?: boolean
+    title?: boolean
+    kind?: boolean
+    requestedById?: boolean
+    requestedAt?: boolean
+    tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
+    requestedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportingDocumentRequest"]>
+
+  export type SupportingDocumentRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenancyId?: boolean
+    clientId?: boolean
+    title?: boolean
+    kind?: boolean
+    requestedById?: boolean
+    requestedAt?: boolean
+    tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
+    requestedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportingDocumentRequest"]>
+
+  export type SupportingDocumentRequestSelectScalar = {
+    id?: boolean
+    tenancyId?: boolean
+    clientId?: boolean
+    title?: boolean
+    kind?: boolean
+    requestedById?: boolean
+    requestedAt?: boolean
+  }
+
+  export type SupportingDocumentRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "clientId" | "title" | "kind" | "requestedById" | "requestedAt", ExtArgs["result"]["supportingDocumentRequest"]>
+  export type SupportingDocumentRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
+    requestedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+    files?: boolean | SupportingDocumentRequest$filesArgs<ExtArgs>
+    _count?: boolean | SupportingDocumentRequestCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SupportingDocumentRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
+    requestedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type SupportingDocumentRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
+    requestedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $SupportingDocumentRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SupportingDocumentRequest"
+    objects: {
+      tenancy: Prisma.$TenancyPayload<ExtArgs>
+      requestedBy: Prisma.$StakeholderPayload<ExtArgs>
+      files: Prisma.$SupportingDocumentFilePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenancyId: string
+      clientId: string
+      title: string
+      kind: $Enums.SupportingDocumentKind
+      requestedById: string
+      requestedAt: Date
+    }, ExtArgs["result"]["supportingDocumentRequest"]>
+    composites: {}
+  }
+
+  type SupportingDocumentRequestGetPayload<S extends boolean | null | undefined | SupportingDocumentRequestDefaultArgs> = $Result.GetResult<Prisma.$SupportingDocumentRequestPayload, S>
+
+  type SupportingDocumentRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupportingDocumentRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupportingDocumentRequestCountAggregateInputType | true
+    }
+
+  export interface SupportingDocumentRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportingDocumentRequest'], meta: { name: 'SupportingDocumentRequest' } }
+    /**
+     * Find zero or one SupportingDocumentRequest that matches the filter.
+     * @param {SupportingDocumentRequestFindUniqueArgs} args - Arguments to find a SupportingDocumentRequest
+     * @example
+     * // Get one SupportingDocumentRequest
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupportingDocumentRequestFindUniqueArgs>(args: SelectSubset<T, SupportingDocumentRequestFindUniqueArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SupportingDocumentRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupportingDocumentRequestFindUniqueOrThrowArgs} args - Arguments to find a SupportingDocumentRequest
+     * @example
+     * // Get one SupportingDocumentRequest
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupportingDocumentRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportingDocumentRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportingDocumentRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestFindFirstArgs} args - Arguments to find a SupportingDocumentRequest
+     * @example
+     * // Get one SupportingDocumentRequest
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupportingDocumentRequestFindFirstArgs>(args?: SelectSubset<T, SupportingDocumentRequestFindFirstArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportingDocumentRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestFindFirstOrThrowArgs} args - Arguments to find a SupportingDocumentRequest
+     * @example
+     * // Get one SupportingDocumentRequest
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupportingDocumentRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportingDocumentRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportingDocumentRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SupportingDocumentRequests
+     * const supportingDocumentRequests = await prisma.supportingDocumentRequest.findMany()
+     * 
+     * // Get first 10 SupportingDocumentRequests
+     * const supportingDocumentRequests = await prisma.supportingDocumentRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supportingDocumentRequestWithIdOnly = await prisma.supportingDocumentRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupportingDocumentRequestFindManyArgs>(args?: SelectSubset<T, SupportingDocumentRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SupportingDocumentRequest.
+     * @param {SupportingDocumentRequestCreateArgs} args - Arguments to create a SupportingDocumentRequest.
+     * @example
+     * // Create one SupportingDocumentRequest
+     * const SupportingDocumentRequest = await prisma.supportingDocumentRequest.create({
+     *   data: {
+     *     // ... data to create a SupportingDocumentRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupportingDocumentRequestCreateArgs>(args: SelectSubset<T, SupportingDocumentRequestCreateArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SupportingDocumentRequests.
+     * @param {SupportingDocumentRequestCreateManyArgs} args - Arguments to create many SupportingDocumentRequests.
+     * @example
+     * // Create many SupportingDocumentRequests
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupportingDocumentRequestCreateManyArgs>(args?: SelectSubset<T, SupportingDocumentRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SupportingDocumentRequests and returns the data saved in the database.
+     * @param {SupportingDocumentRequestCreateManyAndReturnArgs} args - Arguments to create many SupportingDocumentRequests.
+     * @example
+     * // Create many SupportingDocumentRequests
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SupportingDocumentRequests and only return the `id`
+     * const supportingDocumentRequestWithIdOnly = await prisma.supportingDocumentRequest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SupportingDocumentRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, SupportingDocumentRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SupportingDocumentRequest.
+     * @param {SupportingDocumentRequestDeleteArgs} args - Arguments to delete one SupportingDocumentRequest.
+     * @example
+     * // Delete one SupportingDocumentRequest
+     * const SupportingDocumentRequest = await prisma.supportingDocumentRequest.delete({
+     *   where: {
+     *     // ... filter to delete one SupportingDocumentRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupportingDocumentRequestDeleteArgs>(args: SelectSubset<T, SupportingDocumentRequestDeleteArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SupportingDocumentRequest.
+     * @param {SupportingDocumentRequestUpdateArgs} args - Arguments to update one SupportingDocumentRequest.
+     * @example
+     * // Update one SupportingDocumentRequest
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupportingDocumentRequestUpdateArgs>(args: SelectSubset<T, SupportingDocumentRequestUpdateArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SupportingDocumentRequests.
+     * @param {SupportingDocumentRequestDeleteManyArgs} args - Arguments to filter SupportingDocumentRequests to delete.
+     * @example
+     * // Delete a few SupportingDocumentRequests
+     * const { count } = await prisma.supportingDocumentRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupportingDocumentRequestDeleteManyArgs>(args?: SelectSubset<T, SupportingDocumentRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportingDocumentRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SupportingDocumentRequests
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupportingDocumentRequestUpdateManyArgs>(args: SelectSubset<T, SupportingDocumentRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportingDocumentRequests and returns the data updated in the database.
+     * @param {SupportingDocumentRequestUpdateManyAndReturnArgs} args - Arguments to update many SupportingDocumentRequests.
+     * @example
+     * // Update many SupportingDocumentRequests
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SupportingDocumentRequests and only return the `id`
+     * const supportingDocumentRequestWithIdOnly = await prisma.supportingDocumentRequest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SupportingDocumentRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, SupportingDocumentRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SupportingDocumentRequest.
+     * @param {SupportingDocumentRequestUpsertArgs} args - Arguments to update or create a SupportingDocumentRequest.
+     * @example
+     * // Update or create a SupportingDocumentRequest
+     * const supportingDocumentRequest = await prisma.supportingDocumentRequest.upsert({
+     *   create: {
+     *     // ... data to create a SupportingDocumentRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SupportingDocumentRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupportingDocumentRequestUpsertArgs>(args: SelectSubset<T, SupportingDocumentRequestUpsertArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SupportingDocumentRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestCountArgs} args - Arguments to filter SupportingDocumentRequests to count.
+     * @example
+     * // Count the number of SupportingDocumentRequests
+     * const count = await prisma.supportingDocumentRequest.count({
+     *   where: {
+     *     // ... the filter for the SupportingDocumentRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupportingDocumentRequestCountArgs>(
+      args?: Subset<T, SupportingDocumentRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupportingDocumentRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SupportingDocumentRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupportingDocumentRequestAggregateArgs>(args: Subset<T, SupportingDocumentRequestAggregateArgs>): Prisma.PrismaPromise<GetSupportingDocumentRequestAggregateType<T>>
+
+    /**
+     * Group by SupportingDocumentRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupportingDocumentRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupportingDocumentRequestGroupByArgs['orderBy'] }
+        : { orderBy?: SupportingDocumentRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupportingDocumentRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportingDocumentRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SupportingDocumentRequest model
+   */
+  readonly fields: SupportingDocumentRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SupportingDocumentRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupportingDocumentRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenancy<T extends TenancyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenancyDefaultArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    requestedBy<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    files<T extends SupportingDocumentRequest$filesArgs<ExtArgs> = {}>(args?: Subset<T, SupportingDocumentRequest$filesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SupportingDocumentRequest model
+   */
+  interface SupportingDocumentRequestFieldRefs {
+    readonly id: FieldRef<"SupportingDocumentRequest", 'String'>
+    readonly tenancyId: FieldRef<"SupportingDocumentRequest", 'String'>
+    readonly clientId: FieldRef<"SupportingDocumentRequest", 'String'>
+    readonly title: FieldRef<"SupportingDocumentRequest", 'String'>
+    readonly kind: FieldRef<"SupportingDocumentRequest", 'SupportingDocumentKind'>
+    readonly requestedById: FieldRef<"SupportingDocumentRequest", 'String'>
+    readonly requestedAt: FieldRef<"SupportingDocumentRequest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SupportingDocumentRequest findUnique
+   */
+  export type SupportingDocumentRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentRequest to fetch.
+     */
+    where: SupportingDocumentRequestWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentRequest findUniqueOrThrow
+   */
+  export type SupportingDocumentRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentRequest to fetch.
+     */
+    where: SupportingDocumentRequestWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentRequest findFirst
+   */
+  export type SupportingDocumentRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentRequest to fetch.
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentRequests to fetch.
+     */
+    orderBy?: SupportingDocumentRequestOrderByWithRelationInput | SupportingDocumentRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportingDocumentRequests.
+     */
+    cursor?: SupportingDocumentRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportingDocumentRequests.
+     */
+    distinct?: SupportingDocumentRequestScalarFieldEnum | SupportingDocumentRequestScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentRequest findFirstOrThrow
+   */
+  export type SupportingDocumentRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentRequest to fetch.
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentRequests to fetch.
+     */
+    orderBy?: SupportingDocumentRequestOrderByWithRelationInput | SupportingDocumentRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportingDocumentRequests.
+     */
+    cursor?: SupportingDocumentRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportingDocumentRequests.
+     */
+    distinct?: SupportingDocumentRequestScalarFieldEnum | SupportingDocumentRequestScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentRequest findMany
+   */
+  export type SupportingDocumentRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentRequests to fetch.
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentRequests to fetch.
+     */
+    orderBy?: SupportingDocumentRequestOrderByWithRelationInput | SupportingDocumentRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SupportingDocumentRequests.
+     */
+    cursor?: SupportingDocumentRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportingDocumentRequests.
+     */
+    distinct?: SupportingDocumentRequestScalarFieldEnum | SupportingDocumentRequestScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentRequest create
+   */
+  export type SupportingDocumentRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SupportingDocumentRequest.
+     */
+    data: XOR<SupportingDocumentRequestCreateInput, SupportingDocumentRequestUncheckedCreateInput>
+  }
+
+  /**
+   * SupportingDocumentRequest createMany
+   */
+  export type SupportingDocumentRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SupportingDocumentRequests.
+     */
+    data: SupportingDocumentRequestCreateManyInput | SupportingDocumentRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SupportingDocumentRequest createManyAndReturn
+   */
+  export type SupportingDocumentRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many SupportingDocumentRequests.
+     */
+    data: SupportingDocumentRequestCreateManyInput | SupportingDocumentRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportingDocumentRequest update
+   */
+  export type SupportingDocumentRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SupportingDocumentRequest.
+     */
+    data: XOR<SupportingDocumentRequestUpdateInput, SupportingDocumentRequestUncheckedUpdateInput>
+    /**
+     * Choose, which SupportingDocumentRequest to update.
+     */
+    where: SupportingDocumentRequestWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentRequest updateMany
+   */
+  export type SupportingDocumentRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SupportingDocumentRequests.
+     */
+    data: XOR<SupportingDocumentRequestUpdateManyMutationInput, SupportingDocumentRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportingDocumentRequests to update
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * Limit how many SupportingDocumentRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportingDocumentRequest updateManyAndReturn
+   */
+  export type SupportingDocumentRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update SupportingDocumentRequests.
+     */
+    data: XOR<SupportingDocumentRequestUpdateManyMutationInput, SupportingDocumentRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportingDocumentRequests to update
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * Limit how many SupportingDocumentRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportingDocumentRequest upsert
+   */
+  export type SupportingDocumentRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SupportingDocumentRequest to update in case it exists.
+     */
+    where: SupportingDocumentRequestWhereUniqueInput
+    /**
+     * In case the SupportingDocumentRequest found by the `where` argument doesn't exist, create a new SupportingDocumentRequest with this data.
+     */
+    create: XOR<SupportingDocumentRequestCreateInput, SupportingDocumentRequestUncheckedCreateInput>
+    /**
+     * In case the SupportingDocumentRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupportingDocumentRequestUpdateInput, SupportingDocumentRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * SupportingDocumentRequest delete
+   */
+  export type SupportingDocumentRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+    /**
+     * Filter which SupportingDocumentRequest to delete.
+     */
+    where: SupportingDocumentRequestWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentRequest deleteMany
+   */
+  export type SupportingDocumentRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportingDocumentRequests to delete
+     */
+    where?: SupportingDocumentRequestWhereInput
+    /**
+     * Limit how many SupportingDocumentRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportingDocumentRequest.files
+   */
+  export type SupportingDocumentRequest$filesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    where?: SupportingDocumentFileWhereInput
+    orderBy?: SupportingDocumentFileOrderByWithRelationInput | SupportingDocumentFileOrderByWithRelationInput[]
+    cursor?: SupportingDocumentFileWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportingDocumentFileScalarFieldEnum | SupportingDocumentFileScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentRequest without action
+   */
+  export type SupportingDocumentRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentRequest
+     */
+    select?: SupportingDocumentRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentRequest
+     */
+    omit?: SupportingDocumentRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SupportingDocumentFile
+   */
+
+  export type AggregateSupportingDocumentFile = {
+    _count: SupportingDocumentFileCountAggregateOutputType | null
+    _avg: SupportingDocumentFileAvgAggregateOutputType | null
+    _sum: SupportingDocumentFileSumAggregateOutputType | null
+    _min: SupportingDocumentFileMinAggregateOutputType | null
+    _max: SupportingDocumentFileMaxAggregateOutputType | null
+  }
+
+  export type SupportingDocumentFileAvgAggregateOutputType = {
+    byteSize: number | null
+  }
+
+  export type SupportingDocumentFileSumAggregateOutputType = {
+    byteSize: number | null
+  }
+
+  export type SupportingDocumentFileMinAggregateOutputType = {
+    id: string | null
+    requestId: string | null
+    clientId: string | null
+    storagePath: string | null
+    fileName: string | null
+    mimeType: string | null
+    byteSize: number | null
+    submittedById: string | null
+    createdAt: Date | null
+    submittedAt: Date | null
+  }
+
+  export type SupportingDocumentFileMaxAggregateOutputType = {
+    id: string | null
+    requestId: string | null
+    clientId: string | null
+    storagePath: string | null
+    fileName: string | null
+    mimeType: string | null
+    byteSize: number | null
+    submittedById: string | null
+    createdAt: Date | null
+    submittedAt: Date | null
+  }
+
+  export type SupportingDocumentFileCountAggregateOutputType = {
+    id: number
+    requestId: number
+    clientId: number
+    storagePath: number
+    fileName: number
+    mimeType: number
+    byteSize: number
+    submittedById: number
+    createdAt: number
+    submittedAt: number
+    _all: number
+  }
+
+
+  export type SupportingDocumentFileAvgAggregateInputType = {
+    byteSize?: true
+  }
+
+  export type SupportingDocumentFileSumAggregateInputType = {
+    byteSize?: true
+  }
+
+  export type SupportingDocumentFileMinAggregateInputType = {
+    id?: true
+    requestId?: true
+    clientId?: true
+    storagePath?: true
+    fileName?: true
+    mimeType?: true
+    byteSize?: true
+    submittedById?: true
+    createdAt?: true
+    submittedAt?: true
+  }
+
+  export type SupportingDocumentFileMaxAggregateInputType = {
+    id?: true
+    requestId?: true
+    clientId?: true
+    storagePath?: true
+    fileName?: true
+    mimeType?: true
+    byteSize?: true
+    submittedById?: true
+    createdAt?: true
+    submittedAt?: true
+  }
+
+  export type SupportingDocumentFileCountAggregateInputType = {
+    id?: true
+    requestId?: true
+    clientId?: true
+    storagePath?: true
+    fileName?: true
+    mimeType?: true
+    byteSize?: true
+    submittedById?: true
+    createdAt?: true
+    submittedAt?: true
+    _all?: true
+  }
+
+  export type SupportingDocumentFileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportingDocumentFile to aggregate.
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentFiles to fetch.
+     */
+    orderBy?: SupportingDocumentFileOrderByWithRelationInput | SupportingDocumentFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupportingDocumentFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SupportingDocumentFiles
+    **/
+    _count?: true | SupportingDocumentFileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SupportingDocumentFileAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SupportingDocumentFileSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupportingDocumentFileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupportingDocumentFileMaxAggregateInputType
+  }
+
+  export type GetSupportingDocumentFileAggregateType<T extends SupportingDocumentFileAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupportingDocumentFile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupportingDocumentFile[P]>
+      : GetScalarType<T[P], AggregateSupportingDocumentFile[P]>
+  }
+
+
+
+
+  export type SupportingDocumentFileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportingDocumentFileWhereInput
+    orderBy?: SupportingDocumentFileOrderByWithAggregationInput | SupportingDocumentFileOrderByWithAggregationInput[]
+    by: SupportingDocumentFileScalarFieldEnum[] | SupportingDocumentFileScalarFieldEnum
+    having?: SupportingDocumentFileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupportingDocumentFileCountAggregateInputType | true
+    _avg?: SupportingDocumentFileAvgAggregateInputType
+    _sum?: SupportingDocumentFileSumAggregateInputType
+    _min?: SupportingDocumentFileMinAggregateInputType
+    _max?: SupportingDocumentFileMaxAggregateInputType
+  }
+
+  export type SupportingDocumentFileGroupByOutputType = {
+    id: string
+    requestId: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    submittedById: string
+    createdAt: Date
+    submittedAt: Date | null
+    _count: SupportingDocumentFileCountAggregateOutputType | null
+    _avg: SupportingDocumentFileAvgAggregateOutputType | null
+    _sum: SupportingDocumentFileSumAggregateOutputType | null
+    _min: SupportingDocumentFileMinAggregateOutputType | null
+    _max: SupportingDocumentFileMaxAggregateOutputType | null
+  }
+
+  type GetSupportingDocumentFileGroupByPayload<T extends SupportingDocumentFileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupportingDocumentFileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupportingDocumentFileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupportingDocumentFileGroupByOutputType[P]>
+            : GetScalarType<T[P], SupportingDocumentFileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupportingDocumentFileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    clientId?: boolean
+    storagePath?: boolean
+    fileName?: boolean
+    mimeType?: boolean
+    byteSize?: boolean
+    submittedById?: boolean
+    createdAt?: boolean
+    submittedAt?: boolean
+    request?: boolean | SupportingDocumentRequestDefaultArgs<ExtArgs>
+    submittedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportingDocumentFile"]>
+
+  export type SupportingDocumentFileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    clientId?: boolean
+    storagePath?: boolean
+    fileName?: boolean
+    mimeType?: boolean
+    byteSize?: boolean
+    submittedById?: boolean
+    createdAt?: boolean
+    submittedAt?: boolean
+    request?: boolean | SupportingDocumentRequestDefaultArgs<ExtArgs>
+    submittedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportingDocumentFile"]>
+
+  export type SupportingDocumentFileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    requestId?: boolean
+    clientId?: boolean
+    storagePath?: boolean
+    fileName?: boolean
+    mimeType?: boolean
+    byteSize?: boolean
+    submittedById?: boolean
+    createdAt?: boolean
+    submittedAt?: boolean
+    request?: boolean | SupportingDocumentRequestDefaultArgs<ExtArgs>
+    submittedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["supportingDocumentFile"]>
+
+  export type SupportingDocumentFileSelectScalar = {
+    id?: boolean
+    requestId?: boolean
+    clientId?: boolean
+    storagePath?: boolean
+    fileName?: boolean
+    mimeType?: boolean
+    byteSize?: boolean
+    submittedById?: boolean
+    createdAt?: boolean
+    submittedAt?: boolean
+  }
+
+  export type SupportingDocumentFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "requestId" | "clientId" | "storagePath" | "fileName" | "mimeType" | "byteSize" | "submittedById" | "createdAt" | "submittedAt", ExtArgs["result"]["supportingDocumentFile"]>
+  export type SupportingDocumentFileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | SupportingDocumentRequestDefaultArgs<ExtArgs>
+    submittedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type SupportingDocumentFileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | SupportingDocumentRequestDefaultArgs<ExtArgs>
+    submittedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type SupportingDocumentFileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    request?: boolean | SupportingDocumentRequestDefaultArgs<ExtArgs>
+    submittedBy?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $SupportingDocumentFilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SupportingDocumentFile"
+    objects: {
+      request: Prisma.$SupportingDocumentRequestPayload<ExtArgs>
+      submittedBy: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      requestId: string
+      clientId: string
+      storagePath: string
+      fileName: string
+      mimeType: string
+      byteSize: number
+      submittedById: string
+      createdAt: Date
+      submittedAt: Date | null
+    }, ExtArgs["result"]["supportingDocumentFile"]>
+    composites: {}
+  }
+
+  type SupportingDocumentFileGetPayload<S extends boolean | null | undefined | SupportingDocumentFileDefaultArgs> = $Result.GetResult<Prisma.$SupportingDocumentFilePayload, S>
+
+  type SupportingDocumentFileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupportingDocumentFileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupportingDocumentFileCountAggregateInputType | true
+    }
+
+  export interface SupportingDocumentFileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportingDocumentFile'], meta: { name: 'SupportingDocumentFile' } }
+    /**
+     * Find zero or one SupportingDocumentFile that matches the filter.
+     * @param {SupportingDocumentFileFindUniqueArgs} args - Arguments to find a SupportingDocumentFile
+     * @example
+     * // Get one SupportingDocumentFile
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupportingDocumentFileFindUniqueArgs>(args: SelectSubset<T, SupportingDocumentFileFindUniqueArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SupportingDocumentFile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupportingDocumentFileFindUniqueOrThrowArgs} args - Arguments to find a SupportingDocumentFile
+     * @example
+     * // Get one SupportingDocumentFile
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupportingDocumentFileFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportingDocumentFileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportingDocumentFile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileFindFirstArgs} args - Arguments to find a SupportingDocumentFile
+     * @example
+     * // Get one SupportingDocumentFile
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupportingDocumentFileFindFirstArgs>(args?: SelectSubset<T, SupportingDocumentFileFindFirstArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportingDocumentFile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileFindFirstOrThrowArgs} args - Arguments to find a SupportingDocumentFile
+     * @example
+     * // Get one SupportingDocumentFile
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupportingDocumentFileFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportingDocumentFileFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportingDocumentFiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SupportingDocumentFiles
+     * const supportingDocumentFiles = await prisma.supportingDocumentFile.findMany()
+     * 
+     * // Get first 10 SupportingDocumentFiles
+     * const supportingDocumentFiles = await prisma.supportingDocumentFile.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supportingDocumentFileWithIdOnly = await prisma.supportingDocumentFile.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupportingDocumentFileFindManyArgs>(args?: SelectSubset<T, SupportingDocumentFileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SupportingDocumentFile.
+     * @param {SupportingDocumentFileCreateArgs} args - Arguments to create a SupportingDocumentFile.
+     * @example
+     * // Create one SupportingDocumentFile
+     * const SupportingDocumentFile = await prisma.supportingDocumentFile.create({
+     *   data: {
+     *     // ... data to create a SupportingDocumentFile
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupportingDocumentFileCreateArgs>(args: SelectSubset<T, SupportingDocumentFileCreateArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SupportingDocumentFiles.
+     * @param {SupportingDocumentFileCreateManyArgs} args - Arguments to create many SupportingDocumentFiles.
+     * @example
+     * // Create many SupportingDocumentFiles
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupportingDocumentFileCreateManyArgs>(args?: SelectSubset<T, SupportingDocumentFileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SupportingDocumentFiles and returns the data saved in the database.
+     * @param {SupportingDocumentFileCreateManyAndReturnArgs} args - Arguments to create many SupportingDocumentFiles.
+     * @example
+     * // Create many SupportingDocumentFiles
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SupportingDocumentFiles and only return the `id`
+     * const supportingDocumentFileWithIdOnly = await prisma.supportingDocumentFile.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SupportingDocumentFileCreateManyAndReturnArgs>(args?: SelectSubset<T, SupportingDocumentFileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SupportingDocumentFile.
+     * @param {SupportingDocumentFileDeleteArgs} args - Arguments to delete one SupportingDocumentFile.
+     * @example
+     * // Delete one SupportingDocumentFile
+     * const SupportingDocumentFile = await prisma.supportingDocumentFile.delete({
+     *   where: {
+     *     // ... filter to delete one SupportingDocumentFile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupportingDocumentFileDeleteArgs>(args: SelectSubset<T, SupportingDocumentFileDeleteArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SupportingDocumentFile.
+     * @param {SupportingDocumentFileUpdateArgs} args - Arguments to update one SupportingDocumentFile.
+     * @example
+     * // Update one SupportingDocumentFile
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupportingDocumentFileUpdateArgs>(args: SelectSubset<T, SupportingDocumentFileUpdateArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SupportingDocumentFiles.
+     * @param {SupportingDocumentFileDeleteManyArgs} args - Arguments to filter SupportingDocumentFiles to delete.
+     * @example
+     * // Delete a few SupportingDocumentFiles
+     * const { count } = await prisma.supportingDocumentFile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupportingDocumentFileDeleteManyArgs>(args?: SelectSubset<T, SupportingDocumentFileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportingDocumentFiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SupportingDocumentFiles
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupportingDocumentFileUpdateManyArgs>(args: SelectSubset<T, SupportingDocumentFileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportingDocumentFiles and returns the data updated in the database.
+     * @param {SupportingDocumentFileUpdateManyAndReturnArgs} args - Arguments to update many SupportingDocumentFiles.
+     * @example
+     * // Update many SupportingDocumentFiles
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SupportingDocumentFiles and only return the `id`
+     * const supportingDocumentFileWithIdOnly = await prisma.supportingDocumentFile.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SupportingDocumentFileUpdateManyAndReturnArgs>(args: SelectSubset<T, SupportingDocumentFileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SupportingDocumentFile.
+     * @param {SupportingDocumentFileUpsertArgs} args - Arguments to update or create a SupportingDocumentFile.
+     * @example
+     * // Update or create a SupportingDocumentFile
+     * const supportingDocumentFile = await prisma.supportingDocumentFile.upsert({
+     *   create: {
+     *     // ... data to create a SupportingDocumentFile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SupportingDocumentFile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupportingDocumentFileUpsertArgs>(args: SelectSubset<T, SupportingDocumentFileUpsertArgs<ExtArgs>>): Prisma__SupportingDocumentFileClient<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SupportingDocumentFiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileCountArgs} args - Arguments to filter SupportingDocumentFiles to count.
+     * @example
+     * // Count the number of SupportingDocumentFiles
+     * const count = await prisma.supportingDocumentFile.count({
+     *   where: {
+     *     // ... the filter for the SupportingDocumentFiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupportingDocumentFileCountArgs>(
+      args?: Subset<T, SupportingDocumentFileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupportingDocumentFileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SupportingDocumentFile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupportingDocumentFileAggregateArgs>(args: Subset<T, SupportingDocumentFileAggregateArgs>): Prisma.PrismaPromise<GetSupportingDocumentFileAggregateType<T>>
+
+    /**
+     * Group by SupportingDocumentFile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportingDocumentFileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupportingDocumentFileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupportingDocumentFileGroupByArgs['orderBy'] }
+        : { orderBy?: SupportingDocumentFileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupportingDocumentFileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportingDocumentFileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SupportingDocumentFile model
+   */
+  readonly fields: SupportingDocumentFileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SupportingDocumentFile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupportingDocumentFileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    request<T extends SupportingDocumentRequestDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SupportingDocumentRequestDefaultArgs<ExtArgs>>): Prisma__SupportingDocumentRequestClient<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    submittedBy<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SupportingDocumentFile model
+   */
+  interface SupportingDocumentFileFieldRefs {
+    readonly id: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly requestId: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly clientId: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly storagePath: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly fileName: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly mimeType: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly byteSize: FieldRef<"SupportingDocumentFile", 'Int'>
+    readonly submittedById: FieldRef<"SupportingDocumentFile", 'String'>
+    readonly createdAt: FieldRef<"SupportingDocumentFile", 'DateTime'>
+    readonly submittedAt: FieldRef<"SupportingDocumentFile", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SupportingDocumentFile findUnique
+   */
+  export type SupportingDocumentFileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentFile to fetch.
+     */
+    where: SupportingDocumentFileWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentFile findUniqueOrThrow
+   */
+  export type SupportingDocumentFileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentFile to fetch.
+     */
+    where: SupportingDocumentFileWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentFile findFirst
+   */
+  export type SupportingDocumentFileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentFile to fetch.
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentFiles to fetch.
+     */
+    orderBy?: SupportingDocumentFileOrderByWithRelationInput | SupportingDocumentFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportingDocumentFiles.
+     */
+    cursor?: SupportingDocumentFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportingDocumentFiles.
+     */
+    distinct?: SupportingDocumentFileScalarFieldEnum | SupportingDocumentFileScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentFile findFirstOrThrow
+   */
+  export type SupportingDocumentFileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentFile to fetch.
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentFiles to fetch.
+     */
+    orderBy?: SupportingDocumentFileOrderByWithRelationInput | SupportingDocumentFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportingDocumentFiles.
+     */
+    cursor?: SupportingDocumentFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportingDocumentFiles.
+     */
+    distinct?: SupportingDocumentFileScalarFieldEnum | SupportingDocumentFileScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentFile findMany
+   */
+  export type SupportingDocumentFileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportingDocumentFiles to fetch.
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportingDocumentFiles to fetch.
+     */
+    orderBy?: SupportingDocumentFileOrderByWithRelationInput | SupportingDocumentFileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SupportingDocumentFiles.
+     */
+    cursor?: SupportingDocumentFileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportingDocumentFiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportingDocumentFiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportingDocumentFiles.
+     */
+    distinct?: SupportingDocumentFileScalarFieldEnum | SupportingDocumentFileScalarFieldEnum[]
+  }
+
+  /**
+   * SupportingDocumentFile create
+   */
+  export type SupportingDocumentFileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SupportingDocumentFile.
+     */
+    data: XOR<SupportingDocumentFileCreateInput, SupportingDocumentFileUncheckedCreateInput>
+  }
+
+  /**
+   * SupportingDocumentFile createMany
+   */
+  export type SupportingDocumentFileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SupportingDocumentFiles.
+     */
+    data: SupportingDocumentFileCreateManyInput | SupportingDocumentFileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SupportingDocumentFile createManyAndReturn
+   */
+  export type SupportingDocumentFileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * The data used to create many SupportingDocumentFiles.
+     */
+    data: SupportingDocumentFileCreateManyInput | SupportingDocumentFileCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportingDocumentFile update
+   */
+  export type SupportingDocumentFileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SupportingDocumentFile.
+     */
+    data: XOR<SupportingDocumentFileUpdateInput, SupportingDocumentFileUncheckedUpdateInput>
+    /**
+     * Choose, which SupportingDocumentFile to update.
+     */
+    where: SupportingDocumentFileWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentFile updateMany
+   */
+  export type SupportingDocumentFileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SupportingDocumentFiles.
+     */
+    data: XOR<SupportingDocumentFileUpdateManyMutationInput, SupportingDocumentFileUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportingDocumentFiles to update
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * Limit how many SupportingDocumentFiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportingDocumentFile updateManyAndReturn
+   */
+  export type SupportingDocumentFileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * The data used to update SupportingDocumentFiles.
+     */
+    data: XOR<SupportingDocumentFileUpdateManyMutationInput, SupportingDocumentFileUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportingDocumentFiles to update
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * Limit how many SupportingDocumentFiles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportingDocumentFile upsert
+   */
+  export type SupportingDocumentFileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SupportingDocumentFile to update in case it exists.
+     */
+    where: SupportingDocumentFileWhereUniqueInput
+    /**
+     * In case the SupportingDocumentFile found by the `where` argument doesn't exist, create a new SupportingDocumentFile with this data.
+     */
+    create: XOR<SupportingDocumentFileCreateInput, SupportingDocumentFileUncheckedCreateInput>
+    /**
+     * In case the SupportingDocumentFile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupportingDocumentFileUpdateInput, SupportingDocumentFileUncheckedUpdateInput>
+  }
+
+  /**
+   * SupportingDocumentFile delete
+   */
+  export type SupportingDocumentFileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
+    /**
+     * Filter which SupportingDocumentFile to delete.
+     */
+    where: SupportingDocumentFileWhereUniqueInput
+  }
+
+  /**
+   * SupportingDocumentFile deleteMany
+   */
+  export type SupportingDocumentFileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportingDocumentFiles to delete
+     */
+    where?: SupportingDocumentFileWhereInput
+    /**
+     * Limit how many SupportingDocumentFiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportingDocumentFile without action
+   */
+  export type SupportingDocumentFileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportingDocumentFile
+     */
+    select?: SupportingDocumentFileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportingDocumentFile
+     */
+    omit?: SupportingDocumentFileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportingDocumentFileInclude<ExtArgs> | null
   }
 
 
@@ -63050,6 +65698,7 @@ export namespace Prisma {
     monthlyRent: 'monthlyRent',
     deposit: 'deposit',
     minorRepairCap: 'minorRepairCap',
+    minorRepairClause: 'minorRepairClause',
     agentMayAgreeCosts: 'agentMayAgreeCosts',
     defectWindowDays: 'defectWindowDays',
     renewalDecision: 'renewalDecision',
@@ -63307,6 +65956,35 @@ export namespace Prisma {
   };
 
   export type ServiceProviderScalarFieldEnum = (typeof ServiceProviderScalarFieldEnum)[keyof typeof ServiceProviderScalarFieldEnum]
+
+
+  export const SupportingDocumentRequestScalarFieldEnum: {
+    id: 'id',
+    tenancyId: 'tenancyId',
+    clientId: 'clientId',
+    title: 'title',
+    kind: 'kind',
+    requestedById: 'requestedById',
+    requestedAt: 'requestedAt'
+  };
+
+  export type SupportingDocumentRequestScalarFieldEnum = (typeof SupportingDocumentRequestScalarFieldEnum)[keyof typeof SupportingDocumentRequestScalarFieldEnum]
+
+
+  export const SupportingDocumentFileScalarFieldEnum: {
+    id: 'id',
+    requestId: 'requestId',
+    clientId: 'clientId',
+    storagePath: 'storagePath',
+    fileName: 'fileName',
+    mimeType: 'mimeType',
+    byteSize: 'byteSize',
+    submittedById: 'submittedById',
+    createdAt: 'createdAt',
+    submittedAt: 'submittedAt'
+  };
+
+  export type SupportingDocumentFileScalarFieldEnum = (typeof SupportingDocumentFileScalarFieldEnum)[keyof typeof SupportingDocumentFileScalarFieldEnum]
 
 
   export const DeviceInstallationScalarFieldEnum: {
@@ -64109,6 +66787,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'SupportingDocumentKind'
+   */
+  export type EnumSupportingDocumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportingDocumentKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'SupportingDocumentKind[]'
+   */
+  export type ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportingDocumentKind[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DevicePlatform'
    */
   export type EnumDevicePlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DevicePlatform'>
@@ -64309,6 +67001,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
     findingPhotoDrafts?: FindingPhotoDraftListRelationFilter
     assessmentResponses?: AssessmentResponseListRelationFilter
+    supportingDocumentRequests?: SupportingDocumentRequestListRelationFilter
+    supportingDocumentFiles?: SupportingDocumentFileListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }
@@ -64354,6 +67048,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementOrderByRelationAggregateInput
     findingPhotoDrafts?: FindingPhotoDraftOrderByRelationAggregateInput
     assessmentResponses?: AssessmentResponseOrderByRelationAggregateInput
+    supportingDocumentRequests?: SupportingDocumentRequestOrderByRelationAggregateInput
+    supportingDocumentFiles?: SupportingDocumentFileOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
   }
@@ -64402,6 +67098,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementListRelationFilter
     findingPhotoDrafts?: FindingPhotoDraftListRelationFilter
     assessmentResponses?: AssessmentResponseListRelationFilter
+    supportingDocumentRequests?: SupportingDocumentRequestListRelationFilter
+    supportingDocumentFiles?: SupportingDocumentFileListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
   }, "id" | "email" | "authUserId">
@@ -65177,6 +67875,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: JsonNullableFilter<"Tenancy">
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
     defectWindowDays?: IntFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
@@ -65193,6 +67892,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorListRelationFilter
     notifications?: NotificationListRelationFilter
     maintenanceCases?: MaintenanceCaseListRelationFilter
+    supportingDocumentRequests?: SupportingDocumentRequestListRelationFilter
     renewedFrom?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
     renewedAs?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
   }
@@ -65209,6 +67909,7 @@ export namespace Prisma {
     monthlyRent?: SortOrder
     deposit?: SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
+    minorRepairClause?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
     defectWindowDays?: SortOrder
     renewalDecision?: SortOrderInput | SortOrder
@@ -65225,6 +67926,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
     maintenanceCases?: MaintenanceCaseOrderByRelationAggregateInput
+    supportingDocumentRequests?: SupportingDocumentRequestOrderByRelationAggregateInput
     renewedFrom?: TenancyOrderByWithRelationInput
     renewedAs?: TenancyOrderByWithRelationInput
   }
@@ -65245,6 +67947,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: JsonNullableFilter<"Tenancy">
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
     defectWindowDays?: IntFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
@@ -65260,6 +67963,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorListRelationFilter
     notifications?: NotificationListRelationFilter
     maintenanceCases?: MaintenanceCaseListRelationFilter
+    supportingDocumentRequests?: SupportingDocumentRequestListRelationFilter
     renewedFrom?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
     renewedAs?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
   }, "id" | "renewedFromId">
@@ -65276,6 +67980,7 @@ export namespace Prisma {
     monthlyRent?: SortOrder
     deposit?: SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
+    minorRepairClause?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
     defectWindowDays?: SortOrder
     renewalDecision?: SortOrderInput | SortOrder
@@ -65305,6 +68010,7 @@ export namespace Prisma {
     monthlyRent?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: JsonNullableWithAggregatesFilter<"Tenancy">
     agentMayAgreeCosts?: BoolWithAggregatesFilter<"Tenancy"> | boolean
     defectWindowDays?: IntWithAggregatesFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableWithAggregatesFilter<"Tenancy"> | $Enums.RenewalDecision | null
@@ -66710,6 +69416,163 @@ export namespace Prisma {
     active?: BoolWithAggregatesFilter<"ServiceProvider"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"ServiceProvider"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ServiceProvider"> | Date | string
+  }
+
+  export type SupportingDocumentRequestWhereInput = {
+    AND?: SupportingDocumentRequestWhereInput | SupportingDocumentRequestWhereInput[]
+    OR?: SupportingDocumentRequestWhereInput[]
+    NOT?: SupportingDocumentRequestWhereInput | SupportingDocumentRequestWhereInput[]
+    id?: StringFilter<"SupportingDocumentRequest"> | string
+    tenancyId?: StringFilter<"SupportingDocumentRequest"> | string
+    clientId?: StringFilter<"SupportingDocumentRequest"> | string
+    title?: StringFilter<"SupportingDocumentRequest"> | string
+    kind?: EnumSupportingDocumentKindFilter<"SupportingDocumentRequest"> | $Enums.SupportingDocumentKind
+    requestedById?: StringFilter<"SupportingDocumentRequest"> | string
+    requestedAt?: DateTimeFilter<"SupportingDocumentRequest"> | Date | string
+    tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
+    requestedBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    files?: SupportingDocumentFileListRelationFilter
+  }
+
+  export type SupportingDocumentRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    tenancyId?: SortOrder
+    clientId?: SortOrder
+    title?: SortOrder
+    kind?: SortOrder
+    requestedById?: SortOrder
+    requestedAt?: SortOrder
+    tenancy?: TenancyOrderByWithRelationInput
+    requestedBy?: StakeholderOrderByWithRelationInput
+    files?: SupportingDocumentFileOrderByRelationAggregateInput
+  }
+
+  export type SupportingDocumentRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenancyId_clientId?: SupportingDocumentRequestTenancyIdClientIdCompoundUniqueInput
+    AND?: SupportingDocumentRequestWhereInput | SupportingDocumentRequestWhereInput[]
+    OR?: SupportingDocumentRequestWhereInput[]
+    NOT?: SupportingDocumentRequestWhereInput | SupportingDocumentRequestWhereInput[]
+    tenancyId?: StringFilter<"SupportingDocumentRequest"> | string
+    clientId?: StringFilter<"SupportingDocumentRequest"> | string
+    title?: StringFilter<"SupportingDocumentRequest"> | string
+    kind?: EnumSupportingDocumentKindFilter<"SupportingDocumentRequest"> | $Enums.SupportingDocumentKind
+    requestedById?: StringFilter<"SupportingDocumentRequest"> | string
+    requestedAt?: DateTimeFilter<"SupportingDocumentRequest"> | Date | string
+    tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
+    requestedBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    files?: SupportingDocumentFileListRelationFilter
+  }, "id" | "tenancyId_clientId">
+
+  export type SupportingDocumentRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenancyId?: SortOrder
+    clientId?: SortOrder
+    title?: SortOrder
+    kind?: SortOrder
+    requestedById?: SortOrder
+    requestedAt?: SortOrder
+    _count?: SupportingDocumentRequestCountOrderByAggregateInput
+    _max?: SupportingDocumentRequestMaxOrderByAggregateInput
+    _min?: SupportingDocumentRequestMinOrderByAggregateInput
+  }
+
+  export type SupportingDocumentRequestScalarWhereWithAggregatesInput = {
+    AND?: SupportingDocumentRequestScalarWhereWithAggregatesInput | SupportingDocumentRequestScalarWhereWithAggregatesInput[]
+    OR?: SupportingDocumentRequestScalarWhereWithAggregatesInput[]
+    NOT?: SupportingDocumentRequestScalarWhereWithAggregatesInput | SupportingDocumentRequestScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SupportingDocumentRequest"> | string
+    tenancyId?: StringWithAggregatesFilter<"SupportingDocumentRequest"> | string
+    clientId?: StringWithAggregatesFilter<"SupportingDocumentRequest"> | string
+    title?: StringWithAggregatesFilter<"SupportingDocumentRequest"> | string
+    kind?: EnumSupportingDocumentKindWithAggregatesFilter<"SupportingDocumentRequest"> | $Enums.SupportingDocumentKind
+    requestedById?: StringWithAggregatesFilter<"SupportingDocumentRequest"> | string
+    requestedAt?: DateTimeWithAggregatesFilter<"SupportingDocumentRequest"> | Date | string
+  }
+
+  export type SupportingDocumentFileWhereInput = {
+    AND?: SupportingDocumentFileWhereInput | SupportingDocumentFileWhereInput[]
+    OR?: SupportingDocumentFileWhereInput[]
+    NOT?: SupportingDocumentFileWhereInput | SupportingDocumentFileWhereInput[]
+    id?: StringFilter<"SupportingDocumentFile"> | string
+    requestId?: StringFilter<"SupportingDocumentFile"> | string
+    clientId?: StringFilter<"SupportingDocumentFile"> | string
+    storagePath?: StringFilter<"SupportingDocumentFile"> | string
+    fileName?: StringFilter<"SupportingDocumentFile"> | string
+    mimeType?: StringFilter<"SupportingDocumentFile"> | string
+    byteSize?: IntFilter<"SupportingDocumentFile"> | number
+    submittedById?: StringFilter<"SupportingDocumentFile"> | string
+    createdAt?: DateTimeFilter<"SupportingDocumentFile"> | Date | string
+    submittedAt?: DateTimeNullableFilter<"SupportingDocumentFile"> | Date | string | null
+    request?: XOR<SupportingDocumentRequestScalarRelationFilter, SupportingDocumentRequestWhereInput>
+    submittedBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type SupportingDocumentFileOrderByWithRelationInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    clientId?: SortOrder
+    storagePath?: SortOrder
+    fileName?: SortOrder
+    mimeType?: SortOrder
+    byteSize?: SortOrder
+    submittedById?: SortOrder
+    createdAt?: SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    request?: SupportingDocumentRequestOrderByWithRelationInput
+    submittedBy?: StakeholderOrderByWithRelationInput
+  }
+
+  export type SupportingDocumentFileWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    clientId?: string
+    storagePath?: string
+    AND?: SupportingDocumentFileWhereInput | SupportingDocumentFileWhereInput[]
+    OR?: SupportingDocumentFileWhereInput[]
+    NOT?: SupportingDocumentFileWhereInput | SupportingDocumentFileWhereInput[]
+    requestId?: StringFilter<"SupportingDocumentFile"> | string
+    fileName?: StringFilter<"SupportingDocumentFile"> | string
+    mimeType?: StringFilter<"SupportingDocumentFile"> | string
+    byteSize?: IntFilter<"SupportingDocumentFile"> | number
+    submittedById?: StringFilter<"SupportingDocumentFile"> | string
+    createdAt?: DateTimeFilter<"SupportingDocumentFile"> | Date | string
+    submittedAt?: DateTimeNullableFilter<"SupportingDocumentFile"> | Date | string | null
+    request?: XOR<SupportingDocumentRequestScalarRelationFilter, SupportingDocumentRequestWhereInput>
+    submittedBy?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "id" | "clientId" | "storagePath">
+
+  export type SupportingDocumentFileOrderByWithAggregationInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    clientId?: SortOrder
+    storagePath?: SortOrder
+    fileName?: SortOrder
+    mimeType?: SortOrder
+    byteSize?: SortOrder
+    submittedById?: SortOrder
+    createdAt?: SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    _count?: SupportingDocumentFileCountOrderByAggregateInput
+    _avg?: SupportingDocumentFileAvgOrderByAggregateInput
+    _max?: SupportingDocumentFileMaxOrderByAggregateInput
+    _min?: SupportingDocumentFileMinOrderByAggregateInput
+    _sum?: SupportingDocumentFileSumOrderByAggregateInput
+  }
+
+  export type SupportingDocumentFileScalarWhereWithAggregatesInput = {
+    AND?: SupportingDocumentFileScalarWhereWithAggregatesInput | SupportingDocumentFileScalarWhereWithAggregatesInput[]
+    OR?: SupportingDocumentFileScalarWhereWithAggregatesInput[]
+    NOT?: SupportingDocumentFileScalarWhereWithAggregatesInput | SupportingDocumentFileScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    requestId?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    clientId?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    storagePath?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    fileName?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    mimeType?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    byteSize?: IntWithAggregatesFilter<"SupportingDocumentFile"> | number
+    submittedById?: StringWithAggregatesFilter<"SupportingDocumentFile"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"SupportingDocumentFile"> | Date | string
+    submittedAt?: DateTimeNullableWithAggregatesFilter<"SupportingDocumentFile"> | Date | string | null
   }
 
   export type DeviceInstallationWhereInput = {
@@ -68455,6 +71318,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -68499,6 +71364,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -68543,6 +71410,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -68587,6 +71456,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -69440,6 +72311,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -69455,6 +72327,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -69471,6 +72344,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -69482,6 +72356,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -69492,6 +72367,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -69507,6 +72383,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -69523,6 +72400,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -69534,6 +72412,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -69549,6 +72428,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -69565,6 +72445,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -69585,6 +72466,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -71097,6 +73979,167 @@ export namespace Prisma {
     active?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportingDocumentRequestCreateInput = {
+    id?: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutSupportingDocumentRequestsInput
+    requestedBy: StakeholderCreateNestedOneWithoutSupportingDocumentRequestsInput
+    files?: SupportingDocumentFileCreateNestedManyWithoutRequestInput
+  }
+
+  export type SupportingDocumentRequestUncheckedCreateInput = {
+    id?: string
+    tenancyId: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedById: string
+    requestedAt?: Date | string
+    files?: SupportingDocumentFileUncheckedCreateNestedManyWithoutRequestInput
+  }
+
+  export type SupportingDocumentRequestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput
+    requestedBy?: StakeholderUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput
+    files?: SupportingDocumentFileUpdateManyWithoutRequestNestedInput
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedById?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    files?: SupportingDocumentFileUncheckedUpdateManyWithoutRequestNestedInput
+  }
+
+  export type SupportingDocumentRequestCreateManyInput = {
+    id?: string
+    tenancyId: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedById: string
+    requestedAt?: Date | string
+  }
+
+  export type SupportingDocumentRequestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedById?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportingDocumentFileCreateInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+    request: SupportingDocumentRequestCreateNestedOneWithoutFilesInput
+    submittedBy: StakeholderCreateNestedOneWithoutSupportingDocumentFilesInput
+  }
+
+  export type SupportingDocumentFileUncheckedCreateInput = {
+    id?: string
+    requestId: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    submittedById: string
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+  }
+
+  export type SupportingDocumentFileUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    request?: SupportingDocumentRequestUpdateOneRequiredWithoutFilesNestedInput
+    submittedBy?: StakeholderUpdateOneRequiredWithoutSupportingDocumentFilesNestedInput
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    submittedById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportingDocumentFileCreateManyInput = {
+    id?: string
+    requestId: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    submittedById: string
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+  }
+
+  export type SupportingDocumentFileUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    submittedById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type DeviceInstallationCreateInput = {
@@ -73098,6 +76141,18 @@ export namespace Prisma {
     none?: AssessmentResponseWhereInput
   }
 
+  export type SupportingDocumentRequestListRelationFilter = {
+    every?: SupportingDocumentRequestWhereInput
+    some?: SupportingDocumentRequestWhereInput
+    none?: SupportingDocumentRequestWhereInput
+  }
+
+  export type SupportingDocumentFileListRelationFilter = {
+    every?: SupportingDocumentFileWhereInput
+    some?: SupportingDocumentFileWhereInput
+    none?: SupportingDocumentFileWhereInput
+  }
+
   export type SubscriptionNullableScalarRelationFilter = {
     is?: SubscriptionWhereInput | null
     isNot?: SubscriptionWhereInput | null
@@ -73195,6 +76250,14 @@ export namespace Prisma {
   }
 
   export type AssessmentResponseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SupportingDocumentRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SupportingDocumentFileOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -73997,6 +77060,7 @@ export namespace Prisma {
     monthlyRent?: SortOrder
     deposit?: SortOrder
     minorRepairCap?: SortOrder
+    minorRepairClause?: SortOrder
     agentMayAgreeCosts?: SortOrder
     defectWindowDays?: SortOrder
     renewalDecision?: SortOrder
@@ -75304,6 +78368,110 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumServiceProviderCategoryFilter<$PrismaModel>
     _max?: NestedEnumServiceProviderCategoryFilter<$PrismaModel>
+  }
+
+  export type EnumSupportingDocumentKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportingDocumentKind | EnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportingDocumentKindFilter<$PrismaModel> | $Enums.SupportingDocumentKind
+  }
+
+  export type SupportingDocumentRequestTenancyIdClientIdCompoundUniqueInput = {
+    tenancyId: string
+    clientId: string
+  }
+
+  export type SupportingDocumentRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenancyId?: SortOrder
+    clientId?: SortOrder
+    title?: SortOrder
+    kind?: SortOrder
+    requestedById?: SortOrder
+    requestedAt?: SortOrder
+  }
+
+  export type SupportingDocumentRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenancyId?: SortOrder
+    clientId?: SortOrder
+    title?: SortOrder
+    kind?: SortOrder
+    requestedById?: SortOrder
+    requestedAt?: SortOrder
+  }
+
+  export type SupportingDocumentRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenancyId?: SortOrder
+    clientId?: SortOrder
+    title?: SortOrder
+    kind?: SortOrder
+    requestedById?: SortOrder
+    requestedAt?: SortOrder
+  }
+
+  export type EnumSupportingDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportingDocumentKind | EnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportingDocumentKindWithAggregatesFilter<$PrismaModel> | $Enums.SupportingDocumentKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSupportingDocumentKindFilter<$PrismaModel>
+    _max?: NestedEnumSupportingDocumentKindFilter<$PrismaModel>
+  }
+
+  export type SupportingDocumentRequestScalarRelationFilter = {
+    is?: SupportingDocumentRequestWhereInput
+    isNot?: SupportingDocumentRequestWhereInput
+  }
+
+  export type SupportingDocumentFileCountOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    clientId?: SortOrder
+    storagePath?: SortOrder
+    fileName?: SortOrder
+    mimeType?: SortOrder
+    byteSize?: SortOrder
+    submittedById?: SortOrder
+    createdAt?: SortOrder
+    submittedAt?: SortOrder
+  }
+
+  export type SupportingDocumentFileAvgOrderByAggregateInput = {
+    byteSize?: SortOrder
+  }
+
+  export type SupportingDocumentFileMaxOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    clientId?: SortOrder
+    storagePath?: SortOrder
+    fileName?: SortOrder
+    mimeType?: SortOrder
+    byteSize?: SortOrder
+    submittedById?: SortOrder
+    createdAt?: SortOrder
+    submittedAt?: SortOrder
+  }
+
+  export type SupportingDocumentFileMinOrderByAggregateInput = {
+    id?: SortOrder
+    requestId?: SortOrder
+    clientId?: SortOrder
+    storagePath?: SortOrder
+    fileName?: SortOrder
+    mimeType?: SortOrder
+    byteSize?: SortOrder
+    submittedById?: SortOrder
+    createdAt?: SortOrder
+    submittedAt?: SortOrder
+  }
+
+  export type SupportingDocumentFileSumOrderByAggregateInput = {
+    byteSize?: SortOrder
   }
 
   export type EnumDevicePlatformFilter<$PrismaModel = never> = {
@@ -76718,6 +79886,20 @@ export namespace Prisma {
     connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
   }
 
+  export type SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutRequestedByInput, SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput> | SupportingDocumentRequestCreateWithoutRequestedByInput[] | SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput | SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput[]
+    createMany?: SupportingDocumentRequestCreateManyRequestedByInputEnvelope
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+  }
+
+  export type SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutSubmittedByInput, SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput> | SupportingDocumentFileCreateWithoutSubmittedByInput[] | SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput | SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput[]
+    createMany?: SupportingDocumentFileCreateManySubmittedByInputEnvelope
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+  }
+
   export type SubscriptionCreateNestedOneWithoutStakeholderInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -76931,6 +80113,20 @@ export namespace Prisma {
     connectOrCreate?: AssessmentResponseCreateOrConnectWithoutStakeholderInput | AssessmentResponseCreateOrConnectWithoutStakeholderInput[]
     createMany?: AssessmentResponseCreateManyStakeholderInputEnvelope
     connect?: AssessmentResponseWhereUniqueInput | AssessmentResponseWhereUniqueInput[]
+  }
+
+  export type SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutRequestedByInput, SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput> | SupportingDocumentRequestCreateWithoutRequestedByInput[] | SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput | SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput[]
+    createMany?: SupportingDocumentRequestCreateManyRequestedByInputEnvelope
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+  }
+
+  export type SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutSubmittedByInput, SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput> | SupportingDocumentFileCreateWithoutSubmittedByInput[] | SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput | SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput[]
+    createMany?: SupportingDocumentFileCreateManySubmittedByInputEnvelope
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
   }
 
   export type SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput = {
@@ -77374,6 +80570,34 @@ export namespace Prisma {
     deleteMany?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
   }
 
+  export type SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutRequestedByInput, SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput> | SupportingDocumentRequestCreateWithoutRequestedByInput[] | SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput | SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput[]
+    upsert?: SupportingDocumentRequestUpsertWithWhereUniqueWithoutRequestedByInput | SupportingDocumentRequestUpsertWithWhereUniqueWithoutRequestedByInput[]
+    createMany?: SupportingDocumentRequestCreateManyRequestedByInputEnvelope
+    set?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    disconnect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    delete?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    update?: SupportingDocumentRequestUpdateWithWhereUniqueWithoutRequestedByInput | SupportingDocumentRequestUpdateWithWhereUniqueWithoutRequestedByInput[]
+    updateMany?: SupportingDocumentRequestUpdateManyWithWhereWithoutRequestedByInput | SupportingDocumentRequestUpdateManyWithWhereWithoutRequestedByInput[]
+    deleteMany?: SupportingDocumentRequestScalarWhereInput | SupportingDocumentRequestScalarWhereInput[]
+  }
+
+  export type SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutSubmittedByInput, SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput> | SupportingDocumentFileCreateWithoutSubmittedByInput[] | SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput | SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput[]
+    upsert?: SupportingDocumentFileUpsertWithWhereUniqueWithoutSubmittedByInput | SupportingDocumentFileUpsertWithWhereUniqueWithoutSubmittedByInput[]
+    createMany?: SupportingDocumentFileCreateManySubmittedByInputEnvelope
+    set?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    disconnect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    delete?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    update?: SupportingDocumentFileUpdateWithWhereUniqueWithoutSubmittedByInput | SupportingDocumentFileUpdateWithWhereUniqueWithoutSubmittedByInput[]
+    updateMany?: SupportingDocumentFileUpdateManyWithWhereWithoutSubmittedByInput | SupportingDocumentFileUpdateManyWithWhereWithoutSubmittedByInput[]
+    deleteMany?: SupportingDocumentFileScalarWhereInput | SupportingDocumentFileScalarWhereInput[]
+  }
+
   export type SubscriptionUpdateOneWithoutStakeholderNestedInput = {
     create?: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
     connectOrCreate?: SubscriptionCreateOrConnectWithoutStakeholderInput
@@ -77798,6 +81022,34 @@ export namespace Prisma {
     update?: AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput | AssessmentResponseUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput | AssessmentResponseUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: AssessmentResponseScalarWhereInput | AssessmentResponseScalarWhereInput[]
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutRequestedByInput, SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput> | SupportingDocumentRequestCreateWithoutRequestedByInput[] | SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput | SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput[]
+    upsert?: SupportingDocumentRequestUpsertWithWhereUniqueWithoutRequestedByInput | SupportingDocumentRequestUpsertWithWhereUniqueWithoutRequestedByInput[]
+    createMany?: SupportingDocumentRequestCreateManyRequestedByInputEnvelope
+    set?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    disconnect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    delete?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    update?: SupportingDocumentRequestUpdateWithWhereUniqueWithoutRequestedByInput | SupportingDocumentRequestUpdateWithWhereUniqueWithoutRequestedByInput[]
+    updateMany?: SupportingDocumentRequestUpdateManyWithWhereWithoutRequestedByInput | SupportingDocumentRequestUpdateManyWithWhereWithoutRequestedByInput[]
+    deleteMany?: SupportingDocumentRequestScalarWhereInput | SupportingDocumentRequestScalarWhereInput[]
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutSubmittedByInput, SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput> | SupportingDocumentFileCreateWithoutSubmittedByInput[] | SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput | SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput[]
+    upsert?: SupportingDocumentFileUpsertWithWhereUniqueWithoutSubmittedByInput | SupportingDocumentFileUpsertWithWhereUniqueWithoutSubmittedByInput[]
+    createMany?: SupportingDocumentFileCreateManySubmittedByInputEnvelope
+    set?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    disconnect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    delete?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    update?: SupportingDocumentFileUpdateWithWhereUniqueWithoutSubmittedByInput | SupportingDocumentFileUpdateWithWhereUniqueWithoutSubmittedByInput[]
+    updateMany?: SupportingDocumentFileUpdateManyWithWhereWithoutSubmittedByInput | SupportingDocumentFileUpdateManyWithWhereWithoutSubmittedByInput[]
+    deleteMany?: SupportingDocumentFileScalarWhereInput | SupportingDocumentFileScalarWhereInput[]
   }
 
   export type SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput = {
@@ -78514,6 +81766,13 @@ export namespace Prisma {
     connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
   }
 
+  export type SupportingDocumentRequestCreateNestedManyWithoutTenancyInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutTenancyInput, SupportingDocumentRequestUncheckedCreateWithoutTenancyInput> | SupportingDocumentRequestCreateWithoutTenancyInput[] | SupportingDocumentRequestUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutTenancyInput | SupportingDocumentRequestCreateOrConnectWithoutTenancyInput[]
+    createMany?: SupportingDocumentRequestCreateManyTenancyInputEnvelope
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+  }
+
   export type TenancyCreateNestedOneWithoutRenewedAsInput = {
     create?: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
     connectOrCreate?: TenancyCreateOrConnectWithoutRenewedAsInput
@@ -78552,6 +81811,13 @@ export namespace Prisma {
     connectOrCreate?: MaintenanceCaseCreateOrConnectWithoutTenancyInput | MaintenanceCaseCreateOrConnectWithoutTenancyInput[]
     createMany?: MaintenanceCaseCreateManyTenancyInputEnvelope
     connect?: MaintenanceCaseWhereUniqueInput | MaintenanceCaseWhereUniqueInput[]
+  }
+
+  export type SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutTenancyInput, SupportingDocumentRequestUncheckedCreateWithoutTenancyInput> | SupportingDocumentRequestCreateWithoutTenancyInput[] | SupportingDocumentRequestUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutTenancyInput | SupportingDocumentRequestCreateOrConnectWithoutTenancyInput[]
+    createMany?: SupportingDocumentRequestCreateManyTenancyInputEnvelope
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
   }
 
   export type TenancyUncheckedCreateNestedOneWithoutRenewedFromInput = {
@@ -78680,6 +81946,20 @@ export namespace Prisma {
     deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
   }
 
+  export type SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutTenancyInput, SupportingDocumentRequestUncheckedCreateWithoutTenancyInput> | SupportingDocumentRequestCreateWithoutTenancyInput[] | SupportingDocumentRequestUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutTenancyInput | SupportingDocumentRequestCreateOrConnectWithoutTenancyInput[]
+    upsert?: SupportingDocumentRequestUpsertWithWhereUniqueWithoutTenancyInput | SupportingDocumentRequestUpsertWithWhereUniqueWithoutTenancyInput[]
+    createMany?: SupportingDocumentRequestCreateManyTenancyInputEnvelope
+    set?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    disconnect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    delete?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    update?: SupportingDocumentRequestUpdateWithWhereUniqueWithoutTenancyInput | SupportingDocumentRequestUpdateWithWhereUniqueWithoutTenancyInput[]
+    updateMany?: SupportingDocumentRequestUpdateManyWithWhereWithoutTenancyInput | SupportingDocumentRequestUpdateManyWithWhereWithoutTenancyInput[]
+    deleteMany?: SupportingDocumentRequestScalarWhereInput | SupportingDocumentRequestScalarWhereInput[]
+  }
+
   export type TenancyUpdateOneWithoutRenewedAsNestedInput = {
     create?: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
     connectOrCreate?: TenancyCreateOrConnectWithoutRenewedAsInput
@@ -78754,6 +82034,20 @@ export namespace Prisma {
     update?: MaintenanceCaseUpdateWithWhereUniqueWithoutTenancyInput | MaintenanceCaseUpdateWithWhereUniqueWithoutTenancyInput[]
     updateMany?: MaintenanceCaseUpdateManyWithWhereWithoutTenancyInput | MaintenanceCaseUpdateManyWithWhereWithoutTenancyInput[]
     deleteMany?: MaintenanceCaseScalarWhereInput | MaintenanceCaseScalarWhereInput[]
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutTenancyInput, SupportingDocumentRequestUncheckedCreateWithoutTenancyInput> | SupportingDocumentRequestCreateWithoutTenancyInput[] | SupportingDocumentRequestUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutTenancyInput | SupportingDocumentRequestCreateOrConnectWithoutTenancyInput[]
+    upsert?: SupportingDocumentRequestUpsertWithWhereUniqueWithoutTenancyInput | SupportingDocumentRequestUpsertWithWhereUniqueWithoutTenancyInput[]
+    createMany?: SupportingDocumentRequestCreateManyTenancyInputEnvelope
+    set?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    disconnect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    delete?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    connect?: SupportingDocumentRequestWhereUniqueInput | SupportingDocumentRequestWhereUniqueInput[]
+    update?: SupportingDocumentRequestUpdateWithWhereUniqueWithoutTenancyInput | SupportingDocumentRequestUpdateWithWhereUniqueWithoutTenancyInput[]
+    updateMany?: SupportingDocumentRequestUpdateManyWithWhereWithoutTenancyInput | SupportingDocumentRequestUpdateManyWithWhereWithoutTenancyInput[]
+    deleteMany?: SupportingDocumentRequestScalarWhereInput | SupportingDocumentRequestScalarWhereInput[]
   }
 
   export type TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput = {
@@ -80621,6 +83915,108 @@ export namespace Prisma {
     deleteMany?: MaintenanceVisitScalarWhereInput | MaintenanceVisitScalarWhereInput[]
   }
 
+  export type TenancyCreateNestedOneWithoutSupportingDocumentRequestsInput = {
+    create?: XOR<TenancyCreateWithoutSupportingDocumentRequestsInput, TenancyUncheckedCreateWithoutSupportingDocumentRequestsInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutSupportingDocumentRequestsInput
+    connect?: TenancyWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutSupportingDocumentRequestsInput = {
+    create?: XOR<StakeholderCreateWithoutSupportingDocumentRequestsInput, StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutSupportingDocumentRequestsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type SupportingDocumentFileCreateNestedManyWithoutRequestInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutRequestInput, SupportingDocumentFileUncheckedCreateWithoutRequestInput> | SupportingDocumentFileCreateWithoutRequestInput[] | SupportingDocumentFileUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutRequestInput | SupportingDocumentFileCreateOrConnectWithoutRequestInput[]
+    createMany?: SupportingDocumentFileCreateManyRequestInputEnvelope
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+  }
+
+  export type SupportingDocumentFileUncheckedCreateNestedManyWithoutRequestInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutRequestInput, SupportingDocumentFileUncheckedCreateWithoutRequestInput> | SupportingDocumentFileCreateWithoutRequestInput[] | SupportingDocumentFileUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutRequestInput | SupportingDocumentFileCreateOrConnectWithoutRequestInput[]
+    createMany?: SupportingDocumentFileCreateManyRequestInputEnvelope
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+  }
+
+  export type EnumSupportingDocumentKindFieldUpdateOperationsInput = {
+    set?: $Enums.SupportingDocumentKind
+  }
+
+  export type TenancyUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput = {
+    create?: XOR<TenancyCreateWithoutSupportingDocumentRequestsInput, TenancyUncheckedCreateWithoutSupportingDocumentRequestsInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutSupportingDocumentRequestsInput
+    upsert?: TenancyUpsertWithoutSupportingDocumentRequestsInput
+    connect?: TenancyWhereUniqueInput
+    update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutSupportingDocumentRequestsInput, TenancyUpdateWithoutSupportingDocumentRequestsInput>, TenancyUncheckedUpdateWithoutSupportingDocumentRequestsInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutSupportingDocumentRequestsInput, StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutSupportingDocumentRequestsInput
+    upsert?: StakeholderUpsertWithoutSupportingDocumentRequestsInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutSupportingDocumentRequestsInput, StakeholderUpdateWithoutSupportingDocumentRequestsInput>, StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput>
+  }
+
+  export type SupportingDocumentFileUpdateManyWithoutRequestNestedInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutRequestInput, SupportingDocumentFileUncheckedCreateWithoutRequestInput> | SupportingDocumentFileCreateWithoutRequestInput[] | SupportingDocumentFileUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutRequestInput | SupportingDocumentFileCreateOrConnectWithoutRequestInput[]
+    upsert?: SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput | SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput[]
+    createMany?: SupportingDocumentFileCreateManyRequestInputEnvelope
+    set?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    disconnect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    delete?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    update?: SupportingDocumentFileUpdateWithWhereUniqueWithoutRequestInput | SupportingDocumentFileUpdateWithWhereUniqueWithoutRequestInput[]
+    updateMany?: SupportingDocumentFileUpdateManyWithWhereWithoutRequestInput | SupportingDocumentFileUpdateManyWithWhereWithoutRequestInput[]
+    deleteMany?: SupportingDocumentFileScalarWhereInput | SupportingDocumentFileScalarWhereInput[]
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateManyWithoutRequestNestedInput = {
+    create?: XOR<SupportingDocumentFileCreateWithoutRequestInput, SupportingDocumentFileUncheckedCreateWithoutRequestInput> | SupportingDocumentFileCreateWithoutRequestInput[] | SupportingDocumentFileUncheckedCreateWithoutRequestInput[]
+    connectOrCreate?: SupportingDocumentFileCreateOrConnectWithoutRequestInput | SupportingDocumentFileCreateOrConnectWithoutRequestInput[]
+    upsert?: SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput | SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput[]
+    createMany?: SupportingDocumentFileCreateManyRequestInputEnvelope
+    set?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    disconnect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    delete?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    connect?: SupportingDocumentFileWhereUniqueInput | SupportingDocumentFileWhereUniqueInput[]
+    update?: SupportingDocumentFileUpdateWithWhereUniqueWithoutRequestInput | SupportingDocumentFileUpdateWithWhereUniqueWithoutRequestInput[]
+    updateMany?: SupportingDocumentFileUpdateManyWithWhereWithoutRequestInput | SupportingDocumentFileUpdateManyWithWhereWithoutRequestInput[]
+    deleteMany?: SupportingDocumentFileScalarWhereInput | SupportingDocumentFileScalarWhereInput[]
+  }
+
+  export type SupportingDocumentRequestCreateNestedOneWithoutFilesInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutFilesInput, SupportingDocumentRequestUncheckedCreateWithoutFilesInput>
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutFilesInput
+    connect?: SupportingDocumentRequestWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutSupportingDocumentFilesInput = {
+    create?: XOR<StakeholderCreateWithoutSupportingDocumentFilesInput, StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutSupportingDocumentFilesInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type SupportingDocumentRequestUpdateOneRequiredWithoutFilesNestedInput = {
+    create?: XOR<SupportingDocumentRequestCreateWithoutFilesInput, SupportingDocumentRequestUncheckedCreateWithoutFilesInput>
+    connectOrCreate?: SupportingDocumentRequestCreateOrConnectWithoutFilesInput
+    upsert?: SupportingDocumentRequestUpsertWithoutFilesInput
+    connect?: SupportingDocumentRequestWhereUniqueInput
+    update?: XOR<XOR<SupportingDocumentRequestUpdateToOneWithWhereWithoutFilesInput, SupportingDocumentRequestUpdateWithoutFilesInput>, SupportingDocumentRequestUncheckedUpdateWithoutFilesInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutSupportingDocumentFilesNestedInput = {
+    create?: XOR<StakeholderCreateWithoutSupportingDocumentFilesInput, StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutSupportingDocumentFilesInput
+    upsert?: StakeholderUpsertWithoutSupportingDocumentFilesInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutSupportingDocumentFilesInput, StakeholderUpdateWithoutSupportingDocumentFilesInput>, StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput>
+  }
+
   export type StakeholderCreateNestedOneWithoutDeviceInstallationsInput = {
     create?: XOR<StakeholderCreateWithoutDeviceInstallationsInput, StakeholderUncheckedCreateWithoutDeviceInstallationsInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutDeviceInstallationsInput
@@ -82389,6 +85785,23 @@ export namespace Prisma {
     _max?: NestedEnumServiceProviderCategoryFilter<$PrismaModel>
   }
 
+  export type NestedEnumSupportingDocumentKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportingDocumentKind | EnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportingDocumentKindFilter<$PrismaModel> | $Enums.SupportingDocumentKind
+  }
+
+  export type NestedEnumSupportingDocumentKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportingDocumentKind | EnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportingDocumentKind[] | ListEnumSupportingDocumentKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportingDocumentKindWithAggregatesFilter<$PrismaModel> | $Enums.SupportingDocumentKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSupportingDocumentKindFilter<$PrismaModel>
+    _max?: NestedEnumSupportingDocumentKindFilter<$PrismaModel>
+  }
+
   export type NestedEnumDevicePlatformFilter<$PrismaModel = never> = {
     equals?: $Enums.DevicePlatform | EnumDevicePlatformFieldRefInput<$PrismaModel>
     in?: $Enums.DevicePlatform[] | ListEnumDevicePlatformFieldRefInput<$PrismaModel>
@@ -82693,6 +86106,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -82707,6 +86121,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -82722,6 +86137,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -82733,6 +86149,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -82753,6 +86170,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -82767,6 +86185,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -82782,6 +86201,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -82793,6 +86213,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -82813,6 +86234,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -82827,6 +86249,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -82842,6 +86265,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -82853,6 +86277,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -83847,6 +87272,70 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SupportingDocumentRequestCreateWithoutRequestedByInput = {
+    id?: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutSupportingDocumentRequestsInput
+    files?: SupportingDocumentFileCreateNestedManyWithoutRequestInput
+  }
+
+  export type SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput = {
+    id?: string
+    tenancyId: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedAt?: Date | string
+    files?: SupportingDocumentFileUncheckedCreateNestedManyWithoutRequestInput
+  }
+
+  export type SupportingDocumentRequestCreateOrConnectWithoutRequestedByInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    create: XOR<SupportingDocumentRequestCreateWithoutRequestedByInput, SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput>
+  }
+
+  export type SupportingDocumentRequestCreateManyRequestedByInputEnvelope = {
+    data: SupportingDocumentRequestCreateManyRequestedByInput | SupportingDocumentRequestCreateManyRequestedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SupportingDocumentFileCreateWithoutSubmittedByInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+    request: SupportingDocumentRequestCreateNestedOneWithoutFilesInput
+  }
+
+  export type SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput = {
+    id?: string
+    requestId: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+  }
+
+  export type SupportingDocumentFileCreateOrConnectWithoutSubmittedByInput = {
+    where: SupportingDocumentFileWhereUniqueInput
+    create: XOR<SupportingDocumentFileCreateWithoutSubmittedByInput, SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput>
+  }
+
+  export type SupportingDocumentFileCreateManySubmittedByInputEnvelope = {
+    data: SupportingDocumentFileCreateManySubmittedByInput | SupportingDocumentFileCreateManySubmittedByInput[]
+    skipDuplicates?: boolean
+  }
+
   export type SubscriptionCreateWithoutStakeholderInput = {
     id?: string
     plan: $Enums.Plan
@@ -84013,6 +87502,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: JsonNullableFilter<"Tenancy">
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
     defectWindowDays?: IntFilter<"Tenancy"> | number
     renewalDecision?: EnumRenewalDecisionNullableFilter<"Tenancy"> | $Enums.RenewalDecision | null
@@ -84780,6 +88270,67 @@ export namespace Prisma {
     respondedAt?: DateTimeFilter<"AssessmentResponse"> | Date | string
   }
 
+  export type SupportingDocumentRequestUpsertWithWhereUniqueWithoutRequestedByInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    update: XOR<SupportingDocumentRequestUpdateWithoutRequestedByInput, SupportingDocumentRequestUncheckedUpdateWithoutRequestedByInput>
+    create: XOR<SupportingDocumentRequestCreateWithoutRequestedByInput, SupportingDocumentRequestUncheckedCreateWithoutRequestedByInput>
+  }
+
+  export type SupportingDocumentRequestUpdateWithWhereUniqueWithoutRequestedByInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    data: XOR<SupportingDocumentRequestUpdateWithoutRequestedByInput, SupportingDocumentRequestUncheckedUpdateWithoutRequestedByInput>
+  }
+
+  export type SupportingDocumentRequestUpdateManyWithWhereWithoutRequestedByInput = {
+    where: SupportingDocumentRequestScalarWhereInput
+    data: XOR<SupportingDocumentRequestUpdateManyMutationInput, SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByInput>
+  }
+
+  export type SupportingDocumentRequestScalarWhereInput = {
+    AND?: SupportingDocumentRequestScalarWhereInput | SupportingDocumentRequestScalarWhereInput[]
+    OR?: SupportingDocumentRequestScalarWhereInput[]
+    NOT?: SupportingDocumentRequestScalarWhereInput | SupportingDocumentRequestScalarWhereInput[]
+    id?: StringFilter<"SupportingDocumentRequest"> | string
+    tenancyId?: StringFilter<"SupportingDocumentRequest"> | string
+    clientId?: StringFilter<"SupportingDocumentRequest"> | string
+    title?: StringFilter<"SupportingDocumentRequest"> | string
+    kind?: EnumSupportingDocumentKindFilter<"SupportingDocumentRequest"> | $Enums.SupportingDocumentKind
+    requestedById?: StringFilter<"SupportingDocumentRequest"> | string
+    requestedAt?: DateTimeFilter<"SupportingDocumentRequest"> | Date | string
+  }
+
+  export type SupportingDocumentFileUpsertWithWhereUniqueWithoutSubmittedByInput = {
+    where: SupportingDocumentFileWhereUniqueInput
+    update: XOR<SupportingDocumentFileUpdateWithoutSubmittedByInput, SupportingDocumentFileUncheckedUpdateWithoutSubmittedByInput>
+    create: XOR<SupportingDocumentFileCreateWithoutSubmittedByInput, SupportingDocumentFileUncheckedCreateWithoutSubmittedByInput>
+  }
+
+  export type SupportingDocumentFileUpdateWithWhereUniqueWithoutSubmittedByInput = {
+    where: SupportingDocumentFileWhereUniqueInput
+    data: XOR<SupportingDocumentFileUpdateWithoutSubmittedByInput, SupportingDocumentFileUncheckedUpdateWithoutSubmittedByInput>
+  }
+
+  export type SupportingDocumentFileUpdateManyWithWhereWithoutSubmittedByInput = {
+    where: SupportingDocumentFileScalarWhereInput
+    data: XOR<SupportingDocumentFileUpdateManyMutationInput, SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByInput>
+  }
+
+  export type SupportingDocumentFileScalarWhereInput = {
+    AND?: SupportingDocumentFileScalarWhereInput | SupportingDocumentFileScalarWhereInput[]
+    OR?: SupportingDocumentFileScalarWhereInput[]
+    NOT?: SupportingDocumentFileScalarWhereInput | SupportingDocumentFileScalarWhereInput[]
+    id?: StringFilter<"SupportingDocumentFile"> | string
+    requestId?: StringFilter<"SupportingDocumentFile"> | string
+    clientId?: StringFilter<"SupportingDocumentFile"> | string
+    storagePath?: StringFilter<"SupportingDocumentFile"> | string
+    fileName?: StringFilter<"SupportingDocumentFile"> | string
+    mimeType?: StringFilter<"SupportingDocumentFile"> | string
+    byteSize?: IntFilter<"SupportingDocumentFile"> | number
+    submittedById?: StringFilter<"SupportingDocumentFile"> | string
+    createdAt?: DateTimeFilter<"SupportingDocumentFile"> | Date | string
+    submittedAt?: DateTimeNullableFilter<"SupportingDocumentFile"> | Date | string | null
+  }
+
   export type SubscriptionUpsertWithoutStakeholderInput = {
     update: XOR<SubscriptionUpdateWithoutStakeholderInput, SubscriptionUncheckedUpdateWithoutStakeholderInput>
     create: XOR<SubscriptionCreateWithoutStakeholderInput, SubscriptionUncheckedCreateWithoutStakeholderInput>
@@ -84895,6 +88446,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -84938,6 +88491,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -85105,6 +88660,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -85119,6 +88675,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -85134,6 +88691,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -85145,6 +88703,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -85312,6 +88871,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -85355,6 +88916,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -85491,6 +89054,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -85534,6 +89099,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -85667,6 +89234,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
 
@@ -85710,6 +89279,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
 
@@ -85758,6 +89329,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
   }
 
@@ -85801,6 +89374,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
   }
 
@@ -85887,6 +89462,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
 
@@ -85930,6 +89507,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
@@ -85984,6 +89563,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -86027,6 +89608,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
   }
 
@@ -86069,6 +89652,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -86112,6 +89697,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -86171,6 +89758,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -86214,6 +89803,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -86225,6 +89816,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -86239,6 +89831,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -86254,6 +89847,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -86265,6 +89859,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -86890,6 +90485,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -86933,6 +90530,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -86981,6 +90580,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -87024,6 +90625,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -87072,6 +90675,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -87115,6 +90720,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -87353,6 +90960,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SupportingDocumentRequestCreateWithoutTenancyInput = {
+    id?: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedAt?: Date | string
+    requestedBy: StakeholderCreateNestedOneWithoutSupportingDocumentRequestsInput
+    files?: SupportingDocumentFileCreateNestedManyWithoutRequestInput
+  }
+
+  export type SupportingDocumentRequestUncheckedCreateWithoutTenancyInput = {
+    id?: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedById: string
+    requestedAt?: Date | string
+    files?: SupportingDocumentFileUncheckedCreateNestedManyWithoutRequestInput
+  }
+
+  export type SupportingDocumentRequestCreateOrConnectWithoutTenancyInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    create: XOR<SupportingDocumentRequestCreateWithoutTenancyInput, SupportingDocumentRequestUncheckedCreateWithoutTenancyInput>
+  }
+
+  export type SupportingDocumentRequestCreateManyTenancyInputEnvelope = {
+    data: SupportingDocumentRequestCreateManyTenancyInput | SupportingDocumentRequestCreateManyTenancyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyCreateWithoutRenewedAsInput = {
     id?: string
     startDate: Date | string
@@ -87360,6 +90997,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -87375,6 +91013,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
   }
 
@@ -87390,6 +91029,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -87401,6 +91041,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutRenewedAsInput = {
@@ -87415,6 +91056,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -87430,6 +91072,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -87445,6 +91088,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -87455,6 +91099,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -87558,6 +91203,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -87601,6 +91248,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -87655,6 +91304,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -87698,6 +91349,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -87752,6 +91405,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -87795,6 +91450,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -87892,6 +91549,22 @@ export namespace Prisma {
     data: XOR<MaintenanceCaseUpdateManyMutationInput, MaintenanceCaseUncheckedUpdateManyWithoutTenancyInput>
   }
 
+  export type SupportingDocumentRequestUpsertWithWhereUniqueWithoutTenancyInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    update: XOR<SupportingDocumentRequestUpdateWithoutTenancyInput, SupportingDocumentRequestUncheckedUpdateWithoutTenancyInput>
+    create: XOR<SupportingDocumentRequestCreateWithoutTenancyInput, SupportingDocumentRequestUncheckedCreateWithoutTenancyInput>
+  }
+
+  export type SupportingDocumentRequestUpdateWithWhereUniqueWithoutTenancyInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    data: XOR<SupportingDocumentRequestUpdateWithoutTenancyInput, SupportingDocumentRequestUncheckedUpdateWithoutTenancyInput>
+  }
+
+  export type SupportingDocumentRequestUpdateManyWithWhereWithoutTenancyInput = {
+    where: SupportingDocumentRequestScalarWhereInput
+    data: XOR<SupportingDocumentRequestUpdateManyMutationInput, SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyInput>
+  }
+
   export type TenancyUpsertWithoutRenewedAsInput = {
     update: XOR<TenancyUpdateWithoutRenewedAsInput, TenancyUncheckedUpdateWithoutRenewedAsInput>
     create: XOR<TenancyCreateWithoutRenewedAsInput, TenancyUncheckedCreateWithoutRenewedAsInput>
@@ -87910,6 +91583,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -87925,6 +91599,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
   }
 
@@ -87940,6 +91615,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -87951,6 +91627,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUpsertWithoutRenewedFromInput = {
@@ -87971,6 +91648,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -87986,6 +91664,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -88001,6 +91680,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -88011,6 +91691,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -88021,6 +91702,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -88035,6 +91717,7 @@ export namespace Prisma {
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -88051,6 +91734,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -88061,6 +91745,7 @@ export namespace Prisma {
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -88108,6 +91793,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -88151,6 +91838,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -88199,6 +91888,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -88242,6 +91933,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -88269,6 +91962,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -88283,6 +91977,7 @@ export namespace Prisma {
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -88299,6 +91994,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -88309,6 +92005,7 @@ export namespace Prisma {
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -88362,6 +92059,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -88405,6 +92104,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -88459,6 +92160,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -88502,6 +92205,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -88513,6 +92218,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -88527,6 +92233,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -88543,6 +92250,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -88553,6 +92261,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -88600,6 +92309,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -88643,6 +92354,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -88691,6 +92404,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -88734,6 +92449,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -89267,6 +92984,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -89281,6 +92999,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -89297,6 +93016,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -89307,6 +93027,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -89360,6 +93081,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -89403,6 +93126,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -89457,6 +93182,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -89500,6 +93227,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -89976,6 +93705,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -90019,6 +93750,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -90151,6 +93884,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -90194,6 +93929,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -91625,6 +95362,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -91639,6 +95377,7 @@ export namespace Prisma {
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     notifications?: NotificationCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -91655,6 +95394,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -91665,6 +95405,7 @@ export namespace Prisma {
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -91745,6 +95486,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -91788,6 +95531,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -92165,6 +95910,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -92179,6 +95925,7 @@ export namespace Prisma {
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -92195,6 +95942,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -92205,6 +95953,7 @@ export namespace Prisma {
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -92297,6 +96046,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -92340,6 +96091,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -92679,6 +96432,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -92722,6 +96477,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -92844,6 +96601,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -92887,6 +96646,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -93310,6 +97071,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -93353,6 +97116,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -93512,6 +97277,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -93555,6 +97322,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -93629,6 +97398,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -93672,6 +97443,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -93768,6 +97541,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -93811,6 +97586,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -93911,6 +97688,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -93954,6 +97733,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -94002,6 +97783,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -94045,6 +97828,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -94167,6 +97952,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -94210,6 +97997,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -94264,6 +98053,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -94307,6 +98098,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -94363,6 +98156,628 @@ export namespace Prisma {
     data: XOR<MaintenanceVisitUpdateManyMutationInput, MaintenanceVisitUncheckedUpdateManyWithoutProviderInput>
   }
 
+  export type TenancyCreateWithoutSupportingDocumentRequestsInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutTenanciesInput
+    landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
+    tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
+    agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
+    inspections?: InspectionCreateNestedManyWithoutTenancyInput
+    collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
+    notifications?: NotificationCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyUncheckedCreateWithoutSupportingDocumentRequestsInput = {
+    id?: string
+    propertyId: string
+    landlordId: string
+    tenantId: string
+    agentId?: string | null
+    agencyId?: string | null
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
+    collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyCreateOrConnectWithoutSupportingDocumentRequestsInput = {
+    where: TenancyWhereUniqueInput
+    create: XOR<TenancyCreateWithoutSupportingDocumentRequestsInput, TenancyUncheckedCreateWithoutSupportingDocumentRequestsInput>
+  }
+
+  export type StakeholderCreateWithoutSupportingDocumentRequestsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutSupportingDocumentRequestsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutSupportingDocumentRequestsInput, StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput>
+  }
+
+  export type SupportingDocumentFileCreateWithoutRequestInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+    submittedBy: StakeholderCreateNestedOneWithoutSupportingDocumentFilesInput
+  }
+
+  export type SupportingDocumentFileUncheckedCreateWithoutRequestInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    submittedById: string
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+  }
+
+  export type SupportingDocumentFileCreateOrConnectWithoutRequestInput = {
+    where: SupportingDocumentFileWhereUniqueInput
+    create: XOR<SupportingDocumentFileCreateWithoutRequestInput, SupportingDocumentFileUncheckedCreateWithoutRequestInput>
+  }
+
+  export type SupportingDocumentFileCreateManyRequestInputEnvelope = {
+    data: SupportingDocumentFileCreateManyRequestInput | SupportingDocumentFileCreateManyRequestInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenancyUpsertWithoutSupportingDocumentRequestsInput = {
+    update: XOR<TenancyUpdateWithoutSupportingDocumentRequestsInput, TenancyUncheckedUpdateWithoutSupportingDocumentRequestsInput>
+    create: XOR<TenancyCreateWithoutSupportingDocumentRequestsInput, TenancyUncheckedCreateWithoutSupportingDocumentRequestsInput>
+    where?: TenancyWhereInput
+  }
+
+  export type TenancyUpdateToOneWithWhereWithoutSupportingDocumentRequestsInput = {
+    where?: TenancyWhereInput
+    data: XOR<TenancyUpdateWithoutSupportingDocumentRequestsInput, TenancyUncheckedUpdateWithoutSupportingDocumentRequestsInput>
+  }
+
+  export type TenancyUpdateWithoutSupportingDocumentRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
+    landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
+    tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
+    agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
+    inspections?: InspectionUpdateManyWithoutTenancyNestedInput
+    collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
+    notifications?: NotificationUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type TenancyUncheckedUpdateWithoutSupportingDocumentRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    landlordId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
+    collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type StakeholderUpsertWithoutSupportingDocumentRequestsInput = {
+    update: XOR<StakeholderUpdateWithoutSupportingDocumentRequestsInput, StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput>
+    create: XOR<StakeholderCreateWithoutSupportingDocumentRequestsInput, StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutSupportingDocumentRequestsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutSupportingDocumentRequestsInput, StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput>
+  }
+
+  export type StakeholderUpdateWithoutSupportingDocumentRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput = {
+    where: SupportingDocumentFileWhereUniqueInput
+    update: XOR<SupportingDocumentFileUpdateWithoutRequestInput, SupportingDocumentFileUncheckedUpdateWithoutRequestInput>
+    create: XOR<SupportingDocumentFileCreateWithoutRequestInput, SupportingDocumentFileUncheckedCreateWithoutRequestInput>
+  }
+
+  export type SupportingDocumentFileUpdateWithWhereUniqueWithoutRequestInput = {
+    where: SupportingDocumentFileWhereUniqueInput
+    data: XOR<SupportingDocumentFileUpdateWithoutRequestInput, SupportingDocumentFileUncheckedUpdateWithoutRequestInput>
+  }
+
+  export type SupportingDocumentFileUpdateManyWithWhereWithoutRequestInput = {
+    where: SupportingDocumentFileScalarWhereInput
+    data: XOR<SupportingDocumentFileUpdateManyMutationInput, SupportingDocumentFileUncheckedUpdateManyWithoutRequestInput>
+  }
+
+  export type SupportingDocumentRequestCreateWithoutFilesInput = {
+    id?: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutSupportingDocumentRequestsInput
+    requestedBy: StakeholderCreateNestedOneWithoutSupportingDocumentRequestsInput
+  }
+
+  export type SupportingDocumentRequestUncheckedCreateWithoutFilesInput = {
+    id?: string
+    tenancyId: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedById: string
+    requestedAt?: Date | string
+  }
+
+  export type SupportingDocumentRequestCreateOrConnectWithoutFilesInput = {
+    where: SupportingDocumentRequestWhereUniqueInput
+    create: XOR<SupportingDocumentRequestCreateWithoutFilesInput, SupportingDocumentRequestUncheckedCreateWithoutFilesInput>
+  }
+
+  export type StakeholderCreateWithoutSupportingDocumentFilesInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutSupportingDocumentFilesInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutSupportingDocumentFilesInput, StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput>
+  }
+
+  export type SupportingDocumentRequestUpsertWithoutFilesInput = {
+    update: XOR<SupportingDocumentRequestUpdateWithoutFilesInput, SupportingDocumentRequestUncheckedUpdateWithoutFilesInput>
+    create: XOR<SupportingDocumentRequestCreateWithoutFilesInput, SupportingDocumentRequestUncheckedCreateWithoutFilesInput>
+    where?: SupportingDocumentRequestWhereInput
+  }
+
+  export type SupportingDocumentRequestUpdateToOneWithWhereWithoutFilesInput = {
+    where?: SupportingDocumentRequestWhereInput
+    data: XOR<SupportingDocumentRequestUpdateWithoutFilesInput, SupportingDocumentRequestUncheckedUpdateWithoutFilesInput>
+  }
+
+  export type SupportingDocumentRequestUpdateWithoutFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput
+    requestedBy?: StakeholderUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateWithoutFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedById?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StakeholderUpsertWithoutSupportingDocumentFilesInput = {
+    update: XOR<StakeholderUpdateWithoutSupportingDocumentFilesInput, StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput>
+    create: XOR<StakeholderCreateWithoutSupportingDocumentFilesInput, StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutSupportingDocumentFilesInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutSupportingDocumentFilesInput, StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput>
+  }
+
+  export type StakeholderUpdateWithoutSupportingDocumentFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
   export type StakeholderCreateWithoutDeviceInstallationsInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -94402,6 +98817,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -94445,6 +98862,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -94536,6 +98955,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -94579,6 +99000,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -94653,6 +99076,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -94696,6 +99121,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -94712,6 +99139,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -94726,6 +99154,7 @@ export namespace Prisma {
     inspections?: InspectionCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
   }
@@ -94742,6 +99171,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -94752,6 +99182,7 @@ export namespace Prisma {
     inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
     collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
   }
 
@@ -94875,6 +99306,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -94918,6 +99351,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -94940,6 +99375,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -94954,6 +99390,7 @@ export namespace Prisma {
     inspections?: InspectionUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -94970,6 +99407,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -94980,6 +99418,7 @@ export namespace Prisma {
     inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -95887,6 +100326,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -95930,6 +100371,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -96143,6 +100586,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -96186,6 +100631,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -96507,6 +100954,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -96550,6 +100999,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -96682,6 +101133,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -96725,6 +101178,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -96835,6 +101290,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -96878,6 +101335,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -97010,6 +101469,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -97053,6 +101514,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -97351,6 +101814,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -97394,6 +101859,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -97442,6 +101909,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -97485,6 +101954,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -97664,6 +102135,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -97707,6 +102180,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -97839,6 +102314,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -97882,6 +102359,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -97936,6 +102415,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -97979,6 +102460,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -98128,6 +102611,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -98171,6 +102656,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -98710,6 +103197,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -98753,6 +103242,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -98867,6 +103358,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -98910,6 +103403,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -98953,6 +103448,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -98996,6 +103493,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -99079,6 +103578,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -99122,6 +103623,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -99260,6 +103763,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -99303,6 +103808,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -99362,6 +103869,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -99405,6 +103914,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -99448,6 +103959,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -99491,6 +104004,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
     assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -99550,6 +104065,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -99593,6 +104110,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -99801,6 +104320,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
   }
@@ -99844,6 +104365,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
   }
@@ -99934,6 +104457,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -99977,6 +104502,8 @@ export namespace Prisma {
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -100005,6 +104532,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -100025,6 +104553,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -100045,6 +104574,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -100374,6 +104904,27 @@ export namespace Prisma {
     respondedAt?: Date | string
   }
 
+  export type SupportingDocumentRequestCreateManyRequestedByInput = {
+    id?: string
+    tenancyId: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedAt?: Date | string
+  }
+
+  export type SupportingDocumentFileCreateManySubmittedByInput = {
+    id?: string
+    requestId: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+  }
+
   export type SubscriptionCreateManyManagedByInput = {
     id?: string
     teamId?: string | null
@@ -100437,6 +104988,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100451,6 +105003,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -100466,6 +105019,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100477,6 +105031,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -100491,6 +105046,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100507,6 +105063,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100521,6 +105078,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -100536,6 +105094,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100547,6 +105106,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -100561,6 +105121,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100577,6 +105138,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100591,6 +105153,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -100606,6 +105169,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -100617,6 +105181,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -100631,6 +105196,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -101678,6 +106244,71 @@ export namespace Prisma {
     respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SupportingDocumentRequestUpdateWithoutRequestedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput
+    files?: SupportingDocumentFileUpdateManyWithoutRequestNestedInput
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateWithoutRequestedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    files?: SupportingDocumentFileUncheckedUpdateManyWithoutRequestNestedInput
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportingDocumentFileUpdateWithoutSubmittedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    request?: SupportingDocumentRequestUpdateOneRequiredWithoutFilesNestedInput
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateWithoutSubmittedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type SubscriptionUpdateWithoutManagedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -101774,6 +106405,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
   }
@@ -101817,6 +106450,8 @@ export namespace Prisma {
     addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
     findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
     assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
@@ -101857,6 +106492,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -101924,6 +106560,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -101938,6 +106575,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -101953,6 +106591,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -101964,6 +106603,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -101978,6 +106618,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -102102,6 +106743,7 @@ export namespace Prisma {
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
     defectWindowDays?: number
     renewalDecision?: $Enums.RenewalDecision | null
@@ -102158,6 +106800,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -102172,6 +106815,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
   }
@@ -102187,6 +106831,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -102198,6 +106843,7 @@ export namespace Prisma {
     collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
   }
 
@@ -102212,6 +106858,7 @@ export namespace Prisma {
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
     defectWindowDays?: IntFieldUpdateOperationsInput | number
     renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
@@ -102473,6 +107120,15 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type SupportingDocumentRequestCreateManyTenancyInput = {
+    id?: string
+    clientId: string
+    title: string
+    kind?: $Enums.SupportingDocumentKind
+    requestedById: string
+    requestedAt?: Date | string
+  }
+
   export type InspectionUpdateWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -102701,6 +107357,35 @@ export namespace Prisma {
     moveInDefectInspectionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportingDocumentRequestUpdateWithoutTenancyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requestedBy?: StakeholderUpdateOneRequiredWithoutSupportingDocumentRequestsNestedInput
+    files?: SupportingDocumentFileUpdateManyWithoutRequestNestedInput
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateWithoutTenancyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedById?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    files?: SupportingDocumentFileUncheckedUpdateManyWithoutRequestNestedInput
+  }
+
+  export type SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
+    requestedById?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RoomCreateManyInspectionInput = {
@@ -104307,6 +108992,54 @@ export namespace Prisma {
     cost?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SupportingDocumentFileCreateManyRequestInput = {
+    id?: string
+    clientId: string
+    storagePath: string
+    fileName: string
+    mimeType: string
+    byteSize: number
+    submittedById: string
+    createdAt?: Date | string
+    submittedAt?: Date | string | null
+  }
+
+  export type SupportingDocumentFileUpdateWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedBy?: StakeholderUpdateOneRequiredWithoutSupportingDocumentFilesNestedInput
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    submittedById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportingDocumentFileUncheckedUpdateManyWithoutRequestInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    storagePath?: StringFieldUpdateOperationsInput | string
+    fileName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    byteSize?: IntFieldUpdateOperationsInput | number
+    submittedById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type NotificationPushDeliveryCreateManyInstallationInput = {

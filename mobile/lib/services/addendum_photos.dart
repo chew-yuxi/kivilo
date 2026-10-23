@@ -54,6 +54,13 @@ class AddendumPhotos {
     required String entryId,
     required ImageSource source,
   }) async {
+    final root = await getApplicationSupportDirectory();
+    if (await File('${root.path}/$supportingDocumentPickerFilename').exists()) {
+      throw const ApiFailure(
+        'Reopen Supporting documents to recover the previous photo before taking another.',
+        null,
+      );
+    }
     // A quality below 100 makes both platforms re-encode: iOS writes a HEIC out as JPEG
     // and Android decodes and compresses it to JPEG (or PNG, with transparency).
     final photo = await _picker.pickImage(
@@ -70,7 +77,6 @@ class AddendumPhotos {
         null,
       );
     }
-    final root = await getApplicationSupportDirectory();
     final ownerId = Supabase.instance.client.auth.currentUser!.id;
     final queue = CaptureQueue();
     try {

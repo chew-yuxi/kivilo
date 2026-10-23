@@ -12,6 +12,35 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Tenancy agreement and supporting documents candidate: 23 October 2026
+
+Local implementation only; no backend deployment or Shorebird patch has been
+published for this feature. Deploy `20261023090000_supporting_documents`, then
+`20261023120000_tenancy_agreement`, and the backend before releasing the app changes.
+Both migrations are applied to local development and the isolated document-test
+database only.
+
+Documents lead with the tenancy agreement, uploadable directly by the tenant,
+landlord or a full tenancy agent. Optional requested documents sit below it.
+Photos use the durable account-scoped queue; PDF selection opens the authenticated
+web page. Files show their submitter and time, are available only
+to the tenancy's parties and authorized agents, and never enter the condition report
+or block signing. Android picker recovery keeps a receipt with its original account
+and request, including when another capture screen is opened after interruption.
+An agreement photo taken offline does not need a pre-existing server upload slot.
+
+The app can review candidate maintenance clauses extracted from PDF text, with no AI.
+An agent or landlord confirms the source page, quote, contribution rule and exceptions.
+Only confirmed first-amount terms prefill the repair contribution; other arrangements
+keep a written explanation. Scans/photos use manual entry. Confirmed clauses stay
+visible in tenancy and repair screens; a newer agreement flags old terms for review.
+
+No plugin, native configuration, bundled asset or new icon was added. All **371
+mobile tests** passed, followed by **14 affected tests** after folding previous
+agreements and optional files; Flutter analysis is clean. Shorebird compatibility builds and physical
+device rehearsal are **NOT RUN**. Keep the store freeze and stable-promotion approval
+rule above; build future patches from a pinned clean worktree.
+
 ## Button system, Account bar and repair spacing: 23 October 2026 Singapore time
 
 Source `99bd861`, Dart only. Android `1.0.0+25` patch **13** / `743430` and iOS `1.0.0+24`

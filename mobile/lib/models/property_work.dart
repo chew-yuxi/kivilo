@@ -78,6 +78,7 @@ class PropertyTerm {
     this.agencyName,
     this.leadAgentName,
     this.tenancy,
+    this.canOpenDocuments = false,
   });
   final String tenancyId;
   final String startDate;
@@ -88,9 +89,11 @@ class PropertyTerm {
   final String? agencyName;
   final String? leadAgentName;
   final TenancySummary? tenancy;
+  final bool canOpenDocuments;
 
   factory PropertyTerm.fromJson(Map<String, dynamic> json) => PropertyTerm(
     tenancyId: json['tenancyId'] as String,
+    canOpenDocuments: json['canOpenDocuments'] as bool? ?? false,
     startDate: json['startDate'] as String,
     endDate: json['endDate'] as String,
     tenant: json['tenant'] as String,

@@ -19,13 +19,19 @@ const nextConfig: NextConfig = {
   // The report PDF has the same gap. pdfkit loads Helvetica and the other built-in fonts
   // through its package's `#standard-fonts/*` import alias, which tracing cannot follow,
   // so every route that draws a PDF carries those files the same way.
-  serverExternalPackages: ['ffmpeg-static'],
+  serverExternalPackages: ['ffmpeg-static', 'pdfjs-dist'],
   outputFileTracingIncludes: {
     '/api/internal/posters': ['./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg'],
     '/reports/\\[token\\]/pdf': [pdfkitFonts],
     '/api/v1/inspections/\\[id\\]/pdf': [pdfkitFonts],
     '/api/internal/report-emails': [pdfkitFonts],
     '/sign/\\[inspectionId\\]/pdf': [pdfkitFonts],
+    // PDF.js loads its worker and fonts dynamically when reading an agreement.
+    '/api/v1/tenancies/\\[id\\]/documents/agreement/files/\\[fileId\\]/analysis': [
+      './node_modules/.pnpm/pdfjs-dist@*/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
+      './node_modules/.pnpm/pdfjs-dist@*/node_modules/pdfjs-dist/standard_fonts/**',
+      './node_modules/.pnpm/pdfjs-dist@*/node_modules/pdfjs-dist/cmaps/**',
+    ],
   },
 
   async headers() {

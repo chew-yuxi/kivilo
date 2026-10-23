@@ -12,6 +12,7 @@ import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/screens/capture_screen.dart';
 import 'package:kivilo/screens/photo_mark_screen.dart';
 import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/capture_backend.dart';
 import 'package:kivilo/services/capture_queue.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
@@ -168,6 +169,23 @@ void main() {
     );
     await settle(tester);
   }
+
+  testWidgets('room camera leaves an interrupted document selection untouched', (tester) async {
+    final journal = File('${root.path}/$supportingDocumentPickerFilename');
+    journal.writeAsStringSync(jsonEncode({
+      'ownerId': 'owner', 'tenancyId': 'tenancy', 'requestId': 'request-original',
+      'clientId': newCaptureId(),
+    }));
+    await open(tester);
+    expect(journal.existsSync(), isTrue);
+    await tester.runAsync(() => tester.tap(find.text('Take another photo')));
+    await settle(tester);
+    expect(find.textContaining('Reopen Supporting documents'), findsOneWidget);
+    expect(await queue.forRoom('living', 'owner'), isEmpty);
+    expect(journal.existsSync(), isTrue);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await settle(tester);
+  });
 
   testWidgets(
     'camera opens local markup before upload and retains the exact item',

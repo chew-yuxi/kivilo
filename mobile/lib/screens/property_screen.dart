@@ -12,6 +12,7 @@ import 'property_history_screen.dart';
 import 'property_settings_screen.dart';
 import 'property_timeline_screen.dart';
 import 'tenancy_screen.dart';
+import 'supporting_documents_screen.dart';
 
 /// Where a property is, as a coloured pill. Shared by the list and the property page.
 class PropertyStagePill extends StatelessWidget {
@@ -208,6 +209,17 @@ class _PropertyScreenState extends State<PropertyScreen> {
                           _open(TenancyScreen(tenancy: tenancy, api: _api)),
                       icon: const Icon(Icons.build_outlined),
                       label: const Text('Repairs and assets'),
+                    ),
+                  ],
+                  if (term.canOpenDocuments) ...[
+                    const SizedBox(height: kiviloButtonGap),
+                    OutlinedButton.icon(
+                      onPressed: () => _open(SupportingDocumentsScreen(
+                        tenancyId: term.tenancyId,
+                        api: _api,
+                      )),
+                      icon: const Icon(Icons.description_outlined),
+                      label: const Text('Documents'),
                     ),
                   ],
                 ],

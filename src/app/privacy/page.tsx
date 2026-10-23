@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 17 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 23 October 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -25,7 +25,9 @@ export default function PrivacyPage() {
           and identity information; property addresses, tenancy dates and financial
           terms; photos, narrated video, audio, notes, annotations, inventory entries,
           meter readings and serial numbers; signatures and signing IP addresses; and
-          maintenance descriptions, evidence, visits and comments. Optional push
+          maintenance descriptions, evidence, visits and comments; and optional
+          tenancy agreements and other supporting documents, with their submitter and
+          submission time, and maintenance clauses and terms confirmed from an agreement. Optional push
           notifications use a device token and notification history.
         </p>
         <p>
@@ -57,6 +59,12 @@ export default function PrivacyPage() {
           messages, understand use, find and fix faults in Kivilo, and handle support and deletion
           requests.
         </p>
+        <p>
+          Kivilo can read text from an uploaded tenancy agreement to help locate
+          maintenance clauses. An agent or landlord reviews and confirms the terms
+          before they become a repair-proposal default. This uses PDF text extraction,
+          not an AI service. Scanned pages can be entered manually.
+        </p>
       </section>
 
       <section className="mt-8 space-y-3 leading-relaxed">
@@ -80,6 +88,13 @@ export default function PrivacyPage() {
           private report link can view that report until the inspector revokes the
           link; report photos use expiring signed URLs.
         </p>
+        <p>
+          Supporting documents are separate from condition reports and their PDFs.
+          Only the tenancy&apos;s landlord, tenant and agents with current tenancy
+          access can open them after signing in. They are not included in a shared
+          report link. Files waiting to upload stay on the device for the signed-in
+          account until the upload is confirmed.
+        </p>
       </section>
 
       <section className="mt-8 space-y-3 leading-relaxed">
@@ -91,7 +106,8 @@ export default function PrivacyPage() {
           another legal or business obligation. We keep unsigned inspections involving
           another party while needed to complete or review their shared handover or
           resolve a related claim. We keep maintenance history and evidence while
-          needed to coordinate or verify work or resolve a related claim.
+          needed to coordinate or verify work or resolve a related claim. Supporting
+          documents follow the same retention purposes as their related tenancy records.
         </p>
         <p>
           We review those purposes when a tenancy ends, when we handle a deletion

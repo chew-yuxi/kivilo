@@ -137,6 +137,26 @@ export async function sendPropertySharedNotification(
   if (error) throw new Error(`Resend refused the property sharing email: ${error.message}`)
 }
 
+export function supportingDocumentEmail(notification: { title: string; body: string; href: string }) {
+  const origin = process.env.KIVILO_APP_URL
+  if (!origin) throw new Error('KIVILO_APP_URL must be set')
+  return {
+    subject: notification.title,
+    text: [notification.body, '', `Open supporting documents: ${new URL(notification.href, origin).href}`, '',
+      'Sign in using the email address this message was sent to.',
+      'Supporting documents are private tenancy paperwork and are separate from the condition report and signatures.',
+    ].join('\n'),
+  }
+}
+
+export async function sendSupportingDocumentNotification(to: string, notification: { id: string; title: string; body: string; href: string }) {
+  const { subject, text } = supportingDocumentEmail(notification)
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
+    idempotencyKey: `supporting-document-${notification.id}`,
+  })
+  if (error) throw new Error(`Resend refused the supporting document email: ${error.message}`)
+}
+
 export function agencyInvitationEmail(notification: { title: string; body: string; href: string }) {
   const origin = process.env.KIVILO_APP_URL
   if (!origin) throw new Error('KIVILO_APP_URL must be set')

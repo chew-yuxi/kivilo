@@ -8,6 +8,7 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/page_context_title.dart';
+import '../ui/agreement_terms_view.dart';
 import 'inspection_screen.dart';
 import 'report_screen.dart';
 import 'maintenance_case_screen.dart';
@@ -16,6 +17,7 @@ import 'property_timeline_screen.dart';
 import 'property_settings_screen.dart';
 import 'service_directory_screen.dart';
 import 'tenancy_access_screen.dart';
+import 'supporting_documents_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
   const TenancyScreen({
@@ -356,6 +358,20 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                   const SizedBox(height: 10),
                 ],
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.description_outlined),
+                    title: const Text('Documents'),
+                    subtitle: const Text('Tenancy agreement and supporting files'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push<void>(
+                      MaterialPageRoute(builder: (_) => SupportingDocumentsScreen(
+                        tenancyId: widget.tenancy.id, api: _api,
+                      )),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
                 if (widget.tenancy.role == 'AGENT' &&
                     widget.currentInspection != null &&
                     widget.currentInspection!.id !=
@@ -593,8 +609,28 @@ class _TenancyScreenState extends State<TenancyScreen> {
 
   Widget _repairTerms(TenancyDetail terms) => Card(
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ListTile(
+        if (terms.maintenanceTerms case final agreementTerms?) ...[
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: AgreementTermsView(terms: agreementTerms),
+          ),
+          if (terms.canEditMinorRepairCap)
+            TextButton(
+              onPressed: () async {
+                await Navigator.of(context).push<void>(MaterialPageRoute(
+                  builder: (_) => SupportingDocumentsScreen(
+                    tenancyId: widget.tenancy.id,
+                    api: _api,
+                  ),
+                ));
+                if (mounted) await _refresh();
+              },
+              child: const Text('Review tenancy agreement'),
+            ),
+        ] else
+          ListTile(
           contentPadding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
           title: const Text('Minor repair cap'),
           subtitle: Text(

@@ -12,6 +12,7 @@ export const protectedPropertyHistory: Prisma.PropertyWhereInput = {
   OR: [
     { assets: { some: {} } },
     { tenancies: { some: { maintenanceCases: { some: {} } } } },
+    { tenancies: { some: { supportingDocumentRequests: { some: { files: { some: { submittedAt: { not: null } } } } } } } },
     { tenancies: { some: { inspections: { some: { OR: [
       { status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] } },
       { signatures: { some: {} } },
@@ -110,7 +111,7 @@ export async function propertyManagement(
   const deleteBlockedReason = !canManage
     ? 'Only the personal lead or an agency manager responsible for every tenancy can manage this property.'
     : hasHistory
-      ? 'This property has sent or signed reports, shared history, or repair records. Archive it to preserve those records.'
+      ? 'This property has sent or signed reports, shared history, supporting documents, or repair records. Archive it to preserve those records.'
       : null
   // Who to ask when this viewer cannot manage it: each visible tenancy's personal lead,
   // or its team's owners and managers. Never names from tenancies the viewer cannot see.

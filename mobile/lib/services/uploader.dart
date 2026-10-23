@@ -144,6 +144,8 @@ class Uploader {
             capture.roomId,
             capture.filename,
             clientId,
+            mimeType: capture.mimeType,
+            sizeBytes: capture.sizeBytes,
           );
           storagePath = credential.storagePath;
           await queue.setStoragePath(capture.id, leaseId, storagePath);

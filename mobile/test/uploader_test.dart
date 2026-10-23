@@ -50,8 +50,10 @@ class FakeBackend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) async {
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
     if (!uploadUrlsAllowed) {
       throw StateError('countersigned: no new upload URLs');
     }

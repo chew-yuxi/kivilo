@@ -14,6 +14,7 @@ import '../models/maintenance.dart';
 import '../models/report.dart';
 import '../models/renewal.dart';
 import '../models/tenancy_access.dart';
+import '../models/supporting_documents.dart';
 import 'api_failure.dart';
 import 'read_cache.dart';
 
@@ -102,6 +103,7 @@ class Api {
   final ReadCache _cache;
   bool offlineCopy = false;
   Dio get dio => _dio;
+  String? get currentOwnerId => _cache.ownerId;
 
   Future<T> _call<T>(Future<T> Function() request) async {
     try {
@@ -911,6 +913,83 @@ class Api {
       '/api/v1/maintenance/$caseId/addendum',
     );
     return response.data!['inspectionId'] as String;
+  });
+
+  /// Private tenancy files are read live; a signed URL is only requested on opening one.
+  Future<SupportingDocuments> supportingDocuments(
+    String tenancyId, {
+    required String? ownerId,
+  }) async {
+    final owner = ownerId;
+    _checkOwner(owner);
+    final response = await _get<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/documents',
+      expectedOwnerId: owner,
+    );
+    _checkOwner(owner);
+    return SupportingDocuments.fromJson(response.data!);
+  }
+
+  Future<SupportingDocuments> requestSupportingDocument(
+    String tenancyId, {
+    required String clientId,
+    required String title,
+    required String? ownerId,
+  }) => _call(() async {
+    final owner = ownerId;
+    _checkOwner(owner);
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/documents',
+      data: {'clientId': clientId, 'title': title},
+      options: Options(extra: {'expectedOwnerId': ?owner}),
+    );
+    _checkOwner(owner);
+    return SupportingDocuments.fromJson(response.data!);
+  });
+
+  Future<String> supportingDocumentUrl(
+    String tenancyId,
+    String requestId,
+    String fileId, {
+    required String? ownerId,
+  }) async {
+    final owner = ownerId;
+    _checkOwner(owner);
+    final response = await _get<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/documents/$requestId/files/$fileId',
+      expectedOwnerId: owner,
+    );
+    _checkOwner(owner);
+    return response.data!['url'] as String;
+  }
+
+  Future<AgreementClauseAnalysis> agreementClauseAnalysis(
+    String tenancyId,
+    String fileId, {
+    required String? ownerId,
+  }) async {
+    _checkOwner(ownerId);
+    final response = await _get<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/documents/agreement/files/$fileId/analysis',
+      expectedOwnerId: ownerId,
+    );
+    _checkOwner(ownerId);
+    return AgreementClauseAnalysis.fromJson(response.data!);
+  }
+
+  Future<SupportingDocuments> confirmAgreementTerms(
+    String tenancyId,
+    Map<String, dynamic> body, {
+    required String? ownerId,
+  }) => _call(() async {
+    _checkOwner(ownerId);
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/tenancies/$tenancyId/documents/agreement/terms',
+      data: body,
+      options: Options(extra: {'expectedOwnerId': ?ownerId}),
+    );
+    _checkOwner(ownerId);
+    return SupportingDocuments.fromJson(response.data!);
   });
 
   /// Updates since signing on a countersigned check-in, with the open draft.

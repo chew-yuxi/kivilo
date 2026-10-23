@@ -22,11 +22,17 @@ export async function purgeExpiredProperty(propertyId: string, now = new Date())
     const photos = await tx.findingPhoto.findMany({
       where: { draft: { inspection: { tenancy: { propertyId } } } }, select: { storagePath: true },
     })
+    const documents = await tx.supportingDocumentRequest.findMany({
+      where: { tenancy: { propertyId } }, select: { id: true, tenancyId: true },
+    })
     const readyAt = new Date(now.getTime() + 3 * 3600_000)
     await tx.storagePurge.createMany({
       data: [
         ...rooms.map(({ id }) => ({ path: id, isPrefix: true, readyAt })),
         ...photos.map(({ storagePath }) => ({ path: storagePath, isPrefix: false, readyAt })),
+        ...documents.map(({ id, tenancyId }) => ({
+          path: `supporting-documents/${tenancyId}/${id}`, isPrefix: true, readyAt,
+        })),
       ],
       skipDuplicates: true,
     })

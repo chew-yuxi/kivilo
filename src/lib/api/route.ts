@@ -6,6 +6,7 @@ import { ZodError } from 'zod'
 import { MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 import { AgencyActionError } from '@/lib/agency-errors'
 import { PropertyLifecycleError } from '@/lib/property-errors'
+import { SupportingDocumentError } from '@/lib/supporting-documents-errors'
 
 /// Transport for the native client. These handlers are deliberately thin: they resolve
 /// the agent, call the same function the web app calls, and serialise the result. No
@@ -16,12 +17,16 @@ import { PropertyLifecycleError } from '@/lib/property-errors'
 /// bearer check below is what refuses it.
 export function authed<P>(
   handler: (agent: Stakeholder, params: P, request: Request) => Promise<unknown>,
+  options: { pinOwner?: boolean } = {},
 ) {
   return async (request: Request, context: { params: Promise<P> }) => {
     // Resolves the same way the action inside will, and is memoized per request, so the
     // token is verified once however many times it is asked for.
     const stakeholder = await currentStakeholder()
     if (!stakeholder) {
+      return Response.json({ error: 'unauthorized' }, { status: 401 })
+    }
+    if (options.pinOwner && request.headers.has('x-kivilo-owner') && request.headers.get('x-kivilo-owner') !== stakeholder.id) {
       return Response.json({ error: 'unauthorized' }, { status: 401 })
     }
 
@@ -32,6 +37,9 @@ export function authed<P>(
       // cannot be used to discover which ids are real. Nothing else is echoed back: the
       // thrown message can carry a Prisma model name or a driver error.
       const message = error instanceof Error ? error.message : ''
+      if (error instanceof SupportingDocumentError) {
+        return Response.json({ error: error.code, message: error.message }, { status: error.code === 'invalid_document' ? 400 : 409 })
+      }
       if (error instanceof PropertyLifecycleError) {
         return Response.json({ error: error.code, message: error.message }, { status: 409 })
       }

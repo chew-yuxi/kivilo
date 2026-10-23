@@ -67,11 +67,12 @@ final _active = [
 ];
 
 class _LibraryApi extends Api {
-  _LibraryApi({List<PropertyWorkItem>? active})
+  _LibraryApi({List<PropertyWorkItem>? active, this.canOpenDocuments = false})
     : active = active ?? _active,
       super(attachAuth: false, cache: ReadCache());
 
   final List<PropertyWorkItem> active;
+  final bool canOpenDocuments;
   final states = <String>[];
 
   @override
@@ -118,8 +119,9 @@ class _LibraryApi extends Api {
         canOpenTimeline: false,
         nextInspectionId: 'report-draft',
         nextInspectionKind: 'CHECK_IN',
-        terms: const [
+        terms: [
           PropertyTerm(
+            canOpenDocuments: canOpenDocuments,
             tenancyId: 't',
             startDate: '2026-01-01T00:00:00.000Z',
             endDate: '2027-12-31T00:00:00.000Z',
@@ -158,6 +160,23 @@ Future<void> _chip(WidgetTester tester, String label) async {
 }
 
 void main() {
+  testWidgets('per-term documents use their own permission before repairs are available', (tester) async {
+    for (final allowed in [false, true]) {
+      await tester.pumpWidget(MaterialApp(
+        key: ValueKey(allowed),
+        theme: buildKiviloTheme(),
+        home: PropertyScreen(propertyId: 'property-1', api: _LibraryApi(canOpenDocuments: allowed)),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('Repairs and assets'), findsNothing);
+      expect(find.text('Documents'), allowed ? findsOneWidget : findsNothing);
+    }
+    expect(PropertyTerm.fromJson({
+      'tenancyId': 'old', 'startDate': '2024-01-01', 'endDate': '2025-01-01',
+      'tenant': 'Previous tenant', 'landlord': 'Owner', 'reports': [],
+      'canOpenDocuments': true,
+    }).canOpenDocuments, isTrue);
+  });
   testWidgets(
     'lists each property once with its stage, and searches address, tenant and stage',
     (tester) async {

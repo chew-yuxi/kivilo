@@ -4,6 +4,7 @@ import '../models/maintenance.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/agreement_terms_view.dart';
 
 final _money = RegExp(r'^\d+(?:\.\d{1,2})?$');
 
@@ -109,6 +110,10 @@ class ResponsibilityCard extends StatelessWidget {
           children: [
             KiviloSectionHeading(title: 'Who pays', subtitle: subtitle),
             const SizedBox(height: kiviloHeadingGap),
+            if (responsibility.maintenanceTerms case final terms?) ...[
+              AgreementTermsView(terms: terms),
+              const SizedBox(height: kiviloHeadingGap),
+            ],
             if (agreement != null) ...[
               _ProposalPanel(
                 tone: _Tone.agreed,

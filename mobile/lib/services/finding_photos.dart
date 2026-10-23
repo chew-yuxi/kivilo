@@ -355,7 +355,8 @@ class FindingPhotos extends ChangeNotifier {
     try {
       await _writes;
       if (await _pickerFile.exists() ||
-          await File('${root.path}/capture-picker.json').exists()) {
+          await File('${root.path}/capture-picker.json').exists() ||
+          await File('${root.path}/$supportingDocumentPickerFilename').exists()) {
         throw const ApiFailure(
           'Finish recovering the previous camera selection before taking another photo.',
           null,

@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { retireFindingDraftsForAccount, retireInspectionFindingPhotos } from '@/lib/finding-photos'
+import { retireSoleSupportingDocuments, soleSupportingDocumentTenancy } from '@/lib/supporting-documents-retention'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
@@ -165,6 +166,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
     await db.subscription.updateMany({ where: { managedById: person.id }, data: { managedById: null } })
 
     await retireFindingDraftsForAccount(person.id)
+    await retireSoleSupportingDocuments(person.id)
 
     // An inspection can be this agent's work while also being a landlord's or
     // tenant's record. Keep that shared work under the explicit retention choice.
@@ -240,12 +242,15 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       const storageLeft = await tx.accountDeletionStoragePurge.count({
         where: { requestId, completedAt: null },
       })
+      const soleDocumentsLeft = await tx.supportingDocumentRequest.count({
+        where: { tenancy: soleSupportingDocumentTenancy(person.id) },
+      })
       // A capture or room deleted before this request can still have an independent
       // Storage tombstone. We cannot reconstruct its former owner after its DB row is
       // gone, so conservatively wait for every general purge to finish as well.
       const generalStorageLeft = await tx.storagePurge.count({ where: { completedAt: null } })
-      if (soleDraftsLeft || storageLeft || generalStorageLeft) {
-        throw new Error(`Deletion remains PROCESSING: ${soleDraftsLeft} sole-party drafts, ${storageLeft} request room prefixes, and ${generalStorageLeft} general Storage tombstones await cleanup. Rerun the Storage purge worker after signed upload URLs expire, then retry this request.`)
+      if (soleDraftsLeft || soleDocumentsLeft || storageLeft || generalStorageLeft) {
+        throw new Error(`Deletion remains PROCESSING: ${soleDraftsLeft} sole-party drafts, ${soleDocumentsLeft} sole-party document requests, ${storageLeft} request room prefixes, and ${generalStorageLeft} general Storage tombstones await cleanup. Rerun the Storage purge worker after signed upload URLs expire, then retry this request.`)
       }
 
       // Remaining unsigned records involve another party, conductor or collaborator. The
@@ -278,6 +283,16 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
         },
       })
 
+      const documentReferences = await tx.supportingDocumentRequest.count({
+        where: { OR: [
+          { requestedById: person.id },
+          { files: { some: { submittedById: person.id } } },
+        ] },
+      })
+      const confirmedClauseReferences = await tx.tenancy.count({
+        where: { minorRepairClause: { path: ['confirmedBy', 'id'], equals: person.id } },
+      })
+
       // A tenancy with no inspections has no signed report to keep an agent link for.
       await tx.tenancy.updateMany({
         where: { agentId: person.id, inspections: { none: {} } },
@@ -300,7 +315,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
           email: null,
           phone: null,
           idNumber: null,
-          name: signedReferences || sharedUnsigned ? person.name : 'Deleted user',
+          name: signedReferences || sharedUnsigned || documentReferences || confirmedClauseReferences ? person.name : 'Deleted user',
         },
       })
       await tx.accountDeletionRequest.update({

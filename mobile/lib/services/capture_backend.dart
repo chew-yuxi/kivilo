@@ -71,8 +71,10 @@ abstract class CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  );
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  });
 
   /// Straight from the device to storage with a one-shot credential. A walkthrough is
   /// far past any serverless body cap, and routing evidence through a function would be
@@ -142,8 +144,10 @@ class HttpCaptureBackend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) async {
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
     final response = await _metadata(
       (cancel) => _dio.post<Map<String, dynamic>>(
         '/api/v1/inspections/$inspectionId/rooms/$roomId/upload-url',
@@ -335,14 +339,19 @@ class RoutingEvidenceBackend implements CaptureBackend {
     : _captures = HttpCaptureBackend(dio),
       _maintenance = HttpMaintenanceEvidenceBackend(dio),
       _addenda = HttpAddendumPhotoBackend(dio),
-      _findings = HttpFindingPhotoBackend(dio);
+      _findings = HttpFindingPhotoBackend(dio),
+      _documents = HttpSupportingDocumentBackend(dio);
 
   final HttpCaptureBackend _captures;
   final HttpMaintenanceEvidenceBackend _maintenance;
   final HttpAddendumPhotoBackend _addenda;
   final HttpFindingPhotoBackend _findings;
+  final HttpSupportingDocumentBackend _documents;
 
-  void bindOwner(String ownerId) => _findings.bindOwner(ownerId);
+  void bindOwner(String ownerId) {
+    _findings.bindOwner(ownerId);
+    _documents.bindOwner(ownerId);
+  }
 
   CaptureBackend _for(String ownerId) => ownerId.startsWith('maintenance:')
       ? _maintenance
@@ -350,6 +359,8 @@ class RoutingEvidenceBackend implements CaptureBackend {
       ? _addenda
       : ownerId.startsWith('finding-draft:') || ownerId.startsWith('finding:')
       ? _findings
+      : ownerId.startsWith(supportingDocumentQueuePrefix)
+      ? _documents
       : _captures;
 
   @override
@@ -358,8 +369,13 @@ class RoutingEvidenceBackend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) => _for(inspectionId).uploadUrl(inspectionId, roomId, filename, clientId);
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) => _for(inspectionId).uploadUrl(
+    inspectionId, roomId, filename, clientId,
+    mimeType: mimeType, sizeBytes: sizeBytes,
+  );
 
   @override
   Future<void> putBytes(
@@ -414,6 +430,173 @@ class RoutingEvidenceBackend implements CaptureBackend {
       _for(inspectionId).deleteCapture(inspectionId, captureId);
 }
 
+const supportingDocumentQueuePrefix = 'supporting-documents:';
+const agreementQueueTarget = 'agreement';
+const supportingDocumentPickerFilename = 'supporting-document-picker.json';
+
+/// An optional tenancy document stays outside room evidence and the signed report.
+/// Its generated display name remains identical when a registration is retried.
+class HttpSupportingDocumentBackend implements CaptureBackend {
+  HttpSupportingDocumentBackend(this._dio);
+  final Dio _dio;
+  String? _ownerId;
+
+  void bindOwner(String ownerId) {
+    if (_ownerId != null && _ownerId != ownerId) {
+      throw StateError('Uploader account changed.');
+    }
+    _ownerId = ownerId;
+  }
+
+  void _guardOwner() {
+    final current = _dio.options.extra['currentOwnerId'];
+    if (_ownerId != null &&
+        current is String? Function() &&
+        current() != _ownerId) {
+      throw const ApiFailure('Account changed. Open this page again.', 401);
+    }
+  }
+
+  Options get _options => Options(extra: {'expectedOwnerId': ?_ownerId});
+  Future<String> _base(String owner, String requestId) async {
+    final tenancyId = owner.substring(supportingDocumentQueuePrefix.length);
+    final documents = '/api/v1/tenancies/$tenancyId/documents';
+    if (requestId == agreementQueueTarget) {
+      // Photos can be taken before this tenancy has an agreement slot, including
+      // offline. The server resolves the same unique slot on every queue retry.
+      final prepared = await _metadata(
+        (cancel) => _dio.post<Map<String, dynamic>>(
+          '$documents/agreement',
+          data: const <String, dynamic>{},
+          options: _options,
+          cancelToken: cancel,
+        ),
+        _metadataDeadline,
+      );
+      _guardOwner();
+      requestId =
+          (prepared.data!['agreement'] as Map<String, dynamic>)['requestId']
+              as String;
+    }
+    return '$documents/$requestId';
+  }
+
+  Map<String, dynamic> _metadataBody(
+    String clientId,
+    String mimeType,
+    int sizeBytes,
+  ) {
+    final extension = switch (mimeType) {
+      'image/png' => 'png',
+      'image/webp' => 'webp',
+      'image/jpeg' => 'jpg',
+      _ => throw StateError('Unsupported document photo type.'),
+    };
+    return {
+      'clientId': clientId,
+      'fileName': 'Document photo ${clientId.substring(0, 8)}.$extension',
+      'mimeType': mimeType,
+      'byteSize': sizeBytes,
+    };
+  }
+
+  @override
+  Future<({String storagePath, String? signedUrl, bool alreadyUploaded})>
+  uploadUrl(
+    String inspectionId,
+    String roomId,
+    String filename,
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
+    _guardOwner();
+    if (mimeType == null || sizeBytes == null) {
+      throw StateError('Document upload metadata is missing.');
+    }
+    final base = await _base(inspectionId, roomId);
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '$base/upload-url',
+        data: _metadataBody(clientId, mimeType, sizeBytes),
+        options: _options,
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
+    );
+    final data = response.data!;
+    return (
+      storagePath: data['storagePath'] as String,
+      signedUrl: data['signedUrl'] as String?,
+      alreadyUploaded:
+          data['alreadyUploaded'] == true || data['alreadyRegistered'] == true,
+    );
+  }
+
+  @override
+  Future<void> putBytes(
+    String signedUrl,
+    File file,
+    String mimeType,
+    String clientId,
+  ) {
+    _guardOwner();
+    return HttpCaptureBackend(_dio)
+        .putBytes(signedUrl, file, mimeType, clientId);
+  }
+
+  @override
+  Future<({String id, bool annotationsApplied, bool itemApplied})>
+  registerCapture({
+    required String inspectionId,
+    required String roomId,
+    required String kind,
+    required String storagePath,
+    required String clientId,
+    required String mimeType,
+    required int sizeBytes,
+    int? durationSec,
+    String? itemId,
+    String? note,
+    Map<String, dynamic>? annotations,
+  }) async {
+    _guardOwner();
+    final base = await _base(inspectionId, roomId);
+    final response = await _metadata(
+      (cancel) => _dio.post<Map<String, dynamic>>(
+        '$base/files',
+        data: _metadataBody(clientId, mimeType, sizeBytes),
+        options: _options,
+        cancelToken: cancel,
+      ),
+      _metadataDeadline,
+    );
+    return (
+      id: response.data!['id'] as String,
+      annotationsApplied: true,
+      itemApplied: true,
+    );
+  }
+
+  Never _immutable() =>
+      throw StateError('Submitted supporting documents are immutable.');
+  @override
+  Future<void> updateNote(
+    String inspectionId,
+    String captureId,
+    String? note,
+  ) async => _immutable();
+  @override
+  Future<void> annotate(
+    String inspectionId,
+    String captureId,
+    Map<String, dynamic>? annotations,
+  ) async => _immutable();
+  @override
+  Future<void> deleteCapture(String inspectionId, String captureId) async =>
+      _immutable();
+}
+
 class HttpMaintenanceEvidenceBackend implements CaptureBackend {
   HttpMaintenanceEvidenceBackend(this._dio);
   final Dio _dio;
@@ -430,8 +613,10 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) async {
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
     final response = await _metadata(
       (cancel) => _dio.post<Map<String, dynamic>>(
         '/api/v1/maintenance/${_caseId(inspectionId)}/upload-url',
@@ -554,8 +739,10 @@ class HttpAddendumPhotoBackend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) async {
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
     final response = await _metadata(
       (cancel) => _dio.post<Map<String, dynamic>>(
         '/api/v1/addenda/${_addendumId(inspectionId)}/entries/$roomId/upload-url',
@@ -680,8 +867,10 @@ class HttpFindingPhotoBackend implements CaptureBackend {
     String inspectionId,
     String roomId,
     String filename,
-    String clientId,
-  ) async {
+    String clientId, {
+    String? mimeType,
+    int? sizeBytes,
+  }) async {
     _guardOwner();
     final parts = inspectionId.split(':');
     final response = await _metadata(

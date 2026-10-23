@@ -20,11 +20,21 @@ class MaintenanceEvidenceScreen extends StatefulWidget {
     required this.caseId,
     required this.purpose,
     this.visitId,
+    this.api,
+    this.queue,
+    this.picker,
+    this.supportDirectory,
+    this.canRecoverLostData,
   });
 
   final String caseId;
   final String purpose;
   final String? visitId;
+  final Api? api;
+  final CaptureQueue? queue;
+  final ImagePicker? picker;
+  final Future<Directory> Function()? supportDirectory;
+  final bool? canRecoverLostData;
 
   @override
   State<MaintenanceEvidenceScreen> createState() =>
@@ -32,9 +42,9 @@ class MaintenanceEvidenceScreen extends StatefulWidget {
 }
 
 class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
-  final _queue = CaptureQueue();
-  final _api = Api();
-  final _picker = ImagePicker();
+  late final _queue = widget.queue ?? CaptureQueue();
+  late final _api = widget.api ?? Api();
+  late final _picker = widget.picker ?? ImagePicker();
   Directory? _root;
   bool _busy = true;
   String? _message;
@@ -51,7 +61,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
 
   Future<void> _initialize() async {
     try {
-      _root = await getApplicationSupportDirectory();
+      _root = await (widget.supportDirectory ?? getApplicationSupportDirectory)();
       await _recoverLostPhoto();
     } catch (error) {
       if (mounted) {
@@ -63,7 +73,11 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
   }
 
   Future<void> _recoverLostPhoto() async {
-    if (!Platform.isAndroid) return;
+    if (!(widget.canRecoverLostData ?? Platform.isAndroid)) return;
+    // The receipt's original tenancy/request must recover its Android picker result.
+    if (await File('${_root!.path}/$supportingDocumentPickerFilename').exists()) {
+      return;
+    }
     final response = await _picker.retrieveLostData();
     if (response.isEmpty) return;
     if (response.exception != null) {
@@ -83,6 +97,12 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       _message = null;
     });
     try {
+      if (await File('${_root!.path}/$supportingDocumentPickerFilename').exists()) {
+        throw const ApiFailure(
+          'Reopen Supporting documents to recover the previous photo before taking another.',
+          null,
+        );
+      }
       final photo = await _picker.pickImage(
         source: source,
         imageQuality: 95,
@@ -146,7 +166,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
 
   @override
   void dispose() {
-    unawaited(_queue.close());
+    if (widget.queue == null) unawaited(_queue.close());
     super.dispose();
   }
 

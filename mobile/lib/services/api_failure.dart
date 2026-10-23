@@ -35,6 +35,14 @@ class ApiFailure implements Exception {
         'The upload did not finish. The file is still on this phone, so try again.',
       'evidence_missing' =>
         'The upload did not finish. The photo is still on this phone, so try again.',
+      'document_missing' =>
+        'The document upload did not finish. Your photo is still on this phone. Retry the upload.',
+      'document_conflict' =>
+        error.response?.data is Map && (error.response!.data as Map)['message'] is String
+            ? (error.response!.data as Map)['message'] as String
+            : 'This document changed. Refresh and check the latest file.',
+      'invalid_document' =>
+        'Choose a PDF, JPEG, PNG or WebP file smaller than 10 MB.',
       // Says what happened and nothing about buying: store rules forbid pointing an
       // app user at a purchase made outside the store.
       'plan_limit' =>
