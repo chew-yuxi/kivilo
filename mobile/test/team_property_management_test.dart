@@ -230,6 +230,7 @@ class _ManagementApi extends Api {
     bool personal = false,
     String state = 'active',
   }) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
     if (state == 'trash' && trashPending != null) return trashPending!.future;
     final rows = agencyId == null && !personal
         ? await inspections()

@@ -67,7 +67,10 @@ class PropertiesScreen extends StatefulWidget {
 class _PropertiesScreenState extends State<PropertiesScreen> {
   late final _api = widget.api ?? Api();
   late final _workspace = widget.workspace ?? Workspace(_api);
-  late Future<List<PropertyWorkItem>> _future = _load();
+  late Loading<List<PropertyWorkItem>> _loading = _api.load(_load);
+  /// Bumped whenever a different list is asked for (workspace, agent, archived or
+  /// deleted), so the previous list's rows never show while the new one loads.
+  int _scope = 0;
   final _search = TextEditingController();
   _PropertyFilter _filter = _PropertyFilter.all;
   int _renewalsVersion = 0;
@@ -105,18 +108,21 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     );
   }
 
-  Future<void> _refresh() async {
-    final next = _load();
+  /// The same list keeps showing while it refreshes; a different list starts blank
+  /// and shows its own saved copy, if there is one.
+  Future<void> _refresh({bool newScope = false}) async {
+    final next = _api.load(_load, savedFirst: newScope);
     setState(() {
-      _future = next;
+      _loading = next;
+      if (newScope) _scope++;
       _workError = null;
       _renewalsVersion += 1;
     });
     try {
-      await next;
+      await next.fresh;
     } catch (error) {
-      // FutureBuilder renders the failure; callback errors also need handling.
-      if (mounted && identical(_future, next)) {
+      // The list renders the failure; callback errors also need handling.
+      if (mounted && identical(_loading, next)) {
         setState(() => _workError = plainError(error));
       }
     }
@@ -127,7 +133,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
       await _workspace.select(value);
       if (!mounted) return;
       _assigneeId = null;
-      await _refresh();
+      await _refresh(newScope: true);
     } catch (error) {
       if (mounted) setState(() => _workError = plainError(error));
     }
@@ -143,7 +149,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     try {
       await _workspace.refresh();
       if (selected != null) await _workspace.select(selected);
-      if (mounted) await _refresh();
+      if (mounted) await _refresh(newScope: selected != null);
     } catch (error) {
       if (mounted) setState(() => _workError = plainError(error));
     }
@@ -153,7 +159,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     if (_creating) return;
     setState(() => _creating = true);
     try {
-      await _future;
+      await _loading.fresh;
       if (!mounted) return;
       final agency = _workspace.all
           ? _workspace.index.agencies.firstOrNull
@@ -191,7 +197,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   void _selectFilter(_PropertyFilter filter) {
     final refetch = filter.state != _filter.state;
     setState(() => _filter = filter);
-    if (refetch) _refresh();
+    if (refetch) _refresh(newScope: true);
   }
 
   @override
@@ -213,12 +219,10 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
       maxWidth: 1200,
       child: RefreshIndicator(
         onRefresh: _refresh,
-        child: FutureBuilder<List<PropertyWorkItem>>(
-          future: _future,
+        child: StreamBuilder<List<PropertyWorkItem>>(
+          key: ValueKey(_scope),
+          stream: _loading.stream,
           builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
-            }
             if (snapshot.hasError) {
               return KiviloMessage(
                 icon: Icons.cloud_off_outlined,
@@ -238,6 +242,10 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
               );
             }
 
+            // A spinner only when there is nothing to show yet.
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
             final properties = snapshot.data!;
             final query = _search.text.trim().toLowerCase().replaceAll(
               RegExp(r'[\s_-]+'),
@@ -294,7 +302,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                         ],
                         onChanged: (value) {
                           setState(() => _assigneeId = value);
-                          _refresh();
+                          _refresh(newScope: true);
                         },
                       ),
                       const SizedBox(height: 8),

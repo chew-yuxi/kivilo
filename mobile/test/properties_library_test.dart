@@ -91,6 +91,7 @@ class _LibraryApi extends Api {
     bool personal = false,
     String state = 'active',
   }) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
     states.add(state);
     return switch (state) {
       'archived' => [

@@ -43,6 +43,16 @@ class ReadCache {
     return owner == null ? false : writeForOwner(owner, key, value);
   }
 
+  /// Forgets a saved copy, e.g. once the server says this account can no longer see it.
+  Future<void> deleteForOwner(String owner, String key) async {
+    final file = await _file(owner, key);
+    try {
+      if (await file.exists()) await file.delete();
+    } on FileSystemException catch (error) {
+      debugPrint('Could not delete inspection cache $key: $error');
+    }
+  }
+
   Future<bool> writeForOwner(String owner, String key, Object? value) async {
     final file = await _file(owner, key);
     try {

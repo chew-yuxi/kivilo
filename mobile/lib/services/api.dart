@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -106,6 +107,8 @@ class Api {
   String? get currentOwnerId => _cache.ownerId;
 
   Future<T> _call<T>(Future<T> Function() request) async {
+    // The saved-copy pass of [load] reads the phone only; it never writes or sends.
+    if (_savedOnly) throw const _NothingSaved();
     try {
       return await request();
     } on DioException catch (error) {
@@ -118,6 +121,7 @@ class Api {
     Map<String, dynamic>? queryParameters,
     String? expectedOwnerId,
   }) {
+    if (_savedOnly) throw const _NothingSaved();
     final cancel = CancelToken();
     // A connected radio can silently drop every packet. Bound the whole read
     // (including session refresh), then cancel it so cached capture screens can
@@ -156,20 +160,31 @@ class Api {
     String? expectedOwnerId,
   }) async {
     final owner = _cache.ownerId;
+    if (_savedOnly) {
+      final saved = owner == null
+          ? null
+          : await _cache.readForOwner(owner, cacheKey);
+      _checkOwner(owner);
+      if (saved == null) throw const _NothingSaved();
+      return saved;
+    }
+    final Response<Object> response;
     try {
-      final response = await _get<Object>(
+      response = await _get<Object>(
         route,
         expectedOwnerId: expectedOwnerId ?? owner,
       );
-      _checkOwner(owner);
-      if (owner != null) {
-        await _cache.writeForOwner(owner, cacheKey, response.data);
-      }
-      _checkOwner(owner);
-      offlineCopy = false;
-      return response.data!;
     } on ApiFailure catch (error) {
-      if (error.statusCode != null) rethrow;
+      if (error.statusCode != null) {
+        // The server refused this account: never show its saved copy again. Only
+        // for the same account; a switch mid-request is not a refusal of anyone.
+        if (owner != null &&
+            _cache.ownerId == owner &&
+            const {401, 403, 404}.contains(error.statusCode)) {
+          await _cache.deleteForOwner(owner, cacheKey);
+        }
+        rethrow;
+      }
       _checkOwner(owner);
       final cached = owner == null
           ? null
@@ -179,6 +194,46 @@ class Api {
       offlineCopy = true;
       return cached;
     }
+    _checkOwner(owner);
+    if (owner != null) {
+      await _cache.writeForOwner(owner, cacheKey, response.data);
+    }
+    _checkOwner(owner);
+    offlineCopy = false;
+    return response.data!;
+  }
+
+  /// True during [load]'s saved-copy pass. A test double that overrides a read
+  /// should act as if nothing is saved here, as the real read would with an empty cache.
+  @visibleForTesting
+  bool get readingSavedCopy => _savedOnly;
+
+  /// Loads a screen's data the way [fetch] does, but first runs [fetch] against the
+  /// copies already saved on this phone, so a screen opens with what it showed last
+  /// time and the server's answer replaces it a moment later. Anything [fetch] would
+  /// send or write is refused during that first pass, and a refusal from the server
+  /// deletes the saved copy, so lost access never keeps showing old data.
+  Loading<T> load<T>(Future<T> Function() fetch, {bool savedFirst = true}) {
+    // Starts now, not when a screen subscribes: [Loading.fresh] must complete for
+    // callers such as pull-to-refresh even before the next frame listens.
+    final loading = Loading<T>._();
+    unawaited(() async {
+      if (savedFirst) {
+        try {
+          final saved = await runZoned(fetch, zoneValues: {_savedOnlyKey: true});
+          if (saved != null) loading._add(saved);
+        } catch (_) {
+          // Nothing saved yet, or a copy from an older app that no longer reads:
+          // there is simply no instant view, and the server's answer follows.
+        }
+      }
+      try {
+        loading._complete(await fetch());
+      } catch (error, stack) {
+        loading._fail(error, stack);
+      }
+    }());
+    return loading;
   }
 
   Future<List<InspectionSummary>> inspections() async {
@@ -370,6 +425,7 @@ class Api {
   }
 
   Future<void> saveWorkspacePreference(String? value) async {
+    if (_savedOnly) return;
     final owner = _cache.ownerId;
     if (owner != null) await _cache.writeForOwner(owner, 'workspace', value);
     _checkOwner(owner);
@@ -1172,4 +1228,64 @@ class Api {
   Future<void> requestDeletion() => _call(() async {
     await _dio.post('/api/v1/account/deletion-request');
   });
+}
+
+const _savedOnlyKey = #kiviloSavedOnly;
+bool get _savedOnly => Zone.current[_savedOnlyKey] == true;
+
+class _NothingSaved implements Exception {
+  const _NothingSaved();
+}
+
+/// A screen's data: [stream] gives the saved copy (if any) and then the server's
+/// answer; [fresh] completes with the server's answer alone. Every listener, such as
+/// a screen's title and its body, first receives the latest value, then what follows.
+class Loading<T> {
+  Loading._() {
+    fresh.ignore();
+  }
+
+  final _updates = StreamController<T>.broadcast(sync: true);
+  final _fresh = Completer<T>();
+  ({T value})? _latest;
+  (Object, StackTrace)? _error;
+  bool _done = false;
+
+  Future<T> get fresh => _fresh.future;
+
+  late final Stream<T> stream = Stream<T>.multi((listener) {
+    if (_latest case final latest?) listener.add(latest.value);
+    if (_error case (final error, final stack)) listener.addError(error, stack);
+    if (_done) {
+      listener.close();
+      return;
+    }
+    final subscription = _updates.stream.listen(
+      listener.add,
+      onError: listener.addError,
+      onDone: listener.close,
+    );
+    listener.onCancel = subscription.cancel;
+  });
+
+  void _add(T value) {
+    _latest = (value: value);
+    _updates.add(value);
+  }
+
+  void _complete(T value) {
+    _add(value);
+    _fresh.complete(value);
+    _done = true;
+    unawaited(_updates.close());
+  }
+
+  void _fail(Object error, StackTrace stack) {
+    _error = (error, stack);
+    _latest = null;
+    _updates.addError(error, stack);
+    _fresh.completeError(error, stack);
+    _done = true;
+    unawaited(_updates.close());
+  }
 }

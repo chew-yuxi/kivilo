@@ -25,6 +25,7 @@ class _WorkspaceApi extends Api {
     bool personal = false,
     String state = 'active',
   }) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
     propertyReads++;
     return [
       for (var index = 1; index <= 20; index++)
