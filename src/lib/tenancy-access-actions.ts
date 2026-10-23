@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { recordEvent, tenancyPlace } from '@/lib/property-history'
 import { db } from '@/lib/db'
 import { requireAgent, authorizeLeadTenancy } from '@/lib/auth'
 import { tenancyAccess } from '@/lib/tenancy-access'
@@ -45,6 +46,9 @@ export async function addTenancyCollaborator(tenancyId: string, rawEmail: string
     await tx.inspectionAccessGrant.deleteMany({
       where: { stakeholderId: collaborator.id, inspection: { tenancyId } },
     })
+    if (added.count) {
+      await recordEvent(tx, { ...await tenancyPlace(tx, tenancyId), actorId: agent.id, kind: 'ACCESS_ADDED', summary: `gave ${collaborator.name} access` })
+    }
     if (added.count && (await activeNotificationRecipients(tx, [collaborator.id])).length) {
       const shared = await tx.tenancy.findUniqueOrThrow({
         where: { id: tenancyId },
@@ -76,8 +80,12 @@ export async function removeTenancyCollaborator(tenancyId: string, stakeholderId
     if (tenancy.agencyId && await tx.agencyMembership.findFirst({
       where: { agencyId: tenancy.agencyId, stakeholderId, status: 'ACTIVE', role: { in: ['OWNER', 'MANAGER'] } },
     })) throw new AgencyActionError('This person has team-wide access as an owner or manager. Change their team role to remove that access.')
-    await tx.tenancyCollaborator.deleteMany({ where: { tenancyId, stakeholderId } })
-    await tx.inspectionAccessGrant.deleteMany({ where: { stakeholderId, inspection: { tenancyId } } })
+    const removed = await tx.tenancyCollaborator.deleteMany({ where: { tenancyId, stakeholderId } })
+    const grants = await tx.inspectionAccessGrant.deleteMany({ where: { stakeholderId, inspection: { tenancyId } } })
+    if (removed.count || grants.count) {
+      const person = await tx.stakeholder.findUnique({ where: { id: stakeholderId }, select: { name: true } })
+      await recordEvent(tx, { ...await tenancyPlace(tx, tenancyId), actorId: agent.id, kind: 'ACCESS_REMOVED', summary: `removed ${person?.name ?? 'someone'}'s access` })
+    }
     if (tenancy.agencyId) {
       const person = await tx.stakeholder.findUnique({ where: { id: stakeholderId }, select: { name: true } })
       await tx.agencyActivity.create({ data: {

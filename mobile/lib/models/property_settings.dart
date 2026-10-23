@@ -38,12 +38,16 @@ class PropertySettings {
     required this.tenancies,
     this.deleteBlockedReason,
     this.trashExpiresAt,
+    this.askNames = const [],
   });
   final String id;
   final String label;
   final String state;
   final bool canManage;
   final bool canDelete;
+
+  /// Who can do what this viewer cannot. Absent from servers before 23 Oct 2026.
+  final List<String> askNames;
   final String confirmationLabel;
   final Map<String, dynamic> counts;
   final List<Map<String, dynamic>> tenancies;
@@ -62,5 +66,7 @@ class PropertySettings {
             .cast<Map<String, dynamic>>(),
         deleteBlockedReason: json['deleteBlockedReason'] as String?,
         trashExpiresAt: json['trashExpiresAt'] as String?,
+        askNames: (json['askNames'] as List<dynamic>? ?? const [])
+            .cast<String>(),
       );
 }

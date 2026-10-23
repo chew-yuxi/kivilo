@@ -247,6 +247,22 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
     );
   }
 
+  /// An agent sees every team action; the ones they cannot take name who can.
+  void _locked(AgencyDetail agency, String action, {bool ownersOnly = false}) =>
+      showLockedAction(
+        context,
+        action: action,
+        who: ownersOnly ? 'a team owner' : 'a team owner or manager',
+        askNames: [
+          for (final member in agency.members)
+            if (member.active &&
+                (ownersOnly
+                    ? member.role == 'OWNER'
+                    : member.role == 'OWNER' || member.role == 'MANAGER'))
+              member.name,
+        ],
+      );
+
   Future<void> _manage(AgencyDetail agency, AgencyMember member) async {
     final change = await showKiviloDrawer<Map<String, dynamic>>(
       context: context,
@@ -307,32 +323,36 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                     ),
                   ],
                   if (agency != null) ...[
-                    if (agency.canManage) ...[
-                      const SizedBox(height: 20),
-                      FilledButton.icon(
-                        onPressed: _busy ? null : _invite,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Invite member'),
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton(
-                        onPressed: _busy
-                            ? null
-                            : () async {
-                                final name = await _nameDrawer(
-                                  context,
-                                  title: 'Rename team',
-                                  initial: agency.name,
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: _busy
+                          ? null
+                          : agency.canManage
+                          ? _invite
+                          : () => _locked(agency, 'Invite member'),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Invite member'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: _busy
+                          ? null
+                          : !agency.canManage
+                          ? () => _locked(agency, 'Rename team')
+                          : () async {
+                              final name = await _nameDrawer(
+                                context,
+                                title: 'Rename team',
+                                initial: agency.name,
+                              );
+                              if (name != null && mounted) {
+                                await _change(
+                                  () => _api.renameAgency(widget.id, name),
                                 );
-                                if (name != null && mounted) {
-                                  await _change(
-                                    () => _api.renameAgency(widget.id, name),
-                                  );
-                                }
-                              },
-                        child: const Text('Rename team'),
-                      ),
-                    ],
+                              }
+                            },
+                      child: const Text('Rename team'),
+                    ),
                     const SizedBox(height: 24),
                     const KiviloSectionHeading(
                       title: 'Members and invitations',
@@ -357,16 +377,18 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                                 'Expires ${shortDate(member.expiresAt!)}',
                             ].join('\n'),
                           ),
-                          trailing:
-                              agency.canManage && member.status != 'REMOVED'
+                          trailing: member.status != 'REMOVED'
                               ? const Icon(Icons.chevron_right)
                               : null,
-                          onTap:
-                              agency.canManage &&
-                                  member.status != 'REMOVED' &&
-                                  !_busy
+                          onTap: member.status == 'REMOVED' || _busy
+                              ? null
+                              : agency.canManage
                               ? () => _manage(agency, member)
-                              : null,
+                              : () => _locked(
+                                  agency,
+                                  'Manage ${member.name}',
+                                  ownersOnly: member.role == 'OWNER',
+                                ),
                         ),
                       ),
                       const SizedBox(height: 10),

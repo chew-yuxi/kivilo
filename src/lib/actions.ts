@@ -18,6 +18,9 @@ import { checkInPhotoUrls, roomBaselines } from '@/lib/check-in-reference'
 import { Prisma } from '@/generated/prisma'
 import { claimFindingPhotoDraft, retireFindingPhotos } from '@/lib/finding-photos'
 import { lockAgency, lockAgencyTenancy, requireAgencyMembership } from '@/lib/agency'
+import { binCapture, binFinding, binItem, binRoom, reinsert } from '@/lib/bin'
+import { restoreAllowed } from '@/lib/bin-rules'
+import { fieldChanges, inspectionPlace, recordBurst, recordEvent } from '@/lib/property-history'
 import type {
   ChangeType,
   InspectionStatus,
@@ -231,6 +234,7 @@ export async function addRoom(inspectionId: string, name: string) {
     // createdAt, so each gets its own millisecond to keep the template's order.
     const now = Date.now()
     const rows = inspection.fullyFurnished ? templateRows(name) : []
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ROOM_ADDED', summary: `added the room ${name}` })
     return tx.room.create({
       data: {
         inspectionId,
@@ -258,8 +262,16 @@ export async function renameRoom(roomId: string, inspectionId: string, name: str
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, agent.id, (tx) =>
-    tx.room.update({ where: { id: roomId }, data: { name } }))
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const before = await tx.room.findUniqueOrThrow({ where: { id: roomId }, select: { name: true } })
+    await tx.room.update({ where: { id: roomId }, data: { name } })
+    if (before.name !== name) {
+      await recordEvent(tx, {
+        ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ROOM_RENAMED',
+        summary: `renamed ${before.name} to ${name}`, changes: [{ field: 'Name', from: before.name, to: name }],
+      })
+    }
+  })
   revalidate(inspectionId)
 }
 
@@ -275,12 +287,11 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
       select: { id: true },
     })
     if (!current) throw new Error('Room not found')
-    // Signed upload URLs issued before deletion can still write for two hours.
-    // Keep the prefix in a durable outbox before cascading away its capture rows.
-    await tx.storagePurge.create({
-      data: { path: roomId, isPrefix: true, readyAt: new Date(Date.now() + 3 * 60 * 60 * 1000) },
-    })
+    // The bin keeps the rows, and its prefix tombstone keeps the room's media until it
+    // expires. A signed upload URL's two-hour window is long over by then.
+    const bin = await binRoom(tx, roomId, agent.id)
     await tx.room.delete({ where: { id: roomId } })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ROOM_DELETED', summary: `deleted ${bin.label}`, binItemId: bin.id })
   })
   revalidate(inspectionId)
 }
@@ -312,7 +323,11 @@ export async function markRoomReviewed(
     // processedAt marks a capture a person has reviewed the room with. The report only
     // shows those, so a photo that lands after Send never joins what was agreed.
     await tx.capture.updateMany({ where: { roomId, processedAt: null }, data: { processedAt: new Date() } })
-    await tx.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
+    const reviewed = await tx.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
+    await recordEvent(tx, {
+      ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ROOM_REVIEWED',
+      summary: nothingToRecord && current._count.items === 0 ? `reviewed ${reviewed.name}: nothing to record` : `reviewed ${reviewed.name}`,
+    })
   })
   revalidate(inspectionId)
 }
@@ -505,6 +520,13 @@ export async function registerCapture(input: {
         where: { id: input.inspectionId, status: 'DRAFT' },
         data: { status: 'CAPTURING', conductedAt: new Date() },
       })
+      const roomName = (await tx.room.findUniqueOrThrow({ where: { id: input.roomId }, select: { name: true } })).name
+      const noun = input.kind === 'PHOTO' ? ['a photo', 'photos'] : ['a video', 'videos']
+      await recordBurst(tx, {
+        ...await inspectionPlace(tx, input.inspectionId), actorId: agent.id, kind: 'CAPTURES_ADDED',
+        subjectKey: `room:${input.roomId}:${input.kind}`,
+        summary: (count) => `added ${count === 1 ? noun[0] : `${count} ${noun[1]}`} to ${roomName}`,
+      })
       return capture
     })
   } catch (error) {
@@ -538,8 +560,15 @@ export async function updateCaptureNote(captureId: string, inspectionId: string,
   if (room.inspectionId !== inspectionId) throw new Error('Capture not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, agent.id, (tx) =>
-    tx.capture.update({ where: { id: captureId }, data: { note } }))
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const before = await tx.capture.findUniqueOrThrow({ where: { id: captureId }, select: { note: true, room: { select: { name: true } } } })
+    await tx.capture.update({ where: { id: captureId }, data: { note } })
+    await recordBurst(tx, {
+      ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'CAPTURE_EDITED',
+      subjectKey: `capture:${captureId}`, summary: () => `changed a photo's caption in ${before.room.name}`,
+      changes: [{ field: 'Caption', from: before.note, to: note }],
+    })
+  })
   revalidate(inspectionId)
 }
 
@@ -567,8 +596,8 @@ export async function annotateCapture(
   // payload is a rejection, not a silent truncation.
   const parsed = input === null ? null : annotationInputSchema.parse(input)
 
-  await editOpenInspection(inspectionId, agent.id, (tx) =>
-    tx.capture.update({
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const { room } = await tx.capture.update({
       where: { id: captureId },
       data: {
         // Prisma needs DbNull to write SQL NULL to a Json? column; JsonNull would write a
@@ -577,7 +606,14 @@ export async function annotateCapture(
           ? { v: 1, ...parsed, by: agent.id, at: new Date().toISOString() }
           : Prisma.DbNull,
       },
-    }))
+      select: { room: { select: { name: true } } },
+    })
+    await recordBurst(tx, {
+      ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'CAPTURE_MARKED',
+      subjectKey: `capture:${captureId}`,
+      summary: () => parsed ? `marked up a photo in ${room.name}` : `cleared the marks on a photo in ${room.name}`,
+    })
+  })
   revalidate(inspectionId)
 }
 
@@ -598,14 +634,10 @@ export async function deleteCapture(captureId: string, inspectionId: string) {
       select: { roomId: true, storagePath: true, posterPath: true },
     })
     if (!current || current.roomId !== capture.roomId) throw new Error('Capture not found')
-    // The objects can outlive the DB row, so record their exact paths transactionally.
-    const readyAt = new Date(Date.now() + 3 * 60 * 60 * 1000)
-    await tx.storagePurge.createMany({
-      data: [current.storagePath, current.posterPath]
-        .filter((path) => path !== null)
-        .map((path) => ({ path, isPrefix: false, readyAt })),
-    })
+    // The bin records the exact paths transactionally; the objects stay until it expires.
+    const bin = await binCapture(tx, captureId, inspectionId, agent.id)
     await tx.capture.delete({ where: { id: captureId } })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'CAPTURE_DELETED', summary: `deleted ${lowerFirst(bin.label)}`, binItemId: bin.id })
   })
   revalidate(inspectionId)
 }
@@ -650,6 +682,9 @@ export async function updateItem(
   const { evidenceCaptureIds, ...changes } = data
 
   await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const before = await tx.inspectionItem.findUniqueOrThrow({
+      where: { id: itemId }, include: { room: { select: { name: true } }, _count: { select: { evidence: true } } },
+    })
     if (evidenceCaptureIds !== undefined) {
       const uniqueIds = [...new Set(evidenceCaptureIds)]
       const captures = await tx.capture.count({
@@ -668,16 +703,34 @@ export async function updateItem(
       // A human has taken ownership of this line; the model's confidence no longer applies.
       data: { ...changes, editedByHuman: true, confidence: null },
     })
+    const fields = fieldChanges(before, changes, itemFieldLabels)
+    if (evidenceCaptureIds !== undefined && new Set(evidenceCaptureIds).size !== before._count.evidence) {
+      fields.push({ field: 'Linked photos', from: String(before._count.evidence), to: String(new Set(evidenceCaptureIds).size) })
+    }
+    if (fields.length) {
+      await recordBurst(tx, {
+        ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ITEM_EDITED',
+        subjectKey: `item:${itemId}`, changes: fields,
+        summary: () => `edited ${changes.name ?? before.name} in ${before.room.name}`,
+      })
+    }
   })
   revalidate(inspectionId)
 }
+
+const itemFieldLabels = {
+  name: 'Name', category: 'Category', condition: 'Condition', quantity: 'Quantity',
+  notes: 'Notes', identifier: 'Serial or model', meterReading: 'Meter reading',
+} as const
 
 export async function deleteItem(itemId: string, inspectionId: string) {
   const agent = await requireAgent()
   await authorizeItem(itemId, inspectionId, agent.id)
 
   await editOpenInspection(inspectionId, agent.id, async (tx) => {
-    const { roomId } = await tx.inspectionItem.delete({ where: { id: itemId } })
+    const bin = await binItem(tx, itemId, inspectionId, agent.id)
+    const { roomId, room } = await tx.inspectionItem.delete({ where: { id: itemId }, include: { room: { select: { name: true } } } })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ITEM_DELETED', summary: `deleted ${bin.label} from ${room.name}`, binItemId: bin.id })
     // A reviewed room emptied this way would read "Nothing recorded in this room" without
     // the inspector ever saying so. It goes back to review to be asked.
     if ((await tx.inspectionItem.count({ where: { roomId } })) === 0) {
@@ -693,8 +746,8 @@ export async function addItem(roomId: string, inspectionId: string) {
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  const item = await editOpenInspection(inspectionId, agent.id, (tx) =>
-    tx.inspectionItem.create({
+  const item = await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const created = await tx.inspectionItem.create({
       data: {
         roomId,
         name: 'New item',
@@ -702,7 +755,11 @@ export async function addItem(roomId: string, inspectionId: string) {
         condition: 'GOOD',
         editedByHuman: true,
       },
-    }))
+      include: { room: { select: { name: true } } },
+    })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ITEM_ADDED', summary: `added a line to ${created.room.name}` })
+    return created
+  })
   revalidate(inspectionId)
   return item.id
 }
@@ -741,6 +798,7 @@ export async function completeReview(inspectionId: string) {
     })
     // In the same commit, so a report sent for signature always has its emails coming.
     await queueSignatureRequests(tx, inspectionId, [tenancy.landlordId, tenancy.tenantId])
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'REPORT_SENT', summary: `sent the ${await reportNoun(tx, inspectionId)} for signature` })
   })
   revalidate(inspectionId)
 }
@@ -832,6 +890,10 @@ async function recordSignature(
         },
       })
       if (stakeholderId === tenancy.tenantId) await queueTenantHandover(tx, inspectionId)
+      await recordEvent(tx, {
+        ...await inspectionPlace(tx, inspectionId), actorId: stakeholderId, kind: 'REPORT_SIGNED',
+        summary: `signed the ${await reportNoun(tx, inspectionId)} as ${stakeholderId === tenancy.tenantId ? 'tenant' : 'landlord'}${agentId ? ' on the agent\'s device' : ''}`,
+      })
     }
 
     const signatures = await tx.signature.findMany({
@@ -949,10 +1011,51 @@ export async function createFinding(
       },
     })
     await claimFindingPhotoDraft(tx, inspectionId, data.photoDraftId, agent.id, finding.id)
+    const named = await tx.finding.findUniqueOrThrow({
+      where: { id: finding.id }, select: { item: { select: { name: true } }, baselineItem: { select: { name: true } } },
+    })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'FINDING_ADDED', summary: `added ${findingLabel(named)}` })
     return finding.id
   })
   revalidate(inspectionId)
   return findingId
+}
+
+function findingLabel(finding: { item: { name: string } | null; baselineItem: { name: string } | null }) {
+  return `the finding on ${finding.item?.name ?? finding.baselineItem?.name ?? 'an item'}`
+}
+
+const lowerFirst = (text: string) => text.charAt(0).toLowerCase() + text.slice(1)
+
+async function reportNoun(tx: Prisma.TransactionClient, inspectionId: string) {
+  const { kind } = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { kind: true } })
+  return kind === 'CHECK_OUT' ? 'check-out report' : 'check-in report'
+}
+
+/// Brings something back from the bin into its working report, with its original ids,
+/// links and media. Restoring is editing that inspection, so it is authorized and locked
+/// as deleting was, and a sent report's rooms, lines and photos never come back.
+export async function restoreFromBin(binItemId: string) {
+  const agent = await requireAgent()
+  const bin = await db.binItem.findUnique({ where: { id: binItemId }, select: { inspectionId: true } })
+  if (!bin) throw new Error('Bin item not found')
+  await authorizeInspection(bin.inspectionId, agent.id)
+
+  await db.$transaction(async (tx) => {
+    const inspection = await lockAgentInspection(tx, bin.inspectionId, agent.id)
+    const current = await tx.binItem.findUnique({ where: { id: binItemId } })
+    if (!current || current.restoredAt || current.expiresAt <= new Date()) throw new Error('Bin item not found')
+    if (!restoreAllowed(current.kind, inspection.status)) {
+      throw new Error('This report has been sent for signature and can no longer be changed')
+    }
+    await reinsert(tx, binItemId)
+    await tx.binItem.update({ where: { id: binItemId }, data: { restoredAt: new Date(), restoredById: agent.id } })
+    await recordEvent(tx, {
+      ...await inspectionPlace(tx, bin.inspectionId), actorId: agent.id,
+      kind: `${current.kind}_RESTORED`, summary: `restored ${lowerFirst(current.label)}`, binItemId,
+    })
+  })
+  revalidate(bin.inspectionId)
 }
 
 export async function deleteFinding(findingId: string, inspectionId: string) {
@@ -967,9 +1070,15 @@ export async function deleteFinding(findingId: string, inspectionId: string) {
     if (!await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(agent.id) }, select: { id: true } })) {
       throw new Error('Inspection not found')
     }
-    if (!await tx.finding.findFirst({ where: { id: findingId, inspectionId }, select: { id: true } })) throw new Error('Finding not found')
-    await retireFindingPhotos(tx, inspectionId, findingId)
+    const current = await tx.finding.findFirst({
+      where: { id: findingId, inspectionId },
+      select: { item: { select: { name: true } }, baselineItem: { select: { name: true } } },
+    })
+    if (!current) throw new Error('Finding not found')
+    const bin = await binFinding(tx, findingId, findingLabel(current), agent.id)
+    await retireFindingPhotos(tx, inspectionId, findingId, bin.expiresAt)
     await tx.finding.delete({ where: { id: findingId } })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'FINDING_DELETED', summary: `deleted ${bin.label}`, binItemId: bin.id })
   })
   revalidate(inspectionId)
 }
@@ -1008,13 +1117,26 @@ export async function updateFinding(
     if (!await tx.inspection.findFirst({ where: { id: inspectionId, ...inspectionScope(agent.id) }, select: { id: true } })) {
       throw new Error('Inspection not found')
     }
-    if (!await tx.finding.findFirst({ where: { id: findingId, inspectionId }, select: { id: true } })) throw new Error('Finding not found')
+    const before = await tx.finding.findFirst({
+      where: { id: findingId, inspectionId },
+      include: { item: { select: { name: true } }, baselineItem: { select: { name: true } } },
+    })
+    if (!before) throw new Error('Finding not found')
     const { photoDraftId, ...fields } = data
     await claimFindingPhotoDraft(tx, inspectionId, photoDraftId, agent.id, findingId)
     await tx.finding.update({
       where: { id: findingId },
       data: { ...fields, editedByHuman: true, confidence: null },
     })
+    const changes = fieldChanges(before, fields, {
+      changeType: 'Change', verdict: 'Verdict', rationale: 'Rationale', estimatedCost: 'Estimated cost',
+    })
+    if (changes.length || photoDraftId) {
+      await recordBurst(tx, {
+        ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'FINDING_EDITED',
+        subjectKey: `finding:${findingId}`, changes, summary: () => `edited ${findingLabel(before)}`,
+      })
+    }
   })
   revalidate(inspectionId)
 }
@@ -1041,6 +1163,7 @@ export async function shareReport(inspectionId: string) {
     await tx.inspection.update({
       where: { id: inspectionId }, data: { shareToken: token, sharedAt: new Date() },
     })
+    await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'SHARE_LINK_CREATED', summary: `created a share link for the ${await reportNoun(tx, inspectionId)}` })
     return token
   })
   revalidate(inspectionId)
@@ -1055,9 +1178,13 @@ export async function revokeReportLink(inspectionId: string) {
 
   await db.$transaction(async (tx) => {
     await lockAgentInspection(tx, inspectionId, agent.id)
+    const { shareToken } = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { shareToken: true } })
     await tx.inspection.update({
       where: { id: inspectionId }, data: { shareToken: null, sharedAt: null },
     })
+    if (shareToken) {
+      await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'SHARE_LINK_REVOKED', summary: `revoked the share link for the ${await reportNoun(tx, inspectionId)}` })
+    }
   })
   // A generated PDF is a copy of the report. The link that reached it is dead now, and
   // so are the copies; the agent's next download draws a fresh one.
@@ -1134,6 +1261,7 @@ export async function startCheckOut(baselineId: string) {
           },
         },
       })
+      await recordEvent(tx, { ...await inspectionPlace(tx, checkOut.id), actorId: agent.id, kind: 'CHECK_OUT_STARTED', summary: 'started the check-out report' })
       return checkOut.id
     })
 

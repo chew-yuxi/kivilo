@@ -258,6 +258,41 @@ calls. `e2e/api.spec.ts` drives them with no browser and no cookie at all.
 Keep `src/proxy.ts` off `/api/**`, which it already is: a request with a bearer and no
 cookie would otherwise be redirected to `/login`.
 
+## History and the bin
+
+Agents asked never to lose property data silently (`plans/property-history.md`). Two
+pieces answer that.
+
+**`PropertyEvent` is an append-only history.** `recordEvent` / `recordBurst` in
+`src/lib/property-history.ts` are called inside the same transaction as the change, so a
+change and its record commit together. A burst of one person's edits to one thing within
+15 minutes folds into a single line, keeping the first `from` and the latest `to`. Any new
+action that changes or deletes property data must record an event. `propertyHistory` lets
+anyone working a tenancy at the property read it (`actsAsAgent` or `managedTenancies`);
+an exact old-inspection grant sees that inspection's lines only. Landlords and tenants
+read signed reports, not the working log. Web: `/properties/[id]/history`. App:
+`PropertyHistoryScreen`. API: `GET /api/v1/properties/[id]/history`.
+
+**Deletes from a working report go to a 30-day bin; they are not flags.** `deleteRoom`,
+`deleteItem`, `deleteCapture` and `deleteFinding` copy the removed rows, exactly as they
+were, into `BinItem.rows` (`src/lib/bin.ts`), then delete them as before. Because the rows
+are really gone, none of the ~95 report, fingerprint, PDF and API reads needs a `deletedAt`
+filter. Never replace this with a soft-delete column. The deleted media's `StoragePurge`
+tombstone is due at the bin's expiry instead of three hours, so the bytes survive until
+Restore is no longer possible. `restoreFromBin` (`POST /api/v1/bin/[id]/restore`) is
+authorized and locked like the delete was, reinserts with the original ids, relinks
+surviving links, cancels the tombstone, and records `*_RESTORED`. A sent or signed report's
+rooms, lines and photos never come back (`restoreAllowed`); a finding can. A line or photo
+restored into a reviewed room sends that room back to `REVIEW`, and a restored photo is
+unstamped. The daily `/api/internal/property-trash` cron deletes expired bin items; the
+history line stays. Draft-update deletions are recorded but not yet restorable.
+
+**Every action stays visible.** An agent sees Archive, Delete, Invite, Assign, collaborator
+and member controls; tapping one they cannot take explains who can and names them
+(`LockedAction` on web, `showLockedAction` in the app, `askNames` in the property and
+tenancy-access responses). The client decides this from the `canManage*` flags, never from
+the server's deliberately uniform "not found". The server stays the authority.
+
 ## A signed report stops moving
 
 Sending for signature is the moment the report stops being a working document and becomes

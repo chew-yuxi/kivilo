@@ -6,6 +6,13 @@ import { useRouter } from 'next/navigation'
 import type { agencyDetail, agencyList } from '@/lib/agency'
 import { manageAgencyFromWeb } from '@/lib/agency-web-actions'
 import { StatusBadge } from '@/components/status-badge'
+import { LockedAction } from '@/components/locked-action'
+
+/// The people an agent can ask: the team's active owners and managers.
+const teamManagers = (workspace: { members: { stakeholderId: string; name: string; role: string; status: string }[] }, viewerId: string, ownersOnly = false) =>
+  workspace.members
+    .filter((member) => member.status === 'ACTIVE' && (ownersOnly ? member.role === 'OWNER' : member.role !== 'AGENT') && member.stakeholderId !== viewerId)
+    .map((member) => member.name)
 
 type Directory = Awaited<ReturnType<typeof agencyList>>
 type Workspace = Awaited<ReturnType<typeof agencyDetail>>
@@ -318,6 +325,9 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
             />
           ))}
         </ul>
+        {!data.canManage && (
+          <LockedAction label="Invite member" who="a team owner or manager" askNames={teamManagers(data, viewerId)} />
+        )}
         {data.canManage && (
           <form
             className="space-y-3 rounded-lg border border-gray-200 bg-white p-4"
@@ -364,6 +374,9 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
           </form>
         )}
       </section>
+      {!data.canManage && (
+        <LockedAction label="Rename team" who="a team owner or manager" askNames={teamManagers(data, viewerId)} />
+      )}
       {data.canManage && (
         <details className="rounded-lg border border-gray-200 bg-white">
           <summary className="flex items-center justify-between px-4 py-3 font-medium">
@@ -464,6 +477,13 @@ function TeamMember({
           >
             {managing ? 'Close controls' : 'Manage member'}
           </button>
+        )}
+        {!canManage && (active || invited) && member.stakeholderId !== viewerId && (
+          <LockedAction
+            label="Manage member"
+            who={member.role === 'OWNER' ? 'a team owner' : 'a team owner or manager'}
+            askNames={teamManagers(workspace, viewerId, member.role === 'OWNER')}
+          />
         )}
       </div>
       {managing && canManage && active && !removing && (

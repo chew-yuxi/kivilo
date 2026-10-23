@@ -231,6 +231,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           <div className="flex shrink-0 flex-col items-end gap-3">
             <StatusBadge status={status} />
             <Link href={`/properties/${tenancy.propertyId}/settings`} className="action-secondary">Property settings</Link>
+            <Link href={`/properties/${tenancy.propertyId}/history`} className="action-secondary">History</Link>
           </div>
         </div>
         {inspection.summary && (

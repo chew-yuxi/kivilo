@@ -217,8 +217,61 @@ model Property {
 
   tenancies Tenancy[]
   assets    PropertyAsset[]
+  events    PropertyEvent[]
+  bin       BinItem[]
 
   @@index([postalCode])
+}
+
+/// One append-only line of a property's history: who changed or deleted what, and when.
+/// Written in the same transaction as the change (`src/lib/property-history.ts`), never
+/// edited afterwards except to fold a burst of the same person's edits into one line.
+model PropertyEvent {
+  id           String   @id @default(cuid())
+  propertyId   String
+  tenancyId    String?
+  inspectionId String?
+  actorId      String?
+  actorName    String
+  kind         String
+  summary      String
+  /// Field changes as `{ changes: [{ field, from, to }] }`, or a count for a burst.
+  detail       Json?
+  /// The thing a burst folds into, e.g. `item:<id>`. Null for events that never fold.
+  subjectKey   String?
+  binItemId    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  binItem  BinItem? @relation(fields: [binItemId], references: [id], onDelete: SetNull)
+
+  @@index([propertyId, createdAt])
+  @@index([subjectKey, actorId, updatedAt])
+}
+
+/// Something deleted from a working report, kept for 30 days so it can be restored.
+/// `rows` is the removed rows exactly as they were (`src/lib/bin.ts`); nothing reads
+/// them except Restore, so no report, fingerprint or PDF query needs to know the bin exists.
+model BinItem {
+  id           String    @id @default(cuid())
+  propertyId   String
+  tenancyId    String
+  inspectionId String
+  kind         String
+  label        String
+  rows         Json
+  deletedById  String?
+  deletedAt    DateTime  @default(now())
+  expiresAt    DateTime
+  restoredAt   DateTime?
+  restoredById String?
+
+  property Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  events   PropertyEvent[]
+
+  @@index([expiresAt])
+  @@index([inspectionId])
 }
 
 model Tenancy {

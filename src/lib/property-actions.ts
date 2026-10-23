@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
+import { recordEvent } from '@/lib/property-history'
 import { lockPropertyRecords, manageableProperty, propertyManagement, PROPERTY_TRASH_DAYS, PropertyLifecycleError } from '@/lib/property-management'
 
 const lifecycleInput = z.object({
@@ -37,6 +38,15 @@ export async function updatePropertyLifecycle(propertyId: string, raw: z.input<t
       if (current.state === 'TRASHED') throw new PropertyLifecycleError('property_trashed', 'This property is in Recently deleted. Restore it first.')
       await tx.property.update({ where: { id: propertyId }, data: { archivedAt: input.action === 'archive' ? now : null } })
     }
+    await recordEvent(tx, {
+      propertyId, tenancyId: null, inspectionId: null, actorId: actor.id, kind: `PROPERTY_${input.action.toUpperCase()}`,
+      summary: {
+        archive: 'archived the property',
+        unarchive: 'unarchived the property',
+        trash: 'moved the property to Recently deleted',
+        restore: 'restored the property from Recently deleted',
+      }[input.action],
+    })
     const agencies = await tx.tenancy.findMany({
       where: { propertyId, agencyId: { not: null } }, select: { agencyId: true }, distinct: ['agencyId'],
     })

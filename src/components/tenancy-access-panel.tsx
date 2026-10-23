@@ -4,6 +4,9 @@ import { useId, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { addTenancyCollaboratorFromWeb, removeTenancyCollaboratorFromWeb } from '@/lib/tenancy-access-web-actions'
 import type { TenancyAccess } from '@/lib/tenancy-access'
+import { LockedAction } from '@/components/locked-action'
+
+const MANAGERS = 'the responsible agent or a team owner or manager'
 
 export function TenancyAccessPanel({ access, viewerId }: {
   access: TenancyAccess
@@ -209,7 +212,10 @@ export function TenancyAccessPanel({ access, viewerId }: {
             </p>
           </form>
         ) : (
-          <p className="text-sm text-gray-500">The responsible agent or a team owner or manager can add or remove collaborators.</p>
+          <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
+            <LockedAction label="Add collaborator" who={MANAGERS} askNames={access.askNames} />
+            {people.length > 0 && <LockedAction label="Remove a collaborator" who={MANAGERS} askNames={access.askNames} className="action-danger" />}
+          </div>
         )}
 
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}

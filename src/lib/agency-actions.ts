@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { recordEvent, tenancyPlace } from '@/lib/property-history'
 import { db } from '@/lib/db'
 import { requireAgent, authorizeLeadTenancy, tenancyAccessScope } from '@/lib/auth'
 import { agencyDetail, freezeReportsBeforeHandover, lockAgency, requireAgencyMembership } from '@/lib/agency'
@@ -246,6 +247,17 @@ export async function assignTenancy(tenancyId: string, raw: z.input<typeof assig
       })) })
     }
     await audit(tx, agencyId, actor, tenancy.agencyId ? 'Changed property assignments' : 'Added property to team', { id: tenancyId, name: property.line1 })
+    const lead = leadAgentId !== tenancy.agentId
+      ? await tx.stakeholder.findUnique({ where: { id: leadAgentId }, select: { name: true } })
+      : null
+    const team = tenancy.agencyId ? null : await tx.agency.findUnique({ where: { id: agencyId }, select: { name: true } })
+    await recordEvent(tx, {
+      ...await tenancyPlace(tx, tenancyId), actorId: actor.id, kind: 'ASSIGNMENT_CHANGED',
+      summary: [
+        team ? `moved the tenancy to the team ${team.name}` : null,
+        lead ? `handed the tenancy to ${lead.name}` : null,
+      ].filter(Boolean).join(' and ') || 'changed who is assigned to the tenancy',
+    })
   })
   refreshAgency(changedAgencyId!)
   revalidatePath(`/tenancies/${tenancyId}`)

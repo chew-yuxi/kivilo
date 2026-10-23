@@ -24,6 +24,7 @@ import 'signature_screen.dart';
 import 'maintenance_case_screen.dart';
 import 'report_screen.dart';
 import 'tenancy_access_screen.dart';
+import 'property_history_screen.dart';
 import 'property_settings_screen.dart';
 
 class InspectionScreen extends StatefulWidget {
@@ -572,6 +573,24 @@ class _InspectionScreenState extends State<InspectionScreen> {
                               if (mounted) await _refresh();
                             },
                       child: const Text('Property settings'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: _busy
+                          ? null
+                          : () async {
+                              await Navigator.of(context).push<void>(
+                                MaterialPageRoute(
+                                  builder: (_) => PropertyHistoryScreen(
+                                    propertyId: propertyId,
+                                    api: _api,
+                                  ),
+                                ),
+                              );
+                              if (mounted) await _refresh();
+                            },
+                      icon: const Icon(Icons.history),
+                      label: const Text('History'),
                     ),
                     const SizedBox(height: 12),
                   ],

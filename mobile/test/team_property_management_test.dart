@@ -145,6 +145,7 @@ class _ManagementApi extends Api {
             ? null
             : 'Signed reports must be preserved. Archive this property.',
         trashExpiresAt: state == 'TRASHED' ? '2026-11-21T00:00:00Z' : null,
+        askNames: canManage ? const [] : const ['Lead Owner'],
       );
   @override
   Future<PropertySettings> changePropertyState(
@@ -273,17 +274,34 @@ void main() {
   );
 
   testWidgets(
-    'ordinary agents can view their team without management controls',
+    'ordinary agents see every team action, and a locked one names who can',
     (tester) async {
       final api = _ManagementApi()..canManage = false;
       await _open(tester, TeamDetailScreen(id: 'team', api: api));
       expect(find.text('Working Agent'), findsOneWidget);
-      expect(find.text('Invite member'), findsNothing);
-      expect(find.text('Rename team'), findsNothing);
-      final member = tester.widget<ListTile>(
-        find.widgetWithText(ListTile, 'Working Agent'),
+
+      await tester.tap(find.text('Invite member'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Only a team owner or manager can do this. Ask Lead Owner.'),
+        findsOneWidget,
       );
-      expect(member.onTap, isNull);
+      expect(find.byType(TextField), findsNothing);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Lead Owner'));
+      await tester.pumpAndSettle();
+      expect(find.text('Manage Lead Owner'), findsOneWidget);
+      expect(
+        find.text('Only a team owner can do this. Ask Lead Owner.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(find.text('Rename team'), findsOneWidget);
+      expect(api.invitations, isEmpty);
+      expect(api.memberChanges, isEmpty);
     },
   );
 
@@ -423,7 +441,7 @@ void main() {
   });
 
   testWidgets(
-    'collaborators see danger zone explanations without destructive controls',
+    'collaborators see the danger zone, and its actions name who can act',
     (tester) async {
       final api = _ManagementApi()..canManage = false;
       await _open(
@@ -431,23 +449,24 @@ void main() {
         PropertySettingsScreen(propertyId: 'property', api: api),
       );
       expect(find.text('Danger zone'), findsOneWidget);
-      expect(
-        tester
-            .widget<OutlinedButton>(
-              find.widgetWithText(OutlinedButton, 'Archive property'),
-            )
-            .onPressed,
-        isNull,
-      );
-      await tester.ensureVisible(find.text('Delete property'));
+      const explanation =
+          'Only the responsible agent or a team owner or manager for every '
+          'tenancy here can do this. Ask Lead Owner.';
+      await tester.ensureVisible(find.text('Archive property'));
+      await tester.tap(find.text('Archive property'));
       await tester.pumpAndSettle();
+      expect(find.text(explanation), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Delete property'));
+      await tester.tap(find.text('Delete property'));
+      await tester.pumpAndSettle();
+      expect(find.text(explanation), findsOneWidget);
+      // A permission problem is not mistaken for preserved history.
       expect(
-        tester
-            .widget<OutlinedButton>(
-              find.widgetWithText(OutlinedButton, 'Delete property'),
-            )
-            .onPressed,
-        isNull,
+        find.text('Signed reports must be preserved. Archive this property.'),
+        findsNothing,
       );
       expect(api.changes, isEmpty);
     },

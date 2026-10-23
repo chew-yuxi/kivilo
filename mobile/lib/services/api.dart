@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config.dart';
 import '../models/addenda.dart';
 import '../models/agency.dart';
+import '../models/property_history.dart';
 import '../models/property_settings.dart';
 import '../models/handover.dart';
 import '../models/inspection.dart';
@@ -517,6 +518,21 @@ class Api {
     );
     return PropertyTimeline.fromJson(data as Map<String, dynamic>);
   }
+
+  Future<PropertyHistory> propertyHistory(
+    String propertyId, {
+    bool deletions = false,
+  }) async {
+    final data = await _read(
+      '/api/v1/properties/$propertyId/history${deletions ? '?filter=deletions' : ''}',
+      'property-history:$propertyId:${deletions ? 'deletions' : 'all'}',
+    );
+    return PropertyHistory.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<void> restoreFromBin(String binItemId) => _call(() async {
+    await _dio.post<void>('/api/v1/bin/$binItemId/restore');
+  });
 
   Future<SignedReport> report(String inspectionId) async {
     final data = await _read(

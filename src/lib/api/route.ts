@@ -60,6 +60,9 @@ export function authed<P>(
       if (/Finding photos are still uploading|finding photo draft is closed/i.test(message)) {
         return Response.json({ error: 'finding_photos_pending' }, { status: 409 })
       }
+      if (/Restore the room first/.test(message)) {
+        return Response.json({ error: 'restore_room_first', message }, { status: 409 })
+      }
       if (/^Finding save conflict/.test(message)) {
         return Response.json({ error: 'finding_save_conflict' }, { status: 409 })
       }

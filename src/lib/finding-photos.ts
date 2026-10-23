@@ -159,8 +159,7 @@ export async function assertFindingPhotoDraftsReady(tx: Prisma.TransactionClient
   }
 }
 
-async function retirePhotos(tx: Prisma.TransactionClient, photos: FindingPhoto[]) {
-  const readyAt = new Date(Date.now() + 3 * 60 * 60 * 1000)
+async function retirePhotos(tx: Prisma.TransactionClient, photos: FindingPhoto[], readyAt = new Date(Date.now() + 3 * 60 * 60 * 1000)) {
   for (const photo of photos) {
     // publishedAt is set under this same inspection lock before publication returns.
     // A snapshot guard also preserves bytes if a retention repair removed the marker.
@@ -215,9 +214,10 @@ async function mutatePhoto(inspectionId: string, actorId: string, clientId: stri
   revalidate(inspectionId)
 }
 
-export async function retireFindingPhotos(tx: Prisma.TransactionClient, inspectionId: string, findingId: string) {
+/// `readyAt` defers the bytes' removal; a finding moved to the bin keeps them until it expires.
+export async function retireFindingPhotos(tx: Prisma.TransactionClient, inspectionId: string, findingId: string, readyAt?: Date) {
   const drafts = await tx.findingPhotoDraft.findMany({ where: { inspectionId, findingId }, select: { id: true } })
-  await retirePhotos(tx, await tx.findingPhoto.findMany({ where: { OR: [{ findingId }, { draftId: { in: drafts.map((draft) => draft.id) } }], deletedAt: null } }))
+  await retirePhotos(tx, await tx.findingPhoto.findMany({ where: { OR: [{ findingId }, { draftId: { in: drafts.map((draft) => draft.id) } }], deletedAt: null } }), readyAt)
   await tx.findingPhotoDraft.updateMany({ where: { findingId, savedAt: null, discardedAt: null }, data: { discardedAt: new Date() } })
 }
 

@@ -212,6 +212,37 @@ exports.Prisma.PropertyScalarFieldEnum = {
   trashedById: 'trashedById'
 };
 
+exports.Prisma.PropertyEventScalarFieldEnum = {
+  id: 'id',
+  propertyId: 'propertyId',
+  tenancyId: 'tenancyId',
+  inspectionId: 'inspectionId',
+  actorId: 'actorId',
+  actorName: 'actorName',
+  kind: 'kind',
+  summary: 'summary',
+  detail: 'detail',
+  subjectKey: 'subjectKey',
+  binItemId: 'binItemId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BinItemScalarFieldEnum = {
+  id: 'id',
+  propertyId: 'propertyId',
+  tenancyId: 'tenancyId',
+  inspectionId: 'inspectionId',
+  kind: 'kind',
+  label: 'label',
+  rows: 'rows',
+  deletedById: 'deletedById',
+  deletedAt: 'deletedAt',
+  expiresAt: 'expiresAt',
+  restoredAt: 'restoredAt',
+  restoredById: 'restoredById'
+};
+
 exports.Prisma.TenancyScalarFieldEnum = {
   id: 'id',
   propertyId: 'propertyId',
@@ -975,6 +1006,8 @@ exports.Prisma.ModelName = {
   Subscription: 'Subscription',
   AgentBranding: 'AgentBranding',
   Property: 'Property',
+  PropertyEvent: 'PropertyEvent',
+  BinItem: 'BinItem',
   Tenancy: 'Tenancy',
   TenancyCollaborator: 'TenancyCollaborator',
   Inspection: 'Inspection',

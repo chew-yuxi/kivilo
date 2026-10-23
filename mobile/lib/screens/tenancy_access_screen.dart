@@ -161,6 +161,17 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
     }
   }
 
+  /// Everyone working the tenancy sees its access actions; the ones they cannot take
+  /// name who can.
+  void _locked(TenancyAccess access, String action) => showLockedAction(
+    context,
+    action: action,
+    who: access.agency == null
+        ? 'the lead agent'
+        : 'the responsible agent or a team owner or manager',
+    askNames: access.askNames,
+  );
+
   Future<void> _moveToTeam() async {
     if (_busy || _loading) return;
     setState(() {
@@ -246,7 +257,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                       if (access != null) ...[
                         const SizedBox(height: 24),
                         if (access.agency != null ||
-                            access.canManageAssignment) ...[
+                            access.canManageAssignment ||
+                            access.scope == 'TENANCY') ...[
                           Card(
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -266,11 +278,19 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                         ? 'This work belongs to the lead agent. Moving it into a team gives its owners and managers access.'
                                         : 'Team owners and managers oversee this tenancy. Assigned agents and external collaborators can work on it.',
                                   ),
-                                  if (access.canManageAssignment) ...[
+                                  if (access.canManageAssignment ||
+                                      access.scope == 'TENANCY') ...[
                                     const SizedBox(height: 12),
                                     OutlinedButton(
                                       onPressed: disabled
                                           ? null
+                                          : !access.canManageAssignment
+                                          ? () => _locked(
+                                              access,
+                                              access.agency == null
+                                                  ? 'Move to team'
+                                                  : 'Assign team members',
+                                            )
                                           : access.agency == null
                                           ? _moveToTeam
                                           : () => _assignment(access),
@@ -330,12 +350,18 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                   ],
                                   const SizedBox(height: 4),
                                   const Text('Can work on this tenancy'),
-                                  if (access.canManageAccess)
+                                  if (access.canManageAccess ||
+                                      access.scope == 'TENANCY')
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: TextButton(
                                         onPressed: disabled
                                             ? null
+                                            : !access.canManageAccess
+                                            ? () => _locked(
+                                                access,
+                                                'Remove ${person.name}',
+                                              )
                                             : () => _remove(
                                                 person.stakeholderId,
                                                 person.name,
@@ -378,12 +404,18 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                       '${person.inspectionIds.length} previous '
                                       '${person.inspectionIds.length == 1 ? 'report' : 'reports'}',
                                     ),
-                                    if (access.canManageAccess)
+                                    if (access.canManageAccess ||
+                                        access.scope == 'TENANCY')
                                       Align(
                                         alignment: Alignment.centerLeft,
                                         child: TextButton(
                                           onPressed: disabled
                                               ? null
+                                              : !access.canManageAccess
+                                              ? () => _locked(
+                                                  access,
+                                                  'Remove ${person.name}',
+                                                )
                                               : () => _remove(
                                                   person.stakeholderId,
                                                   person.name,
@@ -433,11 +465,12 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                   ),
                             child: Text(_busy ? 'Saving…' : 'Add collaborator'),
                           ),
-                        ] else
-                          Text(
-                            access.agency == null
-                                ? 'Only the lead agent can add or remove collaborators.'
-                                : 'The responsible agent and team managers can change access.',
+                        ] else if (access.scope == 'TENANCY')
+                          OutlinedButton(
+                            onPressed: disabled
+                                ? null
+                                : () => _locked(access, 'Add a collaborator'),
+                            child: const Text('Add a collaborator'),
                           ),
                         if (_loading || _busy) ...[
                           const SizedBox(height: 16),

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { TenancyAccess } from '@/lib/tenancy-access'
+import { LockedAction } from '@/components/locked-action'
 import type { agencyList, agencyDetail } from '@/lib/agency'
 import { manageAgencyFromWeb } from '@/lib/agency-web-actions'
 
@@ -249,9 +250,11 @@ export function TenancyAssignmentPanel({
             )}
           </form>
         ) : (
-          <p className="text-sm text-gray-600">
-            The responsible agent or a team owner or manager can change this assignment.
-          </p>
+          <LockedAction
+            label={access.agency ? 'Change assignment' : 'Move to team'}
+            who="the responsible agent or a team owner or manager"
+            askNames={access.askNames}
+          />
         )}
         {error && (
           <p className="text-sm text-red-700" role="alert">

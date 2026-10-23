@@ -45,6 +45,7 @@ class _FakeApi extends Api {
       tenancyId: tenancyId,
       visibility: shared || reportsOnly ? 'SHARED' : 'PRIVATE',
       canManageAccess: canManageAccess,
+      askNames: canManageAccess ? const [] : const ['Jac'],
       leadAgent: _lead,
       collaborators: shared ? [_collaborator] : [],
       scope: scope,
@@ -177,23 +178,38 @@ void main() {
     );
   });
 
-  testWidgets('collaborator can see access but has no management controls', (
-    tester,
-  ) async {
-    final api = _FakeApi(canManageAccess: false, shared: true);
-    await open(tester, api);
-    expect(find.text('Shared tenancy'), findsOneWidget);
-    expect(find.text('Shared with Nimin'), findsNothing);
-    expect(find.text('Jac'), findsOneWidget);
-    expect(find.text('Nimin'), findsOneWidget);
-    expect(find.byType(TextField), findsNothing);
-    expect(find.text('Add collaborator'), findsNothing);
-    expect(find.text('Remove'), findsNothing);
-    expect(
-      find.text('Only the lead agent can add or remove collaborators.'),
-      findsOneWidget,
-    );
-  });
+  testWidgets(
+    'collaborator sees every access action, and a locked one names who can',
+    (tester) async {
+      final api = _FakeApi(canManageAccess: false, shared: true);
+      await open(tester, api);
+      expect(find.text('Shared tenancy'), findsOneWidget);
+      expect(find.text('Shared with Nimin'), findsNothing);
+      expect(find.text('Jac'), findsOneWidget);
+      expect(find.text('Nimin'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove Nimin'), findsOneWidget);
+      expect(
+        find.text('Only the lead agent can do this. Ask Jac.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Add a collaborator'));
+      await tester.tap(find.text('Add a collaborator'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Only the lead agent can do this. Ask Jac.'),
+        findsOneWidget,
+      );
+      expect(api.removed, isEmpty);
+      expect(api.added, isEmpty);
+    },
+  );
 
   testWidgets('failed add keeps the email and allows a retry', (tester) async {
     final api = _FakeApi()

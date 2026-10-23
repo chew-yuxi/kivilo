@@ -88,7 +88,11 @@ export async function propertyManagement(
       where: { OR: [tenancyAccessScope(stakeholderId), managedTenancies(stakeholderId)] },
       orderBy: { startDate: 'desc' },
       select: {
-        id: true, agent: { select: { name: true } }, agency: { select: { name: true } },
+        id: true, agentId: true, agent: { select: { name: true } },
+        agency: { select: { name: true, members: {
+          where: { status: 'ACTIVE', role: { in: ['OWNER', 'MANAGER'] } },
+          select: { stakeholderId: true, stakeholder: { select: { name: true } } },
+        } } },
         inspections: {
           where: { OR: [inspectionScope(stakeholderId), { tenancy: managedTenancies(stakeholderId) }] },
           select: { id: true, kind: true, status: true, rooms: { select: { _count: { select: { captures: { where: { kind: 'PHOTO' } } } } } } },
@@ -108,11 +112,17 @@ export async function propertyManagement(
     : hasHistory
       ? 'This property has sent or signed reports, shared history, or repair records. Archive it to preserve those records.'
       : null
+  // Who to ask when this viewer cannot manage it: each visible tenancy's personal lead,
+  // or its team's owners and managers. Never names from tenancies the viewer cannot see.
+  const askNames = canManage ? [] : [...new Set(property.tenancies.flatMap((tenancy) => tenancy.agency
+    ? tenancy.agency.members.filter((member) => member.stakeholderId !== stakeholderId).map((member) => member.stakeholder.name)
+    : tenancy.agentId && tenancy.agentId !== stakeholderId && tenancy.agent ? [tenancy.agent.name] : []))]
   return {
     id: property.id,
     label: propertyLabel(property),
     state: propertyState(property),
     canManage,
+    askNames,
     canDelete: canManage && !hasHistory,
     deleteBlockedReason,
     archivedAt: property.archivedAt?.toISOString() ?? null,

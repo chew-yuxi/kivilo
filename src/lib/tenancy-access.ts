@@ -60,6 +60,13 @@ export async function tenancyAccess(tenancyId: string, viewerId: string) {
     scope: hasFullAccess ? 'TENANCY' as const : 'INSPECTION' as const,
     canManageAccess,
     canManageAssignment: canManageAccess,
+    /// Who to ask when the viewer cannot manage access: the lead, and the team's owners and managers.
+    askNames: canManageAccess ? [] : [...new Set([
+      ...(tenancy.agent && tenancy.agent.id !== viewerId ? [tenancy.agent.name] : []),
+      ...(tenancy.agency?.members ?? [])
+        .filter((member) => (member.role === 'OWNER' || member.role === 'MANAGER') && member.stakeholderId !== viewerId)
+        .map((member) => member.stakeholder.name),
+    ])],
     agency: tenancy.agency ? { id: tenancy.agency.id, name: tenancy.agency.name, role: agencyMembership?.role ?? null } : null,
     availableMembers: canManageAccess && tenancy.agency ? tenancy.agency.members.map((member) => ({
       stakeholderId: member.stakeholderId, name: member.stakeholder.name, email: member.stakeholder.email,

@@ -63,7 +63,10 @@ test('a lead shares one tenancy, keeps another private, and can revoke working a
     await colleaguePage.getByRole('link', { name: /12 Shared Grove/ }).click()
     await expect(colleaguePage.getByText('View access', { exact: true })).toBeVisible()
     await colleaguePage.getByText('View access', { exact: true }).click()
-    await expect(colleaguePage.getByRole('button', { name: 'Add collaborator' })).toHaveCount(0)
+    // A collaborator sees the action, and it says who can do it instead of opening a form.
+    await expect(colleaguePage.getByLabel('Collaborator email')).toHaveCount(0)
+    await colleaguePage.getByRole('button', { name: 'Add collaborator', exact: true }).click()
+    await expect(colleaguePage.getByRole('status').filter({ hasText: 'Only the responsible agent or a team owner or manager can do this.' })).toBeVisible()
     await colleaguePage.getByRole('button', { name: 'Kitchen', exact: true }).click()
     await expect(colleaguePage.getByRole('link', { name: 'Start with Kitchen' })).toBeVisible()
 

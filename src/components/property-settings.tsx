@@ -5,6 +5,9 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { propertyManagement } from '@/lib/property-management'
 import { updatePropertyFromWeb } from '@/lib/property-web-actions'
+import { LockedAction } from '@/components/locked-action'
+
+const propertyManagers = 'the responsible agent or a team owner or manager for every tenancy here'
 
 type Property = Awaited<ReturnType<typeof propertyManagement>>
 type Action = Parameters<typeof updatePropertyFromWeb>[1]['action']
@@ -109,6 +112,15 @@ export function PropertySettings({ property }: { property: Property }) {
           ))}
         </ul>
       </section>
+      <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
+        <h2 className="font-semibold">History</h2>
+        <p className="text-sm text-gray-600">
+          Every change and deletion, with who made it. Deleted rooms, lines, photos and findings can be restored for 30 days.
+        </p>
+        <Link className="action-secondary" href={`/properties/${property.id}/history`}>
+          View history<span aria-hidden="true">›</span>
+        </Link>
+      </section>
       <section
         aria-labelledby="danger-zone-title"
         className="space-y-5 rounded-lg border border-red-200 bg-white p-5"
@@ -117,7 +129,16 @@ export function PropertySettings({ property }: { property: Property }) {
           Danger zone
         </h2>
         {!property.canManage ? (
-          <p className="text-sm text-gray-600">{property.deleteBlockedReason}</p>
+          <div className="space-y-4">
+            <LockedAction
+              label={property.state === 'TRASHED' ? 'Restore property' : property.state === 'ARCHIVED' ? 'Unarchive property' : 'Archive property'}
+              who={propertyManagers}
+              askNames={property.askNames}
+            />
+            {property.state !== 'TRASHED' && (
+              <LockedAction label="Delete property" who={propertyManagers} askNames={property.askNames} className="action-danger" />
+            )}
+          </div>
         ) : property.state === 'TRASHED' ? (
           <div className="space-y-3">
             <h3 className="font-medium">Restore property</h3>

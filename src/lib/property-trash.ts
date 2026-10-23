@@ -40,7 +40,7 @@ export async function emptyExpiredPropertyTrash(now = new Date()) {
     where: { trashedAt: { not: null }, trashExpiresAt: { lte: now } },
     orderBy: [{ trashExpiresAt: 'asc' }, { id: 'asc' }], take: 50, select: { id: true },
   })
-  const result = { deleted: 0, protected: 0, mediaDeleted: 0, failed: [] as string[] }
+  const result = { deleted: 0, protected: 0, binExpired: 0, mediaDeleted: 0, failed: [] as string[] }
   for (const property of expired) {
     try {
       const outcome = await purgeExpiredProperty(property.id, now)
@@ -51,6 +51,9 @@ export async function emptyExpiredPropertyTrash(now = new Date()) {
       result.failed.push(property.id)
     }
   }
+  // A bin item past its 30 days can no longer be restored. Its media tombstones fall
+  // due at the same moment and are removed below like any other.
+  result.binExpired = (await db.binItem.deleteMany({ where: { expiresAt: { lte: now } } })).count
   const media = await db.storagePurge.findMany({
     where: { completedAt: null, readyAt: { lte: now }, createdAt: { lte: new Date(now.getTime() - 3 * 3600_000) } },
     orderBy: [{ readyAt: 'asc' }, { id: 'asc' }], take: 100,

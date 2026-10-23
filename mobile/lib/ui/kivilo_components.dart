@@ -236,6 +236,45 @@ class KiviloDrawer extends StatelessWidget {
   }
 }
 
+/// Every action stays visible to everyone working a property. One this person may not
+/// do explains who can, instead of disappearing. The server refuses it on its own; the
+/// caller decides from its permission flags, never from a server error.
+Future<void> showLockedAction(
+  BuildContext context, {
+  required String action,
+  required String who,
+  List<String> askNames = const [],
+}) => showKiviloDrawer<void>(
+  context: context,
+  builder: (sheetContext) => KiviloDrawer(
+    title: Text(action),
+    content: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.lock_outline, color: KiviloColors.muted),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Only $who can do this.'
+            '${askNames.isEmpty ? '' : ' Ask ${listNames(askNames)}.'}',
+          ),
+        ),
+      ],
+    ),
+    actions: [
+      FilledButton(
+        onPressed: () => Navigator.pop(sheetContext),
+        child: const Text('OK'),
+      ),
+    ],
+  ),
+);
+
+/// "Yuxi", "Yuxi or Nimin", "Yuxi, Jac or Nimin".
+String listNames(List<String> names) => names.length <= 1
+    ? names.join()
+    : '${names.sublist(0, names.length - 1).join(', ')} or ${names.last}';
+
 class KiviloMark extends StatelessWidget {
   const KiviloMark({super.key, this.size = 34});
   final double size;

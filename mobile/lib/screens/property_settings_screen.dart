@@ -6,6 +6,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
+import 'property_history_screen.dart';
 import 'tenancy_access_screen.dart';
 import 'inspection_screen.dart';
 
@@ -32,6 +33,13 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
     });
     await next;
   }
+
+  void _locked(PropertySettings property, String action) => showLockedAction(
+    context,
+    action: action,
+    who: 'the responsible agent or a team owner or manager for every tenancy here',
+    askNames: property.askNames,
+  );
 
   Future<void> _change(PropertySettings property, String action) async {
     if (_busy) return;
@@ -173,6 +181,25 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                       ],
                     ],
                     const SizedBox(height: 28),
+                    const KiviloSectionHeading(
+                      title: 'History',
+                      subtitle:
+                          'Every change and deletion, with who made it. Deleted items can be restored for 30 days.',
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).push<void>(
+                        MaterialPageRoute(
+                          builder: (_) => PropertyHistoryScreen(
+                            propertyId: widget.propertyId,
+                            api: _api,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.history),
+                      label: const Text('View history'),
+                    ),
+                    const SizedBox(height: 28),
                     Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -189,19 +216,17 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                                   ?.copyWith(color: KiviloColors.red),
                             ),
                             const SizedBox(height: 12),
-                            if (!property.canManage)
-                              const Text(
-                                'Only the property’s lead agents or agency managers can archive or delete it. You need management access to every tenancy at this address.',
-                              ),
                             if (property.state == 'TRASHED') ...[
                               Text(
                                 'This property is hidden from active work. ${property.trashExpiresAt == null ? 'Restore it before its recovery period ends.' : 'Restore before ${shortDate(property.trashExpiresAt!)}. After that, eligible records and media are permanently removed.'}',
                               ),
                               const SizedBox(height: 16),
                               FilledButton(
-                                onPressed: property.canManage && !_busy
+                                onPressed: _busy
+                                    ? null
+                                    : property.canManage
                                     ? () => _change(property, 'restore')
-                                    : null,
+                                    : () => _locked(property, 'Restore property'),
                                 child: const Text('Restore property'),
                               ),
                             ] else ...[
@@ -212,14 +237,21 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                               ),
                               const SizedBox(height: 12),
                               OutlinedButton(
-                                onPressed: property.canManage && !_busy
+                                onPressed: _busy
+                                    ? null
+                                    : property.canManage
                                     ? () => _change(
                                         property,
                                         property.state == 'ARCHIVED'
                                             ? 'unarchive'
                                             : 'archive',
                                       )
-                                    : null,
+                                    : () => _locked(
+                                        property,
+                                        property.state == 'ARCHIVED'
+                                            ? 'Restore to active properties'
+                                            : 'Archive property',
+                                      ),
                                 child: Text(
                                   property.state == 'ARCHIVED'
                                       ? 'Restore to active properties'
@@ -230,7 +262,8 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                               const Text(
                                 'Delete a mistaken or draft-only property. It moves to trash for 30 days before eligible records and media are permanently removed.',
                               ),
-                              if (property.deleteBlockedReason != null) ...[
+                              if (property.canManage &&
+                                  property.deleteBlockedReason != null) ...[
                                 const SizedBox(height: 8),
                                 Text(
                                   property.deleteBlockedReason!,
@@ -241,10 +274,11 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                               ],
                               const SizedBox(height: 12),
                               OutlinedButton(
-                                onPressed:
-                                    property.canManage &&
-                                        property.canDelete &&
-                                        !_busy
+                                onPressed: _busy
+                                    ? null
+                                    : !property.canManage
+                                    ? () => _locked(property, 'Delete property')
+                                    : property.canDelete
                                     ? () => _change(property, 'trash')
                                     : null,
                                 style: OutlinedButton.styleFrom(

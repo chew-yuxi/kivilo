@@ -22,6 +22,7 @@ import type { StateLine } from '@/lib/addenda-state'
 import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
 import { assertNoSignedCheckOut, lockMoveInDefectTenancy, MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 import { lockAgencyTenancy } from '@/lib/agency'
+import { inspectionPlace, recordEvent } from '@/lib/property-history'
 
 // Addenda: dated updates to a countersigned check-in, written and published by the agent
 // and acknowledged by both parties. They never touch the signed rooms, items, captures
@@ -180,10 +181,16 @@ export async function deleteAddendumEntry(entryId: string, addendumId: string) {
   const agent = await requireAgent()
   const addendum = await authorizeEntry(entryId, addendumId, agent.id)
   await editDraft(addendumId, agent.id, async (tx) => {
-    const entry = await tx.reportAddendumEntry.findUniqueOrThrow({ where: { id: entryId }, select: { uploadPaths: true } })
+    const entry = await tx.reportAddendumEntry.findUniqueOrThrow({
+      where: { id: entryId }, select: { uploadPaths: true, name: true, roomName: true, addendum: { select: { title: true } } },
+    })
     const photos = await tx.reportAddendumPhoto.findMany({ where: { entryId }, select: { storagePath: true } })
     await purgeUploads(tx, [...entry.uploadPaths, ...photos.map((photo) => photo.storagePath)])
     await tx.reportAddendumEntry.delete({ where: { id: entryId } })
+    await recordEvent(tx, {
+      ...await inspectionPlace(tx, addendum.inspectionId), actorId: agent.id, kind: 'UPDATE_ENTRY_DELETED',
+      summary: `deleted ${entry.name ? `${entry.name} in ${entry.roomName}` : `a change in ${entry.roomName}`} from the draft update${entry.addendum.title ? ` "${entry.addendum.title}"` : ''}`,
+    })
   })
   revalidate(addendum.inspectionId)
 }
@@ -200,7 +207,11 @@ export async function discardAddendum(addendumId: string) {
     await tx.storagePurge.create({
       data: { path: `addenda/${addendumId}`, isPrefix: true, readyAt: new Date(Date.now() + 3 * 60 * 60 * 1000) },
     })
-    await tx.reportAddendum.delete({ where: { id: addendumId } })
+    const { title } = await tx.reportAddendum.delete({ where: { id: addendumId } })
+    await recordEvent(tx, {
+      ...await inspectionPlace(tx, addendum.inspectionId), actorId: agent.id, kind: 'UPDATE_DRAFT_DELETED',
+      summary: `discarded the draft update${title ? ` "${title}"` : ''}`,
+    })
   })
   revalidate(addendum.inspectionId)
 }
@@ -508,6 +519,10 @@ export async function publishAddendum(addendumId: string) {
         dedupeKey: `addendum:${addendumId}:${recipientId}`,
       })),
       skipDuplicates: true,
+    })
+    await recordEvent(tx, {
+      ...await inspectionPlace(tx, authorized.inspectionId), actorId: agent.id, kind: 'UPDATE_PUBLISHED',
+      summary: `published update ${number}: ${snapshot.title}`,
     })
     return { number, contentHash }
   })

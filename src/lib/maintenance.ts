@@ -8,6 +8,7 @@ import { moveInDefectIntent, moveInDefectOptions } from '@/lib/move-in-defects'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
 import { tenancyAccess } from '@/lib/tenancy-access'
 import { lockAgencyTenancy } from '@/lib/agency'
+import { fieldChanges, recordEvent, tenancyPlace } from '@/lib/property-history'
 
 const category = z.enum([
   'APPLIANCE', 'PLUMBING', 'LOCKSMITH', 'ELECTRICAL',
@@ -835,7 +836,16 @@ export async function updateTenancyTerms(tenancyId: string, stakeholderId: strin
         throw new Error('The move-in defect window is fixed after the tenant signs')
       }
     }
+    const before = await tx.tenancy.findUniqueOrThrow({
+      where: { id: tenancyId }, select: { minorRepairCap: true, agentMayAgreeCosts: true, defectWindowDays: true },
+    })
     await tx.tenancy.update({ where: { id: tenancyId }, data: input })
+    const changes = fieldChanges(before, input, {
+      minorRepairCap: 'Minor repair cap', agentMayAgreeCosts: 'Agent may agree costs', defectWindowDays: 'Defect window (days)',
+    })
+    if (changes.length) {
+      await recordEvent(tx, { ...await tenancyPlace(tx, tenancyId), actorId: stakeholderId, kind: 'TENANCY_TERMS_CHANGED', summary: 'changed the tenancy terms', changes })
+    }
   })
 }
 
@@ -1028,6 +1038,10 @@ export async function createPropertyAsset(
       })
       if (linked.count !== 1) throw new Error('Inspection item not found')
     }
+    await recordEvent(tx, {
+      propertyId, tenancyId: targetInspection?.tenancyId ?? null, inspectionId: targetInspection?.id ?? null,
+      actorId: stakeholderId, kind: 'ASSET_ADDED', summary: `added ${asset.name} to the appliance register`,
+    })
     return { id: asset.id }
   })
 }

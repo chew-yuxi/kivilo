@@ -62,6 +62,20 @@ export type AgentBranding = $Result.DefaultSelection<Prisma.$AgentBrandingPayloa
  */
 export type Property = $Result.DefaultSelection<Prisma.$PropertyPayload>
 /**
+ * Model PropertyEvent
+ * One append-only line of a property's history: who changed or deleted what, and when.
+ * Written in the same transaction as the change (`src/lib/property-history.ts`), never
+ * edited afterwards except to fold a burst of the same person's edits into one line.
+ */
+export type PropertyEvent = $Result.DefaultSelection<Prisma.$PropertyEventPayload>
+/**
+ * Model BinItem
+ * Something deleted from a working report, kept for 30 days so it can be restored.
+ * `rows` is the removed rows exactly as they were (`src/lib/bin.ts`); nothing reads
+ * them except Restore, so no report, fingerprint or PDF query needs to know the bin exists.
+ */
+export type BinItem = $Result.DefaultSelection<Prisma.$BinItemPayload>
+/**
  * Model Tenancy
  * 
  */
@@ -974,6 +988,26 @@ export class PrismaClient<
   get property(): Prisma.PropertyDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.propertyEvent`: Exposes CRUD operations for the **PropertyEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PropertyEvents
+    * const propertyEvents = await prisma.propertyEvent.findMany()
+    * ```
+    */
+  get propertyEvent(): Prisma.PropertyEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.binItem`: Exposes CRUD operations for the **BinItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BinItems
+    * const binItems = await prisma.binItem.findMany()
+    * ```
+    */
+  get binItem(): Prisma.BinItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.tenancy`: Exposes CRUD operations for the **Tenancy** model.
     * Example usage:
     * ```ts
@@ -1787,6 +1821,8 @@ export namespace Prisma {
     Subscription: 'Subscription',
     AgentBranding: 'AgentBranding',
     Property: 'Property',
+    PropertyEvent: 'PropertyEvent',
+    BinItem: 'BinItem',
     Tenancy: 'Tenancy',
     TenancyCollaborator: 'TenancyCollaborator',
     Inspection: 'Inspection',
@@ -1838,7 +1874,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "agency" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "team" | "agency" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2431,6 +2467,154 @@ export namespace Prisma {
           count: {
             args: Prisma.PropertyCountArgs<ExtArgs>
             result: $Utils.Optional<PropertyCountAggregateOutputType> | number
+          }
+        }
+      }
+      PropertyEvent: {
+        payload: Prisma.$PropertyEventPayload<ExtArgs>
+        fields: Prisma.PropertyEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PropertyEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PropertyEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>
+          }
+          findFirst: {
+            args: Prisma.PropertyEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PropertyEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>
+          }
+          findMany: {
+            args: Prisma.PropertyEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>[]
+          }
+          create: {
+            args: Prisma.PropertyEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>
+          }
+          createMany: {
+            args: Prisma.PropertyEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PropertyEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>[]
+          }
+          delete: {
+            args: Prisma.PropertyEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>
+          }
+          update: {
+            args: Prisma.PropertyEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.PropertyEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PropertyEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PropertyEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.PropertyEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PropertyEventPayload>
+          }
+          aggregate: {
+            args: Prisma.PropertyEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePropertyEvent>
+          }
+          groupBy: {
+            args: Prisma.PropertyEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PropertyEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PropertyEventCountArgs<ExtArgs>
+            result: $Utils.Optional<PropertyEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      BinItem: {
+        payload: Prisma.$BinItemPayload<ExtArgs>
+        fields: Prisma.BinItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BinItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BinItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>
+          }
+          findFirst: {
+            args: Prisma.BinItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BinItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>
+          }
+          findMany: {
+            args: Prisma.BinItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>[]
+          }
+          create: {
+            args: Prisma.BinItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>
+          }
+          createMany: {
+            args: Prisma.BinItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BinItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>[]
+          }
+          delete: {
+            args: Prisma.BinItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>
+          }
+          update: {
+            args: Prisma.BinItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.BinItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BinItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BinItemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>[]
+          }
+          upsert: {
+            args: Prisma.BinItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BinItemPayload>
+          }
+          aggregate: {
+            args: Prisma.BinItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBinItem>
+          }
+          groupBy: {
+            args: Prisma.BinItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BinItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BinItemCountArgs<ExtArgs>
+            result: $Utils.Optional<BinItemCountAggregateOutputType> | number
           }
         }
       }
@@ -5229,6 +5413,8 @@ export namespace Prisma {
     subscription?: SubscriptionOmit
     agentBranding?: AgentBrandingOmit
     property?: PropertyOmit
+    propertyEvent?: PropertyEventOmit
+    binItem?: BinItemOmit
     tenancy?: TenancyOmit
     tenancyCollaborator?: TenancyCollaboratorOmit
     inspection?: InspectionOmit
@@ -5741,11 +5927,15 @@ export namespace Prisma {
   export type PropertyCountOutputType = {
     tenancies: number
     assets: number
+    events: number
+    bin: number
   }
 
   export type PropertyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancies?: boolean | PropertyCountOutputTypeCountTenanciesArgs
     assets?: boolean | PropertyCountOutputTypeCountAssetsArgs
+    events?: boolean | PropertyCountOutputTypeCountEventsArgs
+    bin?: boolean | PropertyCountOutputTypeCountBinArgs
   }
 
   // Custom InputTypes
@@ -5771,6 +5961,51 @@ export namespace Prisma {
    */
   export type PropertyCountOutputTypeCountAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PropertyAssetWhereInput
+  }
+
+  /**
+   * PropertyCountOutputType without action
+   */
+  export type PropertyCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PropertyEventWhereInput
+  }
+
+  /**
+   * PropertyCountOutputType without action
+   */
+  export type PropertyCountOutputTypeCountBinArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BinItemWhereInput
+  }
+
+
+  /**
+   * Count Type BinItemCountOutputType
+   */
+
+  export type BinItemCountOutputType = {
+    events: number
+  }
+
+  export type BinItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    events?: boolean | BinItemCountOutputTypeCountEventsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BinItemCountOutputType without action
+   */
+  export type BinItemCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItemCountOutputType
+     */
+    select?: BinItemCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BinItemCountOutputType without action
+   */
+  export type BinItemCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PropertyEventWhereInput
   }
 
 
@@ -15624,6 +15859,8 @@ export namespace Prisma {
     trashedById?: boolean
     tenancies?: boolean | Property$tenanciesArgs<ExtArgs>
     assets?: boolean | Property$assetsArgs<ExtArgs>
+    events?: boolean | Property$eventsArgs<ExtArgs>
+    bin?: boolean | Property$binArgs<ExtArgs>
     _count?: boolean | PropertyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["property"]>
 
@@ -15673,6 +15910,8 @@ export namespace Prisma {
   export type PropertyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancies?: boolean | Property$tenanciesArgs<ExtArgs>
     assets?: boolean | Property$assetsArgs<ExtArgs>
+    events?: boolean | Property$eventsArgs<ExtArgs>
+    bin?: boolean | Property$binArgs<ExtArgs>
     _count?: boolean | PropertyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PropertyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -15683,6 +15922,8 @@ export namespace Prisma {
     objects: {
       tenancies: Prisma.$TenancyPayload<ExtArgs>[]
       assets: Prisma.$PropertyAssetPayload<ExtArgs>[]
+      events: Prisma.$PropertyEventPayload<ExtArgs>[]
+      bin: Prisma.$BinItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -16092,6 +16333,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenancies<T extends Property$tenanciesArgs<ExtArgs> = {}>(args?: Subset<T, Property$tenanciesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assets<T extends Property$assetsArgs<ExtArgs> = {}>(args?: Subset<T, Property$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    events<T extends Property$eventsArgs<ExtArgs> = {}>(args?: Subset<T, Property$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    bin<T extends Property$binArgs<ExtArgs> = {}>(args?: Subset<T, Property$binArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16573,6 +16816,54 @@ export namespace Prisma {
   }
 
   /**
+   * Property.events
+   */
+  export type Property$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    where?: PropertyEventWhereInput
+    orderBy?: PropertyEventOrderByWithRelationInput | PropertyEventOrderByWithRelationInput[]
+    cursor?: PropertyEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PropertyEventScalarFieldEnum | PropertyEventScalarFieldEnum[]
+  }
+
+  /**
+   * Property.bin
+   */
+  export type Property$binArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    where?: BinItemWhereInput
+    orderBy?: BinItemOrderByWithRelationInput | BinItemOrderByWithRelationInput[]
+    cursor?: BinItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BinItemScalarFieldEnum | BinItemScalarFieldEnum[]
+  }
+
+  /**
    * Property without action
    */
   export type PropertyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16588,6 +16879,2382 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PropertyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PropertyEvent
+   */
+
+  export type AggregatePropertyEvent = {
+    _count: PropertyEventCountAggregateOutputType | null
+    _min: PropertyEventMinAggregateOutputType | null
+    _max: PropertyEventMaxAggregateOutputType | null
+  }
+
+  export type PropertyEventMinAggregateOutputType = {
+    id: string | null
+    propertyId: string | null
+    tenancyId: string | null
+    inspectionId: string | null
+    actorId: string | null
+    actorName: string | null
+    kind: string | null
+    summary: string | null
+    subjectKey: string | null
+    binItemId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PropertyEventMaxAggregateOutputType = {
+    id: string | null
+    propertyId: string | null
+    tenancyId: string | null
+    inspectionId: string | null
+    actorId: string | null
+    actorName: string | null
+    kind: string | null
+    summary: string | null
+    subjectKey: string | null
+    binItemId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PropertyEventCountAggregateOutputType = {
+    id: number
+    propertyId: number
+    tenancyId: number
+    inspectionId: number
+    actorId: number
+    actorName: number
+    kind: number
+    summary: number
+    detail: number
+    subjectKey: number
+    binItemId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PropertyEventMinAggregateInputType = {
+    id?: true
+    propertyId?: true
+    tenancyId?: true
+    inspectionId?: true
+    actorId?: true
+    actorName?: true
+    kind?: true
+    summary?: true
+    subjectKey?: true
+    binItemId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PropertyEventMaxAggregateInputType = {
+    id?: true
+    propertyId?: true
+    tenancyId?: true
+    inspectionId?: true
+    actorId?: true
+    actorName?: true
+    kind?: true
+    summary?: true
+    subjectKey?: true
+    binItemId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PropertyEventCountAggregateInputType = {
+    id?: true
+    propertyId?: true
+    tenancyId?: true
+    inspectionId?: true
+    actorId?: true
+    actorName?: true
+    kind?: true
+    summary?: true
+    detail?: true
+    subjectKey?: true
+    binItemId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PropertyEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PropertyEvent to aggregate.
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PropertyEvents to fetch.
+     */
+    orderBy?: PropertyEventOrderByWithRelationInput | PropertyEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PropertyEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PropertyEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PropertyEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PropertyEvents
+    **/
+    _count?: true | PropertyEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PropertyEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PropertyEventMaxAggregateInputType
+  }
+
+  export type GetPropertyEventAggregateType<T extends PropertyEventAggregateArgs> = {
+        [P in keyof T & keyof AggregatePropertyEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePropertyEvent[P]>
+      : GetScalarType<T[P], AggregatePropertyEvent[P]>
+  }
+
+
+
+
+  export type PropertyEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PropertyEventWhereInput
+    orderBy?: PropertyEventOrderByWithAggregationInput | PropertyEventOrderByWithAggregationInput[]
+    by: PropertyEventScalarFieldEnum[] | PropertyEventScalarFieldEnum
+    having?: PropertyEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PropertyEventCountAggregateInputType | true
+    _min?: PropertyEventMinAggregateInputType
+    _max?: PropertyEventMaxAggregateInputType
+  }
+
+  export type PropertyEventGroupByOutputType = {
+    id: string
+    propertyId: string
+    tenancyId: string | null
+    inspectionId: string | null
+    actorId: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail: JsonValue | null
+    subjectKey: string | null
+    binItemId: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: PropertyEventCountAggregateOutputType | null
+    _min: PropertyEventMinAggregateOutputType | null
+    _max: PropertyEventMaxAggregateOutputType | null
+  }
+
+  type GetPropertyEventGroupByPayload<T extends PropertyEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PropertyEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PropertyEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PropertyEventGroupByOutputType[P]>
+            : GetScalarType<T[P], PropertyEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PropertyEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    kind?: boolean
+    summary?: boolean
+    detail?: boolean
+    subjectKey?: boolean
+    binItemId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    binItem?: boolean | PropertyEvent$binItemArgs<ExtArgs>
+  }, ExtArgs["result"]["propertyEvent"]>
+
+  export type PropertyEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    kind?: boolean
+    summary?: boolean
+    detail?: boolean
+    subjectKey?: boolean
+    binItemId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    binItem?: boolean | PropertyEvent$binItemArgs<ExtArgs>
+  }, ExtArgs["result"]["propertyEvent"]>
+
+  export type PropertyEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    kind?: boolean
+    summary?: boolean
+    detail?: boolean
+    subjectKey?: boolean
+    binItemId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    binItem?: boolean | PropertyEvent$binItemArgs<ExtArgs>
+  }, ExtArgs["result"]["propertyEvent"]>
+
+  export type PropertyEventSelectScalar = {
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    actorId?: boolean
+    actorName?: boolean
+    kind?: boolean
+    summary?: boolean
+    detail?: boolean
+    subjectKey?: boolean
+    binItemId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PropertyEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "tenancyId" | "inspectionId" | "actorId" | "actorName" | "kind" | "summary" | "detail" | "subjectKey" | "binItemId" | "createdAt" | "updatedAt", ExtArgs["result"]["propertyEvent"]>
+  export type PropertyEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    binItem?: boolean | PropertyEvent$binItemArgs<ExtArgs>
+  }
+  export type PropertyEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    binItem?: boolean | PropertyEvent$binItemArgs<ExtArgs>
+  }
+  export type PropertyEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    binItem?: boolean | PropertyEvent$binItemArgs<ExtArgs>
+  }
+
+  export type $PropertyEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PropertyEvent"
+    objects: {
+      property: Prisma.$PropertyPayload<ExtArgs>
+      binItem: Prisma.$BinItemPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      propertyId: string
+      tenancyId: string | null
+      inspectionId: string | null
+      actorId: string | null
+      actorName: string
+      kind: string
+      summary: string
+      /**
+       * Field changes as `{ changes: [{ field, from, to }] }`, or a count for a burst.
+       */
+      detail: Prisma.JsonValue | null
+      /**
+       * The thing a burst folds into, e.g. `item:<id>`. Null for events that never fold.
+       */
+      subjectKey: string | null
+      binItemId: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["propertyEvent"]>
+    composites: {}
+  }
+
+  type PropertyEventGetPayload<S extends boolean | null | undefined | PropertyEventDefaultArgs> = $Result.GetResult<Prisma.$PropertyEventPayload, S>
+
+  type PropertyEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PropertyEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PropertyEventCountAggregateInputType | true
+    }
+
+  export interface PropertyEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PropertyEvent'], meta: { name: 'PropertyEvent' } }
+    /**
+     * Find zero or one PropertyEvent that matches the filter.
+     * @param {PropertyEventFindUniqueArgs} args - Arguments to find a PropertyEvent
+     * @example
+     * // Get one PropertyEvent
+     * const propertyEvent = await prisma.propertyEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PropertyEventFindUniqueArgs>(args: SelectSubset<T, PropertyEventFindUniqueArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PropertyEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PropertyEventFindUniqueOrThrowArgs} args - Arguments to find a PropertyEvent
+     * @example
+     * // Get one PropertyEvent
+     * const propertyEvent = await prisma.propertyEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PropertyEventFindUniqueOrThrowArgs>(args: SelectSubset<T, PropertyEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PropertyEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventFindFirstArgs} args - Arguments to find a PropertyEvent
+     * @example
+     * // Get one PropertyEvent
+     * const propertyEvent = await prisma.propertyEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PropertyEventFindFirstArgs>(args?: SelectSubset<T, PropertyEventFindFirstArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PropertyEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventFindFirstOrThrowArgs} args - Arguments to find a PropertyEvent
+     * @example
+     * // Get one PropertyEvent
+     * const propertyEvent = await prisma.propertyEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PropertyEventFindFirstOrThrowArgs>(args?: SelectSubset<T, PropertyEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PropertyEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PropertyEvents
+     * const propertyEvents = await prisma.propertyEvent.findMany()
+     * 
+     * // Get first 10 PropertyEvents
+     * const propertyEvents = await prisma.propertyEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const propertyEventWithIdOnly = await prisma.propertyEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PropertyEventFindManyArgs>(args?: SelectSubset<T, PropertyEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PropertyEvent.
+     * @param {PropertyEventCreateArgs} args - Arguments to create a PropertyEvent.
+     * @example
+     * // Create one PropertyEvent
+     * const PropertyEvent = await prisma.propertyEvent.create({
+     *   data: {
+     *     // ... data to create a PropertyEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends PropertyEventCreateArgs>(args: SelectSubset<T, PropertyEventCreateArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PropertyEvents.
+     * @param {PropertyEventCreateManyArgs} args - Arguments to create many PropertyEvents.
+     * @example
+     * // Create many PropertyEvents
+     * const propertyEvent = await prisma.propertyEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PropertyEventCreateManyArgs>(args?: SelectSubset<T, PropertyEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PropertyEvents and returns the data saved in the database.
+     * @param {PropertyEventCreateManyAndReturnArgs} args - Arguments to create many PropertyEvents.
+     * @example
+     * // Create many PropertyEvents
+     * const propertyEvent = await prisma.propertyEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PropertyEvents and only return the `id`
+     * const propertyEventWithIdOnly = await prisma.propertyEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PropertyEventCreateManyAndReturnArgs>(args?: SelectSubset<T, PropertyEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PropertyEvent.
+     * @param {PropertyEventDeleteArgs} args - Arguments to delete one PropertyEvent.
+     * @example
+     * // Delete one PropertyEvent
+     * const PropertyEvent = await prisma.propertyEvent.delete({
+     *   where: {
+     *     // ... filter to delete one PropertyEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PropertyEventDeleteArgs>(args: SelectSubset<T, PropertyEventDeleteArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PropertyEvent.
+     * @param {PropertyEventUpdateArgs} args - Arguments to update one PropertyEvent.
+     * @example
+     * // Update one PropertyEvent
+     * const propertyEvent = await prisma.propertyEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PropertyEventUpdateArgs>(args: SelectSubset<T, PropertyEventUpdateArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PropertyEvents.
+     * @param {PropertyEventDeleteManyArgs} args - Arguments to filter PropertyEvents to delete.
+     * @example
+     * // Delete a few PropertyEvents
+     * const { count } = await prisma.propertyEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PropertyEventDeleteManyArgs>(args?: SelectSubset<T, PropertyEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PropertyEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PropertyEvents
+     * const propertyEvent = await prisma.propertyEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PropertyEventUpdateManyArgs>(args: SelectSubset<T, PropertyEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PropertyEvents and returns the data updated in the database.
+     * @param {PropertyEventUpdateManyAndReturnArgs} args - Arguments to update many PropertyEvents.
+     * @example
+     * // Update many PropertyEvents
+     * const propertyEvent = await prisma.propertyEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PropertyEvents and only return the `id`
+     * const propertyEventWithIdOnly = await prisma.propertyEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PropertyEventUpdateManyAndReturnArgs>(args: SelectSubset<T, PropertyEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PropertyEvent.
+     * @param {PropertyEventUpsertArgs} args - Arguments to update or create a PropertyEvent.
+     * @example
+     * // Update or create a PropertyEvent
+     * const propertyEvent = await prisma.propertyEvent.upsert({
+     *   create: {
+     *     // ... data to create a PropertyEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PropertyEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PropertyEventUpsertArgs>(args: SelectSubset<T, PropertyEventUpsertArgs<ExtArgs>>): Prisma__PropertyEventClient<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PropertyEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventCountArgs} args - Arguments to filter PropertyEvents to count.
+     * @example
+     * // Count the number of PropertyEvents
+     * const count = await prisma.propertyEvent.count({
+     *   where: {
+     *     // ... the filter for the PropertyEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends PropertyEventCountArgs>(
+      args?: Subset<T, PropertyEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PropertyEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PropertyEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PropertyEventAggregateArgs>(args: Subset<T, PropertyEventAggregateArgs>): Prisma.PrismaPromise<GetPropertyEventAggregateType<T>>
+
+    /**
+     * Group by PropertyEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PropertyEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PropertyEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PropertyEventGroupByArgs['orderBy'] }
+        : { orderBy?: PropertyEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PropertyEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPropertyEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PropertyEvent model
+   */
+  readonly fields: PropertyEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PropertyEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PropertyEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    property<T extends PropertyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PropertyDefaultArgs<ExtArgs>>): Prisma__PropertyClient<$Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    binItem<T extends PropertyEvent$binItemArgs<ExtArgs> = {}>(args?: Subset<T, PropertyEvent$binItemArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PropertyEvent model
+   */
+  interface PropertyEventFieldRefs {
+    readonly id: FieldRef<"PropertyEvent", 'String'>
+    readonly propertyId: FieldRef<"PropertyEvent", 'String'>
+    readonly tenancyId: FieldRef<"PropertyEvent", 'String'>
+    readonly inspectionId: FieldRef<"PropertyEvent", 'String'>
+    readonly actorId: FieldRef<"PropertyEvent", 'String'>
+    readonly actorName: FieldRef<"PropertyEvent", 'String'>
+    readonly kind: FieldRef<"PropertyEvent", 'String'>
+    readonly summary: FieldRef<"PropertyEvent", 'String'>
+    readonly detail: FieldRef<"PropertyEvent", 'Json'>
+    readonly subjectKey: FieldRef<"PropertyEvent", 'String'>
+    readonly binItemId: FieldRef<"PropertyEvent", 'String'>
+    readonly createdAt: FieldRef<"PropertyEvent", 'DateTime'>
+    readonly updatedAt: FieldRef<"PropertyEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PropertyEvent findUnique
+   */
+  export type PropertyEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * Filter, which PropertyEvent to fetch.
+     */
+    where: PropertyEventWhereUniqueInput
+  }
+
+  /**
+   * PropertyEvent findUniqueOrThrow
+   */
+  export type PropertyEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * Filter, which PropertyEvent to fetch.
+     */
+    where: PropertyEventWhereUniqueInput
+  }
+
+  /**
+   * PropertyEvent findFirst
+   */
+  export type PropertyEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * Filter, which PropertyEvent to fetch.
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PropertyEvents to fetch.
+     */
+    orderBy?: PropertyEventOrderByWithRelationInput | PropertyEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PropertyEvents.
+     */
+    cursor?: PropertyEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PropertyEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PropertyEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PropertyEvents.
+     */
+    distinct?: PropertyEventScalarFieldEnum | PropertyEventScalarFieldEnum[]
+  }
+
+  /**
+   * PropertyEvent findFirstOrThrow
+   */
+  export type PropertyEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * Filter, which PropertyEvent to fetch.
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PropertyEvents to fetch.
+     */
+    orderBy?: PropertyEventOrderByWithRelationInput | PropertyEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PropertyEvents.
+     */
+    cursor?: PropertyEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PropertyEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PropertyEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PropertyEvents.
+     */
+    distinct?: PropertyEventScalarFieldEnum | PropertyEventScalarFieldEnum[]
+  }
+
+  /**
+   * PropertyEvent findMany
+   */
+  export type PropertyEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * Filter, which PropertyEvents to fetch.
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PropertyEvents to fetch.
+     */
+    orderBy?: PropertyEventOrderByWithRelationInput | PropertyEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PropertyEvents.
+     */
+    cursor?: PropertyEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PropertyEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PropertyEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PropertyEvents.
+     */
+    distinct?: PropertyEventScalarFieldEnum | PropertyEventScalarFieldEnum[]
+  }
+
+  /**
+   * PropertyEvent create
+   */
+  export type PropertyEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PropertyEvent.
+     */
+    data: XOR<PropertyEventCreateInput, PropertyEventUncheckedCreateInput>
+  }
+
+  /**
+   * PropertyEvent createMany
+   */
+  export type PropertyEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PropertyEvents.
+     */
+    data: PropertyEventCreateManyInput | PropertyEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PropertyEvent createManyAndReturn
+   */
+  export type PropertyEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many PropertyEvents.
+     */
+    data: PropertyEventCreateManyInput | PropertyEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PropertyEvent update
+   */
+  export type PropertyEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PropertyEvent.
+     */
+    data: XOR<PropertyEventUpdateInput, PropertyEventUncheckedUpdateInput>
+    /**
+     * Choose, which PropertyEvent to update.
+     */
+    where: PropertyEventWhereUniqueInput
+  }
+
+  /**
+   * PropertyEvent updateMany
+   */
+  export type PropertyEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PropertyEvents.
+     */
+    data: XOR<PropertyEventUpdateManyMutationInput, PropertyEventUncheckedUpdateManyInput>
+    /**
+     * Filter which PropertyEvents to update
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * Limit how many PropertyEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PropertyEvent updateManyAndReturn
+   */
+  export type PropertyEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * The data used to update PropertyEvents.
+     */
+    data: XOR<PropertyEventUpdateManyMutationInput, PropertyEventUncheckedUpdateManyInput>
+    /**
+     * Filter which PropertyEvents to update
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * Limit how many PropertyEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PropertyEvent upsert
+   */
+  export type PropertyEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PropertyEvent to update in case it exists.
+     */
+    where: PropertyEventWhereUniqueInput
+    /**
+     * In case the PropertyEvent found by the `where` argument doesn't exist, create a new PropertyEvent with this data.
+     */
+    create: XOR<PropertyEventCreateInput, PropertyEventUncheckedCreateInput>
+    /**
+     * In case the PropertyEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PropertyEventUpdateInput, PropertyEventUncheckedUpdateInput>
+  }
+
+  /**
+   * PropertyEvent delete
+   */
+  export type PropertyEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    /**
+     * Filter which PropertyEvent to delete.
+     */
+    where: PropertyEventWhereUniqueInput
+  }
+
+  /**
+   * PropertyEvent deleteMany
+   */
+  export type PropertyEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PropertyEvents to delete
+     */
+    where?: PropertyEventWhereInput
+    /**
+     * Limit how many PropertyEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PropertyEvent.binItem
+   */
+  export type PropertyEvent$binItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    where?: BinItemWhereInput
+  }
+
+  /**
+   * PropertyEvent without action
+   */
+  export type PropertyEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BinItem
+   */
+
+  export type AggregateBinItem = {
+    _count: BinItemCountAggregateOutputType | null
+    _min: BinItemMinAggregateOutputType | null
+    _max: BinItemMaxAggregateOutputType | null
+  }
+
+  export type BinItemMinAggregateOutputType = {
+    id: string | null
+    propertyId: string | null
+    tenancyId: string | null
+    inspectionId: string | null
+    kind: string | null
+    label: string | null
+    deletedById: string | null
+    deletedAt: Date | null
+    expiresAt: Date | null
+    restoredAt: Date | null
+    restoredById: string | null
+  }
+
+  export type BinItemMaxAggregateOutputType = {
+    id: string | null
+    propertyId: string | null
+    tenancyId: string | null
+    inspectionId: string | null
+    kind: string | null
+    label: string | null
+    deletedById: string | null
+    deletedAt: Date | null
+    expiresAt: Date | null
+    restoredAt: Date | null
+    restoredById: string | null
+  }
+
+  export type BinItemCountAggregateOutputType = {
+    id: number
+    propertyId: number
+    tenancyId: number
+    inspectionId: number
+    kind: number
+    label: number
+    rows: number
+    deletedById: number
+    deletedAt: number
+    expiresAt: number
+    restoredAt: number
+    restoredById: number
+    _all: number
+  }
+
+
+  export type BinItemMinAggregateInputType = {
+    id?: true
+    propertyId?: true
+    tenancyId?: true
+    inspectionId?: true
+    kind?: true
+    label?: true
+    deletedById?: true
+    deletedAt?: true
+    expiresAt?: true
+    restoredAt?: true
+    restoredById?: true
+  }
+
+  export type BinItemMaxAggregateInputType = {
+    id?: true
+    propertyId?: true
+    tenancyId?: true
+    inspectionId?: true
+    kind?: true
+    label?: true
+    deletedById?: true
+    deletedAt?: true
+    expiresAt?: true
+    restoredAt?: true
+    restoredById?: true
+  }
+
+  export type BinItemCountAggregateInputType = {
+    id?: true
+    propertyId?: true
+    tenancyId?: true
+    inspectionId?: true
+    kind?: true
+    label?: true
+    rows?: true
+    deletedById?: true
+    deletedAt?: true
+    expiresAt?: true
+    restoredAt?: true
+    restoredById?: true
+    _all?: true
+  }
+
+  export type BinItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BinItem to aggregate.
+     */
+    where?: BinItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BinItems to fetch.
+     */
+    orderBy?: BinItemOrderByWithRelationInput | BinItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BinItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BinItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BinItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BinItems
+    **/
+    _count?: true | BinItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BinItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BinItemMaxAggregateInputType
+  }
+
+  export type GetBinItemAggregateType<T extends BinItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateBinItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBinItem[P]>
+      : GetScalarType<T[P], AggregateBinItem[P]>
+  }
+
+
+
+
+  export type BinItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BinItemWhereInput
+    orderBy?: BinItemOrderByWithAggregationInput | BinItemOrderByWithAggregationInput[]
+    by: BinItemScalarFieldEnum[] | BinItemScalarFieldEnum
+    having?: BinItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BinItemCountAggregateInputType | true
+    _min?: BinItemMinAggregateInputType
+    _max?: BinItemMaxAggregateInputType
+  }
+
+  export type BinItemGroupByOutputType = {
+    id: string
+    propertyId: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonValue
+    deletedById: string | null
+    deletedAt: Date
+    expiresAt: Date
+    restoredAt: Date | null
+    restoredById: string | null
+    _count: BinItemCountAggregateOutputType | null
+    _min: BinItemMinAggregateOutputType | null
+    _max: BinItemMaxAggregateOutputType | null
+  }
+
+  type GetBinItemGroupByPayload<T extends BinItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BinItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BinItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BinItemGroupByOutputType[P]>
+            : GetScalarType<T[P], BinItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BinItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    kind?: boolean
+    label?: boolean
+    rows?: boolean
+    deletedById?: boolean
+    deletedAt?: boolean
+    expiresAt?: boolean
+    restoredAt?: boolean
+    restoredById?: boolean
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    events?: boolean | BinItem$eventsArgs<ExtArgs>
+    _count?: boolean | BinItemCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["binItem"]>
+
+  export type BinItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    kind?: boolean
+    label?: boolean
+    rows?: boolean
+    deletedById?: boolean
+    deletedAt?: boolean
+    expiresAt?: boolean
+    restoredAt?: boolean
+    restoredById?: boolean
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["binItem"]>
+
+  export type BinItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    kind?: boolean
+    label?: boolean
+    rows?: boolean
+    deletedById?: boolean
+    deletedAt?: boolean
+    expiresAt?: boolean
+    restoredAt?: boolean
+    restoredById?: boolean
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["binItem"]>
+
+  export type BinItemSelectScalar = {
+    id?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    inspectionId?: boolean
+    kind?: boolean
+    label?: boolean
+    rows?: boolean
+    deletedById?: boolean
+    deletedAt?: boolean
+    expiresAt?: boolean
+    restoredAt?: boolean
+    restoredById?: boolean
+  }
+
+  export type BinItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "tenancyId" | "inspectionId" | "kind" | "label" | "rows" | "deletedById" | "deletedAt" | "expiresAt" | "restoredAt" | "restoredById", ExtArgs["result"]["binItem"]>
+  export type BinItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+    events?: boolean | BinItem$eventsArgs<ExtArgs>
+    _count?: boolean | BinItemCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BinItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+  }
+  export type BinItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    property?: boolean | PropertyDefaultArgs<ExtArgs>
+  }
+
+  export type $BinItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BinItem"
+    objects: {
+      property: Prisma.$PropertyPayload<ExtArgs>
+      events: Prisma.$PropertyEventPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      propertyId: string
+      tenancyId: string
+      inspectionId: string
+      kind: string
+      label: string
+      rows: Prisma.JsonValue
+      deletedById: string | null
+      deletedAt: Date
+      expiresAt: Date
+      restoredAt: Date | null
+      restoredById: string | null
+    }, ExtArgs["result"]["binItem"]>
+    composites: {}
+  }
+
+  type BinItemGetPayload<S extends boolean | null | undefined | BinItemDefaultArgs> = $Result.GetResult<Prisma.$BinItemPayload, S>
+
+  type BinItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BinItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BinItemCountAggregateInputType | true
+    }
+
+  export interface BinItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BinItem'], meta: { name: 'BinItem' } }
+    /**
+     * Find zero or one BinItem that matches the filter.
+     * @param {BinItemFindUniqueArgs} args - Arguments to find a BinItem
+     * @example
+     * // Get one BinItem
+     * const binItem = await prisma.binItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BinItemFindUniqueArgs>(args: SelectSubset<T, BinItemFindUniqueArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BinItem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BinItemFindUniqueOrThrowArgs} args - Arguments to find a BinItem
+     * @example
+     * // Get one BinItem
+     * const binItem = await prisma.binItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BinItemFindUniqueOrThrowArgs>(args: SelectSubset<T, BinItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BinItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemFindFirstArgs} args - Arguments to find a BinItem
+     * @example
+     * // Get one BinItem
+     * const binItem = await prisma.binItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BinItemFindFirstArgs>(args?: SelectSubset<T, BinItemFindFirstArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BinItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemFindFirstOrThrowArgs} args - Arguments to find a BinItem
+     * @example
+     * // Get one BinItem
+     * const binItem = await prisma.binItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BinItemFindFirstOrThrowArgs>(args?: SelectSubset<T, BinItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BinItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BinItems
+     * const binItems = await prisma.binItem.findMany()
+     * 
+     * // Get first 10 BinItems
+     * const binItems = await prisma.binItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const binItemWithIdOnly = await prisma.binItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BinItemFindManyArgs>(args?: SelectSubset<T, BinItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BinItem.
+     * @param {BinItemCreateArgs} args - Arguments to create a BinItem.
+     * @example
+     * // Create one BinItem
+     * const BinItem = await prisma.binItem.create({
+     *   data: {
+     *     // ... data to create a BinItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends BinItemCreateArgs>(args: SelectSubset<T, BinItemCreateArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BinItems.
+     * @param {BinItemCreateManyArgs} args - Arguments to create many BinItems.
+     * @example
+     * // Create many BinItems
+     * const binItem = await prisma.binItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BinItemCreateManyArgs>(args?: SelectSubset<T, BinItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BinItems and returns the data saved in the database.
+     * @param {BinItemCreateManyAndReturnArgs} args - Arguments to create many BinItems.
+     * @example
+     * // Create many BinItems
+     * const binItem = await prisma.binItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BinItems and only return the `id`
+     * const binItemWithIdOnly = await prisma.binItem.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BinItemCreateManyAndReturnArgs>(args?: SelectSubset<T, BinItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BinItem.
+     * @param {BinItemDeleteArgs} args - Arguments to delete one BinItem.
+     * @example
+     * // Delete one BinItem
+     * const BinItem = await prisma.binItem.delete({
+     *   where: {
+     *     // ... filter to delete one BinItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BinItemDeleteArgs>(args: SelectSubset<T, BinItemDeleteArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BinItem.
+     * @param {BinItemUpdateArgs} args - Arguments to update one BinItem.
+     * @example
+     * // Update one BinItem
+     * const binItem = await prisma.binItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BinItemUpdateArgs>(args: SelectSubset<T, BinItemUpdateArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BinItems.
+     * @param {BinItemDeleteManyArgs} args - Arguments to filter BinItems to delete.
+     * @example
+     * // Delete a few BinItems
+     * const { count } = await prisma.binItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BinItemDeleteManyArgs>(args?: SelectSubset<T, BinItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BinItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BinItems
+     * const binItem = await prisma.binItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BinItemUpdateManyArgs>(args: SelectSubset<T, BinItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BinItems and returns the data updated in the database.
+     * @param {BinItemUpdateManyAndReturnArgs} args - Arguments to update many BinItems.
+     * @example
+     * // Update many BinItems
+     * const binItem = await prisma.binItem.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BinItems and only return the `id`
+     * const binItemWithIdOnly = await prisma.binItem.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BinItemUpdateManyAndReturnArgs>(args: SelectSubset<T, BinItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BinItem.
+     * @param {BinItemUpsertArgs} args - Arguments to update or create a BinItem.
+     * @example
+     * // Update or create a BinItem
+     * const binItem = await prisma.binItem.upsert({
+     *   create: {
+     *     // ... data to create a BinItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BinItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BinItemUpsertArgs>(args: SelectSubset<T, BinItemUpsertArgs<ExtArgs>>): Prisma__BinItemClient<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BinItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemCountArgs} args - Arguments to filter BinItems to count.
+     * @example
+     * // Count the number of BinItems
+     * const count = await prisma.binItem.count({
+     *   where: {
+     *     // ... the filter for the BinItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends BinItemCountArgs>(
+      args?: Subset<T, BinItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BinItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BinItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BinItemAggregateArgs>(args: Subset<T, BinItemAggregateArgs>): Prisma.PrismaPromise<GetBinItemAggregateType<T>>
+
+    /**
+     * Group by BinItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BinItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BinItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BinItemGroupByArgs['orderBy'] }
+        : { orderBy?: BinItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BinItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBinItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BinItem model
+   */
+  readonly fields: BinItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BinItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BinItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    property<T extends PropertyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PropertyDefaultArgs<ExtArgs>>): Prisma__PropertyClient<$Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    events<T extends BinItem$eventsArgs<ExtArgs> = {}>(args?: Subset<T, BinItem$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BinItem model
+   */
+  interface BinItemFieldRefs {
+    readonly id: FieldRef<"BinItem", 'String'>
+    readonly propertyId: FieldRef<"BinItem", 'String'>
+    readonly tenancyId: FieldRef<"BinItem", 'String'>
+    readonly inspectionId: FieldRef<"BinItem", 'String'>
+    readonly kind: FieldRef<"BinItem", 'String'>
+    readonly label: FieldRef<"BinItem", 'String'>
+    readonly rows: FieldRef<"BinItem", 'Json'>
+    readonly deletedById: FieldRef<"BinItem", 'String'>
+    readonly deletedAt: FieldRef<"BinItem", 'DateTime'>
+    readonly expiresAt: FieldRef<"BinItem", 'DateTime'>
+    readonly restoredAt: FieldRef<"BinItem", 'DateTime'>
+    readonly restoredById: FieldRef<"BinItem", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BinItem findUnique
+   */
+  export type BinItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * Filter, which BinItem to fetch.
+     */
+    where: BinItemWhereUniqueInput
+  }
+
+  /**
+   * BinItem findUniqueOrThrow
+   */
+  export type BinItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * Filter, which BinItem to fetch.
+     */
+    where: BinItemWhereUniqueInput
+  }
+
+  /**
+   * BinItem findFirst
+   */
+  export type BinItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * Filter, which BinItem to fetch.
+     */
+    where?: BinItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BinItems to fetch.
+     */
+    orderBy?: BinItemOrderByWithRelationInput | BinItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BinItems.
+     */
+    cursor?: BinItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BinItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BinItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BinItems.
+     */
+    distinct?: BinItemScalarFieldEnum | BinItemScalarFieldEnum[]
+  }
+
+  /**
+   * BinItem findFirstOrThrow
+   */
+  export type BinItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * Filter, which BinItem to fetch.
+     */
+    where?: BinItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BinItems to fetch.
+     */
+    orderBy?: BinItemOrderByWithRelationInput | BinItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BinItems.
+     */
+    cursor?: BinItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BinItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BinItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BinItems.
+     */
+    distinct?: BinItemScalarFieldEnum | BinItemScalarFieldEnum[]
+  }
+
+  /**
+   * BinItem findMany
+   */
+  export type BinItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * Filter, which BinItems to fetch.
+     */
+    where?: BinItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BinItems to fetch.
+     */
+    orderBy?: BinItemOrderByWithRelationInput | BinItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BinItems.
+     */
+    cursor?: BinItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BinItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BinItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BinItems.
+     */
+    distinct?: BinItemScalarFieldEnum | BinItemScalarFieldEnum[]
+  }
+
+  /**
+   * BinItem create
+   */
+  export type BinItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BinItem.
+     */
+    data: XOR<BinItemCreateInput, BinItemUncheckedCreateInput>
+  }
+
+  /**
+   * BinItem createMany
+   */
+  export type BinItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BinItems.
+     */
+    data: BinItemCreateManyInput | BinItemCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BinItem createManyAndReturn
+   */
+  export type BinItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * The data used to create many BinItems.
+     */
+    data: BinItemCreateManyInput | BinItemCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BinItem update
+   */
+  export type BinItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BinItem.
+     */
+    data: XOR<BinItemUpdateInput, BinItemUncheckedUpdateInput>
+    /**
+     * Choose, which BinItem to update.
+     */
+    where: BinItemWhereUniqueInput
+  }
+
+  /**
+   * BinItem updateMany
+   */
+  export type BinItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BinItems.
+     */
+    data: XOR<BinItemUpdateManyMutationInput, BinItemUncheckedUpdateManyInput>
+    /**
+     * Filter which BinItems to update
+     */
+    where?: BinItemWhereInput
+    /**
+     * Limit how many BinItems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BinItem updateManyAndReturn
+   */
+  export type BinItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * The data used to update BinItems.
+     */
+    data: XOR<BinItemUpdateManyMutationInput, BinItemUncheckedUpdateManyInput>
+    /**
+     * Filter which BinItems to update
+     */
+    where?: BinItemWhereInput
+    /**
+     * Limit how many BinItems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BinItem upsert
+   */
+  export type BinItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BinItem to update in case it exists.
+     */
+    where: BinItemWhereUniqueInput
+    /**
+     * In case the BinItem found by the `where` argument doesn't exist, create a new BinItem with this data.
+     */
+    create: XOR<BinItemCreateInput, BinItemUncheckedCreateInput>
+    /**
+     * In case the BinItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BinItemUpdateInput, BinItemUncheckedUpdateInput>
+  }
+
+  /**
+   * BinItem delete
+   */
+  export type BinItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
+    /**
+     * Filter which BinItem to delete.
+     */
+    where: BinItemWhereUniqueInput
+  }
+
+  /**
+   * BinItem deleteMany
+   */
+  export type BinItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BinItems to delete
+     */
+    where?: BinItemWhereInput
+    /**
+     * Limit how many BinItems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BinItem.events
+   */
+  export type BinItem$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PropertyEvent
+     */
+    select?: PropertyEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PropertyEvent
+     */
+    omit?: PropertyEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyEventInclude<ExtArgs> | null
+    where?: PropertyEventWhereInput
+    orderBy?: PropertyEventOrderByWithRelationInput | PropertyEventOrderByWithRelationInput[]
+    cursor?: PropertyEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PropertyEventScalarFieldEnum | PropertyEventScalarFieldEnum[]
+  }
+
+  /**
+   * BinItem without action
+   */
+  export type BinItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BinItem
+     */
+    select?: BinItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BinItem
+     */
+    omit?: BinItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BinItemInclude<ExtArgs> | null
   }
 
 
@@ -60334,6 +63001,43 @@ export namespace Prisma {
   export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
 
 
+  export const PropertyEventScalarFieldEnum: {
+    id: 'id',
+    propertyId: 'propertyId',
+    tenancyId: 'tenancyId',
+    inspectionId: 'inspectionId',
+    actorId: 'actorId',
+    actorName: 'actorName',
+    kind: 'kind',
+    summary: 'summary',
+    detail: 'detail',
+    subjectKey: 'subjectKey',
+    binItemId: 'binItemId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PropertyEventScalarFieldEnum = (typeof PropertyEventScalarFieldEnum)[keyof typeof PropertyEventScalarFieldEnum]
+
+
+  export const BinItemScalarFieldEnum: {
+    id: 'id',
+    propertyId: 'propertyId',
+    tenancyId: 'tenancyId',
+    inspectionId: 'inspectionId',
+    kind: 'kind',
+    label: 'label',
+    rows: 'rows',
+    deletedById: 'deletedById',
+    deletedAt: 'deletedAt',
+    expiresAt: 'expiresAt',
+    restoredAt: 'restoredAt',
+    restoredById: 'restoredById'
+  };
+
+  export type BinItemScalarFieldEnum = (typeof BinItemScalarFieldEnum)[keyof typeof BinItemScalarFieldEnum]
+
+
   export const TenancyScalarFieldEnum: {
     id: 'id',
     propertyId: 'propertyId',
@@ -61097,6 +63801,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'Decimal'
    */
   export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -61163,20 +63881,6 @@ export namespace Prisma {
    * Reference to a field of type 'CaptureKind[]'
    */
   export type ListEnumCaptureKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CaptureKind[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -62190,6 +64894,8 @@ export namespace Prisma {
     trashedById?: StringNullableFilter<"Property"> | string | null
     tenancies?: TenancyListRelationFilter
     assets?: PropertyAssetListRelationFilter
+    events?: PropertyEventListRelationFilter
+    bin?: BinItemListRelationFilter
   }
 
   export type PropertyOrderByWithRelationInput = {
@@ -62206,6 +64912,8 @@ export namespace Prisma {
     trashedById?: SortOrderInput | SortOrder
     tenancies?: TenancyOrderByRelationAggregateInput
     assets?: PropertyAssetOrderByRelationAggregateInput
+    events?: PropertyEventOrderByRelationAggregateInput
+    bin?: BinItemOrderByRelationAggregateInput
   }
 
   export type PropertyWhereUniqueInput = Prisma.AtLeast<{
@@ -62225,6 +64933,8 @@ export namespace Prisma {
     trashedById?: StringNullableFilter<"Property"> | string | null
     tenancies?: TenancyListRelationFilter
     assets?: PropertyAssetListRelationFilter
+    events?: PropertyEventListRelationFilter
+    bin?: BinItemListRelationFilter
   }, "id">
 
   export type PropertyOrderByWithAggregationInput = {
@@ -62259,6 +64969,197 @@ export namespace Prisma {
     trashedAt?: DateTimeNullableWithAggregatesFilter<"Property"> | Date | string | null
     trashExpiresAt?: DateTimeNullableWithAggregatesFilter<"Property"> | Date | string | null
     trashedById?: StringNullableWithAggregatesFilter<"Property"> | string | null
+  }
+
+  export type PropertyEventWhereInput = {
+    AND?: PropertyEventWhereInput | PropertyEventWhereInput[]
+    OR?: PropertyEventWhereInput[]
+    NOT?: PropertyEventWhereInput | PropertyEventWhereInput[]
+    id?: StringFilter<"PropertyEvent"> | string
+    propertyId?: StringFilter<"PropertyEvent"> | string
+    tenancyId?: StringNullableFilter<"PropertyEvent"> | string | null
+    inspectionId?: StringNullableFilter<"PropertyEvent"> | string | null
+    actorId?: StringNullableFilter<"PropertyEvent"> | string | null
+    actorName?: StringFilter<"PropertyEvent"> | string
+    kind?: StringFilter<"PropertyEvent"> | string
+    summary?: StringFilter<"PropertyEvent"> | string
+    detail?: JsonNullableFilter<"PropertyEvent">
+    subjectKey?: StringNullableFilter<"PropertyEvent"> | string | null
+    binItemId?: StringNullableFilter<"PropertyEvent"> | string | null
+    createdAt?: DateTimeFilter<"PropertyEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"PropertyEvent"> | Date | string
+    property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
+    binItem?: XOR<BinItemNullableScalarRelationFilter, BinItemWhereInput> | null
+  }
+
+  export type PropertyEventOrderByWithRelationInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrderInput | SortOrder
+    inspectionId?: SortOrderInput | SortOrder
+    actorId?: SortOrderInput | SortOrder
+    actorName?: SortOrder
+    kind?: SortOrder
+    summary?: SortOrder
+    detail?: SortOrderInput | SortOrder
+    subjectKey?: SortOrderInput | SortOrder
+    binItemId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    property?: PropertyOrderByWithRelationInput
+    binItem?: BinItemOrderByWithRelationInput
+  }
+
+  export type PropertyEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PropertyEventWhereInput | PropertyEventWhereInput[]
+    OR?: PropertyEventWhereInput[]
+    NOT?: PropertyEventWhereInput | PropertyEventWhereInput[]
+    propertyId?: StringFilter<"PropertyEvent"> | string
+    tenancyId?: StringNullableFilter<"PropertyEvent"> | string | null
+    inspectionId?: StringNullableFilter<"PropertyEvent"> | string | null
+    actorId?: StringNullableFilter<"PropertyEvent"> | string | null
+    actorName?: StringFilter<"PropertyEvent"> | string
+    kind?: StringFilter<"PropertyEvent"> | string
+    summary?: StringFilter<"PropertyEvent"> | string
+    detail?: JsonNullableFilter<"PropertyEvent">
+    subjectKey?: StringNullableFilter<"PropertyEvent"> | string | null
+    binItemId?: StringNullableFilter<"PropertyEvent"> | string | null
+    createdAt?: DateTimeFilter<"PropertyEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"PropertyEvent"> | Date | string
+    property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
+    binItem?: XOR<BinItemNullableScalarRelationFilter, BinItemWhereInput> | null
+  }, "id">
+
+  export type PropertyEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrderInput | SortOrder
+    inspectionId?: SortOrderInput | SortOrder
+    actorId?: SortOrderInput | SortOrder
+    actorName?: SortOrder
+    kind?: SortOrder
+    summary?: SortOrder
+    detail?: SortOrderInput | SortOrder
+    subjectKey?: SortOrderInput | SortOrder
+    binItemId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PropertyEventCountOrderByAggregateInput
+    _max?: PropertyEventMaxOrderByAggregateInput
+    _min?: PropertyEventMinOrderByAggregateInput
+  }
+
+  export type PropertyEventScalarWhereWithAggregatesInput = {
+    AND?: PropertyEventScalarWhereWithAggregatesInput | PropertyEventScalarWhereWithAggregatesInput[]
+    OR?: PropertyEventScalarWhereWithAggregatesInput[]
+    NOT?: PropertyEventScalarWhereWithAggregatesInput | PropertyEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PropertyEvent"> | string
+    propertyId?: StringWithAggregatesFilter<"PropertyEvent"> | string
+    tenancyId?: StringNullableWithAggregatesFilter<"PropertyEvent"> | string | null
+    inspectionId?: StringNullableWithAggregatesFilter<"PropertyEvent"> | string | null
+    actorId?: StringNullableWithAggregatesFilter<"PropertyEvent"> | string | null
+    actorName?: StringWithAggregatesFilter<"PropertyEvent"> | string
+    kind?: StringWithAggregatesFilter<"PropertyEvent"> | string
+    summary?: StringWithAggregatesFilter<"PropertyEvent"> | string
+    detail?: JsonNullableWithAggregatesFilter<"PropertyEvent">
+    subjectKey?: StringNullableWithAggregatesFilter<"PropertyEvent"> | string | null
+    binItemId?: StringNullableWithAggregatesFilter<"PropertyEvent"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PropertyEvent"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PropertyEvent"> | Date | string
+  }
+
+  export type BinItemWhereInput = {
+    AND?: BinItemWhereInput | BinItemWhereInput[]
+    OR?: BinItemWhereInput[]
+    NOT?: BinItemWhereInput | BinItemWhereInput[]
+    id?: StringFilter<"BinItem"> | string
+    propertyId?: StringFilter<"BinItem"> | string
+    tenancyId?: StringFilter<"BinItem"> | string
+    inspectionId?: StringFilter<"BinItem"> | string
+    kind?: StringFilter<"BinItem"> | string
+    label?: StringFilter<"BinItem"> | string
+    rows?: JsonFilter<"BinItem">
+    deletedById?: StringNullableFilter<"BinItem"> | string | null
+    deletedAt?: DateTimeFilter<"BinItem"> | Date | string
+    expiresAt?: DateTimeFilter<"BinItem"> | Date | string
+    restoredAt?: DateTimeNullableFilter<"BinItem"> | Date | string | null
+    restoredById?: StringNullableFilter<"BinItem"> | string | null
+    property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
+    events?: PropertyEventListRelationFilter
+  }
+
+  export type BinItemOrderByWithRelationInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    kind?: SortOrder
+    label?: SortOrder
+    rows?: SortOrder
+    deletedById?: SortOrderInput | SortOrder
+    deletedAt?: SortOrder
+    expiresAt?: SortOrder
+    restoredAt?: SortOrderInput | SortOrder
+    restoredById?: SortOrderInput | SortOrder
+    property?: PropertyOrderByWithRelationInput
+    events?: PropertyEventOrderByRelationAggregateInput
+  }
+
+  export type BinItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BinItemWhereInput | BinItemWhereInput[]
+    OR?: BinItemWhereInput[]
+    NOT?: BinItemWhereInput | BinItemWhereInput[]
+    propertyId?: StringFilter<"BinItem"> | string
+    tenancyId?: StringFilter<"BinItem"> | string
+    inspectionId?: StringFilter<"BinItem"> | string
+    kind?: StringFilter<"BinItem"> | string
+    label?: StringFilter<"BinItem"> | string
+    rows?: JsonFilter<"BinItem">
+    deletedById?: StringNullableFilter<"BinItem"> | string | null
+    deletedAt?: DateTimeFilter<"BinItem"> | Date | string
+    expiresAt?: DateTimeFilter<"BinItem"> | Date | string
+    restoredAt?: DateTimeNullableFilter<"BinItem"> | Date | string | null
+    restoredById?: StringNullableFilter<"BinItem"> | string | null
+    property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
+    events?: PropertyEventListRelationFilter
+  }, "id">
+
+  export type BinItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    kind?: SortOrder
+    label?: SortOrder
+    rows?: SortOrder
+    deletedById?: SortOrderInput | SortOrder
+    deletedAt?: SortOrder
+    expiresAt?: SortOrder
+    restoredAt?: SortOrderInput | SortOrder
+    restoredById?: SortOrderInput | SortOrder
+    _count?: BinItemCountOrderByAggregateInput
+    _max?: BinItemMaxOrderByAggregateInput
+    _min?: BinItemMinOrderByAggregateInput
+  }
+
+  export type BinItemScalarWhereWithAggregatesInput = {
+    AND?: BinItemScalarWhereWithAggregatesInput | BinItemScalarWhereWithAggregatesInput[]
+    OR?: BinItemScalarWhereWithAggregatesInput[]
+    NOT?: BinItemScalarWhereWithAggregatesInput | BinItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BinItem"> | string
+    propertyId?: StringWithAggregatesFilter<"BinItem"> | string
+    tenancyId?: StringWithAggregatesFilter<"BinItem"> | string
+    inspectionId?: StringWithAggregatesFilter<"BinItem"> | string
+    kind?: StringWithAggregatesFilter<"BinItem"> | string
+    label?: StringWithAggregatesFilter<"BinItem"> | string
+    rows?: JsonWithAggregatesFilter<"BinItem">
+    deletedById?: StringNullableWithAggregatesFilter<"BinItem"> | string | null
+    deletedAt?: DateTimeWithAggregatesFilter<"BinItem"> | Date | string
+    expiresAt?: DateTimeWithAggregatesFilter<"BinItem"> | Date | string
+    restoredAt?: DateTimeNullableWithAggregatesFilter<"BinItem"> | Date | string | null
+    restoredById?: StringNullableWithAggregatesFilter<"BinItem"> | string | null
   }
 
   export type TenancyWhereInput = {
@@ -66214,6 +69115,8 @@ export namespace Prisma {
     trashedById?: string | null
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventCreateNestedManyWithoutPropertyInput
+    bin?: BinItemCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateInput = {
@@ -66230,6 +69133,8 @@ export namespace Prisma {
     trashedById?: string | null
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
+    bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUpdateInput = {
@@ -66246,6 +69151,8 @@ export namespace Prisma {
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateInput = {
@@ -66262,6 +69169,8 @@ export namespace Prisma {
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyCreateManyInput = {
@@ -66304,6 +69213,224 @@ export namespace Prisma {
     trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PropertyEventCreateInput = {
+    id?: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutEventsInput
+    binItem?: BinItemCreateNestedOneWithoutEventsInput
+  }
+
+  export type PropertyEventUncheckedCreateInput = {
+    id?: string
+    propertyId: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    binItemId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PropertyEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutEventsNestedInput
+    binItem?: BinItemUpdateOneWithoutEventsNestedInput
+  }
+
+  export type PropertyEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    binItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PropertyEventCreateManyInput = {
+    id?: string
+    propertyId: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    binItemId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PropertyEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PropertyEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    binItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BinItemCreateInput = {
+    id?: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+    property: PropertyCreateNestedOneWithoutBinInput
+    events?: PropertyEventCreateNestedManyWithoutBinItemInput
+  }
+
+  export type BinItemUncheckedCreateInput = {
+    id?: string
+    propertyId: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+    events?: PropertyEventUncheckedCreateNestedManyWithoutBinItemInput
+  }
+
+  export type BinItemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+    property?: PropertyUpdateOneRequiredWithoutBinNestedInput
+    events?: PropertyEventUpdateManyWithoutBinItemNestedInput
+  }
+
+  export type BinItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+    events?: PropertyEventUncheckedUpdateManyWithoutBinItemNestedInput
+  }
+
+  export type BinItemCreateManyInput = {
+    id?: string
+    propertyId: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+  }
+
+  export type BinItemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BinItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenancyCreateInput = {
@@ -70546,7 +73673,27 @@ export namespace Prisma {
     none?: PropertyAssetWhereInput
   }
 
+  export type PropertyEventListRelationFilter = {
+    every?: PropertyEventWhereInput
+    some?: PropertyEventWhereInput
+    none?: PropertyEventWhereInput
+  }
+
+  export type BinItemListRelationFilter = {
+    every?: BinItemWhereInput
+    some?: BinItemWhereInput
+    none?: BinItemWhereInput
+  }
+
   export type PropertyAssetOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PropertyEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BinItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -70601,6 +73748,203 @@ export namespace Prisma {
     _min?: NestedEnumPropertyTypeFilter<$PrismaModel>
     _max?: NestedEnumPropertyTypeFilter<$PrismaModel>
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type PropertyScalarRelationFilter = {
+    is?: PropertyWhereInput
+    isNot?: PropertyWhereInput
+  }
+
+  export type BinItemNullableScalarRelationFilter = {
+    is?: BinItemWhereInput | null
+    isNot?: BinItemWhereInput | null
+  }
+
+  export type PropertyEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    kind?: SortOrder
+    summary?: SortOrder
+    detail?: SortOrder
+    subjectKey?: SortOrder
+    binItemId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PropertyEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    kind?: SortOrder
+    summary?: SortOrder
+    subjectKey?: SortOrder
+    binItemId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PropertyEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    actorId?: SortOrder
+    actorName?: SortOrder
+    kind?: SortOrder
+    summary?: SortOrder
+    subjectKey?: SortOrder
+    binItemId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BinItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    kind?: SortOrder
+    label?: SortOrder
+    rows?: SortOrder
+    deletedById?: SortOrder
+    deletedAt?: SortOrder
+    expiresAt?: SortOrder
+    restoredAt?: SortOrder
+    restoredById?: SortOrder
+  }
+
+  export type BinItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    kind?: SortOrder
+    label?: SortOrder
+    deletedById?: SortOrder
+    deletedAt?: SortOrder
+    expiresAt?: SortOrder
+    restoredAt?: SortOrder
+    restoredById?: SortOrder
+  }
+
+  export type BinItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    inspectionId?: SortOrder
+    kind?: SortOrder
+    label?: SortOrder
+    deletedById?: SortOrder
+    deletedAt?: SortOrder
+    expiresAt?: SortOrder
+    restoredAt?: SortOrder
+    restoredById?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
 
   export type DecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
@@ -70629,11 +73973,6 @@ export namespace Prisma {
     in?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
     notIn?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
     not?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel> | $Enums.RenewalDecision | null
-  }
-
-  export type PropertyScalarRelationFilter = {
-    is?: PropertyWhereInput
-    isNot?: PropertyWhereInput
   }
 
   export type AgencyNullableScalarRelationFilter = {
@@ -70989,29 +74328,6 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type RoomScalarRelationFilter = {
     is?: RoomWhereInput
@@ -71126,32 +74442,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumRoomStatusFilter<$PrismaModel = never> = {
@@ -72535,29 +75825,6 @@ export namespace Prisma {
     _min?: NestedEnumReportEmailKindFilter<$PrismaModel>
     _max?: NestedEnumReportEmailKindFilter<$PrismaModel>
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type AssessmentVersionInspectionIdVersionCompoundUniqueInput = {
     inspectionId: string
@@ -72598,32 +75865,6 @@ export namespace Prisma {
 
   export type AssessmentVersionSumOrderByAggregateInput = {
     version?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type ReportAddendumInspectionIdNumberCompoundUniqueInput = {
@@ -74971,6 +78212,20 @@ export namespace Prisma {
     connect?: PropertyAssetWhereUniqueInput | PropertyAssetWhereUniqueInput[]
   }
 
+  export type PropertyEventCreateNestedManyWithoutPropertyInput = {
+    create?: XOR<PropertyEventCreateWithoutPropertyInput, PropertyEventUncheckedCreateWithoutPropertyInput> | PropertyEventCreateWithoutPropertyInput[] | PropertyEventUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutPropertyInput | PropertyEventCreateOrConnectWithoutPropertyInput[]
+    createMany?: PropertyEventCreateManyPropertyInputEnvelope
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+  }
+
+  export type BinItemCreateNestedManyWithoutPropertyInput = {
+    create?: XOR<BinItemCreateWithoutPropertyInput, BinItemUncheckedCreateWithoutPropertyInput> | BinItemCreateWithoutPropertyInput[] | BinItemUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: BinItemCreateOrConnectWithoutPropertyInput | BinItemCreateOrConnectWithoutPropertyInput[]
+    createMany?: BinItemCreateManyPropertyInputEnvelope
+    connect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+  }
+
   export type TenancyUncheckedCreateNestedManyWithoutPropertyInput = {
     create?: XOR<TenancyCreateWithoutPropertyInput, TenancyUncheckedCreateWithoutPropertyInput> | TenancyCreateWithoutPropertyInput[] | TenancyUncheckedCreateWithoutPropertyInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutPropertyInput | TenancyCreateOrConnectWithoutPropertyInput[]
@@ -74983,6 +78238,20 @@ export namespace Prisma {
     connectOrCreate?: PropertyAssetCreateOrConnectWithoutPropertyInput | PropertyAssetCreateOrConnectWithoutPropertyInput[]
     createMany?: PropertyAssetCreateManyPropertyInputEnvelope
     connect?: PropertyAssetWhereUniqueInput | PropertyAssetWhereUniqueInput[]
+  }
+
+  export type PropertyEventUncheckedCreateNestedManyWithoutPropertyInput = {
+    create?: XOR<PropertyEventCreateWithoutPropertyInput, PropertyEventUncheckedCreateWithoutPropertyInput> | PropertyEventCreateWithoutPropertyInput[] | PropertyEventUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutPropertyInput | PropertyEventCreateOrConnectWithoutPropertyInput[]
+    createMany?: PropertyEventCreateManyPropertyInputEnvelope
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+  }
+
+  export type BinItemUncheckedCreateNestedManyWithoutPropertyInput = {
+    create?: XOR<BinItemCreateWithoutPropertyInput, BinItemUncheckedCreateWithoutPropertyInput> | BinItemCreateWithoutPropertyInput[] | BinItemUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: BinItemCreateOrConnectWithoutPropertyInput | BinItemCreateOrConnectWithoutPropertyInput[]
+    createMany?: BinItemCreateManyPropertyInputEnvelope
+    connect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
   }
 
   export type EnumPropertyTypeFieldUpdateOperationsInput = {
@@ -75017,6 +78286,34 @@ export namespace Prisma {
     deleteMany?: PropertyAssetScalarWhereInput | PropertyAssetScalarWhereInput[]
   }
 
+  export type PropertyEventUpdateManyWithoutPropertyNestedInput = {
+    create?: XOR<PropertyEventCreateWithoutPropertyInput, PropertyEventUncheckedCreateWithoutPropertyInput> | PropertyEventCreateWithoutPropertyInput[] | PropertyEventUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutPropertyInput | PropertyEventCreateOrConnectWithoutPropertyInput[]
+    upsert?: PropertyEventUpsertWithWhereUniqueWithoutPropertyInput | PropertyEventUpsertWithWhereUniqueWithoutPropertyInput[]
+    createMany?: PropertyEventCreateManyPropertyInputEnvelope
+    set?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    disconnect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    delete?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    update?: PropertyEventUpdateWithWhereUniqueWithoutPropertyInput | PropertyEventUpdateWithWhereUniqueWithoutPropertyInput[]
+    updateMany?: PropertyEventUpdateManyWithWhereWithoutPropertyInput | PropertyEventUpdateManyWithWhereWithoutPropertyInput[]
+    deleteMany?: PropertyEventScalarWhereInput | PropertyEventScalarWhereInput[]
+  }
+
+  export type BinItemUpdateManyWithoutPropertyNestedInput = {
+    create?: XOR<BinItemCreateWithoutPropertyInput, BinItemUncheckedCreateWithoutPropertyInput> | BinItemCreateWithoutPropertyInput[] | BinItemUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: BinItemCreateOrConnectWithoutPropertyInput | BinItemCreateOrConnectWithoutPropertyInput[]
+    upsert?: BinItemUpsertWithWhereUniqueWithoutPropertyInput | BinItemUpsertWithWhereUniqueWithoutPropertyInput[]
+    createMany?: BinItemCreateManyPropertyInputEnvelope
+    set?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    disconnect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    delete?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    connect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    update?: BinItemUpdateWithWhereUniqueWithoutPropertyInput | BinItemUpdateWithWhereUniqueWithoutPropertyInput[]
+    updateMany?: BinItemUpdateManyWithWhereWithoutPropertyInput | BinItemUpdateManyWithWhereWithoutPropertyInput[]
+    deleteMany?: BinItemScalarWhereInput | BinItemScalarWhereInput[]
+  }
+
   export type TenancyUncheckedUpdateManyWithoutPropertyNestedInput = {
     create?: XOR<TenancyCreateWithoutPropertyInput, TenancyUncheckedCreateWithoutPropertyInput> | TenancyCreateWithoutPropertyInput[] | TenancyUncheckedCreateWithoutPropertyInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutPropertyInput | TenancyCreateOrConnectWithoutPropertyInput[]
@@ -75043,6 +78340,120 @@ export namespace Prisma {
     update?: PropertyAssetUpdateWithWhereUniqueWithoutPropertyInput | PropertyAssetUpdateWithWhereUniqueWithoutPropertyInput[]
     updateMany?: PropertyAssetUpdateManyWithWhereWithoutPropertyInput | PropertyAssetUpdateManyWithWhereWithoutPropertyInput[]
     deleteMany?: PropertyAssetScalarWhereInput | PropertyAssetScalarWhereInput[]
+  }
+
+  export type PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput = {
+    create?: XOR<PropertyEventCreateWithoutPropertyInput, PropertyEventUncheckedCreateWithoutPropertyInput> | PropertyEventCreateWithoutPropertyInput[] | PropertyEventUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutPropertyInput | PropertyEventCreateOrConnectWithoutPropertyInput[]
+    upsert?: PropertyEventUpsertWithWhereUniqueWithoutPropertyInput | PropertyEventUpsertWithWhereUniqueWithoutPropertyInput[]
+    createMany?: PropertyEventCreateManyPropertyInputEnvelope
+    set?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    disconnect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    delete?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    update?: PropertyEventUpdateWithWhereUniqueWithoutPropertyInput | PropertyEventUpdateWithWhereUniqueWithoutPropertyInput[]
+    updateMany?: PropertyEventUpdateManyWithWhereWithoutPropertyInput | PropertyEventUpdateManyWithWhereWithoutPropertyInput[]
+    deleteMany?: PropertyEventScalarWhereInput | PropertyEventScalarWhereInput[]
+  }
+
+  export type BinItemUncheckedUpdateManyWithoutPropertyNestedInput = {
+    create?: XOR<BinItemCreateWithoutPropertyInput, BinItemUncheckedCreateWithoutPropertyInput> | BinItemCreateWithoutPropertyInput[] | BinItemUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: BinItemCreateOrConnectWithoutPropertyInput | BinItemCreateOrConnectWithoutPropertyInput[]
+    upsert?: BinItemUpsertWithWhereUniqueWithoutPropertyInput | BinItemUpsertWithWhereUniqueWithoutPropertyInput[]
+    createMany?: BinItemCreateManyPropertyInputEnvelope
+    set?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    disconnect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    delete?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    connect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+    update?: BinItemUpdateWithWhereUniqueWithoutPropertyInput | BinItemUpdateWithWhereUniqueWithoutPropertyInput[]
+    updateMany?: BinItemUpdateManyWithWhereWithoutPropertyInput | BinItemUpdateManyWithWhereWithoutPropertyInput[]
+    deleteMany?: BinItemScalarWhereInput | BinItemScalarWhereInput[]
+  }
+
+  export type PropertyCreateNestedOneWithoutEventsInput = {
+    create?: XOR<PropertyCreateWithoutEventsInput, PropertyUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: PropertyCreateOrConnectWithoutEventsInput
+    connect?: PropertyWhereUniqueInput
+  }
+
+  export type BinItemCreateNestedOneWithoutEventsInput = {
+    create?: XOR<BinItemCreateWithoutEventsInput, BinItemUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: BinItemCreateOrConnectWithoutEventsInput
+    connect?: BinItemWhereUniqueInput
+  }
+
+  export type PropertyUpdateOneRequiredWithoutEventsNestedInput = {
+    create?: XOR<PropertyCreateWithoutEventsInput, PropertyUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: PropertyCreateOrConnectWithoutEventsInput
+    upsert?: PropertyUpsertWithoutEventsInput
+    connect?: PropertyWhereUniqueInput
+    update?: XOR<XOR<PropertyUpdateToOneWithWhereWithoutEventsInput, PropertyUpdateWithoutEventsInput>, PropertyUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type BinItemUpdateOneWithoutEventsNestedInput = {
+    create?: XOR<BinItemCreateWithoutEventsInput, BinItemUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: BinItemCreateOrConnectWithoutEventsInput
+    upsert?: BinItemUpsertWithoutEventsInput
+    disconnect?: BinItemWhereInput | boolean
+    delete?: BinItemWhereInput | boolean
+    connect?: BinItemWhereUniqueInput
+    update?: XOR<XOR<BinItemUpdateToOneWithWhereWithoutEventsInput, BinItemUpdateWithoutEventsInput>, BinItemUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type PropertyCreateNestedOneWithoutBinInput = {
+    create?: XOR<PropertyCreateWithoutBinInput, PropertyUncheckedCreateWithoutBinInput>
+    connectOrCreate?: PropertyCreateOrConnectWithoutBinInput
+    connect?: PropertyWhereUniqueInput
+  }
+
+  export type PropertyEventCreateNestedManyWithoutBinItemInput = {
+    create?: XOR<PropertyEventCreateWithoutBinItemInput, PropertyEventUncheckedCreateWithoutBinItemInput> | PropertyEventCreateWithoutBinItemInput[] | PropertyEventUncheckedCreateWithoutBinItemInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutBinItemInput | PropertyEventCreateOrConnectWithoutBinItemInput[]
+    createMany?: PropertyEventCreateManyBinItemInputEnvelope
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+  }
+
+  export type PropertyEventUncheckedCreateNestedManyWithoutBinItemInput = {
+    create?: XOR<PropertyEventCreateWithoutBinItemInput, PropertyEventUncheckedCreateWithoutBinItemInput> | PropertyEventCreateWithoutBinItemInput[] | PropertyEventUncheckedCreateWithoutBinItemInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutBinItemInput | PropertyEventCreateOrConnectWithoutBinItemInput[]
+    createMany?: PropertyEventCreateManyBinItemInputEnvelope
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+  }
+
+  export type PropertyUpdateOneRequiredWithoutBinNestedInput = {
+    create?: XOR<PropertyCreateWithoutBinInput, PropertyUncheckedCreateWithoutBinInput>
+    connectOrCreate?: PropertyCreateOrConnectWithoutBinInput
+    upsert?: PropertyUpsertWithoutBinInput
+    connect?: PropertyWhereUniqueInput
+    update?: XOR<XOR<PropertyUpdateToOneWithWhereWithoutBinInput, PropertyUpdateWithoutBinInput>, PropertyUncheckedUpdateWithoutBinInput>
+  }
+
+  export type PropertyEventUpdateManyWithoutBinItemNestedInput = {
+    create?: XOR<PropertyEventCreateWithoutBinItemInput, PropertyEventUncheckedCreateWithoutBinItemInput> | PropertyEventCreateWithoutBinItemInput[] | PropertyEventUncheckedCreateWithoutBinItemInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutBinItemInput | PropertyEventCreateOrConnectWithoutBinItemInput[]
+    upsert?: PropertyEventUpsertWithWhereUniqueWithoutBinItemInput | PropertyEventUpsertWithWhereUniqueWithoutBinItemInput[]
+    createMany?: PropertyEventCreateManyBinItemInputEnvelope
+    set?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    disconnect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    delete?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    update?: PropertyEventUpdateWithWhereUniqueWithoutBinItemInput | PropertyEventUpdateWithWhereUniqueWithoutBinItemInput[]
+    updateMany?: PropertyEventUpdateManyWithWhereWithoutBinItemInput | PropertyEventUpdateManyWithWhereWithoutBinItemInput[]
+    deleteMany?: PropertyEventScalarWhereInput | PropertyEventScalarWhereInput[]
+  }
+
+  export type PropertyEventUncheckedUpdateManyWithoutBinItemNestedInput = {
+    create?: XOR<PropertyEventCreateWithoutBinItemInput, PropertyEventUncheckedCreateWithoutBinItemInput> | PropertyEventCreateWithoutBinItemInput[] | PropertyEventUncheckedCreateWithoutBinItemInput[]
+    connectOrCreate?: PropertyEventCreateOrConnectWithoutBinItemInput | PropertyEventCreateOrConnectWithoutBinItemInput[]
+    upsert?: PropertyEventUpsertWithWhereUniqueWithoutBinItemInput | PropertyEventUpsertWithWhereUniqueWithoutBinItemInput[]
+    createMany?: PropertyEventCreateManyBinItemInputEnvelope
+    set?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    disconnect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    delete?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    connect?: PropertyEventWhereUniqueInput | PropertyEventWhereUniqueInput[]
+    update?: PropertyEventUpdateWithWhereUniqueWithoutBinItemInput | PropertyEventUpdateWithWhereUniqueWithoutBinItemInput[]
+    updateMany?: PropertyEventUpdateManyWithWhereWithoutBinItemInput | PropertyEventUpdateManyWithWhereWithoutBinItemInput[]
+    deleteMany?: PropertyEventScalarWhereInput | PropertyEventScalarWhereInput[]
   }
 
   export type PropertyCreateNestedOneWithoutTenanciesInput = {
@@ -78511,6 +81922,52 @@ export namespace Prisma {
     _min?: NestedEnumPropertyTypeFilter<$PrismaModel>
     _max?: NestedEnumPropertyTypeFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
@@ -78659,29 +82116,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumRoomStatusFilter<$PrismaModel = never> = {
@@ -79038,29 +82472,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumReportEmailKindFilter<$PrismaModel>
     _max?: NestedEnumReportEmailKindFilter<$PrismaModel>
-  }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumAddendumChangeFilter<$PrismaModel = never> = {
@@ -82905,6 +86316,86 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PropertyEventCreateWithoutPropertyInput = {
+    id?: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    binItem?: BinItemCreateNestedOneWithoutEventsInput
+  }
+
+  export type PropertyEventUncheckedCreateWithoutPropertyInput = {
+    id?: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    binItemId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PropertyEventCreateOrConnectWithoutPropertyInput = {
+    where: PropertyEventWhereUniqueInput
+    create: XOR<PropertyEventCreateWithoutPropertyInput, PropertyEventUncheckedCreateWithoutPropertyInput>
+  }
+
+  export type PropertyEventCreateManyPropertyInputEnvelope = {
+    data: PropertyEventCreateManyPropertyInput | PropertyEventCreateManyPropertyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BinItemCreateWithoutPropertyInput = {
+    id?: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+    events?: PropertyEventCreateNestedManyWithoutBinItemInput
+  }
+
+  export type BinItemUncheckedCreateWithoutPropertyInput = {
+    id?: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+    events?: PropertyEventUncheckedCreateNestedManyWithoutBinItemInput
+  }
+
+  export type BinItemCreateOrConnectWithoutPropertyInput = {
+    where: BinItemWhereUniqueInput
+    create: XOR<BinItemCreateWithoutPropertyInput, BinItemUncheckedCreateWithoutPropertyInput>
+  }
+
+  export type BinItemCreateManyPropertyInputEnvelope = {
+    data: BinItemCreateManyPropertyInput | BinItemCreateManyPropertyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithWhereUniqueWithoutPropertyInput = {
     where: TenancyWhereUniqueInput
     update: XOR<TenancyUpdateWithoutPropertyInput, TenancyUncheckedUpdateWithoutPropertyInput>
@@ -82952,6 +86443,375 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PropertyAsset"> | Date | string
   }
 
+  export type PropertyEventUpsertWithWhereUniqueWithoutPropertyInput = {
+    where: PropertyEventWhereUniqueInput
+    update: XOR<PropertyEventUpdateWithoutPropertyInput, PropertyEventUncheckedUpdateWithoutPropertyInput>
+    create: XOR<PropertyEventCreateWithoutPropertyInput, PropertyEventUncheckedCreateWithoutPropertyInput>
+  }
+
+  export type PropertyEventUpdateWithWhereUniqueWithoutPropertyInput = {
+    where: PropertyEventWhereUniqueInput
+    data: XOR<PropertyEventUpdateWithoutPropertyInput, PropertyEventUncheckedUpdateWithoutPropertyInput>
+  }
+
+  export type PropertyEventUpdateManyWithWhereWithoutPropertyInput = {
+    where: PropertyEventScalarWhereInput
+    data: XOR<PropertyEventUpdateManyMutationInput, PropertyEventUncheckedUpdateManyWithoutPropertyInput>
+  }
+
+  export type PropertyEventScalarWhereInput = {
+    AND?: PropertyEventScalarWhereInput | PropertyEventScalarWhereInput[]
+    OR?: PropertyEventScalarWhereInput[]
+    NOT?: PropertyEventScalarWhereInput | PropertyEventScalarWhereInput[]
+    id?: StringFilter<"PropertyEvent"> | string
+    propertyId?: StringFilter<"PropertyEvent"> | string
+    tenancyId?: StringNullableFilter<"PropertyEvent"> | string | null
+    inspectionId?: StringNullableFilter<"PropertyEvent"> | string | null
+    actorId?: StringNullableFilter<"PropertyEvent"> | string | null
+    actorName?: StringFilter<"PropertyEvent"> | string
+    kind?: StringFilter<"PropertyEvent"> | string
+    summary?: StringFilter<"PropertyEvent"> | string
+    detail?: JsonNullableFilter<"PropertyEvent">
+    subjectKey?: StringNullableFilter<"PropertyEvent"> | string | null
+    binItemId?: StringNullableFilter<"PropertyEvent"> | string | null
+    createdAt?: DateTimeFilter<"PropertyEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"PropertyEvent"> | Date | string
+  }
+
+  export type BinItemUpsertWithWhereUniqueWithoutPropertyInput = {
+    where: BinItemWhereUniqueInput
+    update: XOR<BinItemUpdateWithoutPropertyInput, BinItemUncheckedUpdateWithoutPropertyInput>
+    create: XOR<BinItemCreateWithoutPropertyInput, BinItemUncheckedCreateWithoutPropertyInput>
+  }
+
+  export type BinItemUpdateWithWhereUniqueWithoutPropertyInput = {
+    where: BinItemWhereUniqueInput
+    data: XOR<BinItemUpdateWithoutPropertyInput, BinItemUncheckedUpdateWithoutPropertyInput>
+  }
+
+  export type BinItemUpdateManyWithWhereWithoutPropertyInput = {
+    where: BinItemScalarWhereInput
+    data: XOR<BinItemUpdateManyMutationInput, BinItemUncheckedUpdateManyWithoutPropertyInput>
+  }
+
+  export type BinItemScalarWhereInput = {
+    AND?: BinItemScalarWhereInput | BinItemScalarWhereInput[]
+    OR?: BinItemScalarWhereInput[]
+    NOT?: BinItemScalarWhereInput | BinItemScalarWhereInput[]
+    id?: StringFilter<"BinItem"> | string
+    propertyId?: StringFilter<"BinItem"> | string
+    tenancyId?: StringFilter<"BinItem"> | string
+    inspectionId?: StringFilter<"BinItem"> | string
+    kind?: StringFilter<"BinItem"> | string
+    label?: StringFilter<"BinItem"> | string
+    rows?: JsonFilter<"BinItem">
+    deletedById?: StringNullableFilter<"BinItem"> | string | null
+    deletedAt?: DateTimeFilter<"BinItem"> | Date | string
+    expiresAt?: DateTimeFilter<"BinItem"> | Date | string
+    restoredAt?: DateTimeNullableFilter<"BinItem"> | Date | string | null
+    restoredById?: StringNullableFilter<"BinItem"> | string | null
+  }
+
+  export type PropertyCreateWithoutEventsInput = {
+    id?: string
+    line1: string
+    unit?: string | null
+    postalCode: string
+    type: $Enums.PropertyType
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
+    tenancies?: TenancyCreateNestedManyWithoutPropertyInput
+    assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
+    bin?: BinItemCreateNestedManyWithoutPropertyInput
+  }
+
+  export type PropertyUncheckedCreateWithoutEventsInput = {
+    id?: string
+    line1: string
+    unit?: string | null
+    postalCode: string
+    type: $Enums.PropertyType
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
+    assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
+    bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
+  }
+
+  export type PropertyCreateOrConnectWithoutEventsInput = {
+    where: PropertyWhereUniqueInput
+    create: XOR<PropertyCreateWithoutEventsInput, PropertyUncheckedCreateWithoutEventsInput>
+  }
+
+  export type BinItemCreateWithoutEventsInput = {
+    id?: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+    property: PropertyCreateNestedOneWithoutBinInput
+  }
+
+  export type BinItemUncheckedCreateWithoutEventsInput = {
+    id?: string
+    propertyId: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+  }
+
+  export type BinItemCreateOrConnectWithoutEventsInput = {
+    where: BinItemWhereUniqueInput
+    create: XOR<BinItemCreateWithoutEventsInput, BinItemUncheckedCreateWithoutEventsInput>
+  }
+
+  export type PropertyUpsertWithoutEventsInput = {
+    update: XOR<PropertyUpdateWithoutEventsInput, PropertyUncheckedUpdateWithoutEventsInput>
+    create: XOR<PropertyCreateWithoutEventsInput, PropertyUncheckedCreateWithoutEventsInput>
+    where?: PropertyWhereInput
+  }
+
+  export type PropertyUpdateToOneWithWhereWithoutEventsInput = {
+    where?: PropertyWhereInput
+    data: XOR<PropertyUpdateWithoutEventsInput, PropertyUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type PropertyUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    line1?: StringFieldUpdateOperationsInput | string
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: StringFieldUpdateOperationsInput | string
+    type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
+    assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUpdateManyWithoutPropertyNestedInput
+  }
+
+  export type PropertyUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    line1?: StringFieldUpdateOperationsInput | string
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: StringFieldUpdateOperationsInput | string
+    type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
+    assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
+  }
+
+  export type BinItemUpsertWithoutEventsInput = {
+    update: XOR<BinItemUpdateWithoutEventsInput, BinItemUncheckedUpdateWithoutEventsInput>
+    create: XOR<BinItemCreateWithoutEventsInput, BinItemUncheckedCreateWithoutEventsInput>
+    where?: BinItemWhereInput
+  }
+
+  export type BinItemUpdateToOneWithWhereWithoutEventsInput = {
+    where?: BinItemWhereInput
+    data: XOR<BinItemUpdateWithoutEventsInput, BinItemUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type BinItemUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+    property?: PropertyUpdateOneRequiredWithoutBinNestedInput
+  }
+
+  export type BinItemUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PropertyCreateWithoutBinInput = {
+    id?: string
+    line1: string
+    unit?: string | null
+    postalCode: string
+    type: $Enums.PropertyType
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
+    tenancies?: TenancyCreateNestedManyWithoutPropertyInput
+    assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventCreateNestedManyWithoutPropertyInput
+  }
+
+  export type PropertyUncheckedCreateWithoutBinInput = {
+    id?: string
+    line1: string
+    unit?: string | null
+    postalCode: string
+    type: $Enums.PropertyType
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
+    assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
+  }
+
+  export type PropertyCreateOrConnectWithoutBinInput = {
+    where: PropertyWhereUniqueInput
+    create: XOR<PropertyCreateWithoutBinInput, PropertyUncheckedCreateWithoutBinInput>
+  }
+
+  export type PropertyEventCreateWithoutBinItemInput = {
+    id?: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutEventsInput
+  }
+
+  export type PropertyEventUncheckedCreateWithoutBinItemInput = {
+    id?: string
+    propertyId: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PropertyEventCreateOrConnectWithoutBinItemInput = {
+    where: PropertyEventWhereUniqueInput
+    create: XOR<PropertyEventCreateWithoutBinItemInput, PropertyEventUncheckedCreateWithoutBinItemInput>
+  }
+
+  export type PropertyEventCreateManyBinItemInputEnvelope = {
+    data: PropertyEventCreateManyBinItemInput | PropertyEventCreateManyBinItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PropertyUpsertWithoutBinInput = {
+    update: XOR<PropertyUpdateWithoutBinInput, PropertyUncheckedUpdateWithoutBinInput>
+    create: XOR<PropertyCreateWithoutBinInput, PropertyUncheckedCreateWithoutBinInput>
+    where?: PropertyWhereInput
+  }
+
+  export type PropertyUpdateToOneWithWhereWithoutBinInput = {
+    where?: PropertyWhereInput
+    data: XOR<PropertyUpdateWithoutBinInput, PropertyUncheckedUpdateWithoutBinInput>
+  }
+
+  export type PropertyUpdateWithoutBinInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    line1?: StringFieldUpdateOperationsInput | string
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: StringFieldUpdateOperationsInput | string
+    type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
+    assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUpdateManyWithoutPropertyNestedInput
+  }
+
+  export type PropertyUncheckedUpdateWithoutBinInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    line1?: StringFieldUpdateOperationsInput | string
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: StringFieldUpdateOperationsInput | string
+    type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
+    assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
+  }
+
+  export type PropertyEventUpsertWithWhereUniqueWithoutBinItemInput = {
+    where: PropertyEventWhereUniqueInput
+    update: XOR<PropertyEventUpdateWithoutBinItemInput, PropertyEventUncheckedUpdateWithoutBinItemInput>
+    create: XOR<PropertyEventCreateWithoutBinItemInput, PropertyEventUncheckedCreateWithoutBinItemInput>
+  }
+
+  export type PropertyEventUpdateWithWhereUniqueWithoutBinItemInput = {
+    where: PropertyEventWhereUniqueInput
+    data: XOR<PropertyEventUpdateWithoutBinItemInput, PropertyEventUncheckedUpdateWithoutBinItemInput>
+  }
+
+  export type PropertyEventUpdateManyWithWhereWithoutBinItemInput = {
+    where: PropertyEventScalarWhereInput
+    data: XOR<PropertyEventUpdateManyMutationInput, PropertyEventUncheckedUpdateManyWithoutBinItemInput>
+  }
+
   export type PropertyCreateWithoutTenanciesInput = {
     id?: string
     line1: string
@@ -82965,6 +86825,8 @@ export namespace Prisma {
     trashExpiresAt?: Date | string | null
     trashedById?: string | null
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventCreateNestedManyWithoutPropertyInput
+    bin?: BinItemCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateWithoutTenanciesInput = {
@@ -82980,6 +86842,8 @@ export namespace Prisma {
     trashExpiresAt?: Date | string | null
     trashedById?: string | null
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
+    bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyCreateOrConnectWithoutTenanciesInput = {
@@ -83623,6 +87487,8 @@ export namespace Prisma {
     trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateWithoutTenanciesInput = {
@@ -83638,6 +87504,8 @@ export namespace Prisma {
     trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsLandlordInput = {
@@ -87448,6 +91316,8 @@ export namespace Prisma {
     trashExpiresAt?: Date | string | null
     trashedById?: string | null
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventCreateNestedManyWithoutPropertyInput
+    bin?: BinItemCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateWithoutAssetsInput = {
@@ -87463,6 +91333,8 @@ export namespace Prisma {
     trashExpiresAt?: Date | string | null
     trashedById?: string | null
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
+    bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyCreateOrConnectWithoutAssetsInput = {
@@ -87656,6 +91528,8 @@ export namespace Prisma {
     trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateWithoutAssetsInput = {
@@ -87671,6 +91545,8 @@ export namespace Prisma {
     trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     trashedById?: NullableStringFieldUpdateOperationsInput | string | null
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type InspectionItemUpsertWithWhereUniqueWithoutPropertyAssetInput = {
@@ -98246,6 +102122,35 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type PropertyEventCreateManyPropertyInput = {
+    id?: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    binItemId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BinItemCreateManyPropertyInput = {
+    id?: string
+    tenancyId: string
+    inspectionId: string
+    kind: string
+    label: string
+    rows: JsonNullValueInput | InputJsonValue
+    deletedById?: string | null
+    deletedAt?: Date | string
+    expiresAt: Date | string
+    restoredAt?: Date | string | null
+    restoredById?: string | null
+  }
+
   export type TenancyUpdateWithoutPropertyInput = {
     id?: StringFieldUpdateOperationsInput | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98351,6 +102256,155 @@ export namespace Prisma {
     roomLabel?: NullableStringFieldUpdateOperationsInput | string | null
     identifier?: NullableStringFieldUpdateOperationsInput | string | null
     active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PropertyEventUpdateWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    binItem?: BinItemUpdateOneWithoutEventsNestedInput
+  }
+
+  export type PropertyEventUncheckedUpdateWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    binItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PropertyEventUncheckedUpdateManyWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    binItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BinItemUpdateWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+    events?: PropertyEventUpdateManyWithoutBinItemNestedInput
+  }
+
+  export type BinItemUncheckedUpdateWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+    events?: PropertyEventUncheckedUpdateManyWithoutBinItemNestedInput
+  }
+
+  export type BinItemUncheckedUpdateManyWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    inspectionId?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    rows?: JsonNullValueInput | InputJsonValue
+    deletedById?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restoredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    restoredById?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PropertyEventCreateManyBinItemInput = {
+    id?: string
+    propertyId: string
+    tenancyId?: string | null
+    inspectionId?: string | null
+    actorId?: string | null
+    actorName: string
+    kind: string
+    summary: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PropertyEventUpdateWithoutBinItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutEventsNestedInput
+  }
+
+  export type PropertyEventUncheckedUpdateWithoutBinItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PropertyEventUncheckedUpdateManyWithoutBinItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    inspectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorName?: StringFieldUpdateOperationsInput | string
+    kind?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    subjectKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -10,6 +10,7 @@ class TenancyAccess {
     this.agency,
     this.availableMembers = const [],
     this.canManageAssignment = false,
+    this.askNames = const [],
   });
 
   final Map<String, dynamic>? agency;
@@ -22,6 +23,9 @@ class TenancyAccess {
   final List<TenancyCollaborator> collaborators;
   final String scope;
   final List<InspectionAccessPerson> inspectionOnly;
+
+  /// Who can manage access when this viewer cannot. Absent from older servers.
+  final List<String> askNames;
 
   factory TenancyAccess.fromJson(Map<String, dynamic> json) => TenancyAccess(
     tenancyId: json['tenancyId'] as String,
@@ -39,6 +43,7 @@ class TenancyAccess {
         .toList(),
     visibility: json['visibility'] as String,
     canManageAccess: json['canManageAccess'] as bool,
+    askNames: (json['askNames'] as List<dynamic>? ?? const []).cast<String>(),
     scope: json['scope'] as String? ?? 'TENANCY',
     leadAgent: json['leadAgent'] == null
         ? null
