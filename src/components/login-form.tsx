@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase/client'
 import { messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// A six digit code rather than a magic link. A link opens the phone's default browser,
 /// which for an installed PWA means the agent lands in Safari instead of the app they
 /// were just using, with no session in the app itself. A code keeps them where they are.
-export function LoginForm({ locale = 'en' }: { locale?: Locale }) {
-  const words = messages(locale).web.login
+export function LoginForm({ locale }: { locale?: Locale }) {
+  const contextLocale = useLocale()
+  const words = messages(locale ?? contextLocale).web.login
   const params = useSearchParams()
   const next = params.get('next') || '/inspections'
 

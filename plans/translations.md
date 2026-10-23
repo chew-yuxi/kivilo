@@ -107,3 +107,33 @@ Yuxi said go. Built on `claude/translations`, after the app phase.
 
 Each step is its own commit and keeps `pnpm typecheck`, `lint`, `test`,
 `test:integration` and the mobile suite green.
+
+## Status (2026-10-23, phase 2)
+
+Built on `claude/translations`, local only, not merged or pushed:
+
+1. `Stakeholder.locale` (migration `20261023120000_stakeholder_locale`), reported by the
+   app (`PUT /api/v1/me/language`) and set on the web from Account.
+2. Notifications written per recipient (`inRecipientLanguage`) at every creation site;
+   signing, signed-copy, handover, notification and sign-in emails in the recipient's
+   language. The property timeline reads in the viewer's.
+3. `/login`, `/sign`, `/updates` and `/handover` in the reader's language.
+4. The agent web app under `(app)`: about 560 strings, the picker on Account.
+
+Verified: typecheck, lint, 112 unit, 238 integration, 23 e2e serially (including
+`e2e/language.spec.ts`: Chinese and Thai sign-in, and an agent's choice outlasting an
+English browser), and the mobile suite.
+
+Before release:
+- A native speaker reviews `zh` and `th` in the ARB files, `src/lib/i18n/{zh,th}.ts`
+  and `src/lib/i18n/pwa/{zh,th}.ts`, legal wording first.
+- The supporting-documents work in the main checkout adds the notification kinds
+  `SUPPORTING_DOCUMENT_REQUESTED` and `SUPPORTING_DOCUMENT_UPLOADED`; at merge, their
+  creation sites go through `inRecipientLanguage` and its pages and emails get catalog
+  entries.
+- Thai runs longer than English; the narrow controls (condition chips, mark tools) were
+  not checked on a phone viewport in Thai.
+
+Still English: the report, its PDF and the shared report; room template rows and
+room-name suggestions; `/admin` and `/verify`; zod validation messages; iOS permission
+prompts (`InfoPlist.strings`, after the store freeze).

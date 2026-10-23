@@ -11,11 +11,14 @@ import { dueRenewals } from '@/lib/renewals'
 import { agencyList } from '@/lib/agency'
 import { preferredWorkspace, workspaceCookieName } from '@/lib/web-workspace'
 import { WorkspaceSelector } from '@/components/workspace-selector'
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
 export default async function InspectionsPage({ searchParams }: PageProps<'/inspections'>) {
   const agent = await requireAgent()
+  const w = messages(await requestLocale(agent)).pwa
   const [directory, query, cookieStore] = await Promise.all([agencyList(agent.id), searchParams, cookies()])
   const requested = typeof query.workspace === 'string' ? query.workspace : undefined
   if (requested && requested !== 'personal' && requested !== 'all' && !directory.agencies.some((team) => team.id === requested)) notFound()
@@ -49,43 +52,42 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
 
   return (
     <div>
-      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label="Choose workspace">
+      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label={w.chooseWorkspace}>
         <div className="flex flex-wrap items-end gap-3">
           <WorkspaceSelector agentId={agent.id} teams={directory.agencies} workspace={workspace} rememberInitial={requested !== undefined} />
-          {selectedTeam && <Link href={`/team/${selectedTeam.id}`} className="action-secondary">Manage team</Link>}
-          <Link href="/team" className="action-secondary">Create or join a team</Link>
+          {selectedTeam && <Link href={`/team/${selectedTeam.id}`} className="action-secondary">{w.manageTeam}</Link>}
+          <Link href="/team" className="action-secondary">{w.createOrJoinTeam}</Link>
         </div>
         <p className="mt-3 text-sm text-gray-600">
           {selectedTeam
             ? selectedTeam.role === 'AGENT'
-              ? 'Your assigned team properties. New check-ins belong to this team and are assigned to you.'
-              : 'All team properties. Owners and managers oversee the team; agents see their assignments.'
+              ? w.workspaceAgentNote
+              : w.workspaceManagerNote
             : workspace === 'personal'
-              ? 'Personal properties stay outside your teams. Share individual tenancies only when you choose.'
-              : 'Your assigned properties, shared tenancies and access to previous reports across workspaces.'}
+              ? w.workspacePersonalNote
+              : w.workspaceAllNote}
         </p>
         {directory.agencies.length === 0 && (
-          <p className="mt-2 text-sm text-gray-600">Create a team, invite colleagues, then add properties to its portfolio.</p>
+          <p className="mt-2 text-sm text-gray-600">{w.noTeamsHint}</p>
         )}
         {directory.invitations.length > 0 && (
           <Link href="/team" className="text-link mt-3 inline-flex min-h-11 items-center text-sm">
-            View {directory.invitations.length} team {directory.invitations.length === 1 ? 'invitation' : 'invitations'}
+            {w.viewInvitations(directory.invitations.length)}
           </Link>
         )}
       </section>
       <div className="mb-8 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Inspections</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{w.inspections}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Record a walkthrough and write the inventory room by room. Both parties
-            countersign on your phone.
+            {w.inspectionsIntro}
           </p>
         </div>
         <Link
           href={newHref}
           className="shrink-0 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
         >
-          New check-in
+          {w.newCheckIn}
         </Link>
       </div>
 
@@ -93,10 +95,9 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
 
       {inspections.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
-          <p className="text-sm font-medium">Nothing here yet</p>
+          <p className="text-sm font-medium">{w.nothingYet}</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500">
-            Start a check-in when you next hand over a unit. You walk the rooms narrating
-            what you see, and write the inventory against it.
+            {w.nothingYetBody}
           </p>
           <Link
             href={newHref}
@@ -119,14 +120,14 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
                 .map((person) => person.stakeholder.name),
             ]
             const accessLabel = !fullAccess.has(agent.id) && !overseesTeam
-              ? 'Access to previous reports'
+              ? w.previousReportsAccess
               : tenancy.agency
-                ? `${tenancy.agency.name} · Responsible agent: ${tenancy.agent?.name ?? 'Unassigned'}`
+                ? w.teamResponsible(tenancy.agency.name, tenancy.agent?.name ?? w.unassigned)
                 : tenancy.collaborators.length
-                  ? sharedWith.length ? `Shared with ${sharedWith.join(', ')}` : 'Shared tenancy'
+                  ? sharedWith.length ? w.sharedWith(sharedWith.join(w.listSeparator)) : w.sharedTenancy
                   : inspectionOnly.length
-                    ? `Previous report shared with ${inspectionOnly.map((person) => person.stakeholder.name).join(', ')}`
-                    : 'Private'
+                    ? w.previousShared(inspectionOnly.map((person) => person.stakeholder.name).join(w.listSeparator))
+                    : w.private
             return (
               <li key={inspection.id}>
                 <Link
@@ -138,10 +139,10 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
                       {propertyLabel(inspection.tenancy.property)}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {inspection.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'} ·{' '}
+                      {inspection.kind === 'CHECK_IN' ? w.checkIn : w.checkOut} ·{' '}
                       {inspection.tenancy.tenant.name}
                       {inspection._count.rooms > 0 &&
-                        ` · ${inspection._count.rooms} room${inspection._count.rooms === 1 ? '' : 's'}`}
+                        ` · ${w.roomCount(inspection._count.rooms)}`}
                     </p>
                     <span className="mt-2 inline-block rounded-md bg-gray-100 px-2 py-1 text-xs break-words text-gray-600">
                       {accessLabel}

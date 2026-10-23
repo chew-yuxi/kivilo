@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePwa } from '@/components/locale'
 
 type InstallPromptEvent = Event & { prompt: () => Promise<void> }
 
 export function ServiceWorker() {
+  const w = usePwa()
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null)
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export function ServiceWorker() {
       }}
       className="rounded-full border border-gray-300 px-3 py-1 text-xs font-medium hover:border-brand-500 hover:text-brand-600"
     >
-      Install app
+      {w.installApp}
     </button>
   )
 }

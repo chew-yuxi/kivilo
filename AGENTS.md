@@ -276,7 +276,35 @@ as English sentences, and `api_failure.dart` maps each known one, so a new
 
 The language is a phone setting in Account, or the phone's own language. The report
 itself is not translated: the PDF, the shared report and every inventory line stay as
-written, since they are what both parties sign. The web app and emails are English only.
+written, since they are what both parties sign.
+
+**The account's language.** `Stakeholder.locale` (`en`, `zh`, `th`; null is never
+chosen and reads as English). The app reports the language it is showing through `PUT
+/api/v1/me/language`; the web sets it from the picker on Account (`setLanguage`), and a
+web sign-in with none stored records the browser's `Accept-Language`. Older app builds
+never call it and stay English.
+
+**Server text.** Typed catalogs in `src/lib/i18n/` (`en.ts` defines `Messages`; `zh.ts`
+and `th.ts` are typed against it, so a missing message fails `tsc`), with the web app's
+words under `pwa` in `src/lib/i18n/pwa/`. A notification is written in its recipient's
+language when it is created: pass rows with `words: (m) => ({ title, body })` through
+`inRecipientLanguage`, which is what the inbox, the push and the notification email all
+read, so a new notification kind must be written that way. Emails take the recipient's
+catalog at send time (`messages(recipient.locale)`); the sign-in code email looks the
+address up. Dates go through `formatDate(m, ...)`, in Singapore time.
+
+**Web pages.** `requestLocale(person)` is the signed-in person's stored language, else
+the browser's, else English. The language is never in the URL, so every link already
+sent keeps working. `/login` reads only the browser's, so it never reveals whether an
+address has an account. Under `(app)` the layout sets `LocaleProvider`, and client
+components read `usePwa()`; a server component reads `messages(locale).pwa`. Codes
+(conditions, categories, statuses) go through a label function in the catalog whose
+English is the code as it was shown before. Team refusals carry no code, so
+`refusalText` in `src/lib/i18n/refusals.ts` maps the known sentences.
+
+Still English by design: the report, its PDF and the shared report, room template rows
+and room-name suggestions (they become report text), `/admin`, `/verify`, and zod
+validation messages.
 
 ## A signed report stops moving
 

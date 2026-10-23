@@ -3,11 +3,13 @@
 import { useState, useSyncExternalStore, useTransition } from 'react'
 import { agreeMoveInDefectAsSelf, disputeMoveInDefectAsSelf } from '@/lib/move-in-defect-actions'
 import { messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 const subscribeNever = () => () => {}
 
-export function MoveInDefectResponse({ addendumId, locale = 'en' }: { addendumId: string; locale?: Locale }) {
-  const web = messages(locale).web
+export function MoveInDefectResponse({ addendumId, locale }: { addendumId: string; locale?: Locale }) {
+  const contextLocale = useLocale()
+  const web = messages(locale ?? contextLocale).web
   const words = web.moveIn
   const [pending, startTransition] = useTransition()
   const [disputing, setDisputing] = useState(false)

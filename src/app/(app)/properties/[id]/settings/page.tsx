@@ -2,9 +2,13 @@ import { notFound } from 'next/navigation'
 import { requireAgent } from '@/lib/auth'
 import { propertyManagement } from '@/lib/property-management'
 import { PropertySettings } from '@/components/property-settings'
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Property settings' }
+export async function generateMetadata() {
+  return { title: messages(await requestLocale(await requireAgent())).pwa.propertySettings }
+}
 
 export default async function PropertySettingsPage({
   params,

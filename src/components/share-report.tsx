@@ -2,6 +2,7 @@
 
 import { useState, useSyncExternalStore, useTransition } from 'react'
 import { shareReport, revokeReportLink } from '@/lib/actions'
+import { usePwa } from '@/components/locale'
 
 export function ShareReport({
   inspectionId,
@@ -10,6 +11,7 @@ export function ShareReport({
   inspectionId: string
   shareToken: string | null
 }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [copied, setCopied] = useState(false)
 
@@ -22,11 +24,9 @@ export function ShareReport({
   if (!url) {
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="text-sm font-medium">Send the report</h2>
+        <h2 className="text-sm font-medium">{w.sendTheReport}</h2>
         <p className="mt-1 text-sm text-gray-500">
-          Creates a private link to a read-only copy. Anyone holding the link can open
-          it, so send it to the landlord and tenant directly rather than posting it
-          anywhere.
+          {w.createLinkBody}
         </p>
         <button
           type="button"
@@ -34,7 +34,7 @@ export function ShareReport({
           onClick={() => startTransition(() => void shareReport(inspectionId))}
           className="mt-4 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          {pending ? 'Creating…' : 'Create report link'}
+          {pending ? w.creating : w.createReportLink}
         </button>
       </div>
     )
@@ -42,9 +42,9 @@ export function ShareReport({
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="text-sm font-medium">Report link</h2>
+      <h2 className="text-sm font-medium">{w.reportLink}</h2>
       <p className="mt-1 text-sm text-gray-500">
-        Live for as long as the link exists. Revoking it makes the link dead immediately.
+        {w.reportLinkBody}
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -61,7 +61,7 @@ export function ShareReport({
           }}
           className="rounded-md bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600"
         >
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? w.copied : w.copy}
         </button>
         <a
           href={url}
@@ -69,7 +69,7 @@ export function ShareReport({
           rel="noreferrer"
           className="rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
         >
-          Preview
+          {w.preview}
         </a>
         <button
           type="button"
@@ -77,7 +77,7 @@ export function ShareReport({
           onClick={() => startTransition(() => void revokeReportLink(inspectionId))}
           className="action-danger px-3 text-xs"
         >
-          Revoke
+          {w.revoke}
         </button>
       </div>
     </div>

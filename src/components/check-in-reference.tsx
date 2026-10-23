@@ -6,6 +6,8 @@ import { MarkOverlay } from '@/components/mark-overlay'
 import { checkInPhotoLinks } from '@/lib/actions'
 import type { CheckInReference } from '@/lib/check-in-reference'
 import type { ItemCondition } from '@/generated/prisma'
+import { useLocale, usePwa } from '@/components/locale'
+import { formatDate, messages } from '@/lib/i18n'
 
 export const CONDITION_TONE: Record<ItemCondition, string> = {
   NEW: 'text-emerald-700 bg-emerald-50',
@@ -23,16 +25,15 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
   // Signed URLs by photo id, fetched each time the panel opens, so a panel opened (or
   // reopened) an hour after the last fetch still gets live ones and a closed one costs
   // nothing.
+  const w = usePwa()
+  const m = messages(useLocale())
   const [urls, setUrls] = useState<Record<string, string> | null>(null)
   const [unreachable, setUnreachable] = useState(false)
   // Only the latest open's answer counts, so a slow earlier one cannot overwrite it.
   const latest = useRef(0)
+  // Singapore time, so the server and the phone render the same date.
   const date = reference.conductedAt
-    ? new Date(reference.conductedAt).toLocaleDateString('en-SG', {
-        dateStyle: 'long',
-        // Fixed, so the server and the phone render the same date.
-        timeZone: 'Asia/Singapore',
-      })
+    ? formatDate(m, new Date(reference.conductedAt), { dateStyle: 'long' })
     : null
   const hasUpdates =
     reference.photos.some((photo) => photo.update) || reference.lines.some((line) => line.update)
@@ -62,19 +63,19 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
       }}
     >
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
-        At check-in{date && <span className="font-normal text-gray-500"> · {date}</span>}
-        {hasUpdates && <span className="font-normal text-gray-500">, with acknowledged updates</span>}
+        {w.atCheckIn}{date && <span className="font-normal text-gray-500"> · {date}</span>}
+        {hasUpdates && <span className="font-normal text-gray-500">{w.withUpdates}</span>}
       </summary>
 
       {reference.photos.length > 0 && (
         <div className="flex snap-x gap-3 overflow-x-auto border-t border-gray-100 px-4 py-3">
           {urls === null ? (
             <p className="text-sm text-gray-500">
-              {unreachable ? 'Could not load the photos. Close and open this again to retry.' : 'Loading photos…'}
+              {unreachable ? w.photosUnreachable : w.loadingPhotos}
             </p>
           ) : (
             reference.photos.map((photo) => {
-              const caption = [photo.update ? 'Update' : null, photo.caption].filter(Boolean).join(' · ')
+              const caption = [photo.update ? w.updateTag : null, photo.caption].filter(Boolean).join(' · ')
               // Numbered as the report numbers them, so a ring says what it points at.
               const markNotes =
                 photo.annotations?.marks.flatMap((mark, index) =>
@@ -91,7 +92,7 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={urls[photo.id]}
-                      alt="Check-in photo"
+                      alt={w.checkInPhoto}
                       className="block h-32 w-auto max-w-[70vw] object-contain"
                     />
                     <MarkOverlay annotations={photo.annotations} />
@@ -115,7 +116,7 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
 
       {reference.lines.length === 0 ? (
         <p className="border-t border-gray-100 px-4 py-3 text-sm text-gray-600">
-          Nothing recorded in this room at check-in.
+          {w.nothingAtCheckIn}
         </p>
       ) : (
         <ul className="divide-y divide-gray-100 border-t border-gray-100">
@@ -124,14 +125,14 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
               <span
                 className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${CONDITION_TONE[line.condition]}`}
               >
-                {line.condition}
+                {w.condition(line.condition)}
               </span>
               <span className="min-w-0">
                 <span className="font-medium">
                   {line.name}
                   {line.quantity > 1 && ` ×${line.quantity}`}
                 </span>
-                {line.update && <span className="ml-2 text-xs text-gray-500">Update</span>}
+                {line.update && <span className="ml-2 text-xs text-gray-500">{w.updateTag}</span>}
                 {line.identifier?.trim() && (
                   <span className="block font-mono text-xs text-gray-500">{line.identifier}</span>
                 )}
@@ -150,7 +151,7 @@ export function CheckInReferencePanel({ roomId, reference }: { roomId: string; r
           href={`/inspections/${reference.baselineId}`}
           className="action-secondary"
         >
-          Open the full check-in
+          {w.openFullCheckIn}
         </Link>
       </div>
     </details>

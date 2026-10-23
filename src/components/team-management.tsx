@@ -6,16 +6,17 @@ import { useRouter } from 'next/navigation'
 import type { agencyDetail, agencyList } from '@/lib/agency'
 import { manageAgencyFromWeb } from '@/lib/agency-web-actions'
 import { StatusBadge } from '@/components/status-badge'
+import { useLocale, usePwa } from '@/components/locale'
+import { formatDate, messages, type Messages } from '@/lib/i18n'
 
 type Directory = Awaited<ReturnType<typeof agencyList>>
 type Workspace = Awaited<ReturnType<typeof agencyDetail>>
 type Command = Parameters<typeof manageAgencyFromWeb>[0]
-const roleName = (role: string) =>
-  ({ OWNER: 'Owner', MANAGER: 'Manager', AGENT: 'Agent' })[role] ?? role
-const date = (value: Date | string) =>
-  new Date(value).toLocaleDateString('en-SG', { dateStyle: 'medium' })
+const date = (m: Messages, value: Date | string) =>
+  formatDate(m, new Date(value), { dateStyle: 'medium' })
 
 function useTeamMutation() {
+  const w = usePwa()
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -44,7 +45,7 @@ function useTeamMutation() {
         setNotice(success)
         done?.()
       } catch {
-        setError('Could not save this change. Please try again.')
+        setError(w.saveChangeFailed)
       }
     })
   }
@@ -69,29 +70,30 @@ function useTeamMutation() {
 }
 
 export function TeamDirectory({ data }: { data: Directory }) {
+  const w = usePwa()
+  const m = messages(useLocale())
   const mutation = useTeamMutation()
   const [name, setName] = useState('')
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Team</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{w.team}</h1>
         <p className="mt-2 text-sm text-gray-600">
-          Invite colleagues once, assign work by name, and hand work over when someone leaves.
+          {w.teamIntro}
         </p>
       </div>
       {mutation.feedback}
       {data.invitations.length > 0 && (
-        <section className="space-y-3" aria-label="Your invitations">
-          <h2 className="text-lg font-semibold">Your invitations</h2>
+        <section className="space-y-3" aria-label={w.yourInvitations}>
+          <h2 className="text-lg font-semibold">{w.yourInvitations}</h2>
           {data.invitations.map((invite) => (
             <div key={invite.id} className="rounded-lg border border-brand-200 bg-brand-50 p-4">
               <h3 className="font-medium">{invite.agencyName}</h3>
               <p className="mt-1 text-sm">
-                Invited as {roleName(invite.role)} · expires {date(invite.expiresAt)}
+                {w.invitedAs(w.roleName(invite.role), date(m, invite.expiresAt))}
               </p>
               <p className="mt-2 text-sm text-gray-600">
-                Joining keeps your personal work private. Add new properties in the team workspace;
-                agents see only their assignments, while owners and managers oversee all team work.
+                {w.joiningNote}
               </p>
               <div className="mt-3 flex gap-2">
                 <button
@@ -105,11 +107,11 @@ export function TeamDirectory({ data }: { data: Directory }) {
                         memberId: invite.id,
                         response: 'accept',
                       },
-                      'Invitation accepted.',
+                      w.invitationAccepted,
                     )
                   }
                 >
-                  Accept invitation
+                  {w.acceptInvitation}
                 </button>
                 <button
                   className="action-secondary"
@@ -122,26 +124,26 @@ export function TeamDirectory({ data }: { data: Directory }) {
                         memberId: invite.id,
                         response: 'decline',
                       },
-                      'Invitation declined.',
+                      w.invitationDeclined,
                     )
                   }
                 >
-                  Decline
+                  {w.decline}
                 </button>
               </div>
             </div>
           ))}
         </section>
       )}
-      <section className="space-y-3" aria-label="Your teams">
-        <h2 className="text-lg font-semibold">Your teams</h2>
+      <section className="space-y-3" aria-label={w.yourTeams}>
+        <h2 className="text-lg font-semibold">{w.yourTeams}</h2>
         {data.agencies.length ? (
           data.agencies.map((agency) => (
             <Link href={`/team/${agency.id}`} key={agency.id} className="nav-row">
               <span>
                 <span className="block">{agency.name}</span>
                 <span className="mt-1 block text-xs font-normal text-gray-600">
-                  {roleName(agency.role)} · {agency.memberCount} members
+                  {w.roleMembers(w.roleName(agency.role), agency.memberCount)}
                 </span>
               </span>
               <span aria-hidden="true">›</span>
@@ -149,8 +151,7 @@ export function TeamDirectory({ data }: { data: Directory }) {
           ))
         ) : (
           <p className="rounded-lg border border-dashed border-gray-300 bg-white p-5 text-sm text-gray-600">
-            You haven&apos;t joined a team yet. Create one for your agency or accept an invitation
-            here.
+            {w.noTeamYet}
           </p>
         )}
       </section>
@@ -158,16 +159,15 @@ export function TeamDirectory({ data }: { data: Directory }) {
         className="space-y-3 rounded-lg border border-gray-200 bg-white p-5"
         onSubmit={(event) => {
           event.preventDefault()
-          mutation.run({ action: 'create', name }, 'Team created.')
+          mutation.run({ action: 'create', name }, w.teamCreated)
         }}
       >
-        <h2 className="font-semibold">Create a team</h2>
+        <h2 className="font-semibold">{w.createATeam}</h2>
         <p className="text-sm text-gray-600">
-          Invite colleagues once, then add properties to the team workspace. Owners and managers
-          oversee all team work; agents see their assignments. Existing personal properties stay private.
+          {w.createTeamNote}
         </p>
         <label className="block text-sm font-medium" htmlFor="agency-name">
-          Agency name
+          {w.agencyName}
         </label>
         <input
           id="agency-name"
@@ -179,7 +179,7 @@ export function TeamDirectory({ data }: { data: Directory }) {
           disabled={mutation.pending}
         />
         <button className="action-primary" disabled={mutation.pending || !name.trim()}>
-          Create team
+          {w.createTeam}
         </button>
       </form>
     </div>
@@ -187,6 +187,8 @@ export function TeamDirectory({ data }: { data: Directory }) {
 }
 
 export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: string }) {
+  const w = usePwa()
+  const m = messages(useLocale())
   const mutation = useTeamMutation()
   const [name, setName] = useState(data.name)
   const [email, setEmail] = useState('')
@@ -202,33 +204,33 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
   return (
     <div className="space-y-6">
       <Link href="/team" className="text-link inline-flex min-h-11 items-center text-sm">
-        ← All teams
+        {w.allTeams}
       </Link>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{data.name}</h1>
         <p className="mt-1 text-sm text-gray-600">
-          You have {roleName(data.role).toLowerCase()} access.{' '}
+          {w.youHaveAccess(w.roleName(data.role))}{' '}
           {data.canManage
-            ? 'Owners and managers can oversee the team’s tenancies and manage assignments.'
-            : 'Your team work shows tenancies assigned to you.'}
+            ? w.managersOversee
+            : w.yourTeamWork}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href={`/inspections/new?workspace=${encodeURIComponent(data.id)}`} className="action-primary">New check-in</Link>
-          <Link href={`/inspections?workspace=${encodeURIComponent(data.id)}`} className="action-secondary">Open portfolio</Link>
+          <Link href={`/inspections/new?workspace=${encodeURIComponent(data.id)}`} className="action-primary">{w.newCheckIn}</Link>
+          <Link href={`/inspections?workspace=${encodeURIComponent(data.id)}`} className="action-secondary">{w.openPortfolio}</Link>
         </div>
       </div>
       {mutation.feedback}
-      <section className="space-y-4" aria-label="Team work">
-        <h2 className="text-lg font-semibold">Team work</h2>
+      <section className="space-y-4" aria-label={w.teamWork}>
+        <h2 className="text-lg font-semibold">{w.teamWork}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-medium">
-            Responsible agent
+            {w.responsibleAgent}
             <select
               className="field mt-1"
               value={assignee}
               onChange={(event) => setAssignee(event.target.value)}
             >
-              <option value="">All agents</option>
+              <option value="">{w.allAgents}</option>
               {activeMembers.map((member) => (
                 <option key={member.id} value={member.stakeholderId}>
                   {member.name}
@@ -237,18 +239,18 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
             </select>
           </label>
           <label className="text-sm font-medium">
-            Inspection status
+            {w.inspectionStatusLabel}
             <select
               className="field mt-1"
               value={status}
               onChange={(event) => setStatus(event.target.value)}
             >
-              <option value="">All statuses</option>
-              <option value="DRAFT">Not started</option>
-              <option value="CAPTURING">Capturing</option>
-              <option value="REVIEW">Needs review</option>
-              <option value="AWAITING_SIGNATURE">Awaiting signatures</option>
-              <option value="COMPLETED">Completed</option>
+              <option value="">{w.allStatuses}</option>
+              <option value="DRAFT">{w.notStarted}</option>
+              <option value="CAPTURING">{w.capturing}</option>
+              <option value="REVIEW">{w.needsReview}</option>
+              <option value="AWAITING_SIGNATURE">{w.awaitingSignatures}</option>
+              <option value="COMPLETED">{w.completed}</option>
             </select>
           </label>
         </div>
@@ -263,14 +265,14 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
                   <div>
                     <p className="font-medium">{tenancy.property}</p>
                     <p className="mt-1 text-sm text-gray-600">
-                      Responsible agent: {tenancy.leadAgentName ?? 'Unassigned'}
+                      {w.responsibleAgentName(tenancy.leadAgentName ?? w.unassigned)}
                     </p>
                   </div>
                   <Link
                     href={`/properties/${tenancy.propertyId}/settings`}
                     className="action-secondary"
                   >
-                    Property settings
+                    {w.propertySettings}
                   </Link>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -282,7 +284,7 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
                         key={inspection.id}
                         href={`/inspections/${inspection.id}`}
                       >
-                        <span>{inspection.kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'}</span>
+                        <span>{inspection.kind === 'CHECK_IN' ? w.checkIn : w.checkOut}</span>
                         <StatusBadge status={inspection.status} />
                         <span aria-hidden="true">›</span>
                       </Link>
@@ -294,18 +296,17 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
         ) : (
           <p className="rounded-lg border border-dashed border-gray-300 bg-white p-5 text-sm text-gray-600">
             {data.tenancies.length
-              ? 'No work matches these filters.'
+              ? w.noWorkMatches
               : data.canManage
-                ? 'Start a new check-in to add a property to this team. Invite colleagues below, then assign the people who will work on each tenancy.'
-                : 'Your assigned team properties will appear here. Start a new check-in to add a team property assigned to you.'}
+                ? w.teamWorkEmptyManager
+                : w.teamWorkEmptyAgent}
           </p>
         )}
       </section>
-      <section className="space-y-4" aria-label="Team members">
-        <h2 className="text-lg font-semibold">Members and invitations</h2>
+      <section className="space-y-4" aria-label={w.teamMembers}>
+        <h2 className="text-lg font-semibold">{w.membersAndInvitations}</h2>
         <p className="text-sm text-gray-600">
-          Owners and managers oversee team work. Agents can work on assigned tenancies. Invited
-          people receive access after accepting.
+          {w.membersNote}
         </p>
         <ul className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
           {data.members.map((member) => (
@@ -325,15 +326,15 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
               event.preventDefault()
               mutation.run(
                 { action: 'invite', agencyId: data.id, email, role: inviteRole },
-                'Invitation sent.',
+                w.invitationSent,
                 () => setEmail(''),
               )
             }}
           >
-            <h3 className="font-medium">Invite a colleague</h3>
+            <h3 className="font-medium">{w.inviteColleague}</h3>
             <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
               <label className="text-sm font-medium">
-                Colleague email
+                {w.colleagueEmail}
                 <input
                   className="field mt-1"
                   type="email"
@@ -346,20 +347,20 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
                 />
               </label>
               <label className="text-sm font-medium">
-                Role
+                {w.role}
                 <select
                   className="field mt-1"
                   value={inviteRole}
                   onChange={(event) => setInviteRole(event.target.value as 'MANAGER' | 'AGENT')}
                   disabled={mutation.pending}
                 >
-                  <option value="AGENT">Agent</option>
-                  <option value="MANAGER">Manager</option>
+                  <option value="AGENT">{w.roleName('AGENT')}</option>
+                  <option value="MANAGER">{w.roleName('MANAGER')}</option>
                 </select>
               </label>
             </div>
             <button className="action-primary" disabled={mutation.pending || !email.trim()}>
-              Send invitation
+              {w.sendInvitation}
             </button>
           </form>
         )}
@@ -367,17 +368,17 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
       {data.canManage && (
         <details className="rounded-lg border border-gray-200 bg-white">
           <summary className="flex items-center justify-between px-4 py-3 font-medium">
-            Team settings<span aria-hidden="true">⌄</span>
+            {w.teamSettings}<span aria-hidden="true">⌄</span>
           </summary>
           <form
             className="space-y-3 border-t border-gray-200 p-4"
             onSubmit={(event) => {
               event.preventDefault()
-              mutation.run({ action: 'rename', agencyId: data.id, name }, 'Team name saved.')
+              mutation.run({ action: 'rename', agencyId: data.id, name }, w.teamNameSaved)
             }}
           >
             <label className="block text-sm font-medium" htmlFor="team-name">
-              Agency name
+              {w.agencyName}
             </label>
             <input
               className="field"
@@ -388,7 +389,7 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
               maxLength={120}
             />
             <button className="action-secondary" disabled={mutation.pending || name === data.name}>
-              Save name
+              {w.saveName}
             </button>
           </form>
         </details>
@@ -396,16 +397,16 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
       {data.activity.length > 0 && (
         <details className="rounded-lg border border-gray-200 bg-white">
           <summary className="flex items-center justify-between px-4 py-3 font-medium">
-            Recent activity<span aria-hidden="true">⌄</span>
+            {w.recentActivity}<span aria-hidden="true">⌄</span>
           </summary>
           <ul className="divide-y divide-gray-100 border-t border-gray-200 px-4">
             {data.activity.map((event) => (
               <li className="py-3 text-sm" key={event.id}>
                 <p>
-                  {event.actorName} · {event.action.toLowerCase().replaceAll('_', ' ')}
+                  {event.actorName} · {w.activity(event.action)}
                   {event.subjectName && ` · ${event.subjectName}`}
                 </p>
-                <p className="mt-1 text-xs text-gray-500">{date(event.createdAt)}</p>
+                <p className="mt-1 text-xs text-gray-500">{date(m, event.createdAt)}</p>
               </li>
             ))}
           </ul>
@@ -426,6 +427,8 @@ function TeamMember({
   viewerId: string
   mutation: ReturnType<typeof useTeamMutation>
 }) {
+  const w = usePwa()
+  const m = messages(useLocale())
   const [role, setRole] = useState(member.role)
   const [managing, setManaging] = useState(false)
   const [removing, setRemoving] = useState(false)
@@ -439,17 +442,14 @@ function TeamMember({
         <div className="min-w-0">
           <p className="break-words font-medium">
             {member.name}
-            {member.stakeholderId === viewerId && ' (you)'}
+            {member.stakeholderId === viewerId && ` ${w.you}`}
           </p>
           <p className="break-all text-sm text-gray-600">{member.email}</p>
           <p className="mt-1 text-xs text-gray-500">
-            {roleName(member.role)} ·{' '}
-            {invited ? 'Invitation pending' : active ? 'Active' : 'Removed'} ·{' '}
-            {member.assignedTenancies} assigned{' '}
-            {member.assignedTenancies === 1 ? 'tenancy' : 'tenancies'}
+            {w.memberLine(w.roleName(member.role), invited ? w.invitationPending : active ? w.active : w.removed, member.assignedTenancies)}
           </p>
           {invited && member.expiresAt && (
-            <p className="mt-1 text-xs text-gray-500">Expires {date(member.expiresAt)}</p>
+            <p className="mt-1 text-xs text-gray-500">{w.expires(date(m, member.expiresAt))}</p>
           )}
         </div>
         {canManage && (active || invited) && (
@@ -462,7 +462,7 @@ function TeamMember({
               setRemoving(false)
             }}
           >
-            {managing ? 'Close controls' : 'Manage member'}
+            {managing ? w.closeControls : w.manageMember}
           </button>
         )}
       </div>
@@ -473,25 +473,25 @@ function TeamMember({
             event.preventDefault()
             mutation.run(
               { action: 'member', agencyId: workspace.id, memberId: member.id, change: { role } },
-              'Member role updated.',
+              w.roleUpdated,
             )
           }}
         >
           <label className="min-w-36 text-sm font-medium">
-            Role for {member.name}
+            {w.roleFor(member.name)}
             <select
               className="field mt-1"
               value={role}
               onChange={(event) => setRole(event.target.value as typeof role)}
               disabled={mutation.pending}
             >
-              <option value="AGENT">Agent</option>
-              <option value="MANAGER">Manager</option>
-              {workspace.role === 'OWNER' && <option value="OWNER">Owner</option>}
+              <option value="AGENT">{w.roleName('AGENT')}</option>
+              <option value="MANAGER">{w.roleName('MANAGER')}</option>
+              {workspace.role === 'OWNER' && <option value="OWNER">{w.roleName('OWNER')}</option>}
             </select>
           </label>
           <button className="action-secondary" disabled={mutation.pending || role === member.role}>
-            Save role
+            {w.saveRole}
           </button>
         </form>
       )}
@@ -507,11 +507,11 @@ function TeamMember({
                 memberId: member.id,
                 change: { action: 'resend' },
               },
-              'Invitation renewed.',
+              w.invitationRenewed,
             )
           }
         >
-          Resend invitation
+          {w.resendInvitation}
         </button>
       )}
       {managing && !removing && (
@@ -520,26 +520,26 @@ function TeamMember({
           disabled={mutation.pending}
           onClick={() => setRemoving(true)}
         >
-          {invited ? 'Revoke invitation' : 'Remove member'}
+          {invited ? w.revokeInvitation : w.removeMember}
         </button>
       )}
       {removing && (
         <div className="space-y-3 rounded-md border border-red-200 bg-red-50 p-3">
           <p className="text-sm text-red-900">
             {invited
-              ? `Revoke the invitation for ${member.email}?`
-              : `Remove ${member.name} from this team? Their team access ends immediately. Saved work, photographs and authorship stay intact. Their personal work is unaffected.`}
+              ? w.revokeFor(member.email ?? '')
+              : w.removeFromTeam(member.name)}
           </p>
           {active && member.assignedTenancies > 0 && (
             <label className="block text-sm font-medium">
-              Hand assigned work to
+              {w.handWorkTo}
               <select
                 className="field mt-1"
                 required
                 value={reassignTo}
                 onChange={(event) => setReassignTo(event.target.value)}
               >
-                <option value="">Choose a team member</option>
+                <option value="">{w.chooseTeamMember}</option>
                 {workspace.members
                   .filter((person) => person.status === 'ACTIVE' && person.id !== member.id)
                   .map((person) => (
@@ -565,19 +565,19 @@ function TeamMember({
                       ...(reassignTo ? { reassignToId: reassignTo } : {}),
                     },
                   },
-                  invited ? 'Invitation revoked.' : 'Member removed and assigned work handed over.',
+                  invited ? w.invitationRevoked : w.memberRemoved,
                   () => setRemoving(false),
                 )
               }
             >
-              Confirm {invited ? 'revoke' : 'removal'}
+              {invited ? w.confirmRevoke : w.confirmRemoval}
             </button>
             <button
               className="action-secondary"
               disabled={mutation.pending}
               onClick={() => setRemoving(false)}
             >
-              Cancel
+              {w.cancel}
             </button>
           </div>
         </div>

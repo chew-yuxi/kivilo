@@ -6,13 +6,9 @@ import { useRouter } from 'next/navigation'
 import { createInspection } from '@/lib/actions'
 import type { PropertyType } from '@/generated/prisma'
 import { rememberWorkspace, type WorkspaceTeam } from '@/lib/web-workspace'
+import { usePwa } from '@/components/locale'
 
-const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
-  { value: 'PRIVATE_NON_LANDED', label: 'Private, non-landed' },
-  { value: 'HDB', label: 'HDB' },
-  { value: 'LANDED', label: 'Landed' },
-  { value: 'COMMERCIAL', label: 'Commercial' },
-]
+const PROPERTY_TYPES: PropertyType[] = ['PRIVATE_NON_LANDED', 'HDB', 'LANDED', 'COMMERCIAL']
 
 const field =
   'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none'
@@ -34,6 +30,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
   initialWorkspace: string
   rememberInitial: boolean
 }) {
+  const w = usePwa()
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -76,7 +73,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
         })
         router.push(`/inspections/${id}`)
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Could not create the check-in')
+        setError(e instanceof Error ? e.message : w.createFailed)
       }
     })
   }
@@ -84,37 +81,37 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
   return (
     <form onSubmit={submit} className="mt-8 space-y-8">
       <fieldset className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-        <legend className="text-sm font-medium">Property workspace</legend>
+        <legend className="text-sm font-medium">{w.propertyWorkspace}</legend>
         <label className="block text-xs font-medium text-gray-600">
-          Workspace
+          {w.workspace}
           <select name="workspace" className={field} value={workspace} disabled={pending} onChange={(event) => {
             setWorkspace(event.target.value)
             rememberWorkspace(agentId, event.target.value)
           }}>
             {teams.map((team) => <option key={team.id} value={team.id}>{team.name}</option>)}
-            <option value="personal">Personal</option>
+            <option value="personal">{w.personal}</option>
           </select>
         </label>
         <p className="text-sm text-gray-600">
           {workspace === 'personal'
-            ? 'This property stays in your personal workspace. You can choose to share it later.'
-            : 'This property belongs to the team and is assigned to you. Owners and managers can oversee it; other agents need an assignment.'}
+            ? w.newPersonalNote
+            : w.newTeamNote}
         </p>
-        <Link href="/team" className="text-link inline-flex min-h-11 items-center text-sm">Create or join a team</Link>
+        <Link href="/team" className="text-link inline-flex min-h-11 items-center text-sm">{w.createOrJoinTeam}</Link>
       </fieldset>
       <fieldset className="space-y-4">
-        <legend className="text-sm font-medium">Property</legend>
+        <legend className="text-sm font-medium">{w.property}</legend>
         <label className="block text-xs font-medium text-gray-600">
-          Address <span className={requirement}>(required)</span>
+          {w.address} <span className={requirement}>{w.required}</span>
           <input name="line1" required placeholder="2 Marina Boulevard" className={field} />
         </label>
         <div className="grid gap-4 sm:grid-cols-3">
           <label className="block text-xs font-medium text-gray-600">
-            Unit <span className={requirement}>(optional)</span>
+            {w.unit} <span className={requirement}>{w.optional}</span>
             <input name="unit" placeholder="#28-05" className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Postal code <span className={requirement}>(required)</span>
+            {w.postalCode} <span className={requirement}>{w.required}</span>
             <div className="group relative">
               <input
                 name="postalCode"
@@ -128,16 +125,16 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
                 onClick={dismissKeyboard}
                 className="pointer-events-none absolute right-2 bottom-1.5 rounded px-2 py-1 text-xs font-medium text-brand-600 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:hidden"
               >
-                Done
+                {w.done}
               </button>
             </div>
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Type <span className={requirement}>(required)</span>
+            {w.type} <span className={requirement}>{w.required}</span>
             <select name="propertyType" defaultValue="PRIVATE_NON_LANDED" className={field}>
-              {PROPERTY_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              {PROPERTY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {w.propertyType(type)}
                 </option>
               ))}
             </select>
@@ -145,15 +142,15 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
         </div>
         <fieldset>
           <legend className="text-xs font-medium text-gray-600">
-            Furnishing <span className={requirement}>(required)</span>
+            {w.furnishing} <span className={requirement}>{w.required}</span>
           </legend>
           <p className="mt-1 text-xs text-gray-500">
-            Fully furnished rooms start with standard inventory rows. Other rooms start empty.
+            {w.furnishingNote}
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {[
-              ['true', 'Fully furnished'],
-              ['false', 'Not fully furnished'],
+              ['true', w.fullyFurnished],
+              ['false', w.notFullyFurnished],
             ].map(([value, label]) => (
               <label
                 key={value}
@@ -168,40 +165,40 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="text-sm font-medium">Parties</legend>
+        <legend className="text-sm font-medium">{w.parties}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-xs font-medium text-gray-600">
-            Landlord <span className={requirement}>(required)</span>
-            <input name="landlordName" required placeholder="Full name" className={field} />
+            {w.landlord} <span className={requirement}>{w.required}</span>
+            <input name="landlordName" required placeholder={w.fullName} className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Landlord email <span className={requirement}>(optional)</span>
+            {w.landlordEmail} <span className={requirement}>{w.optional}</span>
             <input name="landlordEmail" type="email" className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Tenant <span className={requirement}>(required)</span>
-            <input name="tenantName" required placeholder="Full name" className={field} />
+            {w.tenant} <span className={requirement}>{w.required}</span>
+            <input name="tenantName" required placeholder={w.fullName} className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Tenant email <span className={requirement}>(optional)</span>
+            {w.tenantEmail} <span className={requirement}>{w.optional}</span>
             <input name="tenantEmail" type="email" className={field} />
           </label>
         </div>
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="text-sm font-medium">Tenancy</legend>
+        <legend className="text-sm font-medium">{w.tenancy}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-xs font-medium text-gray-600">
-            Starts <span className={requirement}>(required)</span>
+            {w.starts} <span className={requirement}>{w.required}</span>
             <input name="startDate" type="date" required defaultValue={dates.start} className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Ends <span className={requirement}>(required)</span>
+            {w.ends} <span className={requirement}>{w.required}</span>
             <input name="endDate" type="date" required defaultValue={dates.end} className={field} />
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Monthly rent (SGD) <span className={requirement}>(optional)</span>
+            {w.monthlyRent} <span className={requirement}>{w.optional}</span>
             <div className="group relative">
               <input
                 name="monthlyRent"
@@ -214,12 +211,12 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
                 onClick={dismissKeyboard}
                 className="pointer-events-none absolute right-2 bottom-1.5 rounded px-2 py-1 text-xs font-medium text-brand-600 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:hidden"
               >
-                Done
+                {w.done}
               </button>
             </div>
           </label>
           <label className="block text-xs font-medium text-gray-600">
-            Deposit (SGD) <span className={requirement}>(optional)</span>
+            {w.depositSgd} <span className={requirement}>{w.optional}</span>
             <div className="group relative">
               <input
                 name="deposit"
@@ -233,14 +230,13 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
                 onClick={dismissKeyboard}
                 className="pointer-events-none absolute right-2 bottom-1.5 rounded px-2 py-1 text-xs font-medium text-brand-600 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:hidden"
               >
-                Done
+                {w.done}
               </button>
             </div>
           </label>
         </div>
         <p className="text-xs text-gray-500">
-          The deposit is what the check-out comparison is measured against, so it is worth
-          getting right before the tenancy ends.
+          {w.depositNote}
         </p>
       </fieldset>
 
@@ -251,7 +247,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
         disabled={pending}
         className="w-full rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 sm:w-auto"
       >
-        {pending ? 'Creating…' : 'Create and start capturing'}
+        {pending ? w.creating : w.createAndCapture}
       </button>
     </form>
   )

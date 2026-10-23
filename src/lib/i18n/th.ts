@@ -1,8 +1,11 @@
 import type { Messages } from './en'
+import { pwa } from './pwa/th'
 
 /// Thai, matching the app's `app_th.arb`. Needs a native speaker's review before it
 /// reaches people. Dates use the Gregorian calendar, as the app does.
 export const th: Messages = {
+  pwa,
+
   intl: 'th-TH-u-ca-gregory',
 
   party: { LANDLORD: 'ผู้ให้เช่า', TENANT: 'ผู้เช่า' },

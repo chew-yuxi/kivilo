@@ -4,7 +4,8 @@ import { useRef, useState, useTransition } from 'react'
 import { signInspection } from '@/lib/actions'
 import { useUploadQueue } from '@/components/upload-queue'
 import { listPending } from '@/lib/offline-queue'
-import { messages, type Locale } from '@/lib/i18n'
+import { formatDate, messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// A party signing on the agent's phone, at the handover.
 export function SignaturePad({
@@ -20,6 +21,8 @@ export function SignaturePad({
   role: string
   signedAt: Date | null
 }) {
+  const contextLocale = useLocale()
+  const w = messages(contextLocale).pwa
   const { pending: captures, flush } = useUploadQueue()
   const unsent = captures.filter((capture) => capture.inspectionId === inspectionId).length
 
@@ -30,7 +33,7 @@ export function SignaturePad({
           {stakeholderName} <span className="font-normal text-emerald-700">({role})</span>
         </p>
         <p className="mt-0.5 text-xs text-emerald-700">
-          Signed {signedAt.toLocaleString('en-SG')}
+          {w.signedOn(formatDate(messages(contextLocale), signedAt, { dateStyle: 'medium', timeStyle: 'short' }))}
         </p>
       </div>
     )
@@ -44,13 +47,13 @@ export function SignaturePad({
         </>
       }
       blocked={unsent > 0}
-      note={unsent > 0 ? `${unsent} saved capture${unsent === 1 ? '' : 's'} must upload before signing.` : null}
+      note={unsent > 0 ? w.mustUploadBeforeSigning(unsent) : null}
       onSign={async (imageData) => {
         // A queued photograph may have been taken before Send but still be on this
         // phone. Countersigning now would make the server refuse those bytes forever.
         if ((await listPending()).some((capture) => capture.inspectionId === inspectionId)) {
           flush()
-          throw new Error('Upload saved captures before signing this report.')
+          throw new Error(w.uploadBeforeSigning)
         }
         await signInspection(inspectionId, stakeholderId, imageData)
       }}
@@ -66,7 +69,7 @@ export function SignatureCanvas({
   blocked = false,
   note = null,
   onSign,
-  locale = 'en',
+  locale,
 }: {
   label: React.ReactNode
   blocked?: boolean
@@ -74,7 +77,8 @@ export function SignatureCanvas({
   onSign: (imageData: string) => Promise<void>
   locale?: Locale
 }) {
-  const words = messages(locale).web.signature
+  const contextLocale = useLocale()
+  const words = messages(locale ?? contextLocale).web.signature
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const drawing = useRef(false)
   const [hasInk, setHasInk] = useState(false)

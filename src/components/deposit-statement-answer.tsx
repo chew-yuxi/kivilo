@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore, useTransition } from 'react'
 import { answerDepositStatement, answerDepositStatementInPerson } from '@/lib/statement-actions'
 import { messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// Agree or dispute the deposit statement above. Without `inPerson`, by the signed-in
 /// landlord or tenant, whom the server takes from the session. With it, the party taps
@@ -11,7 +12,7 @@ export function DepositStatementAnswer({
   inspectionId,
   version,
   inPerson,
-  locale = 'en',
+  locale,
 }: {
   inspectionId: string
   /// The version on screen, so an answer cannot land on a revision nobody has read.
@@ -19,7 +20,8 @@ export function DepositStatementAnswer({
   inPerson?: { stakeholderId: string; name: string; role: string }
   locale?: Locale
 }) {
-  const web = messages(locale).web
+  const contextLocale = useLocale()
+  const web = messages(locale ?? contextLocale).web
   const words = web.deposit
   const [pending, startTransition] = useTransition()
   const [disputing, setDisputing] = useState(false)

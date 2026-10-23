@@ -1,9 +1,14 @@
+import { pwa } from './pwa/en'
+
 /// What the server writes for people to read: notifications and emails. `zh.ts` and
 /// `th.ts` are typed against this object, so a message missing from either fails tsc.
 /// The app's own text is in `mobile/lib/l10n`; the signed report stays in English.
 export const en = {
   /// The `Intl` locale for dates. Singapore time is applied where a date is formatted.
   intl: 'en-SG',
+
+  /// The agent web app under `(app)`, kept in its own file for size.
+  pwa,
 
   party: { LANDLORD: 'Landlord', TENANT: 'Tenant' },
 

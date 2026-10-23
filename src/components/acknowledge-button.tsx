@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore, useTransition } from 'react'
 import { acknowledgeAddendum, acknowledgeAddendumInPerson } from '@/lib/addendum-actions'
 import { messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// "I acknowledge this update". Without `inPerson`, by the signed-in landlord or tenant:
 /// the server decides who that is from the session and nothing here names a party. With
@@ -11,13 +12,14 @@ import { messages, type Locale } from '@/lib/i18n'
 export function AcknowledgeButton({
   addendumId,
   inPerson,
-  locale = 'en',
+  locale,
 }: {
   addendumId: string
   inPerson?: { stakeholderId: string; name: string; role: string }
   locale?: Locale
 }) {
-  const web = messages(locale).web
+  const contextLocale = useLocale()
+  const web = messages(locale ?? contextLocale).web
   const words = web.acknowledge
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)

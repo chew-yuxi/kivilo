@@ -1,8 +1,11 @@
 import type { Messages } from './en'
+import { pwa } from './pwa/zh'
 
 /// Simplified Chinese as written in Singapore and Malaysia, matching the app's
 /// `app_zh.arb`. Needs a native speaker's review before it reaches people.
 export const zh: Messages = {
+  pwa,
+
   intl: 'zh-SG',
 
   party: { LANDLORD: '房东', TENANT: '租客' },

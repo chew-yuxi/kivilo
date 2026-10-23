@@ -2,6 +2,10 @@
 
 import { ZodError } from 'zod'
 import { AgencyActionError } from '@/lib/agency-errors'
+import { currentStakeholder } from '@/lib/auth'
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
+import { refusalText } from '@/lib/i18n/refusals'
 import {
   createAgency,
   renameAgency,
@@ -53,13 +57,14 @@ export async function manageAgencyFromWeb(command: AgencyCommand) {
     }
     return { ok: true as const }
   } catch (error) {
-    if (error instanceof AgencyActionError) return { ok: false as const, error: error.message }
+    const m = messages(await requestLocale(await currentStakeholder()))
+    if (error instanceof AgencyActionError) return { ok: false as const, error: refusalText(error.message, m) }
     if (error instanceof ZodError)
       return { ok: false as const, error: error.issues.map((issue) => issue.message).join(' ') }
     if (error instanceof Error && /not found/i.test(error.message)) {
       return {
         ok: false as const,
-        error: 'This work is no longer available. Refresh the page to continue.',
+        error: m.pwa.noLongerAvailableWork,
       }
     }
     throw error
