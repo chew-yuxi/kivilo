@@ -13,7 +13,7 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`b123c792-8f47-4889-a758-6a1924a3a513`. Build/deploy instructions: `marketing/README.md`.
+`01a566f5-b379-450b-96a3-f58ccf681ab1`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -43,7 +43,7 @@ keyboard tool/tab navigation, with no browser errors.
 Live HTML, JavaScript, CSS, photo and metadata assets match the tested export over
 valid HTTPS. Signed-out app visits follow Properties to the login screen.
 
-The hero uses static illustrated scenes around a centered serif headline: recording
+The hero uses static illustrated scenes around a centered sans-serif headline: recording
 the home on the left and a happy handover on the right. Both scenes share one artwork
 derived from Kivilo's existing illustrations. Mobile shows the inspection below the
 copy and the happy handover at the closing CTA. The photo demo responds only to the
@@ -53,6 +53,19 @@ reviews at 320/390/768/1024/1440/1920px, and mouse/touch drawing and keyboard-ta
 checks at desktop and phone sizes. Visible images decode, there is no horizontal
 overflow or automatic animation, and the browser reports no runtime errors. Its
 1200×630 social preview uses the same static composition.
+
+The readability revision uses the app's system font stack, an 18px minimum for
+all page text and 20px body copy, with no decorative pre-titles. Demo controls and
+comparison records reflow on narrow screens. The product section leads with speed,
+thoroughness and convenience; "How Kivilo works" explains the shared record with a
+new static illustration. Browser checks at all six widths and all three demo tabs
+confirmed the 18px minimum, no visible text overflow and no runtime errors. Drawing,
+original-photo toggling and keyboard tabs passed at 320/390/1024px. The social
+preview uses the same sans-serif typography. Published on 24 October: live HTML and
+16 CSS, JavaScript, illustration, photo and metadata assets match the reviewed export.
+Production checks at 390/1440px confirm the 18px minimum across all three demo tabs,
+no horizontal overflow or browser errors, working drawing/original-photo controls
+and keyboard navigation. The app root reaches its HTTPS login page.
 
 ## Tenancy agreements and supporting documents — 23 October
 

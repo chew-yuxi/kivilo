@@ -32,6 +32,16 @@ Mobile shows the inspection crop below the copy and the happy handover above the
 closing CTA. There is no automatic animation; the photo demo responds to the
 visitor's own tool choices and drawing.
 
+Typography uses the web app's system sans-serif stack. All page text, including
+demo labels, captions and footer links, is at least 18px; body copy is 20px.
+Narrow layouts wrap or stack instead of reducing type. Section headings stand on
+their own without decorative pre-titles. Keep these rules in future design edits.
+
+The product demo explains speed, thoroughness and convenience. The following
+"How Kivilo works" section explains the shared property record with
+`public/art/shared-record.webp`, generated from the existing inventory illustration
+using built-in imagegen. Its exact prompt is in `design/shared-record.prompt.txt`.
+
 The Wrangler configuration pins the Cloudflare account and apex custom domain.
 Cloudflare manages the landing page DNS and TLS. `my.kivilo.app` uses a DNS-only
 CNAME to the target returned by Vercel. Login, verification, deletion, privacy and

@@ -4,10 +4,8 @@ import type { Metadata } from 'next'
 import { LandingWalkthrough } from '../components/landing-walkthrough'
 import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
-
 const title = 'Kivilo | Property handovers, check-in & check-out reports'
 const description = `Take photos and mark damage with circles, freehand or arrows. Write inventories, collect signatures and compare check-in with check-out. ${FREE_ACTIVE_PROPERTIES} active properties free.`
-
 export const metadata: Metadata = {
   title, description,
   alternates: { canonical: 'https://kivilo.app' },
@@ -19,7 +17,6 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image', title, description, images: ['/opengraph-image.png'] },
 }
-
 const faqs = [
   { question: 'What is Kivilo?', answer: 'Kivilo is a property handover and tenancy record app for agents, landlords and tenants. It brings room-by-room inventories, condition photos, walkthrough videos, signatures, repairs and check-out assessments into one property record. Built in Singapore, for the people on both sides of the keys.' },
   { question: 'Can I try it for free?', answer: `Yes. The free plan includes ${FREE_ACTIVE_PROPERTIES} active properties, with no credit card required. Sign in with your email and start your first check-in. If you manage more properties, get in touch through our support page.` },
@@ -29,7 +26,6 @@ const faqs = [
   { question: 'What happens at check-out?', answer: 'Start from the signed check-in and any agreed updates. Review the original condition and linked photos alongside the new visit, record each change and explain your assessment of damage or fair wear and tear. Publish a dated deposit statement that the landlord and tenant can agree to or dispute. Kivilo records the assessment; it does not hold or move the deposit.' },
   { question: 'Who can see the property record?', answer: 'Working records are available to the responsible agent and the people explicitly given access. Landlords and tenants have their own view of their tenancy. You can also create a private report link and revoke it later. Property reports are not public search results.' },
 ]
-
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -38,7 +34,6 @@ const structuredData = {
     { '@type': 'SoftwareApplication', name: 'Kivilo', url: 'https://kivilo.app', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description, featureList: ['Photo markup with circles, freehand and arrows', 'Room-by-room property inventories', 'Photo and video evidence', 'Landlord and tenant signatures', 'Tenancy repair history', 'Check-in and check-out comparison', 'PDF condition reports'], publisher: { '@id': 'https://kivilo.app/#organization' } },
   ],
 }
-
 // Public, static and session-free. All examples are illustrative, never tenancy data.
 export default function LandingPage() {
   return (
@@ -60,7 +55,6 @@ export default function LandingPage() {
       <main id="main">
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
-            <p className={styles.eyebrow}>PROPERTY HANDOVERS, PROPERLY RECORDED</p>
             <h1 id="hero-title">Hand over the keys.<br />Keep the whole story.</h1>
             <p className={styles.heroDescription}>Take a photo. Mark what matters. Get everyone’s signatures.<br className={styles.desktopBreak} /> The little details, all in one shared record.</p>
             <div className={styles.heroActions}>
@@ -81,24 +75,25 @@ export default function LandingPage() {
         </div>
         <section id="how-it-works" className={styles.walkthrough} aria-labelledby="how-title">
           <div className={styles.sectionHeading}>
-            <p className={styles.eyebrow}>THE LITTLE DETAILS MAKE THE DIFFERENCE</p>
-            <h2 id="how-title">See it. Mark it.<br />Make it part of the record.</h2>
-            <p>A scuff on the wall. A chip on the cabinet.<br />Point it out in the photo, then put everyone on the same page.</p>
+            <h2 id="how-title">All the detail.<br />Less of the admin.</h2>
+            <p>Take the photo, mark what matters and write the inventory as you go.<br className={styles.desktopBreak} /> Review, sign and share from the same phone.</p>
           </div>
           <LandingWalkthrough />
+          <div className={styles.benefits}>
+            <article><h3>Quick on site.</h3><p>Take a photo and mark the detail immediately, while you’re right in front of it.</p></article>
+            <article><h3>Thorough, room by room.</h3><p>Work through each room’s inventory, with notes and photos beside the right item.</p></article>
+            <article><h3>Everything together.</h3><p>Capture, write and collect signatures in one flow. A signed copy goes to everyone.</p></article>
+          </div>
         </section>
         <section id="whole-tenancy" className={styles.tenancy} aria-labelledby="tenancy-title">
           <div className={styles.tenancyIntro}>
-            <p className={styles.eyebrow}>THE KEYS ARE JUST THE BEGINNING</p>
-            <h2 id="tenancy-title">A home has a history.<br /><span>Now it has a home.</span></h2>
-            <p>A leaky tap. A replaced fridge. The agreement everyone needs to find. Keep the next chapter connected to the first.</p>
-            <a href="#check-out" className={styles.textButton}>And when it’s time to move out?</a>
+            <h2 id="tenancy-title">How Kivilo works.</h2>
+            <p>A good handover starts with a record everyone understands. The agent documents the home’s condition. The landlord and tenant review the photos and inventory, then sign the same report.</p>
+            <p>That agreed starting point stays with the tenancy. Repairs, documents and agreed updates keep the story together. When it’s time to move out, everyone can return to what was recorded.</p>
           </div>
-          <ol className={styles.timeline}>
-            <li><span className={styles.timelineDot}>01</span><div><span className={styles.timelineLabel}>MOVE IN</span><h3>Start on the same page.</h3><p>A signed condition report, with the photos and inventory everyone agreed to.</p></div></li>
-            <li><span className={styles.timelineDot}>02</span><div><span className={styles.timelineLabel}>LIVE IN</span><h3>Keep the little things connected.</h3><p>Log repairs, keep tenancy documents together and agree on updates to the original report.</p></div></li>
-            <li><span className={styles.timelineDot}>03</span><div><span className={styles.timelineLabel}>MOVE OUT</span><h3>Come back to the facts.</h3><p>Compare the home with its agreed check-in record. Give every change its context.</p></div></li>
-          </ol>
+          <Image className={styles.sharedRecordArt} src="/art/shared-record.webp" alt="An agent, landlord and tenant reviewing a property record together, with the condition photo and keys beside it." width={1536} height={1024} sizes="(max-width: 800px) 100vw, 800px" unoptimized />
+          <p className={styles.sharedRecordCaption}>One shared record. A clear starting point for everyone.</p>
+          <a href="#check-out" className={styles.textButton}>See what happens at check-out</a>
         </section>
         <section id="check-out" className={styles.checkout} aria-labelledby="checkout-title">
           <div className={styles.comparison}>
@@ -112,14 +107,13 @@ export default function LandingPage() {
             <p className={styles.exampleNote}>Illustrative assessment. Every finding is recorded by a person.</p>
           </div>
           <div className={styles.checkoutCopy}>
-            <p className={styles.eyebrow}>“WAS THAT ALREADY THERE?”</p>
             <h2 id="checkout-title">Less back-and-forth.<br />More there-it-is.</h2>
             <p>At check-out, the original condition and agreed photos are right beside you. Record what changed, explain damage or fair wear, and share a dated deposit statement.</p>
             <p className={styles.checkoutEmphasis}>A clearer conversation starts with a better record.</p>
           </div>
         </section>
         <section className={styles.people} aria-labelledby="people-title">
-          <div className={styles.sectionHeading}><p className={styles.eyebrow}>ONE RECORD. EVERYONE INCLUDED.</p><h2 id="people-title">Good for the person<br />on either side of the door.</h2></div>
+          <div className={styles.sectionHeading}><h2 id="people-title">Good for the person<br />on either side of the door.</h2></div>
           <div className={styles.peopleGrid}>
             <article><span className={styles.roleNumber}>01 / AGENTS</span><h3>Leave with it handled.</h3><p>Take the photo, mark the detail and write it up while you’re there. Get the report signed in the same workflow.</p></article>
             <article><span className={styles.roleNumber}>02 / LANDLORDS</span><h3>Know where things stand.</h3><p>Review the condition, see repairs and keep the paperwork with the property. Even when you’re not there.</p></article>
@@ -127,12 +121,11 @@ export default function LandingPage() {
           </div>
         </section>
         <section id="questions" className={styles.faq} aria-labelledby="faq-title">
-          <div><p className={styles.eyebrow}>A FEW THINGS YOU MIGHT BE WONDERING</p><h2 id="faq-title">Good questions.</h2><p>Still have one? <Link href="https://my.kivilo.app/support">Let’s talk</Link></p></div>
+          <div><h2 id="faq-title">Good questions.</h2><p>Still have one? <Link href="https://my.kivilo.app/support">Let’s talk</Link></p></div>
           <div className={styles.faqList}>{faqs.map(({ question, answer }) => <details key={question} name="landing-faq"><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div>
         </section>
         <section className={styles.finalCta} aria-labelledby="start-title">
           <div className={styles.happyScene}><Image src="/art/tenancy-scenes.webp" alt="An agent and a happy resident exchanging keys at their new home." width={2172} height={724} sizes="900px" unoptimized /></div>
-          <p className={styles.eyebrow}>YOUR NEXT HANDOVER, SORTED.</p>
           <h2 id="start-title">New keys.<br />A better beginning.</h2>
           <p>Start with one property. Keep the whole story.</p>
           <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Get started free</Link>
