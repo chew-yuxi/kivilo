@@ -5,6 +5,34 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Viewable tenancy details and joined property actions: 24 October 2026 Singapore time
+
+Source `c6792bd`, pushed to `origin/main` before release. Tenancy details now always open:
+an agent can read the landlord and tenant, optional emails, dates, rent and deposit even
+after those values are fixed by a sent report. Missing emails are shown as not provided.
+Editable details require an explicit confirmation before saving. Details already covered
+by a sent or signed report remain read-only because those values and party identities are
+part of the signature fingerprint; changing them in place would make the rendered report
+differ from what the parties signed.
+
+The Property page now groups Continue check-in/check-out, Tenancy details and Documents
+inside one joined action card instead of presenting Tenancy details as a separate card.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **24** / `745798` | **stable**, active and latest |
+| iOS `1.0.0+24` | **25** / `745805` | **stable**, active and latest |
+
+Promoted on Yuxi's explicit go. The patch was built from isolated source `1a880fd`, which
+is the public stable tenancy source `a499015` plus only commits `90750df` and `c6792bd`;
+the concurrent multi-shot camera dependencies were deliberately excluded. Flutter
+analysis, all 395 tests on `main`, and all 11 focused property tests in the isolated
+release source passed. Shorebird accepted both patches without overrides and retained
+the Android Material icon asset size. iOS shared 55.6% of Dart code and emitted its
+possible-slower-execution warning. Physical-device verification remains **NOT RUN**.
+
+Rollback: Android patch **23** / `745755`, iOS patch **24** / `745765`.
+
 ## Multi-shot camera native bases: 24 October 2026 Singapore time
 
 Source `f9dd26d`, pushed to `origin/main` before release. Photos now open a continuous

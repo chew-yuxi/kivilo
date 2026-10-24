@@ -1,13 +1,14 @@
 # Kivilo work tracker
 
-Updated 24 October 2026 Singapore time. Editable native tenancy details are **live** from
-`a499015`: backend `dpl_CmXiGr3PHutUqJWn1TJ3247pVjS6` in `sin1`, Android25 patch **23** /
-`745755` and iOS24 patch **24** / `745765`, both stable and read back. The Property page
-can now add or change optional party emails, dates, rent and deposit before a report is
-sent. There is no migration or native/asset change. Production route smoke passed;
-physical-device delivery remains **NOT RUN**. App Store Connect reported
-`READY_FOR_SALE`; no store build or metadata was changed. Details and rollback are in
-`mobile/RELEASE.md`.
+Updated 24 October 2026 Singapore time. Tenancy details are now always viewable and the
+Property page groups Continue check-in/check-out, Tenancy details and Documents in one
+action card (`c6792bd`). Editable details require confirmation; sent/signed values remain
+read-only because they are part of the signature fingerprint. Android25 patch **24** /
+`745798` and iOS24 patch **25** / `745805` are stable and read back. The patch source
+excluded the concurrent native camera dependencies. Flutter analysis, 395 full tests and
+11 isolated focused tests passed; physical-device delivery remains **NOT RUN**. The
+production tenancy-details API remains live from `dpl_CmXiGr3PHutUqJWn1TJ3247pVjS6`.
+Details and rollback are in `mobile/RELEASE.md`.
 
 ## Public website and app domains — 24 October
 
