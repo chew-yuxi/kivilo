@@ -206,7 +206,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     // Initial recovery now holds the camera while it checks for interrupted
     // photo markup. Wait for that work before changing capture mode.
-    final camera = find.widgetWithText(FilledButton, 'Take another photo');
+    final camera = find.widgetWithText(FilledButton, 'Take more photos');
     for (
       var attempt = 0;
       attempt < 20 && tester.widget<FilledButton>(camera).onPressed == null;

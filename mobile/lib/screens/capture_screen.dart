@@ -22,6 +22,7 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import 'photo_mark_screen.dart';
+import 'multi_shot_camera_screen.dart';
 import 'video_screen.dart';
 
 class CaptureScreen extends StatefulWidget {
@@ -326,6 +327,29 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
+  Future<void> _openMultiShotCamera() async {
+    if (_busy || _leaving || _finishing || _root == null || _room == null) {
+      return;
+    }
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MultiShotCameraScreen(
+          inspectionId: widget.inspectionId,
+          roomId: widget.roomId,
+          itemId: widget.itemId,
+          ownerId: _ownerId,
+          root: _root!,
+          queue: _queue,
+          title: _item?.name ?? widget.itemName ?? _room!.name,
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _loadRoom();
+    unawaited(_drain());
+  }
+
   Future<void> _chooseFromLibrary() async {
     if (_busy || _leaving || _finishing || _root == null || _room == null) {
       return;
@@ -362,7 +386,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
     // ImagePicker has one lost-result slot. Only the finding editor which owns
     // this durable intent may consume its photo after an Android restart.
     if (await File('${_root!.path}/finding-picker.json').exists() ||
-        await File('${_root!.path}/$supportingDocumentPickerFilename').exists()) {
+        await File(
+          '${_root!.path}/$supportingDocumentPickerFilename',
+        ).exists()) {
       return;
     }
     Map<String, dynamic>? intent;
@@ -412,7 +438,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
   }
 
   Future<void> _beginPicker() async {
-    if (await File('${_root!.path}/$supportingDocumentPickerFilename').exists()) {
+    if (await File(
+      '${_root!.path}/$supportingDocumentPickerFilename',
+    ).exists()) {
       throw const ApiFailure(
         'Reopen Supporting documents to recover the previous photo before taking another.',
         null,
@@ -1134,31 +1162,31 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: TextButton.icon(
-                            onPressed: _busy
-                                ? null
-                                : () async {
-                                    setState(() => _busy = true);
-                                    try {
-                                      await widget.onEditItem!(
-                                        item,
-                                        _room!.captures,
-                                      );
-                                      if (mounted) await _loadRoom();
-                                    } catch (error) {
-                                      if (mounted) {
-                                        setState(
-                                          () => _error = plainError(error),
+                              onPressed: _busy
+                                  ? null
+                                  : () async {
+                                      setState(() => _busy = true);
+                                      try {
+                                        await widget.onEditItem!(
+                                          item,
+                                          _room!.captures,
                                         );
+                                        if (mounted) await _loadRoom();
+                                      } catch (error) {
+                                        if (mounted) {
+                                          setState(
+                                            () => _error = plainError(error),
+                                          );
+                                        }
+                                      } finally {
+                                        if (mounted) {
+                                          setState(() => _busy = false);
+                                        }
                                       }
-                                    } finally {
-                                      if (mounted) {
-                                        setState(() => _busy = false);
-                                      }
-                                    }
-                                  },
-                            icon: const Icon(Icons.edit_outlined),
-                            label: const Text('Edit details'),
-                          ),
+                                    },
+                              icon: const Icon(Icons.edit_outlined),
+                              label: const Text('Edit details'),
+                            ),
                           ),
                       ],
                     ),
@@ -1233,16 +1261,18 @@ class _CaptureScreenState extends State<CaptureScreen> {
                         _room == null ||
                         (widget.itemId != null && item == null)
                     ? null
-                    : _openSystemCamera,
+                    : _videoMode || widget.picker != null
+                    ? _openSystemCamera
+                    : _openMultiShotCamera,
                 icon: Icon(
                   _videoMode ? Icons.videocam : Icons.camera_alt_outlined,
                 ),
                 label: Text(
                   _videoMode
                       ? 'Record video'
-                      : hasMedia
-                      ? 'Take another photo'
-                      : 'Take a photo',
+                      : widget.picker != null
+                      ? (hasMedia ? 'Take another photo' : 'Take a photo')
+                      : (hasMedia ? 'Take more photos' : 'Take photos'),
                 ),
               ),
               const SizedBox(height: kiviloButtonGap),

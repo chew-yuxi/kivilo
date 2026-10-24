@@ -130,7 +130,7 @@ void main() {
     (tester) async {
       final own = await add('kitchen');
       await open(tester);
-      expect(find.text('Take another photo'), findsOneWidget);
+      expect(find.text('Take more photos'), findsOneWidget);
       final review = find.widgetWithText(OutlinedButton, 'Review room');
       expect(tester.widget<OutlinedButton>(review).onPressed, isNull);
       expect(

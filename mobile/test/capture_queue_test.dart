@@ -22,6 +22,7 @@ void main() {
     String? note,
     String? owner,
     String inspection = 'insp-1',
+    bool awaitingMarkup = false,
   }) {
     return queue.enqueue(
       PendingCapturesCompanion.insert(
@@ -37,6 +38,7 @@ void main() {
         createdAt: createdAt ?? DateTime(2026, 8, 28),
         note: Value(note),
         attempts: Value(attempts),
+        awaitingMarkup: Value(awaitingMarkup),
       ),
     );
   }
@@ -183,6 +185,36 @@ void main() {
       expect((await queue.take(id))!.annotations, marks);
     },
   );
+
+  test(
+    'multi-shot completion releases only the chosen durable drafts',
+    () async {
+      final first = await add(awaitingMarkup: true);
+      final second = await add(awaitingMarkup: true);
+      final other = await add(room: 'bedroom', awaitingMarkup: true);
+
+      expect(await queue.claimNext(DateTime(2026, 8, 28, 12)), isNull);
+      await queue.finishMarkupMany([first, second]);
+
+      expect((await queue.byId(first))!.awaitingMarkup, isFalse);
+      expect((await queue.byId(second))!.awaitingMarkup, isFalse);
+      expect((await queue.byId(other))!.awaitingMarkup, isTrue);
+      expect(await queue.claimNext(DateTime(2026, 8, 28, 12)), isNotNull);
+    },
+  );
+
+  test('discarding a multi-shot session makes every draft deletable', () async {
+    final first = await add(awaitingMarkup: true);
+    final second = await add(awaitingMarkup: true);
+
+    await queue.requestDeleteMany([first, second]);
+
+    for (final id in [first, second]) {
+      final capture = (await queue.byId(id))!;
+      expect(capture.awaitingMarkup, isFalse);
+      expect(capture.deleteRequested, isTrue);
+    }
+  });
 
   test('a room only ever sees its own captures', () async {
     await add(room: 'kitchen');

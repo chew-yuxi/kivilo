@@ -451,6 +451,36 @@ class CaptureQueue extends _$CaptureQueue {
         const PendingCapturesCompanion(awaitingMarkup: Value(false)),
       );
 
+  /// Releases one completed multi-shot session as a single durable decision.
+  Future<void> finishMarkupMany(Iterable<int> ids) async {
+    final values = ids.toList();
+    if (values.isEmpty) return;
+    await transaction(() async {
+      await (update(pendingCaptures)..where(
+            (row) =>
+                row.id.isIn(values) &
+                row.awaitingMarkup.equals(true) &
+                row.deleteRequested.equals(false),
+          ))
+          .write(const PendingCapturesCompanion(awaitingMarkup: Value(false)));
+    });
+  }
+
+  Future<void> requestDeleteMany(Iterable<int> ids) async {
+    final values = ids.toList();
+    if (values.isEmpty) return;
+    await transaction(() async {
+      await (update(
+        pendingCaptures,
+      )..where((row) => row.id.isIn(values))).write(
+        const PendingCapturesCompanion(
+          deleteRequested: Value(true),
+          awaitingMarkup: Value(false),
+        ),
+      );
+    });
+  }
+
   Future<void> requestDelete(int id) =>
       (update(pendingCaptures)..where((row) => row.id.equals(id))).write(
         const PendingCapturesCompanion(
