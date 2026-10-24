@@ -73,6 +73,7 @@ class _LibraryApi extends Api {
     this.canOpenDocuments = false,
     this.includeCare = false,
     this.canEditDetails = true,
+    this.assets = const [],
   }) : active = active ?? _active,
        super(attachAuth: false, cache: ReadCache());
 
@@ -80,8 +81,11 @@ class _LibraryApi extends Api {
   final bool canOpenDocuments;
   final bool includeCare;
   final bool canEditDetails;
+  final List<PropertyAssetSummary> assets;
   final states = <String>[];
   Map<String, dynamic>? updatedDetails;
+  Map<String, dynamic>? updatedAsset;
+  String? retiredAssetId;
 
   @override
   Future<AgencyIndex> agencies() async =>
@@ -123,10 +127,18 @@ class _LibraryApi extends Api {
   ) async => PropertyOverview(
     id: id,
     address: '12 Bayview Road',
+    line1: '12 Bayview Road',
+    unit: '#02-03',
+    postalCode: '123456',
+    propertyType: 'PRIVATE_NON_LANDED',
     state: 'ACTIVE',
     stage: 'CHECK_IN_IN_PROGRESS',
     stageLabel: 'Check-in in progress',
     canOpenTimeline: false,
+    canEditPropertyDetails: canEditDetails,
+    propertyDetailsLockedReason: canEditDetails
+        ? null
+        : 'Property details are fixed because a report was sent for signature.',
     nextInspectionId: 'report-draft',
     nextInspectionKind: 'CHECK_IN',
     terms: [
@@ -175,7 +187,21 @@ class _LibraryApi extends Api {
 
   @override
   Future<List<PropertyAssetSummary>> propertyAssets(String propertyId) async =>
-      const [];
+      retiredAssetId == null ? assets : const [];
+
+  @override
+  Future<void> updatePropertyAsset(
+    String propertyId,
+    String assetId,
+    Map<String, dynamic> body,
+  ) async {
+    updatedAsset = body;
+  }
+
+  @override
+  Future<void> retirePropertyAsset(String propertyId, String assetId) async {
+    retiredAssetId = assetId;
+  }
 
   @override
   Future<TenancyDetail> tenancy(String tenancyId) async => const TenancyDetail(
@@ -404,6 +430,14 @@ void main() {
     await tester.tap(find.text('Tenancy details'));
     await tester.pumpAndSettle();
     await tester.enterText(
+      find.widgetWithText(TextFormField, 'Address'),
+      '14 Bayview Road',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Landlord name'),
+      'Corrected Owner',
+    );
+    await tester.enterText(
       find.widgetWithText(TextFormField, 'Landlord email (optional)'),
       'OWNER@EXAMPLE.COM',
     );
@@ -422,6 +456,8 @@ void main() {
       api.updatedDetails,
       containsPair('landlordEmail', 'owner@example.com'),
     );
+    expect(api.updatedDetails, containsPair('line1', '14 Bayview Road'));
+    expect(api.updatedDetails, containsPair('landlordName', 'Corrected Owner'));
     expect(
       api.updatedDetails,
       containsPair('tenantEmail', 'tenant@example.com'),
@@ -454,13 +490,64 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text('Landlord'), findsOneWidget);
-    expect(find.text('Alice Tan'), findsOneWidget);
+    expect(find.text('Landlord name'), findsOneWidget);
+    expect(find.text('Tenant name'), findsOneWidget);
     expect(find.text('3200'), findsOneWidget);
     expect(find.text('6400'), findsOneWidget);
     expect(find.text('Save details'), findsNothing);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'edits and retires a property asset while keeping history explicit',
+    (tester) async {
+      final api = _LibraryApi(
+        includeCare: true,
+        assets: const [
+          PropertyAssetSummary(
+            id: 'asset-1',
+            name: 'Washer',
+            category: 'APPLIANCE',
+            roomLabel: 'Kitchen',
+            identifier: 'WM-OLD',
+            repairVisitsLast365Days: 1,
+          ),
+        ],
+      );
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 4000);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: PropertyScreen(propertyId: 'property-1', api: api),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Washer'));
+      await tester.pumpAndSettle();
+      expect(find.text('Edit property asset'), findsOneWidget);
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Name'),
+        'Laundry washer',
+      );
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(api.updatedAsset, containsPair('name', 'Laundry washer'));
+
+      await tester.tap(find.text('Washer'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Retire asset'));
+      await tester.pumpAndSettle();
+      expect(find.text('Retire this asset?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Retire asset'));
+      await tester.pumpAndSettle();
+      expect(api.retiredAssetId, 'asset-1');
+      expect(find.text('Washer'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('groups the current report, tenancy details and documents', (
     tester,

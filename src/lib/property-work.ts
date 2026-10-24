@@ -152,6 +152,9 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
     },
   })
   if (!property || inspections.length === 0) throw new Error('Property not found')
+  const propertyDetailsFrozen = await db.inspection.count({ where: {
+    tenancy: { propertyId }, status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] },
+  } }) > 0
 
   // Repairs, assets and the timeline are tenancy screens with their own rule (a running
   // term), so each term says whether it can be opened rather than failing when tapped.
@@ -175,12 +178,20 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
   return {
     id: property.id,
     address: propertyLabel(property),
+    line1: property.line1,
+    unit: property.unit,
+    postalCode: property.postalCode,
+    propertyType: property.type,
     state: propertyState(property),
     stage,
     stageLabel: stageLabels[stage],
     nextInspectionId: next?.id ?? null,
     nextInspectionKind: next?.kind ?? null,
     canOpenTimeline: openable.size > 0,
+    canEditPropertyDetails: editableTenancies.has(ordered[0].id) && !propertyDetailsFrozen,
+    propertyDetailsLockedReason: !editableTenancies.has(ordered[0].id)
+      ? 'Only an agent working this tenancy can edit the property details.'
+      : propertyDetailsFrozen ? 'Property details are fixed because a report was sent for signature.' : null,
     terms: ordered.map((term) => {
       const fullAccess = editableTenancies.has(term.id)
       const detailsFrozen = inspections.some((inspection) => inspection.tenancy.id === term.id &&

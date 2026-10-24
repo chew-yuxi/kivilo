@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from 'vitest'
 import { db } from '@/lib/db'
 import { notificationCanBeDelivered } from '@/lib/notification-recipients'
+import { propertyHistory } from '@/lib/property-history'
 import {
   addMaintenanceVisit,
   answerResponsibility,
@@ -13,6 +14,7 @@ import {
   maintenanceCaseDetail,
   proposeResponsibility,
   updateMaintenanceCase,
+  updatePropertyAsset,
   updateTenancyTerms,
   verifyMaintenanceVisit,
 } from '@/lib/maintenance'
@@ -250,6 +252,38 @@ describe('maintenance history', () => {
     await expect(createPropertyAsset(record.property.id, record.agent.id, {
       ...assetInput, inspectionItemId: ownItem.id,
     })).rejects.toThrow('no longer be changed')
+  })
+
+  it('edits and retires an asset without deleting its repair history', async () => {
+    const record = await fixture('asset-edit')
+    const repair = await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      propertyAssetId: record.asset.id,
+      category: 'APPLIANCE',
+      title: 'Washer rattles',
+      description: 'The washer rattles during the spin cycle.',
+    })
+    await updatePropertyAsset(record.property.id, record.asset.id, record.agent.id, {
+      action: 'update',
+      name: 'Laundry washer',
+      category: 'APPLIANCE',
+      roomLabel: 'Yard',
+      identifier: 'WM-CORRECTED',
+    })
+    expect(await listPropertyAssets(record.property.id, record.agent.id)).toEqual([
+      expect.objectContaining({
+        id: record.asset.id, name: 'Laundry washer', roomLabel: 'Yard', identifier: 'WM-CORRECTED',
+      }),
+    ])
+
+    await updatePropertyAsset(record.property.id, record.asset.id, record.landlord.id, { action: 'retire' })
+    expect(await listPropertyAssets(record.property.id, record.agent.id)).toEqual([])
+    expect(await db.maintenanceCase.findUniqueOrThrow({ where: { id: repair.id } }))
+      .toMatchObject({ propertyAssetId: record.asset.id })
+    const history = await propertyHistory(record.property.id, record.agent.id)
+    expect(history.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'ASSET_CHANGED' }),
+      expect.objectContaining({ kind: 'ASSET_RETIRED' }),
+    ]))
   })
 })
 

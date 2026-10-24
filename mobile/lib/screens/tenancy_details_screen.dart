@@ -13,7 +13,7 @@ class TenancyDetailsScreen extends StatefulWidget {
     this.api,
   });
 
-  final String property;
+  final PropertyOverview property;
   final PropertyTerm term;
   final Api? api;
 
@@ -24,9 +24,17 @@ class TenancyDetailsScreen extends StatefulWidget {
 class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
   final _form = GlobalKey<FormState>();
   late final _api = widget.api ?? Api();
+  late final _line1 = TextEditingController(text: widget.property.line1);
+  late final _unit = TextEditingController(text: widget.property.unit ?? '');
+  late final _postalCode = TextEditingController(
+    text: widget.property.postalCode,
+  );
+  late String _propertyType = widget.property.propertyType;
+  late final _landlordName = TextEditingController(text: widget.term.landlord);
   late final _landlordEmail = TextEditingController(
     text: widget.term.landlordEmail ?? '',
   );
+  late final _tenantName = TextEditingController(text: widget.term.tenant);
   late final _tenantEmail = TextEditingController(
     text: widget.term.tenantEmail ?? '',
   );
@@ -41,7 +49,12 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
 
   @override
   void dispose() {
+    _line1.dispose();
+    _unit.dispose();
+    _postalCode.dispose();
+    _landlordName.dispose();
     _landlordEmail.dispose();
+    _tenantName.dispose();
     _tenantEmail.dispose();
     _monthlyRent.dispose();
     _deposit.dispose();
@@ -128,7 +141,13 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
     });
     try {
       await _api.updateTenancyDetails(widget.term.tenancyId, {
+        'line1': _line1.text.trim(),
+        'unit': _unit.text.trim().isEmpty ? null : _unit.text.trim(),
+        'postalCode': _postalCode.text.trim(),
+        'propertyType': _propertyType,
+        'landlordName': _landlordName.text.trim(),
         'landlordEmail': landlordEmail.isEmpty ? null : landlordEmail,
+        'tenantName': _tenantName.text.trim(),
         'tenantEmail': tenantEmail.isEmpty ? null : tenantEmail,
         'startDate': _iso(_startDate),
         'endDate': _iso(_endDate),
@@ -156,10 +175,68 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
             padding: kiviloScreenPadding,
             children: [
               Text(
-                widget.property,
+                widget.property.address,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 24),
+              const KiviloSectionHeading(
+                title: 'Property',
+                subtitle: 'The address and type printed on the report',
+              ),
+              const SizedBox(height: kiviloHeadingGap),
+              if (!widget.property.canEditPropertyDetails) ...[
+                KiviloNotice(
+                  tone: KiviloTone.info,
+                  child: Text(
+                    widget.property.propertyDetailsLockedReason ??
+                        'These property details are available to view but cannot be edited.',
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+              TextFormField(
+                controller: _line1,
+                readOnly: !widget.property.canEditPropertyDetails,
+                decoration: const InputDecoration(labelText: 'Address'),
+                validator: (value) => (value?.trim().isEmpty ?? true)
+                    ? 'Enter the property address'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _unit,
+                readOnly: !widget.property.canEditPropertyDetails,
+                decoration: const InputDecoration(labelText: 'Unit (optional)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _postalCode,
+                readOnly: !widget.property.canEditPropertyDetails,
+                decoration: const InputDecoration(labelText: 'Postal code'),
+                keyboardType: TextInputType.number,
+                validator: (value) => (value?.trim().isEmpty ?? true)
+                    ? 'Enter the postal code'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              IgnorePointer(
+                ignoring: !widget.property.canEditPropertyDetails,
+                child: KiviloSelectField<String>(
+                  label: 'Property type',
+                  value: _propertyType,
+                  options: const [
+                    KiviloSelectOption(
+                      value: 'PRIVATE_NON_LANDED',
+                      label: 'Private, non-landed',
+                    ),
+                    KiviloSelectOption(value: 'HDB', label: 'HDB'),
+                    KiviloSelectOption(value: 'LANDED', label: 'Landed'),
+                    KiviloSelectOption(value: 'COMMERCIAL', label: 'Commercial'),
+                  ],
+                  onChanged: (value) => setState(() => _propertyType = value),
+                ),
+              ),
+              const SizedBox(height: 32),
               if (!widget.term.canEditDetails) ...[
                 KiviloNotice(
                   tone: KiviloTone.info,
@@ -176,8 +253,15 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                     'Add an email so each party can receive and sign the report',
               ),
               const SizedBox(height: kiviloHeadingGap),
-              Text(widget.term.landlord),
-              const SizedBox(height: 6),
+              TextFormField(
+                controller: _landlordName,
+                readOnly: !widget.term.canEditDetails,
+                decoration: const InputDecoration(labelText: 'Landlord name'),
+                validator: (value) => (value?.trim().isEmpty ?? true)
+                    ? 'Enter the landlord name'
+                    : null,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _landlordEmail,
                 readOnly: !widget.term.canEditDetails,
@@ -189,8 +273,15 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 validator: _emailError,
               ),
               const SizedBox(height: 16),
-              Text(widget.term.tenant),
-              const SizedBox(height: 6),
+              TextFormField(
+                controller: _tenantName,
+                readOnly: !widget.term.canEditDetails,
+                decoration: const InputDecoration(labelText: 'Tenant name'),
+                validator: (value) => (value?.trim().isEmpty ?? true)
+                    ? 'Enter the tenant name'
+                    : null,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _tenantEmail,
                 readOnly: !widget.term.canEditDetails,

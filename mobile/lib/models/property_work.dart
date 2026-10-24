@@ -131,38 +131,55 @@ class PropertyOverview {
   const PropertyOverview({
     required this.id,
     required this.address,
+    required this.line1,
+    required this.postalCode,
+    required this.propertyType,
     required this.state,
     required this.stage,
     required this.stageLabel,
     required this.canOpenTimeline,
     required this.terms,
+    this.unit,
+    this.canEditPropertyDetails = false,
+    this.propertyDetailsLockedReason,
     this.nextInspectionId,
     this.nextInspectionKind,
   });
   final String id;
   final String address;
+  final String line1;
+  final String? unit;
+  final String postalCode;
+  final String propertyType;
   final String state;
   final String stage;
   final String stageLabel;
   final bool canOpenTimeline;
+  final bool canEditPropertyDetails;
+  final String? propertyDetailsLockedReason;
   final List<PropertyTerm> terms;
   final String? nextInspectionId;
   final String? nextInspectionKind;
 
-  factory PropertyOverview.fromJson(Map<String, dynamic> json) =>
-      PropertyOverview(
-        id: json['id'] as String,
-        address: json['address'] as String,
-        state: json['state'] as String,
-        stage: json['stage'] as String,
-        stageLabel: json['stageLabel'] as String,
-        canOpenTimeline: json['canOpenTimeline'] as bool,
-        nextInspectionId: json['nextInspectionId'] as String?,
-        nextInspectionKind: json['nextInspectionKind'] as String?,
-        terms: (json['terms'] as List<dynamic>)
-            .map(
-              (value) => PropertyTerm.fromJson(value as Map<String, dynamic>),
-            )
-            .toList(),
-      );
+  factory PropertyOverview.fromJson(
+    Map<String, dynamic> json,
+  ) => PropertyOverview(
+    id: json['id'] as String,
+    address: json['address'] as String,
+    line1: json['line1'] as String? ?? json['address'] as String,
+    unit: json['unit'] as String?,
+    postalCode: json['postalCode'] as String? ?? '',
+    propertyType: json['propertyType'] as String? ?? 'PRIVATE_NON_LANDED',
+    state: json['state'] as String,
+    stage: json['stage'] as String,
+    stageLabel: json['stageLabel'] as String,
+    canOpenTimeline: json['canOpenTimeline'] as bool,
+    canEditPropertyDetails: json['canEditPropertyDetails'] as bool? ?? false,
+    propertyDetailsLockedReason: json['propertyDetailsLockedReason'] as String?,
+    nextInspectionId: json['nextInspectionId'] as String?,
+    nextInspectionKind: json['nextInspectionKind'] as String?,
+    terms: (json['terms'] as List<dynamic>)
+        .map((value) => PropertyTerm.fromJson(value as Map<String, dynamic>))
+        .toList(),
+  );
 }

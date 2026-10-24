@@ -38,7 +38,13 @@ async function fixture(status: 'DRAFT' | 'AWAITING_SIGNATURE' = 'DRAFT') {
 }
 
 const details = {
+  line1: `Corrected Details ${tag}`,
+  unit: '#02-03',
+  postalCode: `7${tag.slice(0, 5)}`,
+  propertyType: 'HDB' as const,
+  landlordName: `Corrected landlord ${tag}`,
   landlordEmail: `landlord-${tag}@details.test`,
+  tenantName: `Corrected tenant ${tag}`,
   tenantEmail: `tenant-${tag}@details.test`,
   startDate: '2026-02-01',
   endDate: '2028-02-01',
@@ -60,15 +66,21 @@ describe('tenancy details', () => {
     await updateTenancyDetails(tenancy.id, agent.id, details)
 
     const updated = await db.tenancy.findUniqueOrThrow({
-      where: { id: tenancy.id }, include: { landlord: true, tenant: true },
+      where: { id: tenancy.id }, include: { landlord: true, tenant: true, property: true },
     })
+    expect(updated.property).toMatchObject({
+      line1: details.line1, unit: details.unit, postalCode: details.postalCode, type: details.propertyType,
+    })
+    expect(updated.landlord.name).toBe(details.landlordName)
     expect(updated.landlord.email).toBe(details.landlordEmail)
+    expect(updated.tenant.name).toBe(details.tenantName)
     expect(updated.tenant.email).toBe(details.tenantEmail)
     expect(updated.startDate).toEqual(new Date('2026-02-01'))
     expect(updated.monthlyRent.toString()).toBe('3250.5')
-    expect((await propertyHistory(property.id, agent.id)).events[0]).toMatchObject({
-      kind: 'TENANCY_DETAILS_CHANGED', summary: 'changed the tenancy details',
-    })
+    expect((await propertyHistory(property.id, agent.id)).events).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'TENANCY_DETAILS_CHANGED', summary: 'changed the tenancy details' }),
+      expect.objectContaining({ kind: 'PROPERTY_DETAILS_CHANGED', summary: 'changed the property details' }),
+    ]))
   })
 
   it('refuses another person and freezes details when the report is sent', async () => {

@@ -84,16 +84,16 @@ class _TenancyScreenState extends State<TenancyScreen> {
     if (mounted) await _refresh();
   }
 
-  Future<void> _addAsset() async {
-    final name = TextEditingController();
-    final room = TextEditingController();
-    final identifier = TextEditingController();
-    var category = 'APPLIANCE';
-    final submitted = await showKiviloDrawer<bool>(
+  Future<void> _editAsset([PropertyAssetSummary? asset]) async {
+    final name = TextEditingController(text: asset?.name ?? '');
+    final room = TextEditingController(text: asset?.roomLabel ?? '');
+    final identifier = TextEditingController(text: asset?.identifier ?? '');
+    var category = asset?.category ?? 'APPLIANCE';
+    final action = await showKiviloDrawer<String>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => KiviloDrawer(
-          title: const Text('Add property asset'),
+          title: Text(asset == null ? 'Add property asset' : 'Edit property asset'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,30 +133,73 @@ class _TenancyScreenState extends State<TenancyScreen> {
             ],
           ),
           actions: [
+            if (asset != null)
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'retire'),
+                child: const Text('Retire asset'),
+              ),
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Add'),
+              onPressed: () => Navigator.pop(context, 'save'),
+              child: Text(asset == null ? 'Add' : 'Save'),
             ),
           ],
         ),
       ),
     );
-    if (submitted == true && name.text.trim().isNotEmpty) {
-      await _api.createPropertyAsset(widget.tenancy.propertyId, {
+    if (action == 'save' && name.text.trim().isNotEmpty) {
+      final details = <String, dynamic>{
         'name': name.text.trim(),
         'category': category,
         'roomLabel': room.text.trim().isEmpty ? null : room.text.trim(),
         'identifier': identifier.text.trim().isEmpty
             ? null
             : identifier.text.trim(),
-        'inspectionItemId': null,
-      });
+      };
+      if (asset == null) {
+        await _api.createPropertyAsset(widget.tenancy.propertyId, {
+          ...details,
+          'inspectionItemId': null,
+        });
+      } else {
+        await _api.updatePropertyAsset(widget.tenancy.propertyId, asset.id, {
+          'action': 'update',
+          ...details,
+        });
+      }
       if (mounted) await _refresh();
+    } else if (action == 'retire' && asset != null && mounted) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Retire this asset?'),
+          content: Text(
+            '${asset.name} will no longer appear when reporting a new repair. '
+            'Its repair and report history will be kept.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Retire asset'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed == true) {
+        await _api.retirePropertyAsset(widget.tenancy.propertyId, asset.id);
+        if (mounted) await _refresh();
+      }
     }
+    // The bottom sheet's reverse transition can still be reading its fields after
+    // Navigator.pop completes. Dispose once that route is fully off screen.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     name.dispose();
     room.dispose();
     identifier.dispose();
@@ -581,7 +624,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     action: widget.tenancy.role == 'TENANT'
                         ? null
                         : TextButton.icon(
-                            onPressed: _addAsset,
+                            onPressed: _editAsset,
                             icon: const Icon(Icons.add, size: 18),
                             label: const Text('Add asset'),
                           ),
@@ -597,12 +640,26 @@ class _TenancyScreenState extends State<TenancyScreen> {
                         [
                           if (assets[index].roomLabel != null)
                             assets[index].roomLabel!,
+                          if (assets[index].identifier != null)
+                            assets[index].identifier!,
                           '${assets[index].repairVisitsLast365Days} repairs in 365 days',
                         ].join(' · '),
                       ),
-                      trailing: assets[index].repairVisitsLast365Days >= 4
-                          ? const Chip(label: Text('Repeat fault'))
-                          : null,
+                      trailing: widget.tenancy.role == 'TENANT'
+                          ? (assets[index].repairVisitsLast365Days >= 4
+                              ? const Chip(label: Text('Repeat fault'))
+                              : null)
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (assets[index].repairVisitsLast365Days >= 4)
+                                  const Chip(label: Text('Repeat fault')),
+                                const Icon(Icons.chevron_right),
+                              ],
+                            ),
+                      onTap: widget.tenancy.role == 'TENANT'
+                          ? null
+                          : () => _editAsset(assets[index]),
                     ),
                   ],
                 ],
