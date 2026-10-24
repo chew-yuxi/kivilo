@@ -476,14 +476,14 @@ void main() {
   });
 
   testWidgets(
-    'collaborators see the danger zone, and its actions name who can act',
+    'collaborators see property actions and who can act',
     (tester) async {
       final api = _ManagementApi()..canManage = false;
       await _open(
         tester,
         PropertySettingsScreen(propertyId: 'property', api: api),
       );
-      expect(find.text('Danger zone'), findsOneWidget);
+      expect(find.text('Archive or delete property'), findsOneWidget);
       const explanation =
           'Only the responsible agent or a team owner or manager for every '
           'tenancy here can do this. Ask Lead Owner.';
@@ -559,7 +559,7 @@ void main() {
     },
   );
 
-  testWidgets('archive keeps an obvious route to preserved report history', (
+  testWidgets('property actions contain only lifecycle controls', (
     tester,
   ) async {
     final api = _ManagementApi()
@@ -578,10 +578,10 @@ void main() {
       tester,
       PropertySettingsScreen(propertyId: 'property', api: api),
     );
-    expect(
-      find.widgetWithText(OutlinedButton, 'Open check-in report'),
-      findsOneWidget,
-    );
+    expect(find.text('Property actions'), findsOneWidget);
+    expect(find.text('Tenancy access'), findsNothing);
+    expect(find.text('Open check-in report'), findsNothing);
+    expect(find.text('History'), findsNothing);
     expect(find.text('Restore to active properties'), findsOneWidget);
   });
 

@@ -121,6 +121,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
           final property = snapshot.data!;
           final text = Theme.of(context).textTheme;
           final current = property.terms.first;
+          final accessTerms = property.terms
+              .where((term) => term.tenancy?.role == 'AGENT')
+              .toList();
           return RefreshIndicator(
             onRefresh: _refresh,
             child: ListView(
@@ -224,10 +227,43 @@ class _PropertyScreenState extends State<PropertyScreen> {
                         ),
                       ),
                       const Divider(height: 1),
+                      for (final term in accessTerms) ...[
+                        ListTile(
+                          leading: const Icon(Icons.person_outline),
+                          title: Text(
+                            accessTerms.length == 1
+                                ? 'Tenancy access'
+                                : '${term.tenant} access',
+                          ),
+                          subtitle: Text(
+                            accessTerms.length == 1
+                                ? 'Manage who can work on this tenancy'
+                                : '${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _open(
+                            TenancyAccessScreen(
+                              tenancyId: term.tenancyId,
+                              property: property.address,
+                              api: _api,
+                            ),
+                          ),
+                        ),
+                        const Divider(height: 1),
+                      ],
                       ListTile(
                         leading: const Icon(Icons.edit_outlined),
-                        title: const Text('Property settings'),
-                        subtitle: const Text('Archive, delete or restore'),
+                        title: Text(switch (property.state) {
+                          'ARCHIVED' => 'Restore or delete property',
+                          'TRASHED' => 'Restore property',
+                          _ => 'Archive or delete property',
+                        }),
+                        subtitle: Text(switch (property.state) {
+                          'ARCHIVED' =>
+                            'Return it to active work or move it to trash',
+                          'TRASHED' => 'Return it to active properties',
+                          _ => 'Remove it from active work or move it to trash',
+                        }),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => _open(
                           PropertySettingsScreen(
@@ -301,27 +337,6 @@ class _PropertyScreenState extends State<PropertyScreen> {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => _open(
             SupportingDocumentsScreen(tenancyId: term.tenancyId, api: _api),
-          ),
-        ),
-      );
-    }
-    if (term.tenancy?.role == 'AGENT') {
-      addRow(
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
-          leading: const Icon(Icons.person_outline),
-          title: const Text('People and access'),
-          subtitle: const Text('Manage who can work on this tenancy'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => _open(
-            TenancyAccessScreen(
-              tenancyId: term.tenancyId,
-              property: property.address,
-              api: _api,
-            ),
           ),
         ),
       );

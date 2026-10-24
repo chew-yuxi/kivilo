@@ -6,9 +6,6 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
-import 'property_history_screen.dart';
-import 'tenancy_access_screen.dart';
-import 'inspection_screen.dart';
 
 class PropertySettingsScreen extends StatefulWidget {
   const PropertySettingsScreen({super.key, required this.propertyId, this.api});
@@ -45,7 +42,8 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
   void _locked(PropertySettings property, String action) => showLockedAction(
     context,
     action: action,
-    who: 'the responsible agent or a team owner or manager for every tenancy here',
+    who:
+        'the responsible agent or a team owner or manager for every tenancy here',
     askNames: property.askNames,
   );
 
@@ -86,7 +84,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
   Widget build(BuildContext context) => PopScope<void>(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Property settings')),
+      appBar: AppBar(title: const Text('Property actions')),
       body: KiviloContent(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -142,103 +140,18 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                     ),
                   ],
                   if (property != null) ...[
-                    if (property.state != 'TRASHED') ...[
-                      const SizedBox(height: kiviloSectionGap),
-                      const KiviloSectionHeading(title: 'Tenancy access'),
-                      const SizedBox(height: kiviloHeadingGap),
-                      for (final tenancy in property.tenancies) ...[
-                        Card(
-                          child: ListTile(
-                            title: Text(
-                              tenancy['agencyName'] as String? ??
-                                  'Personal tenancy',
-                            ),
-                            subtitle: Text(
-                              'Responsible agent: ${tenancy['leadAgentName']}',
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: _busy
-                                ? null
-                                : () async {
-                                    await Navigator.of(context).push<void>(
-                                      MaterialPageRoute(
-                                        builder: (_) => TenancyAccessScreen(
-                                          tenancyId: tenancy['id'] as String,
-                                          property: property.label,
-                                          api: _api,
-                                        ),
-                                      ),
-                                    );
-                                    if (mounted) await _refresh();
-                                  },
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        for (final inspection
-                            in (tenancy['inspections'] as List<dynamic>? ??
-                                const [])) ...[
-                          OutlinedButton(
-                            onPressed: _busy
-                                ? null
-                                : () async {
-                                    await Navigator.of(context).push<void>(
-                                      MaterialPageRoute(
-                                        builder: (_) => InspectionScreen(
-                                          id:
-                                              (inspection
-                                                      as Map<
-                                                        String,
-                                                        dynamic
-                                                      >)['id']
-                                                  as String,
-                                          api: _api,
-                                        ),
-                                      ),
-                                    );
-                                    if (mounted) await _refresh();
-                                  },
-                            child: Text(
-                              'Open ${inspection['kind'] == 'CHECK_OUT' ? 'check-out' : 'check-in'} report',
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                      ],
-                    ],
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(
-                      title: 'History',
-                      subtitle: 'Every change and deletion, with who made it. Deleted items can be restored for 30 days.',
-                    ),
-                    const SizedBox(height: kiviloHeadingGap),
-                    OutlinedButton.icon(
-                      onPressed: () => Navigator.of(context).push<void>(
-                        MaterialPageRoute(
-                          builder: (_) => PropertyHistoryScreen(
-                            propertyId: widget.propertyId,
-                            api: _api,
-                          ),
-                        ),
-                      ),
-                      icon: const Icon(Icons.history),
-                      label: const Text('View history'),
-                    ),
-                    const SizedBox(height: 28),
                     Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: const BorderSide(color: KiviloColors.red),
-                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              'Danger zone',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(color: KiviloColors.red),
-                            ),
+                            Text(switch (property.state) {
+                              'ARCHIVED' => 'Restore or delete property',
+                              'TRASHED' => 'Property recovery',
+                              _ => 'Archive or delete property',
+                            }, style: Theme.of(context).textTheme.titleLarge),
                             const SizedBox(height: 12),
                             if (property.state == 'TRASHED') ...[
                               Text(

@@ -312,7 +312,7 @@ void main() {
     expect(find.text('Current tenancy'), findsNothing);
     expect(find.text('Continue check-in'), findsOneWidget);
     expect(find.text('History'), findsOneWidget);
-    expect(find.text('Property settings'), findsOneWidget);
+    expect(find.text('Archive or delete property'), findsOneWidget);
     // An old-report grant or ended term has no repairs screen to open.
     expect(find.text('Repairs and assets'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -341,6 +341,7 @@ void main() {
     expect(find.text('Property care'), findsOneWidget);
     expect(find.text('Maintenance'), findsOneWidget);
     expect(find.text('Property assets'), findsOneWidget);
+    expect(find.text('Tenancy access'), findsOneWidget);
     expect(find.text('Continue check-in'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
