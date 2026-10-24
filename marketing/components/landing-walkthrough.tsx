@@ -148,9 +148,22 @@ export function LandingWalkthrough() {
             <Image src="/illustrations/sign-768-8d977bcfeef9.webp" width={768} height={512} sizes="(max-width: 760px) 90vw, 550px" unoptimized alt="The landlord and tenant reviewing and signing their handover record together." className={styles.signingIllustration} />
             <div className={styles.signedRecord}>
               <div className={styles.reportEvidence}><MarkedPhoto mark={mark} detail /><div><strong>Living room · Sideboard</strong><p>{itemNotes}</p></div></div>
-              <div className={styles.signatures} aria-label="Illustrative signatures">
-                <div><span>Landlord</span><strong><span aria-hidden="true">✓ </span>Signed</strong></div>
-                <div><span>Tenant</span><strong><span aria-hidden="true">✓ </span>Signed</strong></div>
+              {/* Fictional ink signatures drawn only for this marketing example. */}
+              <div className={styles.signatures} role="group" aria-label="Illustrative signatures">
+                <div>
+                  <svg className={styles.signature} viewBox="0 0 220 72" role="img" aria-label="Sample landlord signature" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 49C25 32 32 13 39 14C46 16 37 43 34 51M20 38C31 33 44 31 53 33M43 44C56 29 64 12 58 13C51 15 45 41 50 46C54 50 64 40 67 35C68 31 62 32 60 38C57 47 66 49 75 40M74 34L84 45M87 32L74 47M96 46C114 30 125 9 117 10C108 12 99 39 102 47C105 54 120 44 127 39M128 33C124 39 123 45 128 45C133 45 138 36 140 32L135 45C143 31 150 30 146 41L144 45C152 31 160 29 156 40C152 51 165 44 173 38C185 29 197 30 206 27" />
+                    <path d="M130 24L131 23M25 60C75 52 138 56 195 48" strokeWidth="1.35" />
+                  </svg>
+                  <span>Landlord</span>
+                </div>
+                <div>
+                  <svg className={styles.signature} viewBox="0 0 220 72" role="img" aria-label="Sample tenant signature" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 23C37 15 61 14 76 17M58 17C49 34 43 58 28 59C18 60 13 51 23 45C29 42 36 45 38 48M51 44L62 31L58 44L72 30L66 44L80 29C75 41 76 48 89 35M94 24L123 18M111 14L98 43C95 52 107 42 114 34C119 28 123 33 119 39C113 48 108 43 115 36C122 29 126 30 123 40C121 46 128 42 135 32L130 44C142 28 149 28 145 39C141 49 153 41 161 34L158 42C169 30 177 32 173 38C171 43 181 40 190 34L205 30" />
+                    <path d="M73 57L195 49L180 55" strokeWidth="1.2" />
+                  </svg>
+                  <span>Tenant</span>
+                </div>
               </div>
             </div>
           </div>

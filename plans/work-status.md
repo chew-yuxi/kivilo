@@ -13,7 +13,7 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`46dfd9ff-2065-4c7b-8a0d-ad386616dc8d`. Build/deploy instructions: `marketing/README.md`.
+`bf8b708a-4477-49be-b6d3-d62708567ced`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -102,6 +102,10 @@ toggling, keyboard tools, ordinary touch scrolling, touch drawing and no-JavaScr
 rendering. Desktop, tablet and phone screenshots were reviewed. Live HTML and eleven
 script, style and illustration assets match the export; 390/1440px production checks
 confirm shared marks, original viewing, no overflow and no runtime errors.
+The signing example now uses two fictional handwritten SVG signatures instead of
+"Signed" badges, with accessible names and aligned 18px role captions. Marketing
+build, strict lint and 320/390/768/1440px visual/layout checks pass. Live HTML and nine
+script/style assets match the export; both sample signatures render on the phone layout.
 
 ## Tenancy agreements and supporting documents — 23 October
 

@@ -43,9 +43,9 @@
 .reportEvidence strong { font-weight:600; }
 .walkthrough .reportEvidence p { margin:5px 0 0; color:#6a6a66; font-size:18px; line-height:1.5; }
 .signatures { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-top:22px; padding-top:18px; border-top:1px solid #e8e3e6; }
-.signatures > div { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; font-size:18px; line-height:1.5; }
+.signatures > div { display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; gap:8px; min-width:0; font-size:18px; line-height:1.5; }
 .signatures > div + div { padding-left:20px; border-left:1px solid #e8e3e6; }
-.signatures strong { color:#4d7058; font-weight:500; }
+.signature { display:block; width:100%; max-width:200px; height:auto; color:#353942; }
 .finish { display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:64px; text-align:center; }
 .finish a { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:13px 24px; border-radius:12px; background:#db2777; color:#fff; font-size:18px; font-weight:600; line-height:1.5; transition:background 160ms; }
 .finish a:hover { background:#be185d; }
@@ -61,7 +61,6 @@
   .signedRecord { margin-left:0; margin-right:0; }
   .reportEvidence { grid-template-columns:85px minmax(0,1fr); gap:14px; }
   .signatures { gap:14px; }
-  .signatures > div { flex-direction:column; align-items:flex-start; }
   .signatures > div + div { padding-left:14px; }
 }
 @media (max-width:760px) {
@@ -78,7 +77,6 @@
   .attachedPhoto { grid-template-columns:minmax(0,140px) minmax(0,1fr); }
   .signedRecord { margin:4px 10px 0; }
   .reportEvidence { grid-template-columns:100px minmax(0,1fr); gap:18px; }
-  .signatures > div { flex-direction:row; }
   .finish { margin-top:48px; }
 }
 @media (max-width:420px) {
@@ -90,7 +88,6 @@
   .attachedPhoto { grid-template-columns:minmax(0,105px) minmax(0,1fr); gap:14px; }
   .signedRecord { margin:4px 0 0; }
   .reportEvidence { grid-template-columns:85px minmax(0,1fr); gap:13px; }
-  .signatures > div { flex-direction:column; align-items:flex-start; }
   .finish a { width:100%; padding-left:16px; padding-right:16px; }
 }
 @media (prefers-reduced-motion:reduce) { .finish a { transition:none; } }

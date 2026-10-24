@@ -28,6 +28,8 @@ and in the signing example. Detail crops expand if someone draws elsewhere in th
 scene, so their marks remain visible. Viewing the original affects only the first
 illustration. Touch gestures scroll and zoom normally until a tool is selected;
 drawing switches off again after one stroke. No customer property data is used.
+The landlord and tenant signatures are two fictional SVG ink drawings, each with
+an accessible sample-signature label and a visible role caption.
 
 The static hero artwork is `public/art/tenancy-scenes.webp`: a property inspection
 on the left and a happy handover on the right, with the headline and CTA in the clear
