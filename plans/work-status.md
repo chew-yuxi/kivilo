@@ -1,13 +1,13 @@
 # Kivilo work tracker
 
-Updated 23 October 2026 Singapore time. Tenancy agreements and supporting documents are
-**live** from `74904b8`: backend `dpl_4b5jjqtjD4pkPLq8DYX9bxhLrWos` in `sin1`, Android25
-patch **14** / `743531` and iOS24 patch **15** / `743545`, both stable and read back at
-17:52 Singapore time. Both production migrations preceded the backend; authenticated
-smoke passed. The release preserves Properties, history/bin and the button system through
-`95df445`. Details and rollback are in `mobile/RELEASE.md`; receipt:
-`build/release-20261023-documents/stable-release.json`. Physical-device delivery remains
-**NOT RUN**. The concurrent Properties session resumes its cache-loading work after this release.
+Updated 24 October 2026 Singapore time. Editable native tenancy details are **live** from
+`a499015`: backend `dpl_CmXiGr3PHutUqJWn1TJ3247pVjS6` in `sin1`, Android25 patch **23** /
+`745755` and iOS24 patch **24** / `745765`, both stable and read back. The Property page
+can now add or change optional party emails, dates, rent and deposit before a report is
+sent. There is no migration or native/asset change. Production route smoke passed;
+physical-device delivery remains **NOT RUN**. App Store Connect reported
+`READY_FOR_SALE`; no store build or metadata was changed. Details and rollback are in
+`mobile/RELEASE.md`.
 
 ## Public website and app domains — 24 October
 

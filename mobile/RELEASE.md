@@ -5,12 +5,40 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
-## iOS store freeze (from 19 October 2026)
+## Editable tenancy details: 24 October 2026 Singapore time
 
-**No new iOS store build, submission, cancellation or metadata change until Apple
-approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the review
-queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
-carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
+Source `a499015`, pushed to `origin/main` before release. The native Property page now
+has a Tenancy details editor for the landlord and tenant email addresses, tenancy dates,
+rent and deposit, including email fields that were left blank when the property was
+created. The shared backend route uses the existing agent authorization boundary, locks
+and rechecks the tenancy, refuses edits after a report is sent, and records the change in
+property history. Party email changes reassign the tenancy party instead of mutating a
+possibly shared stakeholder identity.
+
+Vercel deployment `dpl_CmXiGr3PHutUqJWn1TJ3247pVjS6` was Ready in `sin1`; an
+unauthenticated production smoke request matched the new
+`/api/v1/tenancies/[id]/details` route and returned the expected `401`.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **23** / `745755` | **stable**, active and latest |
+| iOS `1.0.0+24` | **24** / `745765` | **stable**, active and latest |
+
+Promoted on Yuxi's explicit go. Web typecheck, lint and production build passed, along
+with 133 unit tests and the two focused integration cases. Flutter analysis, all 390
+mobile tests and focused editor widget tests passed. There is no migration, plugin,
+native configuration or asset change; the editor uses a Material icon already present
+in the installed release. Shorebird accepted both patches without overrides. iOS shared
+55.6% of Dart code and emitted its possible-slower-execution warning. Physical-device
+verification remains **NOT RUN**.
+
+App Store Connect reported `READY_FOR_SALE` before this release, ending the temporary
+store freeze. This release nevertheless used Shorebird only: no App Store build,
+submission, metadata or screenshot was changed.
+
+Rollback: Android patch **21** / `745626`, iOS patch **22** / `745635`. Pre-existing
+Android patch **22** / `745717` and iOS patch **23** / `745724` remain on staging and
+were not promoted.
 
 ## Team report branding and persistent app tabs: 24 October 2026 Singapore time
 

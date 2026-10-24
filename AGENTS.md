@@ -27,24 +27,6 @@ when someone is ready to re-migrate and re-seed.
 2. **Root causes only.** No `try/catch` that swallows errors, no `?? []` patches on symptoms.
 3. **Minimal impact.** Touch only what the task requires.
 
-## iOS store freeze: in force until Apple approves 1.0.0
-
-Set by Yuxi on 2026-10-19. Kivilo's first App Store version, `1.0.0` with build `24`
-(submission `628f3b8a`), is waiting for review, and every new build, cancellation or
-resubmission sends it to the back of the queue. Until App Store Connect shows it
-approved (`READY_FOR_SALE` or `PENDING_DEVELOPER_RELEASE`):
-
-- Do not upload an iOS build, submit one, cancel the submission, or edit its metadata
-  or screenshots.
-- Ship app changes as Shorebird patches on `1.0.0+24` (and `1.0.0+25` on Android), per
-  `mobile/RELEASE.md`. Promoting a patch to stable still needs Yuxi's go.
-- A change a patch cannot carry (a plugin, `Info.plist`, entitlements, a new icon) waits.
-  Tell Yuxi; do not work around the freeze.
-
-Check the state read-only with the App Store Connect API (app `6821514302`; the key and
-a token signer are in `~/.appstoreconnect/`). Once approved, delete this section and the
-matching notes in `mobile/RELEASE.md` and `otter-context/projects/mobility.md`.
-
 ## Four invariants
 
 **A person writes every line.** The timestamped video is the evidence, and the inventory
