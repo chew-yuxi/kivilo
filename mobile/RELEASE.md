@@ -12,6 +12,33 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Property actions and direct team navigation: 24 October 2026 Singapore time
+
+App-only. Mobile source `877adc9a7bcb10757f04ef73a94e5193ec532909`, pushed to
+`origin/main` before patching. Property-level actions now live in one Property page:
+asset fields have consistent spacing, tenancy access sits under More, and the lifecycle
+screen contains only archive, delete or restore as appropriate. The Team picker uses its
+team card as the action instead of repeating it in a button. Account now lists every team
+directly; tapping a team opens its members and assigned work without an intermediate Team
+directory. “Add another team” retains team creation and invitations.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **20** / `745566` | **stable**, active and latest |
+| iOS `1.0.0+24` | **21** / `745576` | **stable**, active and latest |
+
+Promoted on Yuxi's explicit go. Flutter analysis and all 22 focused Account, team and
+property-management tests passed. This is Dart-only: no backend, migration, plugin,
+native configuration, asset or new icon change. Both patch builds kept the release's
+MaterialIcons font hash (`faa4e86d`), and the iOS archive passed strict deep code-sign
+verification. Shorebird shared 56.3% of iOS Dart code with its usual possible-slower-
+execution warning. Apple’s store submission was not changed. Physical-device verification
+remains **NOT RUN**.
+
+Staging Android patch 19 and iOS patch 20 were built before the direct-team navigation
+change, never promoted, and are superseded. Rollback: Android patch **18** / `745516`,
+iOS patch **19** / `745518`.
+
 ## One property workspace: 24 October 2026 Singapore time
 
 App-only. Source `9f89f7392c8175d1136c6fc78fcef2264c5db67a`, pushed to
