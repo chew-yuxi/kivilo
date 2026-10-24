@@ -154,54 +154,6 @@ class _PropertyScreenState extends State<PropertyScreen> {
                     child: Text('Offline. Showing what was last loaded.'),
                   ),
                 ],
-                if (property.nextInspectionId != null &&
-                    property.state != 'TRASHED') ...[
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: () => _open(
-                      InspectionScreen(
-                        id: property.nextInspectionId!,
-                        api: _api,
-                      ),
-                    ),
-                    icon: const Icon(Icons.chevron_right, size: 20),
-                    iconAlignment: IconAlignment.end,
-                    label: Text(
-                      'Continue ${property.nextInspectionKind == 'CHECK_OUT' ? 'check-out' : 'check-in'}',
-                    ),
-                  ),
-                ],
-                const SizedBox(height: kiviloSectionGap),
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: ListTile(
-                    leading: Icon(
-                      current.canEditDetails
-                          ? Icons.edit_outlined
-                          : Icons.description_outlined,
-                    ),
-                    title: const Text('Tenancy details'),
-                    subtitle: Text(
-                      [
-                        if (current.landlordEmail == null)
-                          'Landlord email not provided',
-                        if (current.tenantEmail == null)
-                          'Tenant email not provided',
-                        if (current.landlordEmail != null &&
-                            current.tenantEmail != null)
-                          'Emails, dates, rent and deposit',
-                      ].join(' · '),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _open(
-                      TenancyDetailsScreen(
-                        property: property.address,
-                        term: current,
-                        api: _api,
-                      ),
-                    ),
-                  ),
-                ),
                 for (final term in property.terms) ...[
                   if (_termCard(term, property) case final card?) ...[
                     const SizedBox(height: kiviloSectionGap),
@@ -317,7 +269,11 @@ class _PropertyScreenState extends State<PropertyScreen> {
 
   Widget? _termCard(PropertyTerm term, PropertyOverview property) {
     final reports = term.reports
-        .where((report) => report.id != property.nextInspectionId)
+        .where(
+          (report) =>
+              report.id != property.nextInspectionId ||
+              property.state != 'TRASHED',
+        )
         .toList();
     final rows = <Widget>[];
 
@@ -343,7 +299,11 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 ? KiviloColors.green
                 : KiviloColors.body,
           ),
-          title: Text(report.kindLabel),
+          title: Text(
+            report.id == property.nextInspectionId
+                ? 'Continue ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'}'
+                : report.kindLabel,
+          ),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Align(
@@ -353,6 +313,38 @@ class _PropertyScreenState extends State<PropertyScreen> {
           ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => _open(InspectionScreen(id: report.id, api: _api)),
+        ),
+      );
+    }
+    if (term == property.terms.first) {
+      addRow(
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
+          leading: Icon(
+            term.canEditDetails
+                ? Icons.edit_outlined
+                : Icons.description_outlined,
+          ),
+          title: const Text('Tenancy details'),
+          subtitle: Text(
+            [
+              if (term.landlordEmail == null) 'Landlord email not provided',
+              if (term.tenantEmail == null) 'Tenant email not provided',
+              if (term.landlordEmail != null && term.tenantEmail != null)
+                'Emails, dates, rent and deposit',
+            ].join(' · '),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _open(
+            TenancyDetailsScreen(
+              property: property.address,
+              term: term,
+              api: _api,
+            ),
+          ),
         ),
       );
     }
