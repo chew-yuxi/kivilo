@@ -36,7 +36,10 @@ class TenancyScreen extends StatefulWidget {
 
 class _TenancyScreenState extends State<TenancyScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<_TenancyData> _loading = _api.load(_load);
+  late Loading<_TenancyData> _loading = _api.load(
+    _load,
+    retainKey: 'tenancy:${widget.tenancy.id}',
+  );
 
   Future<_TenancyData> _load() async => (
     await _api.maintenanceCases(widget.tenancy.id),
@@ -45,7 +48,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
   );
 
   Future<void> _refresh() async {
-    final next = _api.load(_load, savedFirst: false);
+    final next = _api.load(
+      _load,
+      savedFirst: false,
+      retainKey: 'tenancy:${widget.tenancy.id}',
+    );
     setState(() {
       _loading = next;
     });
@@ -272,9 +279,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     }
   }
@@ -362,12 +368,17 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.description_outlined),
                     title: const Text('Documents'),
-                    subtitle: const Text('Tenancy agreement and supporting files'),
+                    subtitle: const Text(
+                      'Tenancy agreement and supporting files',
+                    ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => Navigator.of(context).push<void>(
-                      MaterialPageRoute(builder: (_) => SupportingDocumentsScreen(
-                        tenancyId: widget.tenancy.id, api: _api,
-                      )),
+                      MaterialPageRoute(
+                        builder: (_) => SupportingDocumentsScreen(
+                          tenancyId: widget.tenancy.id,
+                          api: _api,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -463,11 +474,14 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: () async {
-                      await Navigator.of(context).push<void>(MaterialPageRoute(
+                      await Navigator.of(context).push<void>(
+                        MaterialPageRoute(
                         builder: (_) => PropertySettingsScreen(
-                          propertyId: widget.tenancy.propertyId, api: _api,
+                            propertyId: widget.tenancy.propertyId,
+                            api: _api,
                         ),
-                      ));
+                        ),
+                      );
                       if (mounted) await _refresh();
                     },
                     child: const Text('Property settings'),
@@ -548,8 +562,10 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       onTap: () async {
                         await Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (_) =>
-                                MaintenanceCaseScreen(caseId: cases[index].id),
+                            builder: (_) => MaintenanceCaseScreen(
+                              caseId: cases[index].id,
+                              api: _api,
+                            ),
                           ),
                         );
                         if (mounted) await _refresh();
@@ -619,12 +635,14 @@ class _TenancyScreenState extends State<TenancyScreen> {
           if (terms.canEditMinorRepairCap)
             TextButton(
               onPressed: () async {
-                await Navigator.of(context).push<void>(MaterialPageRoute(
+                await Navigator.of(context).push<void>(
+                  MaterialPageRoute(
                   builder: (_) => SupportingDocumentsScreen(
                     tenancyId: widget.tenancy.id,
                     api: _api,
                   ),
-                ));
+                  ),
+                );
                 if (mounted) await _refresh();
               },
               child: const Text('Review tenancy agreement'),

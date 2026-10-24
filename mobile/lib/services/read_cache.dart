@@ -8,7 +8,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Keeps previously viewed inspection metadata available on the same account's phone.
 /// Captured media uses the separate durable capture journal.
 class ReadCache {
-  String? get ownerId => Supabase.instance.client.auth.currentUser?.id;
+  String? get ownerId {
+    // Widget tests and pre-auth screens may create an Api before Supabase starts.
+    // There is no account-scoped copy to read in that state.
+    try {
+      return Supabase.instance.client.auth.currentUser?.id;
+    } on AssertionError {
+      return null;
+    }
+  }
 
   Future<File> _file(String owner, String key) async {
     final root = await getApplicationSupportDirectory();

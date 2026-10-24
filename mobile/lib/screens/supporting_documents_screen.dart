@@ -61,6 +61,10 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
     super.initState();
     // Capture the account before any picker, network request or browser round-trip.
     _ownerId = _api.currentOwnerId;
+    _data = _api.retainedView<SupportingDocuments>(
+      'documents:${widget.tenancyId}',
+    );
+    _loading = _data == null;
     _showOtherDocuments = widget.initialRequestId?.isNotEmpty == true;
     WidgetsBinding.instance.addObserver(this);
     _updates = evidenceSyncUpdates.listen((update) {
@@ -108,6 +112,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
           _pending = pending;
           _error = null;
         });
+        _api.retainView('documents:${widget.tenancyId}', data);
         if (!_focusedInitialRequest &&
             data.requests.any(
               (request) => request.id == widget.initialRequestId,
@@ -129,6 +134,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               (error.statusCode == 401 || error.statusCode == 404)) {
             _data = null;
             _pending = {};
+            _api.forgetRetainedView('documents:${widget.tenancyId}');
           }
         });
       }
@@ -156,6 +162,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               (error.statusCode == 401 || error.statusCode == 404)) {
             _data = null;
             _pending = {};
+            _api.forgetRetainedView('documents:${widget.tenancyId}');
           }
         });
       }
@@ -246,6 +253,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
     await Future<void>.delayed(const Duration(milliseconds: 350));
     title.dispose();
     if (result != null && mounted) {
+      _api.retainView('documents:${widget.tenancyId}', result);
       setState(() => _data = result);
       await _load();
     }

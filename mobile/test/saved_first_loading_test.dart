@@ -131,10 +131,15 @@ void main() {
   test('a refusal from the server forgets the saved copy', () async {
     final s = _setup();
     s.cache.data['/api/v1/property-work?'] = [_row('Saved Road')];
-    final loading = s.api.load(() => s.api.propertyWork());
+    s.api.retainView('properties', [_row('Retained Road')]);
+    final loading = s.api.load(
+      () => s.api.propertyWork(),
+      retainKey: 'properties',
+    );
     s.answer.complete(_refuse);
     await expectLater(loading.fresh, throwsA(isA<ApiFailure>()));
     expect(s.cache.data.containsKey('/api/v1/property-work?'), isFalse);
+    expect(s.api.retainedView<List<Object?>>('properties'), isNull);
   });
 
   testWidgets('refreshing keeps the list on screen instead of a spinner', (
@@ -164,6 +169,38 @@ void main() {
     expect(find.text('Second Road'), findsOneWidget);
     expect(find.text('First Road'), findsNothing);
   });
+
+  testWidgets(
+    'recreating a page keeps its in-memory view before the server answers',
+    (tester) async {
+      final api = _RefreshApi();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: PropertiesScreen(key: const ValueKey('first'), api: api),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('First Road'), findsOneWidget);
+
+      // This is what switching tabs or reopening a route does: a new State object asks
+      // the same session Api for the same page while its fresh request is still pending.
+      api.next = Completer<List<PropertyWorkItem>>();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: PropertiesScreen(key: const ValueKey('second'), api: api),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('First Road'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+
+      api.next!.complete([PropertyWorkItem.fromJson(_row('Second Road'))]);
+      await tester.pumpAndSettle();
+      expect(find.text('Second Road'), findsOneWidget);
+    },
+  );
 }
 
 class _RefreshApi extends Api {

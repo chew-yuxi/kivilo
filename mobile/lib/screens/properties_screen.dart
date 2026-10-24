@@ -67,7 +67,8 @@ class PropertiesScreen extends StatefulWidget {
 class _PropertiesScreenState extends State<PropertiesScreen> {
   late final _api = widget.api ?? Api();
   late final _workspace = widget.workspace ?? Workspace(_api);
-  late Loading<List<PropertyWorkItem>> _loading = _api.load(_load);
+  late Loading<List<PropertyWorkItem>> _loading;
+
   /// Bumped whenever a different list is asked for (workspace, agent, archived or
   /// deleted), so the previous list's rows never show while the new one loads.
   int _scope = 0;
@@ -79,6 +80,15 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   AgencyDetail? _teamDetail;
   String? _assigneeId;
   String? _workError;
+
+  String get _retainKey =>
+      'properties:${_workspace.value}:${_assigneeId ?? 'all'}:${_filter.state}';
+
+  @override
+  void initState() {
+    super.initState();
+    _loading = _api.load(_load, retainKey: _retainKey);
+  }
 
   @override
   void dispose() {
@@ -111,7 +121,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   /// The same list keeps showing while it refreshes; a different list starts blank
   /// and shows its own saved copy, if there is one.
   Future<void> _refresh({bool newScope = false}) async {
-    final next = _api.load(_load, savedFirst: newScope);
+    final next = _api.load(_load, savedFirst: newScope, retainKey: _retainKey);
     setState(() {
       _loading = next;
       if (newScope) _scope++;
@@ -178,9 +188,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _creating = false);
@@ -189,7 +198,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
 
   Future<void> _openProperty(String id) async {
     await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => PropertyScreen(propertyId: id, api: _api)),
+      MaterialPageRoute(
+        builder: (_) => PropertyScreen(propertyId: id, api: _api),
+      ),
     );
     if (mounted) await _refresh();
   }
@@ -233,7 +244,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                 extra: _workspace.all
                     ? null
                     : Padding(
-                        padding: const EdgeInsets.only(top: kiviloButtonGap),
+                            padding: const EdgeInsets.only(
+                              top: kiviloButtonGap,
+                            ),
                         child: OutlinedButton(
                           onPressed: () => _selectWorkspace('all'),
                           child: const Text('Show all properties'),
@@ -262,7 +275,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
               builder: (context, constraints) {
                 final available = constraints.maxWidth - 32;
                 final columns = available >= 680 ? 2 : 1;
-                final cardWidth = (available - (columns - 1) * 16) / columns;
+                    final cardWidth =
+                        (available - (columns - 1) * 16) / columns;
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
@@ -306,7 +320,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                         },
                       ),
                       const SizedBox(height: 8),
-                      const Text('Shows team work your account can access.'),
+                          const Text(
+                            'Shows team work your account can access.',
+                          ),
                     ],
                     if (_workError != null) ...[
                       const SizedBox(height: 12),
@@ -336,9 +352,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                               Expanded(
                                 child: Text(
                                   'Offline. Showing what was last loaded; you can keep taking photos.',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium,
                                 ),
                               ),
                             ],
@@ -353,7 +369,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                         controller: _search,
                         onChanged: (_) => setState(() {}),
                         textInputAction: TextInputAction.search,
-                        onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                            onSubmitted: (_) =>
+                                FocusScope.of(context).unfocus(),
                         decoration: InputDecoration(
                           labelText: 'Search properties',
                           hintText: 'Address, tenant or stage',
@@ -378,7 +395,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                               label: Text(
                                 // Counts describe the list on screen; Archived and
                                 // Recently deleted are fetched when chosen.
-                                filter.state != 'active' || _filter.state != 'active'
+                                      filter.state != 'active' ||
+                                              _filter.state != 'active'
                                     ? filter.label
                                     : '${filter.label} · ${properties.where(filter.includes).length}',
                               ),
@@ -428,9 +446,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                                       ? 'No archived properties'
                                       : 'No matching properties',
                                   textAlign: TextAlign.center,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(
@@ -445,7 +463,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                                       _search.clear();
                                       _selectFilter(_PropertyFilter.all);
                                     },
-                                    child: const Text('Show all properties'),
+                                        child: const Text(
+                                          'Show all properties',
+                                        ),
                                   ),
                                 ),
                               ],
@@ -472,7 +492,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           },
         ),
       ),
-    )),
+        ),
+      ),
   ),
   );
 
@@ -541,9 +562,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            _api.offlineCopy
-                ? 'Connect to create a new check-in.'
-                : 'Start a check-in for your next handover. Your inventory, photos and signed report will live here.',
+            _api.offlineCopy ? 'Connect to create a new check-in.' : 'Start a check-in for your next handover. Your inventory, photos and signed report will live here.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),

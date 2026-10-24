@@ -15,7 +15,12 @@ import '../ui/kivilo_components.dart';
 /// Everything settled at one address, newest first. The server decides which tenancies
 /// this viewer may see; the screen only lays them out.
 class PropertyTimelineScreen extends StatefulWidget {
-  const PropertyTimelineScreen({super.key, required this.propertyId, this.api, this.showPropertySettings = false});
+  const PropertyTimelineScreen({
+    super.key,
+    required this.propertyId,
+    this.api,
+    this.showPropertySettings = false,
+  });
   final bool showPropertySettings;
   final String propertyId;
   final Api? api;
@@ -26,12 +31,17 @@ class PropertyTimelineScreen extends StatefulWidget {
 
 class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<PropertyTimeline> _loading = _api.load(() => _api.propertyTimeline(
-    widget.propertyId,
-  ));
+  late Loading<PropertyTimeline> _loading = _api.load(
+    () => _api.propertyTimeline(widget.propertyId),
+    retainKey: 'property-timeline:${widget.propertyId}',
+  );
 
   Future<void> _refresh() async {
-    final next = _api.load(() => _api.propertyTimeline(widget.propertyId), savedFirst: false);
+    final next = _api.load(
+      () => _api.propertyTimeline(widget.propertyId),
+      savedFirst: false,
+      retainKey: 'property-timeline:${widget.propertyId}',
+    );
     setState(() {
       _loading = next;
     });
@@ -43,9 +53,12 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
       MaterialPageRoute<void>(
         // The agent's working copy when they may open it, otherwise the signed report.
         builder: (_) => switch (event.linkType) {
-          'inspection' => InspectionScreen(id: event.linkId!),
-          'maintenance' => MaintenanceCaseScreen(caseId: event.linkId!),
-          _ => ReportScreen(id: event.reportId!),
+          'inspection' => InspectionScreen(id: event.linkId!, api: _api),
+          'maintenance' => MaintenanceCaseScreen(
+            caseId: event.linkId!,
+            api: _api,
+          ),
+          _ => ReportScreen(id: event.reportId!, api: _api),
         },
       ),
     );
@@ -65,7 +78,9 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
         ),
       ),
     ),
-    body: KiviloContent(maxWidth: 840, child: StreamBuilder<PropertyTimeline>(
+    body: KiviloContent(
+      maxWidth: 840,
+      child: StreamBuilder<PropertyTimeline>(
       stream: _loading.stream,
       builder: (context, snapshot) {
         if (!snapshot.hasData && !snapshot.hasError) {
@@ -103,11 +118,14 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
                 const SizedBox(height: 16),
                 OutlinedButton(
                   onPressed: () async {
-                    await Navigator.of(context).push<void>(MaterialPageRoute(
+                      await Navigator.of(context).push<void>(
+                        MaterialPageRoute(
                       builder: (_) => PropertySettingsScreen(
-                        propertyId: widget.propertyId, api: _api,
+                            propertyId: widget.propertyId,
+                            api: _api,
                       ),
-                    ));
+                        ),
+                      );
                     if (mounted) await _refresh();
                   },
                   child: const Text('Property settings'),
@@ -155,7 +173,8 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
           ),
         );
       },
-    )),
+      ),
+    ),
   );
 }
 

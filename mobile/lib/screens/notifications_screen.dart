@@ -7,37 +7,50 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_components.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+  const NotificationsScreen({super.key, this.api});
+  final Api? api;
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final _api = Api();
-  late Future<List<NotificationModel>> _future = _api.notifications();
+  late final _api = widget.api ?? Api();
+  late Loading<List<NotificationModel>> _loading = _api.load(
+    _api.notifications,
+    retainKey: 'notifications',
+  );
+
+  Future<void> _refresh() async {
+    final next = _api.load(
+      _api.notifications,
+      savedFirst: false,
+      retainKey: 'notifications',
+    );
+    setState(() => _loading = next);
+    await next.fresh;
+  }
 
   Future<void> _open(NotificationModel item) async {
     await _api.markNotificationRead(item.id);
     final screen = await notificationScreen(item.href, _api);
     if (!mounted || screen == null) return;
     final destination = screen;
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => destination));
+    await Navigator.of(context)
+        .push(MaterialPageRoute<void>(builder: (_) => destination));
     if (!mounted) return;
-    setState(() {
-      _future = _api.notifications();
-    });
+    await _refresh();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Notifications')),
-    body: KiviloContent(maxWidth: 840, child: FutureBuilder<List<NotificationModel>>(
-      future: _future,
+    body: KiviloContent(
+      maxWidth: 840,
+      child: StreamBuilder<List<NotificationModel>>(
+        stream: _loading.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData && !snapshot.hasError) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
@@ -46,9 +59,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             title: 'Could not load notifications',
             body: plainError(snapshot.error!),
             actionLabel: 'Try again',
-            onAction: () => setState(() {
-              _future = _api.notifications();
-            }),
+              onAction: _refresh,
           );
         }
         final items = snapshot.data!;
@@ -65,9 +76,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           itemBuilder: (context, index) {
             final item = items[index];
             return ListTile(
-              leading: Icon(item.readAt == null
+                leading: Icon(
+                  item.readAt == null
                   ? Icons.notifications_active_outlined
-                  : Icons.notifications_none),
+                      : Icons.notifications_none,
+                ),
               title: Text(item.title),
               subtitle: Text(item.body),
               trailing: const Icon(Icons.chevron_right),
@@ -76,6 +89,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           },
         );
       },
-    )),
+      ),
+    ),
   );
 }

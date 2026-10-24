@@ -18,12 +18,19 @@ class TeamScreen extends StatefulWidget {
 
 class _TeamScreenState extends State<TeamScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<AgencyIndex> _loading = _api.load(_api.agencies);
+  late Loading<AgencyIndex> _loading = _api.load(
+    _api.agencies,
+    retainKey: 'agencies',
+  );
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.load(_api.agencies, savedFirst: false);
+    final next = _api.load(
+      _api.agencies,
+      savedFirst: false,
+      retainKey: 'agencies',
+    );
     setState(() {
       _loading = next;
     });
@@ -208,13 +215,20 @@ class TeamDetailScreen extends StatefulWidget {
 
 class _TeamDetailScreenState extends State<TeamDetailScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<AgencyDetail> _loading = _api.load(() => _api.agency(widget.id));
+  late Loading<AgencyDetail> _loading = _api.load(
+    () => _api.agency(widget.id),
+    retainKey: 'agency:${widget.id}',
+  );
   bool _busy = false;
   bool _leaving = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.load(() => _api.agency(widget.id), savedFirst: false);
+    final next = _api.load(
+      () => _api.agency(widget.id),
+      savedFirst: false,
+      retainKey: 'agency:${widget.id}',
+    );
     setState(() {
       _loading = next;
     });

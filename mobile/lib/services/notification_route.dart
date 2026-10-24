@@ -16,7 +16,7 @@ Future<Widget?> notificationScreen(String? href, Api api) async {
   final path = href ?? '';
   if (path == '/team') return TeamScreen(api: api);
   // Older notifications link to /inspections; the Properties tab replaced that list.
-  if (path == '/inspections') return const PropertiesScreen();
+  if (path == '/inspections') return PropertiesScreen(api: api);
   final uri = Uri.tryParse(path);
   final documents = uri != null && !uri.hasScheme && !uri.hasAuthority
       ? RegExp(r'^/tenancies/([^/]+)/documents$').firstMatch(uri.path)
@@ -34,11 +34,14 @@ Future<Widget?> notificationScreen(String? href, Api api) async {
   }
   final maintenance = RegExp(r'^/maintenance/([^/]+)$').firstMatch(path);
   if (maintenance != null) {
-    return MaintenanceCaseScreen(caseId: maintenance.group(1)!);
+    return MaintenanceCaseScreen(caseId: maintenance.group(1)!, api: api);
   }
   final update = RegExp(r'^/updates/([^/]+)$').firstMatch(path);
   if (update != null) {
-    return ReportScreen(id: await api.addendumReport(update.group(1)!));
+    return ReportScreen(
+      id: await api.addendumReport(update.group(1)!),
+      api: api,
+    );
   }
   return null;
 }

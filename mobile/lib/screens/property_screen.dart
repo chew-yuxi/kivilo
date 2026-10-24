@@ -16,7 +16,11 @@ import 'supporting_documents_screen.dart';
 
 /// Where a property is, as a coloured pill. Shared by the list and the property page.
 class PropertyStagePill extends StatelessWidget {
-  const PropertyStagePill({super.key, required this.stage, required this.label});
+  const PropertyStagePill({
+    super.key,
+    required this.stage,
+    required this.label,
+  });
   final String stage;
   final String label;
 
@@ -37,10 +41,8 @@ class PropertyStagePill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: color,
-          fontWeight: FontWeight.w700,
-        ),
+        style: Theme.of(context).textTheme.labelMedium
+            ?.copyWith(color: color, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -59,12 +61,17 @@ class PropertyScreen extends StatefulWidget {
 
 class _PropertyScreenState extends State<PropertyScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<PropertyOverview> _loading = _api.load(() => _api.propertyOverview(
-    widget.propertyId,
-  ));
+  late Loading<PropertyOverview> _loading = _api.load(
+    () => _api.propertyOverview(widget.propertyId),
+    retainKey: 'property:${widget.propertyId}',
+  );
 
   Future<void> _refresh() async {
-    final next = _api.load(() => _api.propertyOverview(widget.propertyId), savedFirst: false);
+    final next = _api.load(
+      () => _api.propertyOverview(widget.propertyId),
+      savedFirst: false,
+      retainKey: 'property:${widget.propertyId}',
+    );
     setState(() {
       _loading = next;
     });
@@ -72,9 +79,8 @@ class _PropertyScreenState extends State<PropertyScreen> {
   }
 
   Future<void> _open(Widget screen) async {
-    await Navigator.of(
-      context,
-    ).push<void>(MaterialPageRoute(builder: (_) => screen));
+    await Navigator.of(context)
+        .push<void>(MaterialPageRoute(builder: (_) => screen));
     if (mounted) await _refresh();
   }
 
@@ -154,7 +160,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 for (final term in property.terms) ...[
                   const SizedBox(height: kiviloSectionGap),
                   KiviloSectionHeading(
-                    title: term == current ? 'Current tenancy' : 'Earlier tenancy',
+                    title: term == current
+                        ? 'Current tenancy'
+                        : 'Earlier tenancy',
                     subtitle:
                         '${term.tenant} · ${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
                   ),
@@ -214,10 +222,12 @@ class _PropertyScreenState extends State<PropertyScreen> {
                   if (term.canOpenDocuments) ...[
                     const SizedBox(height: kiviloButtonGap),
                     OutlinedButton.icon(
-                      onPressed: () => _open(SupportingDocumentsScreen(
+                      onPressed: () => _open(
+                        SupportingDocumentsScreen(
                         tenancyId: term.tenancyId,
                         api: _api,
-                      )),
+                        ),
+                      ),
                       icon: const Icon(Icons.description_outlined),
                       label: const Text('Documents'),
                     ),

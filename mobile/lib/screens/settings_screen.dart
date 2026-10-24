@@ -17,7 +17,12 @@ import 'team_screen.dart';
 import '../ui/kivilo_layout.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, this.onStartCheckIn, this.trackView = true, this.api});
+  const SettingsScreen({
+    super.key,
+    this.onStartCheckIn,
+    this.trackView = true,
+    this.api,
+  });
   final Api? api;
   final bool trackView;
 
@@ -33,9 +38,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final _api = widget.api ?? Api();
   // Each section loads from what this phone saved, then refreshes on its own; the
   // page itself never waits for any of them.
-  late Loading<Map<String, dynamic>> _request = _api.load(_api.deletionRequest);
-  late Loading<AgentBranding?> _branding = _api.load(_api.branding);
-  late final Loading<WorkspacePlan> _plan = _api.load(_api.plan);
+  late Loading<Map<String, dynamic>> _request = _api.load(
+    _api.deletionRequest,
+    retainKey: 'deletion-request',
+  );
+  late Loading<AgentBranding?> _branding = _api.load(
+    _api.branding,
+    retainKey: 'branding',
+  );
+  late final Loading<WorkspacePlan> _plan = _api.load(
+    _api.plan,
+    retainKey: 'plan',
+  );
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
@@ -94,7 +108,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await _api.requestDeletion();
       if (mounted) {
         setState(
-          () => _request = _api.load(_api.deletionRequest, savedFirst: false),
+          () => _request = _api.load(
+            _api.deletionRequest,
+            savedFirst: false,
+            retainKey: 'deletion-request',
+          ),
         );
       }
     } catch (error) {
@@ -136,7 +154,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         debugPrint('Remote sign-out could not be confirmed: $error');
       }
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not sign out. ${plainError(error)}');
+      if (mounted) {
+        setState(() => _error = 'Could not sign out. ${plainError(error)}');
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -152,7 +172,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (saved != null && mounted) {
       setState(
-        () => _branding = _api.load(() async => saved, savedFirst: false),
+        () => _branding = _api.load(
+          () async => saved,
+          savedFirst: false,
+          retainKey: 'branding',
+        ),
       );
     }
   }
@@ -191,10 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             child: branding?.logoUrl != null
                 ? Image.network(branding!.logoUrl!, fit: BoxFit.contain)
-                : const Icon(
-                    Icons.store_rounded,
-                    color: KiviloColors.pinkDark,
-                  ),
+                : const Icon(Icons.store_rounded, color: KiviloColors.pinkDark),
           ),
           title: Text(branding?.agencyName ?? 'Add your agency'),
           subtitle: Text(
@@ -265,12 +286,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
     body: SafeArea(
       bottom: false,
-      child: KiviloContent(maxWidth: 720, child: StreamBuilder<Map<String, dynamic>>(
+        child: KiviloContent(
+          maxWidth: 720,
+          child: StreamBuilder<Map<String, dynamic>>(
       stream: _request.stream,
       builder: (context, snapshot) {
         // The page shows at once; only the deletion section waits for its status.
         final checkingDeletion = !snapshot.hasData && !snapshot.hasError;
-        final deletion = snapshot.data?['request'] as Map<String, dynamic>?;
+              final deletion =
+                  snapshot.data?['request'] as Map<String, dynamic>?;
         return ListView(
           padding: kiviloScreenPadding,
           children: [
@@ -303,11 +327,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             'Signed in to Kivilo',
-                            style: Theme.of(context).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            Supabase.instance.client.auth.currentUser?.email ??
+                                  Supabase
+                                          .instance
+                                          .client
+                                          .auth
+                                          .currentUser
+                                          ?.email ??
                                 '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -415,13 +446,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           children: [
                             Text(
                               'Request ${_statusLabel(deletion['status'])}',
-                              style: Theme.of(context).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                             ),
                             const SizedBox(height: 3),
                             Text(
                               'Requested ${_shortDate(deletion['requestedAt'])} · Due ${_shortDate(deletion['dueAt'])}'
                               '${deletion['completedAt'] == null ? '' : ' · Completed ${_shortDate(deletion['completedAt'])}'}',
-                              style: Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                             ),
                           ],
                         ),
@@ -445,11 +480,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (snapshot.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
-                child: Text('Could not load your deletion request. ${plainError(snapshot.error!)}'),
+                      child: Text(
+                        'Could not load your deletion request. ${plainError(snapshot.error!)}',
+                      ),
               ),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+                    Text(
+                      _error!,
+                      style: const TextStyle(color: KiviloColors.red),
+                    ),
             ],
             const SizedBox(height: 28),
             _linkCard(
@@ -470,7 +510,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         );
       },
-    )),
+          ),
+        ),
     ),
   ),
   );

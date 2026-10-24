@@ -207,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.notifications_none_outlined),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => const NotificationsScreen(),
+                        builder: (_) => NotificationsScreen(api: _api),
                       ),
                     ),
                   ),

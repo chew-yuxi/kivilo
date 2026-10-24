@@ -39,9 +39,8 @@ class _RenewalRemindersState extends State<RenewalReminders> {
       if (mounted) setState(() => _hidden.add(id));
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _busy = null);
@@ -50,12 +49,16 @@ class _RenewalRemindersState extends State<RenewalReminders> {
 
   Future<void> _start(String id) async {
     final inspectionId = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => RenewalScreen(tenancyId: id)),
+      MaterialPageRoute(
+        builder: (_) => RenewalScreen(tenancyId: id, api: _api),
+      ),
     );
     if (!mounted || inspectionId == null) return;
     setState(() => _hidden.add(id));
     await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => InspectionScreen(id: inspectionId)),
+      MaterialPageRoute(
+        builder: (_) => InspectionScreen(id: inspectionId, api: _api),
+      ),
     );
     if (mounted) await widget.onRenewed?.call();
   }

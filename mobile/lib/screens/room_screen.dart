@@ -69,7 +69,10 @@ class _RoomScreenState extends State<RoomScreen> {
     return fresh;
   }
 
-  late Loading<RoomDetail> _loading = _api.load(_load);
+  late Loading<RoomDetail> _loading = _api.load(
+    _load,
+    retainKey: 'room:${widget.inspectionId}:${widget.roomId}',
+  );
   bool _busy = false;
   bool _addingItem = false;
   bool _newestFirst = true;
@@ -123,7 +126,11 @@ class _RoomScreenState extends State<RoomScreen> {
   }
 
   Future<void> _refresh() async {
-    final next = _api.load(_load, savedFirst: false);
+    final next = _api.load(
+      _load,
+      savedFirst: false,
+      retainKey: 'room:${widget.inspectionId}:${widget.roomId}',
+    );
     setState(() {
       _loading = next;
     });
@@ -491,9 +498,9 @@ class _RoomScreenState extends State<RoomScreen> {
           await (widget.supportDirectory ?? getApplicationSupportDirectory)();
       final pickerIntent = File('${root.path}/capture-picker.json');
       if (await pickerIntent.exists()) {
-        final intent =
-            jsonDecode(await pickerIntent.readAsString())
-                as Map<String, dynamic>;
+        final intent = jsonDecode(
+          await pickerIntent.readAsString(),
+        ) as Map<String, dynamic>;
         if (intent['ownerId'] == ownerId &&
             intent['inspectionId'] == widget.inspectionId &&
             intent['roomId'] == widget.roomId &&
@@ -954,9 +961,7 @@ class _RoomScreenState extends State<RoomScreen> {
                                 Expanded(
                                   child: Text(
                                     'Offline copy. Keep capturing; review edits need a connection.',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium,
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ),
                               ],
@@ -988,9 +993,9 @@ class _RoomScreenState extends State<RoomScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   room.name,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
                                 ),
                               ],
                             ),
@@ -1041,14 +1046,10 @@ class _RoomScreenState extends State<RoomScreen> {
                                   !widget.editable
                                       ? 'This inventory is fixed for signing. Media remains available below.'
                                       : switch (room.status) {
-                                          'PENDING' =>
-                                            'Start with the inventory. Open an item to add photos and mark details.',
-                                          'REVIEW' =>
-                                            'Open each inventory item to check its details and add photos, then mark this room reviewed.',
-                                          'REVIEWED' =>
-                                            'This room has been reviewed. Open an item to update its details or add photos.',
-                                          _ =>
-                                            'Add each item to the inventory, then open it to take photos and mark details.',
+                                          'PENDING' => 'Start with the inventory. Open an item to add photos and mark details.',
+                                          'REVIEW' => 'Open each inventory item to check its details and add photos, then mark this room reviewed.',
+                                          'REVIEWED' => 'This room has been reviewed. Open an item to update its details or add photos.',
+                                          _ => 'Add each item to the inventory, then open it to take photos and mark details.',
                                         },
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
@@ -1699,9 +1700,9 @@ class _ItemEditorState extends State<ItemEditor> {
                                     children: [
                                       Text(
                                         '${capture.kind == 'PHOTO' ? 'Photo' : 'Video'} ${index + 1}',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelLarge,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge,
                                       ),
                                       if (detail.isNotEmpty) ...[
                                         const SizedBox(height: 2),
@@ -1709,9 +1710,9 @@ class _ItemEditorState extends State<ItemEditor> {
                                           detail,
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
                                         ),
                                       ],
                                     ],

@@ -37,7 +37,10 @@ class AddendaScreen extends StatefulWidget {
 class _AddendaScreenState extends State<AddendaScreen> {
   late final _api = widget.api ?? Api();
   late final _photos = widget.photos ?? AddendumPhotos(api: _api);
-  late Future<AddendaWorkspace> _future = _load();
+  late Loading<AddendaWorkspace> _loading = _api.load(
+    _load,
+    retainKey: 'addenda:${widget.inspectionId}',
+  );
   final _title = TextEditingController();
   final _reason = TextEditingController();
   String _date = '';
@@ -68,11 +71,15 @@ class _AddendaScreenState extends State<AddendaScreen> {
   }
 
   Future<void> _refresh() async {
-    final next = _load();
+    final next = _api.load(
+      _load,
+      savedFirst: false,
+      retainKey: 'addenda:${widget.inspectionId}',
+    );
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _run(Future<void> Function() operation) async {
@@ -230,8 +237,8 @@ class _AddendaScreenState extends State<AddendaScreen> {
     screen: ProductScreenName.addenda,
     child: Scaffold(
     appBar: AppBar(title: const Text('Updates since signing')),
-    body: KiviloContent(maxWidth: 840, child: FutureBuilder<AddendaWorkspace>(
-      future: _future,
+    body: KiviloContent(maxWidth: 840, child: StreamBuilder<AddendaWorkspace>(
+      stream: _loading.stream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(

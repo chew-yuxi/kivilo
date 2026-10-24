@@ -45,12 +45,19 @@ class InspectionScreen extends StatefulWidget {
 
 class _InspectionScreenState extends State<InspectionScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<InspectionDetail> _loading = _api.load(() => _api.inspection(widget.id));
+  late Loading<InspectionDetail> _loading = _api.load(
+    () => _api.inspection(widget.id),
+    retainKey: 'inspection:${widget.id}',
+  );
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.load(() => _api.inspection(widget.id), savedFirst: false);
+    final next = _api.load(
+      () => _api.inspection(widget.id),
+      savedFirst: false,
+      retainKey: 'inspection:${widget.id}',
+    );
     setState(() {
       _loading = next;
     });
@@ -273,7 +280,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
     if (inspection.checkOutId != null) {
       await Navigator.of(context).push<void>(
         MaterialPageRoute(
-          builder: (_) => InspectionScreen(id: inspection.checkOutId!),
+          builder: (_) =>
+              InspectionScreen(id: inspection.checkOutId!, api: _api),
         ),
       );
       if (mounted) await _refresh();
@@ -286,9 +294,11 @@ class _InspectionScreenState extends State<InspectionScreen> {
     try {
       final id = await _api.startCheckOut(widget.id);
       if (!mounted) return;
-      await Navigator.of(
-        context,
-      ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id)));
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => InspectionScreen(id: id, api: _api),
+        ),
+      );
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
@@ -363,8 +373,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         if (await FindingPhotos.hasUnfinishedPhotos(widget.id, owner)) {
           if (mounted) {
             setState(
-              () => _error =
-                  'Finish marking and uploading your finding photos before publishing. Reopen Add finding or Review finding to resume them.',
+              () => _error = 'Finish marking and uploading your finding photos before publishing. Reopen Add finding or Review finding to resume them.',
             );
           }
           return;
@@ -518,7 +527,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             KiviloEyebrow(
-                              isCheckIn ? 'Check-in report' : 'Check-out report',
+                              isCheckIn
+                                  ? 'Check-in report'
+                                  : 'Check-out report',
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -587,12 +598,19 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         child: ListTile(
                           leading: const Icon(Icons.description_outlined),
                           title: const Text('Documents'),
-                          subtitle: const Text('Tenancy agreement and supporting files'),
+                          subtitle: const Text(
+                            'Tenancy agreement and supporting files',
+                          ),
                           trailing: const Icon(Icons.chevron_right),
-                          onTap: _busy ? null : () => Navigator.of(context).push<void>(
-                            MaterialPageRoute(builder: (_) => SupportingDocumentsScreen(
-                              tenancyId: tenancyId, api: _api,
-                            )),
+                          onTap: _busy
+                              ? null
+                              : () => Navigator.of(context).push<void>(
+                                  MaterialPageRoute(
+                                    builder: (_) => SupportingDocumentsScreen(
+                                      tenancyId: tenancyId,
+                                      api: _api,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -832,8 +850,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     OutlinedButton.icon(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) =>
-                              InspectionScreen(id: inspection.baselineId!),
+                          builder: (_) => InspectionScreen(
+                            id: inspection.baselineId!,
+                            api: _api,
+                          ),
                         ),
                       ),
                       icon: const Icon(Icons.compare_arrows_outlined),
@@ -981,9 +1001,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 Expanded(
                                   child: Text(
                                     'View or send the signed report',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                 ),
                               ],
@@ -1044,7 +1064,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
                               OutlinedButton.icon(
                                 onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute<void>(
-                                    builder: (_) => ReportScreen(id: widget.id),
+                                    builder: (_) =>
+                                        ReportScreen(id: widget.id, api: _api),
                                   ),
                                 ),
                                 icon: const Icon(Icons.fact_check_outlined),
@@ -1054,8 +1075,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
                               OutlinedButton.icon(
                                 onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute<void>(
-                                    builder: (_) =>
-                                        AddendaScreen(inspectionId: widget.id),
+                                    builder: (_) => AddendaScreen(
+                                      inspectionId: widget.id,
+                                      api: _api,
+                                    ),
                                   ),
                                 ),
                                 icon: const Icon(Icons.edit_outlined),
@@ -1113,8 +1136,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'Maintenance history',
-                      subtitle:
-                          'Context for review. A person decides whether it affects a finding.',
+                      subtitle: 'Context for review. A person decides whether it affects a finding.',
                     ),
                     const SizedBox(height: kiviloHeadingGap),
                     if (inspection.kind == 'CHECK_OUT')
@@ -1147,6 +1169,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             MaterialPageRoute<void>(
                               builder: (_) => MaintenanceCaseScreen(
                                 caseId: record['id'] as String,
+                                api: _api,
                               ),
                             ),
                           ),

@@ -20,14 +20,19 @@ class PropertySettingsScreen extends StatefulWidget {
 
 class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<PropertySettings> _loading = _api.load(() => _api.propertySettings(
-    widget.propertyId,
-  ));
+  late Loading<PropertySettings> _loading = _api.load(
+    () => _api.propertySettings(widget.propertyId),
+    retainKey: 'property-settings:${widget.propertyId}',
+  );
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.load(() => _api.propertySettings(widget.propertyId), savedFirst: false);
+    final next = _api.load(
+      () => _api.propertySettings(widget.propertyId),
+      savedFirst: false,
+      retainKey: 'property-settings:${widget.propertyId}',
+    );
     setState(() {
       _loading = next;
     });
@@ -63,7 +68,11 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
       );
       if (mounted) {
         setState(() {
-          _loading = _api.load(() async => updated, savedFirst: false);
+          _loading = _api.load(
+            () async => updated,
+            savedFirst: false,
+            retainKey: 'property-settings:${widget.propertyId}',
+          );
         });
       }
     } catch (error) {
@@ -106,8 +115,16 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                     const SizedBox(height: 12),
                     Text(
                       [
-                        _count(property.counts['tenancies'], 'tenancy', 'tenancies'),
-                        _count(property.counts['inspections'], 'inspection', 'inspections'),
+                        _count(
+                          property.counts['tenancies'],
+                          'tenancy',
+                          'tenancies',
+                        ),
+                        _count(
+                          property.counts['inspections'],
+                          'inspection',
+                          'inspections',
+                        ),
                         _count(property.counts['photos'], 'photo', 'photos'),
                       ].join(' · '),
                     ),
@@ -191,8 +208,7 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                     const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'History',
-                      subtitle:
-                          'Every change and deletion, with who made it. Deleted items can be restored for 30 days.',
+                      subtitle: 'Every change and deletion, with who made it. Deleted items can be restored for 30 days.',
                     ),
                     const SizedBox(height: kiviloHeadingGap),
                     OutlinedButton.icon(
@@ -234,7 +250,8 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
                                     ? null
                                     : property.canManage
                                     ? () => _change(property, 'restore')
-                                    : () => _locked(property, 'Restore property'),
+                                    : () =>
+                                          _locked(property, 'Restore property'),
                                 child: const Text('Restore property'),
                               ),
                             ] else ...[
@@ -379,9 +396,7 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
                   _confirmation.text != widget.property.confirmationLabel
               ? null
               : () => Navigator.pop(context, _confirmation.text),
-          style: deleting
-              ? kiviloDangerFilled
-              : null,
+          style: deleting ? kiviloDangerFilled : null,
           child: Text(label),
         ),
       ],

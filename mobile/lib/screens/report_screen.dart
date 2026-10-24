@@ -29,10 +29,17 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<SignedReport> _loading = _api.load(() => _api.report(widget.id));
+  late Loading<SignedReport> _loading = _api.load(
+    () => _api.report(widget.id),
+    retainKey: 'report:${widget.id}',
+  );
 
   Future<void> _refresh() async {
-    final next = _api.load(() => _api.report(widget.id), savedFirst: false);
+    final next = _api.load(
+      () => _api.report(widget.id),
+      savedFirst: false,
+      retainKey: 'report:${widget.id}',
+    );
     setState(() {
       _loading = next;
     });
@@ -50,9 +57,8 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _acknowledging = null);
@@ -99,9 +105,8 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _acknowledging = null);
@@ -144,9 +149,8 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _acknowledging = null);
@@ -241,9 +245,8 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _answering = false);

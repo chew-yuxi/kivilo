@@ -187,18 +187,23 @@ class MaintenanceCaseScreen extends StatefulWidget {
 
 class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   late final _api = widget.api ?? Api();
-  late Future<MaintenanceCaseDetail> _future = _api.maintenanceCase(
-    widget.caseId,
+  late Loading<MaintenanceCaseDetail> _loading = _api.load(
+    () => _api.maintenanceCase(widget.caseId),
+    retainKey: 'maintenance:${widget.caseId}',
   );
   bool _busy = false;
   String? _error;
 
   Future<void> _refresh() async {
-    final next = _api.maintenanceCase(widget.caseId);
+    final next = _api.load(
+      () => _api.maintenanceCase(widget.caseId),
+      savedFirst: false,
+      retainKey: 'maintenance:${widget.caseId}',
+    );
     setState(() {
-      _future = next;
+      _loading = next;
     });
-    await next;
+    await next.fresh;
   }
 
   Future<void> _run(Future<void> Function() operation) async {
@@ -386,7 +391,10 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     await _run(() async {
       final ownerId = Supabase.instance.client.auth.currentUser?.id;
       if (ownerId == null) {
-        throw const ApiFailure('Sign in again before recording the condition.', 401);
+        throw const ApiFailure(
+          'Sign in again before recording the condition.',
+          401,
+        );
       }
       final queue = CaptureQueue();
       late final ({int captures, int edits}) pending;
@@ -411,8 +419,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   Future<void> _disputeMoveInDefect(String addendumId) async {
     final reason = await _ask(
       'Dispute move-in condition',
-      hint:
-          'Explain what you disagree with. Your reason stays on the dated notice.',
+      hint: 'Explain what you disagree with. Your reason stays on the dated notice.',
     );
     if (reason == null || reason.isEmpty) return;
     await _run(() => _api.disputeAddendum(addendumId, reason));
@@ -446,9 +453,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               const SizedBox(height: 8),
               if (claim.canSubmit) ...[
                 OutlinedButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () => _addEvidence(item.id, 'BEFORE'),
+                onPressed: _busy ? null : () => _addEvidence(item.id, 'BEFORE'),
                   icon: const Icon(Icons.add_a_photo_outlined),
                   label: const Text('Add before photos'),
                 ),
@@ -467,18 +472,14 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
             ] else ...[
               const SizedBox(height: 8),
               Text(switch (claim.status) {
-                'ACKNOWLEDGED' =>
-                  'Accepted by the landlord. Included in the agreed condition for check-out.',
-                'DISPUTED' =>
-                  'Disputed by the landlord. Kept as a dated notice and excluded from the agreed condition.',
+              'ACKNOWLEDGED' => 'Accepted by the landlord. Included in the agreed condition for check-out.',
+              'DISPUTED' => 'Disputed by the landlord. Kept as a dated notice and excluded from the agreed condition.',
                 _ =>
                   'Waiting for the landlord to accept or dispute the condition.',
               }),
               if (claim.dispute case final dispute?) ...[
                 const SizedBox(height: 8),
-                Text(
-                  '${dispute.disputedBy} · ${shortDate(dispute.disputedAt)}',
-                ),
+              Text('${dispute.disputedBy} · ${shortDate(dispute.disputedAt)}'),
                 Text(dispute.reason),
               ],
               if (claim.inspectionId != null)
@@ -518,10 +519,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Maintenance')),
-    body: KiviloContent(maxWidth: 840, child: FutureBuilder<MaintenanceCaseDetail>(
-      future: _future,
+    body: KiviloContent(
+      maxWidth: 840,
+      child: StreamBuilder<MaintenanceCaseDetail>(
+        stream: _loading.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData && !snapshot.hasError) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
@@ -655,7 +658,8 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
           ),
         );
       },
-    )),
+      ),
+    ),
   );
 
   /// The one thing to do next on the repair itself, for whoever has to do it.
@@ -832,7 +836,9 @@ class _CaseHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  KiviloEyebrow('${item.category.replaceAll('_', ' ')}$urgency'),
+                  KiviloEyebrow(
+                    '${item.category.replaceAll('_', ' ')}$urgency',
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     item.title,

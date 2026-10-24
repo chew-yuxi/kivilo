@@ -26,14 +26,21 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
 
   /// Bumped when the filter changes, so all changes never show under Deletions.
   int _scope = 0;
-  late Loading<PropertyHistory> _loading = _api.load(_load);
+  late Loading<PropertyHistory> _loading = _api.load(
+    _load,
+    retainKey: 'property-history:${widget.propertyId}',
+  );
   String? _restoring;
 
   Future<PropertyHistory> _load() =>
       _api.propertyHistory(widget.propertyId, deletions: _deletions);
 
   Future<void> _refresh() async {
-    final next = _api.load(_load, savedFirst: false);
+    final next = _api.load(
+      _load,
+      savedFirst: false,
+      retainKey: 'property-history:${widget.propertyId}',
+    );
     setState(() {
       _loading = next;
     });
@@ -45,15 +52,13 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
     try {
       await _api.restoreFromBin(event.bin!.id);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Restored.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Restored.')));
       await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _restoring = null);
@@ -102,7 +107,10 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                     setState(() {
                       _deletions = value!;
                       _scope++;
-                      _loading = _api.load(_load);
+                      _loading = _api.load(
+                        _load,
+                        retainKey: 'property-history:${widget.propertyId}',
+                      );
                     });
                   },
                 ),

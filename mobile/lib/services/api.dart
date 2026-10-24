@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -102,9 +103,27 @@ class Api {
 
   final Dio _dio;
   final ReadCache _cache;
+  final Map<(String?, String), Object?> _retainedViews = {};
   bool offlineCopy = false;
   Dio get dio => _dio;
   String? get currentOwnerId => _cache.ownerId;
+
+  /// The last typed value shown by this [Api] instance. Disk copies cover restarts;
+  /// this covers recreating a route or tab during the current signed-in session.
+  T? retainedView<T>(String key) {
+    final retainedKey = (_cache.ownerId, key);
+    if (!_retainedViews.containsKey(retainedKey)) return null;
+    final value = _retainedViews[retainedKey];
+    return value is T ? value : null;
+  }
+
+  void retainView<T>(String key, T value) {
+    _retainedViews[(_cache.ownerId, key)] = value;
+  }
+
+  void forgetRetainedView(String key) {
+    _retainedViews.remove((_cache.ownerId, key));
+  }
 
   Future<T> _call<T>(Future<T> Function() request) async {
     // The saved-copy pass of [load] reads the phone only; it never writes or sends.
@@ -213,14 +232,34 @@ class Api {
   /// time and the server's answer replaces it a moment later. Anything [fetch] would
   /// send or write is refused during that first pass, and a refusal from the server
   /// deletes the saved copy, so lost access never keeps showing old data.
-  Loading<T> load<T>(Future<T> Function() fetch, {bool savedFirst = true}) {
+  Loading<T> load<T>(
+    Future<T> Function() fetch, {
+    bool savedFirst = true,
+    String? retainKey,
+  }) {
     // Starts now, not when a screen subscribes: [Loading.fresh] must complete for
     // callers such as pull-to-refresh even before the next frame listens.
     final loading = Loading<T>._();
+    final owner = _cache.ownerId;
+    var retained = false;
+    if (retainKey != null) {
+      final key = (owner, retainKey);
+      final value = _retainedViews[key];
+      if (_retainedViews.containsKey(key) && value is T) {
+        loading._add(value);
+        retained = true;
+      }
+    }
     unawaited(() async {
-      if (savedFirst) {
+      // The typed in-memory value is newer than the serialized phone copy and is
+      // available before the first frame. This is what keeps a route or tab the user
+      // just left from flashing a loading screen when it is created again.
+      if (savedFirst && !retained) {
         try {
-          final saved = await runZoned(fetch, zoneValues: {_savedOnlyKey: true});
+          final saved = await runZoned(
+            fetch,
+            zoneValues: {_savedOnlyKey: true},
+          );
           if (saved != null) loading._add(saved);
         } catch (_) {
           // Nothing saved yet, or a copy from an older app that no longer reads:
@@ -228,8 +267,18 @@ class Api {
         }
       }
       try {
-        loading._complete(await fetch());
+        final fresh = await fetch();
+        if (retainKey != null && _cache.ownerId == owner) {
+          _retainedViews[(owner, retainKey)] = fresh;
+        }
+        loading._complete(fresh);
       } catch (error, stack) {
+        if (retainKey != null &&
+            error is ApiFailure &&
+            _cache.ownerId == owner &&
+            const {401, 403, 404}.contains(error.statusCode)) {
+          _retainedViews.remove((owner, retainKey));
+        }
         loading._fail(error, stack);
       }
     }());
@@ -283,7 +332,9 @@ class Api {
     ).toString();
     final data = await _read(route, route);
     return (data as List<dynamic>)
-        .map((value) => PropertyWorkItem.fromJson(value as Map<String, dynamic>))
+        .map(
+          (value) => PropertyWorkItem.fromJson(value as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -1165,13 +1216,11 @@ class Api {
     String inspectionId,
     String draftId, {
     String? ownerId,
-  }) async =>
-      await _read(
+  }) async => await _read(
             '/api/v1/inspections/$inspectionId/finding-photo-drafts/$draftId',
             'finding-photos-$inspectionId-$draftId',
             expectedOwnerId: ownerId,
-          )
-          as Map<String, dynamic>;
+  ) as Map<String, dynamic>;
 
   Future<void> discardFindingPhotoDraft(
     String inspectionId,
