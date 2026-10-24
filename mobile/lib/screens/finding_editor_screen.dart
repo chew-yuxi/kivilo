@@ -549,7 +549,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
             );
             final gallery = OutlinedButton.icon(
               onPressed: enabled ? () => _pickPhoto(ImageSource.gallery) : null,
-              icon: const Icon(Icons.photo_library_outlined),
+              icon: const Icon(Icons.photo_outlined),
               label: const Text('Gallery'),
             );
             if (constraints.maxWidth < 340) {
@@ -993,11 +993,12 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          icon: Icon(
-                            _showItemDetails
-                                ? Icons.expand_less
-                                : Icons.expand_more,
-                            size: 18,
+                          icon: RotatedBox(
+                            quarterTurns: _showItemDetails ? 2 : 0,
+                            child: const Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 18,
+                            ),
                           ),
                           label: Text(
                             _showItemDetails
