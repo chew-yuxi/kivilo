@@ -13,6 +13,7 @@ import 'property_settings_screen.dart';
 import 'property_timeline_screen.dart';
 import 'tenancy_screen.dart';
 import 'tenancy_access_screen.dart';
+import 'tenancy_details_screen.dart';
 import 'supporting_documents_screen.dart';
 
 /// Where a property is, as a coloured pill. Shared by the list and the property page.
@@ -170,6 +171,55 @@ class _PropertyScreenState extends State<PropertyScreen> {
                     ),
                   ),
                 ],
+                const SizedBox(height: kiviloSectionGap),
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    leading: const Icon(Icons.edit_note_outlined),
+                    title: const Text('Tenancy details'),
+                    subtitle: Text(
+                      current.canEditDetails
+                          ? [
+                              if (current.landlordEmail == null)
+                                'Add landlord email',
+                              if (current.tenantEmail == null)
+                                'Add tenant email',
+                              if (current.landlordEmail != null &&
+                                  current.tenantEmail != null)
+                                'Emails, dates, rent and deposit',
+                            ].join(' · ')
+                          : current.detailsLockedReason ??
+                                'Details cannot be edited',
+                    ),
+                    trailing: current.canEditDetails
+                        ? const Icon(Icons.chevron_right)
+                        : const Icon(Icons.lock_outline),
+                    onTap: current.canEditDetails
+                        ? () => _open(
+                            TenancyDetailsScreen(
+                              property: property.address,
+                              term: current,
+                              api: _api,
+                            ),
+                          )
+                        : () => showDialog<void>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Tenancy details are locked'),
+                              content: Text(
+                                current.detailsLockedReason ??
+                                    'These details cannot be edited.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+                ),
                 for (final term in property.terms) ...[
                   if (_termCard(term, property) case final card?) ...[
                     const SizedBox(height: kiviloSectionGap),

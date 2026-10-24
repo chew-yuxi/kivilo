@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { inspectionScope, managedTenancies, supportingDocumentTenancies } from '@/lib/auth'
+import { actsAsAgent, inspectionScope, managedTenancies, supportingDocumentTenancies } from '@/lib/auth'
 import { inspectionWorkScope, type InspectionWorkFilters } from '@/lib/inspection-work'
 import { listTenancies } from '@/lib/maintenance'
 import { propertyState } from '@/lib/property-management'
@@ -142,9 +142,9 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
       id: true, kind: true, status: true, createdAt: true, conductedAt: true,
       tenancy: {
         select: {
-          id: true, startDate: true, endDate: true, createdAt: true,
-          tenant: { select: { name: true } },
-          landlord: { select: { name: true } },
+          id: true, startDate: true, endDate: true, createdAt: true, monthlyRent: true, deposit: true,
+          tenant: { select: { name: true, email: true } },
+          landlord: { select: { name: true, email: true } },
           agency: { select: { name: true } },
           agent: { select: { name: true } },
         },
@@ -162,6 +162,9 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
   const documentTenancies = new Set((await db.tenancy.findMany({
     where: { propertyId, AND: [supportingDocumentTenancies(actorId)] }, select: { id: true },
   })).map((tenancy) => tenancy.id))
+  const editableTenancies = new Set((await db.tenancy.findMany({
+    where: { propertyId, AND: [actsAsAgent(actorId)] }, select: { id: true },
+  })).map((tenancy) => tenancy.id))
   const terms = new Map<string, (typeof inspections)[number]['tenancy']>()
   for (const inspection of inspections) terms.set(inspection.tenancy.id, inspection.tenancy)
   const ordered = [...terms.values()].sort((a, b) =>
@@ -178,24 +181,37 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
     nextInspectionId: next?.id ?? null,
     nextInspectionKind: next?.kind ?? null,
     canOpenTimeline: openable.size > 0,
-    terms: ordered.map((term) => ({
-      tenancyId: term.id,
-      startDate: term.startDate.toISOString(),
-      endDate: term.endDate.toISOString(),
-      tenant: term.tenant.name,
-      landlord: term.landlord.name,
-      agencyName: term.agency?.name ?? null,
-      leadAgentName: term.agent?.name ?? null,
-      canOpenDocuments: documentTenancies.has(term.id),
-      /// The same shape as GET /api/v1/tenancies, for the repairs and assets screen.
-      tenancy: openable.get(term.id) ?? null,
-      reports: inspections.filter((row) => row.tenancy.id === term.id).map((row) => ({
-        id: row.id,
-        kind: row.kind,
-        status: row.status,
-        createdAt: row.createdAt.toISOString(),
-        conductedAt: row.conductedAt?.toISOString() ?? null,
-      })),
-    })),
+    terms: ordered.map((term) => {
+      const fullAccess = editableTenancies.has(term.id)
+      const detailsFrozen = inspections.some((inspection) => inspection.tenancy.id === term.id &&
+        (inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED'))
+      return {
+        tenancyId: term.id,
+        startDate: term.startDate.toISOString(),
+        endDate: term.endDate.toISOString(),
+        tenant: term.tenant.name,
+        landlord: term.landlord.name,
+        landlordEmail: fullAccess ? term.landlord.email : null,
+        tenantEmail: fullAccess ? term.tenant.email : null,
+        monthlyRent: fullAccess ? term.monthlyRent.toString() : null,
+        deposit: fullAccess ? term.deposit.toString() : null,
+        canEditDetails: fullAccess && !detailsFrozen,
+        detailsLockedReason: !fullAccess
+          ? 'Only an agent working this tenancy can edit these details.'
+          : detailsFrozen ? 'These details are fixed because a report was sent for signature.' : null,
+        agencyName: term.agency?.name ?? null,
+        leadAgentName: term.agent?.name ?? null,
+        canOpenDocuments: documentTenancies.has(term.id),
+        /// The same shape as GET /api/v1/tenancies, for the repairs and assets screen.
+        tenancy: openable.get(term.id) ?? null,
+        reports: inspections.filter((row) => row.tenancy.id === term.id).map((row) => ({
+          id: row.id,
+          kind: row.kind,
+          status: row.status,
+          createdAt: row.createdAt.toISOString(),
+          conductedAt: row.conductedAt?.toISOString() ?? null,
+        })),
+      }
+    }),
   }
 }

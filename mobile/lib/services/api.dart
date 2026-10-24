@@ -633,6 +633,13 @@ class Api {
     await _dio.patch('/api/v1/tenancies/$tenancyId', data: body);
   });
 
+  Future<void> updateTenancyDetails(
+    String tenancyId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    await _dio.patch('/api/v1/tenancies/$tenancyId/details', data: body);
+  });
+
   Future<List<MaintenanceCaseSummary>> maintenanceCases(
     String tenancyId,
   ) async {

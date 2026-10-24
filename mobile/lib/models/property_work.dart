@@ -75,6 +75,12 @@ class PropertyTerm {
     required this.tenant,
     required this.landlord,
     required this.reports,
+    this.landlordEmail,
+    this.tenantEmail,
+    this.monthlyRent,
+    this.deposit,
+    this.canEditDetails = false,
+    this.detailsLockedReason,
     this.agencyName,
     this.leadAgentName,
     this.tenancy,
@@ -85,6 +91,12 @@ class PropertyTerm {
   final String endDate;
   final String tenant;
   final String landlord;
+  final String? landlordEmail;
+  final String? tenantEmail;
+  final String? monthlyRent;
+  final String? deposit;
+  final bool canEditDetails;
+  final String? detailsLockedReason;
   final List<PropertyReport> reports;
   final String? agencyName;
   final String? leadAgentName;
@@ -98,6 +110,12 @@ class PropertyTerm {
     endDate: json['endDate'] as String,
     tenant: json['tenant'] as String,
     landlord: json['landlord'] as String,
+    landlordEmail: json['landlordEmail'] as String?,
+    tenantEmail: json['tenantEmail'] as String?,
+    monthlyRent: json['monthlyRent'] as String?,
+    deposit: json['deposit'] as String?,
+    canEditDetails: json['canEditDetails'] as bool? ?? false,
+    detailsLockedReason: json['detailsLockedReason'] as String?,
     agencyName: json['agencyName'] as String?,
     leadAgentName: json['leadAgentName'] as String?,
     tenancy: json['tenancy'] == null
@@ -142,7 +160,9 @@ class PropertyOverview {
         nextInspectionId: json['nextInspectionId'] as String?,
         nextInspectionKind: json['nextInspectionKind'] as String?,
         terms: (json['terms'] as List<dynamic>)
-            .map((value) => PropertyTerm.fromJson(value as Map<String, dynamic>))
+            .map(
+              (value) => PropertyTerm.fromJson(value as Map<String, dynamic>),
+            )
             .toList(),
       );
 }

@@ -80,6 +80,7 @@ class _LibraryApi extends Api {
   final bool canOpenDocuments;
   final bool includeCare;
   final states = <String>[];
+  Map<String, dynamic>? updatedDetails;
 
   @override
   Future<AgencyIndex> agencies() async =>
@@ -134,6 +135,9 @@ class _LibraryApi extends Api {
             endDate: '2027-12-31T00:00:00.000Z',
             tenant: 'Alice Tan',
             landlord: 'Landlord',
+            monthlyRent: '3200',
+            deposit: '6400',
+            canEditDetails: true,
             tenancy: includeCare
                 ? const TenancySummary(
                     id: 't',
@@ -175,6 +179,14 @@ class _LibraryApi extends Api {
     canEditMinorRepairCap: true,
     canEditAgentAuthority: false,
   );
+
+  @override
+  Future<void> updateTenancyDetails(
+    String tenancyId,
+    Map<String, dynamic> body,
+  ) async {
+    updatedDetails = body;
+  }
 }
 
 Future<void> _open(WidgetTester tester, _LibraryApi api) async {
@@ -302,7 +314,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('opening a property shows active work without a redundant tenancy header', (
+  testWidgets('opening a property shows active work and current tenancy details', (
     tester,
   ) async {
     await _open(tester, _LibraryApi());
@@ -310,6 +322,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PropertyScreen), findsOneWidget);
     expect(find.text('Current tenancy'), findsNothing);
+    expect(find.text('Tenancy details'), findsOneWidget);
     expect(find.text('Continue check-in'), findsOneWidget);
     expect(find.text('History'), findsOneWidget);
     expect(find.text('Archive or delete property'), findsOneWidget);
@@ -343,6 +356,47 @@ void main() {
     expect(find.text('Property assets'), findsOneWidget);
     expect(find.text('Tenancy access'), findsOneWidget);
     expect(find.text('Continue check-in'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('adds party emails from the current tenancy card', (
+    tester,
+  ) async {
+    final api = _LibraryApi();
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1600);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: PropertyScreen(propertyId: 'property-1', api: api),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add landlord email · Add tenant email'), findsOneWidget);
+    await tester.tap(find.text('Tenancy details'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Landlord email (optional)'),
+      'OWNER@EXAMPLE.COM',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Tenant email (optional)'),
+      'tenant@example.com',
+    );
+    await tester.tap(find.text('Save details'));
+    await tester.pumpAndSettle();
+
+    expect(
+      api.updatedDetails,
+      containsPair('landlordEmail', 'owner@example.com'),
+    );
+    expect(
+      api.updatedDetails,
+      containsPair('tenantEmail', 'tenant@example.com'),
+    );
+    expect(api.updatedDetails, containsPair('monthlyRent', '3200'));
     expect(tester.takeException(), isNull);
   });
 
