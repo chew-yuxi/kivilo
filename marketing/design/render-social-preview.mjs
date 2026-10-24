@@ -22,6 +22,7 @@ try {
   h1 { margin: 84px 0 26px; font-size: 53px; line-height: 1.12; letter-spacing: -1.7px; font-weight: 700; }
   h1 span { display: block; white-space: nowrap; }
   p { margin: 0; color: #6a6a66; font-size: 24px; line-height: 1.5; }
+  .backdrop { position: absolute; right: -46px; top: 35px; width: 630px; height: 580px; }
   .art { position: absolute; right: 0; bottom: 0; width: 550px; height: 570px; overflow: hidden; }
   .art img { display: block; position: absolute; right: 0; bottom: 0; width: 1710px; height: 570px; max-width: none; }
 </style></head><body>
@@ -30,6 +31,9 @@ try {
     <h1><span>Hand over the keys.</span><span>Keep the whole story.</span></h1>
     <p>Take a photo. Mark what matters.<br>Get everyone’s signatures.<br>The little details, all in one shared record.</p>
   </div>
+  <svg class="backdrop" viewBox="0 0 630 580" aria-hidden="true">
+    <path fill="#f8e4eb" d="M496 39C595 62 655 168 611 279C574 373 543 495 436 540C327 589 186 560 91 486C-1 415 2 303 38 198C76 86 192 40 305 29C376 21 432 9 496 39Z" />
+  </svg>
   <div class="art"><img src="data:image/webp;base64,${artwork.toString('base64')}" alt="An agent and resident exchanging keys at the doorway."></div>
 </body></html>`)
   await page.locator('img').evaluate(image => image.decode())
