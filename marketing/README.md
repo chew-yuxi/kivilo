@@ -72,8 +72,10 @@ Metadata lives with the marketing page: canonical URL, Open Graph/Twitter card,
 Organization/WebSite/SoftwareApplication structured data, robots and sitemap.
 `public/llms.txt` is a short factual product reference. Private app pages inherit
 noindex; the app's public utility pages have their own `my.kivilo.app` canonicals.
-The 1200×630 social image places the logo and left-aligned copy beside the happy
-handover artwork on the right, with a soft blush organic shape behind the scene.
+The 1200×630 social image uses an oversized logo and left-aligned headline beside
+a close crop of the happy handover, with a soft blush organic shape behind it.
+There is no small supporting paragraph; review it at 600px and 360px wide so the
+message remains readable in chat previews.
 Regenerate it with
 `node marketing/design/render-social-preview.mjs` from the repository root. It uses
 the existing artwork and system font stack; no page server is required. Change the

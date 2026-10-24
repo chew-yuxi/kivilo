@@ -7,7 +7,7 @@ import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
 const title = 'Kivilo | Property handovers, check-in & check-out reports'
 const description = `Take photos and mark damage with circles, freehand or arrows. Write inventories, collect signatures and compare check-in with check-out. ${FREE_ACTIVE_PROPERTIES} active properties free.`
-const socialImage = '/opengraph-image.png?v=20261024-blush'
+const socialImage = '/opengraph-image.png?v=20261024-bold'
 export const metadata: Metadata = {
   title, description,
   alternates: { canonical: 'https://kivilo.app' },

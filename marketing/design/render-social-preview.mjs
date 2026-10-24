@@ -14,22 +14,21 @@ try {
   body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #fff;
     color: #454541; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     -webkit-font-smoothing: antialiased; }
-  .copy { position: absolute; z-index: 1; top: 64px; left: 64px; width: 568px; }
-  .wordmark { display: flex; align-items: center; gap: 10px; font-size: 36px; font-weight: 850;
-    letter-spacing: -2.5px; line-height: 1; }
-  .brand { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 28%; background: #ec4899; }
+  .copy { position: absolute; z-index: 1; top: 54px; left: 58px; width: 540px; }
+  .wordmark { display: flex; align-items: center; gap: 14px; font-size: 62px; font-weight: 850;
+    letter-spacing: -3.5px; line-height: 1; }
+  .brand { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 28%; background: #ec4899; }
   .brand::after { content: ''; width: 36%; height: 36%; border-radius: 50%; background: #fff; }
-  h1 { margin: 84px 0 26px; font-size: 53px; line-height: 1.12; letter-spacing: -1.7px; font-weight: 700; }
+  h1 { margin: 68px 0 0; font-size: 82px; line-height: 1.02; letter-spacing: -2.5px; font-weight: 700; }
   h1 span { display: block; white-space: nowrap; }
-  p { margin: 0; color: #6a6a66; font-size: 24px; line-height: 1.5; }
+  h1 span + span { margin-top: 16px; }
   .backdrop { position: absolute; right: -46px; top: 35px; width: 630px; height: 580px; }
-  .art { position: absolute; right: 0; bottom: 0; width: 550px; height: 570px; overflow: hidden; }
-  .art img { display: block; position: absolute; right: 0; bottom: 0; width: 1710px; height: 570px; max-width: none; }
+  .art { position: absolute; right: 0; bottom: 0; width: 600px; height: 630px; overflow: hidden; }
+  .art img { display: block; position: absolute; right: -155px; bottom: -130px; width: 2460px; height: 820px; max-width: none; }
 </style></head><body>
   <div class="copy">
     <div class="wordmark"><span class="brand"></span>kivilo</div>
-    <h1><span>Hand over the keys.</span><span>Keep the whole story.</span></h1>
-    <p>Take a photo. Mark what matters.<br>Get everyone’s signatures.<br>The little details, all in one shared record.</p>
+    <h1><span>Hand over<br>the keys.</span><span>Keep the<br>whole story.</span></h1>
   </div>
   <svg class="backdrop" viewBox="0 0 630 580" aria-hidden="true">
     <path fill="#f8e4eb" d="M496 39C595 62 655 168 611 279C574 373 543 495 436 540C327 589 186 560 91 486C-1 415 2 303 38 198C76 86 192 40 305 29C376 21 432 9 496 39Z" />
