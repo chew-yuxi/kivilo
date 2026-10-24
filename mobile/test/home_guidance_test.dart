@@ -4,7 +4,7 @@ import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/models/agency.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/screens/home_screen.dart';
-import 'package:kivilo/screens/tenancy_screen.dart';
+import 'package:kivilo/screens/property_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/ui/handover_guide.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
@@ -237,12 +237,12 @@ void main() {
       await _reveal(tester, find.text('42 Cairnhill Rise'));
       await tester.tap(find.text('42 Cairnhill Rise'));
       await tester.pumpAndSettle();
-      expect(find.byType(TenancyScreen), findsOneWidget);
+      expect(find.byType(PropertyScreen), findsOneWidget);
       expect(
-        tester.widget<TenancyScreen>(find.byType(TenancyScreen)).currentInspection?.id,
-        'inspection-0',
+        tester.widget<PropertyScreen>(find.byType(PropertyScreen)).propertyId,
+        'property',
       );
-      expect(api.propertyOpened, 'tenancy');
+      expect(api.propertyOpened, isNull);
       expect(tester.takeException(), isNull);
     },
   );

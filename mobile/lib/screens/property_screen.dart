@@ -12,6 +12,7 @@ import 'property_history_screen.dart';
 import 'property_settings_screen.dart';
 import 'property_timeline_screen.dart';
 import 'tenancy_screen.dart';
+import 'tenancy_access_screen.dart';
 import 'supporting_documents_screen.dart';
 
 /// Where a property is, as a coloured pill. Shared by the list and the property page.
@@ -41,8 +42,10 @@ class PropertyStagePill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium
-            ?.copyWith(color: color, fontWeight: FontWeight.w700),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -79,8 +82,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
   }
 
   Future<void> _open(Widget screen) async {
-    await Navigator.of(context)
-        .push<void>(MaterialPageRoute(builder: (_) => screen));
+    await Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute(builder: (_) => screen));
     if (mounted) await _refresh();
   }
 
@@ -124,7 +128,13 @@ class _PropertyScreenState extends State<PropertyScreen> {
               children: [
                 Text(property.address, style: text.headlineMedium),
                 const SizedBox(height: 8),
-                Text('${current.tenant} · ${current.agencyName ?? 'Personal'}'),
+                Text(
+                  '${current.tenant} · ${shortDate(current.startDate)} to ${shortDate(current.endDate)}',
+                ),
+                if (current.agencyName != null) ...[
+                  const SizedBox(height: 3),
+                  Text(current.agencyName!, style: text.bodySmall),
+                ],
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -153,103 +163,29 @@ class _PropertyScreenState extends State<PropertyScreen> {
                     icon: const Icon(Icons.chevron_right, size: 20),
                     iconAlignment: IconAlignment.end,
                     label: Text(
-                      'Open ${property.nextInspectionKind == 'CHECK_OUT' ? 'check-out' : 'check-in'}',
+                      'Continue ${property.nextInspectionKind == 'CHECK_OUT' ? 'check-out' : 'check-in'}',
                     ),
                   ),
                 ],
                 for (final term in property.terms) ...[
+                  if (_termCard(term, property) case final card?) ...[
+                    const SizedBox(height: kiviloSectionGap),
+                    if (property.terms.length > 1) ...[
+                      KiviloSectionHeading(
+                        title: term == current
+                            ? 'Current tenancy'
+                            : 'Earlier tenancy',
+                        subtitle:
+                            '${term.tenant} · ${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
+                      ),
+                      const SizedBox(height: kiviloHeadingGap),
+                    ],
+                    card,
+                  ],
+                ],
+                if (current.tenancy case final tenancy?) ...[
                   const SizedBox(height: kiviloSectionGap),
-                  KiviloSectionHeading(
-                    title: term == current
-                        ? 'Current tenancy'
-                        : 'Earlier tenancy',
-                    subtitle:
-                        '${term.tenant} · ${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
-                  ),
-                  const SizedBox(height: kiviloHeadingGap),
-                  Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < term.reports.length; i++) ...[
-                          if (i > 0) const Divider(height: 1),
-                          ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            leading: Icon(
-                              term.reports[i].status == 'COMPLETED'
-                                  ? Icons.fact_check
-                                  : term.reports[i].kind == 'CHECK_IN'
-                                  ? Icons.login_outlined
-                                  : Icons.logout_outlined,
-                              color: term.reports[i].status == 'COMPLETED'
-                                  ? KiviloColors.green
-                                  : KiviloColors.body,
-                            ),
-                            title: Text(term.reports[i].kindLabel),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: KiviloStatusPill(
-                                  status: term.reports[i].status,
-                                ),
-                              ),
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => _open(
-                              InspectionScreen(
-                                id: term.reports[i].id,
-                                api: _api,
-                              ),
-                            ),
-                          ),
-                        ],
-                        if (term.tenancy case final tenancy?) ...[
-                          if (term.reports.isNotEmpty) const Divider(height: 1),
-                          ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            leading: const Icon(Icons.build_outlined),
-                            title: const Text('Repairs and assets'),
-                            subtitle: const Text(
-                              'Maintenance cases and property items',
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => _open(
-                              TenancyScreen(tenancy: tenancy, api: _api),
-                            ),
-                          ),
-                        ],
-                        if (term.canOpenDocuments) ...[
-                          if (term.reports.isNotEmpty || term.tenancy != null)
-                            const Divider(height: 1),
-                          ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            leading: const Icon(Icons.description_outlined),
-                            title: const Text('Documents'),
-                            subtitle: const Text(
-                              'Tenancy agreement and supporting files',
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => _open(
-                              SupportingDocumentsScreen(
-                                tenancyId: term.tenancyId,
-                                api: _api,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+                  TenancyScreen(tenancy: tenancy, api: _api, embedded: true),
                 ],
                 const SizedBox(height: kiviloSectionGap),
                 const KiviloSectionHeading(title: 'More'),
@@ -310,4 +246,90 @@ class _PropertyScreenState extends State<PropertyScreen> {
       ),
     ),
   );
+
+  Widget? _termCard(PropertyTerm term, PropertyOverview property) {
+    final reports = term.reports
+        .where((report) => report.id != property.nextInspectionId)
+        .toList();
+    final rows = <Widget>[];
+
+    void addRow(Widget row) {
+      if (rows.isNotEmpty) rows.add(const Divider(height: 1));
+      rows.add(row);
+    }
+
+    for (final report in reports) {
+      addRow(
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
+          leading: Icon(
+            report.status == 'COMPLETED'
+                ? Icons.fact_check
+                : report.kind == 'CHECK_IN'
+                ? Icons.login_outlined
+                : Icons.logout_outlined,
+            color: report.status == 'COMPLETED'
+                ? KiviloColors.green
+                : KiviloColors.body,
+          ),
+          title: Text(report.kindLabel),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: KiviloStatusPill(status: report.status),
+            ),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _open(InspectionScreen(id: report.id, api: _api)),
+        ),
+      );
+    }
+    if (term.canOpenDocuments) {
+      addRow(
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
+          leading: const Icon(Icons.description_outlined),
+          title: const Text('Documents'),
+          subtitle: const Text('Tenancy agreement and supporting files'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _open(
+            SupportingDocumentsScreen(tenancyId: term.tenancyId, api: _api),
+          ),
+        ),
+      );
+    }
+    if (term.tenancy?.role == 'AGENT') {
+      addRow(
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
+          leading: const Icon(Icons.person_outline),
+          title: const Text('People and access'),
+          subtitle: const Text('Manage who can work on this tenancy'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _open(
+            TenancyAccessScreen(
+              tenancyId: term.tenancyId,
+              property: property.address,
+              api: _api,
+            ),
+          ),
+        ),
+      );
+    }
+    if (rows.isEmpty) return null;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(children: rows),
+    );
+  }
 }

@@ -360,7 +360,7 @@ void main() {
   );
 
   testWidgets(
-    'inspection access opens only when selected and returns to refresh',
+    'inspection stays focused on the report workflow',
     (tester) async {
       final api = _FakeApi();
       await tester.pumpWidget(
@@ -371,14 +371,11 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(api.reads, 0);
-      expect(find.text('Private'), findsOneWidget);
-      await tester.tap(find.text('Manage access'));
-      await tester.pumpAndSettle();
-      expect(api.reads, 1);
-      expect(find.byType(TenancyAccessScreen), findsOneWidget);
-      await tester.tap(find.byTooltip('Back'));
-      await tester.pumpAndSettle();
       expect(find.byType(InspectionScreen), findsOneWidget);
+      expect(find.text('Private'), findsNothing);
+      expect(find.text('Manage access'), findsNothing);
+      expect(find.text('Property settings'), findsNothing);
+      expect(find.text('Documents'), findsNothing);
       expect(find.byType(TenancyAccessScreen), findsNothing);
     },
   );

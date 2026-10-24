@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/agency.dart';
+import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/property_work.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/properties_screen.dart';
@@ -67,12 +68,17 @@ final _active = [
 ];
 
 class _LibraryApi extends Api {
-  _LibraryApi({List<PropertyWorkItem>? active, this.canOpenDocuments = false})
+  _LibraryApi({
+    List<PropertyWorkItem>? active,
+    this.canOpenDocuments = false,
+    this.includeCare = false,
+  })
     : active = active ?? _active,
       super(attachAuth: false, cache: ReadCache());
 
   final List<PropertyWorkItem> active;
   final bool canOpenDocuments;
+  final bool includeCare;
   final states = <String>[];
 
   @override
@@ -128,6 +134,19 @@ class _LibraryApi extends Api {
             endDate: '2027-12-31T00:00:00.000Z',
             tenant: 'Alice Tan',
             landlord: 'Landlord',
+            tenancy: includeCare
+                ? const TenancySummary(
+                    id: 't',
+                    role: 'AGENT',
+                    propertyId: 'property-1',
+                    property: '12 Bayview Road',
+                    postalCode: '123456',
+                    landlord: 'Landlord',
+                    tenant: 'Alice Tan',
+                    maintenanceCases: 0,
+                    inspections: 1,
+                  )
+                : null,
             reports: [
               PropertyReport(
                 id: 'report-draft',
@@ -139,6 +158,23 @@ class _LibraryApi extends Api {
           ),
         ],
       );
+
+  @override
+  Future<List<MaintenanceCaseSummary>> maintenanceCases(String tenancyId) async =>
+      const [];
+
+  @override
+  Future<List<PropertyAssetSummary>> propertyAssets(String propertyId) async =>
+      const [];
+
+  @override
+  Future<TenancyDetail> tenancy(String tenancyId) async => const TenancyDetail(
+    id: 't',
+    role: 'AGENT',
+    agentMayAgreeCosts: false,
+    canEditMinorRepairCap: true,
+    canEditAgentAuthority: false,
+  );
 }
 
 Future<void> _open(WidgetTester tester, _LibraryApi api) async {
@@ -266,19 +302,46 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('opening a property shows its reports by tenancy', (
+  testWidgets('opening a property shows active work without a redundant tenancy header', (
     tester,
   ) async {
     await _open(tester, _LibraryApi());
     await tester.tap(find.text('12 Bayview Road'));
     await tester.pumpAndSettle();
     expect(find.byType(PropertyScreen), findsOneWidget);
-    expect(find.text('Current tenancy'), findsOneWidget);
-    expect(find.text('Open check-in'), findsOneWidget);
+    expect(find.text('Current tenancy'), findsNothing);
+    expect(find.text('Continue check-in'), findsOneWidget);
     expect(find.text('History'), findsOneWidget);
     expect(find.text('Property settings'), findsOneWidget);
     // An old-report grant or ended term has no repairs screen to open.
     expect(find.text('Repairs and assets'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('property page contains repairs and assets without another page', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 4000);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: PropertyScreen(
+          propertyId: 'property-1',
+          api: _LibraryApi(includeCare: true),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Scaffold), findsOneWidget);
+    expect(find.text('Current tenancy'), findsNothing);
+    expect(find.text('Repairs and assets'), findsNothing);
+    expect(find.text('Property care'), findsOneWidget);
+    expect(find.text('Maintenance'), findsOneWidget);
+    expect(find.text('Property assets'), findsOneWidget);
+    expect(find.text('Continue check-in'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

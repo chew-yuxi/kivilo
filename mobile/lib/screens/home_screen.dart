@@ -13,6 +13,7 @@ import '../ui/handover_guide.dart';
 import '../ui/kivilo_illustration.dart';
 import 'inspection_screen.dart';
 import 'properties_screen.dart';
+import 'property_screen.dart';
 import 'new_inspection_screen.dart';
 import 'notifications_screen.dart';
 import 'report_screen.dart';
@@ -163,16 +164,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openReport(String id) async {
-    await Navigator.of(
-      context,
-    ).push<void>(MaterialPageRoute(builder: (_) => ReportScreen(id: id, api: _api)));
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => ReportScreen(id: id, api: _api),
+      ),
+    );
     if (mounted) await _refresh();
   }
 
   Future<void> _openInspection(String id) async {
-    await Navigator.of(
-      context,
-    ).push<void>(MaterialPageRoute(builder: (_) => InspectionScreen(id: id, api: _api)));
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => InspectionScreen(id: id, api: _api),
+      ),
+    );
     if (mounted) await _refresh();
   }
 
@@ -199,7 +204,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 titleSpacing: 16,
                 title: const Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [KiviloMark(size: 28), SizedBox(width: 10), Text('Home')],
+                    children: [
+                      KiviloMark(size: 28),
+                      SizedBox(width: 10),
+                      Text('Home'),
+                    ],
                 ),
                 actions: [
                   IconButton(
@@ -342,7 +351,8 @@ class _HomeScreenState extends State<HomeScreen> {
               }
               final (profile, tenancies, inspections) = snapshot.data!;
               final inProgress = inspections.where(
-                (item) => !['COMPLETED', 'AWAITING_SIGNATURE'].contains(item.status),
+                (item) =>
+                    !['COMPLETED', 'AWAITING_SIGNATURE'].contains(item.status),
               );
               final awaiting = inspections.where(
                 (item) => item.status == 'AWAITING_SIGNATURE',
@@ -435,7 +445,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (tenancies.isNotEmpty) ...[
                         KiviloSectionHeading(
                           title: 'Your properties',
-                          subtitle: 'Repairs, records and the people who live there.',
+                          subtitle:
+                              'Repairs, records and the people who live there.',
                         ),
                         const SizedBox(height: kiviloHeadingGap),
                       ],
@@ -574,13 +585,10 @@ class _HomeScreenState extends State<HomeScreen> {
     List<InspectionSummary> inspections,
   ) {
     final target = inspections.firstOrNull;
-    final current = inspections.where(
-      (inspection) => !['AWAITING_SIGNATURE', 'COMPLETED'].contains(inspection.status),
-    ).firstOrNull;
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => _openTenancy(tenancy, currentInspection: current),
+        onTap: () => _openProperty(tenancy.propertyId),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -625,7 +633,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 spacing: kiviloButtonGap,
                 children: [
                   TextButton(
-                    onPressed: () => _openTenancy(tenancy, currentInspection: current),
+                    onPressed: () => _openProperty(tenancy.propertyId),
                     child: const Text('Open property'),
                   ),
                   if (target != null)
@@ -707,17 +715,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _openTenancy(
-    TenancySummary tenancy, {
-    InspectionSummary? currentInspection,
-  }) async {
+  Future<void> _openTenancy(TenancySummary tenancy) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => TenancyScreen(
-          tenancy: tenancy,
-          currentInspection: currentInspection,
-          api: _api,
+        builder: (_) => TenancyScreen(tenancy: tenancy, api: _api),
         ),
+    );
+    if (mounted) await _refresh();
+  }
+
+  Future<void> _openProperty(String propertyId) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => PropertyScreen(propertyId: propertyId, api: _api),
       ),
     );
     if (mounted) await _refresh();

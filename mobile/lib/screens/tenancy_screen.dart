@@ -25,10 +25,12 @@ class TenancyScreen extends StatefulWidget {
     required this.tenancy,
     this.currentInspection,
     this.api,
+    this.embedded = false,
   });
   final TenancySummary tenancy;
   final InspectionSummary? currentInspection;
   final Api? api;
+  final bool embedded;
 
   @override
   State<TenancyScreen> createState() => _TenancyScreenState();
@@ -279,25 +281,16 @@ class _TenancyScreenState extends State<TenancyScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      centerTitle: false,
-      toolbarHeight: 72,
-      title: PageContextTitle(
-        title: 'Property',
-        contextLabel: widget.tenancy.property,
-      ),
-    ),
-    body: KiviloContent(
-      maxWidth: 840,
-      child: StreamBuilder<_TenancyData>(
+  Widget build(BuildContext context) {
+    final body = StreamBuilder<_TenancyData>(
         stream: _loading.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData && !snapshot.hasError) {
@@ -306,18 +299,17 @@ class _TenancyScreenState extends State<TenancyScreen> {
           if (snapshot.hasError) {
             return KiviloMessage(
               icon: Icons.cloud_off_outlined,
-              title: 'Could not open this property',
+            title: widget.embedded
+                ? 'Could not load repairs and assets'
+                : 'Could not open this property',
               body: plainError(snapshot.error!),
               actionLabel: 'Try again',
               onAction: _refresh,
             );
           }
           final (cases, assets, terms) = snapshot.data!;
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView(
-              padding: kiviloScreenPadding,
-              children: [
+        final children = <Widget>[
+          if (!widget.embedded) ...[
                 const KiviloEyebrow('YOUR PROPERTY'),
                 const SizedBox(height: 6),
                 Text(
@@ -368,9 +360,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.description_outlined),
                     title: const Text('Documents'),
-                    subtitle: const Text(
-                      'Tenancy agreement and supporting files',
-                    ),
+                subtitle: const Text('Tenancy agreement and supporting files'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => Navigator.of(context).push<void>(
                       MaterialPageRoute(
@@ -385,8 +375,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 const SizedBox(height: 10),
                 if (widget.tenancy.role == 'AGENT' &&
                     widget.currentInspection != null &&
-                    widget.currentInspection!.id !=
-                        widget.tenancy.latestReportId &&
+                widget.currentInspection!.id != widget.tenancy.latestReportId &&
                     ![
                       'AWAITING_SIGNATURE',
                       'COMPLETED',
@@ -488,6 +477,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                 ],
                 const SizedBox(height: kiviloSectionGap),
+          ],
                 const KiviloSectionHeading(
                   title: 'Property care',
                   subtitle: 'Report a problem and follow each repair through',
@@ -525,8 +515,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       ),
                       trailing: window.canEditWindow
                           ? TextButton(
-                              onPressed: () =>
-                                  _editDefectWindow(window.windowDays),
+                        onPressed: () => _editDefectWindow(window.windowDays),
                               child: const Text('Edit'),
                             )
                           : null,
@@ -615,13 +604,32 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     ),
                   ],
                 ],
-              ],
-            ),
+        ];
+        if (widget.embedded) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: _refresh,
+          child: ListView(padding: kiviloScreenPadding, children: children),
           );
         },
+    );
+    if (widget.embedded) return body;
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: false,
+        toolbarHeight: 72,
+        title: PageContextTitle(
+          title: 'Property',
+          contextLabel: widget.tenancy.property,
       ),
     ),
+      body: KiviloContent(maxWidth: 840, child: body),
   );
+  }
 
   Widget _repairTerms(TenancyDetail terms) => Card(
     child: Column(
