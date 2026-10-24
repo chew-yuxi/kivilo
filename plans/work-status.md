@@ -13,7 +13,7 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`5cf0ac8b-4d5f-450e-926c-8a7000175e44`. Build/deploy instructions: `marketing/README.md`.
+`3004f45c-a8b7-4b78-b5e7-1d5b38cad8dd`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -76,6 +76,18 @@ no overflow or runtime errors, stable header height, correct anchor offsets and
 border visibility; reduced-motion behavior and the photo demo pass. Live HTML and
 11 script, style and artwork assets match the export, with production CTA and
 sticky-navigation checks passing.
+
+The product walkthrough now shows photo, inventory and signed report together,
+without tabs or required clicks. Desktop has three columns; tablets pair captions
+with each example; phones stack them. The same cropped, labelled example photo
+and shared marks appear in all three stages. Original-photo viewing affects only
+the first copy. Phone gestures scroll/zoom normally until a tool is chosen, and
+drawing ends after one stroke. The redundant illustration, benefit strip and
+per-tab CTAs are removed. Marketing build and strict lint pass; seven-width checks
+(320/390/768/1024/1101/1440/1920) confirm 18px minimum type, no overflow, and visible
+stages. Mouse/touch drawing, normal touch scrolling, keyboard tools, shared marks,
+original comparison and rendering without JavaScript pass. Live HTML and ten
+script/style/photo assets match the export; desktop and phone production checks pass.
 
 ## Tenancy agreements and supporting documents — 23 October
 

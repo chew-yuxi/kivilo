@@ -20,9 +20,12 @@ public illustration and icon assets. The free-property allowance comes from the
 same `src/lib/plan-limits.ts` constants the app enforces.
 
 The photo-marking demo uses `public/demo/kitchen-detail.webp`, a synthetic sample
-from the existing demo portfolio, with its demo label preserved. It contains no
-customer property data. Visitors can try the annotation tools locally in the page;
-those marks are demonstration state only.
+from the existing demo portfolio. The interface crops it around the cabinet detail
+and labels the photo and report as examples. It contains no customer property data.
+Visitors can try the annotation tools locally in the page; those marks are
+demonstration state only and appear on the inventory and report copies too.
+Viewing the original affects only the first photo. Touch gestures scroll and zoom
+normally until a tool is selected; drawing switches off again after one stroke.
 
 The static hero artwork is `public/art/tenancy-scenes.webp`: a property inspection
 on the left and a happy handover on the right, with the headline and CTA in the clear
@@ -46,7 +49,9 @@ demo labels, captions and footer links, is at least 18px; body copy is 20px.
 Narrow layouts wrap or stack instead of reducing type. Section headings stand on
 their own without decorative pre-titles. Keep these rules in future design edits.
 
-The product demo explains speed, thoroughness and convenience. The following
+The product demo shows the photo, inventory and signed record together without
+tabs or required interactions. They sit across the page on desktop, with captions
+alongside on tablets and above each example on phones. The following
 "How Kivilo works" section explains the shared property record with
 `public/art/shared-record.webp`, generated from the existing inventory illustration
 using built-in imagegen. Its exact prompt is in `design/shared-record.prompt.txt`.

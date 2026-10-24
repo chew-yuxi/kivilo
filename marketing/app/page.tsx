@@ -76,14 +76,9 @@ export default function LandingPage() {
         <section id="how-it-works" className={styles.walkthrough} aria-labelledby="how-title">
           <div className={styles.sectionHeading}>
             <h2 id="how-title">All the detail.<br />Less of the admin.</h2>
-            <p>Take the photo, mark what matters and write the inventory as you go.<br className={styles.desktopBreak} /> Review, sign and share from the same phone.</p>
+            <p>One detail. From the photo you take to the record everyone signs.</p>
           </div>
           <LandingWalkthrough />
-          <div className={styles.benefits}>
-            <article><h3>Quick on site.</h3><p>Take a photo and mark the detail immediately, while you’re right in front of it.</p></article>
-            <article><h3>Thorough, room by room.</h3><p>Work through each room’s inventory, with notes and photos beside the right item.</p></article>
-            <article><h3>Everything together.</h3><p>Capture, write and collect signatures in one flow. A signed copy goes to everyone.</p></article>
-          </div>
         </section>
         <section id="whole-tenancy" className={styles.tenancy} aria-labelledby="tenancy-title">
           <div className={styles.tenancyIntro}>
