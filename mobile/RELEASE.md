@@ -12,6 +12,33 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## One property workspace: 24 October 2026 Singapore time
+
+App-only. Source `9f89f7392c8175d1136c6fc78fcef2264c5db67a`, pushed to
+`origin/main` before patching. An agent's property page is now the workspace for the
+current tenancy, reports, documents, people and access, repairs, repair costs, assets,
+timeline, history and settings. Home property cards open that page. The active inspection
+appears once as Continue check-in/check-out, and the inspection screen stays focused on
+rooms, review and signatures instead of repeating property-level controls. A single term
+does not show a redundant Current tenancy heading. Landlord and tenant tenancy views are
+unchanged.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **18** / `745516` | **stable**, active and latest |
+| iOS `1.0.0+24` | **19** / `745518` | **stable**, active and latest |
+
+Promoted on Yuxi's explicit go shortly after 13:00 Singapore time. Flutter analysis and
+all 36 focused property, Home and access tests passed; the complete 385-test mobile suite
+passed before the formatting-only diff was removed. This is Dart-only: no backend,
+migration, plugin, native configuration, asset or new icon change. Shorebird accepted
+both patches without overrides. iOS shared 56.2% of Dart code with the usual
+possible-slower-execution warning. Apple’s store submission was not changed.
+Physical-device verification remains **NOT RUN**.
+
+Rollback: Android patch **17** / `745463`, iOS patch **18** / `745485`.
+Receipts are in `build/release-20261024-property-workspace/`.
+
 ## Keep recent pages on screen: 24 October 2026 Singapore time
 
 App-only. Source `f5012cb`, pushed to `origin/main` before patching. Recent page data now
