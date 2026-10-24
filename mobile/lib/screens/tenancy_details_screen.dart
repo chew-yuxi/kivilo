@@ -102,6 +102,26 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
       );
       return;
     }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Save tenancy changes?'),
+        content: const Text(
+          'These details identify the tenancy and its signing parties. Check them carefully before saving.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Save changes'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -140,6 +160,16 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 24),
+              if (!widget.term.canEditDetails) ...[
+                KiviloNotice(
+                  tone: KiviloTone.info,
+                  child: Text(
+                    widget.term.detailsLockedReason ??
+                        'These details are available to view but cannot be edited.',
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
               const KiviloSectionHeading(
                 title: 'People',
                 subtitle:
@@ -150,8 +180,10 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               const SizedBox(height: 6),
               TextFormField(
                 controller: _landlordEmail,
+                readOnly: !widget.term.canEditDetails,
                 decoration: const InputDecoration(
                   labelText: 'Landlord email (optional)',
+                  hintText: 'Not provided',
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: _emailError,
@@ -161,8 +193,10 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               const SizedBox(height: 6),
               TextFormField(
                 controller: _tenantEmail,
+                readOnly: !widget.term.canEditDetails,
                 decoration: const InputDecoration(
                   labelText: 'Tenant email (optional)',
+                  hintText: 'Not provided',
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: _emailError,
@@ -192,6 +226,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _monthlyRent,
+                readOnly: !widget.term.canEditDetails,
                 decoration: const InputDecoration(
                   labelText: 'Monthly rent (SGD)',
                 ),
@@ -201,6 +236,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _deposit,
+                readOnly: !widget.term.canEditDetails,
                 decoration: const InputDecoration(labelText: 'Deposit (SGD)'),
                 keyboardType: TextInputType.number,
                 validator: _moneyError,
@@ -209,11 +245,13 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 const SizedBox(height: 16),
                 KiviloNotice(tone: KiviloTone.error, child: Text(_error!)),
               ],
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: _busy ? null : _save,
-                child: Text(_busy ? 'Saving…' : 'Save details'),
-              ),
+              if (widget.term.canEditDetails) ...[
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: _busy ? null : _save,
+                  child: Text(_busy ? 'Saving…' : 'Save details'),
+                ),
+              ],
               if (_busy) ...[
                 const SizedBox(height: 12),
                 const LinearProgressIndicator(),
@@ -227,7 +265,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
 
   Widget _dateButton(String label, DateTime date, VoidCallback onPressed) =>
       OutlinedButton(
-        onPressed: _busy ? null : onPressed,
+        onPressed: _busy || !widget.term.canEditDetails ? null : onPressed,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(

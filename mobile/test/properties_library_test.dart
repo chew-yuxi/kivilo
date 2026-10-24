@@ -72,13 +72,14 @@ class _LibraryApi extends Api {
     List<PropertyWorkItem>? active,
     this.canOpenDocuments = false,
     this.includeCare = false,
-  })
-    : active = active ?? _active,
-      super(attachAuth: false, cache: ReadCache());
+    this.canEditDetails = true,
+  }) : active = active ?? _active,
+       super(attachAuth: false, cache: ReadCache());
 
   final List<PropertyWorkItem> active;
   final bool canOpenDocuments;
   final bool includeCare;
+  final bool canEditDetails;
   final states = <String>[];
   Map<String, dynamic>? updatedDetails;
 
@@ -117,55 +118,60 @@ class _LibraryApi extends Api {
   }
 
   @override
-  Future<PropertyOverview> propertyOverview(String id) async =>
-      PropertyOverview(
-        id: id,
-        address: '12 Bayview Road',
-        state: 'ACTIVE',
-        stage: 'CHECK_IN_IN_PROGRESS',
-        stageLabel: 'Check-in in progress',
-        canOpenTimeline: false,
-        nextInspectionId: 'report-draft',
-        nextInspectionKind: 'CHECK_IN',
-        terms: [
-          PropertyTerm(
-            canOpenDocuments: canOpenDocuments,
-            tenancyId: 't',
-            startDate: '2026-01-01T00:00:00.000Z',
-            endDate: '2027-12-31T00:00:00.000Z',
-            tenant: 'Alice Tan',
-            landlord: 'Landlord',
-            monthlyRent: '3200',
-            deposit: '6400',
-            canEditDetails: true,
-            tenancy: includeCare
-                ? const TenancySummary(
-                    id: 't',
-                    role: 'AGENT',
-                    propertyId: 'property-1',
-                    property: '12 Bayview Road',
-                    postalCode: '123456',
-                    landlord: 'Landlord',
-                    tenant: 'Alice Tan',
-                    maintenanceCases: 0,
-                    inspections: 1,
-                  )
-                : null,
-            reports: [
-              PropertyReport(
-                id: 'report-draft',
-                kind: 'CHECK_IN',
-                status: 'DRAFT',
-                createdAt: '2026-01-01T00:00:00.000Z',
-              ),
-            ],
+  Future<PropertyOverview> propertyOverview(
+    String id,
+  ) async => PropertyOverview(
+    id: id,
+    address: '12 Bayview Road',
+    state: 'ACTIVE',
+    stage: 'CHECK_IN_IN_PROGRESS',
+    stageLabel: 'Check-in in progress',
+    canOpenTimeline: false,
+    nextInspectionId: 'report-draft',
+    nextInspectionKind: 'CHECK_IN',
+    terms: [
+      PropertyTerm(
+        canOpenDocuments: canOpenDocuments,
+        tenancyId: 't',
+        startDate: '2026-01-01T00:00:00.000Z',
+        endDate: '2027-12-31T00:00:00.000Z',
+        tenant: 'Alice Tan',
+        landlord: 'Landlord',
+        monthlyRent: '3200',
+        deposit: '6400',
+        canEditDetails: canEditDetails,
+        detailsLockedReason: canEditDetails
+            ? null
+            : 'These details are fixed because a report was sent for signature.',
+        tenancy: includeCare
+            ? const TenancySummary(
+                id: 't',
+                role: 'AGENT',
+                propertyId: 'property-1',
+                property: '12 Bayview Road',
+                postalCode: '123456',
+                landlord: 'Landlord',
+                tenant: 'Alice Tan',
+                maintenanceCases: 0,
+                inspections: 1,
+              )
+            : null,
+        reports: [
+          PropertyReport(
+            id: 'report-draft',
+            kind: 'CHECK_IN',
+            status: 'DRAFT',
+            createdAt: '2026-01-01T00:00:00.000Z',
           ),
         ],
-      );
+      ),
+    ],
+  );
 
   @override
-  Future<List<MaintenanceCaseSummary>> maintenanceCases(String tenancyId) async =>
-      const [];
+  Future<List<MaintenanceCaseSummary>> maintenanceCases(
+    String tenancyId,
+  ) async => const [];
 
   @override
   Future<List<PropertyAssetSummary>> propertyAssets(String propertyId) async =>
@@ -209,23 +215,38 @@ Future<void> _chip(WidgetTester tester, String label) async {
 }
 
 void main() {
-  testWidgets('per-term documents use their own permission before repairs are available', (tester) async {
-    for (final allowed in [false, true]) {
-      await tester.pumpWidget(MaterialApp(
-        key: ValueKey(allowed),
-        theme: buildKiviloTheme(),
-        home: PropertyScreen(propertyId: 'property-1', api: _LibraryApi(canOpenDocuments: allowed)),
-      ));
-      await tester.pumpAndSettle();
-      expect(find.text('Repairs and assets'), findsNothing);
-      expect(find.text('Documents'), allowed ? findsOneWidget : findsNothing);
-    }
-    expect(PropertyTerm.fromJson({
-      'tenancyId': 'old', 'startDate': '2024-01-01', 'endDate': '2025-01-01',
-      'tenant': 'Previous tenant', 'landlord': 'Owner', 'reports': [],
-      'canOpenDocuments': true,
-    }).canOpenDocuments, isTrue);
-  });
+  testWidgets(
+    'per-term documents use their own permission before repairs are available',
+    (tester) async {
+      for (final allowed in [false, true]) {
+        await tester.pumpWidget(
+          MaterialApp(
+            key: ValueKey(allowed),
+            theme: buildKiviloTheme(),
+            home: PropertyScreen(
+              propertyId: 'property-1',
+              api: _LibraryApi(canOpenDocuments: allowed),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Repairs and assets'), findsNothing);
+        expect(find.text('Documents'), allowed ? findsOneWidget : findsNothing);
+      }
+      expect(
+        PropertyTerm.fromJson({
+          'tenancyId': 'old',
+          'startDate': '2024-01-01',
+          'endDate': '2025-01-01',
+          'tenant': 'Previous tenant',
+          'landlord': 'Owner',
+          'reports': [],
+          'canOpenDocuments': true,
+        }).canOpenDocuments,
+        isTrue,
+      );
+    },
+  );
   testWidgets(
     'lists each property once with its stage, and searches address, tenant and stage',
     (tester) async {
@@ -314,50 +335,52 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('opening a property shows active work and current tenancy details', (
-    tester,
-  ) async {
-    await _open(tester, _LibraryApi());
-    await tester.tap(find.text('12 Bayview Road'));
-    await tester.pumpAndSettle();
-    expect(find.byType(PropertyScreen), findsOneWidget);
-    expect(find.text('Current tenancy'), findsNothing);
-    expect(find.text('Tenancy details'), findsOneWidget);
-    expect(find.text('Continue check-in'), findsOneWidget);
-    expect(find.text('History'), findsOneWidget);
-    expect(find.text('Archive or delete property'), findsOneWidget);
-    // An old-report grant or ended term has no repairs screen to open.
-    expect(find.text('Repairs and assets'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'opening a property shows active work and current tenancy details',
+    (tester) async {
+      await _open(tester, _LibraryApi());
+      await tester.tap(find.text('12 Bayview Road'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PropertyScreen), findsOneWidget);
+      expect(find.text('Current tenancy'), findsNothing);
+      expect(find.text('Tenancy details'), findsOneWidget);
+      expect(find.text('Continue check-in'), findsOneWidget);
+      expect(find.text('History'), findsOneWidget);
+      expect(find.text('Archive or delete property'), findsOneWidget);
+      // An old-report grant or ended term has no repairs screen to open.
+      expect(find.text('Repairs and assets'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
-  testWidgets('property page contains repairs and assets without another page', (
-    tester,
-  ) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(390, 4000);
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: buildKiviloTheme(),
-        home: PropertyScreen(
-          propertyId: 'property-1',
-          api: _LibraryApi(includeCare: true),
+  testWidgets(
+    'property page contains repairs and assets without another page',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 4000);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: PropertyScreen(
+            propertyId: 'property-1',
+            api: _LibraryApi(includeCare: true),
+          ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.byType(Scaffold), findsOneWidget);
-    expect(find.text('Current tenancy'), findsNothing);
-    expect(find.text('Repairs and assets'), findsNothing);
-    expect(find.text('Property care'), findsOneWidget);
-    expect(find.text('Maintenance'), findsOneWidget);
-    expect(find.text('Property assets'), findsOneWidget);
-    expect(find.text('Tenancy access'), findsOneWidget);
-    expect(find.text('Continue check-in'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.text('Current tenancy'), findsNothing);
+      expect(find.text('Repairs and assets'), findsNothing);
+      expect(find.text('Property care'), findsOneWidget);
+      expect(find.text('Maintenance'), findsOneWidget);
+      expect(find.text('Property assets'), findsOneWidget);
+      expect(find.text('Tenancy access'), findsOneWidget);
+      expect(find.text('Continue check-in'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('adds party emails from the current tenancy card', (
     tester,
@@ -374,7 +397,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Add landlord email · Add tenant email'), findsOneWidget);
+    expect(
+      find.text('Landlord email not provided · Tenant email not provided'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Tenancy details'));
     await tester.pumpAndSettle();
     await tester.enterText(
@@ -388,6 +414,10 @@ void main() {
     await tester.tap(find.text('Save details'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Save tenancy changes?'), findsOneWidget);
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
     expect(
       api.updatedDetails,
       containsPair('landlordEmail', 'owner@example.com'),
@@ -397,6 +427,38 @@ void main() {
       containsPair('tenantEmail', 'tenant@example.com'),
     );
     expect(api.updatedDetails, containsPair('monthlyRent', '3200'));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('opens fixed tenancy details in a readable view', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1600);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: PropertyScreen(
+          propertyId: 'property-1',
+          api: _LibraryApi(canEditDetails: false),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Tenancy details'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        'These details are fixed because a report was sent for signature.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Landlord'), findsOneWidget);
+    expect(find.text('Alice Tan'), findsOneWidget);
+    expect(find.text('3200'), findsOneWidget);
+    expect(find.text('6400'), findsOneWidget);
+    expect(find.text('Save details'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
