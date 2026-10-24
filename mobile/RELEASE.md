@@ -12,6 +12,29 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Keep recent pages on screen: 24 October 2026 Singapore time
+
+App-only. Source `f5012cb`, pushed to `origin/main` before patching. Recent page data now
+stays in process memory while a fresh server copy loads, and navigation reuses the same
+API and saved-cache instances. Returning to Home, Properties, reports, rooms, documents,
+repairs, settings, notifications and team screens therefore keeps the page visible instead
+of replacing it with a loading spinner. Cold first loads still show loading, and account
+changes or an authorization refusal clear data for that account.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **17** / `745463` | **stable**, active and latest |
+| iOS `1.0.0+24` | **18** / `745485` | **stable**, active and latest |
+
+Promoted on Yuxi's explicit go at 11:31 Bangkok time. Flutter analysis and all **384
+mobile tests** passed before release. This is Dart-only: no plugin, native configuration,
+asset or icon change. Both builds contain the same 10 assets and unchanged MaterialIcons
+font (`faa4e86d`); the iOS archive passes `codesign --verify --deep --strict`. Apple’s
+store submission was not changed. Physical-device verification remains **NOT RUN**.
+
+Rollback: Android patch **16** / `743664`, iOS patch **17** / `743674`. Receipts and the
+exported iOS IPA are in `build/release-20261024-navigation/`.
+
 ## Screens open from the saved copy: 23 October 2026 Singapore time
 
 App-only. Source `3b89e0a`, built from clean worktrees pinned to it, includes Documents
