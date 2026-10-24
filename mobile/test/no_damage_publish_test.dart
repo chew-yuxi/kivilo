@@ -73,31 +73,30 @@ void main() {
   });
   tearDownAll(() => Supabase.instance.dispose());
 
-  testWidgets(
-    'publishing with no findings is an explicit no-damage statement',
-    (tester) async {
-      final api = _FakeApi();
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: buildKiviloTheme(),
-          home: InspectionScreen(id: 'check-out-1', api: api),
-        ),
-      );
-      await tester.pumpAndSettle();
+  testWidgets('confirming no changes is an explicit no-damage statement', (
+    tester,
+  ) async {
+    final api = _FakeApi();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: InspectionScreen(id: 'check-out-1', api: api),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      final publish = find.text('Publish: no damage found');
-      await tester.scrollUntilVisible(publish, 300);
-      await tester.ensureVisible(publish);
-      await tester.pumpAndSettle();
-      await tester.tap(publish);
-      await tester.pumpAndSettle();
+    final publish = find.text('Confirm no changes');
+    await tester.scrollUntilVisible(publish, 300);
+    await tester.ensureVisible(publish);
+    await tester.pumpAndSettle();
+    await tester.tap(publish);
+    await tester.pumpAndSettle();
 
-      expect(find.byType(BottomSheet), findsOneWidget);
-      expect(find.text('Publish: no damage found?'), findsOneWidget);
-      expect(find.textContaining('found no damage'), findsOneWidget);
-      await tester.tap(find.text('Publish no damage'));
-      await tester.pumpAndSettle();
-      expect(api.published, [true]);
-    },
-  );
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(find.text('Confirm no changes?'), findsOneWidget);
+    expect(find.textContaining('no damage, missing items'), findsOneWidget);
+    await tester.tap(find.text('Confirm no changes').last);
+    await tester.pumpAndSettle();
+    expect(api.published, [true]);
+  });
 }

@@ -333,6 +333,33 @@ void main() {
   });
 
   testWidgets(
+    'back leaves the editor while Change item returns to the chosen item',
+    (tester) async {
+      await _open(tester, onSave: (_) async {});
+      await _enter(tester, 'Search items, rooms or serial numbers', 'Oven');
+      await _chooseSerial(tester, _kitchenSerial);
+
+      await _tapButton(tester, 'Change item');
+      expect(find.text('Choose an item'), findsOneWidget);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.text('Add finding'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining(_kitchenSerial), findsOneWidget);
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(find.text('Assessment home'), findsOneWidget);
+      expect(find.text('Choose an item'), findsNothing);
+    },
+  );
+
+  testWidgets(
     'failed saves preserve the finding and rapid taps submit only once',
     (tester) async {
       final first = Completer<void>();

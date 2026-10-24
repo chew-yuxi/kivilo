@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/finding_photos.dart';
+import 'multi_shot_camera_screen.dart';
 import 'photo_mark_screen.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
@@ -23,6 +24,7 @@ class FindingEditorScreen extends StatefulWidget {
     this.inspectionId,
     this.api,
     this.photoSession,
+    this.openMultiShotCamera,
     this.onRecover,
     required this.maintenanceHistory,
     this.checkOutItems = const [],
@@ -35,6 +37,8 @@ class FindingEditorScreen extends StatefulWidget {
   final String? inspectionId;
   final Api? api;
   final FindingPhotos? photoSession;
+  final Future<bool?> Function(BuildContext context, FindingPhotos photos)?
+  openMultiShotCamera;
   final Future<void> Function(String findingId, Map<String, dynamic>)?
   onRecover;
   final List<Map<String, dynamic>> maintenanceHistory;
@@ -219,13 +223,25 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     });
   }
 
-  void _back() {
+  Future<void> _back() async {
     if (_saving || _photoAction) return;
-    if (widget.finding == null && !_choosing) {
-      _showChooser();
-    } else {
-      Navigator.pop(context);
+    if (_choosing && _selected != null) {
+      FocusScope.of(context).unfocus();
+      setState(() => _choosing = false);
+      return;
     }
+    if (widget.finding == null && !_choosing && _photos?.ready == true) {
+      setState(() => _photoAction = true);
+      try {
+        await _photos!.persistForm(_draft);
+      } catch (error) {
+        if (mounted) setState(() => _error = plainError(error));
+        return;
+      } finally {
+        if (mounted) setState(() => _photoAction = false);
+      }
+    }
+    if (mounted) Navigator.pop(context);
   }
 
   Future<void> _persist(Future<void> Function() action) async {
@@ -346,6 +362,38 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       if (photo != null) await _markPhoto(photo);
     }
   });
+
+  Future<void> _takePhotos() {
+    // Injected pickers keep widget tests deterministic. Production uses the
+    // continuous camera and the same durable queue as the finding draft.
+    if (widget.openMultiShotCamera == null && _photos!.usesInjectedPicker) {
+      return _pickPhoto(ImageSource.camera);
+    }
+    return _photoOperation(() async {
+      final photos = _photos!;
+      await photos.persistForm(_draft);
+      if (!mounted) return;
+      final launcher = widget.openMultiShotCamera;
+      if (launcher != null) {
+        await launcher(context, photos);
+      } else {
+        await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MultiShotCameraScreen(
+              inspectionId: photos.namespace,
+              roomId: photos.draftId,
+              ownerId: photos.ownerId,
+              root: photos.root,
+              queue: photos.queue,
+              title: 'Finding photos',
+            ),
+          ),
+        );
+      }
+      await photos.retry();
+    });
+  }
 
   Future<void> _markPhoto(FindingEvidence photo) async {
     ImageProvider image;
@@ -485,35 +533,53 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Finding photos', style: Theme.of(context).textTheme.titleSmall),
+        Text('Photos', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 4),
         Text(
-          'Add evidence for this finding. Originals are kept; marks are stored beside each photo.',
+          'Take several photos, then mark them or add notes. Originals are always kept.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: kiviloButtonGap,
-          children: [
-            OutlinedButton(
-              onPressed: enabled ? () => _pickPhoto(ImageSource.camera) : null,
-              child: const Text('Take photo'),
-            ),
-            OutlinedButton(
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final takePhotos = OutlinedButton.icon(
+              onPressed: enabled ? _takePhotos : null,
+              icon: const Icon(Icons.camera_alt_outlined),
+              label: const Text('Take photos'),
+            );
+            final gallery = OutlinedButton.icon(
               onPressed: enabled ? () => _pickPhoto(ImageSource.gallery) : null,
-              child: const Text('Add from gallery'),
-            ),
-            if (photos.any((photo) => photo.pending) || _photos!.error != null)
-              TextButton(
-                onPressed: enabled
-                    ? () => _photoOperation(_photos!.retry)
-                    : null,
-                child: const Text('Retry uploads'),
-              ),
-          ],
+              icon: const Icon(Icons.photo_library_outlined),
+              label: const Text('Gallery'),
+            );
+            if (constraints.maxWidth < 340) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8,
+                children: [takePhotos, gallery],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: takePhotos),
+                const SizedBox(width: 8),
+                Expanded(child: gallery),
+              ],
+            );
+          },
         ),
+        if (photos.any((photo) => photo.pending) || _photos!.error != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: enabled ? () => _photoOperation(_photos!.retry) : null,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Retry uploads'),
+            ),
+          ),
         if (_photoAction) const LinearProgressIndicator(),
-        for (final photo in photos)
+        for (final photo in photos) ...[
+          const SizedBox(height: 10),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -529,7 +595,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                                 _photoOperation(() => _viewFindingPhoto(photo))
                           : null,
                       child: SizedBox(
-                        height: 160,
+                        height: 128,
                         child: photo.url != null
                             ? MarkedNetworkPhoto(
                                 url: photo.url!,
@@ -567,32 +633,46 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                   ),
                   if (photo.pending && !photo.awaitingMarkup && !photo.removing)
                     LinearProgressIndicator(value: photo.progress),
-                  Wrap(
-                    spacing: 8,
+                  const SizedBox(height: 4),
+                  Row(
                     children: [
-                      TextButton(
-                        onPressed: enabled && !photo.removing
-                            ? () => _photoOperation(() => _markPhoto(photo))
-                            : null,
-                        child: Text(
-                          photo.awaitingMarkup
-                              ? 'Resume marking'
-                              : 'Mark photo',
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: enabled && !photo.removing
+                              ? () => _photoOperation(() => _markPhoto(photo))
+                              : null,
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 40),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          icon: const Icon(Icons.draw_outlined, size: 18),
+                          label: Text(photo.awaitingMarkup ? 'Resume' : 'Mark'),
                         ),
                       ),
-                      TextButton(
-                        onPressed: enabled && !photo.removing
-                            ? () => _photoOperation(() => _caption(photo))
-                            : null,
-                        child: const Text('Caption'),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: enabled && !photo.removing
+                              ? () => _photoOperation(() => _caption(photo))
+                              : null,
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 40),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          icon: const Icon(Icons.notes_outlined, size: 18),
+                          label: const Text('Note'),
+                        ),
                       ),
-                      TextButton(
+                      IconButton(
                         onPressed: enabled && !photo.removing
                             ? () => _photoOperation(
                                 () => _photos!.remove(photo.id),
                               )
                             : null,
-                        child: const Text('Delete photo'),
+                        tooltip: 'Delete photo',
+                        color: KiviloColors.red,
+                        icon: const Icon(Icons.delete_outline),
                       ),
                     ],
                   ),
@@ -600,13 +680,17 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
               ),
             ),
           ),
+        ],
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) => PopScope<bool>(
-    canPop: !_saving && !_photoAction && (_choosing || widget.finding != null),
+    canPop:
+        !_saving &&
+        !_photoAction &&
+        ((_choosing && _selected == null) || widget.finding != null),
     onPopInvokedWithResult: (didPop, _) {
       if (!didPop && !_saving && !_photoAction) _back();
     },
@@ -620,14 +704,6 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
               ? 'Add finding'
               : 'Review finding',
         ),
-        actions: [
-          TextButton(
-            onPressed: _saving || _photoAction
-                ? null
-                : () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
       ),
       body: KiviloContent(
         child: _loadingPhotos
@@ -875,17 +951,23 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Selected item',
+                      'Item',
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
                   if (widget.finding == null)
                     TextButton(
                       onPressed: _saving || _photoAction ? null : _showChooser,
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(0, 40),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                       child: const Text('Change item'),
                     ),
                 ],
               ),
+              const SizedBox(height: 6),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -898,15 +980,26 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                         compact: !_showItemDetails,
                         enabled: !_saving && !_photoAction,
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TextButton(
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
                           onPressed: _saving
                               ? null
                               : () => setState(
                                   () => _showItemDetails = !_showItemDetails,
                                 ),
-                          child: Text(
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 40),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          icon: Icon(
+                            _showItemDetails
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            size: 18,
+                          ),
+                          label: Text(
                             _showItemDetails
                                 ? 'Hide item details'
                                 : 'Show item details',
@@ -993,12 +1086,23 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                 labelText: 'Estimated cost (SGD)',
               ),
             ),
-            if (_photos != null)
-              OutlinedButton(
-                onPressed: _saving || _photoAction ? null : _discardDraft,
-                style: kiviloDangerOutlined,
-                child: const Text('Discard draft'),
+            if (_photos != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: _saving || _photoAction ? null : _discardDraft,
+                  style: TextButton.styleFrom(
+                    foregroundColor: KiviloColors.red,
+                    minimumSize: const Size(0, 40),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: const Text('Discard draft'),
+                ),
               ),
+            ],
             if (widget.finding != null && widget.onRemove != null) ...[
               const SizedBox(height: kiviloButtonGap),
               OutlinedButton(

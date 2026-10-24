@@ -62,6 +62,7 @@ class FindingPhotos extends ChangeNotifier {
        _owner = ownerId,
        _queue = queue,
        _ownsQueue = queue == null,
+       _usesInjectedPicker = picker != null,
        _picker = picker ?? ImagePicker(),
        // ignore: prefer_initializing_formals
        _backend = backend,
@@ -79,6 +80,7 @@ class FindingPhotos extends ChangeNotifier {
   String? _owner;
   CaptureQueue? _queue;
   final bool _ownsQueue;
+  final bool _usesInjectedPicker;
   final ImagePicker _picker;
   final CaptureBackend? _backend;
   final String? Function() _currentOwner;
@@ -110,6 +112,7 @@ class FindingPhotos extends ChangeNotifier {
 
   String get namespace =>
       'finding-draft:$inspectionId:$draftId${findingId == null ? '' : ':$findingId'}';
+  bool get usesInjectedPicker => _usesInjectedPicker;
   String get savedNamespace => 'finding:$inspectionId:$findingId';
   Directory get root => _root!;
   String get ownerId => _owner!;
@@ -356,7 +359,9 @@ class FindingPhotos extends ChangeNotifier {
       await _writes;
       if (await _pickerFile.exists() ||
           await File('${root.path}/capture-picker.json').exists() ||
-          await File('${root.path}/$supportingDocumentPickerFilename').exists()) {
+          await File(
+            '${root.path}/$supportingDocumentPickerFilename',
+          ).exists()) {
         throw const ApiFailure(
           'Finish recovering the previous camera selection before taking another photo.',
           null,

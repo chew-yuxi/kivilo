@@ -227,18 +227,28 @@ void main() {
     return session;
   }
 
-  test('finding camera leaves an interrupted document selection untouched', () async {
-    final journal = File('${root.path}/$supportingDocumentPickerFilename');
-    await journal.writeAsString(jsonEncode({
-      'ownerId': 'owner-1', 'tenancyId': 'tenancy-1', 'requestId': 'request-original',
-      'clientId': newCaptureId(),
-    }));
-    final session = open();
-    await session.initialize();
-    await expectLater(session.pick(ImageSource.camera), throwsA(isA<ApiFailure>()));
-    expect(await queue.forRoom(session.draftId, 'owner-1'), isEmpty);
-    expect(await journal.exists(), isTrue);
-  });
+  test(
+    'finding camera leaves an interrupted document selection untouched',
+    () async {
+      final journal = File('${root.path}/$supportingDocumentPickerFilename');
+      await journal.writeAsString(
+        jsonEncode({
+          'ownerId': 'owner-1',
+          'tenancyId': 'tenancy-1',
+          'requestId': 'request-original',
+          'clientId': newCaptureId(),
+        }),
+      );
+      final session = open();
+      await session.initialize();
+      await expectLater(
+        session.pick(ImageSource.camera),
+        throwsA(isA<ApiFailure>()),
+      );
+      expect(await queue.forRoom(session.draftId, 'owner-1'), isEmpty);
+      expect(await journal.exists(), isTrue);
+    },
+  );
 
   test(
     'photo and marks recover across restart and a lost registration response',
@@ -359,6 +369,75 @@ void main() {
     },
   );
 
+  testWidgets('finding camera opens multi-shot on the finding draft queue', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final session = open();
+    sessions.remove(session); // The editor owns and disposes this session.
+    FindingPhotos? opened;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1.5)),
+          child: child!,
+        ),
+        home: FindingEditorScreen(
+          photoSession: session,
+          maintenanceHistory: const [],
+          checkOutItems: ComparableItem.listFromJson([
+            {'id': 'worktop-1', 'label': 'Kitchen · Worktop'},
+          ]),
+          openMultiShotCamera: (context, photos) async {
+            opened = photos;
+            return true;
+          },
+          onSave: (_) async {},
+        ),
+      ),
+    );
+    for (
+      var i = 0;
+      i < 30 && find.text('Kitchen · Worktop').evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.tap(find.text('Kitchen · Worktop'));
+    await tester.pumpAndSettle();
+    final takePhotos = find.text('Take photos');
+    await tester.ensureVisible(takePhotos);
+    expect(tester.takeException(), isNull);
+    await tester.tap(takePhotos);
+    await tester.pump();
+    for (var i = 0; i < 30 && opened == null; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    expect(opened, same(session));
+    expect(opened!.namespace, startsWith('finding-draft:checkout-1:'));
+    expect(opened!.draftId, isNotEmpty);
+    expect(opened!.queue, same(queue));
+    expect(opened!.root.path, root.path);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets(
     'choose item, take and mark photo, then save keeps failed drafts retryable',
     (tester) async {
@@ -437,7 +516,7 @@ void main() {
       await tester.ensureVisible(rationale);
       await tester.pump();
       await tester.enterText(rationale, 'A fresh chip on the worktop edge.');
-      await tap('Take photo');
+      await tap('Take photos');
       for (
         var i = 0;
         i < 30 && find.byType(PhotoMarkScreen).evaluate().isEmpty;

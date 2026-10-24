@@ -384,15 +384,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: Text(
-          noFindings ? 'Publish: no damage found?' : 'Publish assessment?',
-        ),
+        title: Text(noFindings ? 'Confirm no changes?' : 'Publish assessment?'),
         content: Text(
           noFindings
-              ? 'No changes are recorded between check-in and check-out. '
-                    'Publishing states that you checked and found no damage, '
-                    'and both parties see that in the shared report. Future '
-                    'edits require publishing a new version.'
+              ? 'You are confirming that the check-out matches the agreed '
+                    'check-in, with no damage, missing items or other changes '
+                    'to record. Both parties will see this in the report.'
               : 'The reviewed findings will be visible as a dated '
                     'assessment separate from the signed inventory. Future '
                     'edits require publishing a new version.',
@@ -404,7 +401,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(noFindings ? 'Publish no damage' : 'Publish'),
+            child: Text(noFindings ? 'Confirm no changes' : 'Publish'),
           ),
         ],
       ),
@@ -1309,33 +1306,11 @@ class _InspectionScreenState extends State<InspectionScreen> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       const SizedBox(height: kiviloSectionGap),
-      const KiviloSectionHeading(
-        title: 'Check-out assessment',
-        subtitle: 'A separate, dated record of changes and responsibility.',
-      ),
-      const SizedBox(height: kiviloHeadingGap),
-      Card(
-        color: KiviloColors.canvas,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.info_outline,
-                size: 20,
-                color: KiviloColors.muted,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Record each change since check-in. Findings stay private until you publish them, and the signed inventory does not change.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-            ],
-          ),
-        ),
+      KiviloSectionHeading(
+        title: 'Changes at check-out',
+        subtitle: inspection.findings.isEmpty
+            ? 'Record anything that differs from the agreed check-in.'
+            : '${inspection.findings.length} ${inspection.findings.length == 1 ? 'change' : 'changes'} recorded',
       ),
       if (inspection.latestAssessment != null) ...[
         const SizedBox(height: 12),
@@ -1358,21 +1333,44 @@ class _InspectionScreenState extends State<InspectionScreen> {
           ),
         ),
       ],
-      const SizedBox(height: kiviloSectionGap),
-      KiviloSectionHeading(
-        title: 'Findings',
-        subtitle: inspection.findings.isEmpty
-            ? 'No changes recorded yet'
-            : '${inspection.findings.length} ${inspection.findings.length == 1 ? 'change' : 'changes'} recorded',
-        action: inspection.status == 'COMPLETED'
-            ? TextButton.icon(
-                onPressed: _busy ? null : () => _addFinding(inspection),
-                icon: const Icon(Icons.add),
-                label: const Text('Add'),
-              )
-            : null,
-      ),
       const SizedBox(height: kiviloHeadingGap),
+      if (inspection.findings.isEmpty)
+        Card(
+          color: KiviloColors.canvas,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle_outline, size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Nothing recorded yet',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Add damage, wear, missing items or improvements. If there are no changes, confirm that below.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                if (inspection.status == 'COMPLETED') ...[
+                  const SizedBox(height: 14),
+                  OutlinedButton.icon(
+                    onPressed: _busy ? null : () => _addFinding(inspection),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add a change'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
       for (final finding in inspection.findings) ...[
         Card(
           child: InkWell(
@@ -1436,6 +1434,15 @@ class _InspectionScreenState extends State<InspectionScreen> {
         ),
         const SizedBox(height: 10),
       ],
+      if (inspection.findings.isNotEmpty &&
+          inspection.status == 'COMPLETED') ...[
+        const SizedBox(height: 2),
+        OutlinedButton.icon(
+          onPressed: _busy ? null : () => _addFinding(inspection),
+          icon: const Icon(Icons.add),
+          label: const Text('Add another change'),
+        ),
+      ],
       if (inspection.findings.any((finding) => !finding.editedByHuman)) ...[
         const SizedBox(height: 4),
         Text(
@@ -1455,7 +1462,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           icon: const Icon(Icons.publish_outlined),
           label: Text(
             inspection.findings.isEmpty
-                ? 'Publish: no damage found'
+                ? 'Confirm no changes'
                 : inspection.latestAssessment == null
                 ? 'Publish assessment'
                 : 'Publish new version',
