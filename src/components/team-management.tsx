@@ -182,7 +182,7 @@ export function TeamDirectory({ data }: { data: Directory }) {
           value={name}
           onChange={(event) => setName(event.target.value)}
           required
-          maxLength={120}
+          maxLength={100}
           disabled={mutation.pending}
         />
         <button className="action-primary" disabled={mutation.pending || !name.trim()}>
@@ -230,6 +230,42 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
         </div>
       </div>
       {mutation.feedback}
+      <section className="space-y-4" aria-label="Team details">
+        <h2 className="text-lg font-semibold">Team details</h2>
+        {data.canManage ? (
+          <form
+            className="space-y-3 rounded-lg border border-gray-200 bg-white p-5"
+            onSubmit={(event) => {
+              event.preventDefault()
+              mutation.run({ action: 'rename', agencyId: data.id, name }, 'Team name saved.')
+            }}
+          >
+            <label className="block text-sm font-medium" htmlFor="team-name">
+              Team name
+            </label>
+            <input
+              className="field"
+              id="team-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              maxLength={100}
+              disabled={mutation.pending}
+            />
+            <button
+              className="action-primary"
+              disabled={mutation.pending || !name.trim() || name.trim() === data.name}
+            >
+              Save team name
+            </button>
+          </form>
+        ) : (
+          <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
+            <p className="text-sm text-gray-600">{data.name}</p>
+            <LockedAction label="Rename team" who="a team owner or manager" askNames={teamManagers(data, viewerId)} />
+          </div>
+        )}
+      </section>
       <section className="space-y-4" aria-label="Report branding">
         <div>
           <h2 className="text-lg font-semibold">Report branding</h2>
@@ -480,38 +516,6 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
           </form>
         )}
       </section>
-      {!data.canManage && (
-        <LockedAction label="Rename team" who="a team owner or manager" askNames={teamManagers(data, viewerId)} />
-      )}
-      {data.canManage && (
-        <details className="rounded-lg border border-gray-200 bg-white">
-          <summary className="flex items-center justify-between px-4 py-3 font-medium">
-            Team settings<span aria-hidden="true">⌄</span>
-          </summary>
-          <form
-            className="space-y-3 border-t border-gray-200 p-4"
-            onSubmit={(event) => {
-              event.preventDefault()
-              mutation.run({ action: 'rename', agencyId: data.id, name }, 'Team name saved.')
-            }}
-          >
-            <label className="block text-sm font-medium" htmlFor="team-name">
-              Agency name
-            </label>
-            <input
-              className="field"
-              id="team-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-              maxLength={120}
-            />
-            <button className="action-secondary" disabled={mutation.pending || name === data.name}>
-              Save name
-            </button>
-          </form>
-        </details>
-      )}
       {data.activity.length > 0 && (
         <details className="rounded-lg border border-gray-200 bg-white">
           <summary className="flex items-center justify-between px-4 py-3 font-medium">
