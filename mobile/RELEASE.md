@@ -5,6 +5,56 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Multi-shot camera native bases: 24 October 2026 Singapore time
+
+Source `f9dd26d`, pushed to `origin/main` before release. Photos now open a continuous
+rear-camera session with flash, lens switching and pinch zoom. Every shutter is saved
+immediately to the existing durable account-scoped queue and kept by default, but held
+from upload until the inspector taps Done. The inspector can swipe the set, zoom, add a
+photo note, draw with the existing mark editor, retake, delete with Undo, or leave and
+resume the unfinished set. Done releases the whole kept set atomically to the uploader.
+
+This required native binaries. The release adds Flutter's official `camera` plugin for
+continuous capture and official `file_selector` package so a later native supporting-
+document picker will not require another dependency-only build. No speculative QR,
+location, NFC, Bluetooth, OCR, speech, biometric or 360-camera dependency was added.
+
+| Platform / release | Shorebird release | Internal track read-back |
+| --- | --- | --- |
+| Android `1.0.0+26` | `922723`, active | Play internal **PUBLISHED** on 26 |
+| iOS `1.0.0+25` | `906190`, iOS active | build `5fdb4d66-a21c-4b5e-974d-f9169ab889ab` **VALID**, in `Kivilo Internal` |
+
+Android production remains `1.0.0+25`, **PUBLISHED**. Apple's public `1.0.0` remains
+`WAITING_FOR_REVIEW` with build `24` selected; build 25 was not selected for the public
+version and the review submission was not canceled or resubmitted. Its build-specific
+non-exempt-encryption answer is `false`.
+
+Both bases were built from the pushed source with production configuration and pinned
+Shorebird Flutter `3.47.2`. The Android AAB is
+`build/release-artifacts/android/build26/kivilo-v26.aab`, SHA-256
+`9fe206f86d63fa9fd4b5ff5bfc39732365056e21a7e856f2080edaf598138764`; Play accepted
+that exact hash as version code 26. It is signed by the established Kivilo upload
+certificate, and the merged manifest confirms package `one.kivilo.kivilo`, version 26,
+camera access and none of `READ_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`,
+`READ_MEDIA_VIDEO` or `READ_MEDIA_AUDIO`. Play edit `07042011395115999380` validated
+and committed only the internal track.
+
+The iOS IPA is `build/release-artifacts/ios/build25/kivilo.ipa`, SHA-256
+`1042cd7dab7e6dbe419b938fddefe88258019008827b05e9679e01d45eeb7712`. It passed strict
+deep code-sign verification for team `4N9TA3WSYM`, production APNs and
+`get-task-allow=false`; its embedded version is `1.0.0 (25)`, deployment target 15.0,
+and it contains both `camera_avfoundation` and `file_selector_ios`. Apple accepted
+delivery `5fdb4d66-a21c-4b5e-974d-f9169ab889ab` without errors. Matching dSYMs are
+archived beside the IPA.
+
+Flutter analysis was clean and all **394 mobile tests** passed. The signed Android and
+unsigned iOS compilation checks also passed before the Shorebird releases. There was no
+database or server change. A real phone was not connected: rapid-shutter behavior,
+camera lifecycle across background/force-quit, retake, drawing, Done upload handoff and
+low-storage behavior remain **NOT RUN** on physical Android and iPhone. Keep both builds
+internal until those checks pass; do not promote Android production or select iOS 25 for
+the public version on this evidence alone.
+
 ## Editable tenancy details: 24 October 2026 Singapore time
 
 Source `a499015`, pushed to `origin/main` before release. The native Property page now
