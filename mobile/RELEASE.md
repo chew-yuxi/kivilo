@@ -5,6 +5,29 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Visible mobile team-name editing: 24 October 2026 Singapore time
+
+Source `d317bbf`, pushed to `origin/main` before release. The native Team page now puts
+the team name in a visible Team details card at the top, with an explicit Edit control
+for owners and managers. Ordinary agents see the same control and the existing message
+naming the owner or manager who can make the change.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android production `1.0.0+25` | **26** / `745934` | **stable**, active and latest for Android |
+| iOS public `1.0.0+24` | **26** / `745940` | **stable**, active and latest |
+| Android internal `1.0.0+26` | **2** / `745942` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **27** / `745953` | **stable**, active and latest for iOS |
+| Android pending production `1.0.0+27` | **1** / `745956` | **stable**, active and latest |
+
+Flutter analysis was clean, all **399 mobile tests** passed, and the focused team suite
+passed all 23 tests. The public bases were patched from isolated source `6ecc47b`, the
+internal bases from `428e7cd`, and Android 27 from `02dbeeb`, so concurrent report-photo
+work was not included. Shorebird accepted every patch without native or asset overrides;
+the iOS 24 build shared 55.6% of Dart code and emitted its possible-slower-execution
+warning. Physical-device verification remains **NOT RUN**. Android 27 remains subject to
+its existing managed Play rollout; this patch does not publish that store release.
+
 ## Android 27 multi-shot findings release: 24 October 2026 Singapore time
 
 Source `d9bdbb1`, pushed to `origin/main` before release. Android `1.0.0+27`
