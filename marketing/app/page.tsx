@@ -6,18 +6,19 @@ import { LandingWalkthrough } from '../components/landing-walkthrough'
 import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
 const title = 'Kivilo | Property handovers, check-in & check-out reports'
-const description = `Take photos and mark damage with circles, freehand or arrows. Write inventories, collect signatures and compare check-in with check-out. ${FREE_ACTIVE_PROPERTIES} active properties free.`
-const socialImage = '/opengraph-image.png?v=20261024-bold'
+const description = `Digital tools for property agents, from check-in to check-out. Keep photos, inventories, signatures and repairs together. ${FREE_ACTIVE_PROPERTIES} active properties free.`
+const socialTitle = 'Give every tenancy an upgrade. | Kivilo'
+const socialImage = '/opengraph-image.png?v=20261024-upgrade'
 export const metadata: Metadata = {
   title, description,
   alternates: { canonical: 'https://kivilo.app' },
   robots: { index: true, follow: true },
   openGraph: {
     type: 'website', url: 'https://kivilo.app', siteName: 'Kivilo', locale: 'en_SG',
-    title: 'Hand over the keys. Keep the whole story. | Kivilo', description,
-    images: [{ url: socialImage, width: 1200, height: 630, alt: 'Kivilo — Hand over the keys. Keep the whole story.' }],
+    title: socialTitle, description,
+    images: [{ url: socialImage, width: 1200, height: 630, alt: 'Kivilo — Give every tenancy an upgrade.' }],
   },
-  twitter: { card: 'summary_large_image', title, description, images: [socialImage] },
+  twitter: { card: 'summary_large_image', title: socialTitle, description, images: [socialImage] },
 }
 const faqs = [
   { question: 'What is Kivilo?', answer: 'Kivilo is a property handover and tenancy record app for agents, landlords and tenants. It brings room-by-room inventories, condition photos, walkthrough videos, signatures, repairs and check-out assessments into one property record. Built in Singapore, for the people on both sides of the keys.' },
@@ -57,8 +58,8 @@ export default function LandingPage() {
       <main id="main">
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
-            <h1 id="hero-title">Hand over the keys.<br />Keep the whole story.</h1>
-            <p className={styles.heroDescription}>Take a photo. Mark what matters. Get everyone’s signatures.<br className={styles.desktopBreak} /> The little details, all in one shared record.</p>
+            <h1 id="hero-title">Give every tenancy<br />an upgrade.</h1>
+            <p className={styles.heroDescription}>From the first inspection to the final check-out, Kivilo gives agents the digital tools to keep landlords informed, tenants involved and the details together.</p>
             <div className={styles.heroActions}>
               <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
             </div>
@@ -123,7 +124,7 @@ export default function LandingPage() {
         <section className={styles.finalCta} aria-labelledby="start-title">
           <div className={styles.happyScene}><Image src="/art/tenancy-scenes.webp" alt="An agent and a happy resident exchanging keys at their new home." width={2172} height={724} sizes="900px" unoptimized /></div>
           <h2 id="start-title">New keys.<br />A better beginning.</h2>
-          <p>Start with one property. Keep the whole story.</p>
+          <p>A better tenancy starts with your first property.</p>
           <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Get started free</Link>
           <span className={styles.freeNote}>No credit card. Just your email.</span>
         </section>

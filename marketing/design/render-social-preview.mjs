@@ -19,16 +19,15 @@ try {
     letter-spacing: -3.5px; line-height: 1; }
   .brand { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 28%; background: #ec4899; }
   .brand::after { content: ''; width: 36%; height: 36%; border-radius: 50%; background: #fff; }
-  h1 { margin: 68px 0 0; font-size: 82px; line-height: 1.02; letter-spacing: -2.5px; font-weight: 700; }
+  h1 { margin: 78px 0 0; font-size: 94px; line-height: 1.06; letter-spacing: -3px; font-weight: 700; }
   h1 span { display: block; white-space: nowrap; }
-  h1 span + span { margin-top: 16px; }
   .backdrop { position: absolute; right: -46px; top: 35px; width: 630px; height: 580px; }
   .art { position: absolute; right: 0; bottom: 0; width: 600px; height: 630px; overflow: hidden; }
   .art img { display: block; position: absolute; right: -155px; bottom: -130px; width: 2460px; height: 820px; max-width: none; }
 </style></head><body>
   <div class="copy">
     <div class="wordmark"><span class="brand"></span>kivilo</div>
-    <h1><span>Hand over<br>the keys.</span><span>Keep the<br>whole story.</span></h1>
+    <h1><span>Give every</span><span>tenancy</span><span>an upgrade.</span></h1>
   </div>
   <svg class="backdrop" viewBox="0 0 630 580" aria-hidden="true">
     <path fill="#f8e4eb" d="M496 39C595 62 655 168 611 279C574 373 543 495 436 540C327 589 186 560 91 486C-1 415 2 303 38 198C76 86 192 40 305 29C376 21 432 9 496 39Z" />

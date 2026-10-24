@@ -16,7 +16,7 @@ or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`2edb4c5b-1951-4f6a-8b05-77948744856f`. Build/deploy instructions: `marketing/README.md`.
+`cf3d7e11-7eca-4914-a82a-cd16fa58ce60`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -109,7 +109,14 @@ The signing example now uses two fictional handwritten SVG signatures instead of
 "Signed" badges, with accessible names and aligned 18px role captions. Marketing
 build, strict lint and 320/390/768/1440px visual/layout checks pass. Live HTML and nine
 script/style assets match the export; both sample signatures render on the phone layout.
-The social preview now uses a 62px logo and 82px headline on the left, with no small
+The hero now leads with "Give every tenancy an upgrade." Supporting copy explains
+the digital tools agents use to keep landlords informed, tenants involved and the
+details together from the first inspection to check-out. Open Graph/Twitter titles,
+the meta description and social artwork match this broader tenancy positioning.
+The marketing build, scoped strict lint and six-width (320–1920px) browser checks
+pass: 18px minimum text, correct CTA sizing, no overflow or runtime errors. The
+longer hero paragraph uses balanced line wrapping on phones.
+The social preview now uses a 62px logo and 94px headline on the left, with no small
 supporting paragraph. A tighter crop of the happy handover fills the right against
 a soft blush organic shape. The existing artwork and system typography remain.
 It was reviewed at actual chat widths of 600px and 360px as well as full size. Its reproducible

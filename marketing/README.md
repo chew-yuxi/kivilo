@@ -31,6 +31,10 @@ drawing switches off again after one stroke. No customer property data is used.
 The landlord and tenant signatures are two fictional SVG ink drawings, each with
 an accessible sample-signature label and a visible role caption.
 
+The hero leads with "Give every tenancy an upgrade." and explains Kivilo's digital
+support for agents, landlords and tenants from the first inspection to check-out.
+The same headline appears in social titles and the social image.
+
 The static hero artwork is `public/art/tenancy-scenes.webp`: a property inspection
 on the left and a happy handover on the right, with the headline and CTA in the clear
 center. Both scenes were composed together from the existing Kivilo illustrations
