@@ -94,41 +94,43 @@ class _TenancyScreenState extends State<TenancyScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => KiviloDrawer(
           title: const Text('Add property asset'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: name,
-                  decoration: const InputDecoration(labelText: 'Name'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: name,
+                decoration: const InputDecoration(labelText: 'Name'),
+              ),
+              const SizedBox(height: 16),
+              KiviloSelectField<String>(
+                label: 'Category',
+                value: category,
+                options: const [
+                  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
+                  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
+                  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
+                  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
+                  KiviloSelectOption(value: 'SYSTEM', label: 'System'),
+                  KiviloSelectOption(value: 'OTHER', label: 'Other'),
+                ],
+                onChanged: (value) => setDialogState(() => category = value),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: room,
+                decoration: const InputDecoration(
+                  labelText: 'Room (optional)',
                 ),
-                KiviloSelectField<String>(
-                  label: 'Category',
-                  value: category,
-                  options: const [
-                    KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-                    KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-                    KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-                    KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-                    KiviloSelectOption(value: 'SYSTEM', label: 'System'),
-                    KiviloSelectOption(value: 'OTHER', label: 'Other'),
-                  ],
-                  onChanged: (value) => setDialogState(() => category = value),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: identifier,
+                decoration: const InputDecoration(
+                  labelText: 'Make, model or serial (optional)',
                 ),
-                TextField(
-                  controller: room,
-                  decoration: const InputDecoration(
-                    labelText: 'Room (optional)',
-                  ),
-                ),
-                TextField(
-                  controller: identifier,
-                  decoration: const InputDecoration(
-                    labelText: 'Make, model or serial (optional)',
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
