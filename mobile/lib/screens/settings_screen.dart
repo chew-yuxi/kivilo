@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';
+import '../models/agency.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -50,6 +51,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _api.plan,
     retainKey: 'plan',
   );
+  late Loading<AgencyIndex> _teams = _api.load(
+    _api.agencies,
+    retainKey: 'agencies',
+  );
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
@@ -74,6 +79,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
     }
+  }
+
+  Future<void> _refreshTeams() async {
+    final next = _api.load(
+      _api.agencies,
+      savedFirst: false,
+      retainKey: 'agencies',
+    );
+    setState(() => _teams = next);
+    await next.fresh;
+  }
+
+  Future<void> _openTeam(String id) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => TeamDetailScreen(id: id, api: _api)),
+    );
+    if (mounted) await _refreshTeams();
+  }
+
+  Future<void> _openTeamDirectory() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => TeamScreen(api: _api)),
+    );
+    if (mounted) await _refreshTeams();
   }
 
   Future<void> _requestDeletion() async {
@@ -234,6 +263,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
   );
 
+  Widget _teamsCard() => StreamBuilder<AgencyIndex>(
+    stream: _teams.stream,
+    builder: (context, snapshot) {
+      final index = snapshot.data;
+      final teams = index?.agencies ?? const <AgencySummary>[];
+      return Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            for (var i = 0; i < teams.length; i++) ...[
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                leading: const Icon(Icons.person_outline),
+                title: Text(teams[i].name),
+                subtitle: Text(
+                  '${agencyRoleLabel(teams[i].role)} · ${teams[i].memberCount} ${teams[i].memberCount == 1 ? 'member' : 'members'}',
+                ),
+                trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+                onTap: () => _openTeam(teams[i].id),
+              ),
+              const Divider(height: 1),
+            ],
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              leading: const Icon(Icons.add),
+              title: Text(teams.isEmpty ? 'Create or join a team' : 'Add another team'),
+              subtitle: Text(
+                snapshot.hasError
+                    ? 'Could not load teams. Tap to try again.'
+                    : index != null && index.invitations.isNotEmpty
+                        ? '${index.invitations.length} pending ${index.invitations.length == 1 ? 'invitation' : 'invitations'}'
+                        : 'Create a team or accept an invitation',
+              ),
+              trailing: snapshot.connectionState == ConnectionState.waiting
+                  ? const SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+              onTap: _openTeamDirectory,
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
   Widget _planCard() => StreamBuilder<WorkspacePlan>(
     stream: _plan.stream,
     builder: (context, snapshot) {
@@ -365,14 +441,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Workspace'),
             const SizedBox(height: kiviloHeadingGap),
-            _linkCard(
-              icon: Icons.person_outline,
-              title: 'Team',
-              subtitle: 'Members, invitations and assigned work',
-              onTap: () => Navigator.of(context).push<void>(
-                MaterialPageRoute(builder: (_) => TeamScreen(api: _api)),
-              ),
-            ),
+            _teamsCard(),
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(
               title: 'Report branding',
