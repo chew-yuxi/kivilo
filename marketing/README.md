@@ -32,6 +32,15 @@ Mobile shows the inspection crop below the copy and the happy handover above the
 closing CTA. There is no automatic animation; the photo demo responds to the
 visitor's own tool choices and drawing.
 
+The cabinet plant was repaired with built-in imagegen, then only its local area
+was composited into the panorama; the remaining visible pixels and transparency
+are unchanged. The edit brief is in `design/tenancy-plant-fix.prompt.txt`.
+
+The header stays visible while scrolling and gains a subtle bottom border away
+from the top. In-page links scroll smoothly with an offset for the header;
+reduced-motion preferences use an instant jump. The hero has one primary CTA,
+56px high above 900px and 44px on narrower screens.
+
 Typography uses the web app's system sans-serif stack. All page text, including
 demo labels, captions and footer links, is at least 18px; body copy is 20px.
 Narrow layouts wrap or stack instead of reducing type. Section headings stand on

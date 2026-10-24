@@ -13,7 +13,7 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`01a566f5-b379-450b-96a3-f58ccf681ab1`. Build/deploy instructions: `marketing/README.md`.
+`5cf0ac8b-4d5f-450e-926c-8a7000175e44`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -66,6 +66,16 @@ preview uses the same sans-serif typography. Published on 24 October: live HTML 
 Production checks at 390/1440px confirm the 18px minimum across all three demo tabs,
 no horizontal overflow or browser errors, working drawing/original-photo controls
 and keyboard navigation. The app root reaches its HTTPS login page.
+
+The cabinet plant is repaired in the hero and social preview; only its local area
+changed in the panorama. The hero has one CTA, 56px high on desktop and 44px on
+narrower screens. Section links scroll smoothly (instantly with reduced motion)
+and clear the sticky white navigation, which gains a thin border after scrolling.
+Marketing build and strict lint pass. Browser checks at all six widths confirm
+no overflow or runtime errors, stable header height, correct anchor offsets and
+border visibility; reduced-motion behavior and the photo demo pass. Live HTML and
+11 script, style and artwork assets match the export, with production CTA and
+sticky-navigation checks passing.
 
 ## Tenancy agreements and supporting documents — 23 October
 

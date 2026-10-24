@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { LandingHeader } from '../components/landing-header'
 import { LandingWalkthrough } from '../components/landing-walkthrough'
 import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
@@ -40,7 +41,7 @@ export default function LandingPage() {
     <div className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       <a href="#main" className={styles.skipLink}>Skip to content</a>
-      <header className={styles.header}>
+      <LandingHeader>
         <nav className={styles.exploreNavigation} aria-label="Explore Kivilo">
           <a href="#how-it-works">How it works</a>
           <a href="#whole-tenancy">The whole tenancy</a>
@@ -51,7 +52,7 @@ export default function LandingPage() {
           <Link href="https://my.kivilo.app/login">Log in</Link>
           <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.smallButton}>Start free</Link>
         </nav>
-      </header>
+      </LandingHeader>
       <main id="main">
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
@@ -59,7 +60,6 @@ export default function LandingPage() {
             <p className={styles.heroDescription}>Take a photo. Mark what matters. Get everyone’s signatures.<br className={styles.desktopBreak} /> The little details, all in one shared record.</p>
             <div className={styles.heroActions}>
               <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
-              <a href="#how-it-works" className={styles.textButton}>See how it works</a>
             </div>
             <p className={styles.freeNote}>{FREE_ACTIVE_PROPERTIES} active properties, free. No credit card needed.</p>
           </div>

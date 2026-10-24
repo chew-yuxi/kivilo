@@ -1,0 +1,12 @@
+Tool: built-in imagegen
+Use case: precise-object-edit
+Transparent background: true
+Edit input: top-left 724×724 crop of marketing/public/art/tenancy-scenes.webp
+Final web asset: marketing/public/art/tenancy-scenes.webp
+Integration: resize generated crop to 724×724, replace only rectangle x=450, y=280, width=225, height=225 in the original 2172×724 panorama. Lossless WebP preserves all visible pixels and alpha outside that rectangle.
+
+Prompt:
+Use case: precise-object-edit.
+Asset: localized repair of an existing Kivilo website illustration.
+Input image 1 is the EDIT TARGET, a square crop of our existing transparent hero artwork. Keep its exact composition and framing, inspector, face, body, hands, phone, pink bag, floor, cabinet, cabinet damage, window, sofa, wall picture, and large floor plant entirely unchanged. Preserve crisp thin dark ink linework, restrained pale gray fills and existing colors.
+Change ONLY the small potted plant sitting on TOP OF THE CABINET at the upper right of this crop. Its trailing leaves are currently malformed and disconnected. Redraw that plant cleanly as a modest compact upright pothos in the SAME white pot and same location: five individually readable, botanically plausible heart-shaped pale sage-green leaves, each attached by a clear short petiole to a stem that visibly grows from inside the pot. Leaves have coherent natural silhouettes and at most a simple central vein. Balanced, simple, intentionally drawn foliage. Remove ALL of the malformed trailing vine and floating leaves to the right of and below the cabinet top; the new plant should remain above the cabinet top, with no foliage hanging down its side. Preserve the cabinet's straight top and right edge cleanly where the old foliage crossed them. Keep this object within the original plant's upper footprint. No extra objects, no text, no style changes, no repainting other parts of the scene. Same square framing with the same scene alignment, no zoom or crop. Outside the illustrated objects remains genuinely transparent; opaque white fills inside objects stay opaque white.
