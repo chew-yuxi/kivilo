@@ -462,6 +462,39 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('groups the current report, tenancy details and documents', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1600);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: PropertyScreen(
+          propertyId: 'property-1',
+          api: _LibraryApi(canOpenDocuments: true),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final actions = find.ancestor(
+      of: find.text('Tenancy details'),
+      matching: find.byType(Card),
+    );
+    expect(actions, findsOneWidget);
+    expect(
+      find.descendant(of: actions, matching: find.text('Continue check-in')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: actions, matching: find.text('Documents')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('an empty list explains the first check-in', (tester) async {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);
