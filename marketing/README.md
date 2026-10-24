@@ -72,6 +72,12 @@ Metadata lives with the marketing page: canonical URL, Open Graph/Twitter card,
 Organization/WebSite/SoftwareApplication structured data, robots and sitemap.
 `public/llms.txt` is a short factual product reference. Private app pages inherit
 noindex; the app's public utility pages have their own `my.kivilo.app` canonicals.
+The 1200×630 social image places the logo and left-aligned copy beside the happy
+handover artwork on the right. Regenerate it with
+`node marketing/design/render-social-preview.mjs` from the repository root. It uses
+the existing artwork and system font stack; no page server is required. Change the
+`socialImage` version query in `app/page.tsx` when replacing it so social platforms
+can fetch the revised asset.
 
 For a Git-connected Cloudflare build, use repository root as the root directory,
 `pnpm marketing:build` as the build command, and

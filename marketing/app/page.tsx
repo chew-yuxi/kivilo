@@ -7,6 +7,7 @@ import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
 const title = 'Kivilo | Property handovers, check-in & check-out reports'
 const description = `Take photos and mark damage with circles, freehand or arrows. Write inventories, collect signatures and compare check-in with check-out. ${FREE_ACTIVE_PROPERTIES} active properties free.`
+const socialImage = '/opengraph-image.png?v=20261024-left'
 export const metadata: Metadata = {
   title, description,
   alternates: { canonical: 'https://kivilo.app' },
@@ -14,9 +15,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website', url: 'https://kivilo.app', siteName: 'Kivilo', locale: 'en_SG',
     title: 'Hand over the keys. Keep the whole story. | Kivilo', description,
-    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'Kivilo — Hand over the keys. Keep the whole story.' }],
+    images: [{ url: socialImage, width: 1200, height: 630, alt: 'Kivilo — Hand over the keys. Keep the whole story.' }],
   },
-  twitter: { card: 'summary_large_image', title, description, images: ['/opengraph-image.png'] },
+  twitter: { card: 'summary_large_image', title, description, images: [socialImage] },
 }
 const faqs = [
   { question: 'What is Kivilo?', answer: 'Kivilo is a property handover and tenancy record app for agents, landlords and tenants. It brings room-by-room inventories, condition photos, walkthrough videos, signatures, repairs and check-out assessments into one property record. Built in Singapore, for the people on both sides of the keys.' },
