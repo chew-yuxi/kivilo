@@ -207,62 +207,101 @@ class _PropertyScreenState extends State<PropertyScreen> {
                             ),
                           ),
                         ],
+                        if (term.tenancy case final tenancy?) ...[
+                          if (term.reports.isNotEmpty) const Divider(height: 1),
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            leading: const Icon(Icons.build_outlined),
+                            title: const Text('Repairs and assets'),
+                            subtitle: const Text(
+                              'Maintenance cases and property items',
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => _open(
+                              TenancyScreen(tenancy: tenancy, api: _api),
+                            ),
+                          ),
+                        ],
+                        if (term.canOpenDocuments) ...[
+                          if (term.reports.isNotEmpty || term.tenancy != null)
+                            const Divider(height: 1),
+                          ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            leading: const Icon(Icons.description_outlined),
+                            title: const Text('Documents'),
+                            subtitle: const Text(
+                              'Tenancy agreement and supporting files',
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => _open(
+                              SupportingDocumentsScreen(
+                                tenancyId: term.tenancyId,
+                                api: _api,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  if (term.tenancy case final tenancy?) ...[
-                    const SizedBox(height: kiviloButtonGap),
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          _open(TenancyScreen(tenancy: tenancy, api: _api)),
-                      icon: const Icon(Icons.build_outlined),
-                      label: const Text('Repairs and assets'),
-                    ),
-                  ],
-                  if (term.canOpenDocuments) ...[
-                    const SizedBox(height: kiviloButtonGap),
-                    OutlinedButton.icon(
-                      onPressed: () => _open(
-                        SupportingDocumentsScreen(
-                        tenancyId: term.tenancyId,
-                        api: _api,
-                        ),
-                      ),
-                      icon: const Icon(Icons.description_outlined),
-                      label: const Text('Documents'),
-                    ),
-                  ],
                 ],
                 const SizedBox(height: kiviloSectionGap),
                 const KiviloSectionHeading(title: 'More'),
                 const SizedBox(height: kiviloHeadingGap),
-                if (property.canOpenTimeline) ...[
-                  OutlinedButton.icon(
-                    onPressed: () => _open(
-                      PropertyTimelineScreen(
-                        propertyId: property.id,
-                        api: _api,
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      if (property.canOpenTimeline) ...[
+                        ListTile(
+                          leading: const Icon(Icons.schedule_rounded),
+                          title: const Text('Timeline'),
+                          subtitle: const Text(
+                            'Reports, updates, repairs and assets',
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _open(
+                            PropertyTimelineScreen(
+                              propertyId: property.id,
+                              api: _api,
+                            ),
+                          ),
+                        ),
+                        const Divider(height: 1),
+                      ],
+                      ListTile(
+                        leading: const Icon(Icons.history),
+                        title: const Text('History'),
+                        subtitle: const Text('Changes made to this property'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _open(
+                          PropertyHistoryScreen(
+                            propertyId: property.id,
+                            api: _api,
+                          ),
+                        ),
                       ),
-                    ),
-                    icon: const Icon(Icons.schedule_rounded),
-                    label: const Text('Timeline'),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.edit_outlined),
+                        title: const Text('Property settings'),
+                        subtitle: const Text('Archive, delete or restore'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _open(
+                          PropertySettingsScreen(
+                            propertyId: property.id,
+                            api: _api,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: kiviloButtonGap),
-                ],
-                OutlinedButton.icon(
-                  onPressed: () => _open(
-                    PropertyHistoryScreen(propertyId: property.id, api: _api),
-                  ),
-                  icon: const Icon(Icons.history),
-                  label: const Text('History'),
-                ),
-                const SizedBox(height: kiviloButtonGap),
-                OutlinedButton.icon(
-                  onPressed: () => _open(
-                    PropertySettingsScreen(propertyId: property.id, api: _api),
-                  ),
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Settings and danger zone'),
                 ),
               ],
             ),
