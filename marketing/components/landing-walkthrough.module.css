@@ -26,14 +26,22 @@
 .progress span { flex: 1; height: 3px; border-radius: 2px; background: #f1eaf0; }
 .progress span[data-complete="true"] { background: #ec4899; }
 .reportBody { min-height: 300px; padding: 22px 25px; }
-.cabinetDetail { position: relative; height: 158px; margin-bottom: 5px; border-radius: 16px; background: #faf7f6; }
-.cabinetDetail svg { width: 100%; height: 100%; }
-.cabinetDetail > span { position: absolute; top: 9px; left: 11px; font-size: 9px; color: #6d626b; }
-.evidenceRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 0; }
-.evidenceRow + .evidenceRow { border-top: 1px solid #f0ebed; }
-.evidenceRow strong, .linkedPhoto strong { display: block; font-size: 12px; font-weight: 650; }
-.evidenceRow div > span, .linkedPhoto div > span { display: block; margin-top: 4px; color: #7a7279; font-size: 10px; }
-.saved { white-space: nowrap; color: #637364; font-size: 10px; }
+.photoDemo { padding: 16px 16px 0; }
+.markTools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 12px; }
+.markTools button { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 9px 7px; border: 1px solid #e8e3e6; border-radius: 12px; color: #625a63; font-size: 12px; font-weight: 500; }
+.markTools button[aria-pressed="true"] { border-color: #ec4899; background: #fdf2f8; color: #a91b60; }
+.markTools button:hover { background: #fdf2f8; }
+.markTools svg { width: 18px; height: 18px; flex-shrink: 0; }
+.photoSurface { position: relative; overflow: hidden; aspect-ratio: 1; border-radius: 16px; background: #f6f1eb; }
+.photoSurface > img { display: block; width: 100%; height: 100%; pointer-events: none; user-select: none; }
+.markLayer { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.photoActions { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; }
+.walkthrough .photoActions p { max-width: 190px; margin: 0; color: #6d626b; font-size: 11px; line-height: 1.6; }
+.photoActions button { flex-shrink: 0; min-height: 44px; padding: 8px; border-radius: 12px; color: #a91b60; font-size: 11px; font-weight: 500; }
+.photoActions button:hover { background: #fdf2f8; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.linkedPhoto strong { display: block; font-size: 12px; font-weight: 650; }
+.linkedPhoto div > span { display: block; margin-top: 4px; color: #7a7279; font-size: 10px; }
 .inventoryHeading { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .inventoryHeading strong, .agreedItem strong { font-size: 15px; font-weight: 650; }
 .inventoryHeading > span { padding: 4px 8px; border-radius: 99px; background: #f6f1eb; color: #79664e; font-size: 10px; }
@@ -58,6 +66,7 @@
   .panel { grid-template-columns: 1fr; gap: 27px; max-width: 460px; }
   .story { max-width: none; text-align: center; }
   .illustration { max-width: 290px; margin-bottom: 18px; }
+  .captureIllustration { display: none; }
   .walkthrough .story h3 { font-size: 27px; }
   .story > p { font-size: 14px; line-height: 1.8; }
   .reportBody { min-height: 300px; }

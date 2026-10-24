@@ -5,6 +5,7 @@
 ## What Kivilo does
 
 - At check-in, inspectors capture room photos and narrated video, write the inventory themselves, review each room, and send the condition report for landlord and tenant signatures.
+- Inspectors can mark photos immediately with circles, freehand drawings and arrows, then save them with the room or inventory item. Marks stay separate from the original photo and remain editable until the report is sent for signature.
 - Landlords and tenants can sign on the agent's device or through their own authenticated account. Completed reports can be shared through a private, revocable link and downloaded as a PDF.
 - During the tenancy, Kivilo keeps repair records, supporting documents and acknowledged updates to the signed check-in.
 - At check-out, inspectors compare the property against the agreed check-in, record changes and their assessment of damage or fair wear, and publish a dated assessment.

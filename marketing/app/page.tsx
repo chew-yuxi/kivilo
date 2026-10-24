@@ -6,7 +6,7 @@ import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
 
 const title = 'Kivilo | Property handovers, check-in & check-out reports'
-const description = `Capture photos, write room inventories, collect signatures and compare check-out with check-in. Kivilo keeps the whole tenancy together. ${FREE_ACTIVE_PROPERTIES} active properties free.`
+const description = `Take photos and mark damage with circles, freehand or arrows. Write inventories, collect signatures and compare check-in with check-out. ${FREE_ACTIVE_PROPERTIES} active properties free.`
 
 export const metadata: Metadata = {
   title, description,
@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 const faqs = [
   { question: 'What is Kivilo?', answer: 'Kivilo is a property handover and tenancy record app for agents, landlords and tenants. It brings room-by-room inventories, condition photos, walkthrough videos, signatures, repairs and check-out assessments into one property record. Built in Singapore, for the people on both sides of the keys.' },
   { question: 'Can I try it for free?', answer: `Yes. The free plan includes ${FREE_ACTIVE_PROPERTIES} active properties, with no credit card required. Sign in with your email and start your first check-in. If you manage more properties, get in touch through our support page.` },
+  { question: 'Can I mark a photo as soon as I take it?', answer: 'Yes. Take a photo, then circle the damage, draw freehand around a detail or point to it with an arrow. Save it with the room or inventory item so everyone knows exactly what you mean. Marks stay separate from the original photo and you can edit them until you send the report for signature.' },
   { question: 'How do the landlord and tenant sign?', answer: 'Both parties can review and sign on the agent’s device at the handover, or sign in to their own account using an emailed code. Once both have signed, a PDF copy is delivered by email. Larger reports are available through a signed-in download link.' },
   { question: 'What happens if the property has poor signal?', answer: 'Photos and videos save to your device first and retry uploading when a connection is available. Keep the app and its saved data on your phone until uploads finish. Sending the report and collecting signatures need a connection.' },
   { question: 'What happens at check-out?', answer: 'Start from the signed check-in and any agreed updates. Review the original condition and linked photos alongside the new visit, record each change and explain your assessment of damage or fair wear and tear. Publish a dated deposit statement that the landlord and tenant can agree to or dispute. Kivilo records the assessment; it does not hold or move the deposit.' },
@@ -34,7 +35,7 @@ const structuredData = {
   '@graph': [
     { '@type': 'Organization', '@id': 'https://kivilo.app/#organization', name: 'Kivilo', url: 'https://kivilo.app', logo: 'https://kivilo.app/icon-512.png', parentOrganization: { '@type': 'Organization', name: 'NotTooSweetLabs Pte. Ltd.' } },
     { '@type': 'WebSite', '@id': 'https://kivilo.app/#website', name: 'Kivilo', url: 'https://kivilo.app', inLanguage: 'en', publisher: { '@id': 'https://kivilo.app/#organization' } },
-    { '@type': 'SoftwareApplication', name: 'Kivilo', url: 'https://kivilo.app', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description, featureList: ['Room-by-room property inventories', 'Photo and video evidence', 'Landlord and tenant signatures', 'Tenancy repair history', 'Check-in and check-out comparison', 'PDF condition reports'], publisher: { '@id': 'https://kivilo.app/#organization' } },
+    { '@type': 'SoftwareApplication', name: 'Kivilo', url: 'https://kivilo.app', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description, featureList: ['Photo markup with circles, freehand and arrows', 'Room-by-room property inventories', 'Photo and video evidence', 'Landlord and tenant signatures', 'Tenancy repair history', 'Check-in and check-out comparison', 'PDF condition reports'], publisher: { '@id': 'https://kivilo.app/#organization' } },
   ],
 }
 
@@ -58,14 +59,14 @@ export default function LandingPage() {
         <section className={styles.hero} aria-labelledby="hero-title">
           <p className={styles.eyebrow}><span /> PROPERTY HANDOVERS, PROPERLY RECORDED</p>
           <h1 id="hero-title">Hand over the keys.<br /><span>Keep the whole story.</span></h1>
-          <p className={styles.heroDescription}>The photos. The little scuff. The signatures.<br className={styles.desktopBreak} /> One shared record, from the first walkthrough to the final check-out.</p>
+          <p className={styles.heroDescription}>Take a photo. Mark what matters. Get everyone’s signatures.<br className={styles.desktopBreak} /> One shared record, from the first walkthrough to the final check-out.</p>
           <div className={styles.heroActions}>
             <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
             <a href="#how-it-works" className={styles.textButton}>See how it works</a>
           </div>
           <p className={styles.freeNote}>{FREE_ACTIVE_PROPERTIES} active properties, free. No credit card needed.</p>
           <div className={styles.heroScene}>
-            <div className={`${styles.sceneNote} ${styles.sceneNoteLeft}`} aria-hidden="true"><span className={styles.noteIcon}>✓</span><div><strong>Every little detail.</strong><span>Right where you left it.</span></div></div>
+            <div className={`${styles.sceneNote} ${styles.sceneNoteLeft}`} aria-hidden="true"><span className={styles.noteIcon}>◎</span><div><strong>See it. Snap it. Mark it.</strong><span>Make the detail clear.</span></div></div>
             <Image className={styles.heroArt} src="/illustrations/handover-768-ea8147d471c4.webp" alt="An inspector with a pink bag and a resident exchanging keys at an apartment doorway." width={768} height={384} sizes="(max-width: 700px) 100vw, 768px" priority unoptimized />
             <div className={`${styles.sceneNote} ${styles.sceneNoteRight}`} aria-hidden="true"><span className={styles.noteIcon}>✎</span><div><strong>Everyone on the same page.</strong><span>Quite literally.</span></div></div>
             <span className={styles.sceneCaption}>A fresh start. A proper record.</span>
@@ -74,7 +75,7 @@ export default function LandingPage() {
         <div className={styles.promiseStrip}>
           <p>Made for real homes.<br /><strong>And the people behind them.</strong></p>
           <span><b aria-hidden="true">✓</b> Agents, landlords & tenants</span>
-          <span><b aria-hidden="true">✓</b> Photos saved to your phone first</span>
+          <span><b aria-hidden="true">◎</b> Circle, draw or point. Right on the photo.</span>
           <span><b aria-hidden="true">◎</b> Your records stay private</span>
         </div>
         <section id="how-it-works" className={styles.walkthrough} aria-labelledby="how-title">
@@ -103,8 +104,8 @@ export default function LandingPage() {
             <div className={styles.comparisonHeader}><span className={styles.miniWordmark}><span className={styles.brandMark} aria-hidden="true" />kivilo</span><span>AN EXAMPLE AT CHECK-OUT</span></div>
             <p className={styles.comparisonRoom}>Kitchen <span>/ Cabinet door</span></p>
             <div className={styles.comparisonColumns}>
-              <div><span className={styles.comparisonLabel}>AT CHECK-IN</span><p>Small chip beside the lower handle.</p><span className={styles.photoLabel}>Recorded in the signed report</span></div>
-              <div><span className={styles.comparisonLabel}>AT CHECK-OUT</span><p>Same chip. Same place.<br />No further change.</p><span className={styles.photoLabel}>Compared with the original</span></div>
+              <div><span className={styles.comparisonLabel}>AT CHECK-IN</span><p>Peeling veneer on the lower cabinet door.</p><span className={styles.photoLabel}>Marked in the agreed photo</span></div>
+              <div><span className={styles.comparisonLabel}>AT CHECK-OUT</span><p>Same patch. Same place.<br />No further change.</p><span className={styles.photoLabel}>Compared with the original</span></div>
             </div>
             <div className={styles.assessment}><span className={styles.assessmentCheck} aria-hidden="true">✓</span><div><strong>Already there at move-in.</strong><p>A clear record makes the difference.</p></div><span className={styles.zeroCharge}>$0<span>proposed charge</span></span></div>
             <p className={styles.exampleNote}>Illustrative assessment. Every finding is recorded by a person.</p>
@@ -119,7 +120,7 @@ export default function LandingPage() {
         <section className={styles.people} aria-labelledby="people-title">
           <div className={styles.sectionHeading}><p className={styles.eyebrow}>ONE RECORD. EVERYONE INCLUDED.</p><h2 id="people-title">Good for the person<br />on either side of the door.</h2></div>
           <div className={styles.peopleGrid}>
-            <article><span className={styles.roleNumber}>01 / AGENTS</span><h3>Leave with it handled.</h3><p>Capture, write and get the report signed in one workflow. Keep your team and your properties organised.</p></article>
+            <article><span className={styles.roleNumber}>01 / AGENTS</span><h3>Leave with it handled.</h3><p>Take the photo, mark the detail and write it up while you’re there. Get the report signed in the same workflow.</p></article>
             <article><span className={styles.roleNumber}>02 / LANDLORDS</span><h3>Know where things stand.</h3><p>Review the condition, see repairs and keep the paperwork with the property. Even when you’re not there.</p></article>
             <article><span className={styles.roleNumber}>03 / TENANTS</span><h3>Move in with a clear record.</h3><p>See what you’re signing, report issues and return to what was agreed when it’s time to move on.</p></article>
           </div>

@@ -19,6 +19,11 @@ backend environment variables. `prepare-marketing.mjs` copies only the existing
 public illustration and icon assets. The free-property allowance comes from the
 same `src/lib/plan-limits.ts` constants the app enforces.
 
+The photo-marking demo uses `public/demo/kitchen-detail.webp`, a synthetic sample
+from the existing demo portfolio, with its demo label preserved. It contains no
+customer property data. Visitors can try the annotation tools locally in the page;
+those marks are demonstration state only.
+
 The Wrangler configuration pins the Cloudflare account and apex custom domain.
 Cloudflare manages the landing page DNS and TLS. `my.kivilo.app` uses a DNS-only
 CNAME to the target returned by Vercel. Login, verification, deletion, privacy and

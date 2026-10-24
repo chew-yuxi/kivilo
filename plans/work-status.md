@@ -13,12 +13,18 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`f7ede886-9490-4bef-8227-45383f79f8e1`. Build/deploy instructions: `marketing/README.md`.
+`957e9320-1b65-4126-b618-4d8dc667b68d`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
+The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
+redirects to Properties. The app deployment for `ee73047` is ready.
 
 The page includes the existing ink/pink illustrations, an accessible interactive
 capture/write/agree example, tenancy history and check-out explanation, and FAQs.
+The lead feature is immediate photo markup: visitors can try Circle, Freehand and
+Arrow with mouse or touch on a labelled synthetic photo, and view its untouched
+original. The hero, product metadata and FAQs explain that workflow. Native logo
+geometry, 12px controls and 16px cards match the app; CTAs use lighter sizing.
 Canonical/social metadata, a branded favicon, structured product data, public sitemap
 and a factual `llms.txt` accompany it. Private app pages inherit noindex. Marketing
 links to the app for login, verification, account deletion, support and privacy.
@@ -31,6 +37,11 @@ created 23 October, due 22 November. It was not removed. The exported site passe
 Cloudflare-local browser checks at 320/390/768/1440px, keyboard tabs, FAQ toggles,
 redirects, static assets, 404 and metadata. Production domain/DNS checks are part of
 launch verification; no native release or store metadata changes are included.
+The photo-markup revision passed the marketing production build and targeted strict
+lint, all four responsive sizes, mouse/touch drawing, original-photo comparison and
+keyboard tool/tab navigation, with no browser errors.
+Live HTML, JavaScript, CSS, photo and metadata assets match the tested export over
+valid HTTPS. Signed-out app visits follow Properties to the login screen.
 
 ## Tenancy agreements and supporting documents — 23 October
 
