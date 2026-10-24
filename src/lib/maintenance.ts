@@ -1054,3 +1054,84 @@ export async function createPropertyAsset(
     return { id: asset.id }
   })
 }
+
+const assetDetailsInput = z.object({
+  action: z.literal('update'),
+  name: z.string().trim().min(1).max(120),
+  category: z.enum(['APPLIANCE', 'FIXTURE', 'FURNITURE', 'SURFACE', 'SYSTEM', 'OTHER']),
+  roomLabel: z.preprocess(
+    (value) => typeof value === 'string' ? value.trim() || null : value,
+    z.string().max(120).nullable(),
+  ),
+  identifier: z.preprocess(
+    (value) => typeof value === 'string' ? value.trim() || null : value,
+    z.string().max(250).nullable(),
+  ),
+})
+
+export async function updatePropertyAsset(
+  propertyId: string,
+  assetId: string,
+  stakeholderId: string,
+  raw: unknown,
+) {
+  const input = z.discriminatedUnion('action', [
+    assetDetailsInput,
+    z.object({ action: z.literal('retire') }),
+  ]).parse(raw)
+  const managerTenancy = await db.tenancy.findFirst({
+    where: {
+      propertyId,
+      property: { trashedAt: null },
+      OR: [{ landlordId: stakeholderId }, agentTenancies(stakeholderId)],
+    },
+    select: { id: true },
+  })
+  if (!managerTenancy) throw new Error('Property asset not found')
+
+  return db.$transaction(async (tx) => {
+    await lockAgencyTenancy(managerTenancy.id, tx)
+    const authorized = await tx.tenancy.findFirst({
+      where: {
+        propertyId,
+        property: { trashedAt: null },
+        OR: [{ landlordId: stakeholderId }, agentTenancies(stakeholderId)],
+      },
+      select: { id: true },
+    })
+    if (!authorized) throw new Error('Property asset not found')
+    await tx.$queryRaw`SELECT "id" FROM "PropertyAsset" WHERE "id" = ${assetId} FOR UPDATE`
+    const asset = await tx.propertyAsset.findFirst({
+      where: { id: assetId, propertyId, active: true },
+    })
+    if (!asset) throw new Error('Property asset not found')
+
+    if (input.action === 'retire') {
+      await tx.propertyAsset.update({ where: { id: assetId }, data: { active: false } })
+      await recordEvent(tx, {
+        propertyId, tenancyId: authorized.id, inspectionId: null,
+        actorId: stakeholderId, kind: 'ASSET_RETIRED',
+        summary: `retired ${asset.name} from the appliance register`,
+      })
+      return { ok: true }
+    }
+
+    const changes = fieldChanges(asset, input, {
+      name: 'Asset name', category: 'Category', roomLabel: 'Room', identifier: 'Make, model or serial',
+    })
+    if (changes.length) {
+      await tx.propertyAsset.update({ where: { id: assetId }, data: {
+        name: input.name,
+        category: input.category,
+        roomLabel: input.roomLabel,
+        identifier: input.identifier,
+      } })
+      await recordEvent(tx, {
+        propertyId, tenancyId: authorized.id, inspectionId: null,
+        actorId: stakeholderId, kind: 'ASSET_CHANGED',
+        summary: `changed ${asset.name} in the appliance register`, changes,
+      })
+    }
+    return { ok: true }
+  })
+}

@@ -339,11 +339,7 @@ class _PropertyScreenState extends State<PropertyScreen> {
           ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => _open(
-            TenancyDetailsScreen(
-              property: property.address,
-              term: term,
-              api: _api,
-            ),
+            TenancyDetailsScreen(property: property, term: term, api: _api),
           ),
         ),
       );

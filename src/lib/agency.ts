@@ -33,7 +33,11 @@ export async function lockAgency(agencyId: string, client: Prisma.TransactionCli
   await client.$queryRaw`SELECT "id" FROM "Agency" WHERE "id" = ${agencyId} FOR NO KEY UPDATE`
 }
 
-export async function lockAgencyTenancy(tenancyId: string, client: Prisma.TransactionClient) {
+export async function lockAgencyTenancy(
+  tenancyId: string,
+  client: Prisma.TransactionClient,
+  options: { updateProperty?: boolean } = {},
+) {
   const before = await client.tenancy.findUnique({ where: { id: tenancyId }, select: { agencyId: true, propertyId: true } })
   if (!before) throw new Error('Tenancy not found')
   // Ordinary work on different tenancies can proceed together. Membership changes
@@ -41,7 +45,11 @@ export async function lockAgencyTenancy(tenancyId: string, client: Prisma.Transa
   if (before.agencyId) await client.$queryRaw`SELECT "id" FROM "Agency" WHERE "id" = ${before.agencyId} FOR SHARE`
   // Renewal inserts a new tenancy referencing this property. Take its FK lock
   // before the tenancy, matching lifecycle deletion's property→tenancy order.
-  await client.$queryRaw`SELECT "id" FROM "Property" WHERE "id" = ${before.propertyId} FOR KEY SHARE`
+  if (options.updateProperty) {
+    await client.$queryRaw`SELECT "id" FROM "Property" WHERE "id" = ${before.propertyId} FOR UPDATE`
+  } else {
+    await client.$queryRaw`SELECT "id" FROM "Property" WHERE "id" = ${before.propertyId} FOR KEY SHARE`
+  }
   await client.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${tenancyId} FOR UPDATE`
   const current = await client.tenancy.findUnique({ where: { id: tenancyId }, select: { agencyId: true } })
   if (!current || current.agencyId !== before.agencyId) throw new Error('Tenancy not found')

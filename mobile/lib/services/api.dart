@@ -745,6 +745,20 @@ class Api {
     return response.data!['id'] as String;
   });
 
+  Future<void> updatePropertyAsset(
+    String propertyId,
+    String assetId,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    await _dio.patch(
+      '/api/v1/properties/$propertyId/assets/$assetId',
+      data: body,
+    );
+  });
+
+  Future<void> retirePropertyAsset(String propertyId, String assetId) =>
+      updatePropertyAsset(propertyId, assetId, {'action': 'retire'});
+
   Future<String> createMaintenanceCase(
     String tenancyId,
     Map<String, dynamic> body,
