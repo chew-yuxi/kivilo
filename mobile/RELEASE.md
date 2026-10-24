@@ -12,6 +12,34 @@ approves `1.0.0` build `24` (submission `628f3b8a`).** Each one restarts the rev
 queue. App changes go out as Shorebird patches on `1.0.0+24`; anything a patch cannot
 carry waits and goes to Yuxi. Full rule in `AGENTS.md` under "iOS store freeze".
 
+## Team report branding and persistent app tabs: 24 October 2026 Singapore time
+
+Source `a4a2f1e`, pushed to `origin/main` before release. Team owners and managers can
+set their agency licence, office phone and logo from the Team page on web and mobile.
+Reports for team work freeze and show that team branding alongside the responsible
+agent's CEA registration and contact details; personal reports keep personal branding.
+The mobile Home and Properties tabs also remain mounted after first opening, preserving
+their loaded data and scroll position instead of showing another loading spinner when an
+agent switches back.
+
+Migration `20261024140000_team_report_branding` was applied before the production deploy.
+Vercel deployment `dpl_AUnQMZ8suNvQ7C1usWVq8U1LvUf2`, built from the same commit, is
+Ready in `sin1` and serves `my.kivilo.app`.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android `1.0.0+25` | **21** / `745626` | **stable**, active and latest |
+| iOS `1.0.0+24` | **22** / `745635` | **stable**, active and latest |
+
+Promoted on Yuxi's explicit go. Web typecheck, lint and production build passed, along
+with 132 unit tests, 277 integration tests and 24 Playwright tests. Flutter analysis and
+all 389 mobile tests passed. The release adds no plugin, native configuration, asset or
+Material icon change. The iOS IPA passed strict deep code-sign verification; Shorebird
+shared 55.6% of iOS Dart code and emitted its possible-slower-execution warning. Apple's
+store submission was not changed. Physical-device verification remains **NOT RUN**.
+
+Rollback: Android patch **20** / `745566`, iOS patch **21** / `745576`.
+
 ## Property actions and direct team navigation: 24 October 2026 Singapore time
 
 App-only. Mobile source `877adc9a7bcb10757f04ef73a94e5193ec532909`, pushed to
