@@ -252,7 +252,7 @@ export async function authorizeInspection(
 ) {
   const inspection = await (options.client ?? db).inspection.findFirst({
     where: { AND: [{ id: inspectionId }, options.fullTenancyOnly ? { tenancy: actsAsAgent(agentId) } : inspectionScope(agentId)] },
-    select: { id: true, status: true, kind: true, tenancyId: true, fullyFurnished: true },
+    select: { id: true, status: true, kind: true, tenancyId: true, fullyFurnished: true, furnishingLevel: true },
   })
   if (!inspection) {
     // Same error whether it does not exist or belongs to someone else, so the API

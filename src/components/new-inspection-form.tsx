@@ -64,7 +64,10 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
           unit: value('unit') || null,
           postalCode: value('postalCode'),
           propertyType: value('propertyType') as PropertyType,
-          fullyFurnished: value('fullyFurnished') === 'true',
+          furnishingLevel: value('furnishingLevel') as
+            | 'FULLY_FURNISHED'
+            | 'PARTIALLY_FURNISHED'
+            | 'UNFURNISHED',
           landlordName: value('landlordName'),
           landlordEmail: value('landlordEmail') || null,
           tenantName: value('tenantName'),
@@ -148,18 +151,19 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
             Furnishing <span className={requirement}>(required)</span>
           </legend>
           <p className="mt-1 text-xs text-gray-500">
-            Fully furnished rooms start with standard inventory rows. Other rooms start empty.
+            Rooms start with editable inventory rows suited to this furnishing level.
           </p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
             {[
-              ['true', 'Fully furnished'],
-              ['false', 'Not fully furnished'],
+              ['FULLY_FURNISHED', 'Fully furnished'],
+              ['PARTIALLY_FURNISHED', 'Partially furnished'],
+              ['UNFURNISHED', 'Unfurnished'],
             ].map(([value, label]) => (
               <label
                 key={value}
                 className="flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-normal text-gray-700"
               >
-                <input name="fullyFurnished" type="radio" value={value} required />
+                <input name="furnishingLevel" type="radio" value={value} required />
                 {label}
               </label>
             ))}

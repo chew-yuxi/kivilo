@@ -380,14 +380,21 @@ enum InspectionStatus {
   FAILED
 }
 
+enum FurnishingLevel {
+  FULLY_FURNISHED
+  PARTIALLY_FURNISHED
+  UNFURNISHED
+}
+
 model Inspection {
   id                String           @id @default(cuid())
   tenancyId         String
   kind              InspectionKind
   status            InspectionStatus @default(DRAFT)
-  /// Decides whether newly added check-in rooms start with the standard inventory rows.
-  /// Defaults to true for check-ins created by app builds released before this field.
+  /// Compatibility copy for app builds released before furnishing became three-way.
   fullyFurnished    Boolean          @default(true)
+  /// Determines which editable starter rows a newly added room receives.
+  furnishingLevel   FurnishingLevel  @default(FULLY_FURNISHED)
   conductedById     String?
   /// Responsible agent frozen at Send. Handover changes Tenancy.agentId only.
   reportAgentId     String?

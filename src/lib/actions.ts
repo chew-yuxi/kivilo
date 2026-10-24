@@ -27,6 +27,7 @@ import type {
   CaptureKind,
   ItemCategory,
   ItemCondition,
+  FurnishingLevel,
   PropertyType,
   Verdict,
 } from '@/generated/prisma'
@@ -137,7 +138,8 @@ export async function createInspection(input: {
   unit: string | null
   postalCode: string
   propertyType: PropertyType
-  fullyFurnished: boolean
+  furnishingLevel?: FurnishingLevel
+  fullyFurnished?: boolean
   landlordName: string
   landlordEmail: string | null
   tenantName: string
@@ -173,6 +175,8 @@ export async function createInspection(input: {
     const create = { name: name.trim(), email }
     return email ? { connectOrCreate: { where: { email }, create } } : { create }
   }
+  const furnishingLevel = input.furnishingLevel
+    ?? (input.fullyFurnished === false ? 'UNFURNISHED' : 'FULLY_FURNISHED')
 
   const inspection = await db.$transaction(async (tx) => {
     if (input.agencyId) {
@@ -182,7 +186,9 @@ export async function createInspection(input: {
     return tx.inspection.create({
     data: {
       kind: 'CHECK_IN',
-      fullyFurnished: input.fullyFurnished,
+      furnishingLevel,
+      // Kept in sync for app builds released before the three-way field existed.
+      fullyFurnished: furnishingLevel === 'FULLY_FURNISHED',
       // Same reason as the agent below: a scalar id cannot sit beside nested creates.
       conductedBy: { connect: { id: agent.id } },
       tenancy: {
@@ -233,7 +239,7 @@ export async function addRoom(inspectionId: string, name: string) {
     // The room's standard rows, made as addItem makes a line. Items are listed by
     // createdAt, so each gets its own millisecond to keep the template's order.
     const now = Date.now()
-    const rows = inspection.fullyFurnished ? templateRows(name) : []
+    const rows = templateRows(name, inspection.furnishingLevel)
     await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ROOM_ADDED', summary: `added the room ${name}` })
     return tx.room.create({
       data: {
@@ -1226,7 +1232,7 @@ export async function startCheckOut(baselineId: string) {
       if (current.status !== 'COMPLETED') throw new Error('Only a completed check-in can start check-out')
       const baseline = await tx.inspection.findUniqueOrThrow({
         where: { id: baselineId },
-        select: { tenancyId: true, fullyFurnished: true },
+        select: { tenancyId: true, fullyFurnished: true, furnishingLevel: true },
       })
       const existing = await tx.inspection.findUnique({ where: { baselineId }, select: { id: true } })
       if (existing) return existing.id
@@ -1238,6 +1244,7 @@ export async function startCheckOut(baselineId: string) {
           kind: 'CHECK_OUT',
           status: 'DRAFT',
           fullyFurnished: baseline.fullyFurnished,
+          furnishingLevel: baseline.furnishingLevel,
           baselineId,
           conductedById: agent.id,
           // Begin with the agreed inventory as the state the inspector expects to find.

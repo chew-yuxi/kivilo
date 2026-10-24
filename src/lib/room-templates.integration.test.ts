@@ -111,16 +111,41 @@ describe('room templates', () => {
     ])
   })
 
-  it('starts rooms empty when the check-in is not fully furnished', async () => {
+  it('starts unfurnished rooms with permanent surfaces and fixtures only', async () => {
     const inspection = await deal('TEMPLATE-UNFURNISHED')
     await db.inspection.update({
       where: { id: inspection.id },
-      data: { fullyFurnished: false },
+      data: { fullyFurnished: false, furnishingLevel: 'UNFURNISHED' },
     })
 
     const roomId = await addRoom(inspection.id, 'Kitchen')
 
-    expect(await items(roomId)).toEqual([])
+    expect((await items(roomId)).map((row) => row.name)).toEqual([
+      'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches', 'Cabinets', 'Sink and tap',
+    ])
+  })
+
+  it('adds fitted furniture and appliances for a partially furnished check-in', async () => {
+    const inspection = await deal('TEMPLATE-PARTIAL')
+    await db.inspection.update({
+      where: { id: inspection.id },
+      data: { fullyFurnished: false, furnishingLevel: 'PARTIALLY_FURNISHED' },
+    })
+
+    const kitchen = await addRoom(inspection.id, 'Kitchen')
+    const bedroom = await addRoom(inspection.id, 'Bedroom')
+    const living = await addRoom(inspection.id, 'Living room')
+
+    expect((await items(kitchen)).map((row) => row.name)).toEqual([
+      'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches', 'Cabinets', 'Sink and tap',
+      'Hob', 'Cooker hood', 'Fridge', 'Washing machine',
+    ])
+    expect((await items(bedroom)).map((row) => row.name)).toEqual([
+      'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches', 'Wardrobe',
+    ])
+    expect((await items(living)).map((row) => row.name)).toEqual([
+      'Walls', 'Ceiling', 'Floor', 'Door', 'Lights and switches',
+    ])
   })
 
   it('starts a check-out from the check-in room and item state', async () => {
@@ -142,6 +167,10 @@ describe('room templates', () => {
     await db.inspection.update({ where: { id: inspection.id }, data: { status: 'COMPLETED' } })
 
     const checkOut = await startCheckOut(inspection.id)
+    expect(await db.inspection.findUniqueOrThrow({ where: { id: checkOut } })).toMatchObject({
+      fullyFurnished: true,
+      furnishingLevel: 'FULLY_FURNISHED',
+    })
     const rooms = await db.room.findMany({
       where: { inspectionId: checkOut },
       orderBy: { order: 'asc' },

@@ -357,8 +357,11 @@ void main() {
           expect(find.text('42 Sample Road'), findsOneWidget);
         }
         await tester.enterText(find.byType(TextFormField).at(2), '238888');
-        await tester.ensureVisible(find.text('Fully furnished'));
-        await tester.tap(find.text('Fully furnished'));
+        final furnishing = personal
+            ? 'Partially furnished'
+            : 'Fully furnished';
+        await tester.ensureVisible(find.text(furnishing));
+        await tester.tap(find.text(furnishing));
         await tester.pumpAndSettle();
         for (final label in [
           'Landlord name (required)',
@@ -376,6 +379,10 @@ void main() {
         expect(api.saved, hasLength(1));
         expect(api.saved.single['agencyId'], personal ? null : 'team');
         expect(api.saved.single['line1'], '42 Sample Road');
+        expect(
+          api.saved.single['furnishingLevel'],
+          personal ? 'PARTIALLY_FURNISHED' : 'FULLY_FURNISHED',
+        );
         expect(tester.takeException(), isNull);
       },
     );

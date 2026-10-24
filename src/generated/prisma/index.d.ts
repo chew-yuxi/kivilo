@@ -385,6 +385,15 @@ export const InspectionStatus: {
 export type InspectionStatus = (typeof InspectionStatus)[keyof typeof InspectionStatus]
 
 
+export const FurnishingLevel: {
+  FULLY_FURNISHED: 'FULLY_FURNISHED',
+  PARTIALLY_FURNISHED: 'PARTIALLY_FURNISHED',
+  UNFURNISHED: 'UNFURNISHED'
+};
+
+export type FurnishingLevel = (typeof FurnishingLevel)[keyof typeof FurnishingLevel]
+
+
 export const CaptureKind: {
   VIDEO: 'VIDEO',
   PHOTO: 'PHOTO'
@@ -703,6 +712,10 @@ export const InspectionKind: typeof $Enums.InspectionKind
 export type InspectionStatus = $Enums.InspectionStatus
 
 export const InspectionStatus: typeof $Enums.InspectionStatus
+
+export type FurnishingLevel = $Enums.FurnishingLevel
+
+export const FurnishingLevel: typeof $Enums.FurnishingLevel
 
 export type CaptureKind = $Enums.CaptureKind
 
@@ -23473,6 +23486,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind | null
     status: $Enums.InspectionStatus | null
     fullyFurnished: boolean | null
+    furnishingLevel: $Enums.FurnishingLevel | null
     conductedById: string | null
     reportAgentId: string | null
     reportAgencyId: string | null
@@ -23495,6 +23509,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind | null
     status: $Enums.InspectionStatus | null
     fullyFurnished: boolean | null
+    furnishingLevel: $Enums.FurnishingLevel | null
     conductedById: string | null
     reportAgentId: string | null
     reportAgencyId: string | null
@@ -23517,6 +23532,7 @@ export namespace Prisma {
     kind: number
     status: number
     fullyFurnished: number
+    furnishingLevel: number
     conductedById: number
     reportAgentId: number
     reportAgencyId: number
@@ -23541,6 +23557,7 @@ export namespace Prisma {
     kind?: true
     status?: true
     fullyFurnished?: true
+    furnishingLevel?: true
     conductedById?: true
     reportAgentId?: true
     reportAgencyId?: true
@@ -23563,6 +23580,7 @@ export namespace Prisma {
     kind?: true
     status?: true
     fullyFurnished?: true
+    furnishingLevel?: true
     conductedById?: true
     reportAgentId?: true
     reportAgencyId?: true
@@ -23585,6 +23603,7 @@ export namespace Prisma {
     kind?: true
     status?: true
     fullyFurnished?: true
+    furnishingLevel?: true
     conductedById?: true
     reportAgentId?: true
     reportAgencyId?: true
@@ -23680,6 +23699,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status: $Enums.InspectionStatus
     fullyFurnished: boolean
+    furnishingLevel: $Enums.FurnishingLevel
     conductedById: string | null
     reportAgentId: string | null
     reportAgencyId: string | null
@@ -23719,6 +23739,7 @@ export namespace Prisma {
     kind?: boolean
     status?: boolean
     fullyFurnished?: boolean
+    furnishingLevel?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
     reportAgencyId?: boolean
@@ -23758,6 +23779,7 @@ export namespace Prisma {
     kind?: boolean
     status?: boolean
     fullyFurnished?: boolean
+    furnishingLevel?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
     reportAgencyId?: boolean
@@ -23785,6 +23807,7 @@ export namespace Prisma {
     kind?: boolean
     status?: boolean
     fullyFurnished?: boolean
+    furnishingLevel?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
     reportAgencyId?: boolean
@@ -23812,6 +23835,7 @@ export namespace Prisma {
     kind?: boolean
     status?: boolean
     fullyFurnished?: boolean
+    furnishingLevel?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
     reportAgencyId?: boolean
@@ -23828,7 +23852,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "furnishingLevel" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
@@ -23889,10 +23913,13 @@ export namespace Prisma {
       kind: $Enums.InspectionKind
       status: $Enums.InspectionStatus
       /**
-       * Decides whether newly added check-in rooms start with the standard inventory rows.
-       * Defaults to true for check-ins created by app builds released before this field.
+       * Compatibility copy for app builds released before furnishing became three-way.
        */
       fullyFurnished: boolean
+      /**
+       * Determines which editable starter rows a newly added room receives.
+       */
+      furnishingLevel: $Enums.FurnishingLevel
       conductedById: string | null
       /**
        * Responsible agent frozen at Send. Handover changes Tenancy.agentId only.
@@ -24368,6 +24395,7 @@ export namespace Prisma {
     readonly kind: FieldRef<"Inspection", 'InspectionKind'>
     readonly status: FieldRef<"Inspection", 'InspectionStatus'>
     readonly fullyFurnished: FieldRef<"Inspection", 'Boolean'>
+    readonly furnishingLevel: FieldRef<"Inspection", 'FurnishingLevel'>
     readonly conductedById: FieldRef<"Inspection", 'String'>
     readonly reportAgentId: FieldRef<"Inspection", 'String'>
     readonly reportAgencyId: FieldRef<"Inspection", 'String'>
@@ -66999,6 +67027,7 @@ export namespace Prisma {
     kind: 'kind',
     status: 'status',
     fullyFurnished: 'fullyFurnished',
+    furnishingLevel: 'furnishingLevel',
     conductedById: 'conductedById',
     reportAgentId: 'reportAgentId',
     reportAgencyId: 'reportAgencyId',
@@ -67817,6 +67846,20 @@ export namespace Prisma {
    * Reference to a field of type 'InspectionStatus[]'
    */
   export type ListEnumInspectionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InspectionStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'FurnishingLevel'
+   */
+  export type EnumFurnishingLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FurnishingLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'FurnishingLevel[]'
+   */
+  export type ListEnumFurnishingLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FurnishingLevel[]'>
     
 
 
@@ -69424,6 +69467,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
+    furnishingLevel?: EnumFurnishingLevelFilter<"Inspection"> | $Enums.FurnishingLevel
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableFilter<"Inspection"> | string | null
     reportAgencyId?: StringNullableFilter<"Inspection"> | string | null
@@ -69462,6 +69506,7 @@ export namespace Prisma {
     kind?: SortOrder
     status?: SortOrder
     fullyFurnished?: SortOrder
+    furnishingLevel?: SortOrder
     conductedById?: SortOrderInput | SortOrder
     reportAgentId?: SortOrderInput | SortOrder
     reportAgencyId?: SortOrderInput | SortOrder
@@ -69505,6 +69550,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
+    furnishingLevel?: EnumFurnishingLevelFilter<"Inspection"> | $Enums.FurnishingLevel
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableFilter<"Inspection"> | string | null
     reportAgencyId?: StringNullableFilter<"Inspection"> | string | null
@@ -69541,6 +69587,7 @@ export namespace Prisma {
     kind?: SortOrder
     status?: SortOrder
     fullyFurnished?: SortOrder
+    furnishingLevel?: SortOrder
     conductedById?: SortOrderInput | SortOrder
     reportAgentId?: SortOrderInput | SortOrder
     reportAgencyId?: SortOrderInput | SortOrder
@@ -69569,6 +69616,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindWithAggregatesFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusWithAggregatesFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolWithAggregatesFilter<"Inspection"> | boolean
+    furnishingLevel?: EnumFurnishingLevelWithAggregatesFilter<"Inspection"> | $Enums.FurnishingLevel
     conductedById?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     reportAgencyId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
@@ -73938,6 +73986,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -73972,6 +74021,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -74004,6 +74054,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74038,6 +74089,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74071,6 +74123,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -74092,6 +74145,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74110,6 +74164,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -78655,6 +78710,13 @@ export namespace Prisma {
     not?: NestedEnumInspectionStatusFilter<$PrismaModel> | $Enums.InspectionStatus
   }
 
+  export type EnumFurnishingLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.FurnishingLevel | EnumFurnishingLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumFurnishingLevelFilter<$PrismaModel> | $Enums.FurnishingLevel
+  }
+
   export type InspectionNullableScalarRelationFilter = {
     is?: InspectionWhereInput | null
     isNot?: InspectionWhereInput | null
@@ -78706,6 +78768,7 @@ export namespace Prisma {
     kind?: SortOrder
     status?: SortOrder
     fullyFurnished?: SortOrder
+    furnishingLevel?: SortOrder
     conductedById?: SortOrder
     reportAgentId?: SortOrder
     reportAgencyId?: SortOrder
@@ -78728,6 +78791,7 @@ export namespace Prisma {
     kind?: SortOrder
     status?: SortOrder
     fullyFurnished?: SortOrder
+    furnishingLevel?: SortOrder
     conductedById?: SortOrder
     reportAgentId?: SortOrder
     reportAgencyId?: SortOrder
@@ -78750,6 +78814,7 @@ export namespace Prisma {
     kind?: SortOrder
     status?: SortOrder
     fullyFurnished?: SortOrder
+    furnishingLevel?: SortOrder
     conductedById?: SortOrder
     reportAgentId?: SortOrder
     reportAgencyId?: SortOrder
@@ -78784,6 +78849,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInspectionStatusFilter<$PrismaModel>
     _max?: NestedEnumInspectionStatusFilter<$PrismaModel>
+  }
+
+  export type EnumFurnishingLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FurnishingLevel | EnumFurnishingLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumFurnishingLevelWithAggregatesFilter<$PrismaModel> | $Enums.FurnishingLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFurnishingLevelFilter<$PrismaModel>
+    _max?: NestedEnumFurnishingLevelFilter<$PrismaModel>
   }
 
   export type InspectionScalarRelationFilter = {
@@ -83824,6 +83899,10 @@ export namespace Prisma {
     set?: $Enums.InspectionStatus
   }
 
+  export type EnumFurnishingLevelFieldUpdateOperationsInput = {
+    set?: $Enums.FurnishingLevel
+  }
+
   export type TenancyUpdateOneRequiredWithoutInspectionsNestedInput = {
     create?: XOR<TenancyCreateWithoutInspectionsInput, TenancyUncheckedCreateWithoutInspectionsInput>
     connectOrCreate?: TenancyCreateOrConnectWithoutInspectionsInput
@@ -86996,6 +87075,13 @@ export namespace Prisma {
     not?: NestedEnumInspectionStatusFilter<$PrismaModel> | $Enums.InspectionStatus
   }
 
+  export type NestedEnumFurnishingLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.FurnishingLevel | EnumFurnishingLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumFurnishingLevelFilter<$PrismaModel> | $Enums.FurnishingLevel
+  }
+
   export type NestedEnumInspectionKindWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.InspectionKind | EnumInspectionKindFieldRefInput<$PrismaModel>
     in?: $Enums.InspectionKind[] | ListEnumInspectionKindFieldRefInput<$PrismaModel>
@@ -87014,6 +87100,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumInspectionStatusFilter<$PrismaModel>
     _max?: NestedEnumInspectionStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumFurnishingLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FurnishingLevel | EnumFurnishingLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FurnishingLevel[] | ListEnumFurnishingLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumFurnishingLevelWithAggregatesFilter<$PrismaModel> | $Enums.FurnishingLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFurnishingLevelFilter<$PrismaModel>
+    _max?: NestedEnumFurnishingLevelFilter<$PrismaModel>
   }
 
   export type NestedEnumCaptureKindFilter<$PrismaModel = never> = {
@@ -87890,6 +87986,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -87923,6 +88020,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentId?: string | null
     reportAgencyId?: string | null
     reportAgentFrozen?: boolean
@@ -87964,6 +88062,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -87997,6 +88096,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgencyId?: string | null
     reportAgentFrozen?: boolean
@@ -89162,6 +89262,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
+    furnishingLevel?: EnumFurnishingLevelFilter<"Inspection"> | $Enums.FurnishingLevel
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableFilter<"Inspection"> | string | null
     reportAgencyId?: StringNullableFilter<"Inspection"> | string | null
@@ -90322,6 +90423,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -90355,6 +90457,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgentFrozen?: boolean
@@ -92524,6 +92627,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -92556,6 +92660,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -94263,6 +94368,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -94296,6 +94402,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -94332,6 +94439,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -94365,6 +94473,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -95084,6 +95193,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95117,6 +95227,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95159,6 +95270,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95192,6 +95304,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95443,6 +95556,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -95476,6 +95590,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -95618,6 +95733,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95651,6 +95767,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95997,6 +96114,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -96030,6 +96148,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -96179,6 +96298,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -96212,6 +96332,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -97628,6 +97749,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -97661,6 +97783,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -98073,6 +98196,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -98106,6 +98230,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101485,6 +101610,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -101518,6 +101644,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -101792,6 +101919,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101825,6 +101953,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102080,6 +102209,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -102113,6 +102243,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -102336,6 +102467,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102369,6 +102501,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102712,6 +102845,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -102745,6 +102879,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -102887,6 +103022,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102920,6 +103056,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103052,6 +103189,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -103085,6 +103223,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -103227,6 +103366,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103260,6 +103400,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103392,6 +103533,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -103425,6 +103567,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -103504,6 +103647,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103537,6 +103681,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -103584,6 +103729,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -103617,6 +103763,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -104080,6 +104227,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -104113,6 +104261,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -105996,6 +106145,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -106029,6 +106179,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -106076,6 +106227,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106109,6 +106261,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106483,6 +106636,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     reportAgentId?: string | null
     reportAgencyId?: string | null
     reportAgentFrozen?: boolean
@@ -106504,6 +106658,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgencyId?: string | null
     reportAgentFrozen?: boolean
@@ -107134,6 +107289,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -107167,6 +107323,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
@@ -107199,6 +107356,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
@@ -107219,6 +107377,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -107252,6 +107411,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
@@ -107284,6 +107444,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
@@ -108405,6 +108566,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgentFrozen?: boolean
@@ -108571,6 +108733,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -108604,6 +108767,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
@@ -108636,6 +108800,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
@@ -109054,6 +109219,7 @@ export namespace Prisma {
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
+    furnishingLevel?: $Enums.FurnishingLevel
     conductedById?: string | null
     reportAgentId?: string | null
     reportAgencyId?: string | null
@@ -109128,6 +109294,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -109160,6 +109327,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -109192,6 +109360,7 @@ export namespace Prisma {
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    furnishingLevel?: EnumFurnishingLevelFieldUpdateOperationsInput | $Enums.FurnishingLevel
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null

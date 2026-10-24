@@ -51,6 +51,9 @@ async function deal(label: string, propertyId?: string) {
 /// A room with two lines and two photos, the first photo linked to the first line.
 async function furnishedRoom(inspectionId: string) {
   const roomId = await addRoom(inspectionId, 'Kitchen')
+  // These bin tests build their own exact two-line fixture; starter rows are covered
+  // independently by room-templates.integration.test.ts.
+  await db.inspectionItem.deleteMany({ where: { roomId } })
   const [fridge, sink] = await Promise.all([
     db.inspectionItem.create({ data: { roomId, name: 'Fridge', category: 'APPLIANCE', condition: 'GOOD', editedByHuman: true, identifier: 'SN-1' } }),
     db.inspectionItem.create({ data: { roomId, name: 'Sink', category: 'FIXTURE', condition: 'FAIR', editedByHuman: true } }),

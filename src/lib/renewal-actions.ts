@@ -63,6 +63,7 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
         kind: 'CHECK_IN',
         conductedBy: { connect: { id: agent.id } },
         fullyFurnished: source.inspections[0]?.fullyFurnished ?? true,
+        furnishingLevel: source.inspections[0]?.furnishingLevel ?? 'FULLY_FURNISHED',
         tenancy: { create: {
           propertyId: source.propertyId,
           landlordId: source.landlordId,

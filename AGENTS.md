@@ -48,7 +48,8 @@ matching notes in `mobile/RELEASE.md` and `otter-context/projects/mobility.md`.
 ## Four invariants
 
 **A person writes every line.** The timestamped video is the evidence, and the inventory
-is the inspector's reading of it. A new room starts with the standard rows in
+is the inspector's reading of it. A new room starts with the editable standard rows for
+the check-in's fully furnished, partially furnished or unfurnished level in
 `src/lib/room-templates.ts`, made as `addItem` makes a line, which the inspector edits or
 removes like any other; a check-out starts from the signed check-in's room and item state,
 which the inspector edits to record what they find on the new visit. While they do,

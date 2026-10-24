@@ -60,9 +60,9 @@ const newInspection = z.object({
   unit: z.string().trim().nullable().default(null),
   postalCode: z.string().trim().min(1),
   propertyType: z.enum(['HDB', 'PRIVATE_NON_LANDED', 'LANDED', 'COMMERCIAL']),
-  // App builds released before furnishing was collected omit this field. Preserve
-  // their existing standard-row behaviour until those builds are retired.
+  // Older app builds send only this Boolean. The action maps it onto the new enum.
   fullyFurnished: z.boolean().default(true),
+  furnishingLevel: z.enum(['FULLY_FURNISHED', 'PARTIALLY_FURNISHED', 'UNFURNISHED']).optional(),
   landlordName: z.string().trim().min(1),
   landlordEmail: z.email().nullable().default(null),
   tenantName: z.string().trim().min(1),

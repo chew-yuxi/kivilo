@@ -35,7 +35,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       name: TextEditingController(),
   };
   String _propertyType = 'PRIVATE_NON_LANDED';
-  bool? _fullyFurnished;
+  String? _furnishingLevel;
   DateTime _startDate = DateTime.now();
   late DateTime _endDate = DateTime(
     _startDate.year + 2,
@@ -136,9 +136,9 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   Future<void> _create() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!_form.currentState!.validate()) return;
-    if (_fullyFurnished == null) {
+    if (_furnishingLevel == null) {
       setState(
-        () => _error = 'Choose whether the property is fully furnished.',
+        () => _error = 'Choose the property furnishing level.',
       );
       return;
     }
@@ -158,7 +158,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         'unit': value('unit').isEmpty ? null : value('unit'),
         'postalCode': value('postalCode'),
         'propertyType': _propertyType,
-        'fullyFurnished': _fullyFurnished,
+        'furnishingLevel': _furnishingLevel,
         'landlordName': value('landlordName'),
         'landlordEmail': value('landlordEmail').isEmpty
             ? null
@@ -297,25 +297,30 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Fully furnished rooms start with standard inventory rows. Other rooms start empty.',
+            'Rooms start with editable inventory rows suited to this furnishing level.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          RadioGroup<bool>(
-            groupValue: _fullyFurnished,
+          RadioGroup<String>(
+            groupValue: _furnishingLevel,
             onChanged: (value) => setState(() {
-              _fullyFurnished = value;
+              _furnishingLevel = value;
               _error = null;
             }),
             child: const Column(
               children: [
-                RadioListTile<bool>(
-                  value: true,
+                RadioListTile<String>(
+                  value: 'FULLY_FURNISHED',
                   title: Text('Fully furnished'),
                   contentPadding: EdgeInsets.zero,
                 ),
-                RadioListTile<bool>(
-                  value: false,
-                  title: Text('Not fully furnished'),
+                RadioListTile<String>(
+                  value: 'PARTIALLY_FURNISHED',
+                  title: Text('Partially furnished'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<String>(
+                  value: 'UNFURNISHED',
+                  title: Text('Unfurnished'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ],

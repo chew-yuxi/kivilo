@@ -38,4 +38,17 @@ describe('templateRows', () => {
       expect(names(name)).toEqual(bathroom)
     }
   })
+
+  it('varies editable starter rows by furnishing level', () => {
+    expect(templateRows('Kitchen', 'UNFURNISHED').map((row) => row.name)).toEqual([
+      ...EVERY_ROOM, 'Cabinets', 'Sink and tap',
+    ])
+    expect(templateRows('Bedroom', 'PARTIALLY_FURNISHED').map((row) => row.name)).toEqual([
+      ...EVERY_ROOM, 'Wardrobe',
+    ])
+    expect(templateRows('Living / dining room', 'PARTIALLY_FURNISHED').map((row) => row.name)).toEqual(EVERY_ROOM)
+    expect(templateRows('Bedroom', 'FULLY_FURNISHED').map((row) => row.name)).toEqual([
+      ...EVERY_ROOM, 'Bed', 'Wardrobe',
+    ])
+  })
 })

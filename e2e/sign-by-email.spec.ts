@@ -15,7 +15,8 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   const landlordEmail = freshEmail('sign-landlord')
   const tenantEmail = freshEmail('sign-tenant')
 
-  // A deal with one empty room, reviewed and sent, through the API the app uses.
+  // An unfurnished deal with one room's permanent surfaces, reviewed and sent,
+  // through the API the app uses.
   const created = await request.post('/api/v1/inspections', {
     headers: agent,
     data: {
@@ -80,7 +81,8 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   await expect(tenant).toHaveURL(new RegExp(`/sign/${id}$`))
   await expect(tenant.getByText('Awaiting your signature.')).toBeVisible()
   await expect(tenant.getByText('Store room')).toBeVisible()
-  await expect(tenant.getByText('Nothing recorded in this room.')).toBeVisible()
+  await expect(tenant.getByText('Walls', { exact: true })).toBeVisible()
+  await expect(tenant.getByText('Bed', { exact: true })).toHaveCount(0)
   const fingerprint = await tenant.locator('section p .font-mono').textContent()
   expect(fingerprint).toMatch(/^[0-9A-F]{4}( [0-9A-F]{4}){3}$/)
   await expect(tenant.getByRole('button', { name: 'Install app' })).toHaveCount(0)
@@ -131,7 +133,8 @@ test('a party signs from the emailed link, as themselves and nobody else', async
   await expect(handoverPage.getByRole('heading', { name: 'Your tenant handover' })).toBeVisible()
   await expect(handoverPage.getByText('Move-in defect deadline: 2026-10-21')).toBeVisible()
   await expect(handoverPage.getByText('The landlord has not signed yet', { exact: false })).toBeVisible()
-  await expect(handoverPage.getByText('Nothing recorded in this room.')).toBeVisible()
+  await expect(handoverPage.getByText('Walls', { exact: true })).toBeVisible()
+  await expect(handoverPage.getByText('Bed', { exact: true })).toHaveCount(0)
   await expect(handoverPage.getByRole('button', { name: 'Install app' })).toHaveCount(0)
   // Nothing to download until both have signed.
   await expect(tenant.getByRole('link', { name: 'Download PDF' })).toHaveCount(0)

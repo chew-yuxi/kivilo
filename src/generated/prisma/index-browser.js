@@ -287,6 +287,7 @@ exports.Prisma.InspectionScalarFieldEnum = {
   kind: 'kind',
   status: 'status',
   fullyFurnished: 'fullyFurnished',
+  furnishingLevel: 'furnishingLevel',
   conductedById: 'conductedById',
   reportAgentId: 'reportAgentId',
   reportAgencyId: 'reportAgencyId',
@@ -833,6 +834,12 @@ exports.InspectionStatus = exports.$Enums.InspectionStatus = {
   AWAITING_SIGNATURE: 'AWAITING_SIGNATURE',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED'
+};
+
+exports.FurnishingLevel = exports.$Enums.FurnishingLevel = {
+  FULLY_FURNISHED: 'FULLY_FURNISHED',
+  PARTIALLY_FURNISHED: 'PARTIALLY_FURNISHED',
+  UNFURNISHED: 'UNFURNISHED'
 };
 
 exports.CaptureKind = exports.$Enums.CaptureKind = {
