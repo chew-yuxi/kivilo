@@ -8,7 +8,9 @@ read-only because they are part of the signature fingerprint. Android25 patch **
 excluded the concurrent native camera dependencies. Flutter analysis, 395 full tests and
 11 isolated focused tests passed; physical-device delivery remains **NOT RUN**. The
 production tenancy-details API remains live from `dpl_CmXiGr3PHutUqJWn1TJ3247pVjS6`.
-Details and rollback are in `mobile/RELEASE.md`.
+The camera-enabled internal builds now have the same UI: Android26 patch **1** / `745843`
+and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
+or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
 ## Public website and app domains — 24 October
 

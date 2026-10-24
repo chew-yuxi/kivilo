@@ -22,6 +22,8 @@ inside one joined action card instead of presenting Tenancy details as a separat
 | --- | --- | --- |
 | Android `1.0.0+25` | **24** / `745798` | **stable**, active and latest |
 | iOS `1.0.0+24` | **25** / `745805` | **stable**, active and latest |
+| Android internal `1.0.0+26` | **1** / `745843` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **25** / `745855` | **stable**, active and latest |
 
 Promoted on Yuxi's explicit go. The patch was built from isolated source `1a880fd`, which
 is the public stable tenancy source `a499015` plus only commits `90750df` and `c6792bd`;
@@ -31,7 +33,14 @@ release source passed. Shorebird accepted both patches without overrides and ret
 the Android Material icon asset size. iOS shared 55.6% of Dart code and emitted its
 possible-slower-execution warning. Physical-device verification remains **NOT RUN**.
 
+The internal native builds were patched separately from clean source `c6792bd`, which
+matches their multi-shot camera dependencies. Android 26 patch 1 and iOS 25 patch 25
+passed Shorebird's applicability check without overrides. The iOS archive validated as
+exactly `1.0.0 (25)` before patch publication. No Play Console or App Store Connect
+binary, track, submission or metadata was changed.
+
 Rollback: Android patch **23** / `745755`, iOS patch **24** / `745765`.
+The internal native builds roll back to their unpatched releases.
 
 ## Multi-shot camera native bases: 24 October 2026 Singapore time
 
