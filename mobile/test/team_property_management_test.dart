@@ -308,6 +308,41 @@ void main() {
     },
   );
 
+  testWidgets('workspace picker uses the team card as its only action', (
+    tester,
+  ) async {
+    final api = _ManagementApi();
+    String? selected;
+    await _open(
+      tester,
+      Builder(
+        builder: (context) => Scaffold(
+          body: FilledButton(
+            onPressed: () => Navigator.of(context)
+                .push<String>(
+                  MaterialPageRoute(
+                    builder: (_) => TeamScreen(
+                      api: api,
+                      selectWorkspace: true,
+                    ),
+                  ),
+                )
+                .then((value) => selected = value),
+            child: const Text('Choose workspace'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Choose workspace'));
+    await tester.pumpAndSettle();
+    expect(find.text('Open Green Agency workspace'), findsNothing);
+    await tester.tap(find.text('Green Agency'));
+    await tester.pumpAndSettle();
+    expect(selected, 'team');
+    expect(find.byType(TeamDetailScreen), findsNothing);
+  });
+
   testWidgets(
     'ordinary agents see every team action, and a locked one names who can',
     (tester) async {

@@ -175,15 +175,12 @@ class _TeamScreenState extends State<TeamScreen> {
                         '${agencyRoleLabel(agency.role)} · ${agency.memberCount} members',
                       ),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: _busy ? null : () => _open(agency.id),
-                    ),
-                  ),
-                  if (widget.selectWorkspace)
-                    OutlinedButton(
-                      onPressed: _busy
+                      onTap: _busy
                           ? null
-                          : () => Navigator.pop(context, agency.id),
-                      child: Text('Open ${agency.name} workspace'),
+                          : widget.selectWorkspace
+                          ? () => Navigator.pop(context, agency.id)
+                          : () => _open(agency.id),
+                    ),
                   ),
                 ],
                 const SizedBox(height: 24),
