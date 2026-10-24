@@ -5,6 +5,39 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Editable property details and assets: 24 October 2026 Singapore time
+
+Source `a829173`, pushed to `origin/main` before release. Before a property has any sent
+report, authorized agents can now correct its address, unit, postal code and property
+type from Tenancy details, alongside the landlord and tenant names and the existing
+tenancy fields. Once any report for that property has been sent, the property identity
+stays read-only so agreed reports cannot be rewritten. Party updates also preserve
+existing verified identities rather than silently renaming a shared account.
+
+Authorized agents and landlords can now open an asset from the Property page, edit its
+name, category, brand, model, serial number, location, notes and dates, or retire it.
+Retirement keeps the asset and its history instead of deleting it. Tenants remain
+read-only. Property, tenancy and asset changes are recorded in property history.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android production `1.0.0+25` | **28** / `746082` | **stable**, active and latest for Android |
+| iOS public `1.0.0+24` | **27** / `746093` | **stable**, active and latest |
+| Android internal `1.0.0+26` | **3** / `746095` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **29** / `746100` | **stable**, active and latest for iOS |
+| Android pending production `1.0.0+27` | **2** / `746105` | **stable**, active and latest |
+
+The production backend deployment is Ready and aliased to `my.kivilo.app`. Typecheck,
+lint and the production web build passed; the focused tenancy-details and maintenance
+integration suites passed all 15 tests. Flutter analysis was clean, all **400 mobile
+tests** passed, and the focused property suite passed all 12 tests. The public bases were
+patched from isolated source `a3ae996` (base `6ecc47b`), the internal bases from
+`4131393` (base `428e7cd`), and Android 27 from `cd4503e` (base `02dbeeb`). Shorebird
+accepted every patch without native or asset overrides. The iOS 24 build shared 55.2%
+of Dart code and emitted its possible-slower-execution warning. Physical-device
+verification remains **NOT RUN**. Android 27 remains subject to its existing managed
+Play rollout; this patch does not publish that store release.
+
 ## Visible mobile team-name editing: 24 October 2026 Singapore time
 
 Source `d317bbf`, pushed to `origin/main` before release. The native Team page now puts
