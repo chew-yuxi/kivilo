@@ -42,7 +42,7 @@ function MarkedPhoto({ mark, original = false, detail = false, interaction }: {
 
   return (
     <svg className={styles.photo + (detail ? " " + styles.detailPhoto : "")} viewBox={detail ? detailViewBox : "0 0 1500 1000"} role="img"
-      aria-label={original ? "Original illustration of an inspector photographing a scuffed cabinet." : "Illustrated property detail with a " + mark.tool.toLowerCase() + " annotation."}
+      aria-label={original ? "An inspector photographing a scuffed cabinet." : "Property detail with a " + mark.tool.toLowerCase() + " annotation."}
       {...interaction}>
       <image href="/art/workflow-capture.webp" x="0" y="0" width="1500" height="1000" />
       <defs><marker id={id + "-arrow"} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#ec4899" stroke="white" strokeWidth=".7" /></marker></defs>
@@ -104,7 +104,7 @@ export function LandingWalkthrough() {
               onLostPointerCapture: (event) => { if (drawing.current?.pointer !== event.pointerId) return; drawing.current = null; setTouchDrawing(false); },
             }} />
             <div className={styles.photoControls}>
-              <div className={styles.markTools} role="group" aria-label="Try a photo annotation tool" aria-describedby={id + "-hint"}>
+              <div className={styles.markTools} role="group" aria-label="Photo annotation tools" aria-describedby={id + "-hint"}>
                 {(["Circle", "Freehand", "Arrow"] as const).map((tool) => (
                   <button key={tool} type="button" aria-pressed={!original && mark.tool === tool}
                     onClick={() => { setMark({ tool, points: sampleMarks[tool] }); setOriginal(false); setTouchDrawing(true); }}>
@@ -115,7 +115,7 @@ export function LandingWalkthrough() {
                 ))}
               </div>
               <div className={styles.photoActions}>
-                <p id={id + "-hint"}>Try a tool on the illustration.</p>
+                <p id={id + "-hint"}>Choose a tool, then draw.</p>
                 <button type="button" aria-pressed={original} onClick={() => { setOriginal(!original); setTouchDrawing(false); }}>{original ? "Show marks" : "See original"}</button>
               </div>
             </div>
@@ -149,16 +149,16 @@ export function LandingWalkthrough() {
             <div className={styles.signedRecord}>
               <div className={styles.reportEvidence}><MarkedPhoto mark={mark} detail /><div><strong>Living room · Sideboard</strong><p>{itemNotes}</p></div></div>
               {/* Fictional ink signatures drawn only for this marketing example. */}
-              <div className={styles.signatures} role="group" aria-label="Illustrative signatures">
+              <div className={styles.signatures} role="group" aria-label="Signatures">
                 <div>
-                  <svg className={styles.signature} viewBox="0 0 220 72" role="img" aria-label="Sample landlord signature" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className={styles.signature} viewBox="0 0 220 72" role="img" aria-label="Landlord signature" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M13 49C25 32 32 13 39 14C46 16 37 43 34 51M20 38C31 33 44 31 53 33M43 44C56 29 64 12 58 13C51 15 45 41 50 46C54 50 64 40 67 35C68 31 62 32 60 38C57 47 66 49 75 40M74 34L84 45M87 32L74 47M96 46C114 30 125 9 117 10C108 12 99 39 102 47C105 54 120 44 127 39M128 33C124 39 123 45 128 45C133 45 138 36 140 32L135 45C143 31 150 30 146 41L144 45C152 31 160 29 156 40C152 51 165 44 173 38C185 29 197 30 206 27" />
                     <path d="M130 24L131 23M25 60C75 52 138 56 195 48" strokeWidth="1.35" />
                   </svg>
                   <span>Landlord</span>
                 </div>
                 <div>
-                  <svg className={styles.signature} viewBox="0 0 220 72" role="img" aria-label="Sample tenant signature" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className={styles.signature} viewBox="0 0 220 72" role="img" aria-label="Tenant signature" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 23C37 15 61 14 76 17M58 17C49 34 43 58 28 59C18 60 13 51 23 45C29 42 36 45 38 48M51 44L62 31L58 44L72 30L66 44L80 29C75 41 76 48 89 35M94 24L123 18M111 14L98 43C95 52 107 42 114 34C119 28 123 33 119 39C113 48 108 43 115 36C122 29 126 30 123 40C121 46 128 42 135 32L130 44C142 28 149 28 145 39C141 49 153 41 161 34L158 42C169 30 177 32 173 38C171 43 181 40 190 34L205 30" />
                     <path d="M73 57L195 49L180 55" strokeWidth="1.2" />
                   </svg>
@@ -171,9 +171,8 @@ export function LandingWalkthrough() {
       </ol>
       <div className={styles.finish}>
         <Link href="https://my.kivilo.app/inspections" prefetch={false}>Start your first handover</Link>
-        <p>Illustrated example, with sample inventory and signatures.</p>
       </div>
-      <span className={styles.srOnly} role="status">{original ? "Viewing the original illustration. Inventory and report keep the marks." : mark.tool + " annotation shown in the illustration, inventory and example report."}</span>
+      <span className={styles.srOnly} role="status">{original ? "Viewing the original. Inventory and report keep the marks." : mark.tool + " annotation shown in the image, inventory and report."}</span>
     </div>
   );
 }

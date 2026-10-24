@@ -94,14 +94,13 @@ export default function LandingPage() {
         </section>
         <section id="check-out" className={styles.checkout} aria-labelledby="checkout-title">
           <div className={styles.comparison}>
-            <div className={styles.comparisonHeader}><span className={styles.miniWordmark}><span className={styles.brandMark} aria-hidden="true" />kivilo</span><span>AN EXAMPLE AT CHECK-OUT</span></div>
+            <div className={styles.comparisonHeader}><span className={styles.miniWordmark}><span className={styles.brandMark} aria-hidden="true" />kivilo</span><span>CHECK-OUT ASSESSMENT</span></div>
             <p className={styles.comparisonRoom}>Living room <span>/ Sideboard</span></p>
             <div className={styles.comparisonColumns}>
               <div><span className={styles.comparisonLabel}>AT CHECK-IN</span><p>Scuff on the lower-right sideboard door.</p><span className={styles.photoLabel}>Marked in the agreed photo</span></div>
               <div><span className={styles.comparisonLabel}>AT CHECK-OUT</span><p>Same scuff. Same place.<br />No further change.</p><span className={styles.photoLabel}>Compared with the original</span></div>
             </div>
             <div className={styles.assessment}><span className={styles.assessmentCheck} aria-hidden="true">✓</span><div><strong>Already there at move-in.</strong><p>A clear record makes the difference.</p></div><span className={styles.zeroCharge}>$0<span>proposed charge</span></span></div>
-            <p className={styles.exampleNote}>Illustrative assessment. Every finding is recorded by a person.</p>
           </div>
           <div className={styles.checkoutCopy}>
             <h2 id="checkout-title">Less back-and-forth.<br />More there-it-is.</h2>

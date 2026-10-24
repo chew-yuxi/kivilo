@@ -65,7 +65,6 @@
 .assessment p { font-size:18px; margin-top:5px; color:#667269; }
 .zeroCharge { grid-column:2; justify-self:end; text-align:right; font-size:24px; font-weight:700; }
 .zeroCharge > span { display:block; font-size:18px; color:#667269; font-weight:400; }
-.exampleNote { border-top:1px solid #f0edf0; padding:12px 20px; font-size:18px; text-align:center; color:var(--muted); }
 .checkoutCopy h2 { margin-top:0; }
 .checkoutCopy > p { font-size:20px; line-height:1.9; color:var(--muted); margin-top:22px; }
 .checkoutCopy > .checkoutEmphasis { font-weight:700; font-size:20px !important; color:var(--ink) !important; }
@@ -127,7 +126,7 @@
   .comparison { width:100%; max-width:460px; } .comparisonHeader { padding:17px; } .comparisonRoom { padding:21px 17px 17px; font-size:18px; } .comparisonColumns { margin:0 16px; grid-template-columns:1fr; }
   .comparisonColumns > div + div { border-left:0; border-top:1px solid #e9e5e8; }
   .comparisonColumns > div { padding:15px 12px; } .comparisonColumns p { font-size:18px; } .assessment { margin:17px 16px; padding:13px 10px; gap:8px; }
-  .assessment strong { font-size:18px; } .assessment p { font-size:18px; } .zeroCharge { font-size:22px; } .zeroCharge > span { font-size:18px; } .exampleNote { font-size:18px; }
+  .assessment strong { font-size:18px; } .assessment p { font-size:18px; } .zeroCharge { font-size:22px; } .zeroCharge > span { font-size:18px; }
   .people { padding:57px 27px; } .peopleGrid { grid-template-columns:1fr; gap:26px; margin-top:36px; } .peopleGrid article { padding:0 !important; }
   .peopleGrid article + article { border-left:0; border-top:1px solid #eee9ed; padding-top:26px !important; } .peopleGrid h3 { font-size:21px; margin:9px 0; }
   .faq { grid-template-columns:1fr; gap:31px; padding:55px 26px 65px; } .faq h2 { font-size:34px; } .faq > div > p { margin-top:15px; } .faqList summary { font-size:20px; padding:21px 0; }

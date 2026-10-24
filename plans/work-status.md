@@ -16,7 +16,7 @@ or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`cf3d7e11-7eca-4914-a82a-cd16fa58ce60`. Build/deploy instructions: `marketing/README.md`.
+`5dcc8169-49c8-45c2-b59f-8dc1181319e9`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -123,6 +123,15 @@ It was reviewed at actual chat widths of 600px and 360px as well as full size. I
 renderer is `marketing/design/render-social-preview.mjs`; Open Graph and Twitter
 use a revised image URL. The 1200×630 image was visually reviewed, build and scoped
 lint pass, and live HTML, both metadata tags and image bytes match the export.
+
+The subsequent copy cleanup removes demo disclaimers and example/sample qualifiers
+from visible copy, signatures' accessible names and annotation status messages.
+The check-out header reads "CHECK-OUT ASSESSMENT" and the drawing hint is "Choose a
+tool, then draw." Internal asset provenance remains documented. Marketing build,
+strict lint and browser checks at 320/390/1440px pass: no remaining public demo
+qualifiers, 18px minimum text, no overflow or runtime errors, and working annotation
+tools and original-image toggling. The shorter assessment card was visually reviewed.
+Live HTML and nine script/style assets match the checked export.
 
 ## Tenancy agreements and supporting documents — 23 October
 

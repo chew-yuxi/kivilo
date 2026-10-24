@@ -22,14 +22,15 @@ same `src/lib/plan-limits.ts` constants the app enforces.
 The marking example uses `public/art/workflow-capture.webp`, an ink-and-pink
 illustration made with built-in imagegen from Kivilo's existing character artwork.
 The saved brief is `design/workflow-capture.prompt.txt`. It replaces the synthetic
-kitchen photograph and is labelled as an illustration beside the tools. Visitors
+kitchen photograph. Visitors
 can mark the cabinet scuff locally; the same marks appear beside the inventory item
 and in the signing example. Detail crops expand if someone draws elsewhere in the
 scene, so their marks remain visible. Viewing the original affects only the first
 illustration. Touch gestures scroll and zoom normally until a tool is selected;
 drawing switches off again after one stroke. No customer property data is used.
 The landlord and tenant signatures are two fictional SVG ink drawings, each with
-an accessible sample-signature label and a visible role caption.
+an accessible role label and a visible role caption. Public copy presents the workflow
+directly, without demo disclaimers or example/sample qualifiers.
 
 The hero leads with "Give every tenancy an upgrade." and explains Kivilo's digital
 support for agents, landlords and tenants from the first inspection to check-out.
