@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { actsAsAgent } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
+import { createDownloadUrl } from '@/lib/storage'
 import type { Prisma } from '@/generated/prisma'
 
 export async function agencyList(viewerId: string) {
@@ -48,13 +49,18 @@ export async function lockAgencyTenancy(tenancyId: string, client: Prisma.Transa
 
 /// Old clients/servers may have sent a report during a rolling deployment. Freeze
 /// its previous lead, including a deliberate null, before transferring the tenancy.
-export async function freezeReportsBeforeHandover(tx: Prisma.TransactionClient, tenancyId: string, agentId: string | null) {
+export async function freezeReportsBeforeHandover(
+  tx: Prisma.TransactionClient,
+  tenancyId: string,
+  agentId: string | null,
+  agencyId: string | null,
+) {
   await tx.$queryRaw`SELECT "id" FROM "Inspection"
     WHERE "tenancyId" = ${tenancyId} AND "status" IN ('AWAITING_SIGNATURE', 'COMPLETED')
     ORDER BY "id" FOR UPDATE`
   await tx.inspection.updateMany({
     where: { tenancyId, status: { in: ['AWAITING_SIGNATURE', 'COMPLETED'] }, reportAgentFrozen: false },
-    data: { reportAgentId: agentId, reportAgentFrozen: true },
+    data: { reportAgentId: agentId, reportAgencyId: agencyId, reportAgentFrozen: true },
   })
 }
 
@@ -75,10 +81,18 @@ export async function agencyDetail(agencyId: string, viewerId: string) {
         orderBy: { createdAt: 'desc' },
       },
       activity: { where: canManage ? {} : { actorId: viewerId }, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 50 },
+      branding: true,
     },
   })
   return {
     id: agency.id, name: agency.name, role: membership.role, canManage,
+    branding: {
+      agencyName: agency.name,
+      agencyLicence: agency.branding?.agencyLicence ?? null,
+      ceaRegistration: null,
+      phone: agency.branding?.phone ?? null,
+      logoUrl: agency.branding?.logoPath ? await createDownloadUrl(agency.branding.logoPath) : null,
+    },
     members: agency.members.map((member) => ({
       id: member.id, stakeholderId: member.stakeholderId, name: member.stakeholder.name,
       email: member.stakeholder.email, role: member.role, status: member.status,

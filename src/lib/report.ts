@@ -13,10 +13,15 @@ import { reportAgent } from '@/lib/report-agent'
 /// in private storage, but evidence not stamped at review is not part of what was agreed.
 export const reportInclude = {
   tenancy: {
-    include: { property: true, landlord: true, tenant: true, agent: { include: { branding: true } } },
+    include: {
+      property: true, landlord: true, tenant: true,
+      agent: { include: { branding: true } },
+      agency: { include: { branding: true } },
+    },
   },
   conductedBy: true,
   reportAgent: { include: { branding: true } },
+  reportAgency: { include: { branding: true } },
   checkOut: { select: { status: true } },
   rooms: {
     orderBy: { order: 'asc' },

@@ -8,7 +8,7 @@ import type { reportInclude } from '@/lib/report'
 import { addendumView } from '@/lib/addenda'
 import { AddendumSection } from '@/components/addendum-section'
 import type { Prisma } from '@/generated/prisma'
-import { reportAgent } from '@/lib/report-agent'
+import { reportAgent, reportBranding } from '@/lib/report-agent'
 
 const VERDICT_LABEL = {
   TENANT_LIABLE: 'Tenant liable',
@@ -82,7 +82,7 @@ export async function ReportDocument({
   const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long' })
   // The agent on the deal heads the report with their agency, if they have set one.
   const agent = reportAgent(inspection)
-  const branding = agent?.branding ?? null
+  const branding = reportBranding(inspection)
   const logoUrl = branding?.logoPath ? await createDownloadUrl(branding.logoPath, 60 * 60 * 24) : null
 
   return (

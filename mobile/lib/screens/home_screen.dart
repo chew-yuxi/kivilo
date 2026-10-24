@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// another's loads.
   int _scope = 0;
   int _tab = 0;
+  final Set<String> _visitedTabs = {'home'};
 
   /// Someone who is only a landlord or tenant: no inspections of their own and no deal
   /// they are the agent on. They get their tenancies, not an inspector's desk.
@@ -183,8 +184,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _selectTab(int index) {
     if (index == _tab) return;
-    setState(() => _tab = index);
-    if (index == 0) _refresh();
+    setState(() {
+      _tab = index;
+      _visitedTabs.add(_tabs[index]);
+    });
   }
 
   @override
@@ -268,19 +271,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   : const SizedBox.shrink(),
             ),
             Expanded(
-              child: switch (_tabs[_tab]) {
-                'inspections' => PropertiesScreen(
-                  api: _api,
-                  trackView: false,
-                  workspace: _workspace,
-                ),
-                'account' => SettingsScreen(
-                  api: _api,
-                  trackView: false,
-                  onStartCheckIn: _partyOnly ? _create : null,
-                ),
-                _ => _overview(),
-              },
+              child: IndexedStack(
+                index: _tab,
+                children: [
+                  for (final tab in _tabs)
+                    KeyedSubtree(
+                      key: ValueKey('main-tab-$tab'),
+                      child: !_visitedTabs.contains(tab)
+                          ? const SizedBox.shrink()
+                          : switch (tab) {
+                              'inspections' => PropertiesScreen(
+                                api: _api,
+                                trackView: false,
+                                workspace: _workspace,
+                              ),
+                              'account' => SettingsScreen(
+                                api: _api,
+                                trackView: false,
+                                onStartCheckIn: _partyOnly ? _create : null,
+                              ),
+                              _ => _overview(),
+                            },
+                    ),
+                ],
+              ),
             ),
           ],
         ),

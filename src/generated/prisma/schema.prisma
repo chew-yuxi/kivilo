@@ -102,13 +102,28 @@ enum AgencyMembershipStatus {
 
 /// Operational membership is separate from the existing billing-only Team.
 model Agency {
-  id        String             @id @default(cuid())
-  name      String
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  members   AgencyMembership[]
-  tenancies Tenancy[]
-  activity  AgencyActivity[]
+  id                String             @id @default(cuid())
+  name              String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  members           AgencyMembership[]
+  tenancies         Tenancy[]
+  activity          AgencyActivity[]
+  branding          AgencyBranding?
+  reportInspections Inspection[]       @relation("InspectionReportAgency")
+}
+
+/// The shared identity on reports prepared in this operational team's workspace.
+/// The responsible agent's own CEA registration and phone remain on AgentBranding.
+model AgencyBranding {
+  agencyId      String   @id
+  agencyLicence String?
+  phone         String?
+  /// Private bucket path, at `agency-branding/<agencyId>/logo`.
+  logoPath      String?
+  updatedAt     DateTime @updatedAt
+
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 }
 
 model AgencyMembership {
@@ -178,11 +193,10 @@ model Subscription {
   managedBy   Stakeholder? @relation("ManagedSubscriptions", fields: [managedById], references: [id], onDelete: SetNull)
 }
 
-/// How an agent's reports are headed: agency name, licence numbers, contact, logo. One
-/// per agent, because a Singapore agent is individually registered and a report is
-/// prepared by one. With none set, a report reads as Kivilo's. The header is
-/// presentation, not part of what the parties signed, so it follows the agent's current
-/// branding rather than being frozen with the report.
+/// The complete report identity for an agent's personal work. For team work, the
+/// responsible agent's CEA registration and contact are combined with AgencyBranding.
+/// With none set, a personal report reads as Kivilo's. Branding is presentation rather
+/// than signed report content, so the pinned agent and team use their current details.
 model AgentBranding {
   stakeholderId   String   @id
   agencyName      String
@@ -377,6 +391,8 @@ model Inspection {
   conductedById     String?
   /// Responsible agent frozen at Send. Handover changes Tenancy.agentId only.
   reportAgentId     String?
+  /// Operational team frozen at Send. Later assignment cannot rewrite the report header.
+  reportAgencyId    String?
   reportAgentFrozen Boolean          @default(false)
   conductedAt       DateTime?
   /// A check-out points at the check-in it is measured against.
@@ -394,11 +410,12 @@ model Inspection {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
-  tenancy     Tenancy      @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
-  conductedBy Stakeholder? @relation("InspectionConductor", fields: [conductedById], references: [id])
-  reportAgent Stakeholder? @relation("InspectionReportAgent", fields: [reportAgentId], references: [id])
-  baseline    Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
-  checkOut    Inspection?  @relation("Baseline")
+  tenancy      Tenancy      @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  conductedBy  Stakeholder? @relation("InspectionConductor", fields: [conductedById], references: [id])
+  reportAgent  Stakeholder? @relation("InspectionReportAgent", fields: [reportAgentId], references: [id])
+  reportAgency Agency?      @relation("InspectionReportAgency", fields: [reportAgencyId], references: [id])
+  baseline     Inspection?  @relation("Baseline", fields: [baselineId], references: [id])
+  checkOut     Inspection?  @relation("Baseline")
 
   rooms              Room[]
   findings           Finding[]
@@ -412,6 +429,7 @@ model Inspection {
   moveInDefectCases  MaintenanceCase[]       @relation("MoveInDefectInspection")
 
   @@index([tenancyId, kind])
+  @@index([reportAgencyId])
 }
 
 /// Exact inspection access preserved from the old conductor rule. This never grants

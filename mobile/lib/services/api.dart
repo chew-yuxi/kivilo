@@ -514,6 +514,38 @@ class Api {
     );
   });
 
+  Future<AgentBranding?> saveAgencyBranding(
+    String id,
+    Map<String, dynamic> body,
+  ) => _call(() async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '/api/v1/agencies/$id/branding',
+      data: body,
+    );
+    return AgentBranding.fromResponse(response.data!);
+  });
+
+  Future<AgentBranding?> uploadAgencyBrandingLogo(String id, Uint8List bytes) =>
+      _call(() async {
+        final response = await _dio.post<Map<String, dynamic>>(
+          '/api/v1/agencies/$id/branding/logo',
+          data: Stream.fromIterable([bytes]),
+          options: Options(
+            contentType: 'application/octet-stream',
+            headers: {'content-length': bytes.length},
+          ),
+        );
+        return AgentBranding.fromResponse(response.data!);
+      });
+
+  Future<AgentBranding?> removeAgencyBrandingLogo(String id) => _call(
+    () async => AgentBranding.fromResponse(
+      (await _dio.delete<Map<String, dynamic>>(
+        '/api/v1/agencies/$id/branding/logo',
+      )).data!,
+    ),
+  );
+
   Future<void> inviteAgencyMember(String id, String email, String role) =>
       _call(() async {
         await _dio.post<Object>(
@@ -1216,11 +1248,13 @@ class Api {
     String inspectionId,
     String draftId, {
     String? ownerId,
-  }) async => await _read(
+  }) async =>
+      await _read(
             '/api/v1/inspections/$inspectionId/finding-photo-drafts/$draftId',
             'finding-photos-$inspectionId-$draftId',
             expectedOwnerId: ownerId,
-  ) as Map<String, dynamic>;
+          )
+          as Map<String, dynamic>;
 
   Future<void> discardFindingPhotoDraft(
     String inspectionId,

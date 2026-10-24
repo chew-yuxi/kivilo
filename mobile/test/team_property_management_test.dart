@@ -252,6 +252,7 @@ class _ManagementApi extends Api {
         ),
     ];
   }
+
   @override
   Future<List<InspectionSummary>> inspectionWork({
     String? agencyId,
@@ -321,10 +322,7 @@ void main() {
             onPressed: () => Navigator.of(context)
                 .push<String>(
                   MaterialPageRoute(
-                    builder: (_) => TeamScreen(
-                      api: api,
-                      selectWorkspace: true,
-                    ),
+                    builder: (_) => TeamScreen(api: api, selectWorkspace: true),
                   ),
                 )
                 .then((value) => selected = value),
@@ -374,6 +372,24 @@ void main() {
       expect(api.memberChanges, isEmpty);
     },
   );
+
+  testWidgets('team report branding opens directly from the team page', (
+    tester,
+  ) async {
+    final api = _ManagementApi();
+    await _open(tester, TeamDetailScreen(id: 'team', api: api));
+
+    expect(find.text('Add agency licence and logo'), findsOneWidget);
+    await tester.tap(find.text('Add agency licence and logo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Office phone (optional)'), findsOneWidget);
+    expect(find.text('Your CEA registration (optional)'), findsNothing);
+    expect(
+      find.textContaining('Used on reports prepared in Green Agency'),
+      findsOneWidget,
+    );
+  });
 
   testWidgets('invite role is chosen in place inside the drawer', (
     tester,
@@ -510,37 +526,36 @@ void main() {
     expect(find.text('Archived'), findsOneWidget);
   });
 
-  testWidgets(
-    'collaborators see property actions and who can act',
-    (tester) async {
-      final api = _ManagementApi()..canManage = false;
-      await _open(
-        tester,
-        PropertySettingsScreen(propertyId: 'property', api: api),
-      );
-      expect(find.text('Archive or delete property'), findsOneWidget);
-      const explanation =
-          'Only the responsible agent or a team owner or manager for every '
-          'tenancy here can do this. Ask Lead Owner.';
-      await tester.ensureVisible(find.text('Archive property'));
-      await tester.tap(find.text('Archive property'));
-      await tester.pumpAndSettle();
-      expect(find.text(explanation), findsOneWidget);
-      await tester.tap(find.text('OK'));
-      await tester.pumpAndSettle();
+  testWidgets('collaborators see property actions and who can act', (
+    tester,
+  ) async {
+    final api = _ManagementApi()..canManage = false;
+    await _open(
+      tester,
+      PropertySettingsScreen(propertyId: 'property', api: api),
+    );
+    expect(find.text('Archive or delete property'), findsOneWidget);
+    const explanation =
+        'Only the responsible agent or a team owner or manager for every '
+        'tenancy here can do this. Ask Lead Owner.';
+    await tester.ensureVisible(find.text('Archive property'));
+    await tester.tap(find.text('Archive property'));
+    await tester.pumpAndSettle();
+    expect(find.text(explanation), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
 
-      await tester.ensureVisible(find.text('Delete property'));
-      await tester.tap(find.text('Delete property'));
-      await tester.pumpAndSettle();
-      expect(find.text(explanation), findsOneWidget);
-      // A permission problem is not mistaken for preserved history.
-      expect(
-        find.text('Signed reports must be preserved. Archive this property.'),
-        findsNothing,
-      );
-      expect(api.changes, isEmpty);
-    },
-  );
+    await tester.ensureVisible(find.text('Delete property'));
+    await tester.tap(find.text('Delete property'));
+    await tester.pumpAndSettle();
+    expect(find.text(explanation), findsOneWidget);
+    // A permission problem is not mistaken for preserved history.
+    expect(
+      find.text('Signed reports must be preserved. Archive this property.'),
+      findsNothing,
+    );
+    expect(api.changes, isEmpty);
+  });
 
   testWidgets(
     'named assignment reflects manager access and sends selected identities',
@@ -586,7 +601,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(api.queries.last, ('team', 'agent'));
       api.canManage = false;
-      await tester.widget<RefreshIndicator>(find.byType(RefreshIndicator)).onRefresh();
+      await tester
+          .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+          .onRefresh();
       await tester.pumpAndSettle();
       expect(api.queries.last, ('team', null));
       expect(find.byType(KiviloSelectField<String>), findsOneWidget);

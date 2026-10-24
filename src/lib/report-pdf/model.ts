@@ -5,7 +5,7 @@ import { propertyLabel } from '@/lib/format'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
-import { reportAgent } from '@/lib/report-agent'
+import { reportAgent, reportBranding } from '@/lib/report-agent'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
 export const RENDER_VERSION = 7
@@ -17,10 +17,12 @@ const reportInclude = {
       landlord: true,
       tenant: true,
       agent: { include: { branding: true } },
+      agency: { include: { branding: true } },
     },
   },
   conductedBy: { include: { branding: true } },
   reportAgent: { include: { branding: true } },
+  reportAgency: { include: { branding: true } },
   rooms: {
     orderBy: { order: 'asc' },
     // The frozen check-in reference only `check-in-reference.ts` reads.
@@ -103,7 +105,7 @@ export function buildReportModel(row: ReportRow) {
   // The agent on the deal heads the report; an inspection with no agent falls back to
   // whoever conducted it.
   const preparer = reportAgent(row) ?? row.conductedBy
-  const branding = preparer?.branding ?? null
+  const branding = reportBranding(row)
 
   const rooms: ReportRoom[] = row.rooms.map((room, roomIndex) => {
     const number = roomIndex + 1

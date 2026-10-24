@@ -172,7 +172,7 @@ describe('persistent agency membership and assignment', () => {
     expect(reportHash(model)).toBe(reportHash(previousModel))
     expect((await signedReport(existing.inspection.id, owner.id)).agent).toBe(first.name)
     expect((await tenancyAccess(existing.tenancy.id, owner.id)).canManageAccess).toBe(true)
-    expect(await db.inspection.findUnique({ where: { id: existing.inspection.id } })).toMatchObject({ reportAgentId: first.id, reportAgentFrozen: true })
+    expect(await db.inspection.findUnique({ where: { id: existing.inspection.id } })).toMatchObject({ reportAgentId: first.id, reportAgencyId: agency.id, reportAgentFrozen: true })
   })
 
   it('freezes the report lead at Send so handover between signatures keeps both fingerprints equal', async () => {
@@ -182,6 +182,11 @@ describe('persistent agency membership and assignment', () => {
     await db.room.create({ data: { inspectionId: existing.inspection.id, name: 'Kitchen', order: 0, status: 'REVIEWED' } })
     as(owner)
     await completeReview(existing.inspection.id)
+    expect(await db.inspection.findUnique({ where: { id: existing.inspection.id } })).toMatchObject({
+      reportAgentId: owner.id,
+      reportAgencyId: agency.id,
+      reportAgentFrozen: true,
+    })
     const firstHash = await reportFingerprint(db, existing.inspection.id)
     await signInspection(existing.inspection.id, existing.landlord.id, 'data:image/png;base64,AA==')
     await assignTenancy(existing.tenancy.id, { leadAgentId: next.id })
@@ -200,7 +205,7 @@ describe('persistent agency membership and assignment', () => {
     const firstHash = await reportFingerprint(db, existing.inspection.id)
     as(owner)
     await assignTenancy(existing.tenancy.id, { leadAgentId: next.id })
-    expect(await db.inspection.findUnique({ where: { id: existing.inspection.id } })).toMatchObject({ reportAgentId: null, reportAgentFrozen: true })
+    expect(await db.inspection.findUnique({ where: { id: existing.inspection.id } })).toMatchObject({ reportAgentId: null, reportAgencyId: agency.id, reportAgentFrozen: true })
     expect(await reportFingerprint(db, existing.inspection.id)).toBe(firstHash)
   })
 

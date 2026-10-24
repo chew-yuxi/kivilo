@@ -147,6 +147,14 @@ exports.Prisma.AgencyScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AgencyBrandingScalarFieldEnum = {
+  agencyId: 'agencyId',
+  agencyLicence: 'agencyLicence',
+  phone: 'phone',
+  logoPath: 'logoPath',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AgencyMembershipScalarFieldEnum = {
   id: 'id',
   agencyId: 'agencyId',
@@ -281,6 +289,7 @@ exports.Prisma.InspectionScalarFieldEnum = {
   fullyFurnished: 'fullyFurnished',
   conductedById: 'conductedById',
   reportAgentId: 'reportAgentId',
+  reportAgencyId: 'reportAgencyId',
   reportAgentFrozen: 'reportAgentFrozen',
   conductedAt: 'conductedAt',
   baselineId: 'baselineId',
@@ -1032,6 +1041,7 @@ exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   Team: 'Team',
   Agency: 'Agency',
+  AgencyBranding: 'AgencyBranding',
   AgencyMembership: 'AgencyMembership',
   AgencyActivity: 'AgencyActivity',
   Subscription: 'Subscription',

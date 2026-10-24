@@ -167,7 +167,9 @@ export async function changeAgencyMember(agencyId: string, memberId: string, raw
         if (owned.some((tenancy) => tenancy.landlordId === input.reassignToId || tenancy.tenantId === input.reassignToId)) {
           throw new AgencyActionError('The new lead cannot be a landlord or tenant on one of these tenancies.')
         }
-        for (const tenancy of owned) await freezeReportsBeforeHandover(tx, tenancy.id, member.stakeholderId)
+        for (const tenancy of owned) {
+          await freezeReportsBeforeHandover(tx, tenancy.id, member.stakeholderId, agencyId)
+        }
         await tx.tenancy.updateMany({ where: { agencyId, agentId: member.stakeholderId }, data: { agentId: input.reassignToId } })
         await audit(tx, agencyId, actor, 'Reassigned departing member’s properties', member.stakeholder)
       }
@@ -219,7 +221,9 @@ export async function assignTenancy(tenancyId: string, raw: z.input<typeof assig
     }
     const beforeCollaborators = await tx.tenancyCollaborator.findMany({ where: { tenancyId }, select: { stakeholderId: true } })
     const beforeAssigned = new Set([tenancy.agentId, ...beforeCollaborators.map((member) => member.stakeholderId)])
-    if (leadAgentId !== tenancy.agentId) await freezeReportsBeforeHandover(tx, tenancyId, tenancy.agentId)
+    if (leadAgentId !== tenancy.agentId || agencyId !== tenancy.agencyId) {
+      await freezeReportsBeforeHandover(tx, tenancyId, tenancy.agentId, tenancy.agencyId)
+    }
     await tx.tenancy.update({ where: { id: tenancyId }, data: { agencyId, agentId: leadAgentId } })
     if (input.memberIds !== undefined) {
       await tx.tenancyCollaborator.deleteMany({ where: {

@@ -195,7 +195,12 @@ export function TeamDirectory({ data }: { data: Directory }) {
 
 export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: string }) {
   const mutation = useTeamMutation()
+  const router = useRouter()
   const [name, setName] = useState(data.name)
+  const [agencyLicence, setAgencyLicence] = useState(data.branding.agencyLicence ?? '')
+  const [officePhone, setOfficePhone] = useState(data.branding.phone ?? '')
+  const [logoBusy, setLogoBusy] = useState(false)
+  const [logoError, setLogoError] = useState<string | null>(null)
   const [email, setEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'MANAGER' | 'AGENT'>('AGENT')
   const [assignee, setAssignee] = useState('')
@@ -225,6 +230,107 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
         </div>
       </div>
       {mutation.feedback}
+      <section className="space-y-4" aria-label="Report branding">
+        <div>
+          <h2 className="text-lg font-semibold">Report branding</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            The team name, licence and logo appear with the responsible agent’s details on team reports.
+          </p>
+        </div>
+        <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-5">
+          <div className="flex flex-wrap items-center gap-4">
+            {data.branding.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={data.branding.logoUrl} alt={`${data.name} logo`} className="h-14 w-32 object-contain object-left" />
+            ) : (
+              <div className="flex h-14 w-32 items-center justify-center rounded-md bg-gray-50 text-sm text-gray-500">
+                No logo
+              </div>
+            )}
+            {data.canManage ? (
+              <div className="flex flex-wrap gap-2">
+                <label className="action-secondary cursor-pointer">
+                  {logoBusy ? 'Uploading…' : data.branding.logoUrl ? 'Replace logo' : 'Add logo'}
+                  <input
+                    className="sr-only"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    disabled={logoBusy}
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0]
+                      if (!file) return
+                      setLogoBusy(true)
+                      setLogoError(null)
+                      try {
+                        const response = await fetch(`/api/v1/agencies/${data.id}/branding/logo`, { method: 'POST', body: file })
+                        if (!response.ok) throw new Error('upload')
+                        router.refresh()
+                      } catch {
+                        setLogoError('Could not upload the logo. Use a PNG, JPEG or WebP under 1 MB.')
+                      } finally {
+                        setLogoBusy(false)
+                        event.target.value = ''
+                      }
+                    }}
+                  />
+                </label>
+                {data.branding.logoUrl && (
+                  <button
+                    className="action-secondary"
+                    disabled={logoBusy}
+                    onClick={async () => {
+                      setLogoBusy(true)
+                      setLogoError(null)
+                      try {
+                        const response = await fetch(`/api/v1/agencies/${data.id}/branding/logo`, { method: 'DELETE' })
+                        if (!response.ok) throw new Error('remove')
+                        router.refresh()
+                      } catch {
+                        setLogoError('Could not remove the logo. Please try again.')
+                      } finally {
+                        setLogoBusy(false)
+                      }
+                    }}
+                  >
+                    Remove logo
+                  </button>
+                )}
+              </div>
+            ) : (
+              <LockedAction label="Edit report branding" who="a team owner or manager" askNames={teamManagers(data, viewerId)} />
+            )}
+          </div>
+          {logoError && <p role="alert" className="text-sm text-red-700">{logoError}</p>}
+          {data.canManage ? (
+            <form
+              className="grid gap-3 sm:grid-cols-2"
+              onSubmit={(event) => {
+                event.preventDefault()
+                mutation.run(
+                  { action: 'branding', agencyId: data.id, agencyLicence, phone: officePhone },
+                  'Report branding saved.',
+                )
+              }}
+            >
+              <label className="text-sm font-medium">
+                Agency licence
+                <input className="field mt-1" value={agencyLicence} onChange={(event) => setAgencyLicence(event.target.value)} maxLength={40} />
+              </label>
+              <label className="text-sm font-medium">
+                Office phone
+                <input className="field mt-1" value={officePhone} onChange={(event) => setOfficePhone(event.target.value)} maxLength={40} />
+              </label>
+              <button className="action-primary sm:col-span-2" disabled={mutation.pending}>
+                Save report branding
+              </button>
+            </form>
+          ) : (
+            <p className="text-sm text-gray-600">
+              {data.branding.agencyLicence ? `Agency licence ${data.branding.agencyLicence}` : 'No agency licence added yet.'}
+            </p>
+          )}
+        </div>
+      </section>
       <section className="space-y-4" aria-label="Team work">
         <h2 className="text-lg font-semibold">Team work</h2>
         <div className="grid gap-3 sm:grid-cols-2">

@@ -118,6 +118,52 @@ Finder _cardWith(String text) =>
 
 void main() {
   testWidgets(
+    'switching tabs keeps loaded pages visible without refetching',
+    (tester) async {
+      final api = _WorkspaceApi();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildKiviloTheme(),
+          home: HomeScreen(api: api),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Inspection 1 at a long Cairnhill Rise address'),
+        findsOneWidget,
+      );
+      expect(api.inspectionReads, 1);
+
+      await tester.tap(find.text('Properties').last);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Property 1 at a long Cairnhill Rise address'),
+        findsOneWidget,
+      );
+      expect(api.propertyReads, 1);
+
+      await tester.tap(find.text('Home').last);
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(
+        find.text('Inspection 1 at a long Cairnhill Rise address'),
+        findsOneWidget,
+      );
+      expect(api.inspectionReads, 1);
+
+      await tester.tap(find.text('Properties').last);
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(
+        find.text('Property 1 at a long Cairnhill Rise address'),
+        findsOneWidget,
+      );
+      expect(api.propertyReads, 1);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'resizing keeps the selected tab, loaded data and scroll position',
     (tester) async {
       tester.view.devicePixelRatio = 1;

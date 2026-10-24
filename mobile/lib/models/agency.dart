@@ -1,3 +1,5 @@
+import 'maintenance.dart';
+
 class AgencySummary {
   const AgencySummary({
     required this.id,
@@ -95,6 +97,7 @@ class AgencyDetail {
     required this.members,
     required this.tenancies,
     required this.activity,
+    this.branding = const AgentBranding(agencyName: ''),
   });
   final String id;
   final String name;
@@ -103,6 +106,7 @@ class AgencyDetail {
   final List<AgencyMember> members;
   final List<Map<String, dynamic>> tenancies;
   final List<Map<String, dynamic>> activity;
+  final AgentBranding branding;
   factory AgencyDetail.fromJson(Map<String, dynamic> json) => AgencyDetail(
     id: json['id'] as String,
     name: json['name'] as String,
@@ -114,6 +118,7 @@ class AgencyDetail {
     tenancies: (json['tenancies'] as List<dynamic>)
         .cast<Map<String, dynamic>>(),
     activity: (json['activity'] as List<dynamic>).cast<Map<String, dynamic>>(),
+    branding: AgentBranding.fromResponse({'branding': json['branding']})!,
   );
 }
 

@@ -30,6 +30,12 @@ export type Team = $Result.DefaultSelection<Prisma.$TeamPayload>
  */
 export type Agency = $Result.DefaultSelection<Prisma.$AgencyPayload>
 /**
+ * Model AgencyBranding
+ * The shared identity on reports prepared in this operational team's workspace.
+ * The responsible agent's own CEA registration and phone remain on AgentBranding.
+ */
+export type AgencyBranding = $Result.DefaultSelection<Prisma.$AgencyBrandingPayload>
+/**
  * Model AgencyMembership
  * 
  */
@@ -49,11 +55,10 @@ export type AgencyActivity = $Result.DefaultSelection<Prisma.$AgencyActivityPayl
 export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
 /**
  * Model AgentBranding
- * How an agent's reports are headed: agency name, licence numbers, contact, logo. One
- * per agent, because a Singapore agent is individually registered and a report is
- * prepared by one. With none set, a report reads as Kivilo's. The header is
- * presentation, not part of what the parties signed, so it follows the agent's current
- * branding rather than being frozen with the report.
+ * The complete report identity for an agent's personal work. For team work, the
+ * responsible agent's CEA registration and contact are combined with AgencyBranding.
+ * With none set, a personal report reads as Kivilo's. Branding is presentation rather
+ * than signed report content, so the pinned agent and team use their current details.
  */
 export type AgentBranding = $Result.DefaultSelection<Prisma.$AgentBrandingPayload>
 /**
@@ -963,6 +968,16 @@ export class PrismaClient<
   get agency(): Prisma.AgencyDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.agencyBranding`: Exposes CRUD operations for the **AgencyBranding** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgencyBrandings
+    * const agencyBrandings = await prisma.agencyBranding.findMany()
+    * ```
+    */
+  get agencyBranding(): Prisma.AgencyBrandingDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.agencyMembership`: Exposes CRUD operations for the **AgencyMembership** model.
     * Example usage:
     * ```ts
@@ -1861,6 +1876,7 @@ export namespace Prisma {
     Stakeholder: 'Stakeholder',
     Team: 'Team',
     Agency: 'Agency',
+    AgencyBranding: 'AgencyBranding',
     AgencyMembership: 'AgencyMembership',
     AgencyActivity: 'AgencyActivity',
     Subscription: 'Subscription',
@@ -1921,7 +1937,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "agency" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2144,6 +2160,80 @@ export namespace Prisma {
           count: {
             args: Prisma.AgencyCountArgs<ExtArgs>
             result: $Utils.Optional<AgencyCountAggregateOutputType> | number
+          }
+        }
+      }
+      AgencyBranding: {
+        payload: Prisma.$AgencyBrandingPayload<ExtArgs>
+        fields: Prisma.AgencyBrandingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AgencyBrandingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AgencyBrandingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>
+          }
+          findFirst: {
+            args: Prisma.AgencyBrandingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AgencyBrandingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>
+          }
+          findMany: {
+            args: Prisma.AgencyBrandingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>[]
+          }
+          create: {
+            args: Prisma.AgencyBrandingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>
+          }
+          createMany: {
+            args: Prisma.AgencyBrandingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AgencyBrandingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>[]
+          }
+          delete: {
+            args: Prisma.AgencyBrandingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>
+          }
+          update: {
+            args: Prisma.AgencyBrandingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>
+          }
+          deleteMany: {
+            args: Prisma.AgencyBrandingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AgencyBrandingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AgencyBrandingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>[]
+          }
+          upsert: {
+            args: Prisma.AgencyBrandingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgencyBrandingPayload>
+          }
+          aggregate: {
+            args: Prisma.AgencyBrandingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgencyBranding>
+          }
+          groupBy: {
+            args: Prisma.AgencyBrandingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgencyBrandingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AgencyBrandingCountArgs<ExtArgs>
+            result: $Utils.Optional<AgencyBrandingCountAggregateOutputType> | number
           }
         }
       }
@@ -5603,6 +5693,7 @@ export namespace Prisma {
     stakeholder?: StakeholderOmit
     team?: TeamOmit
     agency?: AgencyOmit
+    agencyBranding?: AgencyBrandingOmit
     agencyMembership?: AgencyMembershipOmit
     agencyActivity?: AgencyActivityOmit
     subscription?: SubscriptionOmit
@@ -6063,12 +6154,14 @@ export namespace Prisma {
     members: number
     tenancies: number
     activity: number
+    reportInspections: number
   }
 
   export type AgencyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | AgencyCountOutputTypeCountMembersArgs
     tenancies?: boolean | AgencyCountOutputTypeCountTenanciesArgs
     activity?: boolean | AgencyCountOutputTypeCountActivityArgs
+    reportInspections?: boolean | AgencyCountOutputTypeCountReportInspectionsArgs
   }
 
   // Custom InputTypes
@@ -6101,6 +6194,13 @@ export namespace Prisma {
    */
   export type AgencyCountOutputTypeCountActivityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AgencyActivityWhereInput
+  }
+
+  /**
+   * AgencyCountOutputType without action
+   */
+  export type AgencyCountOutputTypeCountReportInspectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InspectionWhereInput
   }
 
 
@@ -10342,6 +10442,8 @@ export namespace Prisma {
     members?: boolean | Agency$membersArgs<ExtArgs>
     tenancies?: boolean | Agency$tenanciesArgs<ExtArgs>
     activity?: boolean | Agency$activityArgs<ExtArgs>
+    branding?: boolean | Agency$brandingArgs<ExtArgs>
+    reportInspections?: boolean | Agency$reportInspectionsArgs<ExtArgs>
     _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["agency"]>
 
@@ -10371,6 +10473,8 @@ export namespace Prisma {
     members?: boolean | Agency$membersArgs<ExtArgs>
     tenancies?: boolean | Agency$tenanciesArgs<ExtArgs>
     activity?: boolean | Agency$activityArgs<ExtArgs>
+    branding?: boolean | Agency$brandingArgs<ExtArgs>
+    reportInspections?: boolean | Agency$reportInspectionsArgs<ExtArgs>
     _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AgencyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -10382,6 +10486,8 @@ export namespace Prisma {
       members: Prisma.$AgencyMembershipPayload<ExtArgs>[]
       tenancies: Prisma.$TenancyPayload<ExtArgs>[]
       activity: Prisma.$AgencyActivityPayload<ExtArgs>[]
+      branding: Prisma.$AgencyBrandingPayload<ExtArgs> | null
+      reportInspections: Prisma.$InspectionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10785,6 +10891,8 @@ export namespace Prisma {
     members<T extends Agency$membersArgs<ExtArgs> = {}>(args?: Subset<T, Agency$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     tenancies<T extends Agency$tenanciesArgs<ExtArgs> = {}>(args?: Subset<T, Agency$tenanciesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activity<T extends Agency$activityArgs<ExtArgs> = {}>(args?: Subset<T, Agency$activityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    branding<T extends Agency$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Agency$brandingArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reportInspections<T extends Agency$reportInspectionsArgs<ExtArgs> = {}>(args?: Subset<T, Agency$reportInspectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11283,6 +11391,49 @@ export namespace Prisma {
   }
 
   /**
+   * Agency.branding
+   */
+  export type Agency$brandingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    where?: AgencyBrandingWhereInput
+  }
+
+  /**
+   * Agency.reportInspections
+   */
+  export type Agency$reportInspectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inspection
+     */
+    select?: InspectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inspection
+     */
+    omit?: InspectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InspectionInclude<ExtArgs> | null
+    where?: InspectionWhereInput
+    orderBy?: InspectionOrderByWithRelationInput | InspectionOrderByWithRelationInput[]
+    cursor?: InspectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InspectionScalarFieldEnum | InspectionScalarFieldEnum[]
+  }
+
+  /**
    * Agency without action
    */
   export type AgencyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11298,6 +11449,1072 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: AgencyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AgencyBranding
+   */
+
+  export type AggregateAgencyBranding = {
+    _count: AgencyBrandingCountAggregateOutputType | null
+    _min: AgencyBrandingMinAggregateOutputType | null
+    _max: AgencyBrandingMaxAggregateOutputType | null
+  }
+
+  export type AgencyBrandingMinAggregateOutputType = {
+    agencyId: string | null
+    agencyLicence: string | null
+    phone: string | null
+    logoPath: string | null
+    updatedAt: Date | null
+  }
+
+  export type AgencyBrandingMaxAggregateOutputType = {
+    agencyId: string | null
+    agencyLicence: string | null
+    phone: string | null
+    logoPath: string | null
+    updatedAt: Date | null
+  }
+
+  export type AgencyBrandingCountAggregateOutputType = {
+    agencyId: number
+    agencyLicence: number
+    phone: number
+    logoPath: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AgencyBrandingMinAggregateInputType = {
+    agencyId?: true
+    agencyLicence?: true
+    phone?: true
+    logoPath?: true
+    updatedAt?: true
+  }
+
+  export type AgencyBrandingMaxAggregateInputType = {
+    agencyId?: true
+    agencyLicence?: true
+    phone?: true
+    logoPath?: true
+    updatedAt?: true
+  }
+
+  export type AgencyBrandingCountAggregateInputType = {
+    agencyId?: true
+    agencyLicence?: true
+    phone?: true
+    logoPath?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AgencyBrandingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgencyBranding to aggregate.
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyBrandings to fetch.
+     */
+    orderBy?: AgencyBrandingOrderByWithRelationInput | AgencyBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AgencyBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AgencyBrandings
+    **/
+    _count?: true | AgencyBrandingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AgencyBrandingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AgencyBrandingMaxAggregateInputType
+  }
+
+  export type GetAgencyBrandingAggregateType<T extends AgencyBrandingAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgencyBranding]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAgencyBranding[P]>
+      : GetScalarType<T[P], AggregateAgencyBranding[P]>
+  }
+
+
+
+
+  export type AgencyBrandingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgencyBrandingWhereInput
+    orderBy?: AgencyBrandingOrderByWithAggregationInput | AgencyBrandingOrderByWithAggregationInput[]
+    by: AgencyBrandingScalarFieldEnum[] | AgencyBrandingScalarFieldEnum
+    having?: AgencyBrandingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AgencyBrandingCountAggregateInputType | true
+    _min?: AgencyBrandingMinAggregateInputType
+    _max?: AgencyBrandingMaxAggregateInputType
+  }
+
+  export type AgencyBrandingGroupByOutputType = {
+    agencyId: string
+    agencyLicence: string | null
+    phone: string | null
+    logoPath: string | null
+    updatedAt: Date
+    _count: AgencyBrandingCountAggregateOutputType | null
+    _min: AgencyBrandingMinAggregateOutputType | null
+    _max: AgencyBrandingMaxAggregateOutputType | null
+  }
+
+  type GetAgencyBrandingGroupByPayload<T extends AgencyBrandingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AgencyBrandingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AgencyBrandingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AgencyBrandingGroupByOutputType[P]>
+            : GetScalarType<T[P], AgencyBrandingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AgencyBrandingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    agencyId?: boolean
+    agencyLicence?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyBranding"]>
+
+  export type AgencyBrandingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    agencyId?: boolean
+    agencyLicence?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyBranding"]>
+
+  export type AgencyBrandingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    agencyId?: boolean
+    agencyLicence?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agencyBranding"]>
+
+  export type AgencyBrandingSelectScalar = {
+    agencyId?: boolean
+    agencyLicence?: boolean
+    phone?: boolean
+    logoPath?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AgencyBrandingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"agencyId" | "agencyLicence" | "phone" | "logoPath" | "updatedAt", ExtArgs["result"]["agencyBranding"]>
+  export type AgencyBrandingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }
+  export type AgencyBrandingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }
+  export type AgencyBrandingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agency?: boolean | AgencyDefaultArgs<ExtArgs>
+  }
+
+  export type $AgencyBrandingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgencyBranding"
+    objects: {
+      agency: Prisma.$AgencyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      agencyId: string
+      agencyLicence: string | null
+      phone: string | null
+      /**
+       * Private bucket path, at `agency-branding/<agencyId>/logo`.
+       */
+      logoPath: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["agencyBranding"]>
+    composites: {}
+  }
+
+  type AgencyBrandingGetPayload<S extends boolean | null | undefined | AgencyBrandingDefaultArgs> = $Result.GetResult<Prisma.$AgencyBrandingPayload, S>
+
+  type AgencyBrandingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AgencyBrandingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AgencyBrandingCountAggregateInputType | true
+    }
+
+  export interface AgencyBrandingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgencyBranding'], meta: { name: 'AgencyBranding' } }
+    /**
+     * Find zero or one AgencyBranding that matches the filter.
+     * @param {AgencyBrandingFindUniqueArgs} args - Arguments to find a AgencyBranding
+     * @example
+     * // Get one AgencyBranding
+     * const agencyBranding = await prisma.agencyBranding.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AgencyBrandingFindUniqueArgs>(args: SelectSubset<T, AgencyBrandingFindUniqueArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AgencyBranding that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AgencyBrandingFindUniqueOrThrowArgs} args - Arguments to find a AgencyBranding
+     * @example
+     * // Get one AgencyBranding
+     * const agencyBranding = await prisma.agencyBranding.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AgencyBrandingFindUniqueOrThrowArgs>(args: SelectSubset<T, AgencyBrandingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgencyBranding that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingFindFirstArgs} args - Arguments to find a AgencyBranding
+     * @example
+     * // Get one AgencyBranding
+     * const agencyBranding = await prisma.agencyBranding.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AgencyBrandingFindFirstArgs>(args?: SelectSubset<T, AgencyBrandingFindFirstArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AgencyBranding that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingFindFirstOrThrowArgs} args - Arguments to find a AgencyBranding
+     * @example
+     * // Get one AgencyBranding
+     * const agencyBranding = await prisma.agencyBranding.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AgencyBrandingFindFirstOrThrowArgs>(args?: SelectSubset<T, AgencyBrandingFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AgencyBrandings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AgencyBrandings
+     * const agencyBrandings = await prisma.agencyBranding.findMany()
+     * 
+     * // Get first 10 AgencyBrandings
+     * const agencyBrandings = await prisma.agencyBranding.findMany({ take: 10 })
+     * 
+     * // Only select the `agencyId`
+     * const agencyBrandingWithAgencyIdOnly = await prisma.agencyBranding.findMany({ select: { agencyId: true } })
+     * 
+     */
+    findMany<T extends AgencyBrandingFindManyArgs>(args?: SelectSubset<T, AgencyBrandingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AgencyBranding.
+     * @param {AgencyBrandingCreateArgs} args - Arguments to create a AgencyBranding.
+     * @example
+     * // Create one AgencyBranding
+     * const AgencyBranding = await prisma.agencyBranding.create({
+     *   data: {
+     *     // ... data to create a AgencyBranding
+     *   }
+     * })
+     * 
+     */
+    create<T extends AgencyBrandingCreateArgs>(args: SelectSubset<T, AgencyBrandingCreateArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AgencyBrandings.
+     * @param {AgencyBrandingCreateManyArgs} args - Arguments to create many AgencyBrandings.
+     * @example
+     * // Create many AgencyBrandings
+     * const agencyBranding = await prisma.agencyBranding.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AgencyBrandingCreateManyArgs>(args?: SelectSubset<T, AgencyBrandingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AgencyBrandings and returns the data saved in the database.
+     * @param {AgencyBrandingCreateManyAndReturnArgs} args - Arguments to create many AgencyBrandings.
+     * @example
+     * // Create many AgencyBrandings
+     * const agencyBranding = await prisma.agencyBranding.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AgencyBrandings and only return the `agencyId`
+     * const agencyBrandingWithAgencyIdOnly = await prisma.agencyBranding.createManyAndReturn({
+     *   select: { agencyId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AgencyBrandingCreateManyAndReturnArgs>(args?: SelectSubset<T, AgencyBrandingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AgencyBranding.
+     * @param {AgencyBrandingDeleteArgs} args - Arguments to delete one AgencyBranding.
+     * @example
+     * // Delete one AgencyBranding
+     * const AgencyBranding = await prisma.agencyBranding.delete({
+     *   where: {
+     *     // ... filter to delete one AgencyBranding
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AgencyBrandingDeleteArgs>(args: SelectSubset<T, AgencyBrandingDeleteArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AgencyBranding.
+     * @param {AgencyBrandingUpdateArgs} args - Arguments to update one AgencyBranding.
+     * @example
+     * // Update one AgencyBranding
+     * const agencyBranding = await prisma.agencyBranding.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AgencyBrandingUpdateArgs>(args: SelectSubset<T, AgencyBrandingUpdateArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AgencyBrandings.
+     * @param {AgencyBrandingDeleteManyArgs} args - Arguments to filter AgencyBrandings to delete.
+     * @example
+     * // Delete a few AgencyBrandings
+     * const { count } = await prisma.agencyBranding.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AgencyBrandingDeleteManyArgs>(args?: SelectSubset<T, AgencyBrandingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgencyBrandings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AgencyBrandings
+     * const agencyBranding = await prisma.agencyBranding.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AgencyBrandingUpdateManyArgs>(args: SelectSubset<T, AgencyBrandingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AgencyBrandings and returns the data updated in the database.
+     * @param {AgencyBrandingUpdateManyAndReturnArgs} args - Arguments to update many AgencyBrandings.
+     * @example
+     * // Update many AgencyBrandings
+     * const agencyBranding = await prisma.agencyBranding.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AgencyBrandings and only return the `agencyId`
+     * const agencyBrandingWithAgencyIdOnly = await prisma.agencyBranding.updateManyAndReturn({
+     *   select: { agencyId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AgencyBrandingUpdateManyAndReturnArgs>(args: SelectSubset<T, AgencyBrandingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AgencyBranding.
+     * @param {AgencyBrandingUpsertArgs} args - Arguments to update or create a AgencyBranding.
+     * @example
+     * // Update or create a AgencyBranding
+     * const agencyBranding = await prisma.agencyBranding.upsert({
+     *   create: {
+     *     // ... data to create a AgencyBranding
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AgencyBranding we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AgencyBrandingUpsertArgs>(args: SelectSubset<T, AgencyBrandingUpsertArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AgencyBrandings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingCountArgs} args - Arguments to filter AgencyBrandings to count.
+     * @example
+     * // Count the number of AgencyBrandings
+     * const count = await prisma.agencyBranding.count({
+     *   where: {
+     *     // ... the filter for the AgencyBrandings we want to count
+     *   }
+     * })
+    **/
+    count<T extends AgencyBrandingCountArgs>(
+      args?: Subset<T, AgencyBrandingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AgencyBrandingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AgencyBranding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AgencyBrandingAggregateArgs>(args: Subset<T, AgencyBrandingAggregateArgs>): Prisma.PrismaPromise<GetAgencyBrandingAggregateType<T>>
+
+    /**
+     * Group by AgencyBranding.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AgencyBrandingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AgencyBrandingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AgencyBrandingGroupByArgs['orderBy'] }
+        : { orderBy?: AgencyBrandingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AgencyBrandingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgencyBrandingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AgencyBranding model
+   */
+  readonly fields: AgencyBrandingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AgencyBranding.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AgencyBrandingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    agency<T extends AgencyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgencyDefaultArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AgencyBranding model
+   */
+  interface AgencyBrandingFieldRefs {
+    readonly agencyId: FieldRef<"AgencyBranding", 'String'>
+    readonly agencyLicence: FieldRef<"AgencyBranding", 'String'>
+    readonly phone: FieldRef<"AgencyBranding", 'String'>
+    readonly logoPath: FieldRef<"AgencyBranding", 'String'>
+    readonly updatedAt: FieldRef<"AgencyBranding", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AgencyBranding findUnique
+   */
+  export type AgencyBrandingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyBranding to fetch.
+     */
+    where: AgencyBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgencyBranding findUniqueOrThrow
+   */
+  export type AgencyBrandingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyBranding to fetch.
+     */
+    where: AgencyBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgencyBranding findFirst
+   */
+  export type AgencyBrandingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyBranding to fetch.
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyBrandings to fetch.
+     */
+    orderBy?: AgencyBrandingOrderByWithRelationInput | AgencyBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgencyBrandings.
+     */
+    cursor?: AgencyBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyBrandings.
+     */
+    distinct?: AgencyBrandingScalarFieldEnum | AgencyBrandingScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyBranding findFirstOrThrow
+   */
+  export type AgencyBrandingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyBranding to fetch.
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyBrandings to fetch.
+     */
+    orderBy?: AgencyBrandingOrderByWithRelationInput | AgencyBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AgencyBrandings.
+     */
+    cursor?: AgencyBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyBrandings.
+     */
+    distinct?: AgencyBrandingScalarFieldEnum | AgencyBrandingScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyBranding findMany
+   */
+  export type AgencyBrandingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * Filter, which AgencyBrandings to fetch.
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AgencyBrandings to fetch.
+     */
+    orderBy?: AgencyBrandingOrderByWithRelationInput | AgencyBrandingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AgencyBrandings.
+     */
+    cursor?: AgencyBrandingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AgencyBrandings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AgencyBrandings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AgencyBrandings.
+     */
+    distinct?: AgencyBrandingScalarFieldEnum | AgencyBrandingScalarFieldEnum[]
+  }
+
+  /**
+   * AgencyBranding create
+   */
+  export type AgencyBrandingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AgencyBranding.
+     */
+    data: XOR<AgencyBrandingCreateInput, AgencyBrandingUncheckedCreateInput>
+  }
+
+  /**
+   * AgencyBranding createMany
+   */
+  export type AgencyBrandingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AgencyBrandings.
+     */
+    data: AgencyBrandingCreateManyInput | AgencyBrandingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AgencyBranding createManyAndReturn
+   */
+  export type AgencyBrandingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * The data used to create many AgencyBrandings.
+     */
+    data: AgencyBrandingCreateManyInput | AgencyBrandingCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgencyBranding update
+   */
+  export type AgencyBrandingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AgencyBranding.
+     */
+    data: XOR<AgencyBrandingUpdateInput, AgencyBrandingUncheckedUpdateInput>
+    /**
+     * Choose, which AgencyBranding to update.
+     */
+    where: AgencyBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgencyBranding updateMany
+   */
+  export type AgencyBrandingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AgencyBrandings.
+     */
+    data: XOR<AgencyBrandingUpdateManyMutationInput, AgencyBrandingUncheckedUpdateManyInput>
+    /**
+     * Filter which AgencyBrandings to update
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * Limit how many AgencyBrandings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgencyBranding updateManyAndReturn
+   */
+  export type AgencyBrandingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * The data used to update AgencyBrandings.
+     */
+    data: XOR<AgencyBrandingUpdateManyMutationInput, AgencyBrandingUncheckedUpdateManyInput>
+    /**
+     * Filter which AgencyBrandings to update
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * Limit how many AgencyBrandings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AgencyBranding upsert
+   */
+  export type AgencyBrandingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AgencyBranding to update in case it exists.
+     */
+    where: AgencyBrandingWhereUniqueInput
+    /**
+     * In case the AgencyBranding found by the `where` argument doesn't exist, create a new AgencyBranding with this data.
+     */
+    create: XOR<AgencyBrandingCreateInput, AgencyBrandingUncheckedCreateInput>
+    /**
+     * In case the AgencyBranding was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AgencyBrandingUpdateInput, AgencyBrandingUncheckedUpdateInput>
+  }
+
+  /**
+   * AgencyBranding delete
+   */
+  export type AgencyBrandingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
+    /**
+     * Filter which AgencyBranding to delete.
+     */
+    where: AgencyBrandingWhereUniqueInput
+  }
+
+  /**
+   * AgencyBranding deleteMany
+   */
+  export type AgencyBrandingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AgencyBrandings to delete
+     */
+    where?: AgencyBrandingWhereInput
+    /**
+     * Limit how many AgencyBrandings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AgencyBranding without action
+   */
+  export type AgencyBrandingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AgencyBranding
+     */
+    select?: AgencyBrandingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AgencyBranding
+     */
+    omit?: AgencyBrandingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyBrandingInclude<ExtArgs> | null
   }
 
 
@@ -22258,6 +23475,7 @@ export namespace Prisma {
     fullyFurnished: boolean | null
     conductedById: string | null
     reportAgentId: string | null
+    reportAgencyId: string | null
     reportAgentFrozen: boolean | null
     conductedAt: Date | null
     baselineId: string | null
@@ -22279,6 +23497,7 @@ export namespace Prisma {
     fullyFurnished: boolean | null
     conductedById: string | null
     reportAgentId: string | null
+    reportAgencyId: string | null
     reportAgentFrozen: boolean | null
     conductedAt: Date | null
     baselineId: string | null
@@ -22300,6 +23519,7 @@ export namespace Prisma {
     fullyFurnished: number
     conductedById: number
     reportAgentId: number
+    reportAgencyId: number
     reportAgentFrozen: number
     conductedAt: number
     baselineId: number
@@ -22323,6 +23543,7 @@ export namespace Prisma {
     fullyFurnished?: true
     conductedById?: true
     reportAgentId?: true
+    reportAgencyId?: true
     reportAgentFrozen?: true
     conductedAt?: true
     baselineId?: true
@@ -22344,6 +23565,7 @@ export namespace Prisma {
     fullyFurnished?: true
     conductedById?: true
     reportAgentId?: true
+    reportAgencyId?: true
     reportAgentFrozen?: true
     conductedAt?: true
     baselineId?: true
@@ -22365,6 +23587,7 @@ export namespace Prisma {
     fullyFurnished?: true
     conductedById?: true
     reportAgentId?: true
+    reportAgencyId?: true
     reportAgentFrozen?: true
     conductedAt?: true
     baselineId?: true
@@ -22459,6 +23682,7 @@ export namespace Prisma {
     fullyFurnished: boolean
     conductedById: string | null
     reportAgentId: string | null
+    reportAgencyId: string | null
     reportAgentFrozen: boolean
     conductedAt: Date | null
     baselineId: string | null
@@ -22497,6 +23721,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
+    reportAgencyId?: boolean
     reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -22511,6 +23736,7 @@ export namespace Prisma {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
+    reportAgency?: boolean | Inspection$reportAgencyArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
     checkOut?: boolean | Inspection$checkOutArgs<ExtArgs>
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
@@ -22534,6 +23760,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
+    reportAgencyId?: boolean
     reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -22548,6 +23775,7 @@ export namespace Prisma {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
+    reportAgency?: boolean | Inspection$reportAgencyArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -22559,6 +23787,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
+    reportAgencyId?: boolean
     reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -22573,6 +23802,7 @@ export namespace Prisma {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
+    reportAgency?: boolean | Inspection$reportAgencyArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }, ExtArgs["result"]["inspection"]>
 
@@ -22584,6 +23814,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: boolean
     reportAgentId?: boolean
+    reportAgencyId?: boolean
     reportAgentFrozen?: boolean
     conductedAt?: boolean
     baselineId?: boolean
@@ -22597,11 +23828,12 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "conductedById" | "reportAgentId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
+    reportAgency?: boolean | Inspection$reportAgencyArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
     checkOut?: boolean | Inspection$checkOutArgs<ExtArgs>
     rooms?: boolean | Inspection$roomsArgs<ExtArgs>
@@ -22620,12 +23852,14 @@ export namespace Prisma {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
+    reportAgency?: boolean | Inspection$reportAgencyArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }
   export type InspectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
     reportAgent?: boolean | Inspection$reportAgentArgs<ExtArgs>
+    reportAgency?: boolean | Inspection$reportAgencyArgs<ExtArgs>
     baseline?: boolean | Inspection$baselineArgs<ExtArgs>
   }
 
@@ -22635,6 +23869,7 @@ export namespace Prisma {
       tenancy: Prisma.$TenancyPayload<ExtArgs>
       conductedBy: Prisma.$StakeholderPayload<ExtArgs> | null
       reportAgent: Prisma.$StakeholderPayload<ExtArgs> | null
+      reportAgency: Prisma.$AgencyPayload<ExtArgs> | null
       baseline: Prisma.$InspectionPayload<ExtArgs> | null
       checkOut: Prisma.$InspectionPayload<ExtArgs> | null
       rooms: Prisma.$RoomPayload<ExtArgs>[]
@@ -22663,6 +23898,10 @@ export namespace Prisma {
        * Responsible agent frozen at Send. Handover changes Tenancy.agentId only.
        */
       reportAgentId: string | null
+      /**
+       * Operational team frozen at Send. Later assignment cannot rewrite the report header.
+       */
+      reportAgencyId: string | null
       reportAgentFrozen: boolean
       conductedAt: Date | null
       /**
@@ -23082,6 +24321,7 @@ export namespace Prisma {
     tenancy<T extends TenancyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenancyDefaultArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     conductedBy<T extends Inspection$conductedByArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$conductedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     reportAgent<T extends Inspection$reportAgentArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportAgentArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reportAgency<T extends Inspection$reportAgencyArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$reportAgencyArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     baseline<T extends Inspection$baselineArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$baselineArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     checkOut<T extends Inspection$checkOutArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$checkOutArgs<ExtArgs>>): Prisma__InspectionClient<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     rooms<T extends Inspection$roomsArgs<ExtArgs> = {}>(args?: Subset<T, Inspection$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -23130,6 +24370,7 @@ export namespace Prisma {
     readonly fullyFurnished: FieldRef<"Inspection", 'Boolean'>
     readonly conductedById: FieldRef<"Inspection", 'String'>
     readonly reportAgentId: FieldRef<"Inspection", 'String'>
+    readonly reportAgencyId: FieldRef<"Inspection", 'String'>
     readonly reportAgentFrozen: FieldRef<"Inspection", 'Boolean'>
     readonly conductedAt: FieldRef<"Inspection", 'DateTime'>
     readonly baselineId: FieldRef<"Inspection", 'String'>
@@ -23577,6 +24818,25 @@ export namespace Prisma {
      */
     include?: StakeholderInclude<ExtArgs> | null
     where?: StakeholderWhereInput
+  }
+
+  /**
+   * Inspection.reportAgency
+   */
+  export type Inspection$reportAgencyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    where?: AgencyWhereInput
   }
 
   /**
@@ -65569,6 +66829,17 @@ export namespace Prisma {
   export type AgencyScalarFieldEnum = (typeof AgencyScalarFieldEnum)[keyof typeof AgencyScalarFieldEnum]
 
 
+  export const AgencyBrandingScalarFieldEnum: {
+    agencyId: 'agencyId',
+    agencyLicence: 'agencyLicence',
+    phone: 'phone',
+    logoPath: 'logoPath',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AgencyBrandingScalarFieldEnum = (typeof AgencyBrandingScalarFieldEnum)[keyof typeof AgencyBrandingScalarFieldEnum]
+
+
   export const AgencyMembershipScalarFieldEnum: {
     id: 'id',
     agencyId: 'agencyId',
@@ -65730,6 +67001,7 @@ export namespace Prisma {
     fullyFurnished: 'fullyFurnished',
     conductedById: 'conductedById',
     reportAgentId: 'reportAgentId',
+    reportAgencyId: 'reportAgencyId',
     reportAgentFrozen: 'reportAgentFrozen',
     conductedAt: 'conductedAt',
     baselineId: 'baselineId',
@@ -67200,6 +68472,8 @@ export namespace Prisma {
     members?: AgencyMembershipListRelationFilter
     tenancies?: TenancyListRelationFilter
     activity?: AgencyActivityListRelationFilter
+    branding?: XOR<AgencyBrandingNullableScalarRelationFilter, AgencyBrandingWhereInput> | null
+    reportInspections?: InspectionListRelationFilter
   }
 
   export type AgencyOrderByWithRelationInput = {
@@ -67210,6 +68484,8 @@ export namespace Prisma {
     members?: AgencyMembershipOrderByRelationAggregateInput
     tenancies?: TenancyOrderByRelationAggregateInput
     activity?: AgencyActivityOrderByRelationAggregateInput
+    branding?: AgencyBrandingOrderByWithRelationInput
+    reportInspections?: InspectionOrderByRelationAggregateInput
   }
 
   export type AgencyWhereUniqueInput = Prisma.AtLeast<{
@@ -67223,6 +68499,8 @@ export namespace Prisma {
     members?: AgencyMembershipListRelationFilter
     tenancies?: TenancyListRelationFilter
     activity?: AgencyActivityListRelationFilter
+    branding?: XOR<AgencyBrandingNullableScalarRelationFilter, AgencyBrandingWhereInput> | null
+    reportInspections?: InspectionListRelationFilter
   }, "id">
 
   export type AgencyOrderByWithAggregationInput = {
@@ -67243,6 +68521,61 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Agency"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Agency"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Agency"> | Date | string
+  }
+
+  export type AgencyBrandingWhereInput = {
+    AND?: AgencyBrandingWhereInput | AgencyBrandingWhereInput[]
+    OR?: AgencyBrandingWhereInput[]
+    NOT?: AgencyBrandingWhereInput | AgencyBrandingWhereInput[]
+    agencyId?: StringFilter<"AgencyBranding"> | string
+    agencyLicence?: StringNullableFilter<"AgencyBranding"> | string | null
+    phone?: StringNullableFilter<"AgencyBranding"> | string | null
+    logoPath?: StringNullableFilter<"AgencyBranding"> | string | null
+    updatedAt?: DateTimeFilter<"AgencyBranding"> | Date | string
+    agency?: XOR<AgencyScalarRelationFilter, AgencyWhereInput>
+  }
+
+  export type AgencyBrandingOrderByWithRelationInput = {
+    agencyId?: SortOrder
+    agencyLicence?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    logoPath?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    agency?: AgencyOrderByWithRelationInput
+  }
+
+  export type AgencyBrandingWhereUniqueInput = Prisma.AtLeast<{
+    agencyId?: string
+    AND?: AgencyBrandingWhereInput | AgencyBrandingWhereInput[]
+    OR?: AgencyBrandingWhereInput[]
+    NOT?: AgencyBrandingWhereInput | AgencyBrandingWhereInput[]
+    agencyLicence?: StringNullableFilter<"AgencyBranding"> | string | null
+    phone?: StringNullableFilter<"AgencyBranding"> | string | null
+    logoPath?: StringNullableFilter<"AgencyBranding"> | string | null
+    updatedAt?: DateTimeFilter<"AgencyBranding"> | Date | string
+    agency?: XOR<AgencyScalarRelationFilter, AgencyWhereInput>
+  }, "agencyId">
+
+  export type AgencyBrandingOrderByWithAggregationInput = {
+    agencyId?: SortOrder
+    agencyLicence?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    logoPath?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: AgencyBrandingCountOrderByAggregateInput
+    _max?: AgencyBrandingMaxOrderByAggregateInput
+    _min?: AgencyBrandingMinOrderByAggregateInput
+  }
+
+  export type AgencyBrandingScalarWhereWithAggregatesInput = {
+    AND?: AgencyBrandingScalarWhereWithAggregatesInput | AgencyBrandingScalarWhereWithAggregatesInput[]
+    OR?: AgencyBrandingScalarWhereWithAggregatesInput[]
+    NOT?: AgencyBrandingScalarWhereWithAggregatesInput | AgencyBrandingScalarWhereWithAggregatesInput[]
+    agencyId?: StringWithAggregatesFilter<"AgencyBranding"> | string
+    agencyLicence?: StringNullableWithAggregatesFilter<"AgencyBranding"> | string | null
+    phone?: StringNullableWithAggregatesFilter<"AgencyBranding"> | string | null
+    logoPath?: StringNullableWithAggregatesFilter<"AgencyBranding"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"AgencyBranding"> | Date | string
   }
 
   export type AgencyMembershipWhereInput = {
@@ -68093,6 +69426,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableFilter<"Inspection"> | string | null
+    reportAgencyId?: StringNullableFilter<"Inspection"> | string | null
     reportAgentFrozen?: BoolFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableFilter<"Inspection"> | string | null
@@ -68107,6 +69441,7 @@ export namespace Prisma {
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
     conductedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     reportAgent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    reportAgency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
     baseline?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     checkOut?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     rooms?: RoomListRelationFilter
@@ -68129,6 +69464,7 @@ export namespace Prisma {
     fullyFurnished?: SortOrder
     conductedById?: SortOrderInput | SortOrder
     reportAgentId?: SortOrderInput | SortOrder
+    reportAgencyId?: SortOrderInput | SortOrder
     reportAgentFrozen?: SortOrder
     conductedAt?: SortOrderInput | SortOrder
     baselineId?: SortOrderInput | SortOrder
@@ -68143,6 +69479,7 @@ export namespace Prisma {
     tenancy?: TenancyOrderByWithRelationInput
     conductedBy?: StakeholderOrderByWithRelationInput
     reportAgent?: StakeholderOrderByWithRelationInput
+    reportAgency?: AgencyOrderByWithRelationInput
     baseline?: InspectionOrderByWithRelationInput
     checkOut?: InspectionOrderByWithRelationInput
     rooms?: RoomOrderByRelationAggregateInput
@@ -68170,6 +69507,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableFilter<"Inspection"> | string | null
+    reportAgencyId?: StringNullableFilter<"Inspection"> | string | null
     reportAgentFrozen?: BoolFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     summary?: StringNullableFilter<"Inspection"> | string | null
@@ -68182,6 +69520,7 @@ export namespace Prisma {
     tenancy?: XOR<TenancyScalarRelationFilter, TenancyWhereInput>
     conductedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     reportAgent?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    reportAgency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
     baseline?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     checkOut?: XOR<InspectionNullableScalarRelationFilter, InspectionWhereInput> | null
     rooms?: RoomListRelationFilter
@@ -68204,6 +69543,7 @@ export namespace Prisma {
     fullyFurnished?: SortOrder
     conductedById?: SortOrderInput | SortOrder
     reportAgentId?: SortOrderInput | SortOrder
+    reportAgencyId?: SortOrderInput | SortOrder
     reportAgentFrozen?: SortOrder
     conductedAt?: SortOrderInput | SortOrder
     baselineId?: SortOrderInput | SortOrder
@@ -68231,6 +69571,7 @@ export namespace Prisma {
     fullyFurnished?: BoolWithAggregatesFilter<"Inspection"> | boolean
     conductedById?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
+    reportAgencyId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     reportAgentFrozen?: BoolWithAggregatesFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableWithAggregatesFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
@@ -71565,6 +72906,8 @@ export namespace Prisma {
     members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyUncheckedCreateInput = {
@@ -71575,6 +72918,8 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyUpdateInput = {
@@ -71585,6 +72930,8 @@ export namespace Prisma {
     members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateInput = {
@@ -71595,6 +72942,8 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type AgencyCreateManyInput = {
@@ -71615,6 +72964,61 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyBrandingCreateInput = {
+    agencyLicence?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+    agency: AgencyCreateNestedOneWithoutBrandingInput
+  }
+
+  export type AgencyBrandingUncheckedCreateInput = {
+    agencyId: string
+    agencyLicence?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgencyBrandingUpdateInput = {
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agency?: AgencyUpdateOneRequiredWithoutBrandingNestedInput
+  }
+
+  export type AgencyBrandingUncheckedUpdateInput = {
+    agencyId?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyBrandingCreateManyInput = {
+    agencyId: string
+    agencyLicence?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgencyBrandingUpdateManyMutationInput = {
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyBrandingUncheckedUpdateManyInput = {
+    agencyId?: StringFieldUpdateOperationsInput | string
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -72547,6 +73951,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -72569,6 +73974,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -72611,6 +74017,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -72633,6 +74040,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -72665,6 +74073,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -72703,6 +74112,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76401,6 +77811,11 @@ export namespace Prisma {
     none?: AgencyActivityWhereInput
   }
 
+  export type AgencyBrandingNullableScalarRelationFilter = {
+    is?: AgencyBrandingWhereInput | null
+    isNot?: AgencyBrandingWhereInput | null
+  }
+
   export type AgencyActivityOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -76423,6 +77838,35 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyScalarRelationFilter = {
+    is?: AgencyWhereInput
+    isNot?: AgencyWhereInput
+  }
+
+  export type AgencyBrandingCountOrderByAggregateInput = {
+    agencyId?: SortOrder
+    agencyLicence?: SortOrder
+    phone?: SortOrder
+    logoPath?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyBrandingMaxOrderByAggregateInput = {
+    agencyId?: SortOrder
+    agencyLicence?: SortOrder
+    phone?: SortOrder
+    logoPath?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AgencyBrandingMinOrderByAggregateInput = {
+    agencyId?: SortOrder
+    agencyLicence?: SortOrder
+    phone?: SortOrder
+    logoPath?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -76449,11 +77893,6 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type AgencyScalarRelationFilter = {
-    is?: AgencyWhereInput
-    isNot?: AgencyWhereInput
   }
 
   export type StakeholderScalarRelationFilter = {
@@ -77269,6 +78708,7 @@ export namespace Prisma {
     fullyFurnished?: SortOrder
     conductedById?: SortOrder
     reportAgentId?: SortOrder
+    reportAgencyId?: SortOrder
     reportAgentFrozen?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
@@ -77290,6 +78730,7 @@ export namespace Prisma {
     fullyFurnished?: SortOrder
     conductedById?: SortOrder
     reportAgentId?: SortOrder
+    reportAgencyId?: SortOrder
     reportAgentFrozen?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
@@ -77311,6 +78752,7 @@ export namespace Prisma {
     fullyFurnished?: SortOrder
     conductedById?: SortOrder
     reportAgentId?: SortOrder
+    reportAgencyId?: SortOrder
     reportAgentFrozen?: SortOrder
     conductedAt?: SortOrder
     baselineId?: SortOrder
@@ -81171,6 +82613,19 @@ export namespace Prisma {
     connect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
   }
 
+  export type AgencyBrandingCreateNestedOneWithoutAgencyInput = {
+    create?: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: AgencyBrandingCreateOrConnectWithoutAgencyInput
+    connect?: AgencyBrandingWhereUniqueInput
+  }
+
+  export type InspectionCreateNestedManyWithoutReportAgencyInput = {
+    create?: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput> | InspectionCreateWithoutReportAgencyInput[] | InspectionUncheckedCreateWithoutReportAgencyInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgencyInput | InspectionCreateOrConnectWithoutReportAgencyInput[]
+    createMany?: InspectionCreateManyReportAgencyInputEnvelope
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+  }
+
   export type AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput = {
     create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
@@ -81190,6 +82645,19 @@ export namespace Prisma {
     connectOrCreate?: AgencyActivityCreateOrConnectWithoutAgencyInput | AgencyActivityCreateOrConnectWithoutAgencyInput[]
     createMany?: AgencyActivityCreateManyAgencyInputEnvelope
     connect?: AgencyActivityWhereUniqueInput | AgencyActivityWhereUniqueInput[]
+  }
+
+  export type AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput = {
+    create?: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: AgencyBrandingCreateOrConnectWithoutAgencyInput
+    connect?: AgencyBrandingWhereUniqueInput
+  }
+
+  export type InspectionUncheckedCreateNestedManyWithoutReportAgencyInput = {
+    create?: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput> | InspectionCreateWithoutReportAgencyInput[] | InspectionUncheckedCreateWithoutReportAgencyInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgencyInput | InspectionCreateOrConnectWithoutReportAgencyInput[]
+    createMany?: InspectionCreateManyReportAgencyInputEnvelope
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
   }
 
   export type AgencyMembershipUpdateManyWithoutAgencyNestedInput = {
@@ -81234,6 +82702,30 @@ export namespace Prisma {
     deleteMany?: AgencyActivityScalarWhereInput | AgencyActivityScalarWhereInput[]
   }
 
+  export type AgencyBrandingUpdateOneWithoutAgencyNestedInput = {
+    create?: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: AgencyBrandingCreateOrConnectWithoutAgencyInput
+    upsert?: AgencyBrandingUpsertWithoutAgencyInput
+    disconnect?: AgencyBrandingWhereInput | boolean
+    delete?: AgencyBrandingWhereInput | boolean
+    connect?: AgencyBrandingWhereUniqueInput
+    update?: XOR<XOR<AgencyBrandingUpdateToOneWithWhereWithoutAgencyInput, AgencyBrandingUpdateWithoutAgencyInput>, AgencyBrandingUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type InspectionUpdateManyWithoutReportAgencyNestedInput = {
+    create?: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput> | InspectionCreateWithoutReportAgencyInput[] | InspectionUncheckedCreateWithoutReportAgencyInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgencyInput | InspectionCreateOrConnectWithoutReportAgencyInput[]
+    upsert?: InspectionUpsertWithWhereUniqueWithoutReportAgencyInput | InspectionUpsertWithWhereUniqueWithoutReportAgencyInput[]
+    createMany?: InspectionCreateManyReportAgencyInputEnvelope
+    set?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    disconnect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    delete?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    update?: InspectionUpdateWithWhereUniqueWithoutReportAgencyInput | InspectionUpdateWithWhereUniqueWithoutReportAgencyInput[]
+    updateMany?: InspectionUpdateManyWithWhereWithoutReportAgencyInput | InspectionUpdateManyWithWhereWithoutReportAgencyInput[]
+    deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
+  }
+
   export type AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput = {
     create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
@@ -81274,6 +82766,44 @@ export namespace Prisma {
     update?: AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput | AgencyActivityUpdateWithWhereUniqueWithoutAgencyInput[]
     updateMany?: AgencyActivityUpdateManyWithWhereWithoutAgencyInput | AgencyActivityUpdateManyWithWhereWithoutAgencyInput[]
     deleteMany?: AgencyActivityScalarWhereInput | AgencyActivityScalarWhereInput[]
+  }
+
+  export type AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput = {
+    create?: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: AgencyBrandingCreateOrConnectWithoutAgencyInput
+    upsert?: AgencyBrandingUpsertWithoutAgencyInput
+    disconnect?: AgencyBrandingWhereInput | boolean
+    delete?: AgencyBrandingWhereInput | boolean
+    connect?: AgencyBrandingWhereUniqueInput
+    update?: XOR<XOR<AgencyBrandingUpdateToOneWithWhereWithoutAgencyInput, AgencyBrandingUpdateWithoutAgencyInput>, AgencyBrandingUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput = {
+    create?: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput> | InspectionCreateWithoutReportAgencyInput[] | InspectionUncheckedCreateWithoutReportAgencyInput[]
+    connectOrCreate?: InspectionCreateOrConnectWithoutReportAgencyInput | InspectionCreateOrConnectWithoutReportAgencyInput[]
+    upsert?: InspectionUpsertWithWhereUniqueWithoutReportAgencyInput | InspectionUpsertWithWhereUniqueWithoutReportAgencyInput[]
+    createMany?: InspectionCreateManyReportAgencyInputEnvelope
+    set?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    disconnect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    delete?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+    update?: InspectionUpdateWithWhereUniqueWithoutReportAgencyInput | InspectionUpdateWithWhereUniqueWithoutReportAgencyInput[]
+    updateMany?: InspectionUpdateManyWithWhereWithoutReportAgencyInput | InspectionUpdateManyWithWhereWithoutReportAgencyInput[]
+    deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
+  }
+
+  export type AgencyCreateNestedOneWithoutBrandingInput = {
+    create?: XOR<AgencyCreateWithoutBrandingInput, AgencyUncheckedCreateWithoutBrandingInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutBrandingInput
+    connect?: AgencyWhereUniqueInput
+  }
+
+  export type AgencyUpdateOneRequiredWithoutBrandingNestedInput = {
+    create?: XOR<AgencyCreateWithoutBrandingInput, AgencyUncheckedCreateWithoutBrandingInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutBrandingInput
+    upsert?: AgencyUpsertWithoutBrandingInput
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutBrandingInput, AgencyUpdateWithoutBrandingInput>, AgencyUncheckedUpdateWithoutBrandingInput>
   }
 
   export type AgencyCreateNestedOneWithoutMembersInput = {
@@ -82122,6 +83652,12 @@ export namespace Prisma {
     connect?: StakeholderWhereUniqueInput
   }
 
+  export type AgencyCreateNestedOneWithoutReportInspectionsInput = {
+    create?: XOR<AgencyCreateWithoutReportInspectionsInput, AgencyUncheckedCreateWithoutReportInspectionsInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutReportInspectionsInput
+    connect?: AgencyWhereUniqueInput
+  }
+
   export type InspectionCreateNestedOneWithoutCheckOutInput = {
     create?: XOR<InspectionCreateWithoutCheckOutInput, InspectionUncheckedCreateWithoutCheckOutInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutCheckOutInput
@@ -82314,6 +83850,16 @@ export namespace Prisma {
     delete?: StakeholderWhereInput | boolean
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutReportInspectionsInput, StakeholderUpdateWithoutReportInspectionsInput>, StakeholderUncheckedUpdateWithoutReportInspectionsInput>
+  }
+
+  export type AgencyUpdateOneWithoutReportInspectionsNestedInput = {
+    create?: XOR<AgencyCreateWithoutReportInspectionsInput, AgencyUncheckedCreateWithoutReportInspectionsInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutReportInspectionsInput
+    upsert?: AgencyUpsertWithoutReportInspectionsInput
+    disconnect?: AgencyWhereInput | boolean
+    delete?: AgencyWhereInput | boolean
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutReportInspectionsInput, AgencyUpdateWithoutReportInspectionsInput>, AgencyUncheckedUpdateWithoutReportInspectionsInput>
   }
 
   export type InspectionUpdateOneWithoutCheckOutNestedInput = {
@@ -86356,6 +87902,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -86377,6 +87924,7 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -86428,6 +87976,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -86449,6 +87998,7 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -87614,6 +89164,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFilter<"Inspection"> | boolean
     conductedById?: StringNullableFilter<"Inspection"> | string | null
     reportAgentId?: StringNullableFilter<"Inspection"> | string | null
+    reportAgencyId?: StringNullableFilter<"Inspection"> | string | null
     reportAgentFrozen?: BoolFilter<"Inspection"> | boolean
     conductedAt?: DateTimeNullableFilter<"Inspection"> | Date | string | null
     baselineId?: StringNullableFilter<"Inspection"> | string | null
@@ -88747,6 +90298,99 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AgencyBrandingCreateWithoutAgencyInput = {
+    agencyLicence?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgencyBrandingUncheckedCreateWithoutAgencyInput = {
+    agencyLicence?: string | null
+    phone?: string | null
+    logoPath?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type AgencyBrandingCreateOrConnectWithoutAgencyInput = {
+    where: AgencyBrandingWhereUniqueInput
+    create: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type InspectionCreateWithoutReportAgencyInput = {
+    id?: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    reportAgentFrozen?: boolean
+    conductedAt?: Date | string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenancy: TenancyCreateNestedOneWithoutInspectionsInput
+    conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
+    reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    baseline?: InspectionCreateNestedOneWithoutCheckOutInput
+    checkOut?: InspectionCreateNestedOneWithoutBaselineInput
+    rooms?: RoomCreateNestedManyWithoutInspectionInput
+    findings?: FindingCreateNestedManyWithoutInspectionInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumCreateNestedManyWithoutInspectionInput
+    accessGrants?: InspectionAccessGrantCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseCreateNestedManyWithoutMoveInDefectInspectionInput
+  }
+
+  export type InspectionUncheckedCreateWithoutReportAgencyInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    checkOut?: InspectionUncheckedCreateNestedOneWithoutBaselineInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutInspectionInput
+    findings?: FindingUncheckedCreateNestedManyWithoutInspectionInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutInspectionInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutInspectionInput
+    assessments?: AssessmentVersionUncheckedCreateNestedManyWithoutInspectionInput
+    issuedReportFiles?: IssuedReportFileUncheckedCreateNestedManyWithoutInspectionInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutInspectionInput
+    addenda?: ReportAddendumUncheckedCreateNestedManyWithoutInspectionInput
+    accessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutInspectionInput
+    moveInDefectCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutMoveInDefectInspectionInput
+  }
+
+  export type InspectionCreateOrConnectWithoutReportAgencyInput = {
+    where: InspectionWhereUniqueInput
+    create: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput>
+  }
+
+  export type InspectionCreateManyReportAgencyInputEnvelope = {
+    data: InspectionCreateManyReportAgencyInput | InspectionCreateManyReportAgencyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput = {
     where: AgencyMembershipWhereUniqueInput
     update: XOR<AgencyMembershipUpdateWithoutAgencyInput, AgencyMembershipUncheckedUpdateWithoutAgencyInput>
@@ -88809,6 +90453,107 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"AgencyActivity"> | Date | string
   }
 
+  export type AgencyBrandingUpsertWithoutAgencyInput = {
+    update: XOR<AgencyBrandingUpdateWithoutAgencyInput, AgencyBrandingUncheckedUpdateWithoutAgencyInput>
+    create: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+    where?: AgencyBrandingWhereInput
+  }
+
+  export type AgencyBrandingUpdateToOneWithWhereWithoutAgencyInput = {
+    where?: AgencyBrandingWhereInput
+    data: XOR<AgencyBrandingUpdateWithoutAgencyInput, AgencyBrandingUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type AgencyBrandingUpdateWithoutAgencyInput = {
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AgencyBrandingUncheckedUpdateWithoutAgencyInput = {
+    agencyLicence?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    logoPath?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InspectionUpsertWithWhereUniqueWithoutReportAgencyInput = {
+    where: InspectionWhereUniqueInput
+    update: XOR<InspectionUpdateWithoutReportAgencyInput, InspectionUncheckedUpdateWithoutReportAgencyInput>
+    create: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput>
+  }
+
+  export type InspectionUpdateWithWhereUniqueWithoutReportAgencyInput = {
+    where: InspectionWhereUniqueInput
+    data: XOR<InspectionUpdateWithoutReportAgencyInput, InspectionUncheckedUpdateWithoutReportAgencyInput>
+  }
+
+  export type InspectionUpdateManyWithWhereWithoutReportAgencyInput = {
+    where: InspectionScalarWhereInput
+    data: XOR<InspectionUpdateManyMutationInput, InspectionUncheckedUpdateManyWithoutReportAgencyInput>
+  }
+
+  export type AgencyCreateWithoutBrandingInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutBrandingInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutBrandingInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutBrandingInput, AgencyUncheckedCreateWithoutBrandingInput>
+  }
+
+  export type AgencyUpsertWithoutBrandingInput = {
+    update: XOR<AgencyUpdateWithoutBrandingInput, AgencyUncheckedUpdateWithoutBrandingInput>
+    create: XOR<AgencyCreateWithoutBrandingInput, AgencyUncheckedCreateWithoutBrandingInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutBrandingInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutBrandingInput, AgencyUncheckedUpdateWithoutBrandingInput>
+  }
+
+  export type AgencyUpdateWithoutBrandingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutBrandingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+  }
+
   export type AgencyCreateWithoutMembersInput = {
     id?: string
     name: string
@@ -88816,6 +90561,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutMembersInput = {
@@ -88825,6 +90572,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutMembersInput = {
@@ -88993,6 +90742,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutMembersInput = {
@@ -89002,6 +90753,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type StakeholderUpsertWithoutAgencyMembershipsInput = {
@@ -89128,6 +90881,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutActivityInput = {
@@ -89137,6 +90892,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutActivityInput = {
@@ -89162,6 +90919,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutActivityInput = {
@@ -89171,6 +90930,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type TeamCreateWithoutSubscriptionInput = {
@@ -90738,6 +92499,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutTenanciesInput = {
@@ -90747,6 +92510,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutTenanciesInput = {
@@ -90771,6 +92536,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -90792,6 +92558,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -91474,6 +93241,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutTenanciesInput = {
@@ -91483,6 +93252,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type InspectionUpsertWithWhereUniqueWithoutTenancyInput = {
@@ -92460,6 +94231,33 @@ export namespace Prisma {
     create: XOR<StakeholderCreateWithoutReportInspectionsInput, StakeholderUncheckedCreateWithoutReportInspectionsInput>
   }
 
+  export type AgencyCreateWithoutReportInspectionsInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutReportInspectionsInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutReportInspectionsInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutReportInspectionsInput, AgencyUncheckedCreateWithoutReportInspectionsInput>
+  }
+
   export type InspectionCreateWithoutCheckOutInput = {
     id?: string
     kind: $Enums.InspectionKind
@@ -92478,6 +94276,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
@@ -92499,6 +94298,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -92545,6 +94345,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
@@ -92566,6 +94367,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     summary?: string | null
@@ -93233,6 +95035,39 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
   }
 
+  export type AgencyUpsertWithoutReportInspectionsInput = {
+    update: XOR<AgencyUpdateWithoutReportInspectionsInput, AgencyUncheckedUpdateWithoutReportInspectionsInput>
+    create: XOR<AgencyCreateWithoutReportInspectionsInput, AgencyUncheckedCreateWithoutReportInspectionsInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutReportInspectionsInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutReportInspectionsInput, AgencyUncheckedUpdateWithoutReportInspectionsInput>
+  }
+
+  export type AgencyUpdateWithoutReportInspectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutReportInspectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+  }
+
   export type InspectionUpsertWithoutCheckOutInput = {
     update: XOR<InspectionUpdateWithoutCheckOutInput, InspectionUncheckedUpdateWithoutCheckOutInput>
     create: XOR<InspectionCreateWithoutCheckOutInput, InspectionUncheckedCreateWithoutCheckOutInput>
@@ -93262,6 +95097,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
@@ -93283,6 +95119,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -93335,6 +95172,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
@@ -93356,6 +95194,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     summary?: NullableStringFieldUpdateOperationsInput | string | null
@@ -93617,6 +95456,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -93638,6 +95478,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -93790,6 +95631,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -93811,6 +95653,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -94167,6 +96010,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     findings?: FindingCreateNestedManyWithoutInspectionInput
@@ -94188,6 +96032,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -94347,6 +96192,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     findings?: FindingUpdateManyWithoutInspectionNestedInput
@@ -94368,6 +96214,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -95794,6 +97641,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -95815,6 +97663,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -96237,6 +98086,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -96258,6 +98108,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99647,6 +101498,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -99668,6 +101520,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -99952,6 +101805,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -99973,6 +101827,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -100238,6 +102093,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -100259,6 +102115,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -100492,6 +102349,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -100513,6 +102371,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -100866,6 +102725,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -100887,6 +102747,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -101039,6 +102900,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -101060,6 +102922,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101202,6 +103065,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -101223,6 +103087,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -101375,6 +103240,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -101396,6 +103262,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101538,6 +103405,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -101559,6 +103427,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -101648,6 +103517,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -101669,6 +103539,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101726,6 +103597,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -101747,6 +103619,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -102220,6 +104093,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -102241,6 +104115,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -104134,6 +106009,7 @@ export namespace Prisma {
     tenancy: TenancyCreateNestedOneWithoutInspectionsInput
     conductedBy?: StakeholderCreateNestedOneWithoutInspectionsRunInput
     reportAgent?: StakeholderCreateNestedOneWithoutReportInspectionsInput
+    reportAgency?: AgencyCreateNestedOneWithoutReportInspectionsInput
     baseline?: InspectionCreateNestedOneWithoutCheckOutInput
     checkOut?: InspectionCreateNestedOneWithoutBaselineInput
     rooms?: RoomCreateNestedManyWithoutInspectionInput
@@ -104155,6 +106031,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -104212,6 +106089,7 @@ export namespace Prisma {
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -104233,6 +106111,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -104605,6 +106484,7 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -104625,6 +106505,7 @@ export namespace Prisma {
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
     conductedById?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -105265,6 +107146,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -105286,6 +107168,7 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -105317,6 +107200,7 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -105347,6 +107231,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -105368,6 +107253,7 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -105399,6 +107285,7 @@ export namespace Prisma {
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -106512,6 +108399,27 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type InspectionCreateManyReportAgencyInput = {
+    id?: string
+    tenancyId: string
+    kind: $Enums.InspectionKind
+    status?: $Enums.InspectionStatus
+    fullyFurnished?: boolean
+    conductedById?: string | null
+    reportAgentId?: string | null
+    reportAgentFrozen?: boolean
+    conductedAt?: Date | string | null
+    baselineId?: string | null
+    summary?: string | null
+    processingError?: string | null
+    shareToken?: string | null
+    sharedAt?: Date | string | null
+    aiConsentAt?: Date | string | null
+    aiConsentById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AgencyMembershipUpdateWithoutAgencyInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
@@ -106656,6 +108564,91 @@ export namespace Prisma {
     subjectName?: NullableStringFieldUpdateOperationsInput | string | null
     action?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InspectionUpdateWithoutReportAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenancy?: TenancyUpdateOneRequiredWithoutInspectionsNestedInput
+    conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
+    reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
+    checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUpdateManyWithoutInspectionNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUpdateManyWithoutInspectionNestedInput
+    accessGrants?: InspectionAccessGrantUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateWithoutReportAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkOut?: InspectionUncheckedUpdateOneWithoutBaselineNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutInspectionNestedInput
+    findings?: FindingUncheckedUpdateManyWithoutInspectionNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutInspectionNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutInspectionNestedInput
+    assessments?: AssessmentVersionUncheckedUpdateManyWithoutInspectionNestedInput
+    issuedReportFiles?: IssuedReportFileUncheckedUpdateManyWithoutInspectionNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutInspectionNestedInput
+    addenda?: ReportAddendumUncheckedUpdateManyWithoutInspectionNestedInput
+    accessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutInspectionNestedInput
+    moveInDefectCases?: MaintenanceCaseUncheckedUpdateManyWithoutMoveInDefectInspectionNestedInput
+  }
+
+  export type InspectionUncheckedUpdateManyWithoutReportAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenancyId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
+    status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
+    fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
+    conductedById?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
+    conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    baselineId?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    processingError?: NullableStringFieldUpdateOperationsInput | string | null
+    shareToken?: NullableStringFieldUpdateOperationsInput | string | null
+    sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificationCreateManyAgencyMembershipInput = {
@@ -107063,6 +109056,7 @@ export namespace Prisma {
     fullyFurnished?: boolean
     conductedById?: string | null
     reportAgentId?: string | null
+    reportAgencyId?: string | null
     reportAgentFrozen?: boolean
     conductedAt?: Date | string | null
     baselineId?: string | null
@@ -107146,6 +109140,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conductedBy?: StakeholderUpdateOneWithoutInspectionsRunNestedInput
     reportAgent?: StakeholderUpdateOneWithoutReportInspectionsNestedInput
+    reportAgency?: AgencyUpdateOneWithoutReportInspectionsNestedInput
     baseline?: InspectionUpdateOneWithoutCheckOutNestedInput
     checkOut?: InspectionUpdateOneWithoutBaselineNestedInput
     rooms?: RoomUpdateManyWithoutInspectionNestedInput
@@ -107167,6 +109162,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -107198,6 +109194,7 @@ export namespace Prisma {
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
     conductedById?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    reportAgencyId?: NullableStringFieldUpdateOperationsInput | string | null
     reportAgentFrozen?: BoolFieldUpdateOperationsInput | boolean
     conductedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     baselineId?: NullableStringFieldUpdateOperationsInput | string | null

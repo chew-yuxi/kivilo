@@ -444,8 +444,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _teamsCard(),
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(
-              title: 'Report branding',
-              subtitle: 'Your agency on PDF and shared reports.',
+              title: 'Personal report branding',
+              subtitle: 'Used for properties outside your teams.',
             ),
             const SizedBox(height: kiviloHeadingGap),
             _brandingCard(),

@@ -20,6 +20,8 @@ class BrandingDrawer extends StatefulWidget {
     required this.api,
     this.current,
     this.agentName,
+    this.teamId,
+    this.teamName,
   });
   final Api api;
   final AgentBranding? current;
@@ -27,6 +29,8 @@ class BrandingDrawer extends StatefulWidget {
   /// The agent's own name, printed beside the agency. Until they change it, it is the
   /// start of their email address.
   final String? agentName;
+  final String? teamId;
+  final String? teamName;
 
   @override
   State<BrandingDrawer> createState() => _BrandingDrawerState();
@@ -34,7 +38,9 @@ class BrandingDrawer extends StatefulWidget {
 
 class _BrandingDrawerState extends State<BrandingDrawer> {
   late final _agentName = TextEditingController(text: widget.agentName);
-  late final _name = TextEditingController(text: widget.current?.agencyName);
+  late final _name = TextEditingController(
+    text: widget.teamName ?? widget.current?.agencyName,
+  );
   late final _licence = TextEditingController(
     text: widget.current?.agencyLicence,
   );
@@ -61,7 +67,10 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
     final root = await getApplicationSupportDirectory();
     if (await File('${root.path}/$supportingDocumentPickerFilename').exists()) {
       if (mounted) {
-        setState(() => _error = 'Reopen Supporting documents to recover the previous photo before choosing a logo.');
+        setState(
+          () => _error =
+              'Reopen Supporting documents to recover the previous photo before choosing a logo.',
+        );
       }
       return;
     }
@@ -86,18 +95,28 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
       _error = null;
     });
     try {
-      var saved = await widget.api.saveBranding({
-        if (_agentName.text.trim().isNotEmpty)
-          'agentName': _agentName.text.trim(),
-        'agencyName': _name.text.trim(),
-        'agencyLicence': _licence.text.trim(),
-        'ceaRegistration': _cea.text.trim(),
-        'phone': _phone.text.trim(),
-      });
+      final teamId = widget.teamId;
+      var saved = teamId == null
+          ? await widget.api.saveBranding({
+              if (_agentName.text.trim().isNotEmpty)
+                'agentName': _agentName.text.trim(),
+              'agencyName': _name.text.trim(),
+              'agencyLicence': _licence.text.trim(),
+              'ceaRegistration': _cea.text.trim(),
+              'phone': _phone.text.trim(),
+            })
+          : await widget.api.saveAgencyBranding(teamId, {
+              'agencyLicence': _licence.text.trim(),
+              'phone': _phone.text.trim(),
+            });
       if (_newLogo != null) {
-        saved = await widget.api.uploadBrandingLogo(_newLogo!);
+        saved = teamId == null
+            ? await widget.api.uploadBrandingLogo(_newLogo!)
+            : await widget.api.uploadAgencyBrandingLogo(teamId, _newLogo!);
       } else if (_removeLogo) {
-        saved = await widget.api.removeBrandingLogo();
+        saved = teamId == null
+            ? await widget.api.removeBrandingLogo()
+            : await widget.api.removeAgencyBrandingLogo(teamId);
       }
       if (mounted) Navigator.pop(context, saved);
     } catch (error) {
@@ -122,8 +141,9 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Heads every PDF and shared report you prepare. Landlords and tenants '
-            'see it; the signed contents of a report never change.',
+            widget.teamId == null
+                ? 'Used with your name on reports for personal properties. Team properties use that team’s branding.'
+                : 'Used on reports prepared in ${widget.teamName}. The responsible agent’s own CEA registration appears beside it.',
             style: text.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -140,10 +160,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
                 ),
                 child:
                     preview ??
-                    const Icon(
-                      Icons.store_rounded,
-                      color: KiviloColors.subtle,
-                    ),
+                    const Icon(Icons.store_rounded, color: KiviloColors.subtle),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -176,19 +193,21 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
             ],
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _agentName,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Your name'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _name,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Agency name'),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 12),
+          if (widget.teamId == null) ...[
+            TextField(
+              controller: _agentName,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'Your name'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _name,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'Agency name'),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 12),
+          ],
           TextField(
             controller: _licence,
             textCapitalization: TextCapitalization.characters,
@@ -198,19 +217,25 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _cea,
-            textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Your CEA registration (optional)',
-              hintText: 'e.g. R061234B',
+          if (widget.teamId == null) ...[
+            TextField(
+              controller: _cea,
+              textCapitalization: TextCapitalization.characters,
+              decoration: const InputDecoration(
+                labelText: 'Your CEA registration (optional)',
+                hintText: 'e.g. R061234B',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
+          ],
           TextField(
             controller: _phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: 'Phone (optional)'),
+            decoration: InputDecoration(
+              labelText: widget.teamId == null
+                  ? 'Phone (optional)'
+                  : 'Office phone (optional)',
+            ),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),
@@ -224,7 +249,10 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           child: const Text('Cancel'),
         ),
         FilledButton(
-          onPressed: _saving || _name.text.trim().isEmpty ? null : _save,
+          onPressed:
+              _saving || (widget.teamId == null && _name.text.trim().isEmpty)
+              ? null
+              : _save,
           child: Text(_saving ? 'Saving…' : 'Save'),
         ),
       ],

@@ -790,10 +790,15 @@ export async function completeReview(inspectionId: string) {
       throw new Error('Review every room with new captures before sending for signature')
     }
 
-    const source = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { tenancy: { select: { agentId: true } } } })
+    const source = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { tenancy: { select: { agentId: true, agencyId: true } } } })
     const { tenancy } = await tx.inspection.update({
       where: { id: inspectionId },
-      data: { status: 'AWAITING_SIGNATURE', reportAgentId: source.tenancy.agentId, reportAgentFrozen: true },
+      data: {
+        status: 'AWAITING_SIGNATURE',
+        reportAgentId: source.tenancy.agentId,
+        reportAgencyId: source.tenancy.agencyId,
+        reportAgentFrozen: true,
+      },
       select: { tenancy: { select: { landlordId: true, tenantId: true } } },
     })
     // In the same commit, so a report sent for signature always has its emails coming.

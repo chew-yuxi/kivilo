@@ -116,9 +116,12 @@ filter means no agency; All my work retains assigned and historical report acces
 across workspaces. These filters only narrow authorization, and unfiltered API calls
 keep their existing behavior for installed app builds.
 
-`Inspection.reportAgentId` and `reportAgentFrozen` pin the report's agent at Send.
-`reportAgent` is the shared reading rule for fingerprints, web/app reports, PDF and
-signing emails, so responsible-agent handover cannot rewrite an agreed report.
+`Inspection.reportAgentId`, `reportAgencyId` and `reportAgentFrozen` pin the report's
+responsible agent and operational team at Send. `reportAgent`, `reportAgency` and
+`reportBranding` are the shared reading rules for fingerprints, web/app reports, PDF
+and signing emails, so handover or later workspace assignment cannot rewrite an agreed
+report. Team reports combine the team's identity with the responsible agent's CEA and
+contact details; personal reports use the responsible agent's personal branding.
 Legacy reports sent during a rolling deployment are frozen before any handover.
 
 Property settings are at `/properties/[id]/settings` and in the app. Archive removes

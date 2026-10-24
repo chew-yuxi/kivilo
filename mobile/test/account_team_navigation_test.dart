@@ -102,6 +102,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(TeamDetailScreen), findsOneWidget);
-    expect(find.text('Team members'), findsOneWidget);
+    expect(find.text('Team'), findsOneWidget);
   });
 }

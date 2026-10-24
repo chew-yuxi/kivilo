@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../models/agency.dart';
+import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import 'tenancy_access_screen.dart';
+import 'branding_drawer.dart';
 
 class TeamScreen extends StatefulWidget {
   const TeamScreen({super.key, this.api, this.selectWorkspace = false});
@@ -259,6 +261,23 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
     );
   }
 
+  Future<void> _editBranding(AgencyDetail agency) async {
+    if (!agency.canManage) {
+      _locked(agency, 'Edit report branding');
+      return;
+    }
+    final saved = await showKiviloDrawer<AgentBranding>(
+      context: context,
+      builder: (_) => BrandingDrawer(
+        api: _api,
+        current: agency.branding,
+        teamId: agency.id,
+        teamName: agency.name,
+      ),
+    );
+    if (saved != null && mounted) await _refresh();
+  }
+
   /// An agent sees every team action; the ones they cannot take name who can.
   void _locked(AgencyDetail agency, String action, {bool ownersOnly = false}) =>
       showLockedAction(
@@ -298,7 +317,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
   Widget build(BuildContext context) => PopScope<void>(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Team members')),
+      appBar: AppBar(title: const Text('Team')),
       body: KiviloContent(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -337,6 +356,37 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                   ],
                   if (agency != null) ...[
                     const SizedBox(height: 20),
+                    const KiviloSectionHeading(
+                      title: 'Report branding',
+                      subtitle: 'The team identity shown on its reports.',
+                    ),
+                    const SizedBox(height: kiviloHeadingGap),
+                    Card(
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        leading: SizedBox.square(
+                          dimension: 44,
+                          child: agency.branding.logoUrl == null
+                              ? const Icon(Icons.store_rounded)
+                              : Image.network(
+                                  agency.branding.logoUrl!,
+                                  fit: BoxFit.contain,
+                                ),
+                        ),
+                        title: Text(agency.name),
+                        subtitle: Text(
+                          agency.branding.agencyLicence == null
+                              ? 'Add agency licence and logo'
+                              : 'Licence ${agency.branding.agencyLicence}',
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: _busy ? null : () => _editBranding(agency),
+                      ),
+                    ),
+                    const SizedBox(height: kiviloSectionGap),
                     FilledButton.icon(
                       onPressed: _busy
                           ? null

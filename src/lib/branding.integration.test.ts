@@ -2,12 +2,59 @@ import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { afterAll, describe, expect, it } from 'vitest'
 import { db } from '@/lib/db'
-import { getBranding, removeBrandingLogo, saveBranding, saveBrandingLogo } from '@/lib/branding'
+import {
+  getAgencyBranding,
+  getBranding,
+  removeAgencyBrandingLogo,
+  removeBrandingLogo,
+  saveAgencyBranding,
+  saveAgencyBrandingLogo,
+  saveBranding,
+  saveBrandingLogo,
+} from '@/lib/branding'
 import { CAPTURE_BUCKET, serviceClient } from '@/lib/storage'
 
 afterAll(async () => {
+  await db.agency.deleteMany({ where: { name: { startsWith: 'Branding ' } } })
   await db.stakeholder.deleteMany({ where: { name: { startsWith: 'Branding ' } } })
   await db.$disconnect()
+})
+
+describe('team branding', () => {
+  it('is shared by the team, editable by managers, and hidden from unrelated agents', async () => {
+    const [owner, member, outsider] = await Promise.all([
+      db.stakeholder.create({ data: { name: 'Branding owner' } }),
+      db.stakeholder.create({ data: { name: 'Branding member' } }),
+      db.stakeholder.create({ data: { name: 'Branding outsider' } }),
+    ])
+    const agency = await db.agency.create({
+      data: {
+        name: 'Branding Harbour Team',
+        members: { create: [
+          { stakeholderId: owner.id, role: 'OWNER', status: 'ACTIVE' },
+          { stakeholderId: member.id, role: 'AGENT', status: 'ACTIVE' },
+        ] },
+      },
+    })
+
+    expect(await saveAgencyBranding(agency.id, owner.id, {
+      agencyLicence: ' L3010000A ', phone: ' 6123 4567 ',
+    })).toMatchObject({
+      agencyName: 'Branding Harbour Team',
+      agencyLicence: 'L3010000A',
+      phone: '6123 4567',
+    })
+    await expect(getAgencyBranding(agency.id, member.id)).resolves.toMatchObject({
+      agencyLicence: 'L3010000A',
+    })
+    await expect(saveAgencyBranding(agency.id, member.id, {})).rejects.toThrow('Team not found')
+    await expect(getAgencyBranding(agency.id, outsider.id)).rejects.toThrow('Team not found')
+
+    const png = new Uint8Array(readFileSync('public/icon-192.png'))
+    expect((await saveAgencyBrandingLogo(agency.id, owner.id, png)).logoUrl)
+      .toMatch(/agency-branding%2F|agency-branding\//)
+    expect((await removeAgencyBrandingLogo(agency.id, owner.id)).logoUrl).toBeNull()
+  })
 })
 
 describe('agent branding', () => {

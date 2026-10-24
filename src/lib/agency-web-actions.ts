@@ -10,6 +10,8 @@ import {
   respondAgencyInvitation,
   assignTenancy,
 } from '@/lib/agency-actions'
+import { saveAgencyBranding } from '@/lib/branding'
+import { requireAgent } from '@/lib/auth'
 
 type AgencyCommand =
   | { action: 'create'; name: string }
@@ -23,6 +25,7 @@ type AgencyCommand =
     }
   | { action: 'respond'; agencyId: string; memberId: string; response: 'accept' | 'decline' }
   | { action: 'assign'; tenancyId: string; assignment: Parameters<typeof assignTenancy>[1] }
+  | { action: 'branding'; agencyId: string; agencyLicence: string; phone: string }
 
 export async function manageAgencyFromWeb(command: AgencyCommand) {
   try {
@@ -48,6 +51,14 @@ export async function manageAgencyFromWeb(command: AgencyCommand) {
         const result = await assignTenancy(command.tenancyId, command.assignment)
         if ('accessRemoved' in result && result.accessRemoved)
           return { ok: true as const, accessRemoved: true as const }
+        break
+      }
+      case 'branding': {
+        const agent = await requireAgent()
+        await saveAgencyBranding(command.agencyId, agent.id, {
+          agencyLicence: command.agencyLicence,
+          phone: command.phone,
+        })
         break
       }
     }

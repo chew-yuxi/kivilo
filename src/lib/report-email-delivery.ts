@@ -7,7 +7,7 @@ import { MAX_ATTEMPTS } from '@/lib/report-email'
 import { handoverUrl } from '@/lib/handover'
 import { moveInDefectWindow } from '@/lib/move-in-defect-window'
 import { inspectionScope } from '@/lib/auth'
-import { reportAgent } from '@/lib/report-agent'
+import { reportAgent, reportBranding } from '@/lib/report-agent'
 
 /// Resend refuses a message over 40 MB, counted after base64, which grows a file by a
 /// third: an attachment of 30 MB already reaches 40 MB before the body and headers. 25 MB
@@ -39,9 +39,16 @@ export async function deliverReportEmails(limit = 20) {
       recipient: true,
       inspection: {
         include: {
-          tenancy: { include: { property: true, agent: { include: { branding: true } } } },
+          tenancy: {
+            include: {
+              property: true,
+              agent: { include: { branding: true } },
+              agency: { include: { branding: true } },
+            },
+          },
           conductedBy: { include: { branding: true } },
           reportAgent: { include: { branding: true } },
+          reportAgency: { include: { branding: true } },
           signatures: { orderBy: { signedAt: 'asc' }, include: { stakeholder: true } },
         },
       },
@@ -86,6 +93,7 @@ export async function deliverReportEmails(limit = 20) {
           continue
         }
         const agent = reportAgent(inspection) ?? inspection.conductedBy
+        const branding = reportBranding(inspection)
         const link = new URL(`/sign/${inspection.id}`, appUrl())
         link.searchParams.set('email', to)
         await sendSignatureRequest(to, {
@@ -94,9 +102,7 @@ export async function deliverReportEmails(limit = 20) {
           role,
           reportKind,
           address,
-          from: agent
-            ? agent.branding ? `${agent.name} of ${agent.branding.agencyName}` : agent.name
-            : 'Your agent',
+          from: agent ? branding ? `${agent.name} of ${branding.agencyName}` : agent.name : 'Your agent',
           link: link.toString(),
         })
       } else if (row.kind === 'TENANT_HANDOVER') {
