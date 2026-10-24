@@ -1,6 +1,13 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
-export const metadata = { title: 'Kivilo support' }
+export const metadata: Metadata = {
+  title: 'Support | Kivilo',
+  description:
+    'Get help with Kivilo sign-in, photo and video uploads, property condition reports, and account deletion.',
+  alternates: { canonical: '/support' },
+  robots: { index: true, follow: true },
+}
 
 export default function SupportPage() {
   return (

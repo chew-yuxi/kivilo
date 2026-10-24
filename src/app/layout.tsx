@@ -2,8 +2,14 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Kivilo: check-in / check-out',
-  description: 'Condition reports from a walkthrough, signed on the spot.',
+  metadataBase: new URL('https://my.kivilo.app'),
+  applicationName: 'Kivilo',
+  title: 'Kivilo | Property handovers and condition reports',
+  description:
+    'Keep the story of every tenancy together, from room-by-room check-in reports and signatures to repairs and check-out comparisons.',
+  // Working pages and private reports are never search results. Public pages opt
+  // in individually and set their own canonical; none is inherited from home.
+  robots: { index: false, follow: false },
   appleWebApp: { capable: true, title: 'Kivilo', statusBarStyle: 'default' },
 }
 

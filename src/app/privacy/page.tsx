@@ -1,6 +1,13 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
-export const metadata = { title: 'Kivilo privacy policy' }
+export const metadata: Metadata = {
+  title: 'Privacy policy | Kivilo',
+  description:
+    'How Kivilo handles property records, photos, signatures and personal data, including storage, sharing, retention and account deletion.',
+  alternates: { canonical: '/privacy' },
+  robots: { index: true, follow: true },
+}
 
 export default function PrivacyPage() {
   return (

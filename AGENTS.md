@@ -216,8 +216,11 @@ for the same reason.
 Server actions live in `src/lib/actions.ts` rather than a route folder, since components
 across several routes import them.
 
-`/` is the public landing page, static and outside `(app)`; the inspector's list is at
-`/inspections`. `/login` and `/offline` also sit outside `(app)` and are static. `/offline` in particular must
+The public landing page is a separate static Next.js export in `marketing/`, deployed
+to Cloudflare at `kivilo.app` (`pnpm marketing:build`). The app stays on Vercel at
+`my.kivilo.app`; its `/` redirects to `/properties`, and the inspector's work list is at
+`/inspections`. The former app domain remains available for installed clients and old
+links. `/login` and `/offline` sit outside `(app)` and are static. `/offline` in particular must
 render identically with or without a session, because it is what the service worker
 caches at install and serves when a navigation fails.
 
@@ -651,8 +654,8 @@ and JPEG, and the agent can set the name printed beside them.
 A plan belongs to a workspace: the agent's team, or the agent alone (`plans/billing.md`).
 Free holds 5 active properties; Pro is per seat with 10 each, pooled. A property counts once
 against its lead's billing workspace, including private properties, and sharing does not
-charge the collaborator's workspace. **`src/lib/plan.ts`
-is the only place a limit is decided**, and `createInspection`, the only place a property
+charge the collaborator's workspace. **`src/lib/plan-limits.ts` holds the shared limits;
+`src/lib/plan.ts` enforces them**, and `createInspection`, the only place a property
 is made, calls its guard; the API answers 403 `plan_limit`. An active property is one
 whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so
 there is still one rule for who an agent is. Nothing is locked over the limit. The app

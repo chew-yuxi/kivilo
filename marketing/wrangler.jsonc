@@ -1,0 +1,10 @@
+{
+  "name": "kivilo-marketing",
+  "account_id": "79a52dc44720418156d3df404365329f",
+  "compatibility_date": "2026-10-19",
+  "routes": [{ "pattern": "kivilo.app", "custom_domain": true }],
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}

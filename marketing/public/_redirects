@@ -1,0 +1,6 @@
+/login https://my.kivilo.app/login 302
+/inspections https://my.kivilo.app/inspections 302
+/privacy https://my.kivilo.app/privacy 301
+/support https://my.kivilo.app/support 301
+/verify https://my.kivilo.app/verify 301
+/delete-account https://my.kivilo.app/delete-account 301

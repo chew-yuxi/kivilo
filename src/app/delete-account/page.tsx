@@ -1,10 +1,17 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { currentAgent } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { requestAccountDeletion } from '@/lib/account-actions'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Delete your Kivilo account' }
+export const metadata: Metadata = {
+  title: 'Delete your account | Kivilo',
+  description:
+    'Request deletion of your Kivilo account and learn which personal data is removed and which shared tenancy records may be retained.',
+  alternates: { canonical: '/delete-account' },
+  robots: { index: true, follow: true },
+}
 
 export default async function DeleteAccountPage() {
   const agent = await currentAgent()

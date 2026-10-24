@@ -1,7 +1,14 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { VerifyReport } from '@/components/verify-report'
 
-export const metadata = { title: 'Check a Kivilo report' }
+export const metadata: Metadata = {
+  title: 'Check a report | Kivilo',
+  description:
+    'Check whether a property report PDF is an unaltered copy issued by Kivilo. The file stays on your device; only its fingerprint is sent.',
+  alternates: { canonical: '/verify' },
+  robots: { index: true, follow: true },
+}
 
 export default function VerifyPage() {
   return (

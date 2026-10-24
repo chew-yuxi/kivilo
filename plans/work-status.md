@@ -9,6 +9,29 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 `build/release-20261023-documents/stable-release.json`. Physical-device delivery remains
 **NOT RUN**. The concurrent Properties session resumes its cache-loading work after this release.
 
+## Public website and app domains — 24 October
+
+The illustrated website is an independent static Next.js export in `marketing/`,
+published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
+`f7ede886-9490-4bef-8227-45383f79f8e1`. Build/deploy instructions: `marketing/README.md`.
+The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
+The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
+
+The page includes the existing ink/pink illustrations, an accessible interactive
+capture/write/agree example, tenancy history and check-out explanation, and FAQs.
+Canonical/social metadata, a branded favicon, structured product data, public sitemap
+and a factual `llms.txt` accompany it. Private app pages inherit noindex. Marketing
+links to the app for login, verification, account deletion, support and privacy.
+
+Verification: app typecheck, strict lint, 129 unit tests and both production builds
+passed. All 24 browser E2E cases passed across the full run and a serial rerun of seven
+resource-contention failures. Integration: 272/276 passed; four unchanged
+account-deletion cases were blocked by a pre-existing retained StoragePurge tombstone
+created 23 October, due 22 November. It was not removed. The exported site passed
+Cloudflare-local browser checks at 320/390/768/1440px, keyboard tabs, FAQ toggles,
+redirects, static assets, 404 and metadata. Production domain/DNS checks are part of
+launch verification; no native release or store metadata changes are included.
+
 ## Tenancy agreements and supporting documents — 23 October
 
 **Backend live and native patches stable**, on Yuxi's explicit shipping approval.
