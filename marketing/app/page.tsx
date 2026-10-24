@@ -76,7 +76,7 @@ export default function LandingPage() {
         <section id="how-it-works" className={styles.walkthrough} aria-labelledby="how-title">
           <div className={styles.sectionHeading}>
             <h2 id="how-title">All the detail.<br />Less of the admin.</h2>
-            <p>One detail. From the photo you take to the record everyone signs.</p>
+            <p>Less time putting a report together.<br className={styles.desktopBreak} /> More attention to the home in front of you.</p>
           </div>
           <LandingWalkthrough />
         </section>
@@ -93,10 +93,10 @@ export default function LandingPage() {
         <section id="check-out" className={styles.checkout} aria-labelledby="checkout-title">
           <div className={styles.comparison}>
             <div className={styles.comparisonHeader}><span className={styles.miniWordmark}><span className={styles.brandMark} aria-hidden="true" />kivilo</span><span>AN EXAMPLE AT CHECK-OUT</span></div>
-            <p className={styles.comparisonRoom}>Kitchen <span>/ Cabinet door</span></p>
+            <p className={styles.comparisonRoom}>Living room <span>/ Sideboard</span></p>
             <div className={styles.comparisonColumns}>
-              <div><span className={styles.comparisonLabel}>AT CHECK-IN</span><p>Peeling veneer on the lower cabinet door.</p><span className={styles.photoLabel}>Marked in the agreed photo</span></div>
-              <div><span className={styles.comparisonLabel}>AT CHECK-OUT</span><p>Same patch. Same place.<br />No further change.</p><span className={styles.photoLabel}>Compared with the original</span></div>
+              <div><span className={styles.comparisonLabel}>AT CHECK-IN</span><p>Scuff on the lower-right sideboard door.</p><span className={styles.photoLabel}>Marked in the agreed photo</span></div>
+              <div><span className={styles.comparisonLabel}>AT CHECK-OUT</span><p>Same scuff. Same place.<br />No further change.</p><span className={styles.photoLabel}>Compared with the original</span></div>
             </div>
             <div className={styles.assessment}><span className={styles.assessmentCheck} aria-hidden="true">✓</span><div><strong>Already there at move-in.</strong><p>A clear record makes the difference.</p></div><span className={styles.zeroCharge}>$0<span>proposed charge</span></span></div>
             <p className={styles.exampleNote}>Illustrative assessment. Every finding is recorded by a person.</p>

@@ -13,7 +13,7 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`3004f45c-a8b7-4b78-b5e7-1d5b38cad8dd`. Build/deploy instructions: `marketing/README.md`.
+`46dfd9ff-2065-4c7b-8a0d-ad386616dc8d`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -22,7 +22,7 @@ redirects to Properties. The app deployment for `ee73047` is ready.
 The page includes the existing ink/pink illustrations, an accessible interactive
 capture/write/agree example, tenancy history and check-out explanation, and FAQs.
 The lead feature is immediate photo markup: visitors can try Circle, Freehand and
-Arrow with mouse or touch on a labelled synthetic photo, and view its untouched
+Arrow with mouse or touch on a labelled illustration, and view its untouched
 original. The hero, product metadata and FAQs explain that workflow. Native logo
 geometry, 12px controls and 16px cards match the app; CTAs use lighter sizing.
 Canonical/social metadata, a branded favicon, structured product data, public sitemap
@@ -88,6 +88,20 @@ per-tab CTAs are removed. Marketing build and strict lint pass; seven-width chec
 stages. Mouse/touch drawing, normal touch scrolling, keyboard tools, shared marks,
 original comparison and rendering without JavaScript pass. Live HTML and ten
 script/style/photo assets match the export; desktop and phone production checks pass.
+
+The subsequent illustration revision replaces the three equal panels and synthetic
+kitchen image with open alternating rows: a large inspection scene, a compact
+inventory excerpt and the existing signing artwork. The same sideboard scuff and
+marks continue through the examples, including check-out. The inspection artwork
+was generated with built-in imagegen; its prompt is saved in
+`marketing/design/workflow-capture.prompt.txt`. Tool hints identify the illustration,
+and detail crops expand to retain marks drawn elsewhere in it. Marketing build and
+strict lint pass. Seven-width browser checks (320–1920px) confirm 18px minimum text,
+no overflow or runtime errors, three visible stages, shared marks, original-view
+toggling, keyboard tools, ordinary touch scrolling, touch drawing and no-JavaScript
+rendering. Desktop, tablet and phone screenshots were reviewed. Live HTML and eleven
+script, style and illustration assets match the export; 390/1440px production checks
+confirm shared marks, original viewing, no overflow and no runtime errors.
 
 ## Tenancy agreements and supporting documents — 23 October
 

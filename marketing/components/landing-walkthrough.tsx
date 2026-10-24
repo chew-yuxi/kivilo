@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState, type PointerEvent, type SVGProps } from "react";
 import styles from "./landing-walkthrough.module.css";
@@ -8,16 +9,17 @@ type Tool = "Circle" | "Freehand" | "Arrow";
 type Point = { x: number; y: number };
 type Mark = { tool: Tool; points: Point[] };
 const sampleMarks: Record<Tool, Point[]> = {
-  Circle: [{ x: 490, y: 680 }, { x: 680, y: 880 }],
-  Freehand: [{ x: 510, y: 722 }, { x: 540, y: 698 }, { x: 582, y: 692 }, { x: 635, y: 710 }, { x: 664, y: 758 }, { x: 662, y: 817 }, { x: 648, y: 858 }, { x: 582, y: 869 }, { x: 526, y: 850 }, { x: 509, y: 795 }, { x: 510, y: 722 }],
-  Arrow: [{ x: 360, y: 555 }, { x: 545, y: 735 }],
+  Circle: [{ x: 1220, y: 590 }, { x: 1336, y: 735 }],
+  Freehand: [{ x: 1243, y: 605 }, { x: 1280, y: 592 }, { x: 1310, y: 610 }, { x: 1332, y: 660 }, { x: 1322, y: 721 }, { x: 1280, y: 732 }, { x: 1240, y: 695 }, { x: 1223, y: 655 }, { x: 1243, y: 605 }],
+  Arrow: [{ x: 1155, y: 480 }, { x: 1270, y: 660 }],
 };
-const itemNotes = "Veneer peeling on the lower cabinet door. Door and hinges working.";
+const itemNotes = "Scuff on the lower-right door. Both doors open and close smoothly.";
 
-// Each stage uses the same original photo and the same annotation geometry.
-function MarkedPhoto({ mark, original = false, interaction }: {
+// The illustration and both evidence details share one annotation in photo coordinates.
+function MarkedPhoto({ mark, original = false, detail = false, interaction }: {
   mark: Mark;
   original?: boolean;
+  detail?: boolean;
   interaction?: SVGProps<SVGSVGElement>;
 }) {
   const id = useId();
@@ -30,16 +32,23 @@ function MarkedPhoto({ mark, original = false, interaction }: {
   const path = mark.tool === "Circle"
     ? ["M", cx - rx, cy, "a", rx, ry, "0 1 0", rx * 2, "0 a", rx, ry, "0 1 0", -rx * 2, 0].join(" ")
     : mark.points.map((point, index) => [index ? "L" : "M", point.x, point.y].join(" ")).join(" ");
+  // Keep the cabinet crop until a visitor marks elsewhere in the illustration.
+  // The attached evidence must always include their entire mark.
+  const left = Math.max(0, Math.min(980, ...mark.points.map(point => point.x - 50)));
+  const top = Math.max(0, Math.min(400, ...mark.points.map(point => point.y - 50)));
+  const right = Math.min(1500, Math.max(1450, ...mark.points.map(point => point.x + 50)));
+  const bottom = Math.min(1000, Math.max(800, ...mark.points.map(point => point.y + 50)));
+  const detailViewBox = `${left} ${top} ${right - left} ${bottom - top}`;
 
   return (
-    <svg className={styles.photo} viewBox="300 500 580 500" role="img"
-      aria-label={original ? "Original example photo of peeling cabinet veneer." : "Example cabinet photo with the peeling veneer marked."}
+    <svg className={styles.photo + (detail ? " " + styles.detailPhoto : "")} viewBox={detail ? detailViewBox : "0 0 1500 1000"} role="img"
+      aria-label={original ? "Original illustration of an inspector photographing a scuffed cabinet." : "Illustrated property detail with a " + mark.tool.toLowerCase() + " annotation."}
       {...interaction}>
-      <image href="/demo/kitchen-detail.webp" x="0" y="0" width="1000" height="1000" />
+      <image href="/art/workflow-capture.webp" x="0" y="0" width="1500" height="1000" />
       <defs><marker id={id + "-arrow"} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#ec4899" stroke="white" strokeWidth=".7" /></marker></defs>
       {!original && <g fill="none" strokeLinecap="round" strokeLinejoin="round" data-demo-mark={mark.tool}>
-        <path d={path} stroke="white" strokeWidth="13" />
-        <path d={path} stroke="#ec4899" strokeWidth="7" markerEnd={mark.tool === "Arrow" ? "url(#" + id + "-arrow)" : undefined} />
+        <path d={path} stroke="white" strokeWidth="15" />
+        <path d={path} stroke="#ec4899" strokeWidth="8" markerEnd={mark.tool === "Arrow" ? "url(#" + id + "-arrow)" : undefined} />
       </g>}
     </svg>
   );
@@ -55,8 +64,8 @@ export function LandingWalkthrough() {
   function pointAt(event: PointerEvent<SVGSVGElement>): Point {
     const box = event.currentTarget.getBoundingClientRect();
     return {
-      x: Math.max(300, Math.min(880, 300 + (event.clientX - box.left) / box.width * 580)),
-      y: Math.max(500, Math.min(1000, 500 + (event.clientY - box.top) / box.height * 500)),
+      x: Math.max(0, Math.min(1500, (event.clientX - box.left) / box.width * 1500)),
+      y: Math.max(0, Math.min(1000, (event.clientY - box.top) / box.height * 1000)),
     };
   }
 
@@ -72,10 +81,12 @@ export function LandingWalkthrough() {
   return (
     <div className={styles.walkthrough}>
       <ol className={styles.journey} role="list" aria-label="From a photo to a signed check-in">
-        <li className={styles.stage}>
-          <div className={styles.caption}><h3>Spot it. Mark it.</h3><p>Circle, sketch or point to the detail while you’re right there.</p></div>
-          <div className={styles.photoCard}>
-            <div className={styles.appBar}><strong>Kitchen</strong><span>Example photo</span></div>
+        <li className={styles.stage + " " + styles.captureStage}>
+          <div className={styles.copy}>
+            <h3>Spot it. Mark it.<br />Move on.</h3>
+            <p>Take the photo. Circle, sketch or point to what matters, before you leave the room.</p>
+          </div>
+          <div className={styles.captureVisual}>
             <MarkedPhoto mark={mark} original={original} interaction={{
               className: styles.photo + " " + styles.drawingSurface,
               style: { touchAction: touchDrawing ? "none" : "auto" },
@@ -104,45 +115,52 @@ export function LandingWalkthrough() {
                 ))}
               </div>
               <div className={styles.photoActions}>
-                <p id={id + "-hint"}>Try a tool, then draw.</p>
+                <p id={id + "-hint"}>Try a tool on the illustration.</p>
                 <button type="button" aria-pressed={original} onClick={() => { setOriginal(!original); setTouchDrawing(false); }}>{original ? "Show marks" : "See original"}</button>
               </div>
             </div>
           </div>
         </li>
-        <li className={styles.stage}>
-          <div className={styles.caption}><h3>Keep the detail.</h3><p>Your notes and photos, beside the right item in each room.</p></div>
-          <div className={styles.inventoryCard}>
-            <div className={styles.appBar}><strong>Kitchen inventory</strong><span>3 items</span></div>
-            <div className={styles.inventoryRow}><span>Walls &amp; ceiling</span><span className={styles.good}>Good</span></div>
-            <div className={styles.inventoryRow}><span>Floor</span><span className={styles.good}>Good</span></div>
-            <div className={styles.selectedItem}>
-              <div className={styles.itemHeading}><strong>Lower cabinet</strong><span className={styles.condition}>Fair</span></div>
-              <p>{itemNotes}</p>
-              <figure className={styles.attachedPhoto}><MarkedPhoto mark={mark} /><figcaption>Attached media<br /><strong>1 marked photo</strong></figcaption></figure>
+        <li className={styles.stage + " " + styles.inventoryStage}>
+          <div className={styles.copy}>
+            <h3>A place for<br />every detail.</h3>
+            <p>Write the inventory room by room. Your notes and marked photos stay beside the right item, ready to find again.</p>
+          </div>
+          <div className={styles.inventoryVisual}>
+            <div className={styles.inventoryPaper}>
+              <div className={styles.inventoryHeader}><strong>Living room inventory</strong><span>3 items</span></div>
+              <div className={styles.inventoryRow}><span>Walls &amp; ceiling</span><span className={styles.good}>Good</span></div>
+              <div className={styles.inventoryRow}><span>Floor</span><span className={styles.good}>Good</span></div>
+              <div className={styles.selectedItem}>
+                <div className={styles.itemHeading}><h4>Sideboard</h4><span className={styles.condition}>Fair</span></div>
+                <p>{itemNotes}</p>
+                <figure className={styles.attachedPhoto}><MarkedPhoto mark={mark} detail /><figcaption>Sideboard detail<br /><strong>1 marked photo</strong></figcaption></figure>
+              </div>
             </div>
           </div>
         </li>
-        <li className={styles.stage}>
-          <div className={styles.caption}><h3>Everyone agrees.</h3><p>Both parties sign the same record. Everyone gets a copy.</p></div>
-          <div className={styles.reportCard}>
-            <div className={styles.reportHeading}><span className={styles.wordmark}><span className={styles.brandMark} aria-hidden="true" />kivilo</span><span>Example report</span></div>
-            <h4>Check-in report</h4>
-            <div className={styles.reportEvidence}><MarkedPhoto mark={mark} /><div><strong>Kitchen</strong><span>Lower cabinet · Fair</span></div></div>
-            <p className={styles.reportNotes}>{itemNotes}</p>
-            <div className={styles.signatures}>
-              <div><span>Landlord</span><strong><span aria-hidden="true">✓ </span>Signed</strong></div>
-              <div><span>Tenant</span><strong><span aria-hidden="true">✓ </span>Signed</strong></div>
+        <li className={styles.stage + " " + styles.agreementStage}>
+          <div className={styles.copy}>
+            <h3>Everyone on<br />the same page.</h3>
+            <p>Review and sign on your phone, or let each person sign in their own account. Everyone gets the same agreed record.</p>
+          </div>
+          <div className={styles.agreementVisual}>
+            <Image src="/illustrations/sign-768-8d977bcfeef9.webp" width={768} height={512} sizes="(max-width: 760px) 90vw, 550px" unoptimized alt="The landlord and tenant reviewing and signing their handover record together." className={styles.signingIllustration} />
+            <div className={styles.signedRecord}>
+              <div className={styles.reportEvidence}><MarkedPhoto mark={mark} detail /><div><strong>Living room · Sideboard</strong><p>{itemNotes}</p></div></div>
+              <div className={styles.signatures} aria-label="Illustrative signatures">
+                <div><span>Landlord</span><strong><span aria-hidden="true">✓ </span>Signed</strong></div>
+                <div><span>Tenant</span><strong><span aria-hidden="true">✓ </span>Signed</strong></div>
+              </div>
             </div>
-            <p className={styles.agreed}>Agreed and signed</p>
           </div>
         </li>
       </ol>
       <div className={styles.finish}>
-        <p>Illustrative photos, inventory and signatures.</p>
         <Link href="https://my.kivilo.app/inspections" prefetch={false}>Start your first handover</Link>
+        <p>Illustrated example, with sample inventory and signatures.</p>
       </div>
-      <span className={styles.srOnly} role="status">{original ? "Viewing the original photo. Inventory and report keep the marks." : mark.tool + " annotation shown in the photo, inventory and example report."}</span>
+      <span className={styles.srOnly} role="status">{original ? "Viewing the original illustration. Inventory and report keep the marks." : mark.tool + " annotation shown in the illustration, inventory and example report."}</span>
     </div>
   );
 }

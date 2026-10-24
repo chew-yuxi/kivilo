@@ -19,13 +19,15 @@ backend environment variables. `prepare-marketing.mjs` copies only the existing
 public illustration and icon assets. The free-property allowance comes from the
 same `src/lib/plan-limits.ts` constants the app enforces.
 
-The photo-marking demo uses `public/demo/kitchen-detail.webp`, a synthetic sample
-from the existing demo portfolio. The interface crops it around the cabinet detail
-and labels the photo and report as examples. It contains no customer property data.
-Visitors can try the annotation tools locally in the page; those marks are
-demonstration state only and appear on the inventory and report copies too.
-Viewing the original affects only the first photo. Touch gestures scroll and zoom
-normally until a tool is selected; drawing switches off again after one stroke.
+The marking example uses `public/art/workflow-capture.webp`, an ink-and-pink
+illustration made with built-in imagegen from Kivilo's existing character artwork.
+The saved brief is `design/workflow-capture.prompt.txt`. It replaces the synthetic
+kitchen photograph and is labelled as an illustration beside the tools. Visitors
+can mark the cabinet scuff locally; the same marks appear beside the inventory item
+and in the signing example. Detail crops expand if someone draws elsewhere in the
+scene, so their marks remain visible. Viewing the original affects only the first
+illustration. Touch gestures scroll and zoom normally until a tool is selected;
+drawing switches off again after one stroke. No customer property data is used.
 
 The static hero artwork is `public/art/tenancy-scenes.webp`: a property inspection
 on the left and a happy handover on the right, with the headline and CTA in the clear
@@ -49,9 +51,11 @@ demo labels, captions and footer links, is at least 18px; body copy is 20px.
 Narrow layouts wrap or stack instead of reducing type. Section headings stand on
 their own without decorative pre-titles. Keep these rules in future design edits.
 
-The product demo shows the photo, inventory and signed record together without
-tabs or required interactions. They sit across the page on desktop, with captions
-alongside on tablets and above each example on phones. The following
+The product section uses an open, alternating sequence: a dominant inspection
+illustration, a compact inventory excerpt, then the existing signing illustration
+and an example of the agreed item. All three steps are visible without tabs or
+required interactions. Phones show the copy above each visual. The same sideboard
+scuff continues into the check-out example. The following
 "How Kivilo works" section explains the shared property record with
 `public/art/shared-record.webp`, generated from the existing inventory illustration
 using built-in imagegen. Its exact prompt is in `design/shared-record.prompt.txt`.
