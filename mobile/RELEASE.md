@@ -5,6 +5,34 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Android 27 multi-shot findings release: 24 October 2026 Singapore time
+
+Source `d9bdbb1`, pushed to `origin/main` before release. Android `1.0.0+27`
+contains the continuous multi-shot camera and future native picker dependencies from
+build 26 together with the latest tenancy screens and the revised check-out findings
+flow. Findings now use the same durable multi-shot queue as room capture; the inspector
+can keep shooting, then review, mark, note or delete photos before saving. The findings
+overview presents one clear choice between recording a change and confirming none, and
+Back leaves Add finding while preserving its local draft. Change item is the explicit
+route to the chooser.
+
+Shorebird release **922789** is active for Android `1.0.0+27`. Google Play accepted the
+same signed AAB as version code 27, validated edit `09289766711693415715`, and committed
+the production release for Singapore. The Play Console Publishing overview shows
+**Kivilo 1.0.0 (27) · Start full rollout** under **Changes in review**. Managed
+publishing is on, so approval will leave it waiting for an explicit Publish action; it
+is not live yet. Android production remains build 25 until that action completes.
+
+The AAB is `build/release-artifacts/android/build27/kivilo-v27.aab`, SHA-256
+`da424cd1f3f81449e26bd023fe910ba320d9702897d81f07fdcc7e09f375976c`. Google Play's
+upload response returned the same hash. It is signed by the established `CN=Kivilo
+Upload` certificate (SHA-256 `6D:2B:E9:B2:74:5C:E9:8A:BD:AC:E4:16:2A:20:72:2A:57:30:5B:3C:D9:5D:F4:E7:39:58:EA:16:92:E8:36:E7`).
+
+Flutter analysis was clean and all **398 mobile tests** passed from the isolated release
+source. Physical-device verification of finding multi-shot, draft resume, drawing and
+upload handoff remains **NOT RUN**. Apple's public `1.0.0` is still
+`WAITING_FOR_REVIEW`; no iOS build, submission, metadata or screenshot was changed.
+
 ## Viewable tenancy details and joined property actions: 24 October 2026 Singapore time
 
 Source `c6792bd`, pushed to `origin/main` before release. Tenancy details now always open:
