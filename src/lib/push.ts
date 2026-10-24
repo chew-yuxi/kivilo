@@ -34,6 +34,19 @@ export async function registerDeviceInstallation(stakeholderId: string, raw: unk
         notification: { recipientId: { not: stakeholderId } },
       },
     })
+    // The outbox may have expanded a notification while this account had no
+    // registered phone. Give recent unread notifications with no deliveries
+    // another expansion now that there is somewhere safe to send them.
+    await tx.notification.updateMany({
+      where: {
+        AND: [notificationScope(stakeholderId)],
+        readAt: null,
+        pushExpandedAt: { not: null },
+        createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        pushDeliveries: { none: {} },
+      },
+      data: { pushExpandedAt: null },
+    })
     return installation
   })
 }

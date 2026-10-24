@@ -9,6 +9,7 @@ const {
   notificationFindMany,
   notificationFindFirst,
   notificationDeleteMany,
+  notificationUpdateMany,
   send,
 } = vi.hoisted(() => ({
   upsert: vi.fn(),
@@ -19,6 +20,7 @@ const {
   notificationFindMany: vi.fn(),
   notificationFindFirst: vi.fn(),
   notificationDeleteMany: vi.fn(),
+  notificationUpdateMany: vi.fn(),
   send: vi.fn(),
 }))
 
@@ -34,9 +36,15 @@ vi.mock('@/lib/db', () => ({
     $transaction: (operation: (tx: unknown) => Promise<unknown>) => operation({
       deviceInstallation: { upsert },
       notificationPushDelivery: { deleteMany },
+      notification: { updateMany: notificationUpdateMany },
     }),
     deviceInstallation: { upsert, updateMany },
-    notification: { findMany: notificationFindMany, findFirst: notificationFindFirst, deleteMany: notificationDeleteMany },
+    notification: {
+      findMany: notificationFindMany,
+      findFirst: notificationFindFirst,
+      deleteMany: notificationDeleteMany,
+      updateMany: notificationUpdateMany,
+    },
     notificationPushDelivery: {
       deleteMany,
       findMany: pendingFindMany,
@@ -58,6 +66,7 @@ describe('push installations', () => {
     notificationFindMany.mockResolvedValue([])
     notificationFindFirst.mockResolvedValue({ id: 'notification-1' })
     notificationDeleteMany.mockResolvedValue({ count: 1 })
+    notificationUpdateMany.mockResolvedValue({ count: 0 })
     pendingFindMany.mockResolvedValue([])
     deleteMany.mockResolvedValue({ count: 0 })
     claimMany.mockResolvedValue({ count: 1 })
@@ -83,6 +92,14 @@ describe('push installations', () => {
         sentAt: null,
         notification: { recipientId: { not: 'stakeholder-1' } },
       },
+    })
+    expect(notificationUpdateMany).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        readAt: null,
+        pushExpandedAt: { not: null },
+        pushDeliveries: { none: {} },
+      }),
+      data: { pushExpandedAt: null },
     })
   })
 
