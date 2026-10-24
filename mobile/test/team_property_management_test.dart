@@ -77,10 +77,17 @@ class _ManagementApi extends Api {
   final queries = <(String?, String?)>[];
   final memberChanges = <Map<String, dynamic>>[];
   final invitations = <(String, String)>[];
+  final renamedTeams = <String>[];
 
   @override
   Future<void> inviteAgencyMember(String id, String email, String role) async =>
       invitations.add((email, role));
+
+  @override
+  Future<void> renameAgency(String id, String name) async {
+    expect(id, 'team');
+    renamedTeams.add(name);
+  }
 
   @override
   Future<AgencyIndex> agencies() async => AgencyIndex(
@@ -367,7 +374,14 @@ void main() {
       );
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
-      expect(find.text('Rename team'), findsOneWidget);
+
+      expect(find.text('Team name'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('edit-team-name')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Only a team owner or manager can do this. Ask Lead Owner.'),
+        findsOneWidget,
+      );
       expect(api.invitations, isEmpty);
       expect(api.memberChanges, isEmpty);
     },
@@ -389,6 +403,26 @@ void main() {
       find.textContaining('Used on reports prepared in Green Agency'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('team name is visibly editable from team details', (
+    tester,
+  ) async {
+    final api = _ManagementApi();
+    await _open(tester, TeamDetailScreen(id: 'team', api: api));
+
+    expect(find.text('Team details'), findsOneWidget);
+    expect(find.text('Team name'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('edit-team-name')));
+    await tester.pumpAndSettle();
+
+    final field = find.widgetWithText(TextField, 'Green Agency');
+    expect(field, findsOneWidget);
+    await tester.enterText(field, 'Blue Agency');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(api.renamedTeams, ['Blue Agency']);
   });
 
   testWidgets('invite role is chosen in place inside the drawer', (

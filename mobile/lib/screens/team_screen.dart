@@ -278,6 +278,21 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
     if (saved != null && mounted) await _refresh();
   }
 
+  Future<void> _rename(AgencyDetail agency) async {
+    if (!agency.canManage) {
+      _locked(agency, 'Rename team');
+      return;
+    }
+    final name = await _nameDrawer(
+      context,
+      title: 'Rename team',
+      initial: agency.name,
+    );
+    if (name != null && mounted && name != agency.name) {
+      await _change(() => _api.renameAgency(widget.id, name));
+    }
+  }
+
   /// An agent sees every team action; the ones they cannot take name who can.
   void _locked(AgencyDetail agency, String action, {bool ownersOnly = false}) =>
       showLockedAction(
@@ -356,6 +371,25 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                   ],
                   if (agency != null) ...[
                     const SizedBox(height: 20),
+                    const KiviloSectionHeading(title: 'Team details'),
+                    const SizedBox(height: kiviloHeadingGap),
+                    Card(
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        title: const Text('Team name'),
+                        subtitle: Text(agency.name),
+                        trailing: TextButton(
+                          key: const Key('edit-team-name'),
+                          onPressed: _busy ? null : () => _rename(agency),
+                          child: const Text('Edit'),
+                        ),
+                        onTap: _busy ? null : () => _rename(agency),
+                      ),
+                    ),
+                    const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
                       title: 'Report branding',
                       subtitle: 'The team identity shown on its reports.',
@@ -395,26 +429,6 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                           : () => _locked(agency, 'Invite member'),
                       icon: const Icon(Icons.add),
                       label: const Text('Invite member'),
-                    ),
-                    const SizedBox(height: kiviloButtonGap),
-                    OutlinedButton(
-                      onPressed: _busy
-                          ? null
-                          : !agency.canManage
-                          ? () => _locked(agency, 'Rename team')
-                          : () async {
-                              final name = await _nameDrawer(
-                                context,
-                                title: 'Rename team',
-                                initial: agency.name,
-                              );
-                              if (name != null && mounted) {
-                                await _change(
-                                  () => _api.renameAgency(widget.id, name),
-                                );
-                              }
-                            },
-                      child: const Text('Rename team'),
                     ),
                     const SizedBox(height: kiviloSectionGap),
                     const KiviloSectionHeading(
