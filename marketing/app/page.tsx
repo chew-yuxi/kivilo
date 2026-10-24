@@ -46,10 +46,12 @@ export default function LandingPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       <a href="#main" className={styles.skipLink}>Skip to content</a>
       <header className={styles.header}>
+        <nav className={styles.exploreNavigation} aria-label="Explore Kivilo">
+          <a href="#how-it-works">How it works</a>
+          <a href="#whole-tenancy">The whole tenancy</a>
+        </nav>
         <Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link>
         <nav className={styles.navigation} aria-label="Main navigation">
-          <a className={styles.desktopLink} href="#how-it-works">How it works</a>
-          <a className={styles.desktopLink} href="#whole-tenancy">The whole tenancy</a>
           <a className={styles.desktopLink} href="#questions">FAQs</a>
           <Link href="https://my.kivilo.app/login">Log in</Link>
           <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.smallButton}>Start free</Link>
@@ -57,32 +59,31 @@ export default function LandingPage() {
       </header>
       <main id="main">
         <section className={styles.hero} aria-labelledby="hero-title">
-          <p className={styles.eyebrow}><span /> PROPERTY HANDOVERS, PROPERLY RECORDED</p>
-          <h1 id="hero-title">Hand over the keys.<br /><span>Keep the whole story.</span></h1>
-          <p className={styles.heroDescription}>Take a photo. Mark what matters. Get everyone’s signatures.<br className={styles.desktopBreak} /> One shared record, from the first walkthrough to the final check-out.</p>
-          <div className={styles.heroActions}>
-            <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
-            <a href="#how-it-works" className={styles.textButton}>See how it works</a>
+          <div className={styles.heroCopy}>
+            <p className={styles.eyebrow}>PROPERTY HANDOVERS, PROPERLY RECORDED</p>
+            <h1 id="hero-title">Hand over the keys.<br />Keep the whole story.</h1>
+            <p className={styles.heroDescription}>Take a photo. Mark what matters. Get everyone’s signatures.<br className={styles.desktopBreak} /> The little details, all in one shared record.</p>
+            <div className={styles.heroActions}>
+              <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
+              <a href="#how-it-works" className={styles.textButton}>See how it works</a>
+            </div>
+            <p className={styles.freeNote}>{FREE_ACTIVE_PROPERTIES} active properties, free. No credit card needed.</p>
           </div>
-          <p className={styles.freeNote}>{FREE_ACTIVE_PROPERTIES} active properties, free. No credit card needed.</p>
-          <div className={styles.heroScene}>
-            <div className={`${styles.sceneNote} ${styles.sceneNoteLeft}`} aria-hidden="true"><span className={styles.noteIcon}>◎</span><div><strong>See it. Snap it. Mark it.</strong><span>Make the detail clear.</span></div></div>
-            <Image className={styles.heroArt} src="/illustrations/handover-768-ea8147d471c4.webp" alt="An inspector with a pink bag and a resident exchanging keys at an apartment doorway." width={768} height={384} sizes="(max-width: 700px) 100vw, 768px" priority unoptimized />
-            <div className={`${styles.sceneNote} ${styles.sceneNoteRight}`} aria-hidden="true"><span className={styles.noteIcon}>✎</span><div><strong>Everyone on the same page.</strong><span>Quite literally.</span></div></div>
-            <span className={styles.sceneCaption}>A fresh start. A proper record.</span>
+          <div className={styles.heroArt} aria-hidden="true">
+            <Image src="/art/tenancy-scenes.webp" alt="" width={2172} height={724}
+              sizes="(max-width: 700px) 900px, 100vw" className={styles.heroPanorama} priority unoptimized />
           </div>
         </section>
         <div className={styles.promiseStrip}>
-          <p>Made for real homes.<br /><strong>And the people behind them.</strong></p>
-          <span><b aria-hidden="true">✓</b> Agents, landlords & tenants</span>
-          <span><b aria-hidden="true">◎</b> Circle, draw or point. Right on the photo.</span>
-          <span><b aria-hidden="true">◎</b> Your records stay private</span>
+          <span>For the agent taking care of it.</span>
+          <span>For the landlord handing it over.</span>
+          <span>For the tenant making it home.</span>
         </div>
         <section id="how-it-works" className={styles.walkthrough} aria-labelledby="how-title">
           <div className={styles.sectionHeading}>
-            <p className={styles.eyebrow}>LESS PAPERWORK. MORE PEACE OF MIND.</p>
-            <h2 id="how-title">From walkthrough<br />to signed report.</h2>
-            <p>Do the handover while you’re at the handover.<br />Kivilo keeps the details together as you go.</p>
+            <p className={styles.eyebrow}>THE LITTLE DETAILS MAKE THE DIFFERENCE</p>
+            <h2 id="how-title">See it. Mark it.<br />Make it part of the record.</h2>
+            <p>A scuff on the wall. A chip on the cabinet.<br />Point it out in the photo, then put everyone on the same page.</p>
           </div>
           <LandingWalkthrough />
         </section>
@@ -130,7 +131,7 @@ export default function LandingPage() {
           <div className={styles.faqList}>{faqs.map(({ question, answer }) => <details key={question} name="landing-faq"><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div>
         </section>
         <section className={styles.finalCta} aria-labelledby="start-title">
-          <Image src="/illustrations/sign-768-8d977bcfeef9.webp" alt="" width={768} height={512} sizes="270px" className={styles.signArt} unoptimized />
+          <div className={styles.happyScene}><Image src="/art/tenancy-scenes.webp" alt="An agent and a happy resident exchanging keys at their new home." width={2172} height={724} sizes="900px" unoptimized /></div>
           <p className={styles.eyebrow}>YOUR NEXT HANDOVER, SORTED.</p>
           <h2 id="start-title">New keys.<br />A better beginning.</h2>
           <p>Start with one property. Keep the whole story.</p>

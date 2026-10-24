@@ -24,6 +24,14 @@ from the existing demo portfolio, with its demo label preserved. It contains no
 customer property data. Visitors can try the annotation tools locally in the page;
 those marks are demonstration state only.
 
+The static hero artwork is `public/art/tenancy-scenes.webp`: a property inspection
+on the left and a happy handover on the right, with the headline and CTA in the clear
+center. Both scenes were composed together from the existing Kivilo illustrations
+using built-in imagegen; the exact brief is in `design/tenancy-scenes.prompt.txt`.
+Mobile shows the inspection crop below the copy and the happy handover above the
+closing CTA. There is no automatic animation; the photo demo responds to the
+visitor's own tool choices and drawing.
+
 The Wrangler configuration pins the Cloudflare account and apex custom domain.
 Cloudflare manages the landing page DNS and TLS. `my.kivilo.app` uses a DNS-only
 CNAME to the target returned by Vercel. Login, verification, deletion, privacy and

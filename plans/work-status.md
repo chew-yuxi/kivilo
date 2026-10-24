@@ -13,7 +13,7 @@ smoke passed. The release preserves Properties, history/bin and the button syste
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`957e9320-1b65-4126-b618-4d8dc667b68d`. Build/deploy instructions: `marketing/README.md`.
+`b123c792-8f47-4889-a758-6a1924a3a513`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
@@ -42,6 +42,17 @@ lint, all four responsive sizes, mouse/touch drawing, original-photo comparison 
 keyboard tool/tab navigation, with no browser errors.
 Live HTML, JavaScript, CSS, photo and metadata assets match the tested export over
 valid HTTPS. Signed-out app visits follow Properties to the login screen.
+
+The hero uses static illustrated scenes around a centered serif headline: recording
+the home on the left and a happy handover on the right. Both scenes share one artwork
+derived from Kivilo's existing illustrations. Mobile shows the inspection below the
+copy and the happy handover at the closing CTA. The photo demo responds only to the
+visitor's actions. The generation brief is in `marketing/design/tenancy-scenes.prompt.txt`.
+The static redesign passed the marketing production build and strict lint, visual
+reviews at 320/390/768/1024/1440/1920px, and mouse/touch drawing and keyboard-tab
+checks at desktop and phone sizes. Visible images decode, there is no horizontal
+overflow or automatic animation, and the browser reports no runtime errors. Its
+1200×630 social preview uses the same static composition.
 
 ## Tenancy agreements and supporting documents — 23 October
 
