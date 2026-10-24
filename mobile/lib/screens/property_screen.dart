@@ -175,7 +175,7 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 Card(
                   clipBehavior: Clip.antiAlias,
                   child: ListTile(
-                    leading: const Icon(Icons.edit_note_outlined),
+                    leading: const Icon(Icons.edit_outlined),
                     title: const Text('Tenancy details'),
                     subtitle: Text(
                       current.canEditDetails
