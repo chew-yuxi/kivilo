@@ -60,6 +60,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
 
   /// Removed photos stay hidden while their Undo is on screen.
   final Set<int> _removing = {};
+  bool _editing = false;
 
   @override
   void initState() {
@@ -231,6 +232,16 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
       : jsonDecode(capture.annotations!) as Map<String, dynamic>;
 
   Future<void> _edit(PendingCapture draft) async {
+    if (_editing || _saving || _closing) return;
+    _editing = true;
+    try {
+      await _editPhoto(draft);
+    } finally {
+      _editing = false;
+    }
+  }
+
+  Future<void> _editPhoto(PendingCapture draft) async {
     final camera = _camera;
     await camera?.pausePreview();
     if (!mounted) return;
@@ -337,9 +348,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
     final closed = await ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: Text(
-              retake ? 'Photo removed. Take its replacement.' : 'Photo deleted',
-            ),
+            content: Text(retake ? 'Photo removed' : 'Photo deleted'),
             action: SnackBarAction(label: 'Undo', onPressed: () {}),
             duration: const Duration(seconds: 4),
           ),
@@ -445,244 +454,277 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_leave());
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: _leave,
-                      icon: const Icon(Icons.close, color: Colors.white),
-                    ),
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: _toggleFlash,
-                      tooltip: 'Flash',
-                      icon: Icon(switch (_flash) {
-                        FlashMode.auto => Icons.flash_auto,
-                        FlashMode.always => Icons.flash_on,
-                        _ => Icons.flash_off,
-                      }, color: Colors.white),
-                    ),
-                    if (_cameras.length > 1)
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    children: [
                       IconButton(
-                        onPressed: _switchCamera,
-                        tooltip: 'Switch camera',
-                        icon: const Icon(
-                          Icons.cameraswitch_outlined,
-                          color: Colors.white,
-                        ),
+                        onPressed: _leave,
+                        icon: const Icon(Icons.close, color: Colors.white),
                       ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (camera != null && camera.value.isInitialized)
-                      Listener(
-                        onPointerDown: (_) => _pointers++,
-                        onPointerUp: (_) => _pointers--,
-                        child: GestureDetector(
-                          onScaleStart: _scaleStart,
-                          onScaleUpdate: _scaleUpdate,
-                          child: Center(child: CameraPreview(camera)),
-                        ),
-                      )
-                    else
-                      Center(
-                        child: _error == null
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : FilledButton.icon(
-                                onPressed: () => _startup.open(
-                                  _openCamera,
-                                  explicitRetry: true,
-                                ),
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Retry camera'),
-                              ),
-                      ),
-                    if (_error != null)
-                      Positioned(
-                        left: 12,
-                        right: 12,
-                        top: 12,
-                        child: Material(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              _error!,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_replacementNote != null)
-                      const Positioned(
-                        left: 12,
-                        right: 12,
-                        bottom: 12,
+                      Expanded(
                         child: Text(
-                          'Take the replacement photo',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
+                          widget.title,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
-              if (_drafts.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-                  child: Text(
-                    'Tap a photo to mark it or add a note',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white70),
+                      IconButton(
+                        onPressed: _toggleFlash,
+                        tooltip: 'Flash',
+                        icon: Icon(switch (_flash) {
+                          FlashMode.auto => Icons.flash_auto,
+                          FlashMode.always => Icons.flash_on,
+                          _ => Icons.flash_off,
+                        }, color: Colors.white),
+                      ),
+                      if (_cameras.length > 1)
+                        IconButton(
+                          onPressed: _switchCamera,
+                          tooltip: 'Switch camera',
+                          icon: const Icon(
+                            Icons.cameraswitch_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  height: 84,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _drafts.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 8),
-                    itemBuilder: (_, index) {
-                      final draft = _drafts[index];
-                      final annotations = draft.annotations == null
-                          ? null
-                          : jsonDecode(draft.annotations!)
-                                as Map<String, dynamic>;
-                      return Semantics(
-                        button: true,
-                        label: 'Mark photo ${index + 1}',
-                        child: GestureDetector(
-                          onTap: () => _edit(draft),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              width: 68,
-                              color: Colors.white12,
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  MarkedPhoto(
-                                    image: FileImage(
-                                      File(
-                                        '${widget.root.path}/${draft.relativePath}',
-                                      ),
-                                    ),
-                                    annotations: annotations,
-                                    fit: BoxFit.cover,
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (camera != null && camera.value.isInitialized)
+                        Listener(
+                          onPointerDown: (_) => _pointers++,
+                          onPointerUp: (_) => _pointers--,
+                          child: GestureDetector(
+                            onScaleStart: _scaleStart,
+                            onScaleUpdate: _scaleUpdate,
+                            child: Center(child: CameraPreview(camera)),
+                          ),
+                        )
+                      else
+                        Center(
+                          child: _error == null
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : FilledButton.icon(
+                                  onPressed: () => _startup.open(
+                                    _openCamera,
+                                    explicitRetry: true,
                                   ),
-                                  if (draft.note?.isNotEmpty == true ||
-                                      annotations != null)
-                                    Positioned(
-                                      right: 4,
-                                      bottom: 4,
-                                      child: DecoratedBox(
-                                        decoration: const BoxDecoration(
-                                          color: Colors.black87,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: Icon(
-                                            annotations != null
-                                                ? Icons.gesture
-                                                : Icons.edit_note,
-                                            size: 14,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Retry camera'),
+                                ),
+                        ),
+                      if (_error != null)
+                        Positioned(
+                          left: 12,
+                          right: 12,
+                          top: 12,
+                          child: Material(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ),
                           ),
                         ),
-                      );
-                    },
+                      // At the top, clear of the Undo bar, and on its own
+                      // backing so a bright wall cannot wash it out.
+                      if (_replacementNote != null && _error == null)
+                        Positioned(
+                          top: 12,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Material(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(12),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: Text(
+                                  'Take the replacement photo',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 96),
-                    Expanded(
-                      child: Center(
-                        child: Semantics(
+            ),
+          ),
+          bottomNavigationBar: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_drafts.isNotEmpty) ...[
+                  if (_drafts.every(
+                    (draft) =>
+                        draft.annotations == null &&
+                        draft.note?.isNotEmpty != true,
+                  ))
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Text(
+                        'Tap a photo to mark it or add a note',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  SizedBox(
+                    height: 84,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _drafts.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 8),
+                      itemBuilder: (_, index) {
+                        final draft = _drafts[index];
+                        final annotations = draft.annotations == null
+                            ? null
+                            : jsonDecode(draft.annotations!)
+                                  as Map<String, dynamic>;
+                        return Semantics(
                           button: true,
-                          label: 'Take photo',
-                          child: InkResponse(
-                            onTap: _saving ? null : _takePhoto,
-                            radius: 42,
-                            child: Container(
-                              width: 72,
-                              height: 72,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Colors.white54,
-                                  width: 5,
+                          label: 'Mark photo ${index + 1}',
+                          child: GestureDetector(
+                            onTap: () => _edit(draft),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                width: 68,
+                                color: Colors.white12,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    MarkedPhoto(
+                                      image: FileImage(
+                                        File(
+                                          '${widget.root.path}/${draft.relativePath}',
+                                        ),
+                                      ),
+                                      annotations: annotations,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    if (draft.note?.isNotEmpty == true ||
+                                        annotations != null)
+                                      Positioned(
+                                        right: 4,
+                                        bottom: 4,
+                                        child: DecoratedBox(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.black87,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(4),
+                                            child: Icon(
+                                              annotations != null
+                                                  ? Icons.gesture
+                                                  : Icons.edit_note,
+                                              size: 14,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                              child: _saving
-                                  ? const Padding(
-                                      padding: EdgeInsets.all(22),
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 3,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 96),
+                      Expanded(
+                        child: Center(
+                          child: Semantics(
+                            button: true,
+                            label: 'Take photo',
+                            child: InkResponse(
+                              onTap: _saving ? null : _takePhoto,
+                              radius: 42,
+                              child: Container(
+                                width: 72,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.white54,
+                                    width: 5,
+                                  ),
+                                ),
+                                child: _saving
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(22),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 3,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.black,
+                                        size: 30,
                                       ),
-                                    )
-                                  : const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.black,
-                                      size: 30,
-                                    ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 96,
-                      child: FilledButton(
-                        onPressed: _drafts.isEmpty ? null : _finish,
-                        child: Text('Done (${_drafts.length})'),
+                      SizedBox(
+                        width: 96,
+                        child: FilledButton(
+                          onPressed: _drafts.isEmpty ? null : _finish,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Done (${_drafts.length})'),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../services/api_failure.dart';
 import '../ui/kivilo_components.dart';
@@ -73,6 +74,7 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   final List<List<Map<String, dynamic>>> _redoHistory = [];
   Future<void> _writes = Future.value();
   bool _saving = false;
+  bool _acting = false;
   bool _canClose = false;
   bool _imageFailed = false;
   String? _saveError;
@@ -412,9 +414,15 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
   }
 
   Future<void> _runAction(PhotoMarkAction action) async {
-    if (_saving) return;
-    await _writes;
-    final close = await action.onPressed();
+    if (_saving || _acting) return;
+    _acting = true;
+    final bool close;
+    try {
+      await _writes;
+      close = await action.onPressed();
+    } finally {
+      _acting = false;
+    }
     if (!close || !mounted) return;
     setState(() => _canClose = true);
     await WidgetsBinding.instance.endOfFrame;
@@ -450,7 +458,8 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
-            titleTextStyle: theme.textTheme.titleLarge?.copyWith(
+            systemOverlayStyle: SystemUiOverlayStyle.light,
+            titleTextStyle: theme.appBarTheme.titleTextStyle?.copyWith(
               color: Colors.white,
             ),
             // Labelled photo actions need the room a title would take.
@@ -608,13 +617,20 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                                         color: Colors.white,
                                       ),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        note == null || note.isEmpty
-                                            ? 'Mark ${index + 1}'
-                                            : '${index + 1}. $note',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
+                                      ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 240,
+                                        ),
+                                        child: Text(
+                                          note == null || note.isEmpty
+                                              ? 'Mark ${index + 1}'
+                                              : '${index + 1}. $note',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ],
