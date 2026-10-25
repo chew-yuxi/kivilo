@@ -5,6 +5,26 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Marked report photo crash fix: 25 October 2026 Singapore time
+
+Source `5e3ed8e`, pushed to `origin/main` before release. A marked room photo in the
+native report still read the retired annotation keys `width` and `height`, while current
+captures store `w` and `h`. Opening a report containing one of those photos therefore
+cast `null` to `num` during widget build. Room report photos now use the same guarded,
+read-only marked-photo renderer as finding photos.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| iOS public `1.0.0+24` | **28** / `747728` | **stable**, active and latest |
+
+The patch was built from isolated source `66d14db`: the documented public patch source
+`a3ae996` plus only the crash-fix commit, so the newer native camera dependencies and
+unrelated working-tree changes were excluded. Flutter analysis was clean, the focused
+report and marked-photo suites passed all 12 tests, and all 398 mobile tests had passed
+on the fix commit before release. Shorebird accepted the patch without native or asset
+overrides. It shared 55.0% of Dart code and emitted the same possible-slower-execution
+warning as earlier public iOS patches. Physical-device verification remains **NOT RUN**.
+
 ## Editable property details and assets: 24 October 2026 Singapore time
 
 Source `a829173`, pushed to `origin/main` before release. Before a property has any sent
