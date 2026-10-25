@@ -12,13 +12,24 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
-## Public website and app domains — 24 October
+## Public website and app domains — 24–25 October
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`5dcc8169-49c8-45c2-b59f-8dc1181319e9`. Build/deploy instructions: `marketing/README.md`.
+`96cdc032-9805-42ff-9913-a874722e10a8`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
-The previous app host, installed-client URLs and `KIVILO_APP_URL` remain unchanged.
+The previous app host and installed-client URLs remain supported. On 25 October,
+production `KIVILO_APP_URL` moved to `https://my.kivilo.app` and `RESEND_FROM_EMAIL`
+to `Kivilo <noreply@kivilo.app>`. The existing production Resend key can access the
+verified, sending-enabled `kivilo.app` domain. Vercel redeployment
+`dpl_5TREqvgPRSRaJnWY6doStUMsfXkd` is READY from the existing release `462fbf6`, with
+both old and new app aliases retained. Supabase's Auth site and Send Email Hook now
+use `my.kivilo.app`; the hook secret and previous redirect destinations are preserved.
+No pending notification contains an absolute link or the old host, so queued invites
+pick up the new origin at delivery without any data rewrite. The local deployment
+environment reference was updated too. All 24 focused email, hook, handover and
+notification-outbox unit tests passed. A signed unsupported-action request verified
+the new hook endpoint without sending an email; both app hosts return HTTPS login.
 The `my` CNAME and Vercel certificate are verified: HTTPS login works and the root
 redirects to Properties. The app deployment for `ee73047` is ready.
 
@@ -132,6 +143,14 @@ strict lint and browser checks at 320/390/1440px pass: no remaining public demo
 qualifiers, 18px minimum text, no overflow or runtime errors, and working annotation
 tools and original-image toggling. The shorter assessment card was visually reviewed.
 Live HTML and nine script/style assets match the checked export.
+
+The 25 October mobile revision shortens the hero to "Better service. Less admin.
+From move-in to move-out." and the allowance note to "5 properties free. No credit
+card." Mobile artwork is 28px closer; the CTA sits about 100px higher on a 390px
+phone. Marketing build, scoped lint and 320/390/768/1440px visual/browser checks
+pass, retaining 18px minimum text and 20px body copy without overflow. Live HTML
+and nine script/style assets match the reviewed export. The concurrent Pro-plan
+allowance change was not included in this marketing revision.
 
 ## Tenancy agreements and supporting documents — 23 October
 

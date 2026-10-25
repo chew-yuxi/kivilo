@@ -2,8 +2,10 @@
 
 `kivilo.app` is a static website on Cloudflare Workers Static Assets. The signed-in
 app is a separate Vercel deployment at `my.kivilo.app`. Its old address stays live
-for installed native apps and existing emails; this website does not change their
-API URL or `KIVILO_APP_URL`.
+for installed native apps and existing emails. Production `KIVILO_APP_URL` is
+`https://my.kivilo.app`, so new invitations, signing and handover links use that host.
+Resend sends as `Kivilo <noreply@kivilo.app>`; Supabase's auth site and email hook also
+use `my.kivilo.app`. Installed clients' API URLs remain supported.
 
 Run from the repository root, using Node 24:
 
@@ -32,9 +34,10 @@ The landlord and tenant signatures are two fictional SVG ink drawings, each with
 an accessible role label and a visible role caption. Public copy presents the workflow
 directly, without demo disclaimers or example/sample qualifiers.
 
-The hero leads with "Give every tenancy an upgrade." and explains Kivilo's digital
-support for agents, landlords and tenants from the first inspection to check-out.
-The same headline appears in social titles and the social image.
+The hero leads with "Give every tenancy an upgrade." and the short promise "Better
+service. Less admin. From move-in to move-out." The free-plan note stays on one line
+on phones, with the artwork close beneath it. The same headline appears in social
+titles and the social image.
 
 The static hero artwork is `public/art/tenancy-scenes.webp`: a property inspection
 on the left and a happy handover on the right, with the headline and CTA in the clear

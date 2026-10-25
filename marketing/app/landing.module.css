@@ -113,7 +113,7 @@
 @media (max-width:700px) {
   .header { display:flex; justify-content:space-between; min-height:84px; padding:20px 16px; gap:16px; } .wordmark { font-size:30px; gap:8px; } .brandMark { width:30px; height:30px; } .navigation { gap:12px; font-size:18px; } .desktopLink,.exploreNavigation { display:none; }
   .smallButton { font-size:18px; min-height:44px; padding:8px 12px; }
-  .hero { padding:30px 20px 340px; min-height:0; }
+  .hero { padding:30px 20px 312px; min-height:0; }
   .hero h1 { font-size:clamp(28px,8.4vw,48px); letter-spacing:-.8px; line-height:1.2; margin-top:0; }
   .heroDescription { font-size:20px; line-height:1.8; max-width:370px; margin-top:22px !important; } .desktopBreak { display:none; }
   .heroActions { flex-direction:column; gap:6px; margin-top:24px; } .heroActions .primaryButton { padding:10px 20px; }

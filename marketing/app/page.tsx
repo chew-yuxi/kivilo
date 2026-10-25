@@ -59,11 +59,11 @@ export default function LandingPage() {
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
             <h1 id="hero-title">Give every tenancy<br />an upgrade.</h1>
-            <p className={styles.heroDescription}>From the first inspection to the final check-out, Kivilo gives agents the digital tools to keep landlords informed, tenants involved and the details together.</p>
+            <p className={styles.heroDescription}>Better service. Less admin. From move-in to move-out.</p>
             <div className={styles.heroActions}>
               <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
             </div>
-            <p className={styles.freeNote}>{FREE_ACTIVE_PROPERTIES} active properties, free. No credit card needed.</p>
+            <p className={styles.freeNote}>{FREE_ACTIVE_PROPERTIES} properties free. No credit card.</p>
           </div>
           <div className={styles.heroArt} aria-hidden="true">
             <Image src="/art/tenancy-scenes.webp" alt="" width={2172} height={724}
