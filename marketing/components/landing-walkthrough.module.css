@@ -38,6 +38,12 @@
 .attachedPhoto figcaption strong { display:inline-block; margin-top:4px; color:#454541; font-weight:500; }
 .agreementVisual { width:100%; max-width:550px; justify-self:end; min-width:0; }
 .signingIllustration { display:block; width:100%; height:auto; }
+.reportDownload { display:grid; grid-template-columns:85px minmax(0,1fr); align-items:center; gap:20px; margin-top:28px; padding:18px; border:1px solid #e8e3e6; border-radius:16px; background:#faf9f8; }
+.reportDownload > img { width:85px; height:auto; box-shadow:0 2px 8px #45454118; }
+.reportDownload > span { font-size:18px; line-height:1.55; }
+.reportDownload strong { display:block; font-weight:600; }
+.reportDownload > span > span { display:block; margin-top:10px; color:#a91b60; text-decoration:underline; text-underline-offset:4px; }
+.reportDownload:hover { border-color:#db2777; }
 .signedRecord { margin:8px 20px 0; }
 .reportEvidence { display:grid; grid-template-columns:100px minmax(0,1fr); align-items:center; gap:18px; font-size:18px; line-height:1.5; }
 .reportEvidence strong { font-weight:600; }

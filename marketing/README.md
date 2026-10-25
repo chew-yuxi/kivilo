@@ -65,10 +65,22 @@ The product section uses an open, alternating sequence: a dominant inspection
 illustration, a compact inventory excerpt, then the existing signing illustration
 and an example of the agreed item. All three steps are visible without tabs or
 required interactions. Phones show the copy above each visual. The same sideboard
-scuff continues into the check-out example. The following
-"How Kivilo works" section explains the shared property record with
-`public/art/shared-record.webp`, generated from the existing inventory illustration
-using built-in imagegen. Its exact prompt is in `design/shared-record.prompt.txt`.
+scuff continues into the check-out example. The next section follows a repair from
+reporting to the tenant's confirmation that it is fixed, with no additional clicks.
+The three audience benefits are compact, with the roles named directly.
+
+The signing step links to `public/reports/property-condition-report.pdf`, a four-page
+report rendered by the production PDF component with wholly fictional details,
+branding and signatures. It never reads customer data or registers a genuine report.
+Regenerate the PDF and its page previews with
+`node marketing/design/report-preview.mjs` (Node 24; Poppler `pdftoppm` required).
+The generator validates the page count, footers, evidence and signatures.
+
+The closing CTA distinguishes browser signup from app downloads. Google Play links
+to package `one.kivilo.kivilo`; the iPhone icon says Coming soon. On 25 October the
+App Store version was WAITING_FOR_REVIEW, with no public TestFlight group or link.
+Replace the availability text with a verified App Store or public TestFlight link
+only once it is usable. No store release or beta configuration changed here.
 
 The Wrangler configuration pins the Cloudflare account and apex custom domain.
 Cloudflare manages the landing page DNS and TLS. `my.kivilo.app` uses a DNS-only

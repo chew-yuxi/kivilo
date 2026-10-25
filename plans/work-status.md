@@ -14,9 +14,27 @@ or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
 ## Public website and app domains — 24–25 October
 
+The 25 October conversion revision replaces the repeated shared-record explanation
+with a concrete repair journey, condenses the audience benefits, and adds a branded,
+four-page PDF from the production renderer. Its property, identities and signatures
+are fictional; the generator never queries customer data or issues a real report.
+Google Play is linked from the closing CTA. The Apple icon says iPhone / Coming soon:
+App Store Connect is WAITING_FOR_REVIEW and has no public external TestFlight link.
+Store status was checked read-only; no builds, groups or releases changed.
+The browser signup now welcomes new and returning users with the actual logo and
+18px text, preserving OTP, email prefill and safe return destinations unchanged.
+Marketing build/lint and browser checks at 320/390/768/1440px passed: 18px minimum,
+no overflow or runtime errors, working annotation tools, PDF delivery, downloads,
+FAQ and anchor navigation. The login passed mocked email/code/error browser checks
+at all four widths without sending email. A clean snapshot of 94a2b1f plus only the
+two login files passed app typecheck, full lint, production build and all 133 unit
+tests; concurrent backend/mobile work was excluded. No database suite was required
+for this presentation-only change. Marketing is published; app release verification
+follows the scoped source commit.
+
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`96cdc032-9805-42ff-9913-a874722e10a8`. Build/deploy instructions: `marketing/README.md`.
+`2bb3bd21-6940-4f5a-a0a2-3734cc97bf3e`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host and installed-client URLs remain supported. On 25 October,
 production `KIVILO_APP_URL` moved to `https://my.kivilo.app` and `RESEND_FROM_EMAIL`

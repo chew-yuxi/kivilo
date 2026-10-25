@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { LandingHeader } from '../components/landing-header'
 import { LandingWalkthrough } from '../components/landing-walkthrough'
+import { AppDownloads } from '../components/app-downloads'
 import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
 const title = 'Kivilo | Property handovers, check-in & check-out reports'
@@ -34,7 +35,7 @@ const structuredData = {
   '@graph': [
     { '@type': 'Organization', '@id': 'https://kivilo.app/#organization', name: 'Kivilo', url: 'https://kivilo.app', logo: 'https://kivilo.app/icon-512.png', parentOrganization: { '@type': 'Organization', name: 'NotTooSweetLabs Pte. Ltd.' } },
     { '@type': 'WebSite', '@id': 'https://kivilo.app/#website', name: 'Kivilo', url: 'https://kivilo.app', inLanguage: 'en', publisher: { '@id': 'https://kivilo.app/#organization' } },
-    { '@type': 'SoftwareApplication', name: 'Kivilo', url: 'https://kivilo.app', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', description, featureList: ['Photo markup with circles, freehand and arrows', 'Room-by-room property inventories', 'Photo and video evidence', 'Landlord and tenant signatures', 'Tenancy repair history', 'Check-in and check-out comparison', 'PDF condition reports'], publisher: { '@id': 'https://kivilo.app/#organization' } },
+    { '@type': 'SoftwareApplication', name: 'Kivilo', url: 'https://kivilo.app', applicationCategory: 'BusinessApplication', operatingSystem: 'Web, Android', description, featureList: ['Photo markup with circles, freehand and arrows', 'Room-by-room property inventories', 'Photo and video evidence', 'Landlord and tenant signatures', 'Tenancy repair history', 'Check-in and check-out comparison', 'PDF condition reports'], publisher: { '@id': 'https://kivilo.app/#organization' } },
   ],
 }
 // Public, static and session-free. All examples are illustrative, never tenancy data.
@@ -83,14 +84,24 @@ export default function LandingPage() {
           <LandingWalkthrough />
         </section>
         <section id="whole-tenancy" className={styles.tenancy} aria-labelledby="tenancy-title">
-          <div className={styles.tenancyIntro}>
-            <h2 id="tenancy-title">How Kivilo works.</h2>
-            <p>A good handover starts with a record everyone understands. The agent documents the home’s condition. The landlord and tenant review the photos and inventory, then sign the same report.</p>
-            <p>That agreed starting point stays with the tenancy. Repairs, documents and agreed updates keep the story together. When it’s time to move out, everyone can return to what was recorded.</p>
+          <div className={styles.tenancyLayout}>
+            <div className={styles.tenancyIntro}>
+              <h2 id="tenancy-title">Care beyond<br />the handover.</h2>
+              <p>Keep repairs, updates and paperwork together, long after move-in.</p>
+              <a href="#check-out" className={styles.textButton}>And when it’s time to move out?</a>
+            </div>
+            <div className={styles.repairRecord}>
+              <div className={styles.repairHeading}>
+                <h3>Leaking kitchen tap</h3>
+                <span className={styles.resolved}>Resolved</span>
+              </div>
+              <ol className={styles.repairJourney} aria-label="A repair from report to resolution">
+                <li><span className={styles.journeyCheck} aria-hidden="true">✓</span><div><h4>Tenant reports it.</h4><p>A photo and a note show what’s wrong.</p></div></li>
+                <li><span className={styles.journeyCheck} aria-hidden="true">✓</span><div><h4>Agent arranges a visit.</h4><p>Appointment details stay with the repair.</p></div></li>
+                <li><span className={styles.journeyCheck} aria-hidden="true">✓</span><div><h4>Tenant confirms it’s fixed.</h4><p>The outcome stays on the record.</p></div></li>
+              </ol>
+            </div>
           </div>
-          <Image className={styles.sharedRecordArt} src="/art/shared-record.webp" alt="An agent, landlord and tenant reviewing a property record together, with the condition photo and keys beside it." width={1536} height={1024} sizes="(max-width: 800px) 100vw, 800px" unoptimized />
-          <p className={styles.sharedRecordCaption}>One shared record. A clear starting point for everyone.</p>
-          <a href="#check-out" className={styles.textButton}>See what happens at check-out</a>
         </section>
         <section id="check-out" className={styles.checkout} aria-labelledby="checkout-title">
           <div className={styles.comparison}>
@@ -108,28 +119,28 @@ export default function LandingPage() {
             <p className={styles.checkoutEmphasis}>A clearer conversation starts with a better record.</p>
           </div>
         </section>
-        <section className={styles.people} aria-labelledby="people-title">
-          <div className={styles.sectionHeading}><h2 id="people-title">Good for the person<br />on either side of the door.</h2></div>
+        <section className={styles.people} aria-label="Better for everyone in the tenancy">
           <div className={styles.peopleGrid}>
-            <article><span className={styles.roleNumber}>01 / AGENTS</span><h3>Leave with it handled.</h3><p>Take the photo, mark the detail and write it up while you’re there. Get the report signed in the same workflow.</p></article>
-            <article><span className={styles.roleNumber}>02 / LANDLORDS</span><h3>Know where things stand.</h3><p>Review the condition, see repairs and keep the paperwork with the property. Even when you’re not there.</p></article>
-            <article><span className={styles.roleNumber}>03 / TENANTS</span><h3>Move in with a clear record.</h3><p>See what you’re signing, report issues and return to what was agreed when it’s time to move on.</p></article>
+            <article><h3>Agents</h3><p>Less chasing.<br />More taken care of.</p></article>
+            <article><h3>Landlords</h3><p>Stay informed.<br />Even from a distance.</p></article>
+            <article><h3>Tenants</h3><p>Know what’s agreed.<br />And what happens next.</p></article>
           </div>
         </section>
         <section id="questions" className={styles.faq} aria-labelledby="faq-title">
           <div><h2 id="faq-title">Good questions.</h2><p>Still have one? <Link href="https://my.kivilo.app/support">Let’s talk</Link></p></div>
           <div className={styles.faqList}>{faqs.map(({ question, answer }) => <details key={question} name="landing-faq"><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div>
         </section>
-        <section className={styles.finalCta} aria-labelledby="start-title">
+        <section id="get-started" className={styles.finalCta} aria-labelledby="start-title">
           <div className={styles.happyScene}><Image src="/art/tenancy-scenes.webp" alt="An agent and a happy resident exchanging keys at their new home." width={2172} height={724} sizes="900px" unoptimized /></div>
           <h2 id="start-title">New keys.<br />A better beginning.</h2>
-          <p>A better tenancy starts with your first property.</p>
-          <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Get started free</Link>
+          <p>Your next handover starts here.</p>
+          <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start free in your browser</Link>
           <span className={styles.freeNote}>No credit card. Just your email.</span>
+          <AppDownloads />
         </section>
       </main>
       <footer className={styles.footer}>
-        <div className={styles.footerTop}><div><Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link><p>A little more clarity.<br />A lot more peace of mind.</p></div><nav aria-label="Footer navigation"><a href="#how-it-works">How it works</a><Link href="https://my.kivilo.app/support">Support</Link><Link href="https://my.kivilo.app/verify">Verify a report</Link><Link href="https://my.kivilo.app/privacy">Privacy</Link><Link href="https://my.kivilo.app/delete-account">Delete account</Link></nav></div>
+        <div className={styles.footerTop}><div><Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link><p>A little more clarity.<br />A lot more peace of mind.</p></div><nav aria-label="Footer navigation"><a href="#how-it-works">How it works</a><a href="#get-started">Get the app</a><Link href="https://my.kivilo.app/support">Support</Link><Link href="https://my.kivilo.app/verify">Verify a report</Link><Link href="https://my.kivilo.app/privacy">Privacy</Link><Link href="https://my.kivilo.app/delete-account">Delete account</Link></nav></div>
         <div className={styles.footerBottom}><span>© {new Date().getFullYear()} Kivilo · NotTooSweetLabs Pte. Ltd.</span><span>Made in Singapore. For a better handover.</span></div>
       </footer>
     </div>

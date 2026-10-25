@@ -143,6 +143,10 @@ export function LandingWalkthrough() {
           <div className={styles.copy}>
             <h3>Everyone on<br />the same page.</h3>
             <p>Review and sign on your phone, or let each person sign in their own account. Everyone gets the same agreed record.</p>
+            <a className={styles.reportDownload} href="/reports/property-condition-report.pdf" target="_blank" rel="noopener noreferrer">
+              <Image src="/reports/report-cover.webp" width={1191} height={1684} sizes="85px" unoptimized alt="" />
+              <span><strong>Your branding.<br />Every detail.</strong><span>View a report (PDF)</span></span>
+            </a>
           </div>
           <div className={styles.agreementVisual}>
             <Image src="/illustrations/sign-768-8d977bcfeef9.webp" width={768} height={512} sizes="(max-width: 760px) 90vw, 550px" unoptimized alt="The landlord and tenant reviewing and signing their handover record together." className={styles.signingIllustration} />

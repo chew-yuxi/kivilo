@@ -1,0 +1,10 @@
+.downloads { margin:32px auto 0; padding-top:26px; border-top:1px solid #eddee5; width:fit-content; max-width:100%; }
+.downloads > p { color:#6a6a66; font-size:18px; line-height:1.5; }
+.options { display:flex; justify-content:center; flex-wrap:wrap; gap:16px 26px; margin-top:16px; }
+.store,.unavailable { display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; font-size:18px; line-height:1.4; }
+.store { padding:12px 18px; border:1px solid #d6d0d3; background:#fff; border-radius:12px; color:#454541; font-weight:600; }
+.store:hover { border-color:#db2777; background:#fffafd; }
+.store svg,.unavailable svg { flex-shrink:0; }
+.unavailable { color:#6a6a66; text-align:left; }
+.availability { display:block; font-size:18px; color:#6a6a66; }
+@media (max-width:420px) { .options { flex-direction:column; align-items:center; gap:20px; } }

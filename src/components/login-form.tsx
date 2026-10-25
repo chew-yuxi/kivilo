@@ -66,8 +66,13 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={stage === 'email' ? sendCode : verify} className="mt-8 space-y-4">
-      <label className="block text-xs font-medium text-gray-600">
+    <form onSubmit={stage === 'email' ? sendCode : verify} className="mt-4 space-y-5" aria-busy={busy}>
+      <p className="mb-8 text-lg leading-relaxed text-gray-600">
+        {stage === 'email'
+          ? 'Enter your email to get started or sign back in.'
+          : 'Check your email and enter the code to continue.'}
+      </p>
+      <label className="block text-lg font-medium text-gray-700">
         Email
         <input
           type="email"
@@ -76,19 +81,19 @@ export function LoginForm() {
           value={email}
           disabled={stage === 'code'}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
+          className="mt-2 min-h-14 w-full min-w-0 rounded-xl border border-gray-300 bg-white px-4 py-3 text-lg font-normal focus:border-brand-500 disabled:bg-gray-50 disabled:text-gray-600"
         />
       </label>
 
       {stage === 'code' && (
-        <p className="text-sm text-gray-500">
-          Sent to <span className="font-medium text-gray-700">{email}</span>. It can take a
+        <p className="text-lg leading-relaxed break-words text-gray-600" role="status">
+          Sent to <span className="font-medium text-gray-800">{email}</span>. It can take a
           minute; check spam if it does not arrive.
         </p>
       )}
 
       {stage === 'code' && (
-        <label className="block text-xs font-medium text-gray-600">
+        <label className="block text-lg font-medium text-gray-700">
           Six digit code
           <input
             inputMode="numeric"
@@ -96,17 +101,19 @@ export function LoginForm() {
             required
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-lg tracking-widest focus:border-brand-500 focus:outline-none"
+            className="mt-2 min-h-14 w-full min-w-0 rounded-xl border border-gray-300 bg-white px-4 py-3 font-mono text-2xl font-normal tracking-widest focus:border-brand-500"
           />
         </label>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-lg leading-relaxed text-red-700" role="alert">{error}</p>}
+
+      {stage === 'email' && <p className="text-lg leading-relaxed text-gray-600">We’ll email you a six-digit code. No password needed.</p>}
 
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+        className="min-h-14 w-full rounded-xl bg-brand-600 px-4 py-3 text-lg font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
       >
         {busy ? 'Working…' : stage === 'email' ? 'Email me a code' : 'Sign in'}
       </button>
@@ -119,7 +126,7 @@ export function LoginForm() {
             setCode('')
             setError(null)
           }}
-          className="action-secondary w-full"
+          className="min-h-14 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-lg font-medium text-gray-700 hover:bg-gray-50"
         >
           Use a different email
         </button>
