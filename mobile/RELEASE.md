@@ -5,6 +5,31 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Dark multi-shot photo editor: 26 October 2026 Singapore time
+
+Source `75f0157`, pushed to `origin/main` before release. Tapping a multi-shot thumbnail
+now opens Mark photo directly, ready to draw, instead of a review screen and then the
+mark screen. Note, Retake and Delete are labelled actions in the editor's top bar;
+Retake and Delete keep the photo behind a four-second Undo before deleting it. Mark
+photo is black everywhere it opens, with white labelled tools and pink only for the
+selected tool and Save or Done. The Undo bar now sits above the shutter, status-bar
+icons are light on the black screens, and thumbnails sit in equal tiles.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+26` | **4** / `748925` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **30** / `748929` | **stable**, active and latest for iOS |
+
+Only the camera-enabled internal bases were patched; the public bases and Android 27
+are unchanged. The patch was built from isolated source `6111628`: the documented
+internal patch source `4131393` plus only this work's three commits, so the Android 27
+findings flow (whose `Icons.keyboard_arrow_down` the internal builds lack) was excluded.
+The icon check against base `f9dd26d` printed nothing after `Icons.edit_note` was
+replaced with `Icons.notes`, and there was no native diff. Flutter analysis was clean
+and all 399 mobile tests passed on the patch source (401 on `main`). Shorebird accepted
+both patches without native or asset overrides. Screens were checked by rendering at a
+390pt width only; physical-device verification remains **NOT RUN**.
+
 ## Marked report photo crash fix: 25 October 2026 Singapore time
 
 Source `5e3ed8e`, pushed to `origin/main` before release. A marked room photo in the
