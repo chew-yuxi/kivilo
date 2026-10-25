@@ -101,6 +101,13 @@
 .faqList details[open] summary > span { transform:rotate(45deg); }
 .faqList details > p { font-size:20px; line-height:1.85; color:var(--muted); padding:0 25px 23px 0; }
 .finalCta { text-align:center; padding:45px 24px 72px; background:var(--blush); }
+.resources { max-width:1120px; margin:auto; padding:0 32px 80px; display:grid; grid-template-columns:1fr 1fr; gap:60px; }
+.resources h2 { font-size:36px; }
+.resources p { margin-top:20px; font-size:20px; color:var(--muted); }
+.resources nav { display:flex; flex-direction:column; }
+.resources nav a { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:18px 0; border-bottom:1px solid #e9e5e8; font-size:20px; }
+.resources nav a:hover { color:var(--pink); }
+.resources nav a span { color:var(--pink); }
 .happyScene { width:280px; height:307px; overflow:hidden; margin:0 auto 18px; }
 .happyScene img { width:100%; height:100%; max-width:none; object-fit:cover; object-position:right center; }
 .finalCta h2 { margin-top:0; font-size:clamp(40px,5vw,62px); letter-spacing:-2.4px; }
@@ -123,6 +130,7 @@
   .checkout { display:flex; flex-direction:column-reverse; gap:40px; padding:85px 35px; } .comparison { width:100%; max-width:600px; } .checkoutCopy { max-width:680px; } .faq { gap:40px; } .footerTop nav { gap:20px; }
 }
 @media (max-width:700px) {
+  .resources { grid-template-columns:1fr; gap:22px; padding:0 26px 56px; }
   .header { display:flex; justify-content:space-between; min-height:84px; padding:20px 16px; gap:16px; } .wordmark { font-size:30px; gap:8px; } .brandMark { width:30px; height:30px; } .navigation { gap:12px; font-size:18px; } .desktopLink,.exploreNavigation { display:none; }
   .smallButton { font-size:18px; min-height:44px; padding:8px 12px; }
   .hero { padding:30px 20px 312px; min-height:0; }

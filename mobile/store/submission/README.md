@@ -23,6 +23,39 @@ The user explicitly accepted the physical low-storage and already-expired-sessio
 test gaps for Android before submission.
 The iOS build is unaffected by this Android service failure.
 
+## Metadata refresh — 25 October 2026
+
+The current copy is `mobile/STORE_LISTING.md`, with machine-readable
+`play-listing-en-US.json` and `apple-listing-en-GB.json` beside this file. Both now
+describe inspector-written inventories, device-first media, signatures, agreed updates
+and check-out. The former AI-inventory drafting promise is removed. Descriptions match,
+all store field limits pass, and the free allowance matches the shared five-property
+constant. Existing screenshots contain no AI-drafting promise.
+
+App Store Connect accepted the version-localization description, promotional text,
+keywords, support and marketing URLs, plus the app-info subtitle and privacy URL.
+Both PATCH responses returned HTTP 200 and matched the source values. Kivilo app
+`6821514302`, version `11c7e01f-bfd0-4277-b1c8-5882e10dcafa`, is still
+`WAITING_FOR_REVIEW`. Review submission `628f3b8a-64c9-43fe-bc57-3305e6d25aa6`
+retains its original `2026-10-18T00:24:54.107Z` submitted date; no cancellation or
+resubmission was needed. The helper below supplies authentication only: its executable
+main checks another app, so always use Kivilo's explicit app ID.
+
+Google Play saved the new short/full descriptions in the default English (United
+States) listing. Its contact website was separately saved and published as
+`https://kivilo.app`; the support email is unchanged. The privacy-policy URL is now
+`https://my.kivilo.app/privacy`, and the Data safety deletion URL is
+`https://my.kivilo.app/delete-account`. The latter used the existing accepted CSV with
+only that URL changed; the official API returned HTTP 204. Its current SHA-256 is
+`16765a83ab627c217eb3976943c2adff82df9279181719c5ff90c80522e30af2`.
+The four metadata changes were sent for review through Publishing overview. Read-back
+shows **Changes in review**, with quick checks still running before Google review.
+Approval and a later managed Publish action are still required; these descriptions
+are not yet public.
+Managed publishing remains on, and the pre-existing
+Android `1.0.0 (27)` change is approved but held; no binary or track was changed for
+this metadata task. Store approval/publication is separate from saving this source.
+
 ## Apple
 
 Live App Store Connect read-back on 2026-10-12: iOS version `1.0.0`, selected

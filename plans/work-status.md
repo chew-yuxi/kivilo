@@ -12,6 +12,102 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
+## Search engine distribution — 26 October
+
+Bing Webmaster Tools ownership of `https://kivilo.app/` is verified using
+`marketing/public/BingSiteAuth.xml`. The submitted sitemap shows **Processing**;
+this is a submission receipt, not an indexed-page count. New-property reporting
+may take up to 48 hours. No paid advertising or additional account subscriptions
+were enabled. A 12-page sitemap-scoped Bing Site Scan is queued with email updates
+disabled. Initial submission receipts are in `marketing/search-submissions-2026-10-26.json`.
+
+Cloudflare version `14c84072-bb29-41e2-9ac3-845144bf7d69` adds only the Bing XML
+and IndexNow TXT verification assets to the reviewed static export. A file-by-file
+comparison confirmed all 132 existing files unchanged. Both new public files and
+all 13 reference/discovery files passed independent HTTP 200/exact-byte checks.
+Representative crawler access probes also passed; these are not real bot visits.
+
+`pnpm marketing:indexnow` previews changed public URLs; `--submit` sends them to
+the shared IndexNow endpoint. The first 12-page batch received HTTP **202** at
+2026-10-25 17:27 UTC (26 October Singapore time), meaning key validation pending.
+A follow-up dry run found zero new changes and preserved that status. State and
+receipts are in the shared git directory under `kivilo-seo/indexnow-state.json`.
+The script validates the live key, sitemap, canonical/indexable HTML and allowed
+public paths; it detects content changes on undated hubs, confirms deletions,
+and saves accepted batches atomically so failures do not repeat earlier batches.
+All 11 focused Node tests and strict ESLint passed, plus independent code review.
+No application/backend code or page rendering changed; prior build/UI checks apply.
+
+IndexNow shares submissions across Bing, Yandex, Naver, Seznam, Yep, Amazonbot
+and Internet Archive. Yahoo directs submissions to Bing, and DuckDuckGo sources
+much of its traditional links from Bing. Brave's official refetch form acknowledged
+`/`, `/compare` and `/product` as **Submitted**. These acknowledgments do not promise
+crawling, ranking or AI citations. Release commands, verified scope and official
+references are recorded in `marketing/README.md`.
+
+## Public search content and LLM reference — 25 October
+
+Published to `https://kivilo.app`, Cloudflare Worker version
+`dc3af825-b675-477b-8214-3b65356207f0`: `/compare` contains six source-backed
+comparisons (Report and Run, InventoryBase, Inventory Hive, Chapps Rental Inspector,
+SnapInspect and RentCheck). `/guides` contains two practical Singapore-agent guides;
+`/product` documents current capabilities and limits. The homepage links into this
+content. Twelve canonical HTML pages appear in the sitemap, with editorial dates,
+publisher disclosure, vendor citations, Article/Breadcrumb structured data and related
+reading. Independent claim checks found no unsupported competitor-feature absences.
+The articles compare official documentation, not hands-on test results.
+
+`/llms.txt` is generated from the same product facts and article lists, following the
+llmstxt.org format. `/llms-full.txt` contains the complete public reference, and all
+nine articles export matching `/index.md` files. The five-property allowance uses the
+existing shared app constant. HTML and HTTP links expose the directory and Markdown
+alternates. Markdown duplicates are `noindex`; customer report indexing is unchanged.
+Maintenance instructions are in `marketing/README.md`.
+
+Verification used an isolated checkout on Node 24.22.1: marketing production export,
+app typecheck, strict full ESLint, app production build and all 133 unit tests passed.
+The final expanded marketing build and focused ESLint passed again. Local and production
+browser checks covered all 12 pages at 320/390/768/1440px, with no page overflow or
+runtime errors. Production checks resolved 96 internal links and 17 first-party assets;
+HTML/Markdown parity, metadata, LLM format, Content-Type/noindex headers, unknown-path
+404s and navigation without JavaScript passed. The pre-existing Cloudflare analytics
+beacon could not resolve from the CLI environment; first-party delivery was verified
+separately. Database integration and signed-in E2E were not run for this static change.
+
+Google Search Console ownership of `https://kivilo.app/` is verified using the public
+HTML tag in the marketing layout. `/sitemap.xml` was submitted and reports **Success**,
+last read 25 October, with **12 discovered pages**. Indexing was requested for `/compare`
+and accepted into Google's priority crawl queue; discovered/requested is not indexed.
+Live requests using Googlebot, OAI-SearchBot, Claude-SearchBot and PerplexityBot user
+agents returned 200; these probes do not establish real bot visits or AI citations.
+Keep the verification tag. No signup conversion event instrumentation was added.
+
+The Cloudflare crawler exception was applied on 25 October after owner sign-in.
+Configuration rule `846de885a54c498da61d97caad4d8b1b`, in ruleset
+`838ed5cebaef4870854ac7862be59f7d`, sets only `bic: false` for GET/HEAD on
+`kivilo.app`. A fresh API read confirmed the enabled rule and the unchanged zone-wide
+Browser Integrity Check setting (`on`). Other hosts and request methods do not match
+the exception. This resolves the configuration behind the default Python-urllib
+403/1010 responses; the website deployment version is unchanged.
+Independent production verification with the unmodified Python-urllib/3.14 user
+agent passed: all 13 reference/discovery files returned 200 and matched the reviewed
+export byte-for-byte, including expected Content-Type/describedby/Markdown noindex
+headers. All 12 HTML pages returned 200 with matching H1, title, description,
+canonical, robots, verification tag and JSON-LD. `HEAD /llms.txt` returned 200 with
+the expected headers and no body. Dashboard and API both confirm the rule is active.
+
+Store source copy now describes inspector-written inventories, with matching Apple
+and Google JSON files in `mobile/store/submission/`. App Store Connect accepted the
+corrected description, promotional text, keywords, subtitle and public/support/privacy
+URLs. Version `1.0.0` remains `WAITING_FOR_REVIEW`, with its original 18 October review
+submission retained. Google Play's contact website was published as `https://kivilo.app`;
+its corrected short/full descriptions, privacy URL and account-deletion URL were sent
+for review. Publishing overview shows all four under **Changes in review**, queued
+while Google runs its quick checks; they are not yet publicly released. The deletion
+update preserved all other Data safety declaration answers
+and returned HTTP 204. No app binary
+or release track was changed; the pre-existing Android27 rollout remains held.
+
 ## Public website and app domains — 24–25 October
 
 The 25 October conversion revision replaces the repeated shared-record explanation

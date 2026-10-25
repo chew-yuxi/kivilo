@@ -1,0 +1,98 @@
+{
+  "recordedAt": "2026-10-26",
+  "timezone": "Asia/Singapore",
+  "site": "https://kivilo.app/",
+  "cloudflareVersion": "14c84072-bb29-41e2-9ac3-845144bf7d69",
+  "bing": {
+    "ownership": "verified",
+    "verificationFile": "https://kivilo.app/BingSiteAuth.xml",
+    "sitemap": "https://kivilo.app/sitemap.xml",
+    "sitemapStatus": "Processing",
+    "siteScan": {
+      "name": "Kivilo public pages - 26 October 2026",
+      "scope": "https://kivilo.app/sitemap.xml",
+      "pageLimit": 12,
+      "emailUpdates": false,
+      "status": "Queued"
+    }
+  },
+  "indexNow": {
+    "endpoint": "https://api.indexnow.org/indexnow",
+    "receipts": [
+      {
+        "submittedAt": "2026-10-25T17:27:20.701Z",
+        "status": 202,
+        "result": "key-validation-pending",
+        "changes": [
+          {
+            "url": "https://kivilo.app/",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/product",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/guides",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare/kivilo-vs-report-and-run",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare/kivilo-vs-inventorybase",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare/kivilo-vs-inventory-hive",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare/kivilo-vs-chapps-rental-inspector",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare/kivilo-vs-snapinspect",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/compare/kivilo-vs-rentcheck",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/guides/rental-handover-checklist-singapore",
+            "change": "added"
+          },
+          {
+            "url": "https://kivilo.app/guides/rental-inspection-app-singapore",
+            "change": "added"
+          }
+        ]
+      }
+    ],
+    "note": "HTTP 202 means key validation pending, not indexed. Participants share submissions."
+  },
+  "brave": {
+    "form": "https://search.brave.com/submit-url",
+    "urls": [
+      "https://kivilo.app/",
+      "https://kivilo.app/compare",
+      "https://kivilo.app/product"
+    ],
+    "acknowledgment": "Submitted",
+    "note": "Refetch requests; crawling and indexing not confirmed."
+  },
+  "verification": {
+    "unchangedPriorExportFiles": 132,
+    "publicReferenceFilesExact": 13,
+    "newVerificationFilesExact": 2,
+    "canonicalHtmlValidated": 12,
+    "focusedTestsPassed": 11,
+    "eslint": "passed"
+  }
+}

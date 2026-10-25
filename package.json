@@ -7,6 +7,8 @@
     "build": "next build --webpack",
     "marketing:build": "node scripts/prepare-marketing.mjs && next build marketing --webpack",
     "marketing:dev": "node scripts/prepare-marketing.mjs && next dev marketing --port 3115",
+    "marketing:indexnow": "node scripts/indexnow-sync.mjs",
+    "marketing:indexnow:test": "node --test scripts/indexnow-sync.test.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "prisma generate && next typegen && tsc --noEmit",

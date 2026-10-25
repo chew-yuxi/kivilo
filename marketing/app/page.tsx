@@ -55,7 +55,8 @@ export default function LandingPage() {
       <LandingHeader>
         <nav className={styles.exploreNavigation} aria-label="Explore Kivilo">
           <a href="#how-it-works">How it works</a>
-          <a href="#whole-tenancy">The whole tenancy</a>
+          <Link href="/compare">Compare</Link>
+          <Link href="/guides">Guides</Link>
         </nav>
         <Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link>
         <nav className={styles.navigation} aria-label="Main navigation">
@@ -143,6 +144,15 @@ export default function LandingPage() {
           <div><h2 id="faq-title">Good questions.</h2><p>Still have one? <Link href="https://my.kivilo.app/support">Let’s talk</Link></p></div>
           <div className={styles.faqList}>{faqs.map(({ question, answer }) => <details key={question} name="landing-faq"><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div>
         </section>
+        <section className={styles.resources} aria-labelledby="resources-title">
+          <div><h2 id="resources-title">Make your next handover clearer.</h2><p>Practical guides and app comparisons for Singapore rental agents.</p></div>
+          <nav aria-label="Inspection guides and comparisons">
+            <Link href="/compare/kivilo-vs-report-and-run">Kivilo vs Report and Run <span aria-hidden="true">→</span></Link>
+            <Link href="/compare">Compare inspection apps <span aria-hidden="true">→</span></Link>
+            <Link href="/guides/rental-handover-checklist-singapore">Singapore rental handover checklist <span aria-hidden="true">→</span></Link>
+            <Link href="/guides/rental-inspection-app-singapore">How to choose an inspection app <span aria-hidden="true">→</span></Link>
+          </nav>
+        </section>
         <section id="get-started" className={styles.finalCta} aria-labelledby="start-title">
           <div className={styles.happyScene}><Image src="/art/tenancy-scenes.webp" alt="An agent and a happy resident exchanging keys at their new home." width={2172} height={724} sizes="900px" unoptimized /></div>
           <h2 id="start-title">New keys.<br />A better beginning.</h2>
@@ -153,7 +163,7 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className={styles.footer}>
-        <div className={styles.footerTop}><div><Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link><p>A little more clarity.<br />A lot more peace of mind.</p></div><nav aria-label="Footer navigation"><a href="#how-it-works">How it works</a><a href="#get-started">Get the app</a><Link href="https://my.kivilo.app/support">Support</Link><Link href="https://my.kivilo.app/verify">Verify a report</Link><Link href="https://my.kivilo.app/privacy">Privacy</Link><Link href="https://my.kivilo.app/delete-account">Delete account</Link></nav></div>
+        <div className={styles.footerTop}><div><Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link><p>A little more clarity.<br />A lot more peace of mind.</p></div><nav aria-label="Footer navigation"><Link href="/compare">Compare</Link><Link href="/guides">Guides</Link><Link href="/product">Product facts</Link><a href="#get-started">Get the app</a><Link href="https://my.kivilo.app/support">Support</Link><Link href="https://my.kivilo.app/verify">Verify a report</Link><Link href="https://my.kivilo.app/privacy">Privacy</Link><Link href="https://my.kivilo.app/delete-account">Delete account</Link></nav></div>
         <div className={styles.footerBottom}><span>© {new Date().getFullYear()} Kivilo · NotTooSweetLabs Pte. Ltd.</span><span>Made in Singapore. For a better handover.</span></div>
       </footer>
     </div>

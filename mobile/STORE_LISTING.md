@@ -1,7 +1,12 @@
 # Kivilo store listing copy
 
-This copy is ready to enter for the first English/Singapore, free, phone-first
-release. Capture the screenshots from a production-signed build using the synthetic
+Current English/Singapore listing copy, reviewed 25 October 2026 against
+`marketing/content/product.ts`. This file supplies the metadata in
+`store/submission/apple-listing-en-GB.json` and
+`store/submission/play-listing-en-US.json`. Keep all descriptions in sync. Updating
+these sources does not publish either store listing.
+
+Capture screenshots from the current production-signed build using the synthetic
 review account; do not substitute mockups or real tenants' media.
 
 ## Identity and links
@@ -10,47 +15,55 @@ review account; do not substitute mockups or real tenants' media.
 - Publisher: **NotTooSweetLabs Pte. Ltd.** (Singapore)
 - Bundle/application ID: `one.kivilo.kivilo`
 - Category: Productivity (Apple) / Business (Google)
-- Support URL: `https://kivilo.nottoosweetlabs.com/support`
-- Account deletion URL: `https://kivilo.nottoosweetlabs.com/delete-account`
+- Marketing URL / Google Play contact website: `https://kivilo.app`
+- Support URL: `https://my.kivilo.app/support`
+- Account deletion URL: `https://my.kivilo.app/delete-account`
 - Support contact: `hello@nottoosweetlabs.com` (company confirmed monitoring)
-- Privacy policy URL: `https://kivilo.nottoosweetlabs.com/privacy` (verify HTTP 200
-  after the approved policy page is deployed)
+- Privacy policy URL: `https://my.kivilo.app/privacy`
 
 ## Apple
 
-Subtitle (30 characters): **Property reports, room by room**
+Subtitle (maximum 30 characters): **Property inventory & reports**
 
-Promotional text: **Record a walkthrough, review the drafted inventory, and sign
-the condition report with both parties.**
+Promotional text (maximum 170 characters): **Keep rental handovers clear: write room inventories, link photos, collect both parties' signatures and compare the agreed condition at check-out.**
 
 Description:
 
-> Kivilo helps Singapore property agents complete check-in and check-out condition
-> reports on site. Create an inspection, walk the property room by room, record a
-> narrated video, and photograph serial plates, meter readings, and damage. Captures
-> are saved on the phone first and upload when a connection is available.
+> Kivilo helps Singapore rental agents and agencies keep property handovers, inventories, evidence and signatures together, from check-in to check-out.
 >
-> With your permission, AI drafts a room inventory from the evidence. You review
-> and edit each room before sending the report for the landlord and tenant to sign.
-> Share a private report link and revoke it when needed.
+> WRITE THE INVENTORY YOURSELF
+> Start each room with editable inventory rows for its furnishing level. Describe the condition, record keys and meter readings, and photograph appliance labels. Link photos to the items they explain, add visual marks and retain narrated walkthrough videos. You write and review the inventory; Kivilo does not generate it with AI.
 >
-> At check-out, repeat the walkthrough and review a comparison against the signed
-> check-in. Damage and fair-wear findings stay private until you publish a separate,
-> dated assessment. The signed inventory remains unchanged.
+> KEEP CAPTURES THROUGH POOR SIGNAL
+> Photos and videos are saved on the device first and queued for upload. Failed uploads are retained and retried when a connection is available. Keep the app and its saved data until uploads finish. Sending reports and collecting signatures require a connection.
+>
+> REVIEW AND SIGN
+> Send the reviewed report for landlord and tenant signatures. They can sign on the agent's device or through their own accounts. Sending freezes the report content being agreed. Download the completed PDF or share a private report link that you can revoke.
+>
+> KEEP THE TENANCY HISTORY
+> Keep repairs, supporting documents and dated updates with the tenancy. Record an appliance replacement or other agreed change in an addendum beside the signed check-in. Both parties acknowledge an update before it becomes part of the agreed check-out reference.
+>
+> COMPARE AT CHECK-OUT
+> Refer to the signed check-in inventory, agreed updates and linked photos while recording the return visit. Write findings and your damage or fair-wear assessment, then publish a separate dated version. The signed condition report remains unchanged.
+>
+> WORK WITH YOUR AGENCY
+> Invite colleagues to specific tenancies and manage assigned work through agency workspaces. Keep the property record accessible to the people who need it.
+>
+> The free plan includes 5 active properties with no credit card required.
 
-Keywords: **inspection,inventory,tenancy,property,condition,handover**
+Keywords (maximum 100 characters): **rental,inspection,inventory,tenancy,property,condition,handover,check-in,check-out,Singapore**
 
 ## Google Play
 
-Short description (80 characters): **Capture, review and sign property condition reports on site.**
+Short description (maximum 80 characters): **Rental inspections, inventories, photos and signatures for Singapore agents.**
 
 Full description: use the Apple description above, without the block quote markup.
 
 ## Screenshot sequence
 
-1. Inspection list and synthetic property: “All your handovers in one place.”
-2. Native room camera with a locally saved photo/video: “Walk, narrate, photograph.”
-3. Draft room inventory with confidence and review control: “AI drafts. You decide.”
+1. Properties list and synthetic property: “Your property work in one place.”
+2. Native room camera with a locally saved photo/video: “Capture the detail that matters.”
+3. Editable room inventory and item-linked photo: “Your inventory. Your evidence.”
 4. Landlord/tenant signature state: “Sign together at handover.”
 5. Private share link and report: “A report both sides can open.”
 6. Check-out findings and published assessment: “Compare fairly at move-out.”
@@ -59,4 +72,6 @@ Use actual simulator/device screenshots at the store's current size requirements
 verify all text is legible, and remove demo passwords, personal addresses, and
 production tokens. The rating questionnaires and privacy disclosures must be filled
 from the tested release behavior, including property media, audio, signatures,
-account details, external AI processing, and user-generated content.
+account details, notifications and user-generated content. The current product has
+no AI inventory drafting or external AI extraction service. Historical release notes
+do not describe the current data flow.
