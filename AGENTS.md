@@ -71,6 +71,15 @@ specific inspection, without granting sibling reports or repairs; new `conducted
 values are attribution only. Landlords and tenants read a report through `authorizeReport`,
 never through the agent rules.
 
+Supabase's public table API must not bypass that boundary. The Prisma-owned public
+tables and `_prisma_migrations` have RLS enabled and no privileges for `anon`,
+`authenticated` or `PUBLIC`. Prisma uses the trusted server database role; browser
+and native clients use the authenticated app API, Supabase Auth and Storage, never
+direct public-table queries. The migration owner's default public-table privileges
+also deny those client roles, so new migrations cannot silently reopen access.
+New app tables must enable RLS as well. Supabase's auth and storage schemas retain
+their own policies and grants.
+
 The lead or an agency owner/manager manages sharing by email on the web or
 app (`tenancy-access-actions.ts`), under the tenancy row lock. An unclaimed address
 uses the existing verified sign-in claim.

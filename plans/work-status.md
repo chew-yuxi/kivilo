@@ -32,8 +32,15 @@ new OTP acquisition case. The corrections update the current login heading and
 avoid a redundant page reload that allowed a click before hydration; authorization
 and checkout assertions remain intact. All 25 collector/IndexNow tests also passed.
 
-Production rollout is pending. The additive acquisition migration
-must precede the app release, which must precede the marketing cookie release.
+Production rollout is pending. The acquisition table is created and empty. A
+preflight found Supabase's inherited anonymous/authenticated public-table grants
+also bypassed the server boundary on existing tables. Separate immutable migrations
+close that access on all 50 Prisma tables and the migration ledger, enable RLS and
+remove the migration owner's default client grants for future public tables. The
+code audit found no direct table/RPC/Realtime clients; Auth, Storage and the trusted
+Prisma connection retain their existing paths. Customer rows were not read during
+the exposure check. These migrations must precede the app release, which must
+precede the marketing cookie release. Security verification is in progress.
 Production checkout remains closed: the operator confirmed the Singapore live Stripe
 account is not activated. The sandbox payment was verified without counting it as a
 live conversion. [Billing readiness](billing.md#live-readiness-checked-2026-10-26)
