@@ -16,6 +16,10 @@ pnpm marketing:build
 wrangler deploy --config marketing/wrangler.jsonc
 ```
 
+Build and deploy from an isolated checkout when other tasks are building in this
+workspace: both `prepare-marketing.mjs` and Next overwrite generated marketing files.
+Deploy the exact export that passed review.
+
 The build exports HTML, CSS and browser JavaScript to `marketing/out`. It needs no
 backend environment variables. `prepare-marketing.mjs` copies only the existing
 public illustration and icon assets. The free-property allowance comes from the

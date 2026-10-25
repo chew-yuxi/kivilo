@@ -29,12 +29,21 @@ FAQ and anchor navigation. The login passed mocked email/code/error browser chec
 at all four widths without sending email. A clean snapshot of 94a2b1f plus only the
 two login files passed app typecheck, full lint, production build and all 133 unit
 tests; concurrent backend/mobile work was excluded. No database suite was required
-for this presentation-only change. Marketing is published; app release verification
-follows the scoped source commit.
+for this presentation-only change. Source commit: `46ec288`. Vercel deployment
+`dpl_Arq9CN1UeTxPgSrchzRbsxUXJbs3` reached READY with both app domains retained;
+live 390/1440px checks passed for landing-to-signup navigation, 18px controls,
+invitation email prefill and no runtime errors. The intervening `5e3ed8e` commit
+changed native report rendering only; the isolated web checks remain applicable.
+A concurrent favicon build changed the shared marketing output during verification;
+the final release was rebuilt from `46ec288` in an isolated directory. Its HTML and
+15 referenced script, style, artwork and PDF assets match production byte-for-byte,
+including the correct five-property allowance. Responsive checks also passed against
+the isolated export. Future marketing releases should use an isolated checkout when
+other builds are active.
 
 The illustrated website is an independent static Next.js export in `marketing/`,
 published to Cloudflare Workers Static Assets at `https://kivilo.app`. Worker version:
-`2bb3bd21-6940-4f5a-a0a2-3734cc97bf3e`. Build/deploy instructions: `marketing/README.md`.
+`ee9a2d6a-eebb-406b-ad04-174b760b4446`. Build/deploy instructions: `marketing/README.md`.
 The working app stays on Vercel at `https://my.kivilo.app`; its root opens Properties.
 The previous app host and installed-client URLs remain supported. On 25 October,
 production `KIVILO_APP_URL` moved to `https://my.kivilo.app` and `RESEND_FROM_EMAIL`
