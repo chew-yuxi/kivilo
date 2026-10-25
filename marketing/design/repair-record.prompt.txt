@@ -1,0 +1,12 @@
+Tool: built-in imagegen
+Transparent background: true
+Reference inputs:
+- public/illustrations/inventory-768-4a57537a634d.webp
+- public/illustrations/handover-768-ea8147d471c4.webp
+- marketing/public/art/shared-record.webp
+- marketing/public/art/tenancy-scenes.webp
+Final web asset: marketing/public/art/repair-record.webp
+
+Prompt:
+Use case: illustration-story. Create a premium editorial illustration for Kivilo's property timeline section, whose idea is 'Every home remembers': the picture must instantly read as a repair at home being recorded. The supplied images are STYLE AND CHARACTER REFERENCES only; create a new scene in the exact same illustrator's visual world. Match the elegant thin dark ink outlines, naturally proportioned adults with small heads, black hair, white clothing, sparse pale-gray depth, careful hands and restrained friendly expressions. Wide landscape 3:2 composition, about 1500x1000. Inside a Singapore condo living room, a technician stands securely on a short step ladder servicing a wall-mounted split aircon unit, its front panel hinged open; the technician holds a removed rectangular mesh filter in one hand while the other attends the unit. Below and a little beside the ladder, a black-haired adult tenant in white clothing holds up a phone aimed at the work to photograph the repair, calm and pleased. Natural believable adult anatomy, approximately seven heads tall, no exaggerated grins. Include a plant, a window with a sparse pale-gray hint of other condo towers outside, and a sofa edge. A few vivid Kivilo pink (#ec4899) accents only: phone case, one cushion and technician's small tool bag. Keep the aircon, ladder, tenant and phone clearly readable at small landing-page size. Comfortable centered composition with breathing room. White fills inside objects and clothing, genuinely transparent alpha outside the scene; do not fill the canvas with a wall or colored panel. No text, no typography, no logos, no UI cards, no badges, no arrows, no watermark. Do not copy Lemonade artwork.
+

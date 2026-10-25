@@ -1,0 +1,10 @@
+Tool: built-in imagegen
+Use case: precise-object-edit
+Transparent background: true
+Edit input: x=580, y=250, 360×360 upper-body crop of marketing/public/art/repair-record.webp
+Final web asset: marketing/public/art/repair-record.webp
+Integration: resize generated crop to 360×360; copy only crop rectangle x=215, y=58, width=65, height=90 to full-image rectangle x=795, y=308. Lossless WebP preserves visible pixels and alpha outside the rectangle. Final dimensions 1500×1000; 666940 bytes (pixel preservation exceeds requested 300 KB limit).
+
+Prompt:
+Use case: precise-object-edit. Input image is the EDIT TARGET: a square 360x360 crop of existing Kivilo transparent line illustration. Preserve exact framing and alignment, woman, face, hair, white clothing, arms, hands, plant and background. Change ONLY the phone's visible pink BACK surface into its FRONT SCREEN: the woman is photographing an aircon to the upper right, so the screen faces her eyes and the rear camera faces away from her toward the repair. We see the front screen in this crop. Replace the pink central surface and camera lenses with a plain pale ivory screen, enclosed by a slim vivid pink #ec4899 case rim and thin dark ink outline. NO camera lenses visible on this side. NO text, NO UI, NO icons. Same phone location, size, perspective and outline. Keep fingers holding its sides naturally and unchanged as much as possible. Thin dark ink line weight exactly matches original. All other pixels and composition unchanged, no zoom, no reframing. Actual transparent alpha outside objects, preserve white fills inside clothing.
+

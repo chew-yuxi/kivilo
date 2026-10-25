@@ -30,6 +30,14 @@ const faqs = [
   { question: 'What happens at check-out?', answer: 'Start from the signed check-in and any agreed updates. Review the original condition and linked photos alongside the new visit, record each change and explain your assessment of damage or fair wear and tear. Publish a dated deposit statement that the landlord and tenant can agree to or dispute. Kivilo records the assessment; it does not hold or move the deposit.' },
   { question: 'Who can see the property record?', answer: 'Working records are available to the responsible agent and the people explicitly given access. Landlords and tenants have their own view of their tenancy. You can also create a private report link and revoke it later. Property reports are not public search results.' },
 ]
+const homeHistory = [
+  { date: '2025-03', month: 'Mar 2025', title: 'Check-in signed', detail: 'Landlord and tenant agree the inventory.' },
+  { date: '2025-07', month: 'Jul 2025', title: 'Aircon repaired', detail: '$120, paid by the tenant under the minor-repair clause.' },
+  { date: '2025-11', month: 'Nov 2025', title: 'Dishwasher replaced', detail: 'Both parties acknowledge the update.' },
+  { date: '2026-02', month: 'Feb 2026', title: 'Washing machine, 4th repair this year', detail: 'The landlord is alerted.', alert: true },
+  { date: '2026-03', month: 'Mar 2026', title: 'Check-out signed', detail: 'The deposit statement is agreed.' },
+  { date: '2026-04', month: 'Apr 2026', title: 'New tenancy begins', detail: 'The record carries on with the home.' },
+]
 const structuredData = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -86,19 +94,24 @@ export default function LandingPage() {
         <section id="whole-tenancy" className={styles.tenancy} aria-labelledby="tenancy-title">
           <div className={styles.tenancyLayout}>
             <div className={styles.tenancyIntro}>
-              <h2 id="tenancy-title">Care beyond<br />the handover.</h2>
-              <p>Keep repairs, updates and paperwork together, long after move-in.</p>
+              <h2 id="tenancy-title">Every home<br />remembers.</h2>
+              <p>Repairs, replacements and reports stay with the property, from one tenancy to the next.</p>
               <a href="#check-out" className={styles.textButton}>And when it’s time to move out?</a>
+              <Image src="/art/repair-record.webp" alt="A technician services the aircon while the tenant photographs the repair." width={1500} height={1000}
+                sizes="(max-width: 700px) 90vw, 520px" className={styles.repairArt} unoptimized />
             </div>
-            <div className={styles.repairRecord}>
-              <div className={styles.repairHeading}>
-                <h3>Leaking kitchen tap</h3>
-                <span className={styles.resolved}>Resolved</span>
+            <div className={styles.homeRecord}>
+              <div className={styles.homeHeading}>
+                <h3>Unit #08-14</h3>
+                <span className={styles.tenancyCount}>2 tenancies</span>
               </div>
-              <ol className={styles.repairJourney} aria-label="A repair from report to resolution">
-                <li><span className={styles.journeyCheck} aria-hidden="true">✓</span><div><h4>Tenant reports it.</h4><p>A photo and a note show what’s wrong.</p></div></li>
-                <li><span className={styles.journeyCheck} aria-hidden="true">✓</span><div><h4>Agent arranges a visit.</h4><p>Appointment details stay with the repair.</p></div></li>
-                <li><span className={styles.journeyCheck} aria-hidden="true">✓</span><div><h4>Tenant confirms it’s fixed.</h4><p>The outcome stays on the record.</p></div></li>
+              <ol className={styles.homeTimeline} aria-label="One property’s history across two tenancies">
+                {homeHistory.map(({ date, month, title, detail, alert }) => (
+                  <li key={date} className={alert ? styles.timelineAlert : undefined}>
+                    <span className={styles.timelineDot} aria-hidden="true" />
+                    <div><time dateTime={date}>{month}</time><h4>{title}</h4><p>{detail}</p></div>
+                  </li>
+                ))}
               </ol>
             </div>
           </div>
