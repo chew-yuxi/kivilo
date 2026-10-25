@@ -765,7 +765,10 @@ an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing"
   `kiviloDangerOutlined` (red outline) on a page and `kiviloDangerFilled` to confirm.
   No other button styles. A TextButton for Cancel, and palette colours only (`KiviloColors`, never `Colors.red`
   or a raw `Color`). Page titles are headlineMedium. "Delete" is for your own content,
-  "Remove" for access.
+  "Remove" for access. The one exception (26 October) is the black photo screens, the
+  multi-shot camera and Mark photo: tools there are a white icon over a short label
+  (`_Tool` in `photo_mark_screen.dart`), pink only for the selected tool and the single
+  Save or Done, because pink-soft buttons on black read as a form rather than a tool.
 - App screens load through `Api.load` (`mobile/lib/services/api.dart`), never a bare
   FutureBuilder on a network call: it shows the copy saved on this phone first, then the
   server's answer, and the screen keeps its content while refreshing (StreamBuilder over

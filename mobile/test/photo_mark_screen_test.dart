@@ -63,7 +63,7 @@ void main() {
       expect(find.text('Save'), findsOneWidget);
       expect(
         tester
-            .widget<TextButton>(find.widgetWithText(TextButton, 'Save'))
+            .widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'))
             .onPressed,
         isNull,
       );
@@ -75,7 +75,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         tester
-            .widget<TextButton>(find.widgetWithText(TextButton, 'Save'))
+            .widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'))
             .onPressed,
         isNotNull,
       );
@@ -198,7 +198,7 @@ void main() {
         'Hairline crack above socket',
       );
 
-      await tester.tap(find.widgetWithText(TextButton, 'Save'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await tester.pumpAndSettle();
       final mark = (saved!.annotations!['marks'] as List).single as Map;
       expect(mark['shape'], 'ring');
@@ -253,7 +253,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Irregular scuff');
     await tester.tap(find.text('Save mark'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 
     final mark = (saved!.annotations!['marks'] as List).single as Map;
@@ -303,7 +303,7 @@ void main() {
     image.complete(await recorder.endRecording().toImage(400, 400));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(find.text('Saving…'), findsOneWidget);
     expect(find.byType(PhotoMarkScreen), findsOneWidget);
@@ -316,7 +316,7 @@ void main() {
     expect(find.byType(PhotoMarkScreen), findsOneWidget);
     expect(saved, isNull);
 
-    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(writes, 2);
     expect(find.byType(PhotoMarkScreen), findsNothing);
@@ -429,7 +429,7 @@ void main() {
     );
     expect(
       tester
-          .widget<TextButton>(find.widgetWithText(TextButton, 'Save'))
+          .widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'))
           .onPressed,
       isNull,
     );
@@ -443,6 +443,76 @@ void main() {
       reason: 'caller keeps awaitingMarkup until a real result is saved',
     );
     expect(writes, 0);
+    expect(find.byType(PhotoMarkScreen), findsNothing);
+  });
+
+  testWidgets('a closing photo action waits for marks already being written', (
+    tester,
+  ) async {
+    final image = _DelayedImage();
+    final pendingWrite = Completer<void>();
+    var actionRan = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => Navigator.push<PhotoMarksResult>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PhotoMarkScreen(
+                    image: image,
+                    onChanged: (_) => pendingWrite.future,
+                    actions: [
+                      PhotoMarkAction(
+                        icon: Icons.delete_outline,
+                        label: 'Delete',
+                        onPressed: () async {
+                          actionRan = true;
+                          return true;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pump();
+    final recorder = ui.PictureRecorder();
+    ui.Canvas(recorder);
+    image.complete(await recorder.endRecording().toImage(400, 400));
+    await tester.pumpAndSettle();
+
+    final center = tester
+        .getRect(
+          find.byWidgetPredicate(
+            (widget) => widget is GestureDetector && widget.onPanStart != null,
+          ),
+        )
+        .center;
+    final gesture = await tester.startGesture(center + const Offset(-60, 0));
+    await gesture.moveTo(center + const Offset(0, -60));
+    await gesture.moveTo(center + const Offset(60, 0));
+    await gesture.moveTo(center + const Offset(0, 60));
+    await gesture.up();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save mark'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    expect(actionRan, isFalse);
+    expect(find.byType(PhotoMarkScreen), findsOneWidget);
+
+    pendingWrite.complete();
+    await tester.pumpAndSettle();
+    expect(actionRan, isTrue);
     expect(find.byType(PhotoMarkScreen), findsNothing);
   });
 }

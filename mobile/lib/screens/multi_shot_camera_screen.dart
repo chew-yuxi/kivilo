@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import '../services/camera_startup.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
+import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import 'photo_mark_screen.dart';
 
@@ -56,6 +58,9 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
   String? _error;
   String? _replacementNote;
 
+  /// Removed photos stay hidden while their Undo is on screen.
+  final Set<int> _removing = {};
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +85,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                     row.kind == 'PHOTO' &&
                     row.awaitingMarkup &&
                     !row.deleteRequested &&
+                    !_removing.contains(row.id) &&
                     row.itemId == widget.itemId,
               )
               .toList()
@@ -179,8 +185,8 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
             awaitingMarkup: true,
           );
       if (_replacementNote case final note?) {
-        await widget.queue.setNote(id, note);
-        _replacementNote = null;
+        if (note.isNotEmpty) await widget.queue.setNote(id, note);
+        if (mounted) setState(() => _replacementNote = null);
       }
       await _loadDrafts();
       await HapticFeedback.mediumImpact();
@@ -216,26 +222,137 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
     await _startup.open(_openCamera, explicitRetry: true);
   }
 
-  Future<void> _review(int initialIndex) async {
+  File _file(PendingCapture capture) =>
+      File('${widget.root.path}/${capture.relativePath}');
+
+  Map<String, dynamic>? _marks(PendingCapture capture) =>
+      capture.annotations == null
+      ? null
+      : jsonDecode(capture.annotations!) as Map<String, dynamic>;
+
+  Future<void> _edit(PendingCapture draft) async {
     final camera = _camera;
     await camera?.pausePreview();
     if (!mounted) return;
-    final result = await Navigator.push<_ReviewResult>(
+    bool? retake;
+    await Navigator.push<PhotoMarksResult>(
       context,
       MaterialPageRoute(
-        builder: (_) => _MultiShotReviewScreen(
-          drafts: _drafts,
-          initialIndex: initialIndex,
-          root: widget.root,
-          queue: widget.queue,
+        builder: (_) => PhotoMarkScreen(
+          image: FileImage(_file(draft)),
+          annotations: _marks(draft),
+          saveLabel: 'Done',
+          onChanged: (value) => widget.queue.setAnnotations(
+            draft.id,
+            value == null ? null : jsonEncode(value),
+          ),
+          actions: [
+            PhotoMarkAction(
+              icon: Icons.edit_note,
+              label: 'Note',
+              onPressed: () async {
+                await _note(draft.id);
+                return false;
+              },
+            ),
+            PhotoMarkAction(
+              icon: Icons.camera_alt_outlined,
+              label: 'Retake',
+              onPressed: () async {
+                retake = true;
+                return true;
+              },
+            ),
+            PhotoMarkAction(
+              icon: Icons.delete_outline,
+              label: 'Delete',
+              onPressed: () async {
+                retake = false;
+                return true;
+              },
+            ),
+          ],
         ),
       ),
     );
-    if (result?.replacementNote case final note?) _replacementNote = note;
+    if (retake case final retake?) unawaited(_remove(draft, retake: retake));
     await _loadDrafts();
     if (mounted && _foreground && identical(_camera, camera)) {
       await camera?.resumePreview();
     }
+  }
+
+  Future<void> _note(int id) async {
+    final current = await widget.queue.byId(id);
+    if (!mounted) return;
+    final controller = TextEditingController(text: current?.note);
+    final value = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          0,
+          16,
+          MediaQuery.viewInsetsOf(context).bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Photo note', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              minLines: 3,
+              maxLines: 6,
+              maxLength: 500,
+              decoration: const InputDecoration(
+                hintText: 'What should the viewer notice?',
+              ),
+            ),
+            const SizedBox(height: kiviloButtonGap),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Save note'),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    if (value == null) return;
+    await widget.queue.setNote(id, value.trim().isEmpty ? null : value.trim());
+  }
+
+  /// Hides the photo at once and deletes it only once its Undo has gone, so a
+  /// slip of the finger never costs a capture.
+  Future<void> _remove(PendingCapture draft, {required bool retake}) async {
+    _removing.add(draft.id);
+    if (retake) _replacementNote = draft.note ?? '';
+    await _loadDrafts();
+    if (!mounted) return;
+    final closed = await ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: Text(
+              retake ? 'Photo removed. Take its replacement.' : 'Photo deleted',
+            ),
+            action: SnackBarAction(label: 'Undo', onPressed: () {}),
+            duration: const Duration(seconds: 4),
+          ),
+        )
+        .closed;
+    if (closed == SnackBarClosedReason.action) {
+      _removing.remove(draft.id);
+      if (retake) _replacementNote = null;
+      if (mounted) await _loadDrafts();
+      return;
+    }
+    await widget.queue.requestDelete(draft.id);
+    _removing.remove(draft.id);
   }
 
   Future<void> _finish() async {
@@ -278,16 +395,19 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
               Text(
                 '${_drafts.length} ${_drafts.length == 1 ? 'photo is' : 'photos are'} saved safely on this phone.',
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => Navigator.pop(context, 'save'),
                 child: Text('Save ${_drafts.length} photos'),
               ),
+              const SizedBox(height: kiviloButtonGap),
               TextButton(
                 onPressed: () => Navigator.pop(context, 'later'),
                 child: const Text('Finish later'),
               ),
+              const SizedBox(height: kiviloButtonGap),
               OutlinedButton(
+                style: kiviloDangerOutlined,
                 onPressed: () => Navigator.pop(context, 'discard'),
                 child: const Text('Discard this session'),
               ),
@@ -389,7 +509,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : OutlinedButton.icon(
+                            : FilledButton.icon(
                                 onPressed: () => _startup.open(
                                   _openCamera,
                                   explicitRetry: true,
@@ -432,12 +552,20 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                   ],
                 ),
               ),
-              if (_drafts.isNotEmpty)
+              if (_drafts.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: Text(
+                    'Tap a photo to mark it or add a note',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
                 SizedBox(
                   height: 84,
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 16,
                       vertical: 8,
                     ),
                     scrollDirection: Axis.horizontal,
@@ -449,47 +577,52 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                           ? null
                           : jsonDecode(draft.annotations!)
                                 as Map<String, dynamic>;
-                      return InkWell(
-                        onTap: () => _review(index),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: SizedBox(
-                            width: 68,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                MarkedPhoto(
-                                  image: FileImage(
-                                    File(
-                                      '${widget.root.path}/${draft.relativePath}',
-                                    ),
-                                  ),
-                                  annotations: annotations,
-                                  fit: BoxFit.cover,
-                                ),
-                                if (draft.note?.isNotEmpty == true ||
-                                    annotations != null)
-                                  Positioned(
-                                    right: 4,
-                                    bottom: 4,
-                                    child: DecoratedBox(
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black87,
-                                        shape: BoxShape.circle,
+                      return Semantics(
+                        button: true,
+                        label: 'Mark photo ${index + 1}',
+                        child: GestureDetector(
+                          onTap: () => _edit(draft),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              width: 68,
+                              color: Colors.white12,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  MarkedPhoto(
+                                    image: FileImage(
+                                      File(
+                                        '${widget.root.path}/${draft.relativePath}',
                                       ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Icon(
-                                          annotations != null
-                                              ? Icons.gesture
-                                              : Icons.notes,
-                                          size: 14,
-                                          color: Colors.white,
+                                    ),
+                                    annotations: annotations,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  if (draft.note?.isNotEmpty == true ||
+                                      annotations != null)
+                                    Positioned(
+                                      right: 4,
+                                      bottom: 4,
+                                      child: DecoratedBox(
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black87,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: Icon(
+                                            annotations != null
+                                                ? Icons.gesture
+                                                : Icons.edit_note,
+                                            size: 14,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -497,19 +630,12 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                     },
                   ),
                 ),
+              ],
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 8, 18, 14),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 96,
-                      child: _drafts.isEmpty
-                          ? null
-                          : TextButton(
-                              onPressed: () => _review(_drafts.length - 1),
-                              child: const Text('Review'),
-                            ),
-                    ),
+                    const SizedBox(width: 96),
                     Expanded(
                       child: Center(
                         child: Semantics(
@@ -559,262 +685,6 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ReviewResult {
-  const _ReviewResult({this.replacementNote});
-  final String? replacementNote;
-}
-
-class _MultiShotReviewScreen extends StatefulWidget {
-  const _MultiShotReviewScreen({
-    required this.drafts,
-    required this.initialIndex,
-    required this.root,
-    required this.queue,
-  });
-  final List<PendingCapture> drafts;
-  final int initialIndex;
-  final Directory root;
-  final CaptureQueue queue;
-
-  @override
-  State<_MultiShotReviewScreen> createState() => _MultiShotReviewScreenState();
-}
-
-class _MultiShotReviewScreenState extends State<_MultiShotReviewScreen> {
-  late final PageController _pages = PageController(
-    initialPage: widget.initialIndex,
-  );
-  late final List<PendingCapture> _drafts = [...widget.drafts];
-  late int _index = widget.initialIndex;
-  bool _original = false;
-
-  PendingCapture get _current => _drafts[_index];
-  File _file(PendingCapture capture) =>
-      File('${widget.root.path}/${capture.relativePath}');
-  Map<String, dynamic>? _marks(PendingCapture capture) =>
-      capture.annotations == null
-      ? null
-      : jsonDecode(capture.annotations!) as Map<String, dynamic>;
-
-  Future<void> _mark() async {
-    final capture = _current;
-    final result = await Navigator.push<PhotoMarksResult>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PhotoMarkScreen(
-          image: FileImage(_file(capture)),
-          annotations: _marks(capture),
-          onChanged: (value) => widget.queue.setAnnotations(
-            capture.id,
-            value == null ? null : jsonEncode(value),
-          ),
-        ),
-      ),
-    );
-    if (result == null) return;
-    final updated = await widget.queue.byId(capture.id);
-    if (updated != null && mounted) setState(() => _drafts[_index] = updated);
-  }
-
-  Future<void> _note() async {
-    final controller = TextEditingController(text: _current.note);
-    final value = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          4,
-          16,
-          MediaQuery.viewInsetsOf(context).bottom + 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Photo note', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 500,
-              decoration: const InputDecoration(
-                hintText: 'What should the viewer notice?',
-              ),
-            ),
-            const SizedBox(height: 8),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save note'),
-            ),
-          ],
-        ),
-      ),
-    );
-    controller.dispose();
-    if (value == null) return;
-    await widget.queue.setNote(
-      _current.id,
-      value.trim().isEmpty ? null : value.trim(),
-    );
-    final updated = await widget.queue.byId(_current.id);
-    if (updated != null && mounted) setState(() => _drafts[_index] = updated);
-  }
-
-  Future<void> _delete({bool retake = false}) async {
-    final capture = _current;
-    setState(() {
-      _drafts.removeAt(_index);
-      if (_drafts.isNotEmpty) _index = _index.clamp(0, _drafts.length - 1);
-    });
-    final messenger = ScaffoldMessenger.of(context);
-    final closed = await messenger
-        .showSnackBar(
-          SnackBar(
-            content: Text(
-              retake
-                  ? 'Photo removed. Return to the camera to retake it.'
-                  : 'Photo removed',
-            ),
-            action: SnackBarAction(label: 'Undo', onPressed: () {}),
-            duration: const Duration(seconds: 4),
-          ),
-        )
-        .closed;
-    if (closed == SnackBarClosedReason.action) {
-      if (mounted) {
-        setState(() {
-          _drafts.insert(_index.clamp(0, _drafts.length), capture);
-        });
-      }
-      return;
-    }
-    await widget.queue.requestDelete(capture.id);
-    if (!mounted) return;
-    if (retake) {
-      Navigator.pop(context, _ReviewResult(replacementNote: capture.note));
-    } else if (_drafts.isEmpty) {
-      Navigator.pop(context, const _ReviewResult());
-    }
-  }
-
-  @override
-  void dispose() {
-    _pages.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_drafts.isEmpty) return const Scaffold(body: SizedBox.shrink());
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: Text('${_index + 1} of ${_drafts.length}'),
-        actions: [
-          TextButton(
-            onPressed: () => setState(() => _original = !_original),
-            child: Text(_original ? 'Show marks' : 'Original'),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pages,
-              itemCount: _drafts.length,
-              onPageChanged: (value) => setState(() {
-                _index = value;
-                _original = false;
-              }),
-              itemBuilder: (_, index) {
-                final capture = _drafts[index];
-                return InteractiveViewer(
-                  minScale: 1,
-                  maxScale: 5,
-                  child: Center(
-                    child: _original
-                        ? Image.file(_file(capture), fit: BoxFit.contain)
-                        : MarkedPhoto(
-                            image: FileImage(_file(capture)),
-                            annotations: _marks(capture),
-                            fit: BoxFit.contain,
-                          ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (_current.note?.isNotEmpty == true)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        _current.note!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _mark,
-                          icon: const Icon(Icons.gesture),
-                          label: const Text('Mark'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _note,
-                          icon: const Icon(Icons.notes),
-                          label: const Text('Note'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: () => _delete(retake: true),
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Retake'),
-                        ),
-                      ),
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: _delete,
-                          icon: const Icon(Icons.delete_outline),
-                          label: const Text('Delete'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
